@@ -24,4 +24,5 @@ export interface CalculationCapture {
   quantity?: string;
   unitValue?: string;
   shouldGenerateBudgetItem?: boolean;
+  convertedToBudgetItem?: boolean;
 }
