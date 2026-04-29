@@ -5,23 +5,14 @@ import type { CalculationCapture, CalculationDestination } from '../core/types/w
 import { getFreeCalculatorCount, getProCalculatorCount } from '../core/access/featureAccess';
 import { BudgetWorkspace } from '../features/budgets/components/BudgetWorkspace';
 import { ElectricalCalculatorWorkspace } from '../features/calculators/components/ElectricalCalculatorWorkspace';
+import { TechnicalCaptureList } from '../features/workflow/components/TechnicalCaptureList';
 import { suggestNextBreaker } from '../data/electrical-tables/commercialBreakers';
 import { suggestMinimumCableSectionByCurrent } from '../data/electrical-tables/cableSections';
 
-type AppTab = 'home' | 'modules' | 'survey' | 'budgets' | 'more';
-
+type AppTab = 'home' | 'calculations' | 'survey' | 'budgets' | 'more';
 type ModuleTone = 'blue' | 'gray' | 'green' | 'orange' | 'muted';
-
 type ModulePlan = 'free' | 'pro' | 'soon';
-
-type ModuleId =
-  | 'fundamentos'
-  | 'instalacoes'
-  | 'iluminacao'
-  | 'refrigeracao'
-  | 'motores'
-  | 'rebobinagem'
-  | 'automacaoIndustrial';
+type ModuleId = 'fundamentos' | 'instalacoes' | 'iluminacao' | 'refrigeracao' | 'motores' | 'rebobinagem' | 'automacaoIndustrial';
 
 interface ModuleCardData {
   id: ModuleId;
@@ -38,12 +29,7 @@ interface ModuleCardData {
 const userPlan: UserPlan = 'free';
 const CAPTURES_STORAGE_KEY = 'orcaos:calculation-captures:v1';
 
-const demoCurrent = calculateCurrentFromPower({
-  powerWatts: 2200,
-  voltageVolts: 220,
-  powerFactor: 1,
-});
-
+const demoCurrent = calculateCurrentFromPower({ powerWatts: 2200, voltageVolts: 220, powerFactor: 1 });
 const suggestedBreaker = suggestNextBreaker(demoCurrent);
 const suggestedCable = suggestMinimumCableSectionByCurrent(demoCurrent);
 const freeCalculatorCount = getFreeCalculatorCount();
@@ -138,47 +124,17 @@ const featuredCalculators = [
 ];
 
 const storePackages = [
-  {
-    title: 'Fundamentos grátis',
-    description: 'Lei de Ohm, corrente, potência, resistores, W/VA/A e consumo liberados sem assinatura.',
-    price: 'R$ 0',
-    action: 'Já incluso',
-  },
-  {
-    title: 'Pacote Instalações Pro',
-    description: 'Queda de tensão, distância máxima, transformador, AWG, cabo/disjuntor e eletroduto.',
-    price: 'R$ 12,90',
-    action: 'Detalhes',
-  },
-  {
-    title: 'Pacote Refrigeração Pro',
-    description: 'BTU/h e estimativas iniciais para climatização.',
-    price: 'R$ 9,90',
-    action: 'Detalhes',
-  },
-  {
-    title: 'Pacote Motores Pro',
-    description: 'Corrente estimada, rotação síncrona, escorregamento e relação de polias.',
-    price: 'R$ 12,90',
-    action: 'Detalhes',
-  },
-  {
-    title: 'Pacote Automação Industrial Pro',
-    description: 'Escalonamento de sinais 4–20 mA e 0–10 V para valores de engenharia.',
-    price: 'R$ 9,90',
-    action: 'Detalhes',
-  },
-  {
-    title: 'Pacote Orçamentos Pro',
-    description: 'Modelos avançados, identidade profissional, PDF e recursos comerciais.',
-    price: 'R$ 12,90',
-    action: 'Detalhes',
-  },
+  { title: 'Fundamentos grátis', description: 'Lei de Ohm, corrente, potência, resistores, W/VA/A e consumo liberados sem assinatura.', price: 'R$ 0', action: 'Já incluso' },
+  { title: 'Pacote Instalações Pro', description: 'Queda de tensão, distância máxima, transformador, AWG, cabo/disjuntor e eletroduto.', price: 'R$ 12,90', action: 'Detalhes' },
+  { title: 'Pacote Refrigeração Pro', description: 'BTU/h e estimativas iniciais para climatização.', price: 'R$ 9,90', action: 'Detalhes' },
+  { title: 'Pacote Motores Pro', description: 'Corrente estimada, rotação síncrona, escorregamento e relação de polias.', price: 'R$ 12,90', action: 'Detalhes' },
+  { title: 'Pacote Automação Industrial Pro', description: 'Escalonamento de sinais 4–20 mA e 0–10 V para valores de engenharia.', price: 'R$ 9,90', action: 'Detalhes' },
+  { title: 'Pacote Orçamentos Pro', description: 'Modelos avançados, identidade profissional, PDF e recursos comerciais.', price: 'R$ 12,90', action: 'Detalhes' },
 ];
 
 const navItems: Array<{ id: AppTab; label: string; icon: string }> = [
   { id: 'home', label: 'Início', icon: '⌂' },
-  { id: 'modules', label: 'Cálculos', icon: '▦' },
+  { id: 'calculations', label: 'Cálculos', icon: '▦' },
   { id: 'survey', label: 'Levant.', icon: '▤' },
   { id: 'budgets', label: 'Orçam.', icon: '▣' },
   { id: 'more', label: 'Mais', icon: '•••' },
@@ -190,23 +146,12 @@ function planLabel(plan: ModulePlan): string {
   return 'EM BREVE';
 }
 
-function formatCaptureTime(value: string): string {
-  return new Intl.DateTimeFormat('pt-BR', {
-    day: '2-digit',
-    month: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-  }).format(new Date(value));
-}
-
 function isCalculationDestination(value: unknown): value is CalculationDestination {
   return value === 'survey' || value === 'budget' || value === 'both';
 }
 
 function isCalculationCapture(value: unknown): value is CalculationCapture {
-  if (!value || typeof value !== 'object') {
-    return false;
-  }
+  if (!value || typeof value !== 'object') return false;
 
   const item = value as Partial<CalculationCapture>;
 
@@ -224,34 +169,21 @@ function isCalculationCapture(value: unknown): value is CalculationCapture {
 }
 
 function loadStoredCaptures(): CalculationCapture[] {
-  if (typeof window === 'undefined') {
-    return [];
-  }
+  if (typeof window === 'undefined') return [];
 
   try {
     const storedValue = window.localStorage.getItem(CAPTURES_STORAGE_KEY);
-
-    if (!storedValue) {
-      return [];
-    }
+    if (!storedValue) return [];
 
     const parsedValue: unknown = JSON.parse(storedValue);
-
-    if (!Array.isArray(parsedValue)) {
-      return [];
-    }
-
-    return parsedValue.filter(isCalculationCapture);
+    return Array.isArray(parsedValue) ? parsedValue.filter(isCalculationCapture) : [];
   } catch {
     return [];
   }
 }
 
 function saveStoredCaptures(captures: CalculationCapture[]): void {
-  if (typeof window === 'undefined') {
-    return;
-  }
-
+  if (typeof window === 'undefined') return;
   window.localStorage.setItem(CAPTURES_STORAGE_KEY, JSON.stringify(captures));
 }
 
@@ -280,34 +212,6 @@ function CalculatorRow({ title, module, badge, icon }: { title: string; module: 
       <em className={badge === 'PRO' ? 'badge-pro' : 'badge-free'}>{badge}</em>
       <span className="chevron">›</span>
     </article>
-  );
-}
-
-function CaptureList({ captures, emptyText, onRemove }: { captures: CalculationCapture[]; emptyText: string; onRemove: (id: string) => void }) {
-  if (captures.length === 0) {
-    return (
-      <div className="survey-empty-state">
-        <span className="app-icon tone-gray large-icon">⌁</span>
-        <strong>Nenhum item ainda</strong>
-        <p>{emptyText}</p>
-      </div>
-    );
-  }
-
-  return (
-    <div className="calculator-list">
-      {captures.map((capture) => (
-        <article className="calculator-row" key={capture.id}>
-          <span className="app-icon tone-blue">▤</span>
-          <span>
-            <strong>{capture.calculatorLabel}</strong>
-            <small>{capture.moduleLabel} · {formatCaptureTime(capture.createdAt)}</small>
-            <small>{capture.summary}</small>
-          </span>
-          <button className="danger-action" type="button" onClick={() => onRemove(capture.id)}>Remover</button>
-        </article>
-      ))}
-    </div>
   );
 }
 
@@ -340,7 +244,7 @@ function HomeScreen({ goTo, openModule }: { goTo: (tab: AppTab) => void; openMod
 
       <div className="section-title-row">
         <h2>Cálculos</h2>
-        <button type="button" onClick={() => goTo('modules')}>Ver todos</button>
+        <button type="button" onClick={() => goTo('calculations')}>Ver todos</button>
       </div>
 
       <div className="home-module-grid">
@@ -363,57 +267,47 @@ function HomeScreen({ goTo, openModule }: { goTo: (tab: AppTab) => void; openMod
   );
 }
 
-function ModuleDetailScreen({
-  module,
-  goBack,
-  goTo,
-  onCaptureCalculation,
-}: {
-  module: ModuleCardData;
-  goBack: () => void;
-  goTo: (tab: AppTab) => void;
-  onCaptureCalculation: (capture: CalculationCapture) => void;
-}) {
-  return (
-    <section className="app-screen">
-      <button className="back-button" type="button" onClick={goBack}>‹ Voltar aos cálculos</button>
-
-      <header className="module-detail-header">
-        <span className={`app-icon tone-${module.tone}`}>{module.icon}</span>
-        <div>
-          <em className={`module-plan-pill ${module.plan}`}>{planLabel(module.plan)}</em>
-          <h1>{module.title}</h1>
-          <p>{module.description}</p>
-          <small>{module.count}</small>
-        </div>
-      </header>
-
-      {module.calculatorModule ? (
-        <ElectricalCalculatorWorkspace selectedModule={module.calculatorModule} userPlan={userPlan} onUpgradeRequest={() => goTo('more')} onCaptureCalculation={onCaptureCalculation} />
-      ) : (
-        <div className="empty-state-card">
-          <span className={`app-icon tone-${module.tone} large-icon`}>{module.icon}</span>
-          <strong>{module.title} em breve</strong>
-          <p>Este módulo já está previsto na arquitetura do OrçaOS e será implementado depois.</p>
-        </div>
-      )}
-    </section>
-  );
-}
-
-function ModulesScreen({
-  openModule,
+function CalculationsScreen({
   selectedModule,
+  openModule,
   goTo,
   onCaptureCalculation,
 }: {
-  openModule: (module: ModuleCardData | null) => void;
   selectedModule: ModuleCardData | null;
+  openModule: (module: ModuleCardData | null) => void;
   goTo: (tab: AppTab) => void;
   onCaptureCalculation: (capture: CalculationCapture) => void;
 }) {
   if (selectedModule) {
-    return <ModuleDetailScreen module={selectedModule} goBack={() => openModule(null)} goTo={goTo} onCaptureCalculation={onCaptureCalculation} />;
+    return (
+      <section className="app-screen">
+        <button className="back-button" type="button" onClick={() => openModule(null)}>‹ Voltar aos cálculos</button>
+        <header className="module-detail-header">
+          <span className={`app-icon tone-${selectedModule.tone}`}>{selectedModule.icon}</span>
+          <div>
+            <em className={`module-plan-pill ${selectedModule.plan}`}>{planLabel(selectedModule.plan)}</em>
+            <h1>{selectedModule.title}</h1>
+            <p>{selectedModule.description}</p>
+            <small>{selectedModule.count}</small>
+          </div>
+        </header>
+
+        {selectedModule.calculatorModule ? (
+          <ElectricalCalculatorWorkspace
+            selectedModule={selectedModule.calculatorModule}
+            userPlan={userPlan}
+            onUpgradeRequest={() => goTo('more')}
+            onCaptureCalculation={onCaptureCalculation}
+          />
+        ) : (
+          <div className="empty-state-card">
+            <span className={`app-icon tone-${selectedModule.tone} large-icon`}>{selectedModule.icon}</span>
+            <strong>{selectedModule.title} em breve</strong>
+            <p>Este módulo já está previsto na arquitetura do OrçaOS e será implementado depois.</p>
+          </div>
+        )}
+      </section>
+    );
   }
 
   return (
@@ -429,7 +323,7 @@ function ModulesScreen({
   );
 }
 
-function SurveyScreen({ captures, onRemove }: { captures: CalculationCapture[]; onRemove: (id: string) => void }) {
+function SurveyScreen({ captures, onRemove, onUpdate }: { captures: CalculationCapture[]; onRemove: (id: string) => void; onUpdate: (id: string, patch: Partial<CalculationCapture>) => void }) {
   const surveyCaptures = captures.filter((capture) => capture.destination === 'survey' || capture.destination === 'both');
 
   return (
@@ -447,12 +341,17 @@ function SurveyScreen({ captures, onRemove }: { captures: CalculationCapture[]; 
         </span>
       </div>
 
-      <CaptureList captures={surveyCaptures} emptyText="Abra um cálculo e toque em Adicionar ao levantamento para começar a montar o projeto técnico." onRemove={onRemove} />
+      <TechnicalCaptureList
+        captures={surveyCaptures}
+        emptyText="Abra um cálculo e toque em Adicionar ao levantamento para começar a montar o projeto técnico."
+        onRemove={onRemove}
+        onUpdate={onUpdate}
+      />
     </section>
   );
 }
 
-function BudgetsScreen({ captures, onRemove }: { captures: CalculationCapture[]; onRemove: (id: string) => void }) {
+function BudgetsScreen({ captures, onRemove, onUpdate }: { captures: CalculationCapture[]; onRemove: (id: string) => void; onUpdate: (id: string, patch: Partial<CalculationCapture>) => void }) {
   const budgetCaptures = captures.filter((capture) => capture.destination === 'budget' || capture.destination === 'both');
 
   return (
@@ -469,7 +368,13 @@ function BudgetsScreen({ captures, onRemove }: { captures: CalculationCapture[];
           <small>{budgetCaptures.length} item(ns) técnicos salvos localmente como base comercial.</small>
         </span>
       </div>
-      <CaptureList captures={budgetCaptures} emptyText="Abra um cálculo e toque em Adicionar ao orçamento para usar o resultado como base comercial." onRemove={onRemove} />
+
+      <TechnicalCaptureList
+        captures={budgetCaptures}
+        emptyText="Abra um cálculo e toque em Adicionar ao orçamento para usar o resultado como base comercial."
+        onRemove={onRemove}
+        onUpdate={onUpdate}
+      />
 
       <BudgetWorkspace />
     </section>
@@ -521,7 +426,21 @@ export function App() {
   }, [captures]);
 
   function addCalculationCapture(capture: CalculationCapture) {
-    setCaptures((current) => [capture, ...current]);
+    setCaptures((current) => [
+      {
+        itemType: 'technicalObservation',
+        editableDescription: capture.summary,
+        quantity: '1',
+        unitValue: '',
+        shouldGenerateBudgetItem: capture.destination !== 'survey',
+        ...capture,
+      },
+      ...current,
+    ]);
+  }
+
+  function updateCalculationCapture(id: string, patch: Partial<CalculationCapture>) {
+    setCaptures((current) => current.map((capture) => (capture.id === id ? { ...capture, ...patch } : capture)));
   }
 
   function removeCalculationCapture(id: string) {
@@ -530,23 +449,23 @@ export function App() {
 
   function goTo(tab: AppTab) {
     setActiveTab(tab);
-    if (tab !== 'modules') {
+    if (tab !== 'calculations') {
       setSelectedModule(null);
     }
   }
 
   function openModule(module: ModuleCardData | null) {
     setSelectedModule(module);
-    setActiveTab('modules');
+    setActiveTab('calculations');
   }
 
   return (
     <main className="mobile-app-shell">
       <div className="mobile-app-content">
         {activeTab === 'home' && <HomeScreen goTo={goTo} openModule={openModule} />}
-        {activeTab === 'modules' && <ModulesScreen openModule={openModule} selectedModule={selectedModule} goTo={goTo} onCaptureCalculation={addCalculationCapture} />}
-        {activeTab === 'survey' && <SurveyScreen captures={captures} onRemove={removeCalculationCapture} />}
-        {activeTab === 'budgets' && <BudgetsScreen captures={captures} onRemove={removeCalculationCapture} />}
+        {activeTab === 'calculations' && <CalculationsScreen selectedModule={selectedModule} openModule={openModule} goTo={goTo} onCaptureCalculation={addCalculationCapture} />}
+        {activeTab === 'survey' && <SurveyScreen captures={captures} onRemove={removeCalculationCapture} onUpdate={updateCalculationCapture} />}
+        {activeTab === 'budgets' && <BudgetsScreen captures={captures} onRemove={removeCalculationCapture} onUpdate={updateCalculationCapture} />}
         {activeTab === 'more' && <MoreScreen />}
       </div>
 
