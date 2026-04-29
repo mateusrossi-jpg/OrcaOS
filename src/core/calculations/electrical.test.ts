@@ -2,15 +2,22 @@ import { describe, expect, it } from 'vitest';
 import {
   calculateAirConditioningSizing,
   calculateApparentPower,
+  calculateCableSectionFromVoltageDrop,
   calculateConduitFill,
   calculateCurrentFromApparentPower,
   calculateCurrentFromPower,
   calculateEnergyConsumption,
   calculateLighting,
+  calculateParallelResistance,
+  calculatePowerByResistance,
   calculatePowerFromCurrent,
+  calculateResistanceFromVoltageCurrent,
+  calculateSeriesResistance,
   calculateVoltageDrop,
+  convertAwgToMm2,
   recommendCircuit,
   roundTechnical,
+  suggestNearestAwg,
 } from './electrical';
 
 describe('electrical calculations', () => {
@@ -43,6 +50,37 @@ describe('electrical calculations', () => {
     });
 
     expect(roundTechnical(power)).toBe(6055.92);
+  });
+
+  it('calculates resistance by Ohm law', () => {
+    const resistance = calculateResistanceFromVoltageCurrent({
+      voltageVolts: 220,
+      currentAmps: 10,
+    });
+
+    expect(roundTechnical(resistance)).toBe(22);
+  });
+
+  it('calculates power by resistance using current and voltage', () => {
+    const byCurrent = calculatePowerByResistance({
+      currentAmps: 10,
+      resistanceOhms: 22,
+    });
+    const byVoltage = calculatePowerByResistance({
+      voltageVolts: 220,
+      resistanceOhms: 22,
+    });
+
+    expect(roundTechnical(byCurrent)).toBe(2200);
+    expect(roundTechnical(byVoltage)).toBe(2200);
+  });
+
+  it('calculates series and parallel resistance', () => {
+    const series = calculateSeriesResistance({ resistorsOhms: [100, 220, 330] });
+    const parallel = calculateParallelResistance({ resistorsOhms: [100, 100] });
+
+    expect(roundTechnical(series)).toBe(650);
+    expect(roundTechnical(parallel)).toBe(50);
   });
 
   it('calculates apparent power from active power and power factor', () => {
@@ -85,6 +123,23 @@ describe('electrical calculations', () => {
 
     expect(roundTechnical(result.dropVolts)).toBe(3.5);
     expect(roundTechnical(result.dropPercent)).toBe(1.59);
+  });
+
+  it('calculates cable section by maximum voltage drop', () => {
+    const result = calculateCableSectionFromVoltageDrop({
+      currentAmps: 10,
+      distanceMeters: 25,
+      voltageVolts: 220,
+      maxDropPercent: 4,
+    });
+
+    expect(roundTechnical(result.maxDropVolts)).toBe(8.8);
+    expect(roundTechnical(result.requiredSectionMm2)).toBe(0.99);
+  });
+
+  it('converts AWG to mm2 and suggests nearest AWG', () => {
+    expect(convertAwgToMm2('12')?.sectionMm2).toBe(3.31);
+    expect(suggestNearestAwg(2.5)?.awg).toBe('12');
   });
 
   it('calculates lighting requirements', () => {
