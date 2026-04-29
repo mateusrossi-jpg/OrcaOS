@@ -25,4 +25,6 @@ export interface CalculationCapture {
   unitValue?: string;
   shouldGenerateBudgetItem?: boolean;
   convertedToBudgetItem?: boolean;
+  imageDataUrl?: string;
+  reportReady?: boolean;
 }
