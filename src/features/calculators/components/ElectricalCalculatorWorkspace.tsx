@@ -1,9 +1,15 @@
 import { useMemo, useState } from 'react';
 import {
+  calculateAirConditioningSizing,
+  calculateApparentPower,
+  calculateConduitFill,
+  calculateCurrentFromApparentPower,
   calculateCurrentFromPower,
   calculateEnergyConsumption,
+  calculateLighting,
   calculatePowerFromCurrent,
   calculateVoltageDrop,
+  recommendCircuit,
   roundTechnical,
 } from '../../../core/calculations/electrical';
 import type { CircuitPhase } from '../../../core/types/electrical';
@@ -11,7 +17,16 @@ import { suggestNextBreaker } from '../../../data/electrical-tables/commercialBr
 import { suggestMinimumCableSectionByCurrent } from '../../../data/electrical-tables/cableSections';
 import './ElectricalCalculatorWorkspace.css';
 
-type CalculatorMode = 'current' | 'power' | 'consumption' | 'voltage-drop';
+type CalculatorMode =
+  | 'current'
+  | 'power'
+  | 'consumption'
+  | 'voltage-drop'
+  | 'conversion'
+  | 'lighting'
+  | 'air-conditioning'
+  | 'conduit-fill'
+  | 'circuit-recommendation';
 
 interface NumberFieldProps {
   label: string;
@@ -63,10 +78,23 @@ function ResultCard({ label, value, helper }: { label: string; value: string; he
   );
 }
 
+const calculatorTabs: Array<{ mode: CalculatorMode; label: string }> = [
+  { mode: 'current', label: 'Corrente' },
+  { mode: 'power', label: 'Potência' },
+  { mode: 'conversion', label: 'W / VA / A' },
+  { mode: 'consumption', label: 'Consumo' },
+  { mode: 'voltage-drop', label: 'Queda tensão' },
+  { mode: 'circuit-recommendation', label: 'Cabo/disjuntor' },
+  { mode: 'lighting', label: 'Iluminação' },
+  { mode: 'air-conditioning', label: 'Ar-condicionado' },
+  { mode: 'conduit-fill', label: 'Eletroduto' },
+];
+
 export function ElectricalCalculatorWorkspace() {
   const [mode, setMode] = useState<CalculatorMode>('current');
 
   const [powerWatts, setPowerWatts] = useState(2200);
+  const [apparentPowerVa, setApparentPowerVa] = useState(2200);
   const [voltageVolts, setVoltageVolts] = useState(220);
   const [currentAmps, setCurrentAmps] = useState(10);
   const [powerFactor, setPowerFactor] = useState(1);
@@ -78,6 +106,18 @@ export function ElectricalCalculatorWorkspace() {
 
   const [distanceMeters, setDistanceMeters] = useState(25);
   const [sectionMm2, setSectionMm2] = useState(2.5);
+
+  const [areaM2, setAreaM2] = useState(12);
+  const [targetLux, setTargetLux] = useState(300);
+  const [lampLumens, setLampLumens] = useState(800);
+
+  const [people, setPeople] = useState(2);
+  const [electronics, setElectronics] = useState(1);
+  const [sunFactor, setSunFactor] = useState(1);
+
+  const [cableExternalDiameterMm, setCableExternalDiameterMm] = useState(4);
+  const [cableCount, setCableCount] = useState(3);
+  const [conduitInternalDiameterMm, setConduitInternalDiameterMm] = useState(16);
 
   const result = useMemo(() => {
     try {
@@ -123,6 +163,27 @@ export function ElectricalCalculatorWorkspace() {
         };
       }
 
+      if (mode === 'conversion') {
+        const apparentPower = calculateApparentPower({ powerWatts, powerFactor });
+        const currentFromVa = calculateCurrentFromApparentPower({ apparentPowerVa, voltageVolts, phase });
+
+        return {
+          error: null,
+          cards: [
+            {
+              label: 'Potência aparente',
+              value: `${roundTechnical(apparentPower)} VA`,
+              helper: `Base: ${powerWatts} W com FP ${powerFactor}`,
+            },
+            {
+              label: 'Corrente por VA',
+              value: `${roundTechnical(currentFromVa)} A`,
+              helper: `Base: ${apparentPowerVa} VA em ${voltageVolts} V`,
+            },
+          ],
+        };
+      }
+
       if (mode === 'consumption') {
         const consumption = calculateEnergyConsumption({
           powerWatts,
@@ -148,27 +209,112 @@ export function ElectricalCalculatorWorkspace() {
         };
       }
 
-      const drop = calculateVoltageDrop({
-        currentAmps,
-        distanceMeters,
-        sectionMm2,
-        voltageVolts,
-        phase,
-        material: 'copper',
-      });
+      if (mode === 'voltage-drop') {
+        const drop = calculateVoltageDrop({
+          currentAmps,
+          distanceMeters,
+          sectionMm2,
+          voltageVolts,
+          phase,
+          material: 'copper',
+        });
+
+        return {
+          error: null,
+          cards: [
+            {
+              label: 'Queda de tensão',
+              value: `${roundTechnical(drop.dropVolts)} V`,
+              helper: 'Estimativa simplificada para condutor de cobre.',
+            },
+            {
+              label: 'Percentual',
+              value: `${roundTechnical(drop.dropPercent)}%`,
+              helper: drop.dropPercent > 4 ? 'Atenção: resultado merece revisão.' : 'Dentro de uma faixa inicial aceitável.',
+            },
+          ],
+        };
+      }
+
+      if (mode === 'circuit-recommendation') {
+        const recommendation = recommendCircuit({ powerWatts, voltageVolts, powerFactor, phase });
+
+        return {
+          error: null,
+          cards: [
+            {
+              label: 'Corrente de projeto',
+              value: `${roundTechnical(recommendation.currentAmps)} A`,
+              helper: 'Corrente calculada pela potência informada.',
+            },
+            {
+              label: 'Disjuntor sugerido',
+              value: recommendation.suggestedBreakerAmps ? `${recommendation.suggestedBreakerAmps} A` : 'Revisar',
+              helper: 'Sugestão comercial inicial, não substitui dimensionamento normativo.',
+            },
+            {
+              label: 'Cabo sugerido',
+              value: recommendation.suggestedCableSectionMm2 ? `${recommendation.suggestedCableSectionMm2} mm²` : 'Revisar',
+              helper: 'Tabela simplificada para triagem inicial.',
+            },
+          ],
+        };
+      }
+
+      if (mode === 'lighting') {
+        const lighting = calculateLighting({ areaM2, targetLux, lampLumens });
+
+        return {
+          error: null,
+          cards: [
+            {
+              label: 'Fluxo necessário',
+              value: `${roundTechnical(lighting.requiredLumens)} lm`,
+              helper: `${areaM2} m² × ${targetLux} lux`,
+            },
+            {
+              label: 'Quantidade de luminárias',
+              value: lighting.lampQuantity ? `${lighting.lampQuantity}` : 'Informe lúmens',
+              helper: `Base: ${lampLumens} lm por luminária`,
+            },
+          ],
+        };
+      }
+
+      if (mode === 'air-conditioning') {
+        const sizing = calculateAirConditioningSizing({ areaM2, people, electronics, sunFactor });
+
+        return {
+          error: null,
+          cards: [
+            {
+              label: 'Carga estimada',
+              value: `${roundTechnical(sizing.estimatedBtus)} BTU/h`,
+              helper: 'Estimativa inicial por área, pessoas e equipamentos.',
+            },
+            {
+              label: 'Modelo comercial sugerido',
+              value: `${sizing.suggestedCommercialBtus} BTU/h`,
+              helper: 'Arredondado para capacidade comercial acima da estimativa.',
+            },
+          ],
+        };
+      }
+
+      const conduit = calculateConduitFill({ cableExternalDiameterMm, cableCount, conduitInternalDiameterMm });
 
       return {
         error: null,
         cards: [
           {
-            label: 'Queda de tensão',
-            value: `${roundTechnical(drop.dropVolts)} V`,
-            helper: 'Estimativa simplificada para condutor de cobre.',
+            label: 'Área total dos cabos',
+            value: `${roundTechnical(conduit.totalCableAreaMm2)} mm²`,
+            helper: `${cableCount} cabos de ${cableExternalDiameterMm} mm externo`,
           },
           {
-            label: 'Percentual',
-            value: `${roundTechnical(drop.dropPercent)}%`,
-            helper: drop.dropPercent > 4 ? 'Atenção: resultado merece revisão.' : 'Dentro de uma faixa inicial aceitável.',
+            label: 'Ocupação do eletroduto',
+            value: `${roundTechnical(conduit.fillPercent)}%`,
+            helper: conduit.fillPercent > 40 ? 'Atenção: ocupação alta para triagem inicial.' : 'Triagem inicial abaixo de 40%.',
           },
         ],
       };
@@ -178,46 +324,70 @@ export function ElectricalCalculatorWorkspace() {
         cards: [],
       };
     }
-  }, [currentAmps, days, distanceMeters, hoursPerDay, mode, phase, powerFactor, powerWatts, sectionMm2, tariff, voltageVolts]);
+  }, [
+    apparentPowerVa,
+    areaM2,
+    cableCount,
+    cableExternalDiameterMm,
+    conduitInternalDiameterMm,
+    currentAmps,
+    days,
+    distanceMeters,
+    electronics,
+    hoursPerDay,
+    lampLumens,
+    mode,
+    people,
+    phase,
+    powerFactor,
+    powerWatts,
+    sectionMm2,
+    sunFactor,
+    targetLux,
+    tariff,
+    voltageVolts,
+  ]);
 
   return (
     <div className="calculator-workspace">
       <div className="calculator-tabs" role="tablist" aria-label="Calculadoras elétricas">
-        <button className={mode === 'current' ? 'active' : ''} type="button" onClick={() => setMode('current')}>
-          Corrente
-        </button>
-        <button className={mode === 'power' ? 'active' : ''} type="button" onClick={() => setMode('power')}>
-          Potência
-        </button>
-        <button className={mode === 'consumption' ? 'active' : ''} type="button" onClick={() => setMode('consumption')}>
-          Consumo
-        </button>
-        <button className={mode === 'voltage-drop' ? 'active' : ''} type="button" onClick={() => setMode('voltage-drop')}>
-          Queda de tensão
-        </button>
+        {calculatorTabs.map((tab) => (
+          <button className={mode === tab.mode ? 'active' : ''} key={tab.mode} type="button" onClick={() => setMode(tab.mode)}>
+            {tab.label}
+          </button>
+        ))}
       </div>
 
       <div className="calculator-layout">
         <form className="calculator-form" onSubmit={(event) => event.preventDefault()}>
-          {(mode === 'current' || mode === 'consumption') && (
+          {(mode === 'current' ||
+            mode === 'consumption' ||
+            mode === 'conversion' ||
+            mode === 'circuit-recommendation') && (
             <NumberField label="Potência" value={powerWatts} suffix="W" step={1} onChange={setPowerWatts} />
+          )}
+
+          {mode === 'conversion' && (
+            <NumberField label="Potência aparente" value={apparentPowerVa} suffix="VA" step={1} onChange={setApparentPowerVa} />
           )}
 
           {(mode === 'power' || mode === 'voltage-drop') && (
             <NumberField label="Corrente" value={currentAmps} suffix="A" onChange={setCurrentAmps} />
           )}
 
-          {mode !== 'consumption' && (
+          {mode !== 'consumption' && mode !== 'lighting' && mode !== 'air-conditioning' && mode !== 'conduit-fill' && (
             <NumberField label="Tensão" value={voltageVolts} suffix="V" step={1} onChange={setVoltageVolts} />
           )}
 
-          {(mode === 'current' || mode === 'power') && (
+          {(mode === 'current' || mode === 'power' || mode === 'conversion' || mode === 'circuit-recommendation') && (
             <NumberField label="Fator de potência" value={powerFactor} min={0.01} step={0.01} onChange={setPowerFactor} />
           )}
 
-          {(mode === 'current' || mode === 'power' || mode === 'voltage-drop') && (
-            <PhaseSelector value={phase} onChange={setPhase} />
-          )}
+          {(mode === 'current' ||
+            mode === 'power' ||
+            mode === 'voltage-drop' ||
+            mode === 'conversion' ||
+            mode === 'circuit-recommendation') && <PhaseSelector value={phase} onChange={setPhase} />}
 
           {mode === 'consumption' && (
             <>
@@ -231,6 +401,36 @@ export function ElectricalCalculatorWorkspace() {
             <>
               <NumberField label="Distância" value={distanceMeters} suffix="m" onChange={setDistanceMeters} />
               <NumberField label="Seção do cabo" value={sectionMm2} suffix="mm²" onChange={setSectionMm2} />
+            </>
+          )}
+
+          {mode === 'lighting' && (
+            <>
+              <NumberField label="Área do ambiente" value={areaM2} suffix="m²" onChange={setAreaM2} />
+              <NumberField label="Iluminância desejada" value={targetLux} suffix="lux" step={1} onChange={setTargetLux} />
+              <NumberField label="Lúmens por luminária" value={lampLumens} suffix="lm" step={1} onChange={setLampLumens} />
+            </>
+          )}
+
+          {mode === 'air-conditioning' && (
+            <>
+              <NumberField label="Área do ambiente" value={areaM2} suffix="m²" onChange={setAreaM2} />
+              <NumberField label="Pessoas" value={people} suffix="pessoas" step={1} onChange={setPeople} />
+              <NumberField label="Equipamentos" value={electronics} suffix="un." step={1} onChange={setElectronics} />
+              <NumberField label="Fator sol/calor" value={sunFactor} min={0.1} step={0.05} onChange={setSunFactor} />
+            </>
+          )}
+
+          {mode === 'conduit-fill' && (
+            <>
+              <NumberField label="Diâmetro externo do cabo" value={cableExternalDiameterMm} suffix="mm" onChange={setCableExternalDiameterMm} />
+              <NumberField label="Quantidade de cabos" value={cableCount} suffix="cabos" step={1} onChange={setCableCount} />
+              <NumberField
+                label="Diâmetro interno do eletroduto"
+                value={conduitInternalDiameterMm}
+                suffix="mm"
+                onChange={setConduitInternalDiameterMm}
+              />
             </>
           )}
         </form>
