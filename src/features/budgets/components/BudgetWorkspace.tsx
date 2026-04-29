@@ -260,8 +260,9 @@ export function BudgetWorkspace({ technicalCaptures = [], onTechnicalCaptureConv
 
     const reader = new FileReader();
     reader.onload = () => {
-      if (typeof reader.result === 'string') {
-        setBusinessProfile((current) => ({ ...current, logoDataUrl: reader.result, logoUrl: '' }));
+      const logoDataUrl = reader.result;
+      if (typeof logoDataUrl === 'string') {
+        setBusinessProfile((current) => ({ ...current, logoDataUrl, logoUrl: '' }));
       }
     };
     reader.readAsDataURL(file);
