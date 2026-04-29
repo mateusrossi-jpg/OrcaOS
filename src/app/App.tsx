@@ -9,7 +9,7 @@ import { starterElectricalBudgetItems } from '../features/budgets/budgetTemplate
 import { suggestNextBreaker } from '../data/electrical-tables/commercialBreakers';
 import { suggestMinimumCableSectionByCurrent } from '../data/electrical-tables/cableSections';
 
-type AppTab = 'home' | 'modules' | 'favorites' | 'budgets' | 'more';
+type AppTab = 'home' | 'modules' | 'survey' | 'budgets' | 'more';
 
 type ModuleTone = 'blue' | 'gray' | 'green' | 'orange' | 'muted';
 
@@ -162,8 +162,8 @@ const storePackages = [
 const navItems: Array<{ id: AppTab; label: string; icon: string }> = [
   { id: 'home', label: 'Início', icon: '⌂' },
   { id: 'modules', label: 'Módulos', icon: '▦' },
-  { id: 'favorites', label: 'Favoritos', icon: '☆' },
-  { id: 'budgets', label: 'Orçamentos', icon: '▣' },
+  { id: 'survey', label: 'Levant.', icon: '▤' },
+  { id: 'budgets', label: 'Orçam.', icon: '▣' },
   { id: 'more', label: 'Mais', icon: '•••' },
 ];
 
@@ -215,7 +215,7 @@ function HomeScreen({ goTo, openModule }: { goTo: (tab: AppTab) => void; openMod
         <h1>
           Orça<span>OS</span>
         </h1>
-        <p>Calculadoras, orçamentos e relatórios técnicos para campo. O essencial fica livre; os módulos profissionais entram no Pro.</p>
+        <p>Calculadoras, levantamentos, orçamentos e relatórios técnicos para campo. O essencial fica livre; os módulos profissionais entram no Pro.</p>
       </div>
 
       <button className="free-plan-card" type="button" onClick={() => openModule(modules[0])}>
@@ -334,26 +334,41 @@ function ModulesScreen({ openModule, selectedModule, goTo }: { openModule: (modu
   );
 }
 
-function FavoritesScreen() {
+function SurveyScreen() {
   return (
     <section className="app-screen">
       <header className="screen-header">
-        <h1>Favoritos</h1>
-        <p>Acesso rápido aos cálculos que você mais usa.</p>
+        <h1>Levantamento</h1>
+        <p>Área para reunir resultados técnicos dos cálculos, observações de campo e especificações antes de virar orçamento ou relatório.</p>
       </header>
 
-      <div className="empty-state-card">
-        <span className="app-icon tone-blue large-icon">☆</span>
-        <strong>Nenhum favorito ainda</strong>
-        <p>Depois vamos permitir tocar na estrela em qualquer cálculo para salvá-lo aqui.</p>
+      <div className="survey-intro-card">
+        <span className="app-icon tone-blue">▤</span>
+        <span>
+          <strong>Levantamento técnico da OS</strong>
+          <small>Os cálculos poderão ser enviados para cá com descrição, resultado, módulo, observação e indicação se também entram no orçamento.</small>
+        </span>
       </div>
 
-      <div className="section-title-row">
-        <h2>Recentes</h2>
+      <div className="survey-empty-state">
+        <span className="app-icon tone-gray large-icon">⌁</span>
+        <strong>Nenhum item levantado ainda</strong>
+        <p>Na próxima etapa, o botão “Incluir no orçamento e levantamento” vai criar automaticamente itens nesta lista.</p>
       </div>
 
-      <div className="calculator-list">
-        <CalculatorRow title="Lei de Ohm" module="Fundamentos · Resultado: 22 Ω" badge="LIVRE" icon="ϟ" />
+      <div className="survey-flow-grid">
+        <article>
+          <strong>1. Cálculo</strong>
+          <small>O usuário calcula corrente, queda, iluminação, motor, automação ou consumo.</small>
+        </article>
+        <article>
+          <strong>2. Levantamento</strong>
+          <small>O resultado vira uma especificação técnica para projeto, visita ou relatório.</small>
+        </article>
+        <article>
+          <strong>3. Orçamento</strong>
+          <small>Quando fizer sentido, o mesmo item também pode gerar serviço, material ou observação comercial.</small>
+        </article>
       </div>
     </section>
   );
@@ -401,7 +416,7 @@ function MoreScreen() {
           <span className="app-icon tone-green">◷</span>
           <span>
             <strong>Histórico</strong>
-            <small>Orçamentos e cálculos recentes</small>
+            <small>Orçamentos, levantamentos e cálculos recentes</small>
           </span>
           <span className="chevron">›</span>
         </article>
@@ -436,7 +451,7 @@ function MoreScreen() {
           <span className="app-icon tone-green">◇</span>
           <span>
             <strong>Roadmap</strong>
-            <small>OrçaOS, relatórios, OS e mais módulos</small>
+            <small>OrçaOS, levantamentos, relatórios, OS e mais módulos</small>
           </span>
           <span className="chevron">›</span>
         </article>
@@ -467,7 +482,7 @@ export function App() {
       <div className="mobile-app-content">
         {activeTab === 'home' && <HomeScreen goTo={goTo} openModule={openModule} />}
         {activeTab === 'modules' && <ModulesScreen openModule={openModule} selectedModule={selectedModule} goTo={goTo} />}
-        {activeTab === 'favorites' && <FavoritesScreen />}
+        {activeTab === 'survey' && <SurveyScreen />}
         {activeTab === 'budgets' && <BudgetsScreen />}
         {activeTab === 'more' && <MoreScreen />}
       </div>
