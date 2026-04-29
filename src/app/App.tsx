@@ -47,10 +47,10 @@ const modules: ModuleCardData[] = [
   {
     id: 'fundamentos',
     title: 'Fundamentos',
-    description: 'Corrente, potência, VA e consumo',
+    description: 'Ohm, corrente, potência, resistores, VA e consumo',
     icon: 'ϟ',
     tone: 'blue',
-    count: '4 cálculos livres',
+    count: '7 cálculos livres',
     available: true,
     plan: 'free',
     calculatorModule: 'fundamentals',
@@ -58,10 +58,10 @@ const modules: ModuleCardData[] = [
   {
     id: 'instalacoes',
     title: 'Instalações',
-    description: 'Queda, disjuntor, cabo e eletroduto',
+    description: 'Queda, seção por queda, AWG, disjuntor, cabo e eletroduto',
     icon: '⌁',
     tone: 'gray',
-    count: '3 cálculos Pro',
+    count: '5 cálculos Pro',
     available: true,
     plan: 'pro',
     calculatorModule: 'installations',
@@ -110,24 +110,24 @@ const modules: ModuleCardData[] = [
 ];
 
 const featuredCalculators = [
+  { title: 'Lei de Ohm', module: 'Fundamentos', badge: 'LIVRE', icon: 'ϟ' },
   { title: 'Corrente por potência', module: 'Fundamentos', badge: 'LIVRE', icon: 'ϟ' },
-  { title: 'Potência elétrica', module: 'Fundamentos', badge: 'LIVRE', icon: 'ϟ' },
-  { title: 'W / VA / A', module: 'Fundamentos', badge: 'LIVRE', icon: 'ϟ' },
+  { title: 'Resistores série/paralelo', module: 'Fundamentos', badge: 'LIVRE', icon: 'ϟ' },
   { title: 'Consumo em kWh', module: 'Fundamentos', badge: 'LIVRE', icon: 'ϟ' },
-  { title: 'Queda de tensão', module: 'Instalações', badge: 'PRO', icon: '⌁' },
-  { title: 'Iluminação', module: 'Ambientes', badge: 'PRO', icon: '☀' },
+  { title: 'Seção por queda', module: 'Instalações', badge: 'PRO', icon: '⌁' },
+  { title: 'AWG ↔ mm²', module: 'Instalações', badge: 'PRO', icon: '⌁' },
 ];
 
 const storePackages = [
   {
     title: 'Fundamentos grátis',
-    description: 'Corrente, potência, W/VA/A e consumo liberados sem assinatura.',
+    description: 'Lei de Ohm, corrente, potência, resistores, W/VA/A e consumo liberados sem assinatura.',
     price: 'R$ 0',
     action: 'Já incluso',
   },
   {
     title: 'Pacote Instalações Pro',
-    description: 'Queda de tensão, cabo/disjuntor e ocupação de eletroduto.',
+    description: 'Queda de tensão, seção por queda, AWG, cabo/disjuntor e ocupação de eletroduto.',
     price: 'R$ 12,90',
     action: 'Detalhes',
   },
@@ -339,7 +339,7 @@ function FavoritesScreen() {
       </div>
 
       <div className="calculator-list">
-        <CalculatorRow title="Corrente por potência" module="Fundamentos · Resultado: 10 A" badge="LIVRE" icon="ϟ" />
+        <CalculatorRow title="Lei de Ohm" module="Fundamentos · Resultado: 22 Ω" badge="LIVRE" icon="ϟ" />
       </div>
     </section>
   );
