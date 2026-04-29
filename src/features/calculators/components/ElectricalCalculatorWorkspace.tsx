@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   calculateAirConditioningSizing,
   calculateApparentPower,
@@ -17,6 +17,7 @@ import {
   canUseCalculator,
   getCalculatorAccessRule,
   type CalculatorMode,
+  type CalculatorModule,
   type UserPlan,
 } from '../../../core/access/featureAccess';
 import type { CircuitPhase } from '../../../core/types/electrical';
@@ -26,6 +27,7 @@ import './ElectricalCalculatorWorkspace.css';
 
 interface ElectricalCalculatorWorkspaceProps {
   userPlan?: UserPlan;
+  selectedModule?: CalculatorModule;
   onUpgradeRequest?: () => void;
 }
 
@@ -106,8 +108,35 @@ function LockedCalculator({ mode, onUpgradeRequest }: { mode: CalculatorMode; on
   );
 }
 
-export function ElectricalCalculatorWorkspace({ userPlan = 'free', onUpgradeRequest }: ElectricalCalculatorWorkspaceProps) {
-  const [mode, setMode] = useState<CalculatorMode>('current');
+function moduleName(module: CalculatorModule | undefined): string {
+  if (module === 'fundamentals') {
+    return 'Fundamentos';
+  }
+
+  if (module === 'installations') {
+    return 'Instalações';
+  }
+
+  if (module === 'environments') {
+    return 'Ambientes';
+  }
+
+  return 'Calculadoras';
+}
+
+export function ElectricalCalculatorWorkspace({ userPlan = 'free', selectedModule, onUpgradeRequest }: ElectricalCalculatorWorkspaceProps) {
+  const availableTabs = useMemo(
+    () => calculatorAccessRules.filter((rule) => !selectedModule || rule.module === selectedModule),
+    [selectedModule],
+  );
+
+  const [mode, setMode] = useState<CalculatorMode>(availableTabs[0]?.mode ?? 'current');
+
+  useEffect(() => {
+    if (!availableTabs.some((tab) => tab.mode === mode)) {
+      setMode(availableTabs[0]?.mode ?? 'current');
+    }
+  }, [availableTabs, mode]);
 
   const [powerWatts, setPowerWatts] = useState('2200');
   const [apparentPowerVa, setApparentPowerVa] = useState('2200');
@@ -423,14 +452,14 @@ export function ElectricalCalculatorWorkspace({ userPlan = 'free', onUpgradeRequ
     <div className="calculator-workspace">
       <div className="calculator-plan-banner">
         <div>
-          <strong>Fundamentos livres</strong>
-          <span>Corrente, potência, W/VA/A e consumo ficam liberados para todos.</span>
+          <strong>{moduleName(selectedModule)}</strong>
+          <span>{selectedModule ? 'Escolha um cálculo deste módulo.' : 'Corrente, potência, W/VA/A e consumo ficam liberados para todos.'}</span>
         </div>
         <em>{userPlan === 'pro' ? 'PRO ativo' : 'Plano grátis'}</em>
       </div>
 
       <div className="calculator-tabs" role="tablist" aria-label="Calculadoras elétricas">
-        {calculatorAccessRules.map((tab) => {
+        {availableTabs.map((tab) => {
           const isLocked = !canUseCalculator(tab.mode, userPlan);
 
           return (
