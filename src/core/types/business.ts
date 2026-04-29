@@ -7,6 +7,8 @@ export interface Client {
   notes?: string;
 }
 
+export type BudgetTemplateId = 'professional' | 'technical' | 'simple' | 'premiumModern' | 'premiumDetailed';
+
 export interface BusinessProfile {
   businessName: string;
   documentNumber: string;
@@ -45,6 +47,7 @@ export interface Budget {
   discount?: number;
   notes?: string;
   status: 'draft' | 'sent' | 'approved' | 'rejected';
+  templateId?: BudgetTemplateId;
 }
 
 export interface WorkOrder {
