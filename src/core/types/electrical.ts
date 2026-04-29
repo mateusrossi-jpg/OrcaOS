@@ -16,6 +16,21 @@ export interface PowerFromCurrentInput {
   phase?: CircuitPhase;
 }
 
+export interface ResistanceFromVoltageCurrentInput {
+  voltageVolts: number;
+  currentAmps: number;
+}
+
+export interface PowerByResistanceInput {
+  currentAmps?: number;
+  voltageVolts?: number;
+  resistanceOhms: number;
+}
+
+export interface ResistorNetworkInput {
+  resistorsOhms: number[];
+}
+
 export interface ApparentPowerInput {
   powerWatts: number;
   powerFactor?: PowerFactor;
@@ -46,6 +61,25 @@ export interface VoltageDropInput {
 export interface VoltageDropResult {
   dropVolts: number;
   dropPercent: number;
+}
+
+export interface CableSectionFromVoltageDropInput {
+  currentAmps: number;
+  distanceMeters: number;
+  voltageVolts: number;
+  maxDropPercent: number;
+  phase?: CircuitPhase;
+  material?: 'copper' | 'aluminum';
+}
+
+export interface CableSectionFromVoltageDropResult {
+  maxDropVolts: number;
+  requiredSectionMm2: number;
+}
+
+export interface AwgConversionResult {
+  awg: string;
+  sectionMm2: number;
 }
 
 export interface LightingInput {
