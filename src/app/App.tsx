@@ -10,8 +10,9 @@ import { ElectricalCalculatorWorkspace } from '../features/calculators/component
 import { ReportWorkspace } from '../features/reports/components/ReportWorkspace';
 import { GuidedBudgetCart } from '../features/workflow/components/GuidedBudgetCart';
 import { TechnicalCaptureList } from '../features/workflow/components/TechnicalCaptureList';
+import { AppShell } from './components/AppShell';
 
-type AppTab = 'home' | 'calculations' | 'survey' | 'budgets' | 'reports' | 'more';
+type AppTab = 'home' | 'calculations' | 'survey' | 'budgets' | 'reports' | 'clients' | 'store' | 'settings';
 type ModuleTone = 'blue' | 'gray' | 'green' | 'orange' | 'muted';
 type ModulePlan = 'free' | 'pro' | 'soon';
 type ModuleId = 'fundamentos' | 'instalacoes' | 'iluminacao' | 'refrigeracao' | 'motores' | 'rebobinagem' | 'automacaoIndustrial';
@@ -59,13 +60,15 @@ const storePackages = [
   { title: 'Pacote Orçamentos Pro', description: 'Modelos avançados, identidade profissional, PDF e recursos comerciais.', price: 'R$ 12,90', action: 'Detalhes' },
 ];
 
-const navItems: Array<{ id: AppTab; label: string; icon: string }> = [
-  { id: 'home', label: 'Início', icon: '⌂' },
-  { id: 'calculations', label: 'Cálc.', icon: '▦' },
-  { id: 'survey', label: 'Levant.', icon: '▤' },
-  { id: 'budgets', label: 'Orçam.', icon: '▣' },
-  { id: 'reports', label: 'Relat.', icon: '◫' },
-  { id: 'more', label: 'Mais', icon: '•••' },
+const navItems: Array<{ id: AppTab; label: string; description: string; icon: string }> = [
+  { id: 'home', label: 'Início', description: 'Atalhos principais', icon: '⌂' },
+  { id: 'calculations', label: 'Cálculos', description: 'Módulos técnicos', icon: '▦' },
+  { id: 'survey', label: 'Levantamento', description: 'Campo e blocos', icon: '▤' },
+  { id: 'budgets', label: 'Orçamentos', description: 'Proposta comercial', icon: '▣' },
+  { id: 'reports', label: 'Relatórios', description: 'Diagnóstico e fotos', icon: '◫' },
+  { id: 'clients', label: 'Clientes / OS', description: 'Atendimentos e histórico', icon: '◉' },
+  { id: 'store', label: 'Loja / Pro', description: 'Pacotes e planos', icon: '◆' },
+  { id: 'settings', label: 'Configurações', description: 'Conta, histórico e sobre', icon: '⚙' },
 ];
 
 function planLabel(plan: ModulePlan): string {
@@ -137,6 +140,16 @@ function saveStoredCaptures(captures: CalculationCapture[]): void {
   window.localStorage.setItem(CAPTURES_STORAGE_KEY, JSON.stringify(captures));
 }
 
+function getScreenTitle(activeTab: AppTab, selectedModule: ModuleCardData | null): string {
+  if (activeTab === 'calculations' && selectedModule) return selectedModule.title;
+  return navItems.find((item) => item.id === activeTab)?.label ?? 'OrçaOS';
+}
+
+function getScreenSubtitle(activeTab: AppTab, selectedModule: ModuleCardData | null): string {
+  if (activeTab === 'calculations' && selectedModule) return selectedModule.description;
+  return navItems.find((item) => item.id === activeTab)?.description ?? 'Ferramenta profissional de campo';
+}
+
 function ModuleCard({ module, compact = false, onOpen }: { module: ModuleCardData; compact?: boolean; onOpen?: () => void }) {
   return (
     <button className={module.available ? 'module-app-card' : 'module-app-card disabled'} type="button" onClick={onOpen}>
@@ -155,7 +168,7 @@ function ActiveWorkContextCard({ activeClient, activeWorkOrder }: ActiveWorkCont
         <span className="app-icon tone-gray">◇</span>
         <div>
           <strong>Nenhuma OS ativa</strong>
-          <small>Crie ou ative uma OS em Mais para vincular o atendimento atual.</small>
+          <small>Crie ou ative uma OS em Clientes / OS para vincular o atendimento atual.</small>
         </div>
       </aside>
     );
@@ -208,7 +221,7 @@ function HomeScreen({ goTo, openModule }: { goTo: (tab: AppTab) => void; openMod
       <div className="pro-teaser-card compact-home-card">
         <span className="app-icon tone-orange">◆</span>
         <span><strong>OrçaOS Pro</strong><small>{proCalculatorCount} cálculos avançados, modelos profissionais e módulos técnicos.</small></span>
-        <button type="button" onClick={() => goTo('more')}>Ver planos</button>
+        <button type="button" onClick={() => goTo('store')}>Ver planos</button>
       </div>
     </section>
   );
@@ -220,7 +233,7 @@ function CalculationsScreen({ selectedModule, openModule, goTo, onCaptureCalcula
       <section className="app-screen">
         <button className="back-button" type="button" onClick={() => openModule(null)}>‹ Voltar aos cálculos</button>
         <header className="module-detail-header"><span className={`app-icon tone-${selectedModule.tone}`}>{selectedModule.icon}</span><div><em className={`module-plan-pill ${selectedModule.plan}`}>{planLabel(selectedModule.plan)}</em><h1>{selectedModule.title}</h1><p>{selectedModule.description}</p><small>{selectedModule.count}</small></div></header>
-        {selectedModule.calculatorModule ? <ElectricalCalculatorWorkspace selectedModule={selectedModule.calculatorModule} userPlan={userPlan} onUpgradeRequest={() => goTo('more')} onCaptureCalculation={onCaptureCalculation} /> : <div className="empty-state-card"><span className={`app-icon tone-${selectedModule.tone} large-icon`}>{selectedModule.icon}</span><strong>{selectedModule.title} em breve</strong><p>Este módulo já está previsto na arquitetura do OrçaOS e será implementado depois.</p></div>}
+        {selectedModule.calculatorModule ? <ElectricalCalculatorWorkspace selectedModule={selectedModule.calculatorModule} userPlan={userPlan} onUpgradeRequest={() => goTo('store')} onCaptureCalculation={onCaptureCalculation} /> : <div className="empty-state-card"><span className={`app-icon tone-${selectedModule.tone} large-icon`}>{selectedModule.icon}</span><strong>{selectedModule.title} em breve</strong><p>Este módulo já está previsto na arquitetura do OrçaOS e será implementado depois.</p></div>}
       </section>
     );
   }
@@ -286,13 +299,29 @@ function ReportsScreen({ captures, context }: { captures: CalculationCapture[]; 
   );
 }
 
-function MoreScreen({ onContextChange }: { onContextChange: (clients: Client[], workOrders: WorkOrder[], activeWorkOrderId: string | null) => void }) {
+function ClientsScreen({ onContextChange }: { onContextChange: (clients: Client[], workOrders: WorkOrder[], activeWorkOrderId: string | null) => void }) {
   return (
     <section className="app-screen wide-screen">
-      <header className="screen-header"><h1>Mais</h1><p>Clientes, ordens de serviço, configurações, pacotes e informações do OrçaOS.</p></header>
+      <header className="screen-header"><h1>Clientes / OS</h1><p>Cadastre clientes, crie ordens de serviço e selecione o atendimento ativo.</p></header>
       <ClientWorkOrderWorkspace onContextChange={onContextChange} />
+    </section>
+  );
+}
+
+function StoreScreen() {
+  return (
+    <section className="app-screen wide-screen">
+      <header className="screen-header"><h1>Loja / Pro</h1><p>Pacotes de cálculos, modelos de orçamento e recursos profissionais.</p></header>
+      <div className="settings-group"><h2>Pacotes disponíveis</h2>{storePackages.map((pack) => <article className="store-card" key={pack.title}><span className="app-icon tone-blue">▣</span><span><strong>{pack.title}</strong><small>{pack.description}</small><b>{pack.price}</b></span><button type="button">{pack.action}</button></article>)}</div>
+    </section>
+  );
+}
+
+function SettingsScreen() {
+  return (
+    <section className="app-screen wide-screen">
+      <header className="screen-header"><h1>Configurações</h1><p>Conta, histórico, informações do app e roadmap.</p></header>
       <div className="settings-group"><h2>Conta</h2><article className="settings-row"><span className="app-icon tone-gray">▣</span><span><strong>Meu plano</strong><small>{userPlan === 'pro' ? 'Pro ativo' : 'Grátis · Fundamentos livres'}</small></span><span className="chevron">›</span></article><article className="settings-row"><span className="app-icon tone-green">◷</span><span><strong>Histórico</strong><small>Orçamentos, levantamentos, relatórios e cálculos recentes</small></span><span className="chevron">›</span></article></div>
-      <div className="settings-group"><h2>Loja</h2>{storePackages.map((pack) => <article className="store-card" key={pack.title}><span className="app-icon tone-blue">▣</span><span><strong>{pack.title}</strong><small>{pack.description}</small><b>{pack.price}</b></span><button type="button">{pack.action}</button></article>)}</div>
       <div className="settings-group"><h2>Sobre</h2><article className="settings-row"><span className="app-icon tone-blue">i</span><span><strong>Sobre o app</strong><small>Versão 0.1.0</small></span><span className="chevron">›</span></article><article className="settings-row"><span className="app-icon tone-green">◇</span><span><strong>Roadmap</strong><small>OrçaOS, levantamentos, relatórios, OS e mais módulos</small></span><span className="chevron">›</span></article></div>
     </section>
   );
@@ -355,16 +384,23 @@ export function App() {
   }
 
   return (
-    <main className="mobile-app-shell">
-      <div className="mobile-app-content">
-        {activeTab === 'home' && <HomeScreen goTo={goTo} openModule={openModule} />}
-        {activeTab === 'calculations' && <CalculationsScreen selectedModule={selectedModule} openModule={openModule} goTo={goTo} onCaptureCalculation={addCalculationCapture} />}
-        {activeTab === 'survey' && <SurveyScreen captures={captures} context={context} onRemove={removeCalculationCapture} onUpdate={updateCalculationCapture} onAddMany={addManyCalculationCaptures} />}
-        {activeTab === 'budgets' && <BudgetsScreen captures={captures} context={context} onRemove={removeCalculationCapture} onUpdate={updateCalculationCapture} />}
-        {activeTab === 'reports' && <ReportsScreen captures={captures} context={context} />}
-        {activeTab === 'more' && <MoreScreen onContextChange={handleContextChange} />}
-      </div>
-      <nav className="bottom-nav" aria-label="Navegação principal">{navItems.map((item) => <button className={activeTab === item.id ? 'active' : ''} key={item.id} type="button" onClick={() => goTo(item.id)}><span>{item.icon}</span><small>{item.label}</small></button>)}</nav>
-    </main>
+    <AppShell
+      activeTab={activeTab}
+      title={getScreenTitle(activeTab, selectedModule)}
+      subtitle={getScreenSubtitle(activeTab, selectedModule)}
+      navItems={navItems}
+      activeClient={activeClient}
+      activeWorkOrder={activeWorkOrder}
+      onNavigate={goTo}
+    >
+      {activeTab === 'home' && <HomeScreen goTo={goTo} openModule={openModule} />}
+      {activeTab === 'calculations' && <CalculationsScreen selectedModule={selectedModule} openModule={openModule} goTo={goTo} onCaptureCalculation={addCalculationCapture} />}
+      {activeTab === 'survey' && <SurveyScreen captures={captures} context={context} onRemove={removeCalculationCapture} onUpdate={updateCalculationCapture} onAddMany={addManyCalculationCaptures} />}
+      {activeTab === 'budgets' && <BudgetsScreen captures={captures} context={context} onRemove={removeCalculationCapture} onUpdate={updateCalculationCapture} />}
+      {activeTab === 'reports' && <ReportsScreen captures={captures} context={context} />}
+      {activeTab === 'clients' && <ClientsScreen onContextChange={handleContextChange} />}
+      {activeTab === 'store' && <StoreScreen />}
+      {activeTab === 'settings' && <SettingsScreen />}
+    </AppShell>
   );
 }
