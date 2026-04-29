@@ -1,4 +1,4 @@
-import type { BudgetItem } from '../../../core/types/business';
+import type { BudgetItem, BusinessProfile } from '../../../core/types/business';
 import { calculateBudgetItemTotal } from '../../../core/pricing/budget';
 import { roundTechnical } from '../../../core/calculations/electrical';
 import type { SavedBudgetStatus } from '../storage/savedBudgetsStorage';
@@ -12,6 +12,10 @@ interface BudgetPrintPreviewProps {
   discount: number;
   subtotal: number;
   total: number;
+  businessProfile?: BusinessProfile;
+  paymentTerms?: string;
+  validity?: string;
+  notes?: string;
 }
 
 const currencyFormatter = new Intl.NumberFormat('pt-BR', {
@@ -58,11 +62,22 @@ export function BudgetPrintPreview({
   discount,
   subtotal,
   total,
+  businessProfile,
+  paymentTerms,
+  validity,
+  notes,
 }: BudgetPrintPreviewProps) {
   const issuedAt = new Intl.DateTimeFormat('pt-BR', {
     dateStyle: 'short',
     timeStyle: 'short',
   }).format(new Date());
+
+  const profileName = businessProfile?.businessName?.trim() || 'OrçaOS';
+  const documentNumber = businessProfile?.documentNumber?.trim();
+  const contactLine = [businessProfile?.phone, businessProfile?.email].filter(Boolean).join(' · ');
+  const address = businessProfile?.address?.trim();
+  const responsibleName = businessProfile?.responsibleName?.trim();
+  const logoUrl = businessProfile?.logoUrl?.trim();
 
   return (
     <section className="print-preview-shell">
@@ -78,15 +93,19 @@ export function BudgetPrintPreview({
 
       <article className="print-document" aria-label="Prévia impressa do orçamento">
         <header className="print-document-top">
-          <div>
-            <span className="print-brand">OrçaOS</span>
+          <div className="print-company-block">
+            {logoUrl ? <img className="print-logo" src={logoUrl} alt={`Logo ${profileName}`} /> : <span className="print-brand">OrçaOS</span>}
             <h2>{budgetTitle || 'Orçamento sem título'}</h2>
-            <p>Orçamento técnico para serviços profissionais</p>
+            <p>{profileName}</p>
+            {documentNumber && <p>{documentNumber}</p>}
+            {contactLine && <p>{contactLine}</p>}
+            {address && <p>{address}</p>}
           </div>
           <div className="print-status-box">
             <span>Status</span>
             <strong>{statusLabel(status)}</strong>
             <small>Emitido em {issuedAt}</small>
+            {validity && <small>Validade: {validity}</small>}
           </div>
         </header>
 
@@ -141,10 +160,14 @@ export function BudgetPrintPreview({
           </div>
         </section>
 
+        <section className="print-client-box">
+          <span>Condições</span>
+          {paymentTerms && <p>{paymentTerms}</p>}
+          {notes && <p>{notes}</p>}
+        </section>
+
         <footer className="print-footer">
-          <p>
-            Valores sujeitos à confirmação após vistoria, disponibilidade de materiais e validação técnica do serviço.
-          </p>
+          <p>{responsibleName ? `Responsável técnico/comercial: ${responsibleName}` : 'Orçamento gerado pelo OrçaOS.'}</p>
           <div className="signature-line">Assinatura / aceite do cliente</div>
         </footer>
       </article>
