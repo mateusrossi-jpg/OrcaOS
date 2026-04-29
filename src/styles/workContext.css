@@ -1,0 +1,116 @@
+.active-work-context-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 14px;
+  align-items: center;
+  min-width: 0;
+  border: 1px solid #cfe0f8;
+  border-radius: 22px;
+  padding: 14px;
+  background: linear-gradient(135deg, #eef5ff, #ffffff);
+}
+
+.active-work-context-card.empty-context {
+  border-color: #d6e0eb;
+  background: #ffffff;
+}
+
+.active-work-context-card strong,
+.active-work-context-card small {
+  display: block;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.active-work-context-card strong {
+  color: #0b1d31;
+  font-size: 1.05rem;
+  line-height: 1.25;
+}
+
+.active-work-context-card small {
+  margin-top: 4px;
+  color: #607085;
+  line-height: 1.35;
+}
+
+.budget-context-panel {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  border: 1px solid #cfe0f8;
+  border-radius: 20px;
+  padding: 14px;
+  color: #0b1d31;
+  background: linear-gradient(135deg, #eef5ff, #ffffff);
+}
+
+.budget-context-panel strong,
+.budget-context-panel span,
+.budget-context-panel small {
+  overflow-wrap: anywhere;
+}
+
+.budget-context-panel strong {
+  color: #124878;
+  font-size: 0.88rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.budget-context-panel span {
+  color: #0b1d31;
+  font-weight: 950;
+}
+
+.budget-context-panel small {
+  color: #607085;
+  line-height: 1.35;
+}
+
+.report-context-box {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  border: 1px solid #d6e0eb;
+  border-radius: 20px;
+  padding: 14px;
+  background: #f8fafc;
+}
+
+.report-context-box div {
+  min-width: 0;
+}
+
+.report-context-box span,
+.report-context-box strong {
+  display: block;
+  overflow-wrap: anywhere;
+}
+
+.report-context-box span {
+  color: #607085;
+  font-size: 0.78rem;
+  font-weight: 950;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.report-context-box strong {
+  margin-top: 4px;
+  color: #0b1d31;
+  line-height: 1.35;
+}
+
+@media (max-width: 520px) {
+  .active-work-context-card,
+  .report-context-box {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media print {
+  .active-work-context-card {
+    display: none !important;
+  }
+}
