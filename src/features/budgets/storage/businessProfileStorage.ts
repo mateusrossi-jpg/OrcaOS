@@ -9,6 +9,7 @@ export const defaultBusinessProfile: BusinessProfile = {
   email: '',
   address: '',
   logoUrl: '',
+  logoDataUrl: '',
   responsibleName: '',
   defaultPaymentTerms: 'Condições de pagamento a combinar.',
   defaultValidity: '7 dias',
@@ -29,6 +30,7 @@ function isBusinessProfile(value: unknown): value is BusinessProfile {
     typeof profile.email === 'string' &&
     typeof profile.address === 'string' &&
     typeof profile.logoUrl === 'string' &&
+    (typeof profile.logoDataUrl === 'string' || typeof profile.logoDataUrl === 'undefined') &&
     typeof profile.responsibleName === 'string' &&
     typeof profile.defaultPaymentTerms === 'string' &&
     typeof profile.defaultValidity === 'string' &&
