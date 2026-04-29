@@ -51,14 +51,7 @@ body,
   -webkit-overflow-scrolling: touch;
 }
 
-.technical-capture-list,
-.technical-import-list {
-  display: grid;
-  gap: 14px;
-  width: 100%;
-  min-width: 0;
-}
-
+.budget-config-panel,
 .technical-capture-card,
 .technical-import-panel {
   display: grid;
@@ -72,14 +65,91 @@ body,
   box-shadow: 0 1px 0 rgba(15, 31, 51, 0.02);
 }
 
+.budget-config-panel {
+  background: linear-gradient(135deg, #ffffff, #f8fafc);
+}
+
+.budget-config-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.budget-field textarea {
+  width: 100%;
+  min-height: 92px;
+  border: 1px solid #d6e0eb;
+  border-radius: 16px;
+  outline: 0;
+  color: #0b1d31;
+  background: #ffffff;
+  font: inherit;
+  font-weight: 750;
+  line-height: 1.45;
+  padding: 12px 14px;
+  resize: vertical;
+}
+
+.catalog-form-grid {
+  margin-top: 0;
+}
+
+.catalog-list,
+.technical-capture-list,
+.technical-import-list {
+  display: grid;
+  gap: 14px;
+  width: 100%;
+  min-width: 0;
+}
+
+.catalog-card,
+.technical-import-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+  border: 1px solid #d6e0eb;
+  border-radius: 18px;
+  padding: 14px;
+  background: #ffffff;
+}
+
+.catalog-card strong,
+.technical-capture-header strong,
+.technical-import-card strong {
+  display: block;
+  color: #0b1d31;
+  font-size: 1.08rem;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.catalog-card small,
+.technical-capture-header small,
+.technical-import-card small {
+  display: block;
+  margin-top: 4px;
+  color: #607085;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.catalog-card div {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
 .technical-import-panel {
   background: linear-gradient(135deg, #eef5ff, #ffffff);
   border-color: #cfe0f8;
 }
 
 .technical-capture-header,
-.technical-import-header,
-.technical-import-card {
+.technical-import-header {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
   align-items: center;
@@ -92,42 +162,18 @@ body,
   align-items: start;
 }
 
-.technical-import-header h3 {
+.technical-import-header h3,
+.budget-config-panel h3 {
   margin: 0;
   color: #0b1d31;
   font-size: 1.28rem;
 }
 
-.technical-import-header p {
+.technical-import-header p,
+.budget-config-panel p {
   margin: 6px 0 0;
   color: #607085;
   line-height: 1.45;
-}
-
-.technical-import-card {
-  grid-template-columns: minmax(0, 1fr) auto;
-  border: 1px solid #d6e0eb;
-  border-radius: 18px;
-  padding: 14px;
-  background: #ffffff;
-}
-
-.technical-capture-header strong,
-.technical-import-card strong {
-  display: block;
-  color: #0b1d31;
-  font-size: 1.08rem;
-  line-height: 1.2;
-  overflow-wrap: anywhere;
-}
-
-.technical-capture-header small,
-.technical-import-card small {
-  display: block;
-  margin-top: 4px;
-  color: #607085;
-  line-height: 1.35;
-  overflow-wrap: anywhere;
 }
 
 .technical-edit-field {
@@ -237,13 +283,28 @@ body,
   flex: none;
 }
 
+.print-company-block {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.print-logo {
+  max-width: 130px;
+  max-height: 72px;
+  object-fit: contain;
+  object-position: left center;
+}
+
 @media (max-width: 520px) {
   .home-module-grid,
   .quick-summary-grid,
   .survey-flow-grid,
   .technical-commercial-grid,
   .technical-import-header,
-  .technical-import-card {
+  .technical-import-card,
+  .catalog-card,
+  .budget-config-grid {
     grid-template-columns: 1fr;
   }
 
@@ -253,19 +314,23 @@ body,
   }
 
   .technical-capture-card,
-  .technical-import-panel {
+  .technical-import-panel,
+  .budget-config-panel {
     border-radius: 22px;
     padding: 14px;
   }
 
-  .technical-capture-actions {
+  .technical-capture-actions,
+  .catalog-card div {
     align-items: stretch;
     flex-direction: column;
   }
 
   .technical-capture-actions .danger-action,
   .technical-import-header .inline-action,
-  .technical-import-card .inline-action {
+  .technical-import-card .inline-action,
+  .catalog-card .inline-action,
+  .catalog-card .danger-action {
     width: 100%;
   }
 }
