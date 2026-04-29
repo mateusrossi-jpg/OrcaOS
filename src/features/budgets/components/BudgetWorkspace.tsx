@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, type ChangeEvent } from 'react';
-import type { Budget, BudgetItem, BudgetTemplateId, BusinessProfile, CatalogItem } from '../../../core/types/business';
+import type { Budget, BudgetItem, BudgetTemplateId, BusinessProfile, CatalogItem, Client, WorkOrder } from '../../../core/types/business';
 import type { CalculationCapture, CalculationDestination } from '../../../core/types/workflow';
 import { calculateBudgetItemTotal, calculateBudgetSubtotal, calculateBudgetTotal } from '../../../core/pricing/budget';
 import { roundTechnical } from '../../../core/calculations/electrical';
@@ -23,6 +23,8 @@ type BudgetWorkspaceSection = 'proposal' | 'items' | 'catalog' | 'company' | 'mo
 
 interface BudgetWorkspaceProps {
   technicalCaptures?: CalculationCapture[];
+  activeClient?: Client | null;
+  activeWorkOrder?: WorkOrder | null;
   onTechnicalCaptureConverted?: (id: string) => void;
 }
 
@@ -76,6 +78,11 @@ function formatSavedAt(value: string | null): string {
 
 function formatDateTime(value: string): string {
   return new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }).format(new Date(value));
+}
+
+function formatOptionalDateTime(value?: string): string {
+  if (!value) return 'Sem data agendada';
+  return new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }).format(new Date(value));
 }
 
 function categoryLabel(category: BudgetCategory): string {
@@ -199,7 +206,7 @@ function saveStoredTechnicalCaptures(captures: CalculationCapture[]): void {
   window.localStorage.setItem(CAPTURES_STORAGE_KEY, JSON.stringify(captures));
 }
 
-export function BudgetWorkspace({ technicalCaptures = [], onTechnicalCaptureConverted }: BudgetWorkspaceProps) {
+export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, activeWorkOrder = null, onTechnicalCaptureConverted }: BudgetWorkspaceProps) {
   const [activeSection, setActiveSection] = useState<BudgetWorkspaceSection>('proposal');
   const [businessProfile, setBusinessProfile] = useState<BusinessProfile>(savedBusinessProfile);
   const [selectedTemplate, setSelectedTemplate] = useState<BudgetTemplateId>('professional');
@@ -240,6 +247,18 @@ export function BudgetWorkspace({ technicalCaptures = [], onTechnicalCaptureConv
     const saved = saveBudgetDraft({ clientName, budgetTitle, discount, items });
     if (saved) setLastSavedAt(saved.updatedAt);
   }, [budgetTitle, clientName, discount, items]);
+
+  useEffect(() => {
+    if (activeClient?.name && (!clientName.trim() || clientName === 'Cliente exemplo')) {
+      setClientName(activeClient.name);
+    }
+  }, [activeClient?.name, clientName]);
+
+  useEffect(() => {
+    if (activeWorkOrder?.title && (!budgetTitle.trim() || budgetTitle === 'Serviços elétricos')) {
+      setBudgetTitle(activeWorkOrder.title);
+    }
+  }, [activeWorkOrder?.title, budgetTitle]);
 
   const summary = useMemo(() => {
     const labor = items.filter((item) => item.category === 'labor').reduce((total, item) => total + calculateBudgetItemTotal(item), 0);
@@ -352,8 +371,8 @@ export function BudgetWorkspace({ technicalCaptures = [], onTechnicalCaptureConv
     clearBudgetDraft();
     setActiveBudgetId(null);
     setBudgetStatus('draft');
-    setClientName('Cliente exemplo');
-    setBudgetTitle('Serviços elétricos');
+    setClientName(activeClient?.name ?? 'Cliente exemplo');
+    setBudgetTitle(activeWorkOrder?.title ?? 'Serviços elétricos');
     setDiscount(0);
     setItems(starterElectricalBudgetItems);
     setDraft(emptyDraftItem);
@@ -394,6 +413,14 @@ export function BudgetWorkspace({ technicalCaptures = [], onTechnicalCaptureConv
         <span>Rascunho salvo automaticamente</span>
         <strong>{formatSavedAt(lastSavedAt)}</strong>
       </div>
+
+      {activeWorkOrder && (
+        <section className="budget-context-panel">
+          <strong>Vinculado à OS ativa</strong>
+          <span>{activeWorkOrder.title} · {activeClient?.name ?? 'Cliente não vinculado'}</span>
+          <small>{activeWorkOrder.address || activeClient?.address || 'Sem endereço'} · {formatOptionalDateTime(activeWorkOrder.scheduledDate)}</small>
+        </section>
+      )}
 
       <div className="budget-workspace-tabs">
         <button className={activeSection === 'proposal' ? 'active' : ''} type="button" onClick={() => setActiveSection('proposal')}>Dados</button>
