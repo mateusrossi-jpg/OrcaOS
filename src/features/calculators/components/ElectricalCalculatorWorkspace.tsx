@@ -60,13 +60,20 @@ interface TextFieldProps {
   onChange: (value: string) => void;
 }
 
+interface ResultCardData {
+  label: string;
+  value: string;
+  helper?: string;
+}
+
+interface CalculatorResult {
+  error: string | null;
+  cards: ResultCardData[];
+}
+
 function parseCalculatorNumber(value: string): number {
   const normalizedValue = value.trim().replace(',', '.');
-
-  if (!normalizedValue) {
-    return Number.NaN;
-  }
-
+  if (!normalizedValue) return Number.NaN;
   return Number(normalizedValue);
 }
 
@@ -113,7 +120,7 @@ function PhaseSelector({ value, onChange }: { value: CircuitPhase; onChange: (va
   );
 }
 
-function ResultCard({ label, value, helper }: { label: string; value: string; helper?: string }) {
+function ResultCard({ label, value, helper }: ResultCardData) {
   return (
     <article className="result-card">
       <span>{label}</span>
@@ -132,9 +139,7 @@ function LockedCalculator({ mode, onUpgradeRequest }: { mode: CalculatorMode; on
       <strong>{rule?.label ?? 'Cálculo Pro'}</strong>
       <p>{rule?.shortDescription ?? 'Este cálculo faz parte dos recursos profissionais do OrçaOS.'}</p>
       <small>Os cálculos fundamentais continuam 100% livres. Este recurso entra no pacote Pro.</small>
-      <button type="button" onClick={onUpgradeRequest}>
-        Ver pacote Pro
-      </button>
+      <button type="button" onClick={onUpgradeRequest}>Ver pacote Pro</button>
     </div>
   );
 }
@@ -148,19 +153,27 @@ function moduleName(module: CalculatorModule | undefined): string {
   return 'Calculadoras';
 }
 
+function modeIcon(mode: CalculatorMode): string {
+  if (mode.includes('motor') || mode === 'pulley-ratio') return '↻';
+  if (mode.includes('analog')) return '≋';
+  if (mode === 'lighting' || mode === 'air-conditioning') return '☀';
+  if (mode.includes('drop') || mode === 'transformer-sizing' || mode === 'awg-conversion' || mode === 'conduit-fill') return '⌁';
+  return 'ϟ';
+}
+
 export function ElectricalCalculatorWorkspace({ userPlan = 'free', selectedModule, onUpgradeRequest }: ElectricalCalculatorWorkspaceProps) {
-  const availableTabs = useMemo(
+  const availableCalculators = useMemo(
     () => calculatorAccessRules.filter((rule) => !selectedModule || rule.module === selectedModule),
     [selectedModule],
   );
 
-  const [mode, setMode] = useState<CalculatorMode>(availableTabs[0]?.mode ?? 'current');
+  const [activeCalculator, setActiveCalculator] = useState<CalculatorMode | null>(null);
+  const [addedMessage, setAddedMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!availableTabs.some((tab) => tab.mode === mode)) {
-      setMode(availableTabs[0]?.mode ?? 'current');
-    }
-  }, [availableTabs, mode]);
+    setActiveCalculator(null);
+    setAddedMessage(null);
+  }, [selectedModule]);
 
   const [powerWatts, setPowerWatts] = useState('2200');
   const [apparentPowerVa, setApparentPowerVa] = useState('2200');
@@ -168,30 +181,24 @@ export function ElectricalCalculatorWorkspace({ userPlan = 'free', selectedModul
   const [currentAmps, setCurrentAmps] = useState('10');
   const [powerFactor, setPowerFactor] = useState('1');
   const [phase, setPhase] = useState<CircuitPhase>('single-phase');
-
   const [resistanceOhms, setResistanceOhms] = useState('22');
   const [resistorOneOhms, setResistorOneOhms] = useState('100');
   const [resistorTwoOhms, setResistorTwoOhms] = useState('220');
   const [resistorThreeOhms, setResistorThreeOhms] = useState('330');
-
   const [hoursPerDay, setHoursPerDay] = useState('2');
   const [days, setDays] = useState('30');
   const [tariff, setTariff] = useState('0.95');
-
   const [distanceMeters, setDistanceMeters] = useState('25');
   const [sectionMm2, setSectionMm2] = useState('2.5');
   const [maxDropPercent, setMaxDropPercent] = useState('4');
   const [awgValue, setAwgValue] = useState('12');
   const [safetyMarginPercent, setSafetyMarginPercent] = useState('20');
-
   const [areaM2, setAreaM2] = useState('12');
   const [targetLux, setTargetLux] = useState('300');
   const [lampLumens, setLampLumens] = useState('800');
-
   const [people, setPeople] = useState('2');
   const [electronics, setElectronics] = useState('1');
   const [sunFactor, setSunFactor] = useState('1');
-
   const [motorPowerKw, setMotorPowerKw] = useState('1.5');
   const [efficiency, setEfficiency] = useState('0.85');
   const [frequencyHz, setFrequencyHz] = useState('60');
@@ -199,19 +206,18 @@ export function ElectricalCalculatorWorkspace({ userPlan = 'free', selectedModul
   const [measuredRpm, setMeasuredRpm] = useState('1720');
   const [motorPulleyDiameterMm, setMotorPulleyDiameterMm] = useState('80');
   const [drivenPulleyDiameterMm, setDrivenPulleyDiameterMm] = useState('160');
-
   const [analogInputValue, setAnalogInputValue] = useState('12');
   const [engineeringMin, setEngineeringMin] = useState('0');
   const [engineeringMax, setEngineeringMax] = useState('100');
-
   const [cableExternalDiameterMm, setCableExternalDiameterMm] = useState('4');
   const [cableCount, setCableCount] = useState('3');
   const [conduitInternalDiameterMm, setConduitInternalDiameterMm] = useState('16');
 
-  const hasAccess = canUseCalculator(mode, userPlan);
+  const activeRule = activeCalculator ? getCalculatorAccessRule(activeCalculator) : null;
+  const hasAccess = activeCalculator ? canUseCalculator(activeCalculator, userPlan) : false;
 
-  const result = useMemo(() => {
-    if (!hasAccess) return { error: null, cards: [] };
+  const result = useMemo<CalculatorResult>(() => {
+    if (!activeCalculator || !hasAccess) return { error: null, cards: [] };
 
     const powerWattsNumber = parseCalculatorNumber(powerWatts);
     const apparentPowerVaNumber = parseCalculatorNumber(apparentPowerVa);
@@ -248,7 +254,7 @@ export function ElectricalCalculatorWorkspace({ userPlan = 'free', selectedModul
     const conduitInternalDiameterMmNumber = parseCalculatorNumber(conduitInternalDiameterMm);
 
     try {
-      if (mode === 'current') {
+      if (activeCalculator === 'current') {
         const current = calculateCurrentFromPower({ powerWatts: powerWattsNumber, voltageVolts: voltageVoltsNumber, powerFactor: powerFactorNumber, phase });
         const breaker = suggestNextBreaker(current);
         const cable = suggestMinimumCableSectionByCurrent(current);
@@ -259,12 +265,12 @@ export function ElectricalCalculatorWorkspace({ userPlan = 'free', selectedModul
         ] };
       }
 
-      if (mode === 'power') {
+      if (activeCalculator === 'power') {
         const power = calculatePowerFromCurrent({ currentAmps: currentAmpsNumber, voltageVolts: voltageVoltsNumber, powerFactor: powerFactorNumber, phase });
         return { error: null, cards: [{ label: 'Potência estimada', value: `${roundTechnical(power)} W`, helper: `${roundTechnical(power / 1000)} kW` }] };
       }
 
-      if (mode === 'ohms-law') {
+      if (activeCalculator === 'ohms-law') {
         const resistance = calculateResistanceFromVoltageCurrent({ voltageVolts: voltageVoltsNumber, currentAmps: currentAmpsNumber });
         const power = calculatePowerFromCurrent({ currentAmps: currentAmpsNumber, voltageVolts: voltageVoltsNumber });
         return { error: null, cards: [
@@ -273,7 +279,7 @@ export function ElectricalCalculatorWorkspace({ userPlan = 'free', selectedModul
         ] };
       }
 
-      if (mode === 'power-resistance') {
+      if (activeCalculator === 'power-resistance') {
         const byCurrent = calculatePowerByResistance({ currentAmps: currentAmpsNumber, resistanceOhms: resistanceOhmsNumber });
         const byVoltage = calculatePowerByResistance({ voltageVolts: voltageVoltsNumber, resistanceOhms: resistanceOhmsNumber });
         return { error: null, cards: [
@@ -282,7 +288,7 @@ export function ElectricalCalculatorWorkspace({ userPlan = 'free', selectedModul
         ] };
       }
 
-      if (mode === 'resistor-network') {
+      if (activeCalculator === 'resistor-network') {
         const series = calculateSeriesResistance({ resistorsOhms: resistorValues });
         const parallel = calculateParallelResistance({ resistorsOhms: resistorValues });
         return { error: null, cards: [
@@ -291,7 +297,7 @@ export function ElectricalCalculatorWorkspace({ userPlan = 'free', selectedModul
         ] };
       }
 
-      if (mode === 'conversion') {
+      if (activeCalculator === 'conversion') {
         const apparentPower = calculateApparentPower({ powerWatts: powerWattsNumber, powerFactor: powerFactorNumber });
         const currentFromVa = calculateCurrentFromApparentPower({ apparentPowerVa: apparentPowerVaNumber, voltageVolts: voltageVoltsNumber, phase });
         return { error: null, cards: [
@@ -300,7 +306,7 @@ export function ElectricalCalculatorWorkspace({ userPlan = 'free', selectedModul
         ] };
       }
 
-      if (mode === 'consumption') {
+      if (activeCalculator === 'consumption') {
         const consumption = calculateEnergyConsumption({ powerWatts: powerWattsNumber, hoursPerDay: hoursPerDayNumber, days: daysNumber, tariffPerKwh: tariffNumber });
         return { error: null, cards: [
           { label: 'Consumo no período', value: `${roundTechnical(consumption.kwh)} kWh`, helper: `${hoursPerDay || '-'} h/dia por ${days || '-'} dias` },
@@ -308,7 +314,7 @@ export function ElectricalCalculatorWorkspace({ userPlan = 'free', selectedModul
         ] };
       }
 
-      if (mode === 'voltage-drop') {
+      if (activeCalculator === 'voltage-drop') {
         const drop = calculateVoltageDrop({ currentAmps: currentAmpsNumber, distanceMeters: distanceMetersNumber, sectionMm2: sectionMm2Number, voltageVolts: voltageVoltsNumber, phase, material: 'copper' });
         return { error: null, cards: [
           { label: 'Queda de tensão', value: `${roundTechnical(drop.dropVolts)} V`, helper: 'Estimativa simplificada para condutor de cobre.' },
@@ -316,7 +322,7 @@ export function ElectricalCalculatorWorkspace({ userPlan = 'free', selectedModul
         ] };
       }
 
-      if (mode === 'cable-section-drop') {
+      if (activeCalculator === 'cable-section-drop') {
         const section = calculateCableSectionFromVoltageDrop({ currentAmps: currentAmpsNumber, distanceMeters: distanceMetersNumber, voltageVolts: voltageVoltsNumber, maxDropPercent: maxDropPercentNumber, phase, material: 'copper' });
         return { error: null, cards: [
           { label: 'Queda máxima', value: `${roundTechnical(section.maxDropVolts)} V`, helper: `${maxDropPercent || '-'}% de ${voltageVolts || '-'} V` },
@@ -324,7 +330,7 @@ export function ElectricalCalculatorWorkspace({ userPlan = 'free', selectedModul
         ] };
       }
 
-      if (mode === 'max-distance-drop') {
+      if (activeCalculator === 'max-distance-drop') {
         const maxDistance = calculateMaxDistanceFromVoltageDrop({ currentAmps: currentAmpsNumber, sectionMm2: sectionMm2Number, voltageVolts: voltageVoltsNumber, maxDropPercent: maxDropPercentNumber, phase, material: 'copper' });
         return { error: null, cards: [
           { label: 'Queda máxima', value: `${roundTechnical(maxDistance.maxDropVolts)} V`, helper: `${maxDropPercent || '-'}% de ${voltageVolts || '-'} V` },
@@ -332,7 +338,7 @@ export function ElectricalCalculatorWorkspace({ userPlan = 'free', selectedModul
         ] };
       }
 
-      if (mode === 'transformer-sizing') {
+      if (activeCalculator === 'transformer-sizing') {
         const transformer = calculateTransformerSizing({ loadWatts: powerWattsNumber, powerFactor: powerFactorNumber, safetyMarginPercent: safetyMarginPercentNumber });
         return { error: null, cards: [
           { label: 'Potência aparente', value: `${roundTechnical(transformer.apparentPowerKva)} kVA`, helper: 'Sem margem de segurança.' },
@@ -341,7 +347,7 @@ export function ElectricalCalculatorWorkspace({ userPlan = 'free', selectedModul
         ] };
       }
 
-      if (mode === 'awg-conversion') {
+      if (activeCalculator === 'awg-conversion') {
         const awgResult = convertAwgToMm2(awgValue);
         const nearestAwg = suggestNearestAwg(sectionMm2Number);
         return { error: null, cards: [
@@ -350,7 +356,7 @@ export function ElectricalCalculatorWorkspace({ userPlan = 'free', selectedModul
         ] };
       }
 
-      if (mode === 'circuit-recommendation') {
+      if (activeCalculator === 'circuit-recommendation') {
         const recommendation = recommendCircuit({ powerWatts: powerWattsNumber, voltageVolts: voltageVoltsNumber, powerFactor: powerFactorNumber, phase });
         return { error: null, cards: [
           { label: 'Corrente de projeto', value: `${roundTechnical(recommendation.currentAmps)} A`, helper: 'Corrente calculada pela potência informada.' },
@@ -359,7 +365,7 @@ export function ElectricalCalculatorWorkspace({ userPlan = 'free', selectedModul
         ] };
       }
 
-      if (mode === 'lighting') {
+      if (activeCalculator === 'lighting') {
         const lighting = calculateLighting({ areaM2: areaM2Number, targetLux: targetLuxNumber, lampLumens: lampLumensNumber });
         return { error: null, cards: [
           { label: 'Fluxo necessário', value: `${roundTechnical(lighting.requiredLumens)} lm`, helper: `${areaM2 || '-'} m² × ${targetLux || '-'} lux` },
@@ -367,7 +373,7 @@ export function ElectricalCalculatorWorkspace({ userPlan = 'free', selectedModul
         ] };
       }
 
-      if (mode === 'air-conditioning') {
+      if (activeCalculator === 'air-conditioning') {
         const sizing = calculateAirConditioningSizing({ areaM2: areaM2Number, people: peopleNumber, electronics: electronicsNumber, sunFactor: sunFactorNumber });
         return { error: null, cards: [
           { label: 'Carga estimada', value: `${roundTechnical(sizing.estimatedBtus)} BTU/h`, helper: 'Estimativa inicial por área, pessoas e equipamentos.' },
@@ -375,7 +381,7 @@ export function ElectricalCalculatorWorkspace({ userPlan = 'free', selectedModul
         ] };
       }
 
-      if (mode === 'motor-current') {
+      if (activeCalculator === 'motor-current') {
         const motorCurrent = calculateMotorCurrent({ mechanicalPowerKw: motorPowerKwNumber, voltageVolts: voltageVoltsNumber, efficiency: efficiencyNumber, powerFactor: powerFactorNumber, phase });
         return { error: null, cards: [
           { label: 'Corrente estimada', value: `${roundTechnical(motorCurrent)} A`, helper: 'Baseada em potência mecânica, rendimento e FP.' },
@@ -383,7 +389,7 @@ export function ElectricalCalculatorWorkspace({ userPlan = 'free', selectedModul
         ] };
       }
 
-      if (mode === 'motor-speed') {
+      if (activeCalculator === 'motor-speed') {
         const speed = calculateMotorSpeed({ frequencyHz: frequencyHzNumber, poles: polesNumber, measuredRpm: measuredRpmNumber });
         return { error: null, cards: [
           { label: 'Rotação síncrona', value: `${roundTechnical(speed.synchronousRpm)} rpm`, helper: 'Ns = 120 × f / polos' },
@@ -391,7 +397,7 @@ export function ElectricalCalculatorWorkspace({ userPlan = 'free', selectedModul
         ] };
       }
 
-      if (mode === 'pulley-ratio') {
+      if (activeCalculator === 'pulley-ratio') {
         const pulley = calculatePulleyRatio({ motorRpm: measuredRpmNumber, motorPulleyDiameterMm: motorPulleyDiameterMmNumber, drivenPulleyDiameterMm: drivenPulleyDiameterMmNumber });
         return { error: null, cards: [
           { label: 'Rotação movida', value: `${roundTechnical(pulley.drivenRpm)} rpm`, helper: 'Estimativa por relação de diâmetros.' },
@@ -399,17 +405,17 @@ export function ElectricalCalculatorWorkspace({ userPlan = 'free', selectedModul
         ] };
       }
 
-      if (mode === 'analog-4-20ma' || mode === 'analog-0-10v') {
+      if (activeCalculator === 'analog-4-20ma' || activeCalculator === 'analog-0-10v') {
         const scaled = scaleAnalogSignal({
           inputValue: analogInputValueNumber,
-          inputMin: mode === 'analog-4-20ma' ? 4 : 0,
-          inputMax: mode === 'analog-4-20ma' ? 20 : 10,
+          inputMin: activeCalculator === 'analog-4-20ma' ? 4 : 0,
+          inputMax: activeCalculator === 'analog-4-20ma' ? 20 : 10,
           engineeringMin: engineeringMinNumber,
           engineeringMax: engineeringMaxNumber,
         });
         return { error: null, cards: [
           { label: 'Valor de engenharia', value: `${roundTechnical(scaled.engineeringValue)}`, helper: `Faixa: ${engineeringMin || '-'} até ${engineeringMax || '-'}` },
-          { label: 'Percentual do sinal', value: `${roundTechnical(scaled.percent)}%`, helper: mode === 'analog-4-20ma' ? 'Escala 4–20 mA' : 'Escala 0–10 V' },
+          { label: 'Percentual do sinal', value: `${roundTechnical(scaled.percent)}%`, helper: activeCalculator === 'analog-4-20ma' ? 'Escala 4–20 mA' : 'Escala 0–10 V' },
         ] };
       }
 
@@ -422,6 +428,7 @@ export function ElectricalCalculatorWorkspace({ userPlan = 'free', selectedModul
       return { error: error instanceof Error ? error.message : 'Preencha os campos necessários para calcular.', cards: [] };
     }
   }, [
+    activeCalculator,
     analogInputValue,
     apparentPowerVa,
     areaM2,
@@ -443,7 +450,6 @@ export function ElectricalCalculatorWorkspace({ userPlan = 'free', selectedModul
     lampLumens,
     maxDropPercent,
     measuredRpm,
-    mode,
     motorPowerKw,
     motorPulleyDiameterMm,
     people,
@@ -463,167 +469,105 @@ export function ElectricalCalculatorWorkspace({ userPlan = 'free', selectedModul
     voltageVolts,
   ]);
 
+  function includeInBudgetAndSurvey() {
+    if (!activeRule) return;
+    setAddedMessage(`${activeRule.label} foi enviado para o orçamento e levantamento técnico.`);
+  }
+
+  function closeCalculator() {
+    setActiveCalculator(null);
+    setAddedMessage(null);
+  }
+
   return (
     <div className="calculator-workspace">
       <div className="calculator-plan-banner">
         <div>
           <strong>{moduleName(selectedModule)}</strong>
-          <span>{selectedModule ? 'Escolha um cálculo deste módulo.' : 'Corrente, potência, W/VA/A e consumo ficam liberados para todos.'}</span>
+          <span>Escolha um cálculo abaixo. Ele abrirá em uma tela dedicada para uso em campo.</span>
         </div>
         <em>{userPlan === 'pro' ? 'PRO ativo' : 'Plano grátis'}</em>
       </div>
 
-      <div className="calculator-tabs" role="tablist" aria-label="Calculadoras elétricas">
-        {availableTabs.map((tab) => {
-          const isLocked = !canUseCalculator(tab.mode, userPlan);
-
+      <div className="calculator-picker-list" aria-label="Cálculos disponíveis">
+        {availableCalculators.map((calculator) => {
+          const isLocked = !canUseCalculator(calculator.mode, userPlan);
           return (
-            <button className={mode === tab.mode ? 'active' : ''} key={tab.mode} type="button" onClick={() => setMode(tab.mode)}>
-              {tab.label}
-              <small className={isLocked ? 'tab-plan pro' : 'tab-plan free'}>{isLocked ? 'PRO' : 'LIVRE'}</small>
+            <button className="calculator-picker-card" key={calculator.mode} type="button" onClick={() => setActiveCalculator(calculator.mode)}>
+              <span className="app-icon tone-blue">{modeIcon(calculator.mode)}</span>
+              <span>
+                <strong>{calculator.label}</strong>
+                <small>{calculator.shortDescription}</small>
+              </span>
+              <em className={isLocked ? 'badge-pro' : 'badge-free'}>{isLocked ? 'PRO' : 'LIVRE'}</em>
+              <span className="chevron">›</span>
             </button>
           );
         })}
       </div>
 
-      {!hasAccess ? (
-        <LockedCalculator mode={mode} onUpgradeRequest={onUpgradeRequest} />
-      ) : (
-        <div className="calculator-layout">
-          <form className="calculator-form" onSubmit={(event) => event.preventDefault()}>
-            {(mode === 'current' || mode === 'consumption' || mode === 'conversion' || mode === 'circuit-recommendation' || mode === 'transformer-sizing') && (
-              <NumberField label="Potência" value={powerWatts} suffix="W" step={1} onChange={setPowerWatts} />
-            )}
+      {activeCalculator && activeRule && (
+        <div className="calculator-overlay" role="dialog" aria-modal="true" aria-label={activeRule.label}>
+          <div className="calculator-overlay-backdrop" onClick={closeCalculator} />
+          <section className="calculator-overlay-panel">
+            <header className="calculator-overlay-header">
+              <button className="modal-back-button" type="button" onClick={closeCalculator}>‹</button>
+              <div>
+                <span>{moduleName(activeRule.module)}</span>
+                <h2>{activeRule.label}</h2>
+                <p>{activeRule.shortDescription}</p>
+              </div>
+              <em className={!hasAccess ? 'badge-pro' : 'badge-free'}>{!hasAccess ? 'PRO' : 'LIVRE'}</em>
+            </header>
 
-            {mode === 'conversion' && <NumberField label="Potência aparente" value={apparentPowerVa} suffix="VA" step={1} onChange={setApparentPowerVa} />}
-
-            {(mode === 'power' || mode === 'voltage-drop' || mode === 'ohms-law' || mode === 'power-resistance' || mode === 'cable-section-drop' || mode === 'max-distance-drop') && (
-              <NumberField label="Corrente" value={currentAmps} suffix="A" onChange={setCurrentAmps} />
-            )}
-
-            {mode !== 'consumption' && mode !== 'lighting' && mode !== 'air-conditioning' && mode !== 'conduit-fill' && mode !== 'resistor-network' && mode !== 'awg-conversion' && mode !== 'motor-speed' && mode !== 'pulley-ratio' && mode !== 'analog-4-20ma' && mode !== 'analog-0-10v' && (
-              <NumberField label="Tensão" value={voltageVolts} suffix="V" step={1} onChange={setVoltageVolts} />
-            )}
-
-            {(mode === 'current' || mode === 'power' || mode === 'conversion' || mode === 'circuit-recommendation' || mode === 'motor-current' || mode === 'transformer-sizing') && (
-              <NumberField label="Fator de potência" value={powerFactor} min={0.01} step={0.01} onChange={setPowerFactor} />
-            )}
-
-            {(mode === 'current' || mode === 'power' || mode === 'voltage-drop' || mode === 'conversion' || mode === 'circuit-recommendation' || mode === 'cable-section-drop' || mode === 'max-distance-drop' || mode === 'motor-current') && <PhaseSelector value={phase} onChange={setPhase} />}
-
-            {mode === 'power-resistance' && <NumberField label="Resistência" value={resistanceOhms} suffix="Ω" onChange={setResistanceOhms} />}
-
-            {mode === 'resistor-network' && (
+            {!hasAccess ? (
+              <LockedCalculator mode={activeCalculator} onUpgradeRequest={onUpgradeRequest} />
+            ) : (
               <>
-                <NumberField label="Resistor 1" value={resistorOneOhms} suffix="Ω" onChange={setResistorOneOhms} />
-                <NumberField label="Resistor 2" value={resistorTwoOhms} suffix="Ω" onChange={setResistorTwoOhms} />
-                <NumberField label="Resistor 3" value={resistorThreeOhms} suffix="Ω" onChange={setResistorThreeOhms} />
+                <form className="calculator-form" onSubmit={(event) => event.preventDefault()}>
+                  {(activeCalculator === 'current' || activeCalculator === 'consumption' || activeCalculator === 'conversion' || activeCalculator === 'circuit-recommendation' || activeCalculator === 'transformer-sizing') && <NumberField label="Potência" value={powerWatts} suffix="W" step={1} onChange={setPowerWatts} />}
+                  {activeCalculator === 'conversion' && <NumberField label="Potência aparente" value={apparentPowerVa} suffix="VA" step={1} onChange={setApparentPowerVa} />}
+                  {(activeCalculator === 'power' || activeCalculator === 'voltage-drop' || activeCalculator === 'ohms-law' || activeCalculator === 'power-resistance' || activeCalculator === 'cable-section-drop' || activeCalculator === 'max-distance-drop') && <NumberField label="Corrente" value={currentAmps} suffix="A" onChange={setCurrentAmps} />}
+                  {activeCalculator !== 'consumption' && activeCalculator !== 'lighting' && activeCalculator !== 'air-conditioning' && activeCalculator !== 'conduit-fill' && activeCalculator !== 'resistor-network' && activeCalculator !== 'awg-conversion' && activeCalculator !== 'motor-speed' && activeCalculator !== 'pulley-ratio' && activeCalculator !== 'analog-4-20ma' && activeCalculator !== 'analog-0-10v' && <NumberField label="Tensão" value={voltageVolts} suffix="V" step={1} onChange={setVoltageVolts} />}
+                  {(activeCalculator === 'current' || activeCalculator === 'power' || activeCalculator === 'conversion' || activeCalculator === 'circuit-recommendation' || activeCalculator === 'motor-current' || activeCalculator === 'transformer-sizing') && <NumberField label="Fator de potência" value={powerFactor} min={0.01} step={0.01} onChange={setPowerFactor} />}
+                  {(activeCalculator === 'current' || activeCalculator === 'power' || activeCalculator === 'voltage-drop' || activeCalculator === 'conversion' || activeCalculator === 'circuit-recommendation' || activeCalculator === 'cable-section-drop' || activeCalculator === 'max-distance-drop' || activeCalculator === 'motor-current') && <PhaseSelector value={phase} onChange={setPhase} />}
+                  {activeCalculator === 'power-resistance' && <NumberField label="Resistência" value={resistanceOhms} suffix="Ω" onChange={setResistanceOhms} />}
+                  {activeCalculator === 'resistor-network' && <><NumberField label="Resistor 1" value={resistorOneOhms} suffix="Ω" onChange={setResistorOneOhms} /><NumberField label="Resistor 2" value={resistorTwoOhms} suffix="Ω" onChange={setResistorTwoOhms} /><NumberField label="Resistor 3" value={resistorThreeOhms} suffix="Ω" onChange={setResistorThreeOhms} /></>}
+                  {activeCalculator === 'consumption' && <><NumberField label="Horas por dia" value={hoursPerDay} suffix="h" onChange={setHoursPerDay} /><NumberField label="Dias" value={days} suffix="dias" step={1} onChange={setDays} /><NumberField label="Tarifa" value={tariff} suffix="R$/kWh" onChange={setTariff} /></>}
+                  {activeCalculator === 'voltage-drop' && <><NumberField label="Distância" value={distanceMeters} suffix="m" onChange={setDistanceMeters} /><NumberField label="Seção do cabo" value={sectionMm2} suffix="mm²" onChange={setSectionMm2} /></>}
+                  {activeCalculator === 'cable-section-drop' && <><NumberField label="Distância" value={distanceMeters} suffix="m" onChange={setDistanceMeters} /><NumberField label="Queda máxima" value={maxDropPercent} suffix="%" onChange={setMaxDropPercent} /></>}
+                  {activeCalculator === 'max-distance-drop' && <><NumberField label="Seção do cabo" value={sectionMm2} suffix="mm²" onChange={setSectionMm2} /><NumberField label="Queda máxima" value={maxDropPercent} suffix="%" onChange={setMaxDropPercent} /></>}
+                  {activeCalculator === 'transformer-sizing' && <NumberField label="Margem" value={safetyMarginPercent} suffix="%" onChange={setSafetyMarginPercent} />}
+                  {activeCalculator === 'awg-conversion' && <><TextField label="AWG" value={awgValue} placeholder="Ex.: 12 ou 1/0" onChange={setAwgValue} /><NumberField label="Seção desejada" value={sectionMm2} suffix="mm²" onChange={setSectionMm2} /></>}
+                  {activeCalculator === 'lighting' && <><NumberField label="Área do ambiente" value={areaM2} suffix="m²" onChange={setAreaM2} /><NumberField label="Iluminância desejada" value={targetLux} suffix="lux" step={1} onChange={setTargetLux} /><NumberField label="Lúmens por luminária" value={lampLumens} suffix="lm" step={1} onChange={setLampLumens} /></>}
+                  {activeCalculator === 'air-conditioning' && <><NumberField label="Área do ambiente" value={areaM2} suffix="m²" onChange={setAreaM2} /><NumberField label="Pessoas" value={people} suffix="pessoas" step={1} onChange={setPeople} /><NumberField label="Equipamentos" value={electronics} suffix="un." step={1} onChange={setElectronics} /><NumberField label="Fator sol/calor" value={sunFactor} min={0.1} step={0.05} onChange={setSunFactor} /></>}
+                  {activeCalculator === 'motor-current' && <><NumberField label="Potência mecânica" value={motorPowerKw} suffix="kW" onChange={setMotorPowerKw} /><NumberField label="Rendimento" value={efficiency} min={0.01} step={0.01} onChange={setEfficiency} /></>}
+                  {activeCalculator === 'motor-speed' && <><NumberField label="Frequência" value={frequencyHz} suffix="Hz" onChange={setFrequencyHz} /><NumberField label="Polos" value={poles} step={1} onChange={setPoles} /><NumberField label="RPM medido" value={measuredRpm} suffix="rpm" onChange={setMeasuredRpm} /></>}
+                  {activeCalculator === 'pulley-ratio' && <><NumberField label="RPM do motor" value={measuredRpm} suffix="rpm" onChange={setMeasuredRpm} /><NumberField label="Polia motora" value={motorPulleyDiameterMm} suffix="mm" onChange={setMotorPulleyDiameterMm} /><NumberField label="Polia movida" value={drivenPulleyDiameterMm} suffix="mm" onChange={setDrivenPulleyDiameterMm} /></>}
+                  {(activeCalculator === 'analog-4-20ma' || activeCalculator === 'analog-0-10v') && <><NumberField label="Entrada" value={analogInputValue} suffix={activeCalculator === 'analog-4-20ma' ? 'mA' : 'V'} onChange={setAnalogInputValue} /><NumberField label="Eng. mínimo" value={engineeringMin} onChange={setEngineeringMin} /><NumberField label="Eng. máximo" value={engineeringMax} onChange={setEngineeringMax} /></>}
+                  {activeCalculator === 'conduit-fill' && <><NumberField label="Diâmetro externo do cabo" value={cableExternalDiameterMm} suffix="mm" onChange={setCableExternalDiameterMm} /><NumberField label="Quantidade de cabos" value={cableCount} suffix="cabos" step={1} onChange={setCableCount} /><NumberField label="Diâmetro interno do eletroduto" value={conduitInternalDiameterMm} suffix="mm" onChange={setConduitInternalDiameterMm} /></>}
+                </form>
+
+                <div className="calculator-results overlay-results">
+                  {result.error && <div className="error-box">{result.error}</div>}
+                  {result.cards.map((card) => <ResultCard key={card.label} label={card.label} value={card.value} helper={card.helper} />)}
+                  <div className="technical-warning">Resultado para apoio técnico. Antes de executar instalação real, validar norma, método de instalação, agrupamento, temperatura, cabo, proteção e responsabilidade profissional.</div>
+                </div>
+
+                {result.cards.length > 0 && !result.error && (
+                  <div className="calculation-next-step-card">
+                    <strong>Deseja usar este resultado?</strong>
+                    <p>Você pode incluir esse cálculo no orçamento e no levantamento técnico da OS, ou voltar para escolher outro cálculo.</p>
+                    {addedMessage && <small>{addedMessage}</small>}
+                    <div>
+                      <button className="primary-action-button" type="button" onClick={includeInBudgetAndSurvey}>Incluir no orçamento e levantamento</button>
+                      <button className="secondary-action-button" type="button" onClick={closeCalculator}>Voltar ao menu anterior</button>
+                    </div>
+                  </div>
+                )}
               </>
             )}
-
-            {mode === 'consumption' && (
-              <>
-                <NumberField label="Horas por dia" value={hoursPerDay} suffix="h" onChange={setHoursPerDay} />
-                <NumberField label="Dias" value={days} suffix="dias" step={1} onChange={setDays} />
-                <NumberField label="Tarifa" value={tariff} suffix="R$/kWh" onChange={setTariff} />
-              </>
-            )}
-
-            {mode === 'voltage-drop' && (
-              <>
-                <NumberField label="Distância" value={distanceMeters} suffix="m" onChange={setDistanceMeters} />
-                <NumberField label="Seção do cabo" value={sectionMm2} suffix="mm²" onChange={setSectionMm2} />
-              </>
-            )}
-
-            {mode === 'cable-section-drop' && (
-              <>
-                <NumberField label="Distância" value={distanceMeters} suffix="m" onChange={setDistanceMeters} />
-                <NumberField label="Queda máxima" value={maxDropPercent} suffix="%" onChange={setMaxDropPercent} />
-              </>
-            )}
-
-            {mode === 'max-distance-drop' && (
-              <>
-                <NumberField label="Seção do cabo" value={sectionMm2} suffix="mm²" onChange={setSectionMm2} />
-                <NumberField label="Queda máxima" value={maxDropPercent} suffix="%" onChange={setMaxDropPercent} />
-              </>
-            )}
-
-            {mode === 'transformer-sizing' && <NumberField label="Margem" value={safetyMarginPercent} suffix="%" onChange={setSafetyMarginPercent} />}
-
-            {mode === 'awg-conversion' && (
-              <>
-                <TextField label="AWG" value={awgValue} placeholder="Ex.: 12 ou 1/0" onChange={setAwgValue} />
-                <NumberField label="Seção desejada" value={sectionMm2} suffix="mm²" onChange={setSectionMm2} />
-              </>
-            )}
-
-            {mode === 'lighting' && (
-              <>
-                <NumberField label="Área do ambiente" value={areaM2} suffix="m²" onChange={setAreaM2} />
-                <NumberField label="Iluminância desejada" value={targetLux} suffix="lux" step={1} onChange={setTargetLux} />
-                <NumberField label="Lúmens por luminária" value={lampLumens} suffix="lm" step={1} onChange={setLampLumens} />
-              </>
-            )}
-
-            {mode === 'air-conditioning' && (
-              <>
-                <NumberField label="Área do ambiente" value={areaM2} suffix="m²" onChange={setAreaM2} />
-                <NumberField label="Pessoas" value={people} suffix="pessoas" step={1} onChange={setPeople} />
-                <NumberField label="Equipamentos" value={electronics} suffix="un." step={1} onChange={setElectronics} />
-                <NumberField label="Fator sol/calor" value={sunFactor} min={0.1} step={0.05} onChange={setSunFactor} />
-              </>
-            )}
-
-            {mode === 'motor-current' && (
-              <>
-                <NumberField label="Potência mecânica" value={motorPowerKw} suffix="kW" onChange={setMotorPowerKw} />
-                <NumberField label="Rendimento" value={efficiency} min={0.01} step={0.01} onChange={setEfficiency} />
-              </>
-            )}
-
-            {mode === 'motor-speed' && (
-              <>
-                <NumberField label="Frequência" value={frequencyHz} suffix="Hz" onChange={setFrequencyHz} />
-                <NumberField label="Polos" value={poles} step={1} onChange={setPoles} />
-                <NumberField label="RPM medido" value={measuredRpm} suffix="rpm" onChange={setMeasuredRpm} />
-              </>
-            )}
-
-            {mode === 'pulley-ratio' && (
-              <>
-                <NumberField label="RPM do motor" value={measuredRpm} suffix="rpm" onChange={setMeasuredRpm} />
-                <NumberField label="Polia motora" value={motorPulleyDiameterMm} suffix="mm" onChange={setMotorPulleyDiameterMm} />
-                <NumberField label="Polia movida" value={drivenPulleyDiameterMm} suffix="mm" onChange={setDrivenPulleyDiameterMm} />
-              </>
-            )}
-
-            {(mode === 'analog-4-20ma' || mode === 'analog-0-10v') && (
-              <>
-                <NumberField label={mode === 'analog-4-20ma' ? 'Entrada' : 'Entrada'} value={analogInputValue} suffix={mode === 'analog-4-20ma' ? 'mA' : 'V'} onChange={setAnalogInputValue} />
-                <NumberField label="Eng. mínimo" value={engineeringMin} onChange={setEngineeringMin} />
-                <NumberField label="Eng. máximo" value={engineeringMax} onChange={setEngineeringMax} />
-              </>
-            )}
-
-            {mode === 'conduit-fill' && (
-              <>
-                <NumberField label="Diâmetro externo do cabo" value={cableExternalDiameterMm} suffix="mm" onChange={setCableExternalDiameterMm} />
-                <NumberField label="Quantidade de cabos" value={cableCount} suffix="cabos" step={1} onChange={setCableCount} />
-                <NumberField label="Diâmetro interno do eletroduto" value={conduitInternalDiameterMm} suffix="mm" onChange={setConduitInternalDiameterMm} />
-              </>
-            )}
-          </form>
-
-          <div className="calculator-results">
-            {result.error && <div className="error-box">{result.error}</div>}
-            {result.cards.map((card) => <ResultCard key={card.label} label={card.label} value={card.value} helper={card.helper} />)}
-            <div className="technical-warning">
-              Resultado para apoio técnico. Antes de executar instalação real, validar norma, método de instalação,
-              agrupamento, temperatura, cabo, proteção e responsabilidade profissional.
-            </div>
-          </div>
+          </section>
         </div>
       )}
     </div>
