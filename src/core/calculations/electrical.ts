@@ -2,6 +2,9 @@ import type {
   AirConditioningSizingInput,
   AirConditioningSizingResult,
   ApparentPowerInput,
+  AwgConversionResult,
+  CableSectionFromVoltageDropInput,
+  CableSectionFromVoltageDropResult,
   CircuitRecommendationInput,
   CircuitRecommendationResult,
   ConduitFillInput,
@@ -11,7 +14,10 @@ import type {
   EnergyConsumptionInput,
   LightingInput,
   LightingResult,
+  PowerByResistanceInput,
   PowerFromCurrentInput,
+  ResistanceFromVoltageCurrentInput,
+  ResistorNetworkInput,
   VoltageDropInput,
   VoltageDropResult,
 } from '../types/electrical';
@@ -28,6 +34,23 @@ const RESISTIVITY = {
 } as const;
 
 const COMMERCIAL_BTUS = [7500, 9000, 12000, 18000, 22000, 24000, 30000, 36000, 48000, 60000] as const;
+
+const AWG_TABLE: AwgConversionResult[] = [
+  { awg: '20', sectionMm2: 0.52 },
+  { awg: '18', sectionMm2: 0.82 },
+  { awg: '16', sectionMm2: 1.31 },
+  { awg: '14', sectionMm2: 2.08 },
+  { awg: '12', sectionMm2: 3.31 },
+  { awg: '10', sectionMm2: 5.26 },
+  { awg: '8', sectionMm2: 8.37 },
+  { awg: '6', sectionMm2: 13.3 },
+  { awg: '4', sectionMm2: 21.15 },
+  { awg: '2', sectionMm2: 33.62 },
+  { awg: '1/0', sectionMm2: 53.49 },
+  { awg: '2/0', sectionMm2: 67.43 },
+  { awg: '3/0', sectionMm2: 85.01 },
+  { awg: '4/0', sectionMm2: 107.22 },
+];
 
 export function calculateCurrentFromPower(input: CurrentFromPowerInput): number {
   const powerFactor = input.powerFactor ?? 1;
@@ -57,6 +80,53 @@ export function calculatePowerFromCurrent(input: PowerFromCurrentInput): number 
   }
 
   return input.voltageVolts * input.currentAmps * powerFactor;
+}
+
+export function calculateResistanceFromVoltageCurrent(input: ResistanceFromVoltageCurrentInput): number {
+  ensurePositiveNumber(input.voltageVolts, 'Tensão');
+  ensurePositiveNumber(input.currentAmps, 'Corrente');
+
+  return input.voltageVolts / input.currentAmps;
+}
+
+export function calculatePowerByResistance(input: PowerByResistanceInput): number {
+  ensurePositiveNumber(input.resistanceOhms, 'Resistência');
+
+  if (input.currentAmps !== undefined) {
+    ensurePositiveNumber(input.currentAmps, 'Corrente');
+    return input.currentAmps ** 2 * input.resistanceOhms;
+  }
+
+  if (input.voltageVolts !== undefined) {
+    ensurePositiveNumber(input.voltageVolts, 'Tensão');
+    return input.voltageVolts ** 2 / input.resistanceOhms;
+  }
+
+  throw new Error('Informe corrente ou tensão para calcular potência por resistência.');
+}
+
+export function calculateSeriesResistance(input: ResistorNetworkInput): number {
+  if (input.resistorsOhms.length === 0) {
+    throw new Error('Informe pelo menos uma resistência.');
+  }
+
+  return input.resistorsOhms.reduce((total, resistor, index) => {
+    ensurePositiveNumber(resistor, `Resistência ${index + 1}`);
+    return total + resistor;
+  }, 0);
+}
+
+export function calculateParallelResistance(input: ResistorNetworkInput): number {
+  if (input.resistorsOhms.length === 0) {
+    throw new Error('Informe pelo menos uma resistência.');
+  }
+
+  const inverseSum = input.resistorsOhms.reduce((total, resistor, index) => {
+    ensurePositiveNumber(resistor, `Resistência ${index + 1}`);
+    return total + 1 / resistor;
+  }, 0);
+
+  return 1 / inverseSum;
 }
 
 export function calculateApparentPower(input: ApparentPowerInput): number {
@@ -119,6 +189,36 @@ export function calculateVoltageDrop(input: VoltageDropInput): VoltageDropResult
     dropVolts,
     dropPercent: (dropVolts / input.voltageVolts) * 100,
   };
+}
+
+export function calculateCableSectionFromVoltageDrop(input: CableSectionFromVoltageDropInput): CableSectionFromVoltageDropResult {
+  const phase = input.phase ?? 'single-phase';
+  const material = input.material ?? 'copper';
+  const resistivity = RESISTIVITY[material];
+
+  ensurePositiveNumber(input.currentAmps, 'Corrente');
+  ensurePositiveNumber(input.distanceMeters, 'Distância');
+  ensurePositiveNumber(input.voltageVolts, 'Tensão');
+  ensurePositiveNumber(input.maxDropPercent, 'Queda máxima');
+
+  const maxDropVolts = input.voltageVolts * (input.maxDropPercent / 100);
+  const multiplier = phase === 'three-phase' ? SQRT_3 : 2;
+  const requiredSectionMm2 = (multiplier * resistivity * input.distanceMeters * input.currentAmps) / maxDropVolts;
+
+  return {
+    maxDropVolts,
+    requiredSectionMm2,
+  };
+}
+
+export function convertAwgToMm2(awg: string): AwgConversionResult | null {
+  return AWG_TABLE.find((item) => item.awg === awg.trim().toUpperCase()) ?? null;
+}
+
+export function suggestNearestAwg(sectionMm2: number): AwgConversionResult | null {
+  ensurePositiveNumber(sectionMm2, 'Seção em mm²');
+
+  return AWG_TABLE.find((item) => item.sectionMm2 >= sectionMm2) ?? AWG_TABLE[AWG_TABLE.length - 1] ?? null;
 }
 
 export function calculateLighting(input: LightingInput): LightingResult {
