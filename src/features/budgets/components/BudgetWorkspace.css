@@ -3,6 +3,7 @@
   gap: 16px;
 }
 
+.budget-save-status,
 .budget-header-card,
 .budget-editor,
 .budget-summary {
@@ -10,6 +11,24 @@
   border-radius: 28px;
   background: rgba(15, 23, 42, 0.72);
   box-shadow: 0 18px 60px rgba(0, 0, 0, 0.24);
+}
+
+.budget-save-status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 18px;
+}
+
+.budget-save-status span {
+  color: #bbf7d0;
+  font-weight: 900;
+}
+
+.budget-save-status strong {
+  color: #e5e7eb;
+  font-size: 0.92rem;
 }
 
 .budget-header-card {
@@ -84,7 +103,8 @@
 }
 
 .inline-action,
-.ghost-action {
+.ghost-action,
+.danger-action {
   min-height: 44px;
   border: 0;
   cursor: pointer;
@@ -95,14 +115,23 @@
   cursor: not-allowed;
 }
 
-.ghost-action {
+.ghost-action,
+.danger-action {
   border: 1px solid rgba(148, 163, 184, 0.24);
   border-radius: 16px;
   padding: 0 18px;
-  color: #cbd5e1;
-  background: rgba(148, 163, 184, 0.08);
   font: inherit;
   font-weight: 800;
+}
+
+.ghost-action {
+  color: #cbd5e1;
+  background: rgba(148, 163, 184, 0.08);
+}
+
+.danger-action {
+  color: #fecaca;
+  background: rgba(220, 38, 38, 0.12);
 }
 
 .budget-items-list {
@@ -228,10 +257,16 @@
 }
 
 @media (max-width: 960px) {
+  .budget-save-status,
   .budget-header-card,
   .budget-layout,
   .budget-form-grid {
     grid-template-columns: 1fr;
+  }
+
+  .budget-save-status {
+    align-items: flex-start;
+    flex-direction: column;
   }
 
   .budget-item-row {
