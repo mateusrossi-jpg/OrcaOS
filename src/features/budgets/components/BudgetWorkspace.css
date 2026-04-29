@@ -1,6 +1,10 @@
 .budget-workspace {
   display: grid;
   gap: 16px;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: hidden;
 }
 
 .budget-save-status,
@@ -8,6 +12,7 @@
 .saved-budget-panel,
 .budget-editor,
 .budget-summary {
+  min-width: 0;
   border: 1px solid #d6e0eb;
   border-radius: 24px;
   background: #ffffff;
@@ -34,7 +39,7 @@
 
 .budget-header-card {
   display: grid;
-  grid-template-columns: 1fr 1fr 220px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(160px, 220px);
   gap: 14px;
   padding: 18px;
 }
@@ -50,6 +55,7 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 16px;
+  min-width: 0;
 }
 
 .saved-budget-panel-header h3 {
@@ -67,6 +73,7 @@
 .saved-budget-list {
   display: grid;
   gap: 10px;
+  min-width: 0;
 }
 
 .saved-budget-card {
@@ -74,6 +81,7 @@
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 10px;
   align-items: stretch;
+  min-width: 0;
   border: 1px solid #d6e0eb;
   border-radius: 18px;
   padding: 12px;
@@ -97,8 +105,16 @@
   display: grid;
   justify-items: start;
   gap: 4px;
+  min-width: 0;
   color: #0b1d31;
   text-align: left;
+}
+
+.saved-budget-open strong,
+.saved-budget-open small,
+.saved-budget-open span {
+  max-width: 100%;
+  overflow-wrap: anywhere;
 }
 
 .saved-budget-open strong {
@@ -123,8 +139,9 @@
 
 .budget-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1.35fr) minmax(300px, 0.75fr);
+  grid-template-columns: minmax(0, 1.35fr) minmax(260px, 0.75fr);
   gap: 16px;
+  min-width: 0;
 }
 
 .budget-editor,
@@ -137,6 +154,7 @@
   margin: 0;
   color: #0b1d31;
   font-size: 1.35rem;
+  overflow-wrap: anywhere;
 }
 
 .budget-editor-title p,
@@ -148,14 +166,16 @@
 
 .budget-form-grid {
   display: grid;
-  grid-template-columns: 1.4fr 0.6fr 0.8fr 0.8fr;
+  grid-template-columns: minmax(0, 1.4fr) minmax(90px, 0.6fr) minmax(120px, 0.8fr) minmax(120px, 0.8fr);
   gap: 12px;
   margin-top: 18px;
+  min-width: 0;
 }
 
 .budget-field {
   display: grid;
   gap: 8px;
+  min-width: 0;
 }
 
 .budget-field span {
@@ -167,6 +187,7 @@
 .budget-field input,
 .budget-field select {
   width: 100%;
+  min-width: 0;
   min-height: 48px;
   border: 1px solid #d6e0eb;
   border-radius: 16px;
@@ -234,6 +255,7 @@
   display: grid;
   gap: 10px;
   margin-top: 18px;
+  min-width: 0;
 }
 
 .empty-budget,
@@ -254,17 +276,24 @@
   align-items: center;
   justify-content: space-between;
   gap: 14px;
+  min-width: 0;
+}
+
+.budget-item-row div:first-child {
+  min-width: 0;
 }
 
 .budget-item-row strong {
   display: block;
   color: #0b1d31;
+  overflow-wrap: anywhere;
 }
 
 .budget-item-row small {
   display: block;
   margin-top: 4px;
   color: #607085;
+  overflow-wrap: anywhere;
 }
 
 .budget-item-total {
@@ -326,6 +355,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
   border-bottom: 1px solid #d6e0eb;
   padding-bottom: 10px;
 }
@@ -336,6 +366,7 @@
 
 .summary-lines strong {
   color: #0b1d31;
+  text-align: right;
 }
 
 .discount-field {
@@ -359,7 +390,7 @@
   display: block;
   margin-top: 6px;
   color: #0b1d31;
-  font-size: 2rem;
+  font-size: clamp(1.6rem, 9vw, 2rem);
   line-height: 1.1;
 }
 
@@ -384,7 +415,8 @@
   }
 
   .saved-budget-panel-header .inline-action,
-  .saved-budget-delete {
+  .saved-budget-delete,
+  .budget-actions button {
     width: 100%;
   }
 
@@ -396,5 +428,16 @@
   .budget-item-total {
     width: 100%;
     justify-items: start;
+  }
+}
+
+@media (max-width: 520px) {
+  .budget-save-status,
+  .budget-header-card,
+  .saved-budget-panel,
+  .budget-editor,
+  .budget-summary {
+    border-radius: 20px;
+    padding: 14px;
   }
 }
