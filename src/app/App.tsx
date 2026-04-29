@@ -4,6 +4,7 @@ import type { CalculatorModule, UserPlan } from '../core/access/featureAccess';
 import type { CalculationCapture, CalculationDestination } from '../core/types/workflow';
 import { getFreeCalculatorCount, getProCalculatorCount } from '../core/access/featureAccess';
 import { BudgetWorkspace } from '../features/budgets/components/BudgetWorkspace';
+import { ClientWorkOrderWorkspace } from '../features/clients/components/ClientWorkOrderWorkspace';
 import { ElectricalCalculatorWorkspace } from '../features/calculators/components/ElectricalCalculatorWorkspace';
 import { ReportWorkspace } from '../features/reports/components/ReportWorkspace';
 import { GuidedBudgetCart } from '../features/workflow/components/GuidedBudgetCart';
@@ -205,9 +206,10 @@ function ReportsScreen({ captures }: { captures: CalculationCapture[] }) {
 
 function MoreScreen() {
   return (
-    <section className="app-screen">
-      <header className="screen-header"><h1>Mais</h1><p>Configurações, pacotes e informações do OrçaOS.</p></header>
-      <div className="settings-group"><h2>Conta</h2><article className="settings-row"><span className="app-icon tone-blue">▤</span><span><strong>Dados da OS / Cliente</strong><small>Aparece no cabeçalho dos relatórios</small></span><span className="chevron">›</span></article><article className="settings-row"><span className="app-icon tone-gray">▣</span><span><strong>Meu plano</strong><small>{userPlan === 'pro' ? 'Pro ativo' : 'Grátis · Fundamentos livres'}</small></span><span className="chevron">›</span></article><article className="settings-row"><span className="app-icon tone-green">◷</span><span><strong>Histórico</strong><small>Orçamentos, levantamentos e cálculos recentes</small></span><span className="chevron">›</span></article></div>
+    <section className="app-screen wide-screen">
+      <header className="screen-header"><h1>Mais</h1><p>Clientes, ordens de serviço, configurações, pacotes e informações do OrçaOS.</p></header>
+      <ClientWorkOrderWorkspace />
+      <div className="settings-group"><h2>Conta</h2><article className="settings-row"><span className="app-icon tone-gray">▣</span><span><strong>Meu plano</strong><small>{userPlan === 'pro' ? 'Pro ativo' : 'Grátis · Fundamentos livres'}</small></span><span className="chevron">›</span></article><article className="settings-row"><span className="app-icon tone-green">◷</span><span><strong>Histórico</strong><small>Orçamentos, levantamentos, relatórios e cálculos recentes</small></span><span className="chevron">›</span></article></div>
       <div className="settings-group"><h2>Loja</h2>{storePackages.map((pack) => <article className="store-card" key={pack.title}><span className="app-icon tone-blue">▣</span><span><strong>{pack.title}</strong><small>{pack.description}</small><b>{pack.price}</b></span><button type="button">{pack.action}</button></article>)}</div>
       <div className="settings-group"><h2>Sobre</h2><article className="settings-row"><span className="app-icon tone-blue">i</span><span><strong>Sobre o app</strong><small>Versão 0.1.0</small></span><span className="chevron">›</span></article><article className="settings-row"><span className="app-icon tone-green">◇</span><span><strong>Roadmap</strong><small>OrçaOS, levantamentos, relatórios, OS e mais módulos</small></span><span className="chevron">›</span></article></div>
     </section>
