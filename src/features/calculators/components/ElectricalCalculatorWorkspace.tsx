@@ -30,11 +30,21 @@ type CalculatorMode =
 
 interface NumberFieldProps {
   label: string;
-  value: number;
+  value: string;
   suffix?: string;
   min?: number;
   step?: number;
-  onChange: (value: number) => void;
+  onChange: (value: string) => void;
+}
+
+function parseCalculatorNumber(value: string): number {
+  const normalizedValue = value.trim().replace(',', '.');
+
+  if (!normalizedValue) {
+    return Number.NaN;
+  }
+
+  return Number(normalizedValue);
 }
 
 function NumberField({ label, value, suffix, min = 0, step = 0.01, onChange }: NumberFieldProps) {
@@ -48,7 +58,8 @@ function NumberField({ label, value, suffix, min = 0, step = 0.01, onChange }: N
           min={min}
           step={step}
           value={value}
-          onChange={(event) => onChange(Number(event.target.value))}
+          placeholder="Digite o valor"
+          onChange={(event) => onChange(event.target.value)}
         />
         {suffix && <small>{suffix}</small>}
       </div>
@@ -93,36 +104,61 @@ const calculatorTabs: Array<{ mode: CalculatorMode; label: string }> = [
 export function ElectricalCalculatorWorkspace() {
   const [mode, setMode] = useState<CalculatorMode>('current');
 
-  const [powerWatts, setPowerWatts] = useState(2200);
-  const [apparentPowerVa, setApparentPowerVa] = useState(2200);
-  const [voltageVolts, setVoltageVolts] = useState(220);
-  const [currentAmps, setCurrentAmps] = useState(10);
-  const [powerFactor, setPowerFactor] = useState(1);
+  const [powerWatts, setPowerWatts] = useState('2200');
+  const [apparentPowerVa, setApparentPowerVa] = useState('2200');
+  const [voltageVolts, setVoltageVolts] = useState('220');
+  const [currentAmps, setCurrentAmps] = useState('10');
+  const [powerFactor, setPowerFactor] = useState('1');
   const [phase, setPhase] = useState<CircuitPhase>('single-phase');
 
-  const [hoursPerDay, setHoursPerDay] = useState(2);
-  const [days, setDays] = useState(30);
-  const [tariff, setTariff] = useState(0.95);
+  const [hoursPerDay, setHoursPerDay] = useState('2');
+  const [days, setDays] = useState('30');
+  const [tariff, setTariff] = useState('0.95');
 
-  const [distanceMeters, setDistanceMeters] = useState(25);
-  const [sectionMm2, setSectionMm2] = useState(2.5);
+  const [distanceMeters, setDistanceMeters] = useState('25');
+  const [sectionMm2, setSectionMm2] = useState('2.5');
 
-  const [areaM2, setAreaM2] = useState(12);
-  const [targetLux, setTargetLux] = useState(300);
-  const [lampLumens, setLampLumens] = useState(800);
+  const [areaM2, setAreaM2] = useState('12');
+  const [targetLux, setTargetLux] = useState('300');
+  const [lampLumens, setLampLumens] = useState('800');
 
-  const [people, setPeople] = useState(2);
-  const [electronics, setElectronics] = useState(1);
-  const [sunFactor, setSunFactor] = useState(1);
+  const [people, setPeople] = useState('2');
+  const [electronics, setElectronics] = useState('1');
+  const [sunFactor, setSunFactor] = useState('1');
 
-  const [cableExternalDiameterMm, setCableExternalDiameterMm] = useState(4);
-  const [cableCount, setCableCount] = useState(3);
-  const [conduitInternalDiameterMm, setConduitInternalDiameterMm] = useState(16);
+  const [cableExternalDiameterMm, setCableExternalDiameterMm] = useState('4');
+  const [cableCount, setCableCount] = useState('3');
+  const [conduitInternalDiameterMm, setConduitInternalDiameterMm] = useState('16');
 
   const result = useMemo(() => {
+    const powerWattsNumber = parseCalculatorNumber(powerWatts);
+    const apparentPowerVaNumber = parseCalculatorNumber(apparentPowerVa);
+    const voltageVoltsNumber = parseCalculatorNumber(voltageVolts);
+    const currentAmpsNumber = parseCalculatorNumber(currentAmps);
+    const powerFactorNumber = parseCalculatorNumber(powerFactor);
+    const hoursPerDayNumber = parseCalculatorNumber(hoursPerDay);
+    const daysNumber = parseCalculatorNumber(days);
+    const tariffNumber = parseCalculatorNumber(tariff);
+    const distanceMetersNumber = parseCalculatorNumber(distanceMeters);
+    const sectionMm2Number = parseCalculatorNumber(sectionMm2);
+    const areaM2Number = parseCalculatorNumber(areaM2);
+    const targetLuxNumber = parseCalculatorNumber(targetLux);
+    const lampLumensNumber = parseCalculatorNumber(lampLumens);
+    const peopleNumber = parseCalculatorNumber(people);
+    const electronicsNumber = parseCalculatorNumber(electronics);
+    const sunFactorNumber = parseCalculatorNumber(sunFactor);
+    const cableExternalDiameterMmNumber = parseCalculatorNumber(cableExternalDiameterMm);
+    const cableCountNumber = parseCalculatorNumber(cableCount);
+    const conduitInternalDiameterMmNumber = parseCalculatorNumber(conduitInternalDiameterMm);
+
     try {
       if (mode === 'current') {
-        const current = calculateCurrentFromPower({ powerWatts, voltageVolts, powerFactor, phase });
+        const current = calculateCurrentFromPower({
+          powerWatts: powerWattsNumber,
+          voltageVolts: voltageVoltsNumber,
+          powerFactor: powerFactorNumber,
+          phase,
+        });
         const breaker = suggestNextBreaker(current);
         const cable = suggestMinimumCableSectionByCurrent(current);
 
@@ -149,7 +185,12 @@ export function ElectricalCalculatorWorkspace() {
       }
 
       if (mode === 'power') {
-        const power = calculatePowerFromCurrent({ currentAmps, voltageVolts, powerFactor, phase });
+        const power = calculatePowerFromCurrent({
+          currentAmps: currentAmpsNumber,
+          voltageVolts: voltageVoltsNumber,
+          powerFactor: powerFactorNumber,
+          phase,
+        });
 
         return {
           error: null,
@@ -164,8 +205,12 @@ export function ElectricalCalculatorWorkspace() {
       }
 
       if (mode === 'conversion') {
-        const apparentPower = calculateApparentPower({ powerWatts, powerFactor });
-        const currentFromVa = calculateCurrentFromApparentPower({ apparentPowerVa, voltageVolts, phase });
+        const apparentPower = calculateApparentPower({ powerWatts: powerWattsNumber, powerFactor: powerFactorNumber });
+        const currentFromVa = calculateCurrentFromApparentPower({
+          apparentPowerVa: apparentPowerVaNumber,
+          voltageVolts: voltageVoltsNumber,
+          phase,
+        });
 
         return {
           error: null,
@@ -173,12 +218,12 @@ export function ElectricalCalculatorWorkspace() {
             {
               label: 'Potência aparente',
               value: `${roundTechnical(apparentPower)} VA`,
-              helper: `Base: ${powerWatts} W com FP ${powerFactor}`,
+              helper: `Base: ${powerWatts || '-'} W com FP ${powerFactor || '-'}`,
             },
             {
               label: 'Corrente por VA',
               value: `${roundTechnical(currentFromVa)} A`,
-              helper: `Base: ${apparentPowerVa} VA em ${voltageVolts} V`,
+              helper: `Base: ${apparentPowerVa || '-'} VA em ${voltageVolts || '-'} V`,
             },
           ],
         };
@@ -186,10 +231,10 @@ export function ElectricalCalculatorWorkspace() {
 
       if (mode === 'consumption') {
         const consumption = calculateEnergyConsumption({
-          powerWatts,
-          hoursPerDay,
-          days,
-          tariffPerKwh: tariff,
+          powerWatts: powerWattsNumber,
+          hoursPerDay: hoursPerDayNumber,
+          days: daysNumber,
+          tariffPerKwh: tariffNumber,
         });
 
         return {
@@ -198,12 +243,12 @@ export function ElectricalCalculatorWorkspace() {
             {
               label: 'Consumo no período',
               value: `${roundTechnical(consumption.kwh)} kWh`,
-              helper: `${hoursPerDay} h/dia por ${days} dias`,
+              helper: `${hoursPerDay || '-'} h/dia por ${days || '-'} dias`,
             },
             {
               label: 'Custo estimado',
               value: `R$ ${roundTechnical(consumption.estimatedCost ?? 0)}`,
-              helper: `Tarifa usada: R$ ${tariff}/kWh`,
+              helper: `Tarifa usada: R$ ${tariff || '-'}/kWh`,
             },
           ],
         };
@@ -211,10 +256,10 @@ export function ElectricalCalculatorWorkspace() {
 
       if (mode === 'voltage-drop') {
         const drop = calculateVoltageDrop({
-          currentAmps,
-          distanceMeters,
-          sectionMm2,
-          voltageVolts,
+          currentAmps: currentAmpsNumber,
+          distanceMeters: distanceMetersNumber,
+          sectionMm2: sectionMm2Number,
+          voltageVolts: voltageVoltsNumber,
           phase,
           material: 'copper',
         });
@@ -237,7 +282,12 @@ export function ElectricalCalculatorWorkspace() {
       }
 
       if (mode === 'circuit-recommendation') {
-        const recommendation = recommendCircuit({ powerWatts, voltageVolts, powerFactor, phase });
+        const recommendation = recommendCircuit({
+          powerWatts: powerWattsNumber,
+          voltageVolts: voltageVoltsNumber,
+          powerFactor: powerFactorNumber,
+          phase,
+        });
 
         return {
           error: null,
@@ -262,7 +312,7 @@ export function ElectricalCalculatorWorkspace() {
       }
 
       if (mode === 'lighting') {
-        const lighting = calculateLighting({ areaM2, targetLux, lampLumens });
+        const lighting = calculateLighting({ areaM2: areaM2Number, targetLux: targetLuxNumber, lampLumens: lampLumensNumber });
 
         return {
           error: null,
@@ -270,19 +320,24 @@ export function ElectricalCalculatorWorkspace() {
             {
               label: 'Fluxo necessário',
               value: `${roundTechnical(lighting.requiredLumens)} lm`,
-              helper: `${areaM2} m² × ${targetLux} lux`,
+              helper: `${areaM2 || '-'} m² × ${targetLux || '-'} lux`,
             },
             {
               label: 'Quantidade de luminárias',
               value: lighting.lampQuantity ? `${lighting.lampQuantity}` : 'Informe lúmens',
-              helper: `Base: ${lampLumens} lm por luminária`,
+              helper: `Base: ${lampLumens || '-'} lm por luminária`,
             },
           ],
         };
       }
 
       if (mode === 'air-conditioning') {
-        const sizing = calculateAirConditioningSizing({ areaM2, people, electronics, sunFactor });
+        const sizing = calculateAirConditioningSizing({
+          areaM2: areaM2Number,
+          people: peopleNumber,
+          electronics: electronicsNumber,
+          sunFactor: sunFactorNumber,
+        });
 
         return {
           error: null,
@@ -301,7 +356,11 @@ export function ElectricalCalculatorWorkspace() {
         };
       }
 
-      const conduit = calculateConduitFill({ cableExternalDiameterMm, cableCount, conduitInternalDiameterMm });
+      const conduit = calculateConduitFill({
+        cableExternalDiameterMm: cableExternalDiameterMmNumber,
+        cableCount: cableCountNumber,
+        conduitInternalDiameterMm: conduitInternalDiameterMmNumber,
+      });
 
       return {
         error: null,
@@ -309,7 +368,7 @@ export function ElectricalCalculatorWorkspace() {
           {
             label: 'Área total dos cabos',
             value: `${roundTechnical(conduit.totalCableAreaMm2)} mm²`,
-            helper: `${cableCount} cabos de ${cableExternalDiameterMm} mm externo`,
+            helper: `${cableCount || '-'} cabos de ${cableExternalDiameterMm || '-'} mm externo`,
           },
           {
             label: 'Ocupação do eletroduto',
@@ -320,7 +379,7 @@ export function ElectricalCalculatorWorkspace() {
       };
     } catch (error) {
       return {
-        error: error instanceof Error ? error.message : 'Não foi possível calcular com os valores informados.',
+        error: error instanceof Error ? error.message : 'Preencha os campos necessários para calcular.',
         cards: [],
       };
     }
