@@ -2,6 +2,7 @@ import { useMemo, useState, type ChangeEvent } from 'react';
 import type { CatalogItem } from '../../../core/types/business';
 import type { CalculationCapture, CalculationDestination, TechnicalItemType } from '../../../core/types/workflow';
 import { loadCatalogItems } from '../../budgets/storage/catalogStorage';
+import './GuidedBudgetCart.css';
 
 interface GuidedBudgetCartProps {
   onSendToBudget: (items: CalculationCapture[]) => void;
