@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { CalculatorModule, UserPlan } from '../core/access/featureAccess';
 import type { Client, WorkOrder } from '../core/types/business';
 import type { CalculationCapture, CalculationDestination } from '../core/types/workflow';
@@ -338,11 +338,11 @@ export function App() {
     setCaptures((current) => current.filter((capture) => capture.id !== id));
   }
 
-  function handleContextChange(nextClients: Client[], nextWorkOrders: WorkOrder[], nextActiveWorkOrderId: string | null) {
+  const handleContextChange = useCallback((nextClients: Client[], nextWorkOrders: WorkOrder[], nextActiveWorkOrderId: string | null) => {
     setClients(nextClients);
     setWorkOrders(nextWorkOrders);
     setActiveWorkOrderId(nextActiveWorkOrderId);
-  }
+  }, []);
 
   function goTo(tab: AppTab) {
     setActiveTab(tab);
