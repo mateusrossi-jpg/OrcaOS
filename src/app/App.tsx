@@ -5,12 +5,13 @@ import type { CalculationCapture, CalculationDestination } from '../core/types/w
 import { getFreeCalculatorCount, getProCalculatorCount } from '../core/access/featureAccess';
 import { BudgetWorkspace } from '../features/budgets/components/BudgetWorkspace';
 import { ElectricalCalculatorWorkspace } from '../features/calculators/components/ElectricalCalculatorWorkspace';
+import { ReportWorkspace } from '../features/reports/components/ReportWorkspace';
 import { GuidedBudgetCart } from '../features/workflow/components/GuidedBudgetCart';
 import { TechnicalCaptureList } from '../features/workflow/components/TechnicalCaptureList';
 import { suggestNextBreaker } from '../data/electrical-tables/commercialBreakers';
 import { suggestMinimumCableSectionByCurrent } from '../data/electrical-tables/cableSections';
 
-type AppTab = 'home' | 'calculations' | 'survey' | 'budgets' | 'more';
+type AppTab = 'home' | 'calculations' | 'survey' | 'budgets' | 'reports' | 'more';
 type ModuleTone = 'blue' | 'gray' | 'green' | 'orange' | 'muted';
 type ModulePlan = 'free' | 'pro' | 'soon';
 type ModuleId = 'fundamentos' | 'instalacoes' | 'iluminacao' | 'refrigeracao' | 'motores' | 'rebobinagem' | 'automacaoIndustrial';
@@ -66,9 +67,10 @@ const storePackages = [
 
 const navItems: Array<{ id: AppTab; label: string; icon: string }> = [
   { id: 'home', label: 'Início', icon: '⌂' },
-  { id: 'calculations', label: 'Cálculos', icon: '▦' },
+  { id: 'calculations', label: 'Cálc.', icon: '▦' },
   { id: 'survey', label: 'Levant.', icon: '▤' },
   { id: 'budgets', label: 'Orçam.', icon: '▣' },
+  { id: 'reports', label: 'Relat.', icon: '◫' },
   { id: 'more', label: 'Mais', icon: '•••' },
 ];
 
@@ -187,7 +189,16 @@ function BudgetsScreen({ captures, onRemove, onUpdate }: { captures: Calculation
       <header className="screen-header"><h1>Orçamentos</h1><p>Monte propostas, salve rascunhos locais e gere uma prévia para imprimir ou salvar em PDF.</p></header>
       <div className="survey-intro-card"><span className="app-icon tone-orange">▣</span><span><strong>Itens técnicos enviados ao orçamento</strong><small>{budgetCaptures.length} item(ns) técnicos salvos localmente como base comercial.</small></span></div>
       <TechnicalCaptureList captures={budgetCaptures} emptyText="Abra um cálculo ou use o levantamento guiado para enviar itens ao orçamento." onRemove={onRemove} onUpdate={onUpdate} />
-      <BudgetWorkspace />
+      <BudgetWorkspace technicalCaptures={budgetCaptures} onTechnicalCaptureConverted={(id) => onUpdate(id, { convertedToBudgetItem: true })} />
+    </section>
+  );
+}
+
+function ReportsScreen({ captures }: { captures: CalculationCapture[] }) {
+  return (
+    <section className="app-screen wide-screen">
+      <header className="screen-header"><h1>Relatórios</h1><p>Gere uma prévia técnica com fotos, diagnósticos, observações e especificações vindas do levantamento.</p></header>
+      <ReportWorkspace captures={captures} />
     </section>
   );
 }
@@ -243,6 +254,7 @@ export function App() {
         {activeTab === 'calculations' && <CalculationsScreen selectedModule={selectedModule} openModule={openModule} goTo={goTo} onCaptureCalculation={addCalculationCapture} />}
         {activeTab === 'survey' && <SurveyScreen captures={captures} onRemove={removeCalculationCapture} onUpdate={updateCalculationCapture} onAddMany={addManyCalculationCaptures} />}
         {activeTab === 'budgets' && <BudgetsScreen captures={captures} onRemove={removeCalculationCapture} onUpdate={updateCalculationCapture} />}
+        {activeTab === 'reports' && <ReportsScreen captures={captures} />}
         {activeTab === 'more' && <MoreScreen />}
       </div>
       <nav className="bottom-nav" aria-label="Navegação principal">{navItems.map((item) => <button className={activeTab === item.id ? 'active' : ''} key={item.id} type="button" onClick={() => goTo(item.id)}><span>{item.icon}</span><small>{item.label}</small></button>)}</nav>
