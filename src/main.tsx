@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import { App } from './app/App';
 import './styles/global.css';
 import './styles/mobileLayoutFix.css';
+import './styles/workContext.css';
 
 const rootElement = document.getElementById('root');
 
