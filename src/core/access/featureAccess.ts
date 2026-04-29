@@ -14,9 +14,16 @@ export type CalculatorMode =
   | 'conduit-fill'
   | 'circuit-recommendation'
   | 'cable-section-drop'
-  | 'awg-conversion';
+  | 'max-distance-drop'
+  | 'transformer-sizing'
+  | 'awg-conversion'
+  | 'motor-current'
+  | 'motor-speed'
+  | 'pulley-ratio'
+  | 'analog-4-20ma'
+  | 'analog-0-10v';
 
-export type CalculatorModule = 'fundamentals' | 'installations' | 'environments';
+export type CalculatorModule = 'fundamentals' | 'installations' | 'environments' | 'motors' | 'automation';
 
 export interface CalculatorAccessRule {
   mode: CalculatorMode;
@@ -91,6 +98,20 @@ export const calculatorAccessRules: CalculatorAccessRule[] = [
     shortDescription: 'Seção mínima estimada a partir da queda de tensão máxima.',
   },
   {
+    mode: 'max-distance-drop',
+    label: 'Distância máxima',
+    module: 'installations',
+    plan: 'pro',
+    shortDescription: 'Distância máxima estimada respeitando uma queda de tensão limite.',
+  },
+  {
+    mode: 'transformer-sizing',
+    label: 'Transformador',
+    module: 'installations',
+    plan: 'pro',
+    shortDescription: 'Dimensionamento inicial de transformador em kVA com margem.',
+  },
+  {
     mode: 'awg-conversion',
     label: 'AWG ↔ mm²',
     module: 'installations',
@@ -124,6 +145,41 @@ export const calculatorAccessRules: CalculatorAccessRule[] = [
     module: 'environments',
     plan: 'pro',
     shortDescription: 'Estimativa inicial de capacidade em BTU/h.',
+  },
+  {
+    mode: 'motor-current',
+    label: 'Corrente motor',
+    module: 'motors',
+    plan: 'pro',
+    shortDescription: 'Corrente estimada de motor por potência mecânica, rendimento e fator de potência.',
+  },
+  {
+    mode: 'motor-speed',
+    label: 'Rotação motor',
+    module: 'motors',
+    plan: 'pro',
+    shortDescription: 'Rotação síncrona e escorregamento por frequência, polos e RPM medido.',
+  },
+  {
+    mode: 'pulley-ratio',
+    label: 'Polias',
+    module: 'motors',
+    plan: 'pro',
+    shortDescription: 'Relação de polias e rotação do eixo movido.',
+  },
+  {
+    mode: 'analog-4-20ma',
+    label: '4–20 mA',
+    module: 'automation',
+    plan: 'pro',
+    shortDescription: 'Escalonamento de sinal 4–20 mA para valor de engenharia.',
+  },
+  {
+    mode: 'analog-0-10v',
+    label: '0–10 V',
+    module: 'automation',
+    plan: 'pro',
+    shortDescription: 'Escalonamento de sinal 0–10 V para valor de engenharia.',
   },
 ];
 
