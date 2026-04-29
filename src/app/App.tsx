@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { calculateCurrentFromPower, roundTechnical } from '../core/calculations/electrical';
 import { calculateBudgetSubtotal } from '../core/pricing/budget';
+import type { UserPlan } from '../core/access/featureAccess';
+import { getFreeCalculatorCount, getProCalculatorCount } from '../core/access/featureAccess';
 import { BudgetWorkspace } from '../features/budgets/components/BudgetWorkspace';
-import { calculatorCatalog } from '../features/calculators/calculatorCatalog';
 import { ElectricalCalculatorWorkspace } from '../features/calculators/components/ElectricalCalculatorWorkspace';
 import { starterElectricalBudgetItems } from '../features/budgets/budgetTemplates';
 import { suggestNextBreaker } from '../data/electrical-tables/commercialBreakers';
@@ -12,6 +13,8 @@ type AppTab = 'home' | 'modules' | 'favorites' | 'budgets' | 'more';
 
 type ModuleTone = 'blue' | 'gray' | 'green' | 'orange' | 'muted';
 
+type ModulePlan = 'free' | 'pro' | 'soon';
+
 interface ModuleCardData {
   id: string;
   title: string;
@@ -20,7 +23,10 @@ interface ModuleCardData {
   tone: ModuleTone;
   count: string;
   available: boolean;
+  plan: ModulePlan;
 }
+
+const userPlan: UserPlan = 'free';
 
 const demoCurrent = calculateCurrentFromPower({
   powerWatts: 2200,
@@ -31,25 +37,29 @@ const demoCurrent = calculateCurrentFromPower({
 const demoBudgetSubtotal = calculateBudgetSubtotal(starterElectricalBudgetItems);
 const suggestedBreaker = suggestNextBreaker(demoCurrent);
 const suggestedCable = suggestMinimumCableSectionByCurrent(demoCurrent);
+const freeCalculatorCount = getFreeCalculatorCount();
+const proCalculatorCount = getProCalculatorCount();
 
 const modules: ModuleCardData[] = [
   {
     id: 'fundamentos',
     title: 'Fundamentos',
-    description: 'Ohm, potência, VA e consumo',
+    description: 'Corrente, potência, VA e consumo',
     icon: 'ϟ',
     tone: 'blue',
-    count: '5 cálculos · 4 grátis',
+    count: '4 cálculos livres',
     available: true,
+    plan: 'free',
   },
   {
     id: 'instalacoes',
     title: 'Instalações',
-    description: 'Bitola, queda, disjuntor e eletroduto',
+    description: 'Queda, disjuntor, cabo e eletroduto',
     icon: '⌁',
     tone: 'gray',
-    count: '5 cálculos · 2 grátis',
+    count: '3 cálculos Pro',
     available: true,
+    plan: 'pro',
   },
   {
     id: 'ambientes',
@@ -57,8 +67,9 @@ const modules: ModuleCardData[] = [
     description: 'Iluminação e ar-condicionado',
     icon: '☀',
     tone: 'green',
-    count: '2 cálculos · 2 grátis',
+    count: '2 cálculos Pro',
     available: true,
+    plan: 'pro',
   },
   {
     id: 'orcamentos',
@@ -66,8 +77,9 @@ const modules: ModuleCardData[] = [
     description: 'Cliente, itens, PDF e histórico local',
     icon: '▣',
     tone: 'orange',
-    count: 'Funcional inicial',
+    count: 'Base grátis inicial',
     available: true,
+    plan: 'free',
   },
   {
     id: 'motores',
@@ -77,6 +89,7 @@ const modules: ModuleCardData[] = [
     tone: 'muted',
     count: 'Em breve',
     available: false,
+    plan: 'soon',
   },
   {
     id: 'automacao',
@@ -86,32 +99,43 @@ const modules: ModuleCardData[] = [
     tone: 'muted',
     count: 'Em breve',
     available: false,
+    plan: 'soon',
   },
 ];
 
 const featuredCalculators = [
-  { title: 'Corrente por potência', module: 'Fundamentos', badge: 'GRÁTIS', icon: 'ϟ' },
-  { title: 'Potência elétrica', module: 'Fundamentos', badge: 'GRÁTIS', icon: 'ϟ' },
-  { title: 'Consumo em kWh', module: 'Fundamentos', badge: 'GRÁTIS', icon: 'ϟ' },
+  { title: 'Corrente por potência', module: 'Fundamentos', badge: 'LIVRE', icon: 'ϟ' },
+  { title: 'Potência elétrica', module: 'Fundamentos', badge: 'LIVRE', icon: 'ϟ' },
+  { title: 'W / VA / A', module: 'Fundamentos', badge: 'LIVRE', icon: 'ϟ' },
+  { title: 'Consumo em kWh', module: 'Fundamentos', badge: 'LIVRE', icon: 'ϟ' },
   { title: 'Queda de tensão', module: 'Instalações', badge: 'PRO', icon: '⌁' },
-  { title: 'Iluminação', module: 'Ambientes', badge: 'GRÁTIS', icon: '☀' },
+  { title: 'Iluminação', module: 'Ambientes', badge: 'PRO', icon: '☀' },
 ];
 
 const storePackages = [
   {
-    title: 'Pacote Fundamentos',
-    description: 'Desbloqueia todos os cálculos básicos e histórico completo.',
+    title: 'Fundamentos grátis',
+    description: 'Corrente, potência, W/VA/A e consumo liberados sem assinatura.',
+    price: 'R$ 0',
+    action: 'Já incluso',
+  },
+  {
+    title: 'Pacote Instalações Pro',
+    description: 'Queda de tensão, cabo/disjuntor e ocupação de eletroduto.',
+    price: 'R$ 12,90',
+    action: 'Detalhes',
+  },
+  {
+    title: 'Pacote Ambientes Pro',
+    description: 'Iluminação por ambiente e estimativa de ar-condicionado.',
     price: 'R$ 9,90',
+    action: 'Detalhes',
   },
   {
-    title: 'Pacote Instalações',
-    description: 'Bitola, disjuntor, queda de tensão, AWG e eletroduto.',
+    title: 'Pacote Orçamentos Pro',
+    description: 'Modelos avançados, identidade profissional, PDF e recursos comerciais.',
     price: 'R$ 12,90',
-  },
-  {
-    title: 'Pacote Orçamentos',
-    description: 'Modelos, impressão, PDFs e recursos profissionais.',
-    price: 'R$ 12,90',
+    action: 'Detalhes',
   },
 ];
 
@@ -123,6 +147,18 @@ const navItems: Array<{ id: AppTab; label: string; icon: string }> = [
   { id: 'more', label: 'Mais', icon: '•••' },
 ];
 
+function planLabel(plan: ModulePlan): string {
+  if (plan === 'free') {
+    return 'LIVRE';
+  }
+
+  if (plan === 'pro') {
+    return 'PRO';
+  }
+
+  return 'EM BREVE';
+}
+
 function ModuleCard({ module, compact = false, onOpen }: { module: ModuleCardData; compact?: boolean; onOpen?: () => void }) {
   return (
     <button className={module.available ? 'module-app-card' : 'module-app-card disabled'} type="button" onClick={onOpen}>
@@ -131,7 +167,7 @@ function ModuleCard({ module, compact = false, onOpen }: { module: ModuleCardDat
         <strong>{module.title}</strong>
         <small>{compact ? module.count : module.description}</small>
       </span>
-      {!compact && !module.available && <em>Em breve</em>}
+      <em className={`module-plan-pill ${module.plan}`}>{planLabel(module.plan)}</em>
       {compact && <span className="chevron">›</span>}
     </button>
   );
@@ -159,17 +195,26 @@ function HomeScreen({ goTo }: { goTo: (tab: AppTab) => void }) {
         <h1>
           Orça<span>OS</span>
         </h1>
-        <p>Calculadoras, orçamentos e relatórios técnicos para campo. Rápido, confiável e evoluindo com você.</p>
+        <p>Calculadoras, orçamentos e relatórios técnicos para campo. O essencial fica livre; os módulos profissionais entram no Pro.</p>
       </div>
 
       <button className="free-plan-card" type="button" onClick={() => goTo('modules')}>
         <span className="app-icon tone-blue">ϟ</span>
         <span>
-          <strong>Versão gratuita</strong>
-          <small>Cálculos essenciais já liberados em cada módulo.</small>
+          <strong>Fundamentos 100% livres</strong>
+          <small>{freeCalculatorCount} cálculos essenciais liberados para todos, sem limitar o uso geral.</small>
         </span>
-        <em>Ver</em>
+        <em>Usar</em>
       </button>
+
+      <div className="pro-teaser-card">
+        <span className="app-icon tone-orange">◆</span>
+        <span>
+          <strong>OrçaOS Pro</strong>
+          <small>Desbloqueia {proCalculatorCount} cálculos avançados, módulos técnicos e recursos profissionais.</small>
+        </span>
+        <button type="button" onClick={() => goTo('more')}>Ver planos</button>
+      </div>
 
       <div className="section-title-row">
         <h2>Módulos</h2>
@@ -187,7 +232,7 @@ function HomeScreen({ goTo }: { goTo: (tab: AppTab) => void }) {
       </div>
 
       <div className="calculator-list">
-        {featuredCalculators.slice(0, 4).map((calculator) => (
+        {featuredCalculators.slice(0, 5).map((calculator) => (
           <CalculatorRow key={calculator.title} {...calculator} />
         ))}
       </div>
@@ -223,7 +268,7 @@ function ModulesScreen({ goTo }: { goTo: (tab: AppTab) => void }) {
     <section className="app-screen">
       <header className="screen-header">
         <h1>Módulos</h1>
-        <p>Toque em um módulo para ver os cálculos e ferramentas disponíveis.</p>
+        <p>Fundamentos ficam livres. Instalações, ambientes e recursos profissionais entram como módulos Pro.</p>
       </header>
 
       <div className="module-list-app">
@@ -236,7 +281,7 @@ function ModulesScreen({ goTo }: { goTo: (tab: AppTab) => void }) {
         <h2>Calculadora ativa</h2>
       </div>
 
-      <ElectricalCalculatorWorkspace />
+      <ElectricalCalculatorWorkspace userPlan={userPlan} onUpgradeRequest={() => goTo('more')} />
     </section>
   );
 }
@@ -260,7 +305,7 @@ function FavoritesScreen() {
       </div>
 
       <div className="calculator-list">
-        <CalculatorRow title="Corrente por potência" module="Resultado: 10 A" badge="GRÁTIS" icon="ϟ" />
+        <CalculatorRow title="Corrente por potência" module="Fundamentos · Resultado: 10 A" badge="LIVRE" icon="ϟ" />
       </div>
     </section>
   );
@@ -299,8 +344,8 @@ function MoreScreen() {
         <article className="settings-row">
           <span className="app-icon tone-gray">▣</span>
           <span>
-            <strong>Meus pacotes</strong>
-            <small>0 ativo(s)</small>
+            <strong>Meu plano</strong>
+            <small>{userPlan === 'pro' ? 'Pro ativo' : 'Grátis · Fundamentos livres'}</small>
           </span>
           <span className="chevron">›</span>
         </article>
@@ -324,7 +369,7 @@ function MoreScreen() {
               <small>{pack.description}</small>
               <b>{pack.price}</b>
             </span>
-            <button type="button">Detalhes</button>
+            <button type="button">{pack.action}</button>
           </article>
         ))}
       </div>
