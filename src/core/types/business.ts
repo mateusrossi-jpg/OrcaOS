@@ -5,6 +5,8 @@ export interface Client {
   email?: string;
   address?: string;
   notes?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export type BudgetTemplateId = 'professional' | 'technical' | 'simple' | 'premiumModern' | 'premiumDetailed';
@@ -56,6 +58,10 @@ export interface WorkOrder {
   clientId?: string;
   title: string;
   description?: string;
+  address?: string;
+  priority?: 'low' | 'normal' | 'high' | 'urgent';
   status: 'open' | 'scheduled' | 'in-progress' | 'done' | 'cancelled';
   scheduledDate?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
