@@ -98,6 +98,7 @@ a {
 }
 
 .free-plan-card,
+.pro-teaser-card,
 .module-app-card,
 .calculator-row,
 .empty-state-card,
@@ -109,20 +110,30 @@ a {
   box-shadow: 0 1px 0 rgba(15, 31, 51, 0.02);
 }
 
-.free-plan-card {
+.free-plan-card,
+.pro-teaser-card {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
   gap: 16px;
   width: 100%;
   padding: 18px;
-  border-left: 8px solid #2267ce;
   color: inherit;
   text-align: left;
+}
+
+.free-plan-card {
+  border-left: 8px solid #2267ce;
   cursor: pointer;
 }
 
+.pro-teaser-card {
+  border-left: 8px solid #d97706;
+  background: linear-gradient(135deg, #fff8e8, #ffffff);
+}
+
 .free-plan-card strong,
+.pro-teaser-card strong,
 .module-app-card strong,
 .calculator-row strong,
 .empty-state-card strong,
@@ -135,23 +146,31 @@ a {
 }
 
 .free-plan-card small,
+.pro-teaser-card small,
 .module-app-card small,
 .calculator-row small,
 .settings-row small,
 .store-card small {
   display: block;
   margin-top: 4px;
+  color: #607085;
   font-size: 0.98rem;
   line-height: 1.32;
 }
 
-.free-plan-card em {
+.free-plan-card em,
+.pro-teaser-card button {
   border-radius: 999px;
   padding: 10px 18px;
   color: #ffffff;
   background: #124878;
   font-style: normal;
   font-weight: 900;
+}
+
+.pro-teaser-card button {
+  border: 0;
+  cursor: pointer;
 }
 
 .app-icon {
@@ -242,17 +261,30 @@ a {
   opacity: 0.65;
 }
 
-.module-app-card em {
+.module-app-card .module-plan-pill {
   width: fit-content;
   border-radius: 999px;
   padding: 7px 12px;
-  color: #9aa6b2;
-  background: #edf1f5;
   font-size: 0.76rem;
   font-style: normal;
   font-weight: 900;
   letter-spacing: 0.03em;
   text-transform: uppercase;
+}
+
+.module-plan-pill.free {
+  color: #166534;
+  background: #dcfce7;
+}
+
+.module-plan-pill.pro {
+  color: #8a4b00;
+  background: #fff1d8;
+}
+
+.module-plan-pill.soon {
+  color: #9aa6b2;
+  background: #edf1f5;
 }
 
 .module-list-app {
@@ -261,7 +293,7 @@ a {
 }
 
 .module-list-app .module-app-card {
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
   align-items: center;
   min-height: auto;
   padding: 18px;
@@ -302,8 +334,8 @@ a {
 }
 
 .badge-free {
-  color: #124878;
-  background: #e8f0fb;
+  color: #166534;
+  background: #dcfce7;
 }
 
 .badge-pro {
@@ -459,9 +491,35 @@ a {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .free-plan-card,
+  .pro-teaser-card {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .free-plan-card em,
+  .pro-teaser-card button {
+    grid-column: 1 / -1;
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+  }
+
   .module-app-card {
     min-height: 142px;
     padding: 16px;
+  }
+
+  .module-list-app .module-app-card {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+  }
+
+  .module-list-app .module-plan-pill {
+    grid-column: 2;
+  }
+
+  .module-list-app .chevron {
+    grid-row: 1 / span 2;
+    grid-column: 3;
   }
 
   .app-icon {
