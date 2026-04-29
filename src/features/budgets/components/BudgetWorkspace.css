@@ -8,10 +8,10 @@
 .saved-budget-panel,
 .budget-editor,
 .budget-summary {
-  border: 1px solid rgba(148, 163, 184, 0.2);
-  border-radius: 28px;
-  background: rgba(15, 23, 42, 0.72);
-  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.24);
+  border: 1px solid #d6e0eb;
+  border-radius: 24px;
+  background: #ffffff;
+  box-shadow: 0 1px 0 rgba(15, 31, 51, 0.02);
 }
 
 .budget-save-status {
@@ -23,12 +23,12 @@
 }
 
 .budget-save-status span {
-  color: #bbf7d0;
+  color: #16a34a;
   font-weight: 900;
 }
 
 .budget-save-status strong {
-  color: #e5e7eb;
+  color: #607085;
   font-size: 0.92rem;
 }
 
@@ -54,13 +54,13 @@
 
 .saved-budget-panel-header h3 {
   margin: 0;
-  color: #f8fafc;
+  color: #0b1d31;
   font-size: 1.3rem;
 }
 
 .saved-budget-panel-header p {
   margin: 6px 0 0;
-  color: #cbd5e1;
+  color: #607085;
   line-height: 1.5;
 }
 
@@ -74,15 +74,15 @@
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 10px;
   align-items: stretch;
-  border: 1px solid rgba(148, 163, 184, 0.16);
-  border-radius: 20px;
+  border: 1px solid #d6e0eb;
+  border-radius: 18px;
   padding: 12px;
-  background: rgba(2, 6, 23, 0.36);
+  background: #f8fafc;
 }
 
 .saved-budget-card.active {
-  border-color: rgba(96, 165, 250, 0.5);
-  background: rgba(37, 99, 235, 0.12);
+  border-color: #9dc3fb;
+  background: #eef5ff;
 }
 
 .saved-budget-open,
@@ -97,17 +97,17 @@
   display: grid;
   justify-items: start;
   gap: 4px;
-  color: #e5e7eb;
+  color: #0b1d31;
   text-align: left;
 }
 
 .saved-budget-open strong {
-  color: #f8fafc;
+  color: #0b1d31;
 }
 
 .saved-budget-open small,
 .saved-budget-open span {
-  color: #94a3b8;
+  color: #607085;
   line-height: 1.35;
 }
 
@@ -116,8 +116,8 @@
   border-radius: 14px;
   min-height: 40px;
   padding: 0 12px;
-  color: #fecaca;
-  background: rgba(220, 38, 38, 0.12);
+  color: #b91c1c;
+  background: #fff1f2;
   font-weight: 900;
 }
 
@@ -129,20 +129,20 @@
 
 .budget-editor,
 .budget-summary {
-  padding: 20px;
+  padding: 18px;
 }
 
 .budget-editor-title h3,
 .budget-summary h3 {
   margin: 0;
-  color: #f8fafc;
+  color: #0b1d31;
   font-size: 1.35rem;
 }
 
 .budget-editor-title p,
 .budget-summary p {
   margin: 8px 0 0;
-  color: #cbd5e1;
+  color: #607085;
   line-height: 1.6;
 }
 
@@ -159,22 +159,22 @@
 }
 
 .budget-field span {
-  color: #cbd5e1;
+  color: #607085;
   font-size: 0.9rem;
-  font-weight: 800;
+  font-weight: 900;
 }
 
 .budget-field input,
 .budget-field select {
   width: 100%;
   min-height: 48px;
-  border: 1px solid rgba(148, 163, 184, 0.24);
+  border: 1px solid #d6e0eb;
   border-radius: 16px;
   outline: 0;
-  color: #f8fafc;
-  background: rgba(15, 23, 42, 0.86);
+  color: #0b1d31;
+  background: #ffffff;
   font: inherit;
-  font-weight: 800;
+  font-weight: 850;
   padding: 0 14px;
 }
 
@@ -198,23 +198,36 @@
   cursor: not-allowed;
 }
 
+.primary-action.inline-action,
+.secondary-action.inline-action {
+  border-radius: 16px;
+  padding: 0 18px;
+}
+
+.primary-action.inline-action {
+  color: #ffffff;
+  background: #124878;
+}
+
+.secondary-action.inline-action,
 .ghost-action,
 .danger-action {
-  border: 1px solid rgba(148, 163, 184, 0.24);
+  border: 1px solid #d6e0eb;
   border-radius: 16px;
   padding: 0 18px;
   font: inherit;
-  font-weight: 800;
+  font-weight: 900;
 }
 
+.secondary-action.inline-action,
 .ghost-action {
-  color: #cbd5e1;
-  background: rgba(148, 163, 184, 0.08);
+  color: #124878;
+  background: #eef5ff;
 }
 
 .danger-action {
-  color: #fecaca;
-  background: rgba(220, 38, 38, 0.12);
+  color: #b91c1c;
+  background: #fff1f2;
 }
 
 .budget-items-list {
@@ -225,14 +238,14 @@
 
 .empty-budget,
 .budget-item-row {
-  border: 1px solid rgba(148, 163, 184, 0.16);
-  border-radius: 20px;
+  border: 1px solid #d6e0eb;
+  border-radius: 18px;
   padding: 16px;
-  background: rgba(2, 6, 23, 0.36);
+  background: #f8fafc;
 }
 
 .empty-budget {
-  color: #94a3b8;
+  color: #607085;
   text-align: center;
 }
 
@@ -245,13 +258,13 @@
 
 .budget-item-row strong {
   display: block;
-  color: #f8fafc;
+  color: #0b1d31;
 }
 
 .budget-item-row small {
   display: block;
   margin-top: 4px;
-  color: #94a3b8;
+  color: #607085;
 }
 
 .budget-item-total {
@@ -262,17 +275,17 @@
 }
 
 .budget-item-total span {
-  color: #f8fafc;
+  color: #0b1d31;
   font-weight: 900;
 }
 
 .budget-item-total button {
   border: 0;
-  color: #fecaca;
+  color: #b91c1c;
   background: transparent;
   font: inherit;
   font-size: 0.82rem;
-  font-weight: 800;
+  font-weight: 900;
   cursor: pointer;
 }
 
@@ -281,26 +294,26 @@
   width: fit-content;
   border-radius: 999px;
   padding: 7px 12px;
-  color: #bbf7d0;
-  background: rgba(22, 163, 74, 0.14);
+  color: #124878;
+  background: #e8f0fb;
   font-size: 0.8rem;
   font-weight: 900;
   margin-bottom: 12px;
 }
 
 .status-sent {
-  color: #bfdbfe;
-  background: rgba(37, 99, 235, 0.14);
+  color: #124878;
+  background: #e8f0fb;
 }
 
 .status-approved {
-  color: #bbf7d0;
-  background: rgba(22, 163, 74, 0.14);
+  color: #16a34a;
+  background: #e7f7ed;
 }
 
 .status-rejected {
-  color: #fecaca;
-  background: rgba(220, 38, 38, 0.14);
+  color: #b91c1c;
+  background: #fff1f2;
 }
 
 .summary-lines {
@@ -313,16 +326,16 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+  border-bottom: 1px solid #d6e0eb;
   padding-bottom: 10px;
 }
 
 .summary-lines span {
-  color: #94a3b8;
+  color: #607085;
 }
 
 .summary-lines strong {
-  color: #f8fafc;
+  color: #0b1d31;
 }
 
 .discount-field {
@@ -330,22 +343,22 @@
 }
 
 .summary-total {
-  border: 1px solid rgba(96, 165, 250, 0.24);
+  border: 1px solid #cfe0f8;
   border-radius: 22px;
   padding: 18px;
-  background: linear-gradient(135deg, rgba(37, 99, 235, 0.16), rgba(15, 23, 42, 0.92));
+  background: linear-gradient(135deg, #eef5ff, #ffffff);
 }
 
 .summary-total span {
   display: block;
-  color: #bfdbfe;
-  font-weight: 800;
+  color: #607085;
+  font-weight: 900;
 }
 
 .summary-total strong {
   display: block;
   margin-top: 6px;
-  color: #f8fafc;
+  color: #0b1d31;
   font-size: 2rem;
   line-height: 1.1;
 }
