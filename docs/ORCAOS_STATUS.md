@@ -8,7 +8,7 @@ A estratégia definida é manter o núcleo de cálculos fundamentais livre e mon
 
 ## Estrutura atual do app
 
-A navegação principal está separada em cinco áreas:
+A navegação principal está separada em seis áreas:
 
 1. **Início**
    - visão geral do app;
@@ -19,19 +19,31 @@ A navegação principal está separada em cinco áreas:
 2. **Cálculos**
    - área exclusiva para calculadoras e categorias técnicas;
    - não deve misturar orçamento, loja ou configurações;
-   - abre uma categoria técnica e depois uma calculadora específica em tela sobreposta.
+   - abre uma categoria técnica e depois uma calculadora específica em tela sobreposta;
+   - permite enviar resultado para levantamento, orçamento ou ambos.
 
 3. **Levantamento**
    - recebe resultados técnicos enviados pelos cálculos;
-   - serve como base de projeto, vistoria, visita técnica e relatório;
-   - atualmente salva dados localmente no navegador.
+   - possui levantamento guiado estilo carrinho;
+   - permite somar serviços/produtos por clique ou quantidade digitada;
+   - permite criar bloco manual com descrição, quantidade, valor, tipo, destino, observação e imagem;
+   - serve como base de projeto, vistoria, visita técnica, relatório e orçamento.
 
 4. **Orçamentos**
    - área exclusiva para proposta comercial;
-   - recebe resultados técnicos enviados pelos cálculos como base comercial;
-   - mantém o módulo de orçamento com itens, cliente, totais e prévia para impressão/PDF.
+   - recebe resultados técnicos enviados pelos cálculos e pelo levantamento guiado como base comercial;
+   - possui perfil profissional/empresa fixo com logo, documento, telefone, e-mail, endereço, responsável, validade, pagamento e observações;
+   - possui catálogo local de produtos e serviços;
+   - possui modelos de orçamento inclusos e modelos futuros Pro;
+   - gera prévia para impressão/PDF.
 
-5. **Mais**
+5. **Relatórios**
+   - área separada para relatório técnico de visita;
+   - usa itens de levantamento, diagnósticos, observações, especificações e fotos;
+   - gera prévia técnica imprimível/PDF;
+   - prepara a futura entrega de diagnóstico técnico ao cliente.
+
+6. **Mais**
    - configurações, plano, histórico, loja e roadmap.
 
 ## Módulos de cálculo atuais
@@ -84,6 +96,27 @@ A navegação principal está separada em cinco áreas:
   - capacitor/chave centrífuga;
   - bloqueios contra inversão indevida.
 
+- Manutenção preventiva
+  - retornos programados;
+  - limpeza, revisão, inspeção e acompanhamento por profissão;
+  - lembretes futuros por cliente/OS.
+
+## Fluxo técnico atual
+
+O fluxo principal do app está organizado assim:
+
+1. **Cálculo técnico** gera uma captura técnica.
+2. A captura pode ir para **Levantamento**, **Orçamento** ou **ambos**.
+3. O **Levantamento Guiado** também gera capturas técnicas a partir de:
+   - itens do catálogo;
+   - quantidades clicadas;
+   - quantidades digitadas;
+   - blocos manuais;
+   - imagens/fotos;
+   - observações e diagnósticos.
+4. O **Orçamento** importa itens técnicos pendentes e converte em itens comerciais.
+5. O **Relatório** usa itens técnicos, fotos e diagnósticos para gerar documento técnico.
+
 ## Decisões importantes já tomadas
 
 - O app deve ter experiência de smartphone, não de desktop.
@@ -94,39 +127,58 @@ A navegação principal está separada em cinco áreas:
   - orçamento;
   - ambos.
 - Orçamento não deve aparecer misturado com categorias de cálculo.
+- Levantamento deve funcionar como ferramenta de campo, incluindo carrinho guiado, blocos manuais e fotos.
+- Relatório técnico deve ser separado do orçamento comercial.
 - BTU deve ficar em Refrigeração, não em um módulo genérico de Ambientes.
 - Automação industrial deve ser módulo próprio.
 - Rebobinagem deve ser módulo próprio, mesmo que entre como futuro.
+- Modelos de orçamento podem virar produto/pacote Pro no futuro.
 
 ## Estado técnico atual
 
 - App React + Vite + TypeScript.
 - Interface mobile-first com navegação inferior.
 - Capturas de resultados de cálculo salvas em `localStorage`.
-- Separação lógica inicial entre cálculo, levantamento e orçamento.
-- Prévia de orçamento/PDF ainda precisa de refinamento visual para mobile.
-- O orçamento ainda não converte automaticamente o resultado técnico em item comercial com preço; por enquanto ele recebe a base técnica.
+- Separação lógica entre cálculo, levantamento, orçamento e relatório.
+- Orçamento com perfil profissional fixo, logo local/URL, catálogo e modelos.
+- Levantamento guiado com carrinho, quantidade digitável, blocos manuais e imagens.
+- Relatório técnico inicial com fotos, diagnósticos, observações e impressão/PDF.
+- Dados ainda são locais no navegador; ainda não há backend nem sincronização em nuvem.
 
 ## Próximas prioridades
 
-1. Validar `npm run typecheck` e `npm test` após cada rodada.
-2. Melhorar persistência do orçamento completo e dados do cliente/OS.
-3. Transformar capturas técnicas em itens editáveis:
-   - tipo: observação técnica, serviço, material ou diagnóstico;
+1. Validar `npm run typecheck`, `npm test` e `npm run build` após cada rodada.
+2. Criar cadastro real de cliente e OS:
+   - dados do cliente;
+   - endereço;
+   - contato;
+   - histórico;
+   - vínculo com orçamento, levantamento e relatório.
+3. Permitir edição direta dos itens já adicionados ao orçamento:
+   - descrição;
    - quantidade;
-   - preço;
-   - origem do cálculo.
-4. Melhorar a prévia de relatório/PDF em formato mobile e formato de impressão.
-5. Criar a tela de dados da OS/Cliente.
-6. Criar relatório técnico de visita separado do orçamento comercial.
-7. Expandir cálculos por módulo.
-8. Implementar favoritos/recorrentes posteriormente, sem prejudicar a navegação principal.
+   - valor unitário;
+   - categoria;
+   - origem técnica.
+4. Salvar orçamento completo com:
+   - modelo escolhido;
+   - perfil usado;
+   - cliente;
+   - condições;
+   - itens importados;
+   - status.
+5. Melhorar visual dos PDFs de orçamento e relatório.
+6. Expandir cálculos por módulo.
+7. Iniciar módulo de rebobinagem seguindo a regra de tensão, fechamento, sentido e bloqueio contra inversão indevida.
+8. Criar favoritos/recorrentes e pacotes de modelos posteriormente.
+9. Avaliar IndexedDB para imagens, pois `localStorage` pode ser limitado quando houver muitas fotos.
 
 ## Regra de evolução
 
 Toda nova função deve respeitar a separação:
 
 - **Cálculos**: ferramenta técnica e fórmulas.
-- **Levantamento**: especificações, diagnóstico e projeto.
-- **Orçamento**: proposta comercial, serviços, materiais e valores.
-- **Relatório/OS**: documento final para cliente ou histórico técnico.
+- **Levantamento**: especificações, diagnóstico, fotos, blocos manuais e projeto.
+- **Orçamento**: proposta comercial, serviços, materiais, valores e modelos.
+- **Relatório**: documento técnico para cliente, com diagnóstico, observações e fotos.
+- **OS/Cliente**: histórico, execução, manutenção preventiva e vínculo entre documentos.
