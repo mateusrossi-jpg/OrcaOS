@@ -1,6 +1,7 @@
 import { calculateCurrentFromPower, calculateEnergyConsumption, roundTechnical } from '../core/calculations/electrical';
 import { calculateBudgetSubtotal } from '../core/pricing/budget';
 import { calculatorCatalog } from '../features/calculators/calculatorCatalog';
+import { ElectricalCalculatorWorkspace } from '../features/calculators/components/ElectricalCalculatorWorkspace';
 import { starterElectricalBudgetItems } from '../features/budgets/budgetTemplates';
 import { suggestNextBreaker } from '../data/electrical-tables/commercialBreakers';
 import { suggestMinimumCableSectionByCurrent } from '../data/electrical-tables/cableSections';
@@ -61,8 +62,8 @@ export function App() {
           A base profissional para cálculos, orçamentos, relatórios e ordens de serviço de técnicos e eletricistas.
         </p>
         <div className="hero-actions">
-          <a href="#calculadoras" className="primary-action">
-            Ver calculadoras
+          <a href="#calculadora-ativa" className="primary-action">
+            Calcular agora
           </a>
           <a href="#modulos" className="secondary-action">
             Ver módulos
@@ -93,11 +94,20 @@ export function App() {
         </article>
       </section>
 
+      <section id="calculator-ativa" className="content-section">
+        <div className="section-header">
+          <span>Uso prático</span>
+          <h2>Calculadora elétrica ativa</h2>
+          <p>Agora a tela já calcula com os valores informados, pronta para teste manual no navegador.</p>
+        </div>
+        <ElectricalCalculatorWorkspace />
+      </section>
+
       <section id="calculadoras" className="content-section">
         <div className="section-header">
           <span>Ferramentas</span>
-          <h2>Calculadoras técnicas</h2>
-          <p>O catálogo já nasce separado da interface para facilitar testes, expansão e controle Free/Pro.</p>
+          <h2>Catálogo técnico</h2>
+          <p>O catálogo continua separado da interface para facilitar testes, expansão e controle Free/Pro.</p>
         </div>
 
         <div className="card-grid">
