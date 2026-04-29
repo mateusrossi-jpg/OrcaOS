@@ -3,13 +3,18 @@ export type UserPlan = 'free' | 'pro';
 export type CalculatorMode =
   | 'current'
   | 'power'
+  | 'ohms-law'
+  | 'power-resistance'
+  | 'resistor-network'
   | 'consumption'
   | 'voltage-drop'
   | 'conversion'
   | 'lighting'
   | 'air-conditioning'
   | 'conduit-fill'
-  | 'circuit-recommendation';
+  | 'circuit-recommendation'
+  | 'cable-section-drop'
+  | 'awg-conversion';
 
 export type CalculatorModule = 'fundamentals' | 'installations' | 'environments';
 
@@ -37,6 +42,27 @@ export const calculatorAccessRules: CalculatorAccessRule[] = [
     shortDescription: 'Potência por corrente, tensão, fase e fator de potência.',
   },
   {
+    mode: 'ohms-law',
+    label: 'Lei de Ohm',
+    module: 'fundamentals',
+    plan: 'free',
+    shortDescription: 'Resistência por tensão e corrente.',
+  },
+  {
+    mode: 'power-resistance',
+    label: 'Potência/R',
+    module: 'fundamentals',
+    plan: 'free',
+    shortDescription: 'Potência por resistência usando corrente ou tensão.',
+  },
+  {
+    mode: 'resistor-network',
+    label: 'Resistores',
+    module: 'fundamentals',
+    plan: 'free',
+    shortDescription: 'Associação de resistores em série e paralelo.',
+  },
+  {
     mode: 'conversion',
     label: 'W / VA / A',
     module: 'fundamentals',
@@ -56,6 +82,20 @@ export const calculatorAccessRules: CalculatorAccessRule[] = [
     module: 'installations',
     plan: 'pro',
     shortDescription: 'Estimativa de queda de tensão em condutores.',
+  },
+  {
+    mode: 'cable-section-drop',
+    label: 'Seção por queda',
+    module: 'installations',
+    plan: 'pro',
+    shortDescription: 'Seção mínima estimada a partir da queda de tensão máxima.',
+  },
+  {
+    mode: 'awg-conversion',
+    label: 'AWG ↔ mm²',
+    module: 'installations',
+    plan: 'pro',
+    shortDescription: 'Converta bitola AWG para mm² ou encontre AWG próximo.',
   },
   {
     mode: 'circuit-recommendation',
