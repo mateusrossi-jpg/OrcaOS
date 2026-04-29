@@ -77,6 +77,32 @@ export interface CableSectionFromVoltageDropResult {
   requiredSectionMm2: number;
 }
 
+export interface MaxDistanceFromVoltageDropInput {
+  currentAmps: number;
+  sectionMm2: number;
+  voltageVolts: number;
+  maxDropPercent: number;
+  phase?: CircuitPhase;
+  material?: 'copper' | 'aluminum';
+}
+
+export interface MaxDistanceFromVoltageDropResult {
+  maxDropVolts: number;
+  maxDistanceMeters: number;
+}
+
+export interface TransformerSizingInput {
+  loadWatts: number;
+  powerFactor?: PowerFactor;
+  safetyMarginPercent?: number;
+}
+
+export interface TransformerSizingResult {
+  apparentPowerKva: number;
+  apparentPowerWithMarginKva: number;
+  suggestedCommercialKva: number;
+}
+
 export interface AwgConversionResult {
   awg: string;
   sectionMm2: number;
@@ -103,6 +129,49 @@ export interface AirConditioningSizingInput {
 export interface AirConditioningSizingResult {
   estimatedBtus: number;
   suggestedCommercialBtus: number;
+}
+
+export interface MotorCurrentInput {
+  mechanicalPowerKw: number;
+  voltageVolts: number;
+  efficiency?: number;
+  powerFactor?: PowerFactor;
+  phase?: CircuitPhase;
+}
+
+export interface MotorSpeedInput {
+  frequencyHz: number;
+  poles: number;
+  measuredRpm?: number;
+}
+
+export interface MotorSpeedResult {
+  synchronousRpm: number;
+  slipPercent?: number;
+}
+
+export interface PulleyRatioInput {
+  motorRpm: number;
+  motorPulleyDiameterMm: number;
+  drivenPulleyDiameterMm: number;
+}
+
+export interface PulleyRatioResult {
+  drivenRpm: number;
+  ratio: number;
+}
+
+export interface AnalogScalingInput {
+  inputValue: number;
+  inputMin: number;
+  inputMax: number;
+  engineeringMin: number;
+  engineeringMax: number;
+}
+
+export interface AnalogScalingResult {
+  engineeringValue: number;
+  percent: number;
 }
 
 export interface ConduitFillInput {
