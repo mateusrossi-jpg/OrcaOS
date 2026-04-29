@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { Budget, BudgetItem } from '../../../core/types/business';
-import type { CalculationCapture } from '../../../core/types/workflow';
+import type { CalculationCapture, CalculationDestination } from '../../../core/types/workflow';
 import { calculateBudgetItemTotal, calculateBudgetSubtotal, calculateBudgetTotal } from '../../../core/pricing/budget';
 import { roundTechnical } from '../../../core/calculations/electrical';
 import { clearBudgetDraft, loadBudgetDraft, saveBudgetDraft } from '../storage/budgetDraftStorage';
@@ -35,6 +35,8 @@ const emptyDraftItem: DraftBudgetItem = {
   unitPrice: 0,
   category: 'labor',
 };
+
+const CAPTURES_STORAGE_KEY = 'orcaos:calculation-captures:v1';
 
 const currencyFormatter = new Intl.NumberFormat('pt-BR', {
   style: 'currency',
@@ -146,6 +148,57 @@ function technicalCaptureToBudgetItem(capture: CalculationCapture): BudgetItem {
   };
 }
 
+function isCalculationDestination(value: unknown): value is CalculationDestination {
+  return value === 'survey' || value === 'budget' || value === 'both';
+}
+
+function isCalculationCapture(value: unknown): value is CalculationCapture {
+  if (!value || typeof value !== 'object') {
+    return false;
+  }
+
+  const item = value as Partial<CalculationCapture>;
+
+  return (
+    typeof item.id === 'string' &&
+    typeof item.module === 'string' &&
+    typeof item.moduleLabel === 'string' &&
+    typeof item.calculatorLabel === 'string' &&
+    isCalculationDestination(item.destination) &&
+    typeof item.createdAt === 'string' &&
+    typeof item.summary === 'string' &&
+    Array.isArray(item.details) &&
+    item.details.every((detail) => typeof detail === 'string')
+  );
+}
+
+function loadStoredTechnicalCaptures(): CalculationCapture[] {
+  if (typeof window === 'undefined') {
+    return [];
+  }
+
+  try {
+    const storedValue = window.localStorage.getItem(CAPTURES_STORAGE_KEY);
+
+    if (!storedValue) {
+      return [];
+    }
+
+    const parsedValue: unknown = JSON.parse(storedValue);
+    return Array.isArray(parsedValue) ? parsedValue.filter(isCalculationCapture) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveStoredTechnicalCaptures(captures: CalculationCapture[]): void {
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  window.localStorage.setItem(CAPTURES_STORAGE_KEY, JSON.stringify(captures));
+}
+
 const savedDraft = loadBudgetDraft();
 
 export function BudgetWorkspace({ technicalCaptures = [], onTechnicalCaptureConverted }: BudgetWorkspaceProps) {
@@ -158,10 +211,18 @@ export function BudgetWorkspace({ technicalCaptures = [], onTechnicalCaptureConv
   const [activeBudgetId, setActiveBudgetId] = useState<string | null>(null);
   const [savedBudgets, setSavedBudgets] = useState<SavedBudgetRecord[]>(() => loadSavedBudgets());
   const [lastSavedAt, setLastSavedAt] = useState<string | null>(savedDraft?.updatedAt ?? null);
+  const [storedTechnicalCaptures, setStoredTechnicalCaptures] = useState<CalculationCapture[]>(() => loadStoredTechnicalCaptures());
+
+  const availableTechnicalCaptures = technicalCaptures.length > 0 ? technicalCaptures : storedTechnicalCaptures;
 
   const pendingTechnicalCaptures = useMemo(
-    () => technicalCaptures.filter((capture) => (capture.shouldGenerateBudgetItem ?? true) && !capture.convertedToBudgetItem),
-    [technicalCaptures],
+    () => availableTechnicalCaptures.filter(
+      (capture) =>
+        (capture.destination === 'budget' || capture.destination === 'both') &&
+        (capture.shouldGenerateBudgetItem ?? true) &&
+        !capture.convertedToBudgetItem,
+    ),
+    [availableTechnicalCaptures],
   );
 
   useEffect(() => {
@@ -202,6 +263,20 @@ export function BudgetWorkspace({ technicalCaptures = [], onTechnicalCaptureConv
     return { labor, material, other, subtotal, total };
   }, [activeBudgetId, budgetStatus, budgetTitle, discount, items]);
 
+  function markTechnicalCaptureConverted(id: string) {
+    onTechnicalCaptureConverted?.(id);
+
+    if (technicalCaptures.length > 0) {
+      return;
+    }
+
+    setStoredTechnicalCaptures((current) => {
+      const updatedCaptures = current.map((capture) => (capture.id === id ? { ...capture, convertedToBudgetItem: true } : capture));
+      saveStoredTechnicalCaptures(updatedCaptures);
+      return updatedCaptures;
+    });
+  }
+
   function updateDraft<K extends keyof DraftBudgetItem>(key: K, value: DraftBudgetItem[K]) {
     setDraft((current) => ({ ...current, [key]: value }));
   }
@@ -223,7 +298,7 @@ export function BudgetWorkspace({ technicalCaptures = [], onTechnicalCaptureConv
     }
 
     setItems((current) => [...current, budgetItem]);
-    onTechnicalCaptureConverted?.(capture.id);
+    markTechnicalCaptureConverted(capture.id);
   }
 
   function importAllTechnicalCaptures() {
@@ -236,7 +311,7 @@ export function BudgetWorkspace({ technicalCaptures = [], onTechnicalCaptureConv
     }
 
     setItems((current) => [...current, ...validItems]);
-    pendingTechnicalCaptures.forEach((capture) => onTechnicalCaptureConverted?.(capture.id));
+    pendingTechnicalCaptures.forEach((capture) => markTechnicalCaptureConverted(capture.id));
   }
 
   function removeItem(itemId: string) {
@@ -328,7 +403,7 @@ export function BudgetWorkspace({ technicalCaptures = [], onTechnicalCaptureConv
         </label>
       </div>
 
-      {technicalCaptures.length > 0 && (
+      {availableTechnicalCaptures.length > 0 && (
         <section className="technical-import-panel">
           <div className="technical-import-header">
             <div>
