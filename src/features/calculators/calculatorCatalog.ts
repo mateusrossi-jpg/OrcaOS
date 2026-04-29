@@ -54,14 +54,14 @@ export const calculatorCatalog: CalculatorCatalogItem[] = [
     title: 'Iluminação por ambiente',
     description: 'Calcule lúmens necessários e quantidade inicial de luminárias.',
     status: 'available',
-    plan: 'free',
+    plan: 'pro',
   },
   {
     id: 'air-conditioning',
     title: 'Ar-condicionado',
     description: 'Estime BTU/h por área, pessoas, equipamentos e fator de calor.',
     status: 'available',
-    plan: 'free',
+    plan: 'pro',
   },
   {
     id: 'conduit-fill',
