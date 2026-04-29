@@ -10,6 +10,10 @@ import {
 } from '../storage/clientWorkOrderStorage';
 import './ClientWorkOrderWorkspace.css';
 
+interface ClientWorkOrderWorkspaceProps {
+  onContextChange?: (clients: Client[], workOrders: WorkOrder[], activeWorkOrderId: string | null) => void;
+}
+
 interface ClientDraft {
   name: string;
   phone: string;
@@ -85,7 +89,7 @@ function priorityLabel(priority?: WorkOrder['priority']): string {
   return labels[priority ?? 'normal'];
 }
 
-export function ClientWorkOrderWorkspace() {
+export function ClientWorkOrderWorkspace({ onContextChange }: ClientWorkOrderWorkspaceProps) {
   const [clients, setClients] = useState<Client[]>(() => loadClients());
   const [workOrders, setWorkOrders] = useState<WorkOrder[]>(() => loadWorkOrders());
   const [activeWorkOrderId, setActiveWorkOrderId] = useState<string | null>(() => loadActiveWorkOrderId());
@@ -111,6 +115,10 @@ export function ClientWorkOrderWorkspace() {
   useEffect(() => {
     saveActiveWorkOrderId(activeWorkOrderId);
   }, [activeWorkOrderId]);
+
+  useEffect(() => {
+    onContextChange?.(clients, workOrders, activeWorkOrderId);
+  }, [activeWorkOrderId, clients, onContextChange, workOrders]);
 
   function updateClientDraft<K extends keyof ClientDraft>(key: K, value: ClientDraft[K]) {
     setClientDraft((current) => ({ ...current, [key]: value }));
@@ -142,7 +150,7 @@ export function ClientWorkOrderWorkspace() {
 
   function removeClient(clientId: string) {
     setClients((current) => current.filter((client) => client.id !== clientId));
-    setWorkOrders((current) => current.map((workOrder) => (workOrder.clientId === clientId ? { ...workOrder, clientId: undefined } : workOrder)));
+    setWorkOrders((current) => current.map((workOrder) => (workOrder.clientId === clientId ? { ...workOrder, clientId: undefined, updatedAt: new Date().toISOString() } : workOrder)));
   }
 
   function addWorkOrder() {
