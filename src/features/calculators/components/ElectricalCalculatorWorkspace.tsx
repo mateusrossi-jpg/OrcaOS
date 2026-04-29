@@ -2,15 +2,22 @@ import { useEffect, useMemo, useState } from 'react';
 import {
   calculateAirConditioningSizing,
   calculateApparentPower,
+  calculateCableSectionFromVoltageDrop,
   calculateConduitFill,
   calculateCurrentFromApparentPower,
   calculateCurrentFromPower,
   calculateEnergyConsumption,
   calculateLighting,
+  calculateParallelResistance,
+  calculatePowerByResistance,
   calculatePowerFromCurrent,
+  calculateResistanceFromVoltageCurrent,
+  calculateSeriesResistance,
   calculateVoltageDrop,
+  convertAwgToMm2,
   recommendCircuit,
   roundTechnical,
+  suggestNearestAwg,
 } from '../../../core/calculations/electrical';
 import {
   calculatorAccessRules,
@@ -40,6 +47,13 @@ interface NumberFieldProps {
   onChange: (value: string) => void;
 }
 
+interface TextFieldProps {
+  label: string;
+  value: string;
+  placeholder?: string;
+  onChange: (value: string) => void;
+}
+
 function parseCalculatorNumber(value: string): number {
   const normalizedValue = value.trim().replace(',', '.');
 
@@ -65,6 +79,17 @@ function NumberField({ label, value, suffix, min = 0, step = 0.01, onChange }: N
           onChange={(event) => onChange(event.target.value)}
         />
         {suffix && <small>{suffix}</small>}
+      </div>
+    </label>
+  );
+}
+
+function TextField({ label, value, placeholder, onChange }: TextFieldProps) {
+  return (
+    <label className="form-field">
+      <span>{label}</span>
+      <div className="input-with-suffix">
+        <input value={value} placeholder={placeholder ?? 'Digite o valor'} onChange={(event) => onChange(event.target.value)} />
       </div>
     </label>
   );
@@ -145,12 +170,19 @@ export function ElectricalCalculatorWorkspace({ userPlan = 'free', selectedModul
   const [powerFactor, setPowerFactor] = useState('1');
   const [phase, setPhase] = useState<CircuitPhase>('single-phase');
 
+  const [resistanceOhms, setResistanceOhms] = useState('22');
+  const [resistorOneOhms, setResistorOneOhms] = useState('100');
+  const [resistorTwoOhms, setResistorTwoOhms] = useState('220');
+  const [resistorThreeOhms, setResistorThreeOhms] = useState('330');
+
   const [hoursPerDay, setHoursPerDay] = useState('2');
   const [days, setDays] = useState('30');
   const [tariff, setTariff] = useState('0.95');
 
   const [distanceMeters, setDistanceMeters] = useState('25');
   const [sectionMm2, setSectionMm2] = useState('2.5');
+  const [maxDropPercent, setMaxDropPercent] = useState('4');
+  const [awgValue, setAwgValue] = useState('12');
 
   const [areaM2, setAreaM2] = useState('12');
   const [targetLux, setTargetLux] = useState('300');
@@ -176,11 +208,16 @@ export function ElectricalCalculatorWorkspace({ userPlan = 'free', selectedModul
     const voltageVoltsNumber = parseCalculatorNumber(voltageVolts);
     const currentAmpsNumber = parseCalculatorNumber(currentAmps);
     const powerFactorNumber = parseCalculatorNumber(powerFactor);
+    const resistanceOhmsNumber = parseCalculatorNumber(resistanceOhms);
+    const resistorValues = [resistorOneOhms, resistorTwoOhms, resistorThreeOhms]
+      .filter((value) => value.trim().length > 0)
+      .map(parseCalculatorNumber);
     const hoursPerDayNumber = parseCalculatorNumber(hoursPerDay);
     const daysNumber = parseCalculatorNumber(days);
     const tariffNumber = parseCalculatorNumber(tariff);
     const distanceMetersNumber = parseCalculatorNumber(distanceMeters);
     const sectionMm2Number = parseCalculatorNumber(sectionMm2);
+    const maxDropPercentNumber = parseCalculatorNumber(maxDropPercent);
     const areaM2Number = parseCalculatorNumber(areaM2);
     const targetLuxNumber = parseCalculatorNumber(targetLux);
     const lampLumensNumber = parseCalculatorNumber(lampLumens);
@@ -239,6 +276,81 @@ export function ElectricalCalculatorWorkspace({ userPlan = 'free', selectedModul
               label: 'Potência estimada',
               value: `${roundTechnical(power)} W`,
               helper: `${roundTechnical(power / 1000)} kW`,
+            },
+          ],
+        };
+      }
+
+      if (mode === 'ohms-law') {
+        const resistance = calculateResistanceFromVoltageCurrent({
+          voltageVolts: voltageVoltsNumber,
+          currentAmps: currentAmpsNumber,
+        });
+        const power = calculatePowerFromCurrent({
+          currentAmps: currentAmpsNumber,
+          voltageVolts: voltageVoltsNumber,
+        });
+
+        return {
+          error: null,
+          cards: [
+            {
+              label: 'Resistência',
+              value: `${roundTechnical(resistance)} Ω`,
+              helper: 'R = V / I',
+            },
+            {
+              label: 'Potência relacionada',
+              value: `${roundTechnical(power)} W`,
+              helper: 'P = V × I',
+            },
+          ],
+        };
+      }
+
+      if (mode === 'power-resistance') {
+        const byCurrent = calculatePowerByResistance({
+          currentAmps: currentAmpsNumber,
+          resistanceOhms: resistanceOhmsNumber,
+        });
+        const byVoltage = calculatePowerByResistance({
+          voltageVolts: voltageVoltsNumber,
+          resistanceOhms: resistanceOhmsNumber,
+        });
+
+        return {
+          error: null,
+          cards: [
+            {
+              label: 'Potência por corrente',
+              value: `${roundTechnical(byCurrent)} W`,
+              helper: 'P = I² × R',
+            },
+            {
+              label: 'Potência por tensão',
+              value: `${roundTechnical(byVoltage)} W`,
+              helper: 'P = V² / R',
+            },
+          ],
+        };
+      }
+
+      if (mode === 'resistor-network') {
+        const series = calculateSeriesResistance({ resistorsOhms: resistorValues });
+        const parallel = calculateParallelResistance({ resistorsOhms: resistorValues });
+
+        return {
+          error: null,
+          cards: [
+            {
+              label: 'Equivalente em série',
+              value: `${roundTechnical(series)} Ω`,
+              helper: 'Soma direta das resistências informadas.',
+            },
+            {
+              label: 'Equivalente em paralelo',
+              value: `${roundTechnical(parallel)} Ω`,
+              helper: 'Inverso da soma dos inversos.',
             },
           ],
         };
@@ -316,6 +428,54 @@ export function ElectricalCalculatorWorkspace({ userPlan = 'free', selectedModul
               label: 'Percentual',
               value: `${roundTechnical(drop.dropPercent)}%`,
               helper: drop.dropPercent > 4 ? 'Atenção: resultado merece revisão.' : 'Dentro de uma faixa inicial aceitável.',
+            },
+          ],
+        };
+      }
+
+      if (mode === 'cable-section-drop') {
+        const section = calculateCableSectionFromVoltageDrop({
+          currentAmps: currentAmpsNumber,
+          distanceMeters: distanceMetersNumber,
+          voltageVolts: voltageVoltsNumber,
+          maxDropPercent: maxDropPercentNumber,
+          phase,
+          material: 'copper',
+        });
+
+        return {
+          error: null,
+          cards: [
+            {
+              label: 'Queda máxima',
+              value: `${roundTechnical(section.maxDropVolts)} V`,
+              helper: `${maxDropPercent || '-'}% de ${voltageVolts || '-'} V`,
+            },
+            {
+              label: 'Seção mínima estimada',
+              value: `${roundTechnical(section.requiredSectionMm2)} mm²`,
+              helper: 'Resultado teórico antes de escolher seção comercial.',
+            },
+          ],
+        };
+      }
+
+      if (mode === 'awg-conversion') {
+        const awgResult = convertAwgToMm2(awgValue);
+        const nearestAwg = suggestNearestAwg(sectionMm2Number);
+
+        return {
+          error: null,
+          cards: [
+            {
+              label: 'AWG para mm²',
+              value: awgResult ? `${awgResult.sectionMm2} mm²` : 'Não encontrado',
+              helper: awgResult ? `AWG ${awgResult.awg}` : 'Use valores como 12, 10, 8, 1/0 etc.',
+            },
+            {
+              label: 'mm² para AWG próximo',
+              value: nearestAwg ? `AWG ${nearestAwg.awg}` : 'Não encontrado',
+              helper: nearestAwg ? `${nearestAwg.sectionMm2} mm² ou superior` : 'Informe uma seção válida.',
             },
           ],
         };
@@ -426,6 +586,7 @@ export function ElectricalCalculatorWorkspace({ userPlan = 'free', selectedModul
   }, [
     apparentPowerVa,
     areaM2,
+    awgValue,
     cableCount,
     cableExternalDiameterMm,
     conduitInternalDiameterMm,
@@ -436,11 +597,16 @@ export function ElectricalCalculatorWorkspace({ userPlan = 'free', selectedModul
     hasAccess,
     hoursPerDay,
     lampLumens,
+    maxDropPercent,
     mode,
     people,
     phase,
     powerFactor,
     powerWatts,
+    resistanceOhms,
+    resistorOneOhms,
+    resistorThreeOhms,
+    resistorTwoOhms,
     sectionMm2,
     sunFactor,
     targetLux,
@@ -492,13 +658,22 @@ export function ElectricalCalculatorWorkspace({ userPlan = 'free', selectedModul
               <NumberField label="Potência aparente" value={apparentPowerVa} suffix="VA" step={1} onChange={setApparentPowerVa} />
             )}
 
-            {(mode === 'power' || mode === 'voltage-drop') && (
+            {(mode === 'power' ||
+              mode === 'voltage-drop' ||
+              mode === 'ohms-law' ||
+              mode === 'power-resistance' ||
+              mode === 'cable-section-drop') && (
               <NumberField label="Corrente" value={currentAmps} suffix="A" onChange={setCurrentAmps} />
             )}
 
-            {mode !== 'consumption' && mode !== 'lighting' && mode !== 'air-conditioning' && mode !== 'conduit-fill' && (
-              <NumberField label="Tensão" value={voltageVolts} suffix="V" step={1} onChange={setVoltageVolts} />
-            )}
+            {mode !== 'consumption' &&
+              mode !== 'lighting' &&
+              mode !== 'air-conditioning' &&
+              mode !== 'conduit-fill' &&
+              mode !== 'resistor-network' &&
+              mode !== 'awg-conversion' && (
+                <NumberField label="Tensão" value={voltageVolts} suffix="V" step={1} onChange={setVoltageVolts} />
+              )}
 
             {(mode === 'current' || mode === 'power' || mode === 'conversion' || mode === 'circuit-recommendation') && (
               <NumberField label="Fator de potência" value={powerFactor} min={0.01} step={0.01} onChange={setPowerFactor} />
@@ -508,7 +683,20 @@ export function ElectricalCalculatorWorkspace({ userPlan = 'free', selectedModul
               mode === 'power' ||
               mode === 'voltage-drop' ||
               mode === 'conversion' ||
-              mode === 'circuit-recommendation') && <PhaseSelector value={phase} onChange={setPhase} />}
+              mode === 'circuit-recommendation' ||
+              mode === 'cable-section-drop') && <PhaseSelector value={phase} onChange={setPhase} />}
+
+            {mode === 'power-resistance' && (
+              <NumberField label="Resistência" value={resistanceOhms} suffix="Ω" onChange={setResistanceOhms} />
+            )}
+
+            {mode === 'resistor-network' && (
+              <>
+                <NumberField label="Resistor 1" value={resistorOneOhms} suffix="Ω" onChange={setResistorOneOhms} />
+                <NumberField label="Resistor 2" value={resistorTwoOhms} suffix="Ω" onChange={setResistorTwoOhms} />
+                <NumberField label="Resistor 3" value={resistorThreeOhms} suffix="Ω" onChange={setResistorThreeOhms} />
+              </>
+            )}
 
             {mode === 'consumption' && (
               <>
@@ -522,6 +710,20 @@ export function ElectricalCalculatorWorkspace({ userPlan = 'free', selectedModul
               <>
                 <NumberField label="Distância" value={distanceMeters} suffix="m" onChange={setDistanceMeters} />
                 <NumberField label="Seção do cabo" value={sectionMm2} suffix="mm²" onChange={setSectionMm2} />
+              </>
+            )}
+
+            {mode === 'cable-section-drop' && (
+              <>
+                <NumberField label="Distância" value={distanceMeters} suffix="m" onChange={setDistanceMeters} />
+                <NumberField label="Queda máxima" value={maxDropPercent} suffix="%" onChange={setMaxDropPercent} />
+              </>
+            )}
+
+            {mode === 'awg-conversion' && (
+              <>
+                <TextField label="AWG" value={awgValue} placeholder="Ex.: 12 ou 1/0" onChange={setAwgValue} />
+                <NumberField label="Seção desejada" value={sectionMm2} suffix="mm²" onChange={setSectionMm2} />
               </>
             )}
 
