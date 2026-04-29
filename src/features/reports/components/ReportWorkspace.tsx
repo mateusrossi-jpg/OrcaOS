@@ -1,8 +1,11 @@
+import type { Client, WorkOrder } from '../../../core/types/business';
 import type { CalculationCapture } from '../../../core/types/workflow';
 import './ReportWorkspace.css';
 
 interface ReportWorkspaceProps {
   captures: CalculationCapture[];
+  activeClient?: Client | null;
+  activeWorkOrder?: WorkOrder | null;
 }
 
 function formatDateTime(value: string): string {
@@ -13,6 +16,23 @@ function formatDateTime(value: string): string {
     hour: '2-digit',
     minute: '2-digit',
   }).format(new Date(value));
+}
+
+function formatOptionalDateTime(value?: string): string {
+  if (!value) return 'Sem data agendada';
+  return formatDateTime(value);
+}
+
+function statusLabel(status?: WorkOrder['status']): string {
+  if (!status) return 'Sem status';
+  const labels: Record<WorkOrder['status'], string> = {
+    open: 'Aberta',
+    scheduled: 'Agendada',
+    'in-progress': 'Em execução',
+    done: 'Concluída',
+    cancelled: 'Cancelada',
+  };
+  return labels[status];
 }
 
 function itemTypeLabel(itemType: CalculationCapture['itemType']): string {
@@ -27,7 +47,7 @@ function printReport() {
   window.print();
 }
 
-export function ReportWorkspace({ captures }: ReportWorkspaceProps) {
+export function ReportWorkspace({ captures, activeClient = null, activeWorkOrder = null }: ReportWorkspaceProps) {
   const reportItems = captures.filter(
     (capture) =>
       capture.reportReady ||
@@ -61,10 +81,19 @@ export function ReportWorkspace({ captures }: ReportWorkspaceProps) {
       <article className="report-document">
         <header className="report-document-header">
           <span>OrçaOS</span>
-          <h1>Relatório técnico de visita</h1>
-          <p>Documento preliminar gerado a partir do levantamento técnico em campo.</p>
+          <h1>{activeWorkOrder?.title || 'Relatório técnico de visita'}</h1>
+          <p>{activeWorkOrder?.description || 'Documento preliminar gerado a partir do levantamento técnico em campo.'}</p>
           <small>Emitido em {formatDateTime(new Date().toISOString())}</small>
         </header>
+
+        {(activeClient || activeWorkOrder) && (
+          <section className="report-context-box">
+            <div><span>Cliente</span><strong>{activeClient?.name ?? 'Cliente não vinculado'}</strong></div>
+            <div><span>Contato</span><strong>{[activeClient?.phone, activeClient?.email].filter(Boolean).join(' · ') || 'Não informado'}</strong></div>
+            <div><span>Endereço</span><strong>{activeWorkOrder?.address || activeClient?.address || 'Não informado'}</strong></div>
+            <div><span>Status / data</span><strong>{statusLabel(activeWorkOrder?.status)} · {formatOptionalDateTime(activeWorkOrder?.scheduledDate)}</strong></div>
+          </section>
+        )}
 
         {reportItems.length === 0 ? (
           <section className="report-empty-state">
