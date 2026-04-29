@@ -1,8 +1,15 @@
 import { useEffect, useMemo, useState } from 'react';
-import type { BudgetItem } from '../../../core/types/business';
+import type { Budget, BudgetItem } from '../../../core/types/business';
 import { calculateBudgetItemTotal, calculateBudgetSubtotal, calculateBudgetTotal } from '../../../core/pricing/budget';
 import { roundTechnical } from '../../../core/calculations/electrical';
 import { clearBudgetDraft, loadBudgetDraft, saveBudgetDraft } from '../storage/budgetDraftStorage';
+import {
+  deleteSavedBudget,
+  loadSavedBudgets,
+  saveBudgetRecord,
+  type SavedBudgetRecord,
+  type SavedBudgetStatus,
+} from '../storage/savedBudgetsStorage';
 import { starterElectricalBudgetItems } from '../budgetTemplates';
 import './BudgetWorkspace.css';
 
@@ -43,6 +50,15 @@ function formatSavedAt(value: string | null): string {
   }).format(new Date(value));
 }
 
+function formatDateTime(value: string): string {
+  return new Intl.DateTimeFormat('pt-BR', {
+    day: '2-digit',
+    month: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(new Date(value));
+}
+
 function categoryLabel(category: BudgetCategory): string {
   if (category === 'labor') {
     return 'Mão de obra';
@@ -53,6 +69,17 @@ function categoryLabel(category: BudgetCategory): string {
   }
 
   return 'Outro';
+}
+
+function statusLabel(status: SavedBudgetStatus): string {
+  const labels: Record<SavedBudgetStatus, string> = {
+    draft: 'Rascunho',
+    sent: 'Enviado',
+    approved: 'Aprovado',
+    rejected: 'Recusado',
+  };
+
+  return labels[status];
 }
 
 function createBudgetItem(draft: DraftBudgetItem): BudgetItem {
@@ -67,6 +94,18 @@ function createBudgetItem(draft: DraftBudgetItem): BudgetItem {
   };
 }
 
+function calculateSavedBudgetTotal(record: SavedBudgetRecord): number {
+  const budget: Budget = {
+    id: record.id,
+    title: record.title,
+    status: record.status,
+    discount: record.discount,
+    items: record.items,
+  };
+
+  return calculateBudgetTotal(budget);
+}
+
 const savedDraft = loadBudgetDraft();
 
 export function BudgetWorkspace() {
@@ -75,6 +114,9 @@ export function BudgetWorkspace() {
   const [discount, setDiscount] = useState(savedDraft?.discount ?? 0);
   const [clientName, setClientName] = useState(savedDraft?.clientName ?? 'Cliente exemplo');
   const [budgetTitle, setBudgetTitle] = useState(savedDraft?.budgetTitle ?? 'Serviços elétricos');
+  const [budgetStatus, setBudgetStatus] = useState<SavedBudgetStatus>('draft');
+  const [activeBudgetId, setActiveBudgetId] = useState<string | null>(null);
+  const [savedBudgets, setSavedBudgets] = useState<SavedBudgetRecord[]>(() => loadSavedBudgets());
   const [lastSavedAt, setLastSavedAt] = useState<string | null>(savedDraft?.updatedAt ?? null);
 
   useEffect(() => {
@@ -105,15 +147,15 @@ export function BudgetWorkspace() {
 
     const subtotal = calculateBudgetSubtotal(items);
     const total = calculateBudgetTotal({
-      id: 'preview-budget',
+      id: activeBudgetId ?? 'preview-budget',
       title: budgetTitle,
       items,
       discount,
-      status: 'draft',
+      status: budgetStatus,
     });
 
     return { labor, material, other, subtotal, total };
-  }, [budgetTitle, discount, items]);
+  }, [activeBudgetId, budgetStatus, budgetTitle, discount, items]);
 
   function updateDraft<K extends keyof DraftBudgetItem>(key: K, value: DraftBudgetItem[K]) {
     setDraft((current) => ({ ...current, [key]: value }));
@@ -142,12 +184,50 @@ export function BudgetWorkspace() {
 
   function resetBudgetDraft() {
     clearBudgetDraft();
+    setActiveBudgetId(null);
+    setBudgetStatus('draft');
     setClientName('Cliente exemplo');
     setBudgetTitle('Serviços elétricos');
     setDiscount(0);
     setItems(starterElectricalBudgetItems);
     setDraft(emptyDraftItem);
     setLastSavedAt(null);
+  }
+
+  function saveCurrentBudget() {
+    const saved = saveBudgetRecord({
+      id: activeBudgetId,
+      clientName,
+      title: budgetTitle || 'Orçamento sem título',
+      status: budgetStatus,
+      discount,
+      items,
+    });
+
+    if (!saved) {
+      return;
+    }
+
+    setActiveBudgetId(saved.id);
+    setSavedBudgets(loadSavedBudgets());
+  }
+
+  function openSavedBudget(record: SavedBudgetRecord) {
+    setActiveBudgetId(record.id);
+    setClientName(record.clientName);
+    setBudgetTitle(record.title);
+    setBudgetStatus(record.status);
+    setDiscount(record.discount);
+    setItems(record.items);
+    setDraft(emptyDraftItem);
+  }
+
+  function removeSavedBudget(recordId: string) {
+    setSavedBudgets(deleteSavedBudget(recordId));
+
+    if (recordId === activeBudgetId) {
+      resetBudgetDraft();
+    }
   }
 
   const canAddItem = draft.description.trim().length > 0 && draft.quantity > 0 && draft.unitPrice > 0;
@@ -168,6 +248,48 @@ export function BudgetWorkspace() {
           <span>Título do orçamento</span>
           <input value={budgetTitle} onChange={(event) => setBudgetTitle(event.target.value)} />
         </label>
+        <label className="budget-field">
+          <span>Status</span>
+          <select value={budgetStatus} onChange={(event) => setBudgetStatus(event.target.value as SavedBudgetStatus)}>
+            <option value="draft">Rascunho</option>
+            <option value="sent">Enviado</option>
+            <option value="approved">Aprovado</option>
+            <option value="rejected">Recusado</option>
+          </select>
+        </label>
+      </div>
+
+      <div className="saved-budget-panel">
+        <div className="saved-budget-panel-header">
+          <div>
+            <h3>Orçamentos salvos</h3>
+            <p>Salve, abra e gerencie rascunhos locais neste navegador.</p>
+          </div>
+          <button type="button" className="primary-action inline-action" onClick={saveCurrentBudget}>
+            {activeBudgetId ? 'Atualizar orçamento' : 'Salvar orçamento'}
+          </button>
+        </div>
+
+        <div className="saved-budget-list">
+          {savedBudgets.length === 0 ? (
+            <div className="empty-budget">Nenhum orçamento salvo ainda.</div>
+          ) : (
+            savedBudgets.map((record) => (
+              <article className={record.id === activeBudgetId ? 'saved-budget-card active' : 'saved-budget-card'} key={record.id}>
+                <button type="button" className="saved-budget-open" onClick={() => openSavedBudget(record)}>
+                  <strong>{record.title || 'Orçamento sem título'}</strong>
+                  <small>{record.clientName || 'Cliente não informado'}</small>
+                  <span>
+                    {statusLabel(record.status)} · {formatCurrency(calculateSavedBudgetTotal(record))} · {formatDateTime(record.updatedAt)}
+                  </span>
+                </button>
+                <button type="button" className="saved-budget-delete" onClick={() => removeSavedBudget(record.id)}>
+                  Excluir
+                </button>
+              </article>
+            ))
+          )}
+        </div>
       </div>
 
       <div className="budget-layout">
@@ -232,7 +354,7 @@ export function BudgetWorkspace() {
               Limpar itens
             </button>
             <button type="button" className="danger-action" onClick={resetBudgetDraft}>
-              Reiniciar orçamento
+              Novo orçamento
             </button>
           </div>
 
@@ -261,7 +383,7 @@ export function BudgetWorkspace() {
         </section>
 
         <aside className="budget-summary" aria-label="Resumo do orçamento">
-          <span className="summary-kicker">Rascunho</span>
+          <span className={`summary-kicker status-${budgetStatus}`}>{statusLabel(budgetStatus)}</span>
           <h3>{budgetTitle || 'Orçamento sem título'}</h3>
           <p>{clientName || 'Cliente não informado'}</p>
 
@@ -302,7 +424,7 @@ export function BudgetWorkspace() {
           </div>
 
           <div className="technical-warning">
-            Este rascunho já fica salvo no navegador. Próximo passo: salvar vários orçamentos e gerar PDF.
+            Você já pode salvar vários orçamentos neste navegador. Próximo passo: gerar PDF e relatório de visita.
           </div>
         </aside>
       </div>
