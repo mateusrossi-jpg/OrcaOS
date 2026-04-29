@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import type { Budget, BudgetItem, BusinessProfile, CatalogItem } from '../../../core/types/business';
+import type { Budget, BudgetItem, BudgetTemplateId, BusinessProfile, CatalogItem } from '../../../core/types/business';
 import type { CalculationCapture, CalculationDestination } from '../../../core/types/workflow';
 import { calculateBudgetItemTotal, calculateBudgetSubtotal, calculateBudgetTotal } from '../../../core/pricing/budget';
 import { roundTechnical } from '../../../core/calculations/electrical';
@@ -14,6 +14,7 @@ import {
   type SavedBudgetStatus,
 } from '../storage/savedBudgetsStorage';
 import { starterElectricalBudgetItems } from '../budgetTemplates';
+import { budgetTemplateOptions } from '../budgetTemplatesVisual';
 import { BudgetPrintPreview } from './BudgetPrintPreview';
 import './BudgetWorkspace.css';
 
@@ -68,24 +69,12 @@ function formatCurrency(value: number): string {
 }
 
 function formatSavedAt(value: string | null): string {
-  if (!value) {
-    return 'Ainda não salvo nesta sessão';
-  }
-
-  return new Intl.DateTimeFormat('pt-BR', {
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-  }).format(new Date(value));
+  if (!value) return 'Ainda não salvo nesta sessão';
+  return new Intl.DateTimeFormat('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' }).format(new Date(value));
 }
 
 function formatDateTime(value: string): string {
-  return new Intl.DateTimeFormat('pt-BR', {
-    day: '2-digit',
-    month: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-  }).format(new Date(value));
+  return new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }).format(new Date(value));
 }
 
 function categoryLabel(category: BudgetCategory): string {
@@ -101,7 +90,6 @@ function statusLabel(status: SavedBudgetStatus): string {
     approved: 'Aprovado',
     rejected: 'Recusado',
   };
-
   return labels[status];
 }
 
@@ -148,7 +136,6 @@ function calculateSavedBudgetTotal(record: SavedBudgetRecord): number {
     discount: record.discount,
     items: record.items,
   };
-
   return calculateBudgetTotal(budget);
 }
 
@@ -180,9 +167,7 @@ function isCalculationDestination(value: unknown): value is CalculationDestinati
 
 function isCalculationCapture(value: unknown): value is CalculationCapture {
   if (!value || typeof value !== 'object') return false;
-
   const item = value as Partial<CalculationCapture>;
-
   return (
     typeof item.id === 'string' &&
     typeof item.module === 'string' &&
@@ -198,11 +183,9 @@ function isCalculationCapture(value: unknown): value is CalculationCapture {
 
 function loadStoredTechnicalCaptures(): CalculationCapture[] {
   if (typeof window === 'undefined') return [];
-
   try {
     const storedValue = window.localStorage.getItem(CAPTURES_STORAGE_KEY);
     if (!storedValue) return [];
-
     const parsedValue: unknown = JSON.parse(storedValue);
     return Array.isArray(parsedValue) ? parsedValue.filter(isCalculationCapture) : [];
   } catch {
@@ -217,6 +200,7 @@ function saveStoredTechnicalCaptures(captures: CalculationCapture[]): void {
 
 export function BudgetWorkspace({ technicalCaptures = [], onTechnicalCaptureConverted }: BudgetWorkspaceProps) {
   const [businessProfile, setBusinessProfile] = useState<BusinessProfile>(savedBusinessProfile);
+  const [selectedTemplate, setSelectedTemplate] = useState<BudgetTemplateId>('professional');
   const [catalogItems, setCatalogItems] = useState<CatalogItem[]>(() => loadCatalogItems());
   const [catalogDraft, setCatalogDraft] = useState<DraftCatalogItem>(emptyCatalogDraft);
   const [items, setItems] = useState<BudgetItem[]>(savedDraft?.items ?? starterElectricalBudgetItems);
@@ -260,13 +244,30 @@ export function BudgetWorkspace({ technicalCaptures = [], onTechnicalCaptureConv
     const material = items.filter((item) => item.category === 'material').reduce((total, item) => total + calculateBudgetItemTotal(item), 0);
     const other = items.filter((item) => item.category === 'other').reduce((total, item) => total + calculateBudgetItemTotal(item), 0);
     const subtotal = calculateBudgetSubtotal(items);
-    const total = calculateBudgetTotal({ id: activeBudgetId ?? 'preview-budget', title: budgetTitle, items, discount, status: budgetStatus });
-
+    const total = calculateBudgetTotal({ id: activeBudgetId ?? 'preview-budget', title: budgetTitle, items, discount, status: budgetStatus, templateId: selectedTemplate });
     return { labor, material, other, subtotal, total };
-  }, [activeBudgetId, budgetStatus, budgetTitle, discount, items]);
+  }, [activeBudgetId, budgetStatus, budgetTitle, discount, items, selectedTemplate]);
 
   function updateBusinessProfile<K extends keyof BusinessProfile>(key: K, value: BusinessProfile[K]) {
     setBusinessProfile((current) => ({ ...current, [key]: value }));
+  }
+
+  function handleLogoFileChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === 'string') {
+        setBusinessProfile((current) => ({ ...current, logoDataUrl: reader.result, logoUrl: '' }));
+      }
+    };
+    reader.readAsDataURL(file);
+    event.target.value = '';
+  }
+
+  function removeLogo() {
+    setBusinessProfile((current) => ({ ...current, logoDataUrl: '', logoUrl: '' }));
   }
 
   function updateDraft<K extends keyof DraftBudgetItem>(key: K, value: DraftBudgetItem[K]) {
@@ -279,9 +280,7 @@ export function BudgetWorkspace({ technicalCaptures = [], onTechnicalCaptureConv
 
   function markTechnicalCaptureConverted(id: string) {
     onTechnicalCaptureConverted?.(id);
-
     if (technicalCaptures.length > 0) return;
-
     setStoredTechnicalCaptures((current) => {
       const updatedCaptures = current.map((capture) => (capture.id === id ? { ...capture, convertedToBudgetItem: true } : capture));
       saveStoredTechnicalCaptures(updatedCaptures);
@@ -371,6 +370,7 @@ export function BudgetWorkspace({ technicalCaptures = [], onTechnicalCaptureConv
 
   const canAddItem = draft.description.trim().length > 0 && draft.quantity > 0 && draft.unitPrice > 0;
   const canAddCatalogItem = catalogDraft.description.trim().length > 0 && catalogDraft.quantity > 0 && catalogDraft.unitPrice >= 0;
+  const logoPreview = businessProfile.logoDataUrl || businessProfile.logoUrl;
 
   return (
     <div className="budget-workspace">
@@ -382,8 +382,52 @@ export function BudgetWorkspace({ technicalCaptures = [], onTechnicalCaptureConv
       <section className="budget-config-panel">
         <div className="saved-budget-panel-header">
           <div>
-            <h3>Perfil profissional</h3>
-            <p>Esses dados aparecem no orçamento e ficam salvos neste navegador.</p>
+            <h3>Modelo do orçamento</h3>
+            <p>Escolha o visual da proposta. Alguns modelos podem virar pacotes pagos futuramente.</p>
+          </div>
+        </div>
+        <div className="budget-template-grid">
+          {budgetTemplateOptions.map((template) => {
+            const isLocked = template.plan === 'pro';
+            return (
+              <button
+                className={selectedTemplate === template.id ? 'budget-template-card active' : 'budget-template-card'}
+                disabled={isLocked}
+                key={template.id}
+                type="button"
+                onClick={() => setSelectedTemplate(template.id)}
+              >
+                <strong>{template.title}</strong>
+                <small>{template.description}</small>
+                <em>{isLocked ? 'Futuro pacote Pro' : 'Incluso'}</em>
+              </button>
+            );
+          })}
+        </div>
+      </section>
+
+      <section className="budget-config-panel">
+        <div className="saved-budget-panel-header">
+          <div>
+            <h3>Identidade fixa da empresa</h3>
+            <p>Esses dados ficam salvos e aparecem automaticamente no cabeçalho do orçamento/PDF.</p>
+          </div>
+        </div>
+
+        <div className="logo-editor-card">
+          <div className="logo-preview-box">
+            {logoPreview ? <img src={logoPreview} alt="Logo do orçamento" /> : <span>Sem logo</span>}
+          </div>
+          <div>
+            <strong>Logo do orçamento</strong>
+            <small>Escolha uma imagem do aparelho para salvar no perfil. A URL continua como alternativa.</small>
+            <div className="budget-actions compact-actions">
+              <label className="secondary-action inline-action file-action">
+                Escolher logo
+                <input accept="image/*" type="file" onChange={handleLogoFileChange} />
+              </label>
+              <button className="danger-action" type="button" onClick={removeLogo}>Remover logo</button>
+            </div>
           </div>
         </div>
 
@@ -393,7 +437,7 @@ export function BudgetWorkspace({ technicalCaptures = [], onTechnicalCaptureConv
           <label className="budget-field"><span>Telefone / WhatsApp</span><input value={businessProfile.phone} onChange={(event) => updateBusinessProfile('phone', event.target.value)} /></label>
           <label className="budget-field"><span>E-mail</span><input value={businessProfile.email} onChange={(event) => updateBusinessProfile('email', event.target.value)} /></label>
           <label className="budget-field budget-field-wide"><span>Endereço</span><input value={businessProfile.address} onChange={(event) => updateBusinessProfile('address', event.target.value)} /></label>
-          <label className="budget-field budget-field-wide"><span>Logo por URL</span><input placeholder="https://.../logo.png" value={businessProfile.logoUrl} onChange={(event) => updateBusinessProfile('logoUrl', event.target.value)} /></label>
+          <label className="budget-field budget-field-wide"><span>Logo por URL opcional</span><input placeholder="https://.../logo.png" value={businessProfile.logoUrl} onChange={(event) => updateBusinessProfile('logoUrl', event.target.value)} /></label>
           <label className="budget-field"><span>Responsável</span><input value={businessProfile.responsibleName} onChange={(event) => updateBusinessProfile('responsibleName', event.target.value)} /></label>
           <label className="budget-field"><span>Validade padrão</span><input value={businessProfile.defaultValidity} onChange={(event) => updateBusinessProfile('defaultValidity', event.target.value)} /></label>
           <label className="budget-field budget-field-wide"><span>Condições de pagamento</span><textarea value={businessProfile.defaultPaymentTerms} onChange={(event) => updateBusinessProfile('defaultPaymentTerms', event.target.value)} /></label>
@@ -408,10 +452,7 @@ export function BudgetWorkspace({ technicalCaptures = [], onTechnicalCaptureConv
       </div>
 
       <section className="budget-config-panel">
-        <div className="saved-budget-panel-header">
-          <div><h3>Catálogo de produtos e serviços</h3><p>Cadastre itens recorrentes e adicione ao orçamento com um toque.</p></div>
-        </div>
-
+        <div className="saved-budget-panel-header"><div><h3>Catálogo de produtos e serviços</h3><p>Cadastre itens recorrentes e adicione ao orçamento com um toque.</p></div></div>
         <div className="budget-form-grid catalog-form-grid">
           <label className="budget-field budget-field-wide"><span>Descrição</span><input placeholder="Ex.: Instalação de tomada dupla" value={catalogDraft.description} onChange={(event) => updateCatalogDraft('description', event.target.value)} /></label>
           <label className="budget-field"><span>Qtd. padrão</span><input type="number" inputMode="decimal" min="0" step="0.01" value={catalogDraft.quantity} onChange={(event) => updateCatalogDraft('quantity', Number(event.target.value))} /></label>
@@ -419,19 +460,12 @@ export function BudgetWorkspace({ technicalCaptures = [], onTechnicalCaptureConv
           <label className="budget-field"><span>Categoria</span><select value={catalogDraft.category} onChange={(event) => updateCatalogDraft('category', event.target.value as BudgetCategory)}><option value="labor">Mão de obra</option><option value="material">Material</option><option value="other">Outro</option></select></label>
           <label className="budget-field budget-field-wide"><span>Notas internas</span><input value={catalogDraft.notes} onChange={(event) => updateCatalogDraft('notes', event.target.value)} /></label>
         </div>
-
-        <div className="budget-actions">
-          <button type="button" className="primary-action inline-action" disabled={!canAddCatalogItem} onClick={addCatalogItem}>Adicionar ao catálogo</button>
-        </div>
-
+        <div className="budget-actions"><button type="button" className="primary-action inline-action" disabled={!canAddCatalogItem} onClick={addCatalogItem}>Adicionar ao catálogo</button></div>
         <div className="catalog-list">
           {catalogItems.map((item) => (
             <article className="catalog-card" key={item.id}>
               <span><strong>{item.description}</strong><small>{categoryLabel(item.category)} · {item.defaultQuantity} × {formatCurrency(item.unitPrice)}</small>{item.notes && <small>{item.notes}</small>}</span>
-              <div>
-                <button type="button" className="secondary-action inline-action" onClick={() => addCatalogItemToBudget(item)}>Usar</button>
-                <button type="button" className="danger-action" onClick={() => removeCatalogItem(item.id)}>Remover</button>
-              </div>
+              <div><button type="button" className="secondary-action inline-action" onClick={() => addCatalogItemToBudget(item)}>Usar</button><button type="button" className="danger-action" onClick={() => removeCatalogItem(item.id)}>Remover</button></div>
             </article>
           ))}
         </div>
@@ -469,11 +503,11 @@ export function BudgetWorkspace({ technicalCaptures = [], onTechnicalCaptureConv
           <div className="summary-lines"><div><span>Mão de obra</span><strong>{formatCurrency(summary.labor)}</strong></div><div><span>Materiais</span><strong>{formatCurrency(summary.material)}</strong></div><div><span>Outros</span><strong>{formatCurrency(summary.other)}</strong></div><div><span>Subtotal</span><strong>{formatCurrency(summary.subtotal)}</strong></div></div>
           <label className="budget-field discount-field"><span>Desconto</span><input type="number" inputMode="decimal" min="0" step="0.01" value={discount} onChange={(event) => setDiscount(Number(event.target.value))} /></label>
           <div className="summary-total"><span>Total</span><strong>{formatCurrency(summary.total)}</strong></div>
-          <div className="technical-warning">O orçamento agora usa perfil profissional, catálogo, itens manuais e itens técnicos importados.</div>
+          <div className="technical-warning">O orçamento agora usa identidade fixa da empresa, modelos, catálogo, itens manuais e itens técnicos importados.</div>
         </aside>
       </div>
 
-      <BudgetPrintPreview clientName={clientName} budgetTitle={budgetTitle} status={budgetStatus} items={items} discount={discount} subtotal={summary.subtotal} total={summary.total} businessProfile={businessProfile} paymentTerms={businessProfile.defaultPaymentTerms} validity={businessProfile.defaultValidity} notes={businessProfile.defaultNotes} />
+      <BudgetPrintPreview clientName={clientName} budgetTitle={budgetTitle} status={budgetStatus} items={items} discount={discount} subtotal={summary.subtotal} total={summary.total} businessProfile={businessProfile} paymentTerms={businessProfile.defaultPaymentTerms} validity={businessProfile.defaultValidity} notes={businessProfile.defaultNotes} templateId={selectedTemplate} />
     </div>
   );
 }
