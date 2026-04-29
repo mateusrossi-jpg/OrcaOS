@@ -1,0 +1,242 @@
+.report-workspace {
+  display: grid;
+  gap: 18px;
+  width: 100%;
+  min-width: 0;
+}
+
+.report-summary-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: center;
+  border: 1px solid #cfe0f8;
+  border-radius: 24px;
+  padding: 16px;
+  background: linear-gradient(135deg, #eff7ff, #ffffff);
+}
+
+.report-summary-panel h2 {
+  margin: 0;
+  color: #0b1d31;
+  font-size: 1.28rem;
+}
+
+.report-summary-panel p {
+  margin: 6px 0 0;
+  color: #607085;
+  line-height: 1.45;
+}
+
+.report-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.report-metrics-grid article {
+  border: 1px solid #d6e0eb;
+  border-radius: 20px;
+  padding: 14px;
+  background: #ffffff;
+}
+
+.report-metrics-grid span {
+  display: block;
+  color: #607085;
+  font-size: 0.84rem;
+  font-weight: 900;
+}
+
+.report-metrics-grid strong {
+  display: block;
+  margin-top: 4px;
+  color: #0b1d31;
+  font-size: 1.45rem;
+}
+
+.report-document {
+  display: grid;
+  gap: 18px;
+  width: 100%;
+  min-width: 0;
+  border: 1px solid #d6e0eb;
+  border-radius: 26px;
+  padding: 22px;
+  background: #ffffff;
+  color: #0b1d31;
+  overflow: hidden;
+}
+
+.report-document-header {
+  border-bottom: 1px solid #d6e0eb;
+  padding-bottom: 16px;
+}
+
+.report-document-header span {
+  display: inline-flex;
+  border-radius: 999px;
+  padding: 6px 10px;
+  color: #124878;
+  background: #e8f0fb;
+  font-weight: 950;
+}
+
+.report-document-header h1 {
+  margin: 10px 0 6px;
+  font-size: 1.72rem;
+}
+
+.report-document-header p,
+.report-document-header small {
+  color: #607085;
+  line-height: 1.45;
+}
+
+.report-empty-state {
+  border: 1px dashed #9fb2c9;
+  border-radius: 20px;
+  padding: 18px;
+  background: #f8fafc;
+}
+
+.report-empty-state strong {
+  display: block;
+  color: #0b1d31;
+}
+
+.report-empty-state p {
+  margin: 8px 0 0;
+  color: #607085;
+  line-height: 1.45;
+}
+
+.report-item-list {
+  display: grid;
+  gap: 16px;
+}
+
+.report-item-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 14px;
+  border: 1px solid #d6e0eb;
+  border-radius: 22px;
+  padding: 16px;
+  background: #f8fafc;
+}
+
+.report-item-index {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  color: #ffffff;
+  background: #124878;
+  font-weight: 950;
+}
+
+.report-item-content {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+
+.report-item-content header span {
+  color: #124878;
+  font-size: 0.82rem;
+  font-weight: 950;
+}
+
+.report-item-content h2 {
+  margin: 4px 0;
+  font-size: 1.18rem;
+  line-height: 1.25;
+}
+
+.report-item-content small {
+  color: #607085;
+  line-height: 1.35;
+}
+
+.report-item-image {
+  margin: 0;
+  border-radius: 18px;
+  overflow: hidden;
+  background: #ffffff;
+}
+
+.report-item-image img {
+  display: block;
+  width: 100%;
+  max-height: 320px;
+  object-fit: cover;
+}
+
+.report-technical-note {
+  margin: 0;
+  border-left: 4px solid #2267ce;
+  border-radius: 12px;
+  padding: 12px 14px;
+  color: #0b1d31;
+  background: #ffffff;
+  line-height: 1.45;
+}
+
+.report-item-content ul {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding-left: 18px;
+  color: #607085;
+  line-height: 1.45;
+}
+
+.report-document-footer {
+  display: grid;
+  gap: 24px;
+  border-top: 1px solid #d6e0eb;
+  padding-top: 16px;
+  color: #607085;
+  line-height: 1.45;
+}
+
+@media (max-width: 520px) {
+  .report-summary-panel,
+  .report-item-card,
+  .report-metrics-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .report-document {
+    border-radius: 22px;
+    padding: 16px;
+  }
+}
+
+@media print {
+  .no-print,
+  .bottom-nav {
+    display: none !important;
+  }
+
+  .mobile-app-shell,
+  .mobile-app-content,
+  body,
+  html,
+  #root {
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  .report-document {
+    border: 0;
+    border-radius: 0;
+    padding: 0;
+  }
+
+  .report-item-card {
+    break-inside: avoid;
+  }
+}
