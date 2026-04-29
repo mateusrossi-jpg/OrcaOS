@@ -270,12 +270,8 @@ function HomeScreen({ goTo, openModule }: { goTo: (tab: AppTab) => void; openMod
 }
 
 function ModuleDetailScreen({ module, goBack, goTo }: { module: ModuleCardData; goBack: () => void; goTo: (tab: AppTab) => void }) {
-  if (module.id === 'orcamentos') {
-    return <BudgetsScreen />;
-  }
-
   return (
-    <section className="app-screen">
+    <section className={module.id === 'orcamentos' ? 'app-screen wide-screen' : 'app-screen'}>
       <button className="back-button" type="button" onClick={goBack}>‹ Voltar aos módulos</button>
 
       <header className="module-detail-header">
@@ -288,7 +284,9 @@ function ModuleDetailScreen({ module, goBack, goTo }: { module: ModuleCardData; 
         </div>
       </header>
 
-      {module.calculatorModule ? (
+      {module.id === 'orcamentos' ? (
+        <BudgetWorkspace />
+      ) : module.calculatorModule ? (
         <ElectricalCalculatorWorkspace selectedModule={module.calculatorModule} userPlan={userPlan} onUpgradeRequest={() => goTo('more')} />
       ) : (
         <div className="empty-state-card">
@@ -301,9 +299,9 @@ function ModuleDetailScreen({ module, goBack, goTo }: { module: ModuleCardData; 
   );
 }
 
-function ModulesScreen({ openModule, selectedModule, goTo }: { openModule: (module: ModuleCardData) => void; selectedModule: ModuleCardData | null; goTo: (tab: AppTab) => void }) {
+function ModulesScreen({ openModule, selectedModule, goTo }: { openModule: (module: ModuleCardData | null) => void; selectedModule: ModuleCardData | null; goTo: (tab: AppTab) => void }) {
   if (selectedModule) {
-    return <ModuleDetailScreen module={selectedModule} goBack={() => openModule(null as never)} goTo={goTo} />;
+    return <ModuleDetailScreen module={selectedModule} goBack={() => openModule(null)} goTo={goTo} />;
   }
 
   return (
