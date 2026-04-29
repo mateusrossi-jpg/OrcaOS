@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { calculateCurrentFromPower, roundTechnical } from '../core/calculations/electrical';
 import { calculateBudgetSubtotal } from '../core/pricing/budget';
 import type { CalculatorModule, UserPlan } from '../core/access/featureAccess';
+import type { CalculationCapture } from '../core/types/workflow';
 import { getFreeCalculatorCount, getProCalculatorCount } from '../core/access/featureAccess';
 import { BudgetWorkspace } from '../features/budgets/components/BudgetWorkspace';
 import { ElectricalCalculatorWorkspace } from '../features/calculators/components/ElectricalCalculatorWorkspace';
@@ -15,7 +16,15 @@ type ModuleTone = 'blue' | 'gray' | 'green' | 'orange' | 'muted';
 
 type ModulePlan = 'free' | 'pro' | 'soon';
 
-type ModuleId = 'fundamentos' | 'instalacoes' | 'ambientes' | 'orcamentos' | 'motores' | 'automacao';
+type ModuleId =
+  | 'fundamentos'
+  | 'instalacoes'
+  | 'iluminacao'
+  | 'refrigeracao'
+  | 'motores'
+  | 'rebobinagem'
+  | 'automacaoIndustrial'
+  | 'orcamentos';
 
 interface ModuleCardData {
   id: ModuleId;
@@ -57,7 +66,7 @@ const modules: ModuleCardData[] = [
   },
   {
     id: 'instalacoes',
-    title: 'Instalações',
+    title: 'Instalações elétricas',
     description: 'Queda, distância, transformador, AWG, disjuntor, cabo e eletroduto',
     icon: '⌁',
     tone: 'gray',
@@ -67,25 +76,26 @@ const modules: ModuleCardData[] = [
     calculatorModule: 'installations',
   },
   {
-    id: 'ambientes',
-    title: 'Ambientes',
-    description: 'Iluminação e ar-condicionado',
+    id: 'iluminacao',
+    title: 'Iluminação',
+    description: 'Lúmens, lux e quantidade de luminárias',
     icon: '☀',
     tone: 'green',
-    count: '2 cálculos Pro',
+    count: '1 cálculo Pro',
     available: true,
     plan: 'pro',
-    calculatorModule: 'environments',
+    calculatorModule: 'lighting',
   },
   {
-    id: 'orcamentos',
-    title: 'Orçamentos',
-    description: 'Cliente, itens, PDF e histórico local',
-    icon: '▣',
-    tone: 'orange',
-    count: 'Base grátis inicial',
+    id: 'refrigeracao',
+    title: 'Refrigeração',
+    description: 'BTU/h, climatização e carga térmica inicial',
+    icon: '❄',
+    tone: 'blue',
+    count: '1 cálculo Pro',
     available: true,
-    plan: 'free',
+    plan: 'pro',
+    calculatorModule: 'refrigeration',
   },
   {
     id: 'motores',
@@ -99,25 +109,45 @@ const modules: ModuleCardData[] = [
     calculatorModule: 'motors',
   },
   {
-    id: 'automacao',
-    title: 'Automação',
+    id: 'automacaoIndustrial',
+    title: 'Automação industrial',
     description: 'Escalas 4–20 mA, 0–10 V e valor de engenharia',
     icon: '≋',
     tone: 'green',
     count: '2 cálculos Pro',
     available: true,
     plan: 'pro',
-    calculatorModule: 'automation',
+    calculatorModule: 'industrialAutomation',
+  },
+  {
+    id: 'rebobinagem',
+    title: 'Rebobinagem',
+    description: 'Bobinas, fechamento, tensão de trabalho e rotação',
+    icon: '⟳',
+    tone: 'muted',
+    count: 'Em breve',
+    available: false,
+    plan: 'soon',
+  },
+  {
+    id: 'orcamentos',
+    title: 'Orçamentos',
+    description: 'Cliente, itens, PDF e histórico local',
+    icon: '▣',
+    tone: 'orange',
+    count: 'Base grátis inicial',
+    available: true,
+    plan: 'free',
   },
 ];
 
 const featuredCalculators = [
   { title: 'Lei de Ohm', module: 'Fundamentos', badge: 'LIVRE', icon: 'ϟ' },
   { title: 'Corrente por potência', module: 'Fundamentos', badge: 'LIVRE', icon: 'ϟ' },
-  { title: 'Resistores série/paralelo', module: 'Fundamentos', badge: 'LIVRE', icon: 'ϟ' },
-  { title: 'Transformador em kVA', module: 'Instalações', badge: 'PRO', icon: '⌁' },
+  { title: 'Transformador em kVA', module: 'Instalações elétricas', badge: 'PRO', icon: '⌁' },
+  { title: 'BTU ar-condicionado', module: 'Refrigeração', badge: 'PRO', icon: '❄' },
   { title: 'Corrente de motor', module: 'Motores', badge: 'PRO', icon: '↻' },
-  { title: 'Escala 4–20 mA', module: 'Automação', badge: 'PRO', icon: '≋' },
+  { title: 'Escala 4–20 mA', module: 'Automação industrial', badge: 'PRO', icon: '≋' },
 ];
 
 const storePackages = [
@@ -134,8 +164,8 @@ const storePackages = [
     action: 'Detalhes',
   },
   {
-    title: 'Pacote Ambientes Pro',
-    description: 'Iluminação por ambiente e estimativa de ar-condicionado.',
+    title: 'Pacote Refrigeração Pro',
+    description: 'BTU/h e estimativas iniciais para climatização.',
     price: 'R$ 9,90',
     action: 'Detalhes',
   },
@@ -146,7 +176,7 @@ const storePackages = [
     action: 'Detalhes',
   },
   {
-    title: 'Pacote Automação Pro',
+    title: 'Pacote Automação Industrial Pro',
     description: 'Escalonamento de sinais 4–20 mA e 0–10 V para valores de engenharia.',
     price: 'R$ 9,90',
     action: 'Detalhes',
@@ -168,15 +198,18 @@ const navItems: Array<{ id: AppTab; label: string; icon: string }> = [
 ];
 
 function planLabel(plan: ModulePlan): string {
-  if (plan === 'free') {
-    return 'LIVRE';
-  }
-
-  if (plan === 'pro') {
-    return 'PRO';
-  }
-
+  if (plan === 'free') return 'LIVRE';
+  if (plan === 'pro') return 'PRO';
   return 'EM BREVE';
+}
+
+function formatCaptureTime(value: string): string {
+  return new Intl.DateTimeFormat('pt-BR', {
+    day: '2-digit',
+    month: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(new Date(value));
 }
 
 function ModuleCard({ module, compact = false, onOpen }: { module: ModuleCardData; compact?: boolean; onOpen?: () => void }) {
@@ -207,14 +240,40 @@ function CalculatorRow({ title, module, badge, icon }: { title: string; module: 
   );
 }
 
+function CaptureList({ captures, emptyText }: { captures: CalculationCapture[]; emptyText: string }) {
+  if (captures.length === 0) {
+    return (
+      <div className="survey-empty-state">
+        <span className="app-icon tone-gray large-icon">⌁</span>
+        <strong>Nenhum item ainda</strong>
+        <p>{emptyText}</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="calculator-list">
+      {captures.map((capture) => (
+        <article className="calculator-row" key={capture.id}>
+          <span className="app-icon tone-blue">▤</span>
+          <span>
+            <strong>{capture.calculatorLabel}</strong>
+            <small>{capture.moduleLabel} · {formatCaptureTime(capture.createdAt)}</small>
+            <small>{capture.summary}</small>
+          </span>
+          <em className="badge-free">SALVO</em>
+        </article>
+      ))}
+    </div>
+  );
+}
+
 function HomeScreen({ goTo, openModule }: { goTo: (tab: AppTab) => void; openModule: (module: ModuleCardData) => void }) {
   return (
     <section className="app-screen">
       <div className="home-hero">
         <span>Olá, profissional</span>
-        <h1>
-          Orça<span>OS</span>
-        </h1>
+        <h1>Orça<span>OS</span></h1>
         <p>Calculadoras, levantamentos, orçamentos e relatórios técnicos para campo. O essencial fica livre; os módulos profissionais entram no Pro.</p>
       </div>
 
@@ -242,48 +301,36 @@ function HomeScreen({ goTo, openModule }: { goTo: (tab: AppTab) => void; openMod
       </div>
 
       <div className="home-module-grid">
-        {modules.slice(0, 6).map((module) => (
-          <ModuleCard key={module.id} module={module} onOpen={() => openModule(module)} />
-        ))}
+        {modules.slice(0, 6).map((module) => <ModuleCard key={module.id} module={module} onOpen={() => openModule(module)} />)}
       </div>
 
-      <div className="section-title-row">
-        <h2>Cálculos em destaque</h2>
-      </div>
-
+      <div className="section-title-row"><h2>Cálculos em destaque</h2></div>
       <div className="calculator-list">
-        {featuredCalculators.slice(0, 5).map((calculator) => (
-          <CalculatorRow key={calculator.title} {...calculator} />
-        ))}
+        {featuredCalculators.slice(0, 5).map((calculator) => <CalculatorRow key={calculator.title} {...calculator} />)}
       </div>
 
-      <div className="section-title-row">
-        <h2>Resumo rápido</h2>
-      </div>
-
+      <div className="section-title-row"><h2>Resumo rápido</h2></div>
       <div className="quick-summary-grid">
-        <article>
-          <span>Corrente</span>
-          <strong>{roundTechnical(demoCurrent)} A</strong>
-        </article>
-        <article>
-          <span>Disjuntor</span>
-          <strong>{suggestedBreaker ? `${suggestedBreaker} A` : 'Revisar'}</strong>
-        </article>
-        <article>
-          <span>Cabo</span>
-          <strong>{suggestedCable ? `${suggestedCable} mm²` : 'Revisar'}</strong>
-        </article>
-        <article>
-          <span>Orçamento</span>
-          <strong>R$ {roundTechnical(demoBudgetSubtotal)}</strong>
-        </article>
+        <article><span>Corrente</span><strong>{roundTechnical(demoCurrent)} A</strong></article>
+        <article><span>Disjuntor</span><strong>{suggestedBreaker ? `${suggestedBreaker} A` : 'Revisar'}</strong></article>
+        <article><span>Cabo</span><strong>{suggestedCable ? `${suggestedCable} mm²` : 'Revisar'}</strong></article>
+        <article><span>Orçamento</span><strong>R$ {roundTechnical(demoBudgetSubtotal)}</strong></article>
       </div>
     </section>
   );
 }
 
-function ModuleDetailScreen({ module, goBack, goTo }: { module: ModuleCardData; goBack: () => void; goTo: (tab: AppTab) => void }) {
+function ModuleDetailScreen({
+  module,
+  goBack,
+  goTo,
+  onCaptureCalculation,
+}: {
+  module: ModuleCardData;
+  goBack: () => void;
+  goTo: (tab: AppTab) => void;
+  onCaptureCalculation: (capture: CalculationCapture) => void;
+}) {
   return (
     <section className={module.id === 'orcamentos' ? 'app-screen wide-screen' : 'app-screen'}>
       <button className="back-button" type="button" onClick={goBack}>‹ Voltar aos módulos</button>
@@ -301,7 +348,7 @@ function ModuleDetailScreen({ module, goBack, goTo }: { module: ModuleCardData; 
       {module.id === 'orcamentos' ? (
         <BudgetWorkspace />
       ) : module.calculatorModule ? (
-        <ElectricalCalculatorWorkspace selectedModule={module.calculatorModule} userPlan={userPlan} onUpgradeRequest={() => goTo('more')} />
+        <ElectricalCalculatorWorkspace selectedModule={module.calculatorModule} userPlan={userPlan} onUpgradeRequest={() => goTo('more')} onCaptureCalculation={onCaptureCalculation} />
       ) : (
         <div className="empty-state-card">
           <span className={`app-icon tone-${module.tone} large-icon`}>{module.icon}</span>
@@ -313,9 +360,19 @@ function ModuleDetailScreen({ module, goBack, goTo }: { module: ModuleCardData; 
   );
 }
 
-function ModulesScreen({ openModule, selectedModule, goTo }: { openModule: (module: ModuleCardData | null) => void; selectedModule: ModuleCardData | null; goTo: (tab: AppTab) => void }) {
+function ModulesScreen({
+  openModule,
+  selectedModule,
+  goTo,
+  onCaptureCalculation,
+}: {
+  openModule: (module: ModuleCardData | null) => void;
+  selectedModule: ModuleCardData | null;
+  goTo: (tab: AppTab) => void;
+  onCaptureCalculation: (capture: CalculationCapture) => void;
+}) {
   if (selectedModule) {
-    return <ModuleDetailScreen module={selectedModule} goBack={() => openModule(null)} goTo={goTo} />;
+    return <ModuleDetailScreen module={selectedModule} goBack={() => openModule(null)} goTo={goTo} onCaptureCalculation={onCaptureCalculation} />;
   }
 
   return (
@@ -324,63 +381,55 @@ function ModulesScreen({ openModule, selectedModule, goTo }: { openModule: (modu
         <h1>Módulos</h1>
         <p>Abra um módulo para acessar apenas os cálculos daquele grupo. Fundamentos ficam livres; módulos profissionais entram como Pro.</p>
       </header>
-
       <div className="module-list-app">
-        {modules.map((module) => (
-          <ModuleCard key={module.id} module={module} compact onOpen={() => openModule(module)} />
-        ))}
+        {modules.map((module) => <ModuleCard key={module.id} module={module} compact onOpen={() => openModule(module)} />)}
       </div>
     </section>
   );
 }
 
-function SurveyScreen() {
+function SurveyScreen({ captures }: { captures: CalculationCapture[] }) {
+  const surveyCaptures = captures.filter((capture) => capture.destination === 'survey' || capture.destination === 'both');
+
   return (
     <section className="app-screen">
       <header className="screen-header">
         <h1>Levantamento</h1>
-        <p>Área para reunir resultados técnicos dos cálculos, observações de campo e especificações antes de virar orçamento ou relatório.</p>
+        <p>Resultados técnicos dos cálculos, observações de campo e especificações antes de virar orçamento ou relatório.</p>
       </header>
 
       <div className="survey-intro-card">
         <span className="app-icon tone-blue">▤</span>
         <span>
           <strong>Levantamento técnico da OS</strong>
-          <small>Os cálculos poderão ser enviados para cá com descrição, resultado, módulo, observação e indicação se também entram no orçamento.</small>
+          <small>Use esta aba para guardar especificações técnicas de projeto, visita e relatório.</small>
         </span>
       </div>
 
-      <div className="survey-empty-state">
-        <span className="app-icon tone-gray large-icon">⌁</span>
-        <strong>Nenhum item levantado ainda</strong>
-        <p>Na próxima etapa, o botão “Incluir no orçamento e levantamento” vai criar automaticamente itens nesta lista.</p>
-      </div>
-
-      <div className="survey-flow-grid">
-        <article>
-          <strong>1. Cálculo</strong>
-          <small>O usuário calcula corrente, queda, iluminação, motor, automação ou consumo.</small>
-        </article>
-        <article>
-          <strong>2. Levantamento</strong>
-          <small>O resultado vira uma especificação técnica para projeto, visita ou relatório.</small>
-        </article>
-        <article>
-          <strong>3. Orçamento</strong>
-          <small>Quando fizer sentido, o mesmo item também pode gerar serviço, material ou observação comercial.</small>
-        </article>
-      </div>
+      <CaptureList captures={surveyCaptures} emptyText="Abra um cálculo e toque em Adicionar ao levantamento para começar a montar o projeto técnico." />
     </section>
   );
 }
 
-function BudgetsScreen() {
+function BudgetsScreen({ captures }: { captures: CalculationCapture[] }) {
+  const budgetCaptures = captures.filter((capture) => capture.destination === 'budget' || capture.destination === 'both');
+
   return (
     <section className="app-screen wide-screen">
       <header className="screen-header">
         <h1>Orçamentos</h1>
         <p>Monte propostas, salve rascunhos locais e gere uma prévia para imprimir ou salvar em PDF.</p>
       </header>
+
+      <div className="survey-intro-card">
+        <span className="app-icon tone-orange">▣</span>
+        <span>
+          <strong>Itens técnicos enviados ao orçamento</strong>
+          <small>Os cálculos enviados para orçamento aparecem aqui como base técnica. Depois eles serão convertidos em serviço, material ou observação comercial.</small>
+        </span>
+      </div>
+      <CaptureList captures={budgetCaptures} emptyText="Abra um cálculo e toque em Adicionar ao orçamento para usar o resultado como base comercial." />
+
       <BudgetWorkspace />
     </section>
   );
@@ -396,30 +445,9 @@ function MoreScreen() {
 
       <div className="settings-group">
         <h2>Conta</h2>
-        <article className="settings-row">
-          <span className="app-icon tone-blue">▤</span>
-          <span>
-            <strong>Dados da OS / Cliente</strong>
-            <small>Aparece no cabeçalho dos relatórios</small>
-          </span>
-          <span className="chevron">›</span>
-        </article>
-        <article className="settings-row">
-          <span className="app-icon tone-gray">▣</span>
-          <span>
-            <strong>Meu plano</strong>
-            <small>{userPlan === 'pro' ? 'Pro ativo' : 'Grátis · Fundamentos livres'}</small>
-          </span>
-          <span className="chevron">›</span>
-        </article>
-        <article className="settings-row">
-          <span className="app-icon tone-green">◷</span>
-          <span>
-            <strong>Histórico</strong>
-            <small>Orçamentos, levantamentos e cálculos recentes</small>
-          </span>
-          <span className="chevron">›</span>
-        </article>
+        <article className="settings-row"><span className="app-icon tone-blue">▤</span><span><strong>Dados da OS / Cliente</strong><small>Aparece no cabeçalho dos relatórios</small></span><span className="chevron">›</span></article>
+        <article className="settings-row"><span className="app-icon tone-gray">▣</span><span><strong>Meu plano</strong><small>{userPlan === 'pro' ? 'Pro ativo' : 'Grátis · Fundamentos livres'}</small></span><span className="chevron">›</span></article>
+        <article className="settings-row"><span className="app-icon tone-green">◷</span><span><strong>Histórico</strong><small>Orçamentos, levantamentos e cálculos recentes</small></span><span className="chevron">›</span></article>
       </div>
 
       <div className="settings-group">
@@ -427,11 +455,7 @@ function MoreScreen() {
         {storePackages.map((pack) => (
           <article className="store-card" key={pack.title}>
             <span className="app-icon tone-blue">▣</span>
-            <span>
-              <strong>{pack.title}</strong>
-              <small>{pack.description}</small>
-              <b>{pack.price}</b>
-            </span>
+            <span><strong>{pack.title}</strong><small>{pack.description}</small><b>{pack.price}</b></span>
             <button type="button">{pack.action}</button>
           </article>
         ))}
@@ -439,22 +463,8 @@ function MoreScreen() {
 
       <div className="settings-group">
         <h2>Sobre</h2>
-        <article className="settings-row">
-          <span className="app-icon tone-blue">i</span>
-          <span>
-            <strong>Sobre o app</strong>
-            <small>Versão 0.1.0</small>
-          </span>
-          <span className="chevron">›</span>
-        </article>
-        <article className="settings-row">
-          <span className="app-icon tone-green">◇</span>
-          <span>
-            <strong>Roadmap</strong>
-            <small>OrçaOS, levantamentos, relatórios, OS e mais módulos</small>
-          </span>
-          <span className="chevron">›</span>
-        </article>
+        <article className="settings-row"><span className="app-icon tone-blue">i</span><span><strong>Sobre o app</strong><small>Versão 0.1.0</small></span><span className="chevron">›</span></article>
+        <article className="settings-row"><span className="app-icon tone-green">◇</span><span><strong>Roadmap</strong><small>OrçaOS, levantamentos, relatórios, OS e mais módulos</small></span><span className="chevron">›</span></article>
       </div>
     </section>
   );
@@ -463,10 +473,14 @@ function MoreScreen() {
 export function App() {
   const [activeTab, setActiveTab] = useState<AppTab>('home');
   const [selectedModule, setSelectedModule] = useState<ModuleCardData | null>(null);
+  const [captures, setCaptures] = useState<CalculationCapture[]>([]);
+
+  function addCalculationCapture(capture: CalculationCapture) {
+    setCaptures((current) => [capture, ...current]);
+  }
 
   function goTo(tab: AppTab) {
     setActiveTab(tab);
-
     if (tab !== 'modules') {
       setSelectedModule(null);
     }
@@ -481,9 +495,9 @@ export function App() {
     <main className="mobile-app-shell">
       <div className="mobile-app-content">
         {activeTab === 'home' && <HomeScreen goTo={goTo} openModule={openModule} />}
-        {activeTab === 'modules' && <ModulesScreen openModule={openModule} selectedModule={selectedModule} goTo={goTo} />}
-        {activeTab === 'survey' && <SurveyScreen />}
-        {activeTab === 'budgets' && <BudgetsScreen />}
+        {activeTab === 'modules' && <ModulesScreen openModule={openModule} selectedModule={selectedModule} goTo={goTo} onCaptureCalculation={addCalculationCapture} />}
+        {activeTab === 'survey' && <SurveyScreen captures={captures} />}
+        {activeTab === 'budgets' && <BudgetsScreen captures={captures} />}
         {activeTab === 'more' && <MoreScreen />}
       </div>
 
