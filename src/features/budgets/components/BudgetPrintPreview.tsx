@@ -1,4 +1,4 @@
-import type { BudgetItem, BusinessProfile } from '../../../core/types/business';
+import type { BudgetItem, BudgetTemplateId, BusinessProfile } from '../../../core/types/business';
 import { calculateBudgetItemTotal } from '../../../core/pricing/budget';
 import { roundTechnical } from '../../../core/calculations/electrical';
 import type { SavedBudgetStatus } from '../storage/savedBudgetsStorage';
@@ -16,6 +16,7 @@ interface BudgetPrintPreviewProps {
   paymentTerms?: string;
   validity?: string;
   notes?: string;
+  templateId?: BudgetTemplateId;
 }
 
 const currencyFormatter = new Intl.NumberFormat('pt-BR', {
@@ -28,14 +29,8 @@ function formatCurrency(value: number): string {
 }
 
 function categoryLabel(category: BudgetItem['category']): string {
-  if (category === 'labor') {
-    return 'Mão de obra';
-  }
-
-  if (category === 'material') {
-    return 'Material';
-  }
-
+  if (category === 'labor') return 'Mão de obra';
+  if (category === 'material') return 'Material';
   return 'Outro';
 }
 
@@ -66,6 +61,7 @@ export function BudgetPrintPreview({
   paymentTerms,
   validity,
   notes,
+  templateId = 'professional',
 }: BudgetPrintPreviewProps) {
   const issuedAt = new Intl.DateTimeFormat('pt-BR', {
     dateStyle: 'short',
@@ -77,7 +73,7 @@ export function BudgetPrintPreview({
   const contactLine = [businessProfile?.phone, businessProfile?.email].filter(Boolean).join(' · ');
   const address = businessProfile?.address?.trim();
   const responsibleName = businessProfile?.responsibleName?.trim();
-  const logoUrl = businessProfile?.logoUrl?.trim();
+  const logoSource = businessProfile?.logoDataUrl?.trim() || businessProfile?.logoUrl?.trim();
 
   return (
     <section className="print-preview-shell">
@@ -91,10 +87,10 @@ export function BudgetPrintPreview({
         </button>
       </div>
 
-      <article className="print-document" aria-label="Prévia impressa do orçamento">
+      <article className={`print-document print-template-${templateId}`} aria-label="Prévia impressa do orçamento">
         <header className="print-document-top">
           <div className="print-company-block">
-            {logoUrl ? <img className="print-logo" src={logoUrl} alt={`Logo ${profileName}`} /> : <span className="print-brand">OrçaOS</span>}
+            {logoSource ? <img className="print-logo" src={logoSource} alt={`Logo ${profileName}`} /> : <span className="print-brand">OrçaOS</span>}
             <h2>{budgetTitle || 'Orçamento sem título'}</h2>
             <p>{profileName}</p>
             {documentNumber && <p>{documentNumber}</p>}
@@ -160,11 +156,13 @@ export function BudgetPrintPreview({
           </div>
         </section>
 
-        <section className="print-client-box">
-          <span>Condições</span>
-          {paymentTerms && <p>{paymentTerms}</p>}
-          {notes && <p>{notes}</p>}
-        </section>
+        {templateId !== 'simple' && (
+          <section className="print-client-box">
+            <span>Condições</span>
+            {paymentTerms && <p>{paymentTerms}</p>}
+            {notes && <p>{notes}</p>}
+          </section>
+        )}
 
         <footer className="print-footer">
           <p>{responsibleName ? `Responsável técnico/comercial: ${responsibleName}` : 'Orçamento gerado pelo OrçaOS.'}</p>
