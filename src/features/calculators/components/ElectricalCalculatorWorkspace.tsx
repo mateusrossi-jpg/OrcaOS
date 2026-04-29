@@ -12,21 +12,22 @@ import {
   recommendCircuit,
   roundTechnical,
 } from '../../../core/calculations/electrical';
+import {
+  calculatorAccessRules,
+  canUseCalculator,
+  getCalculatorAccessRule,
+  type CalculatorMode,
+  type UserPlan,
+} from '../../../core/access/featureAccess';
 import type { CircuitPhase } from '../../../core/types/electrical';
 import { suggestNextBreaker } from '../../../data/electrical-tables/commercialBreakers';
 import { suggestMinimumCableSectionByCurrent } from '../../../data/electrical-tables/cableSections';
 import './ElectricalCalculatorWorkspace.css';
 
-type CalculatorMode =
-  | 'current'
-  | 'power'
-  | 'consumption'
-  | 'voltage-drop'
-  | 'conversion'
-  | 'lighting'
-  | 'air-conditioning'
-  | 'conduit-fill'
-  | 'circuit-recommendation';
+interface ElectricalCalculatorWorkspaceProps {
+  userPlan?: UserPlan;
+  onUpgradeRequest?: () => void;
+}
 
 interface NumberFieldProps {
   label: string;
@@ -89,19 +90,23 @@ function ResultCard({ label, value, helper }: { label: string; value: string; he
   );
 }
 
-const calculatorTabs: Array<{ mode: CalculatorMode; label: string }> = [
-  { mode: 'current', label: 'Corrente' },
-  { mode: 'power', label: 'Potência' },
-  { mode: 'conversion', label: 'W / VA / A' },
-  { mode: 'consumption', label: 'Consumo' },
-  { mode: 'voltage-drop', label: 'Queda tensão' },
-  { mode: 'circuit-recommendation', label: 'Cabo/disjuntor' },
-  { mode: 'lighting', label: 'Iluminação' },
-  { mode: 'air-conditioning', label: 'Ar-condicionado' },
-  { mode: 'conduit-fill', label: 'Eletroduto' },
-];
+function LockedCalculator({ mode, onUpgradeRequest }: { mode: CalculatorMode; onUpgradeRequest?: () => void }) {
+  const rule = getCalculatorAccessRule(mode);
 
-export function ElectricalCalculatorWorkspace() {
+  return (
+    <div className="locked-calculator-card">
+      <span className="lock-icon">🔒</span>
+      <strong>{rule?.label ?? 'Cálculo Pro'}</strong>
+      <p>{rule?.shortDescription ?? 'Este cálculo faz parte dos recursos profissionais do OrçaOS.'}</p>
+      <small>Os cálculos fundamentais continuam 100% livres. Este recurso entra no pacote Pro.</small>
+      <button type="button" onClick={onUpgradeRequest}>
+        Ver pacote Pro
+      </button>
+    </div>
+  );
+}
+
+export function ElectricalCalculatorWorkspace({ userPlan = 'free', onUpgradeRequest }: ElectricalCalculatorWorkspaceProps) {
   const [mode, setMode] = useState<CalculatorMode>('current');
 
   const [powerWatts, setPowerWatts] = useState('2200');
@@ -130,7 +135,13 @@ export function ElectricalCalculatorWorkspace() {
   const [cableCount, setCableCount] = useState('3');
   const [conduitInternalDiameterMm, setConduitInternalDiameterMm] = useState('16');
 
+  const hasAccess = canUseCalculator(mode, userPlan);
+
   const result = useMemo(() => {
+    if (!hasAccess) {
+      return { error: null, cards: [] };
+    }
+
     const powerWattsNumber = parseCalculatorNumber(powerWatts);
     const apparentPowerVaNumber = parseCalculatorNumber(apparentPowerVa);
     const voltageVoltsNumber = parseCalculatorNumber(voltageVolts);
@@ -393,6 +404,7 @@ export function ElectricalCalculatorWorkspace() {
     days,
     distanceMeters,
     electronics,
+    hasAccess,
     hoursPerDay,
     lampLumens,
     mode,
@@ -409,102 +421,124 @@ export function ElectricalCalculatorWorkspace() {
 
   return (
     <div className="calculator-workspace">
-      <div className="calculator-tabs" role="tablist" aria-label="Calculadoras elétricas">
-        {calculatorTabs.map((tab) => (
-          <button className={mode === tab.mode ? 'active' : ''} key={tab.mode} type="button" onClick={() => setMode(tab.mode)}>
-            {tab.label}
-          </button>
-        ))}
+      <div className="calculator-plan-banner">
+        <div>
+          <strong>Fundamentos livres</strong>
+          <span>Corrente, potência, W/VA/A e consumo ficam liberados para todos.</span>
+        </div>
+        <em>{userPlan === 'pro' ? 'PRO ativo' : 'Plano grátis'}</em>
       </div>
 
-      <div className="calculator-layout">
-        <form className="calculator-form" onSubmit={(event) => event.preventDefault()}>
-          {(mode === 'current' ||
-            mode === 'consumption' ||
-            mode === 'conversion' ||
-            mode === 'circuit-recommendation') && (
-            <NumberField label="Potência" value={powerWatts} suffix="W" step={1} onChange={setPowerWatts} />
-          )}
+      <div className="calculator-tabs" role="tablist" aria-label="Calculadoras elétricas">
+        {calculatorAccessRules.map((tab) => {
+          const isLocked = !canUseCalculator(tab.mode, userPlan);
 
-          {mode === 'conversion' && (
-            <NumberField label="Potência aparente" value={apparentPowerVa} suffix="VA" step={1} onChange={setApparentPowerVa} />
-          )}
+          return (
+            <button
+              className={mode === tab.mode ? 'active' : ''}
+              key={tab.mode}
+              type="button"
+              onClick={() => setMode(tab.mode)}
+            >
+              {tab.label}
+              <small className={isLocked ? 'tab-plan pro' : 'tab-plan free'}>{isLocked ? 'PRO' : 'LIVRE'}</small>
+            </button>
+          );
+        })}
+      </div>
 
-          {(mode === 'power' || mode === 'voltage-drop') && (
-            <NumberField label="Corrente" value={currentAmps} suffix="A" onChange={setCurrentAmps} />
-          )}
+      {!hasAccess ? (
+        <LockedCalculator mode={mode} onUpgradeRequest={onUpgradeRequest} />
+      ) : (
+        <div className="calculator-layout">
+          <form className="calculator-form" onSubmit={(event) => event.preventDefault()}>
+            {(mode === 'current' ||
+              mode === 'consumption' ||
+              mode === 'conversion' ||
+              mode === 'circuit-recommendation') && (
+              <NumberField label="Potência" value={powerWatts} suffix="W" step={1} onChange={setPowerWatts} />
+            )}
 
-          {mode !== 'consumption' && mode !== 'lighting' && mode !== 'air-conditioning' && mode !== 'conduit-fill' && (
-            <NumberField label="Tensão" value={voltageVolts} suffix="V" step={1} onChange={setVoltageVolts} />
-          )}
+            {mode === 'conversion' && (
+              <NumberField label="Potência aparente" value={apparentPowerVa} suffix="VA" step={1} onChange={setApparentPowerVa} />
+            )}
 
-          {(mode === 'current' || mode === 'power' || mode === 'conversion' || mode === 'circuit-recommendation') && (
-            <NumberField label="Fator de potência" value={powerFactor} min={0.01} step={0.01} onChange={setPowerFactor} />
-          )}
+            {(mode === 'power' || mode === 'voltage-drop') && (
+              <NumberField label="Corrente" value={currentAmps} suffix="A" onChange={setCurrentAmps} />
+            )}
 
-          {(mode === 'current' ||
-            mode === 'power' ||
-            mode === 'voltage-drop' ||
-            mode === 'conversion' ||
-            mode === 'circuit-recommendation') && <PhaseSelector value={phase} onChange={setPhase} />}
+            {mode !== 'consumption' && mode !== 'lighting' && mode !== 'air-conditioning' && mode !== 'conduit-fill' && (
+              <NumberField label="Tensão" value={voltageVolts} suffix="V" step={1} onChange={setVoltageVolts} />
+            )}
 
-          {mode === 'consumption' && (
-            <>
-              <NumberField label="Horas por dia" value={hoursPerDay} suffix="h" onChange={setHoursPerDay} />
-              <NumberField label="Dias" value={days} suffix="dias" step={1} onChange={setDays} />
-              <NumberField label="Tarifa" value={tariff} suffix="R$/kWh" onChange={setTariff} />
-            </>
-          )}
+            {(mode === 'current' || mode === 'power' || mode === 'conversion' || mode === 'circuit-recommendation') && (
+              <NumberField label="Fator de potência" value={powerFactor} min={0.01} step={0.01} onChange={setPowerFactor} />
+            )}
 
-          {mode === 'voltage-drop' && (
-            <>
-              <NumberField label="Distância" value={distanceMeters} suffix="m" onChange={setDistanceMeters} />
-              <NumberField label="Seção do cabo" value={sectionMm2} suffix="mm²" onChange={setSectionMm2} />
-            </>
-          )}
+            {(mode === 'current' ||
+              mode === 'power' ||
+              mode === 'voltage-drop' ||
+              mode === 'conversion' ||
+              mode === 'circuit-recommendation') && <PhaseSelector value={phase} onChange={setPhase} />}
 
-          {mode === 'lighting' && (
-            <>
-              <NumberField label="Área do ambiente" value={areaM2} suffix="m²" onChange={setAreaM2} />
-              <NumberField label="Iluminância desejada" value={targetLux} suffix="lux" step={1} onChange={setTargetLux} />
-              <NumberField label="Lúmens por luminária" value={lampLumens} suffix="lm" step={1} onChange={setLampLumens} />
-            </>
-          )}
+            {mode === 'consumption' && (
+              <>
+                <NumberField label="Horas por dia" value={hoursPerDay} suffix="h" onChange={setHoursPerDay} />
+                <NumberField label="Dias" value={days} suffix="dias" step={1} onChange={setDays} />
+                <NumberField label="Tarifa" value={tariff} suffix="R$/kWh" onChange={setTariff} />
+              </>
+            )}
 
-          {mode === 'air-conditioning' && (
-            <>
-              <NumberField label="Área do ambiente" value={areaM2} suffix="m²" onChange={setAreaM2} />
-              <NumberField label="Pessoas" value={people} suffix="pessoas" step={1} onChange={setPeople} />
-              <NumberField label="Equipamentos" value={electronics} suffix="un." step={1} onChange={setElectronics} />
-              <NumberField label="Fator sol/calor" value={sunFactor} min={0.1} step={0.05} onChange={setSunFactor} />
-            </>
-          )}
+            {mode === 'voltage-drop' && (
+              <>
+                <NumberField label="Distância" value={distanceMeters} suffix="m" onChange={setDistanceMeters} />
+                <NumberField label="Seção do cabo" value={sectionMm2} suffix="mm²" onChange={setSectionMm2} />
+              </>
+            )}
 
-          {mode === 'conduit-fill' && (
-            <>
-              <NumberField label="Diâmetro externo do cabo" value={cableExternalDiameterMm} suffix="mm" onChange={setCableExternalDiameterMm} />
-              <NumberField label="Quantidade de cabos" value={cableCount} suffix="cabos" step={1} onChange={setCableCount} />
-              <NumberField
-                label="Diâmetro interno do eletroduto"
-                value={conduitInternalDiameterMm}
-                suffix="mm"
-                onChange={setConduitInternalDiameterMm}
-              />
-            </>
-          )}
-        </form>
+            {mode === 'lighting' && (
+              <>
+                <NumberField label="Área do ambiente" value={areaM2} suffix="m²" onChange={setAreaM2} />
+                <NumberField label="Iluminância desejada" value={targetLux} suffix="lux" step={1} onChange={setTargetLux} />
+                <NumberField label="Lúmens por luminária" value={lampLumens} suffix="lm" step={1} onChange={setLampLumens} />
+              </>
+            )}
 
-        <div className="calculator-results">
-          {result.error && <div className="error-box">{result.error}</div>}
-          {result.cards.map((card) => (
-            <ResultCard key={card.label} label={card.label} value={card.value} helper={card.helper} />
-          ))}
-          <div className="technical-warning">
-            Resultado para apoio técnico. Antes de executar instalação real, validar norma, método de instalação,
-            agrupamento, temperatura, cabo, proteção e responsabilidade profissional.
+            {mode === 'air-conditioning' && (
+              <>
+                <NumberField label="Área do ambiente" value={areaM2} suffix="m²" onChange={setAreaM2} />
+                <NumberField label="Pessoas" value={people} suffix="pessoas" step={1} onChange={setPeople} />
+                <NumberField label="Equipamentos" value={electronics} suffix="un." step={1} onChange={setElectronics} />
+                <NumberField label="Fator sol/calor" value={sunFactor} min={0.1} step={0.05} onChange={setSunFactor} />
+              </>
+            )}
+
+            {mode === 'conduit-fill' && (
+              <>
+                <NumberField label="Diâmetro externo do cabo" value={cableExternalDiameterMm} suffix="mm" onChange={setCableExternalDiameterMm} />
+                <NumberField label="Quantidade de cabos" value={cableCount} suffix="cabos" step={1} onChange={setCableCount} />
+                <NumberField
+                  label="Diâmetro interno do eletroduto"
+                  value={conduitInternalDiameterMm}
+                  suffix="mm"
+                  onChange={setConduitInternalDiameterMm}
+                />
+              </>
+            )}
+          </form>
+
+          <div className="calculator-results">
+            {result.error && <div className="error-box">{result.error}</div>}
+            {result.cards.map((card) => (
+              <ResultCard key={card.label} label={card.label} value={card.value} helper={card.helper} />
+            ))}
+            <div className="technical-warning">
+              Resultado para apoio técnico. Antes de executar instalação real, validar norma, método de instalação,
+              agrupamento, temperatura, cabo, proteção e responsabilidade profissional.
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
