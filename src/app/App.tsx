@@ -1,5 +1,6 @@
 import { calculateCurrentFromPower, calculateEnergyConsumption, roundTechnical } from '../core/calculations/electrical';
 import { calculateBudgetSubtotal } from '../core/pricing/budget';
+import { BudgetWorkspace } from '../features/budgets/components/BudgetWorkspace';
 import { calculatorCatalog } from '../features/calculators/calculatorCatalog';
 import { ElectricalCalculatorWorkspace } from '../features/calculators/components/ElectricalCalculatorWorkspace';
 import { starterElectricalBudgetItems } from '../features/budgets/budgetTemplates';
@@ -30,7 +31,7 @@ const modules = [
   {
     title: 'Orçamentos',
     description: 'Serviços, materiais, mão de obra, desconto e exportação futura em PDF.',
-    status: 'Estrutura criada',
+    status: 'Funcional inicial',
   },
   {
     title: 'Clientes',
@@ -65,8 +66,8 @@ export function App() {
           <a href="#calculadora-ativa" className="primary-action">
             Calcular agora
           </a>
-          <a href="#modulos" className="secondary-action">
-            Ver módulos
+          <a href="#orcamento-ativo" className="secondary-action">
+            Montar orçamento
           </a>
         </div>
       </section>
@@ -88,19 +89,28 @@ export function App() {
           <small>Pré-dimensionamento simplificado</small>
         </article>
         <article className="metric-card">
-          <span>Consumo mensal</span>
-          <strong>{roundTechnical(demoConsumption.kwh)} kWh</strong>
-          <small>R$ {roundTechnical(demoConsumption.estimatedCost ?? 0)}</small>
+          <span>Orçamento base</span>
+          <strong>R$ {roundTechnical(demoBudgetSubtotal)}</strong>
+          <small>Modelo inicial de serviços</small>
         </article>
       </section>
 
-      <section id="calculator-ativa" className="content-section">
+      <section id="calculadora-ativa" className="content-section">
         <div className="section-header">
           <span>Uso prático</span>
           <h2>Calculadora elétrica ativa</h2>
           <p>Agora a tela já calcula com os valores informados, pronta para teste manual no navegador.</p>
         </div>
         <ElectricalCalculatorWorkspace />
+      </section>
+
+      <section id="orcamento-ativo" className="content-section">
+        <div className="section-header">
+          <span>Orçamento</span>
+          <h2>Orçamento simples funcional</h2>
+          <p>Monte itens de mão de obra, materiais e outros custos com subtotal, desconto e total final.</p>
+        </div>
+        <BudgetWorkspace />
       </section>
 
       <section id="calculadoras" className="content-section">
@@ -141,22 +151,6 @@ export function App() {
               <span>{module.status}</span>
             </article>
           ))}
-        </div>
-      </section>
-
-      <section className="content-section budget-preview">
-        <div className="section-header">
-          <span>Orçamento</span>
-          <h2>Base de orçamento inicial</h2>
-          <p>
-            A primeira tabela de serviços já está no código para evoluir depois para orçamento completo, PDF e histórico.
-          </p>
-        </div>
-
-        <div className="budget-box">
-          <strong>Subtotal demonstrativo</strong>
-          <span>R$ {roundTechnical(demoBudgetSubtotal)}</span>
-          <small>Valores iniciais apenas para protótipo e validação.</small>
         </div>
       </section>
     </main>
