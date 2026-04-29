@@ -23,7 +23,14 @@ export type CalculatorMode =
   | 'analog-4-20ma'
   | 'analog-0-10v';
 
-export type CalculatorModule = 'fundamentals' | 'installations' | 'environments' | 'motors' | 'automation';
+export type CalculatorModule =
+  | 'fundamentals'
+  | 'installations'
+  | 'lighting'
+  | 'refrigeration'
+  | 'motors'
+  | 'rewinding'
+  | 'industrialAutomation';
 
 export interface CalculatorAccessRule {
   mode: CalculatorMode;
@@ -135,16 +142,16 @@ export const calculatorAccessRules: CalculatorAccessRule[] = [
   {
     mode: 'lighting',
     label: 'Iluminação',
-    module: 'environments',
+    module: 'lighting',
     plan: 'pro',
     shortDescription: 'Lúmens necessários e quantidade de luminárias.',
   },
   {
     mode: 'air-conditioning',
-    label: 'Ar-condicionado',
-    module: 'environments',
+    label: 'BTU ar-condicionado',
+    module: 'refrigeration',
     plan: 'pro',
-    shortDescription: 'Estimativa inicial de capacidade em BTU/h.',
+    shortDescription: 'Estimativa inicial de capacidade em BTU/h para climatização.',
   },
   {
     mode: 'motor-current',
@@ -170,14 +177,14 @@ export const calculatorAccessRules: CalculatorAccessRule[] = [
   {
     mode: 'analog-4-20ma',
     label: '4–20 mA',
-    module: 'automation',
+    module: 'industrialAutomation',
     plan: 'pro',
     shortDescription: 'Escalonamento de sinal 4–20 mA para valor de engenharia.',
   },
   {
     mode: 'analog-0-10v',
     label: '0–10 V',
-    module: 'automation',
+    module: 'industrialAutomation',
     plan: 'pro',
     shortDescription: 'Escalonamento de sinal 0–10 V para valor de engenharia.',
   },
