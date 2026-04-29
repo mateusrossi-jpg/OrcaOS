@@ -9,6 +9,7 @@ import {
 import type { CircuitPhase } from '../../../core/types/electrical';
 import { suggestNextBreaker } from '../../../data/electrical-tables/commercialBreakers';
 import { suggestMinimumCableSectionByCurrent } from '../../../data/electrical-tables/cableSections';
+import './ElectricalCalculatorWorkspace.css';
 
 type CalculatorMode = 'current' | 'power' | 'consumption' | 'voltage-drop';
 
