@@ -1,4 +1,4 @@
-import { calculateCurrentFromPower, calculateEnergyConsumption, roundTechnical } from '../core/calculations/electrical';
+import { calculateCurrentFromPower, roundTechnical } from '../core/calculations/electrical';
 import { calculateBudgetSubtotal } from '../core/pricing/budget';
 import { BudgetWorkspace } from '../features/budgets/components/BudgetWorkspace';
 import { calculatorCatalog } from '../features/calculators/calculatorCatalog';
@@ -11,13 +11,6 @@ const demoCurrent = calculateCurrentFromPower({
   powerWatts: 2200,
   voltageVolts: 220,
   powerFactor: 1,
-});
-
-const demoConsumption = calculateEnergyConsumption({
-  powerWatts: 1200,
-  hoursPerDay: 2,
-  days: 30,
-  tariffPerKwh: 0.95,
 });
 
 const demoBudgetSubtotal = calculateBudgetSubtotal(starterElectricalBudgetItems);
