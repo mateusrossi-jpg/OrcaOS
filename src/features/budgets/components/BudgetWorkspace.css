@@ -5,6 +5,7 @@
 
 .budget-save-status,
 .budget-header-card,
+.saved-budget-panel,
 .budget-editor,
 .budget-summary {
   border: 1px solid rgba(148, 163, 184, 0.2);
@@ -33,9 +34,91 @@
 
 .budget-header-card {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: 1fr 1fr 220px;
   gap: 14px;
   padding: 18px;
+}
+
+.saved-budget-panel {
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+}
+
+.saved-budget-panel-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.saved-budget-panel-header h3 {
+  margin: 0;
+  color: #f8fafc;
+  font-size: 1.3rem;
+}
+
+.saved-budget-panel-header p {
+  margin: 6px 0 0;
+  color: #cbd5e1;
+  line-height: 1.5;
+}
+
+.saved-budget-list {
+  display: grid;
+  gap: 10px;
+}
+
+.saved-budget-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: stretch;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 20px;
+  padding: 12px;
+  background: rgba(2, 6, 23, 0.36);
+}
+
+.saved-budget-card.active {
+  border-color: rgba(96, 165, 250, 0.5);
+  background: rgba(37, 99, 235, 0.12);
+}
+
+.saved-budget-open,
+.saved-budget-delete {
+  border: 0;
+  background: transparent;
+  font: inherit;
+  cursor: pointer;
+}
+
+.saved-budget-open {
+  display: grid;
+  justify-items: start;
+  gap: 4px;
+  color: #e5e7eb;
+  text-align: left;
+}
+
+.saved-budget-open strong {
+  color: #f8fafc;
+}
+
+.saved-budget-open small,
+.saved-budget-open span {
+  color: #94a3b8;
+  line-height: 1.35;
+}
+
+.saved-budget-delete {
+  align-self: center;
+  border-radius: 14px;
+  min-height: 40px;
+  padding: 0 12px;
+  color: #fecaca;
+  background: rgba(220, 38, 38, 0.12);
+  font-weight: 900;
 }
 
 .budget-layout {
@@ -205,6 +288,21 @@
   margin-bottom: 12px;
 }
 
+.status-sent {
+  color: #bfdbfe;
+  background: rgba(37, 99, 235, 0.14);
+}
+
+.status-approved {
+  color: #bbf7d0;
+  background: rgba(22, 163, 74, 0.14);
+}
+
+.status-rejected {
+  color: #fecaca;
+  background: rgba(220, 38, 38, 0.14);
+}
+
 .summary-lines {
   display: grid;
   gap: 10px;
@@ -259,14 +357,22 @@
 @media (max-width: 960px) {
   .budget-save-status,
   .budget-header-card,
+  .saved-budget-panel-header,
+  .saved-budget-card,
   .budget-layout,
   .budget-form-grid {
     grid-template-columns: 1fr;
   }
 
-  .budget-save-status {
+  .budget-save-status,
+  .saved-budget-panel-header {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .saved-budget-panel-header .inline-action,
+  .saved-budget-delete {
+    width: 100%;
   }
 
   .budget-item-row {
