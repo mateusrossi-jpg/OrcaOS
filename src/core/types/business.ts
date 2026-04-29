@@ -16,6 +16,7 @@ export interface BusinessProfile {
   email: string;
   address: string;
   logoUrl: string;
+  logoDataUrl: string;
   responsibleName: string;
   defaultPaymentTerms: string;
   defaultValidity: string;
