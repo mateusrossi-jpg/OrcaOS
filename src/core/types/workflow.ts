@@ -18,6 +18,7 @@ export interface CalculationCapture {
   createdAt: string;
   summary: string;
   details: string[];
+  workOrderId?: string;
   itemType?: TechnicalItemType;
   editableDescription?: string;
   technicalNote?: string;
