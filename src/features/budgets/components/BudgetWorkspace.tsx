@@ -11,6 +11,7 @@ import {
   type SavedBudgetStatus,
 } from '../storage/savedBudgetsStorage';
 import { starterElectricalBudgetItems } from '../budgetTemplates';
+import { BudgetPrintPreview } from './BudgetPrintPreview';
 import './BudgetWorkspace.css';
 
 type BudgetCategory = BudgetItem['category'];
@@ -428,6 +429,16 @@ export function BudgetWorkspace() {
           </div>
         </aside>
       </div>
+
+      <BudgetPrintPreview
+        clientName={clientName}
+        budgetTitle={budgetTitle}
+        status={budgetStatus}
+        items={items}
+        discount={discount}
+        subtotal={summary.subtotal}
+        total={summary.total}
+      />
     </div>
   );
 }
