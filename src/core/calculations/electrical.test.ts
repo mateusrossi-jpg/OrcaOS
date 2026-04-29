@@ -8,15 +8,21 @@ import {
   calculateCurrentFromPower,
   calculateEnergyConsumption,
   calculateLighting,
+  calculateMaxDistanceFromVoltageDrop,
+  calculateMotorCurrent,
+  calculateMotorSpeed,
   calculateParallelResistance,
   calculatePowerByResistance,
   calculatePowerFromCurrent,
+  calculatePulleyRatio,
   calculateResistanceFromVoltageCurrent,
   calculateSeriesResistance,
+  calculateTransformerSizing,
   calculateVoltageDrop,
   convertAwgToMm2,
   recommendCircuit,
   roundTechnical,
+  scaleAnalogSignal,
   suggestNearestAwg,
 } from './electrical';
 
@@ -137,6 +143,30 @@ describe('electrical calculations', () => {
     expect(roundTechnical(result.requiredSectionMm2)).toBe(0.99);
   });
 
+  it('calculates maximum distance by voltage drop', () => {
+    const result = calculateMaxDistanceFromVoltageDrop({
+      currentAmps: 10,
+      sectionMm2: 2.5,
+      voltageVolts: 220,
+      maxDropPercent: 4,
+    });
+
+    expect(roundTechnical(result.maxDropVolts)).toBe(8.8);
+    expect(roundTechnical(result.maxDistanceMeters)).toBe(62.86);
+  });
+
+  it('sizes transformer by kVA with margin', () => {
+    const result = calculateTransformerSizing({
+      loadWatts: 8000,
+      powerFactor: 0.8,
+      safetyMarginPercent: 20,
+    });
+
+    expect(roundTechnical(result.apparentPowerKva)).toBe(10);
+    expect(roundTechnical(result.apparentPowerWithMarginKva)).toBe(12);
+    expect(result.suggestedCommercialKva).toBe(15);
+  });
+
   it('converts AWG to mm2 and suggests nearest AWG', () => {
     expect(convertAwgToMm2('12')?.sectionMm2).toBe(3.31);
     expect(suggestNearestAwg(2.5)?.awg).toBe('12');
@@ -162,6 +192,62 @@ describe('electrical calculations', () => {
 
     expect(roundTechnical(result.estimatedBtus)).toBe(8400);
     expect(result.suggestedCommercialBtus).toBe(9000);
+  });
+
+  it('calculates motor current', () => {
+    const result = calculateMotorCurrent({
+      mechanicalPowerKw: 1.5,
+      voltageVolts: 380,
+      efficiency: 0.85,
+      powerFactor: 0.8,
+      phase: 'three-phase',
+    });
+
+    expect(roundTechnical(result)).toBe(3.35);
+  });
+
+  it('calculates motor synchronous speed and slip', () => {
+    const result = calculateMotorSpeed({
+      frequencyHz: 60,
+      poles: 4,
+      measuredRpm: 1720,
+    });
+
+    expect(roundTechnical(result.synchronousRpm)).toBe(1800);
+    expect(roundTechnical(result.slipPercent ?? 0)).toBe(4.44);
+  });
+
+  it('calculates pulley ratio', () => {
+    const result = calculatePulleyRatio({
+      motorRpm: 1720,
+      motorPulleyDiameterMm: 80,
+      drivenPulleyDiameterMm: 160,
+    });
+
+    expect(roundTechnical(result.ratio)).toBe(0.5);
+    expect(roundTechnical(result.drivenRpm)).toBe(860);
+  });
+
+  it('scales analog signals', () => {
+    const currentLoop = scaleAnalogSignal({
+      inputValue: 12,
+      inputMin: 4,
+      inputMax: 20,
+      engineeringMin: 0,
+      engineeringMax: 100,
+    });
+    const voltageSignal = scaleAnalogSignal({
+      inputValue: 5,
+      inputMin: 0,
+      inputMax: 10,
+      engineeringMin: 0,
+      engineeringMax: 100,
+    });
+
+    expect(roundTechnical(currentLoop.engineeringValue)).toBe(50);
+    expect(roundTechnical(currentLoop.percent)).toBe(50);
+    expect(roundTechnical(voltageSignal.engineeringValue)).toBe(50);
+    expect(roundTechnical(voltageSignal.percent)).toBe(50);
   });
 
   it('calculates conduit fill percentage', () => {
