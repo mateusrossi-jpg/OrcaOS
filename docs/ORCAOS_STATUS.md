@@ -44,7 +44,32 @@ A navegação principal está separada em seis áreas:
    - prepara a futura entrega de diagnóstico técnico ao cliente.
 
 6. **Mais**
-   - configurações, plano, histórico, loja e roadmap.
+   - inclui Clientes e OS;
+   - permite cadastro local de clientes;
+   - permite criação e ativação de ordens de serviço;
+   - mantém configurações, plano, histórico, loja e roadmap.
+
+## Clientes e OS
+
+A primeira base de Cliente/OS já existe na aba **Mais**.
+
+Recursos atuais:
+
+- cadastro local de cliente;
+- nome, telefone, e-mail, endereço e observações;
+- criação de OS vinculada ou não a um cliente;
+- título, descrição, endereço, prioridade, status e data agendada;
+- lista de clientes cadastrados;
+- lista de ordens de serviço;
+- seleção de uma OS ativa para representar o atendimento atual;
+- persistência local em `localStorage`.
+
+Objetivo da próxima evolução:
+
+- vincular a OS ativa automaticamente a levantamentos, orçamentos e relatórios;
+- salvar orçamento completo com cliente/OS;
+- gerar relatório e orçamento com cabeçalho baseado no cliente e na OS;
+- criar histórico por cliente.
 
 ## Módulos de cálculo atuais
 
@@ -116,6 +141,7 @@ O fluxo principal do app está organizado assim:
    - observações e diagnósticos.
 4. O **Orçamento** importa itens técnicos pendentes e converte em itens comerciais.
 5. O **Relatório** usa itens técnicos, fotos e diagnósticos para gerar documento técnico.
+6. A **OS ativa** representa o atendimento atual e será usada como elo entre cliente, levantamento, orçamento e relatório nas próximas evoluções.
 
 ## Decisões importantes já tomadas
 
@@ -129,6 +155,7 @@ O fluxo principal do app está organizado assim:
 - Orçamento não deve aparecer misturado com categorias de cálculo.
 - Levantamento deve funcionar como ferramenta de campo, incluindo carrinho guiado, blocos manuais e fotos.
 - Relatório técnico deve ser separado do orçamento comercial.
+- Cliente/OS deve ser o elo central para histórico, execução e manutenção preventiva.
 - BTU deve ficar em Refrigeração, não em um módulo genérico de Ambientes.
 - Automação industrial deve ser módulo próprio.
 - Rebobinagem deve ser módulo próprio, mesmo que entre como futuro.
@@ -139,7 +166,8 @@ O fluxo principal do app está organizado assim:
 - App React + Vite + TypeScript.
 - Interface mobile-first com navegação inferior.
 - Capturas de resultados de cálculo salvas em `localStorage`.
-- Separação lógica entre cálculo, levantamento, orçamento e relatório.
+- Clientes e OS salvos localmente em `localStorage`.
+- Separação lógica entre cálculo, levantamento, orçamento, relatório e Cliente/OS.
 - Orçamento com perfil profissional fixo, logo local/URL, catálogo e modelos.
 - Levantamento guiado com carrinho, quantidade digitável, blocos manuais e imagens.
 - Relatório técnico inicial com fotos, diagnósticos, observações e impressão/PDF.
@@ -148,12 +176,10 @@ O fluxo principal do app está organizado assim:
 ## Próximas prioridades
 
 1. Validar `npm run typecheck`, `npm test` e `npm run build` após cada rodada.
-2. Criar cadastro real de cliente e OS:
-   - dados do cliente;
-   - endereço;
-   - contato;
-   - histórico;
-   - vínculo com orçamento, levantamento e relatório.
+2. Vincular OS ativa aos documentos:
+   - levantamento;
+   - orçamento;
+   - relatório técnico.
 3. Permitir edição direta dos itens já adicionados ao orçamento:
    - descrição;
    - quantidade;
@@ -164,6 +190,7 @@ O fluxo principal do app está organizado assim:
    - modelo escolhido;
    - perfil usado;
    - cliente;
+   - OS;
    - condições;
    - itens importados;
    - status.
