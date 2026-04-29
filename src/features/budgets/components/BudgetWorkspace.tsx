@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { Budget, BudgetItem } from '../../../core/types/business';
+import type { CalculationCapture } from '../../../core/types/workflow';
 import { calculateBudgetItemTotal, calculateBudgetSubtotal, calculateBudgetTotal } from '../../../core/pricing/budget';
 import { roundTechnical } from '../../../core/calculations/electrical';
 import { clearBudgetDraft, loadBudgetDraft, saveBudgetDraft } from '../storage/budgetDraftStorage';
@@ -15,6 +16,11 @@ import { BudgetPrintPreview } from './BudgetPrintPreview';
 import './BudgetWorkspace.css';
 
 type BudgetCategory = BudgetItem['category'];
+
+interface BudgetWorkspaceProps {
+  technicalCaptures?: CalculationCapture[];
+  onTechnicalCaptureConverted?: (id: string) => void;
+}
 
 interface DraftBudgetItem {
   description: string;
@@ -83,11 +89,13 @@ function statusLabel(status: SavedBudgetStatus): string {
   return labels[status];
 }
 
-function createBudgetItem(draft: DraftBudgetItem): BudgetItem {
-  const id = typeof crypto !== 'undefined' && 'randomUUID' in crypto ? crypto.randomUUID() : `item-${Date.now()}`;
+function createId(prefix: string): string {
+  return typeof crypto !== 'undefined' && 'randomUUID' in crypto ? crypto.randomUUID() : `${prefix}-${Date.now()}`;
+}
 
+function createBudgetItem(draft: DraftBudgetItem): BudgetItem {
   return {
-    id,
+    id: createId('item'),
     description: draft.description.trim(),
     quantity: draft.quantity,
     unitPrice: draft.unitPrice,
@@ -107,9 +115,40 @@ function calculateSavedBudgetTotal(record: SavedBudgetRecord): number {
   return calculateBudgetTotal(budget);
 }
 
+function parseCommercialNumber(value: string | undefined, fallback = 0): number {
+  if (!value) {
+    return fallback;
+  }
+
+  const parsedValue = Number(value.replace(',', '.').trim());
+  return Number.isFinite(parsedValue) ? parsedValue : fallback;
+}
+
+function technicalTypeToBudgetCategory(capture: CalculationCapture): BudgetCategory {
+  if (capture.itemType === 'material') {
+    return 'material';
+  }
+
+  if (capture.itemType === 'service') {
+    return 'labor';
+  }
+
+  return 'other';
+}
+
+function technicalCaptureToBudgetItem(capture: CalculationCapture): BudgetItem {
+  return {
+    id: createId(`tech-${capture.id}`),
+    description: capture.editableDescription?.trim() || capture.summary || capture.calculatorLabel,
+    quantity: parseCommercialNumber(capture.quantity, 1),
+    unitPrice: parseCommercialNumber(capture.unitValue, 0),
+    category: technicalTypeToBudgetCategory(capture),
+  };
+}
+
 const savedDraft = loadBudgetDraft();
 
-export function BudgetWorkspace() {
+export function BudgetWorkspace({ technicalCaptures = [], onTechnicalCaptureConverted }: BudgetWorkspaceProps) {
   const [items, setItems] = useState<BudgetItem[]>(savedDraft?.items ?? starterElectricalBudgetItems);
   const [draft, setDraft] = useState<DraftBudgetItem>(emptyDraftItem);
   const [discount, setDiscount] = useState(savedDraft?.discount ?? 0);
@@ -119,6 +158,11 @@ export function BudgetWorkspace() {
   const [activeBudgetId, setActiveBudgetId] = useState<string | null>(null);
   const [savedBudgets, setSavedBudgets] = useState<SavedBudgetRecord[]>(() => loadSavedBudgets());
   const [lastSavedAt, setLastSavedAt] = useState<string | null>(savedDraft?.updatedAt ?? null);
+
+  const pendingTechnicalCaptures = useMemo(
+    () => technicalCaptures.filter((capture) => (capture.shouldGenerateBudgetItem ?? true) && !capture.convertedToBudgetItem),
+    [technicalCaptures],
+  );
 
   useEffect(() => {
     const saved = saveBudgetDraft({
@@ -169,6 +213,30 @@ export function BudgetWorkspace() {
 
     setItems((current) => [...current, createBudgetItem(draft)]);
     setDraft(emptyDraftItem);
+  }
+
+  function importTechnicalCapture(capture: CalculationCapture) {
+    const budgetItem = technicalCaptureToBudgetItem(capture);
+
+    if (!budgetItem.description.trim() || budgetItem.quantity <= 0) {
+      return;
+    }
+
+    setItems((current) => [...current, budgetItem]);
+    onTechnicalCaptureConverted?.(capture.id);
+  }
+
+  function importAllTechnicalCaptures() {
+    const validItems = pendingTechnicalCaptures
+      .map(technicalCaptureToBudgetItem)
+      .filter((item) => item.description.trim().length > 0 && item.quantity > 0);
+
+    if (validItems.length === 0) {
+      return;
+    }
+
+    setItems((current) => [...current, ...validItems]);
+    pendingTechnicalCaptures.forEach((capture) => onTechnicalCaptureConverted?.(capture.id));
   }
 
   function removeItem(itemId: string) {
@@ -260,6 +328,42 @@ export function BudgetWorkspace() {
         </label>
       </div>
 
+      {technicalCaptures.length > 0 && (
+        <section className="technical-import-panel">
+          <div className="technical-import-header">
+            <div>
+              <h3>Importar itens técnicos</h3>
+              <p>Use os resultados editados do levantamento para gerar itens reais na proposta comercial.</p>
+            </div>
+            <button type="button" className="primary-action inline-action" disabled={pendingTechnicalCaptures.length === 0} onClick={importAllTechnicalCaptures}>
+              Importar todos
+            </button>
+          </div>
+
+          <div className="technical-import-list">
+            {pendingTechnicalCaptures.length === 0 ? (
+              <div className="empty-budget">Todos os itens técnicos já foram importados para o orçamento.</div>
+            ) : (
+              pendingTechnicalCaptures.map((capture) => {
+                const previewItem = technicalCaptureToBudgetItem(capture);
+                return (
+                  <article className="technical-import-card" key={capture.id}>
+                    <span>
+                      <strong>{previewItem.description}</strong>
+                      <small>{capture.moduleLabel} · {capture.calculatorLabel}</small>
+                      <small>{categoryLabel(previewItem.category)} · {previewItem.quantity} × {formatCurrency(previewItem.unitPrice)}</small>
+                    </span>
+                    <button type="button" className="secondary-action inline-action" onClick={() => importTechnicalCapture(capture)}>
+                      Importar
+                    </button>
+                  </article>
+                );
+              })
+            )}
+          </div>
+        </section>
+      )}
+
       <div className="saved-budget-panel">
         <div className="saved-budget-panel-header">
           <div>
@@ -297,7 +401,7 @@ export function BudgetWorkspace() {
         <section className="budget-editor" aria-label="Editor de orçamento">
           <div className="budget-editor-title">
             <h3>Adicionar item</h3>
-            <p>Monte serviços, materiais e outros custos. Depois evoluímos isso para PDF e histórico.</p>
+            <p>Monte serviços, materiais e outros custos. Também é possível importar itens técnicos calculados acima.</p>
           </div>
 
           <div className="budget-form-grid">
@@ -425,7 +529,7 @@ export function BudgetWorkspace() {
           </div>
 
           <div className="technical-warning">
-            Você já pode salvar vários orçamentos neste navegador. Próximo passo: gerar PDF e relatório de visita.
+            Você já pode salvar vários orçamentos neste navegador. Próximo passo: relatório técnico e PDF profissional.
           </div>
         </aside>
       </div>
