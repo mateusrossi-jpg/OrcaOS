@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { calculateCurrentFromPower, roundTechnical } from '../core/calculations/electrical';
 import { calculateBudgetSubtotal } from '../core/pricing/budget';
-import type { UserPlan } from '../core/access/featureAccess';
+import type { CalculatorModule, UserPlan } from '../core/access/featureAccess';
 import { getFreeCalculatorCount, getProCalculatorCount } from '../core/access/featureAccess';
 import { BudgetWorkspace } from '../features/budgets/components/BudgetWorkspace';
 import { ElectricalCalculatorWorkspace } from '../features/calculators/components/ElectricalCalculatorWorkspace';
@@ -15,8 +15,10 @@ type ModuleTone = 'blue' | 'gray' | 'green' | 'orange' | 'muted';
 
 type ModulePlan = 'free' | 'pro' | 'soon';
 
+type ModuleId = 'fundamentos' | 'instalacoes' | 'ambientes' | 'orcamentos' | 'motores' | 'automacao';
+
 interface ModuleCardData {
-  id: string;
+  id: ModuleId;
   title: string;
   description: string;
   icon: string;
@@ -24,6 +26,7 @@ interface ModuleCardData {
   count: string;
   available: boolean;
   plan: ModulePlan;
+  calculatorModule?: CalculatorModule;
 }
 
 const userPlan: UserPlan = 'free';
@@ -50,6 +53,7 @@ const modules: ModuleCardData[] = [
     count: '4 cálculos livres',
     available: true,
     plan: 'free',
+    calculatorModule: 'fundamentals',
   },
   {
     id: 'instalacoes',
@@ -60,6 +64,7 @@ const modules: ModuleCardData[] = [
     count: '3 cálculos Pro',
     available: true,
     plan: 'pro',
+    calculatorModule: 'installations',
   },
   {
     id: 'ambientes',
@@ -70,6 +75,7 @@ const modules: ModuleCardData[] = [
     count: '2 cálculos Pro',
     available: true,
     plan: 'pro',
+    calculatorModule: 'environments',
   },
   {
     id: 'orcamentos',
@@ -187,7 +193,7 @@ function CalculatorRow({ title, module, badge, icon }: { title: string; module: 
   );
 }
 
-function HomeScreen({ goTo }: { goTo: (tab: AppTab) => void }) {
+function HomeScreen({ goTo, openModule }: { goTo: (tab: AppTab) => void; openModule: (module: ModuleCardData) => void }) {
   return (
     <section className="app-screen">
       <div className="home-hero">
@@ -198,7 +204,7 @@ function HomeScreen({ goTo }: { goTo: (tab: AppTab) => void }) {
         <p>Calculadoras, orçamentos e relatórios técnicos para campo. O essencial fica livre; os módulos profissionais entram no Pro.</p>
       </div>
 
-      <button className="free-plan-card" type="button" onClick={() => goTo('modules')}>
+      <button className="free-plan-card" type="button" onClick={() => openModule(modules[0])}>
         <span className="app-icon tone-blue">ϟ</span>
         <span>
           <strong>Fundamentos 100% livres</strong>
@@ -223,7 +229,7 @@ function HomeScreen({ goTo }: { goTo: (tab: AppTab) => void }) {
 
       <div className="home-module-grid">
         {modules.slice(0, 4).map((module) => (
-          <ModuleCard key={module.id} module={module} onOpen={() => goTo(module.id === 'orcamentos' ? 'budgets' : 'modules')} />
+          <ModuleCard key={module.id} module={module} onOpen={() => openModule(module)} />
         ))}
       </div>
 
@@ -263,25 +269,55 @@ function HomeScreen({ goTo }: { goTo: (tab: AppTab) => void }) {
   );
 }
 
-function ModulesScreen({ goTo }: { goTo: (tab: AppTab) => void }) {
+function ModuleDetailScreen({ module, goBack, goTo }: { module: ModuleCardData; goBack: () => void; goTo: (tab: AppTab) => void }) {
+  if (module.id === 'orcamentos') {
+    return <BudgetsScreen />;
+  }
+
+  return (
+    <section className="app-screen">
+      <button className="back-button" type="button" onClick={goBack}>‹ Voltar aos módulos</button>
+
+      <header className="module-detail-header">
+        <span className={`app-icon tone-${module.tone}`}>{module.icon}</span>
+        <div>
+          <em className={`module-plan-pill ${module.plan}`}>{planLabel(module.plan)}</em>
+          <h1>{module.title}</h1>
+          <p>{module.description}</p>
+          <small>{module.count}</small>
+        </div>
+      </header>
+
+      {module.calculatorModule ? (
+        <ElectricalCalculatorWorkspace selectedModule={module.calculatorModule} userPlan={userPlan} onUpgradeRequest={() => goTo('more')} />
+      ) : (
+        <div className="empty-state-card">
+          <span className={`app-icon tone-${module.tone} large-icon`}>{module.icon}</span>
+          <strong>{module.title} em breve</strong>
+          <p>Este módulo já está previsto na arquitetura do OrçaOS e será implementado depois.</p>
+        </div>
+      )}
+    </section>
+  );
+}
+
+function ModulesScreen({ openModule, selectedModule, goTo }: { openModule: (module: ModuleCardData) => void; selectedModule: ModuleCardData | null; goTo: (tab: AppTab) => void }) {
+  if (selectedModule) {
+    return <ModuleDetailScreen module={selectedModule} goBack={() => openModule(null as never)} goTo={goTo} />;
+  }
+
   return (
     <section className="app-screen">
       <header className="screen-header">
         <h1>Módulos</h1>
-        <p>Fundamentos ficam livres. Instalações, ambientes e recursos profissionais entram como módulos Pro.</p>
+        <p>Abra um módulo para acessar apenas os cálculos daquele grupo. Fundamentos ficam livres; módulos profissionais entram como Pro.</p>
       </header>
 
       <div className="module-list-app">
         {modules.map((module) => (
-          <ModuleCard key={module.id} module={module} compact onOpen={() => goTo(module.id === 'orcamentos' ? 'budgets' : 'modules')} />
+          <ModuleCard key={module.id} module={module} compact onOpen={() => openModule(module)} />
         ))}
       </div>
-
-      <div className="section-title-row calculator-section-title">
-        <h2>Calculadora ativa</h2>
-      </div>
-
-      <ElectricalCalculatorWorkspace userPlan={userPlan} onUpgradeRequest={() => goTo('more')} />
     </section>
   );
 }
@@ -399,12 +435,26 @@ function MoreScreen() {
 
 export function App() {
   const [activeTab, setActiveTab] = useState<AppTab>('home');
+  const [selectedModule, setSelectedModule] = useState<ModuleCardData | null>(null);
+
+  function goTo(tab: AppTab) {
+    setActiveTab(tab);
+
+    if (tab !== 'modules') {
+      setSelectedModule(null);
+    }
+  }
+
+  function openModule(module: ModuleCardData | null) {
+    setSelectedModule(module);
+    setActiveTab('modules');
+  }
 
   return (
     <main className="mobile-app-shell">
       <div className="mobile-app-content">
-        {activeTab === 'home' && <HomeScreen goTo={setActiveTab} />}
-        {activeTab === 'modules' && <ModulesScreen goTo={setActiveTab} />}
+        {activeTab === 'home' && <HomeScreen goTo={goTo} openModule={openModule} />}
+        {activeTab === 'modules' && <ModulesScreen openModule={openModule} selectedModule={selectedModule} goTo={goTo} />}
         {activeTab === 'favorites' && <FavoritesScreen />}
         {activeTab === 'budgets' && <BudgetsScreen />}
         {activeTab === 'more' && <MoreScreen />}
@@ -412,7 +462,7 @@ export function App() {
 
       <nav className="bottom-nav" aria-label="Navegação principal">
         {navItems.map((item) => (
-          <button className={activeTab === item.id ? 'active' : ''} key={item.id} type="button" onClick={() => setActiveTab(item.id)}>
+          <button className={activeTab === item.id ? 'active' : ''} key={item.id} type="button" onClick={() => goTo(item.id)}>
             <span>{item.icon}</span>
             <small>{item.label}</small>
           </button>
