@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { calculateCurrentFromPower, roundTechnical } from '../core/calculations/electrical';
 import type { CalculatorModule, UserPlan } from '../core/access/featureAccess';
-import type { CalculationCapture } from '../core/types/workflow';
+import type { CalculationCapture, CalculationDestination } from '../core/types/workflow';
 import { getFreeCalculatorCount, getProCalculatorCount } from '../core/access/featureAccess';
 import { BudgetWorkspace } from '../features/budgets/components/BudgetWorkspace';
 import { ElectricalCalculatorWorkspace } from '../features/calculators/components/ElectricalCalculatorWorkspace';
@@ -36,6 +36,7 @@ interface ModuleCardData {
 }
 
 const userPlan: UserPlan = 'free';
+const CAPTURES_STORAGE_KEY = 'orcaos:calculation-captures:v1';
 
 const demoCurrent = calculateCurrentFromPower({
   powerWatts: 2200,
@@ -198,6 +199,62 @@ function formatCaptureTime(value: string): string {
   }).format(new Date(value));
 }
 
+function isCalculationDestination(value: unknown): value is CalculationDestination {
+  return value === 'survey' || value === 'budget' || value === 'both';
+}
+
+function isCalculationCapture(value: unknown): value is CalculationCapture {
+  if (!value || typeof value !== 'object') {
+    return false;
+  }
+
+  const item = value as Partial<CalculationCapture>;
+
+  return (
+    typeof item.id === 'string' &&
+    typeof item.module === 'string' &&
+    typeof item.moduleLabel === 'string' &&
+    typeof item.calculatorLabel === 'string' &&
+    isCalculationDestination(item.destination) &&
+    typeof item.createdAt === 'string' &&
+    typeof item.summary === 'string' &&
+    Array.isArray(item.details) &&
+    item.details.every((detail) => typeof detail === 'string')
+  );
+}
+
+function loadStoredCaptures(): CalculationCapture[] {
+  if (typeof window === 'undefined') {
+    return [];
+  }
+
+  try {
+    const storedValue = window.localStorage.getItem(CAPTURES_STORAGE_KEY);
+
+    if (!storedValue) {
+      return [];
+    }
+
+    const parsedValue: unknown = JSON.parse(storedValue);
+
+    if (!Array.isArray(parsedValue)) {
+      return [];
+    }
+
+    return parsedValue.filter(isCalculationCapture);
+  } catch {
+    return [];
+  }
+}
+
+function saveStoredCaptures(captures: CalculationCapture[]): void {
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  window.localStorage.setItem(CAPTURES_STORAGE_KEY, JSON.stringify(captures));
+}
+
 function ModuleCard({ module, compact = false, onOpen }: { module: ModuleCardData; compact?: boolean; onOpen?: () => void }) {
   return (
     <button className={module.available ? 'module-app-card' : 'module-app-card disabled'} type="button" onClick={onOpen}>
@@ -226,7 +283,7 @@ function CalculatorRow({ title, module, badge, icon }: { title: string; module: 
   );
 }
 
-function CaptureList({ captures, emptyText }: { captures: CalculationCapture[]; emptyText: string }) {
+function CaptureList({ captures, emptyText, onRemove }: { captures: CalculationCapture[]; emptyText: string; onRemove: (id: string) => void }) {
   if (captures.length === 0) {
     return (
       <div className="survey-empty-state">
@@ -247,7 +304,7 @@ function CaptureList({ captures, emptyText }: { captures: CalculationCapture[]; 
             <small>{capture.moduleLabel} · {formatCaptureTime(capture.createdAt)}</small>
             <small>{capture.summary}</small>
           </span>
-          <em className="badge-free">SALVO</em>
+          <button className="danger-action" type="button" onClick={() => onRemove(capture.id)}>Remover</button>
         </article>
       ))}
     </div>
@@ -372,7 +429,7 @@ function ModulesScreen({
   );
 }
 
-function SurveyScreen({ captures }: { captures: CalculationCapture[] }) {
+function SurveyScreen({ captures, onRemove }: { captures: CalculationCapture[]; onRemove: (id: string) => void }) {
   const surveyCaptures = captures.filter((capture) => capture.destination === 'survey' || capture.destination === 'both');
 
   return (
@@ -386,16 +443,16 @@ function SurveyScreen({ captures }: { captures: CalculationCapture[] }) {
         <span className="app-icon tone-blue">▤</span>
         <span>
           <strong>Levantamento técnico da OS</strong>
-          <small>Use esta aba para guardar especificações técnicas de projeto, visita e relatório.</small>
+          <small>{surveyCaptures.length} item(ns) salvos localmente neste navegador.</small>
         </span>
       </div>
 
-      <CaptureList captures={surveyCaptures} emptyText="Abra um cálculo e toque em Adicionar ao levantamento para começar a montar o projeto técnico." />
+      <CaptureList captures={surveyCaptures} emptyText="Abra um cálculo e toque em Adicionar ao levantamento para começar a montar o projeto técnico." onRemove={onRemove} />
     </section>
   );
 }
 
-function BudgetsScreen({ captures }: { captures: CalculationCapture[] }) {
+function BudgetsScreen({ captures, onRemove }: { captures: CalculationCapture[]; onRemove: (id: string) => void }) {
   const budgetCaptures = captures.filter((capture) => capture.destination === 'budget' || capture.destination === 'both');
 
   return (
@@ -409,10 +466,10 @@ function BudgetsScreen({ captures }: { captures: CalculationCapture[] }) {
         <span className="app-icon tone-orange">▣</span>
         <span>
           <strong>Itens técnicos enviados ao orçamento</strong>
-          <small>Os cálculos enviados para orçamento aparecem aqui como base técnica. Depois eles serão convertidos em serviço, material ou observação comercial.</small>
+          <small>{budgetCaptures.length} item(ns) técnicos salvos localmente como base comercial.</small>
         </span>
       </div>
-      <CaptureList captures={budgetCaptures} emptyText="Abra um cálculo e toque em Adicionar ao orçamento para usar o resultado como base comercial." />
+      <CaptureList captures={budgetCaptures} emptyText="Abra um cálculo e toque em Adicionar ao orçamento para usar o resultado como base comercial." onRemove={onRemove} />
 
       <BudgetWorkspace />
     </section>
@@ -457,10 +514,18 @@ function MoreScreen() {
 export function App() {
   const [activeTab, setActiveTab] = useState<AppTab>('home');
   const [selectedModule, setSelectedModule] = useState<ModuleCardData | null>(null);
-  const [captures, setCaptures] = useState<CalculationCapture[]>([]);
+  const [captures, setCaptures] = useState<CalculationCapture[]>(() => loadStoredCaptures());
+
+  useEffect(() => {
+    saveStoredCaptures(captures);
+  }, [captures]);
 
   function addCalculationCapture(capture: CalculationCapture) {
     setCaptures((current) => [capture, ...current]);
+  }
+
+  function removeCalculationCapture(id: string) {
+    setCaptures((current) => current.filter((capture) => capture.id !== id));
   }
 
   function goTo(tab: AppTab) {
@@ -480,8 +545,8 @@ export function App() {
       <div className="mobile-app-content">
         {activeTab === 'home' && <HomeScreen goTo={goTo} openModule={openModule} />}
         {activeTab === 'modules' && <ModulesScreen openModule={openModule} selectedModule={selectedModule} goTo={goTo} onCaptureCalculation={addCalculationCapture} />}
-        {activeTab === 'survey' && <SurveyScreen captures={captures} />}
-        {activeTab === 'budgets' && <BudgetsScreen captures={captures} />}
+        {activeTab === 'survey' && <SurveyScreen captures={captures} onRemove={removeCalculationCapture} />}
+        {activeTab === 'budgets' && <BudgetsScreen captures={captures} onRemove={removeCalculationCapture} />}
         {activeTab === 'more' && <MoreScreen />}
       </div>
 
