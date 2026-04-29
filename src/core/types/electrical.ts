@@ -16,6 +16,17 @@ export interface PowerFromCurrentInput {
   phase?: CircuitPhase;
 }
 
+export interface ApparentPowerInput {
+  powerWatts: number;
+  powerFactor?: PowerFactor;
+}
+
+export interface CurrentFromApparentPowerInput {
+  apparentPowerVa: number;
+  voltageVolts: number;
+  phase?: CircuitPhase;
+}
+
 export interface EnergyConsumptionInput {
   powerWatts: number;
   hoursPerDay: number;
@@ -35,4 +46,53 @@ export interface VoltageDropInput {
 export interface VoltageDropResult {
   dropVolts: number;
   dropPercent: number;
+}
+
+export interface LightingInput {
+  areaM2: number;
+  targetLux: number;
+  lampLumens?: number;
+}
+
+export interface LightingResult {
+  requiredLumens: number;
+  lampQuantity?: number;
+}
+
+export interface AirConditioningSizingInput {
+  areaM2: number;
+  people: number;
+  electronics: number;
+  sunFactor?: number;
+}
+
+export interface AirConditioningSizingResult {
+  estimatedBtus: number;
+  suggestedCommercialBtus: number;
+}
+
+export interface ConduitFillInput {
+  cableExternalDiameterMm: number;
+  cableCount: number;
+  conduitInternalDiameterMm: number;
+}
+
+export interface ConduitFillResult {
+  cableAreaMm2: number;
+  totalCableAreaMm2: number;
+  conduitAreaMm2: number;
+  fillPercent: number;
+}
+
+export interface CircuitRecommendationInput {
+  powerWatts: number;
+  voltageVolts: number;
+  powerFactor?: PowerFactor;
+  phase?: CircuitPhase;
+}
+
+export interface CircuitRecommendationResult {
+  currentAmps: number;
+  suggestedBreakerAmps: number | null;
+  suggestedCableSectionMm2: number | null;
 }
