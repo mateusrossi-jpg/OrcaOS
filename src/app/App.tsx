@@ -58,10 +58,10 @@ const modules: ModuleCardData[] = [
   {
     id: 'instalacoes',
     title: 'Instalações',
-    description: 'Queda, seção por queda, AWG, disjuntor, cabo e eletroduto',
+    description: 'Queda, distância, transformador, AWG, disjuntor, cabo e eletroduto',
     icon: '⌁',
     tone: 'gray',
-    count: '5 cálculos Pro',
+    count: '7 cálculos Pro',
     available: true,
     plan: 'pro',
     calculatorModule: 'installations',
@@ -90,22 +90,24 @@ const modules: ModuleCardData[] = [
   {
     id: 'motores',
     title: 'Motores',
-    description: 'Corrente, potência, rotação e bobinagem',
+    description: 'Corrente, rotação, escorregamento e relação de polias',
     icon: '↻',
-    tone: 'muted',
-    count: 'Em breve',
-    available: false,
-    plan: 'soon',
+    tone: 'orange',
+    count: '3 cálculos Pro',
+    available: true,
+    plan: 'pro',
+    calculatorModule: 'motors',
   },
   {
     id: 'automacao',
     title: 'Automação',
-    description: '4–20 mA, 0–10 V e sensores',
+    description: 'Escalas 4–20 mA, 0–10 V e valor de engenharia',
     icon: '≋',
-    tone: 'muted',
-    count: 'Em breve',
-    available: false,
-    plan: 'soon',
+    tone: 'green',
+    count: '2 cálculos Pro',
+    available: true,
+    plan: 'pro',
+    calculatorModule: 'automation',
   },
 ];
 
@@ -113,9 +115,9 @@ const featuredCalculators = [
   { title: 'Lei de Ohm', module: 'Fundamentos', badge: 'LIVRE', icon: 'ϟ' },
   { title: 'Corrente por potência', module: 'Fundamentos', badge: 'LIVRE', icon: 'ϟ' },
   { title: 'Resistores série/paralelo', module: 'Fundamentos', badge: 'LIVRE', icon: 'ϟ' },
-  { title: 'Consumo em kWh', module: 'Fundamentos', badge: 'LIVRE', icon: 'ϟ' },
-  { title: 'Seção por queda', module: 'Instalações', badge: 'PRO', icon: '⌁' },
-  { title: 'AWG ↔ mm²', module: 'Instalações', badge: 'PRO', icon: '⌁' },
+  { title: 'Transformador em kVA', module: 'Instalações', badge: 'PRO', icon: '⌁' },
+  { title: 'Corrente de motor', module: 'Motores', badge: 'PRO', icon: '↻' },
+  { title: 'Escala 4–20 mA', module: 'Automação', badge: 'PRO', icon: '≋' },
 ];
 
 const storePackages = [
@@ -127,13 +129,25 @@ const storePackages = [
   },
   {
     title: 'Pacote Instalações Pro',
-    description: 'Queda de tensão, seção por queda, AWG, cabo/disjuntor e ocupação de eletroduto.',
+    description: 'Queda de tensão, distância máxima, transformador, AWG, cabo/disjuntor e eletroduto.',
     price: 'R$ 12,90',
     action: 'Detalhes',
   },
   {
     title: 'Pacote Ambientes Pro',
     description: 'Iluminação por ambiente e estimativa de ar-condicionado.',
+    price: 'R$ 9,90',
+    action: 'Detalhes',
+  },
+  {
+    title: 'Pacote Motores Pro',
+    description: 'Corrente estimada, rotação síncrona, escorregamento e relação de polias.',
+    price: 'R$ 12,90',
+    action: 'Detalhes',
+  },
+  {
+    title: 'Pacote Automação Pro',
+    description: 'Escalonamento de sinais 4–20 mA e 0–10 V para valores de engenharia.',
     price: 'R$ 9,90',
     action: 'Detalhes',
   },
@@ -228,7 +242,7 @@ function HomeScreen({ goTo, openModule }: { goTo: (tab: AppTab) => void; openMod
       </div>
 
       <div className="home-module-grid">
-        {modules.slice(0, 4).map((module) => (
+        {modules.slice(0, 6).map((module) => (
           <ModuleCard key={module.id} module={module} onOpen={() => openModule(module)} />
         ))}
       </div>
