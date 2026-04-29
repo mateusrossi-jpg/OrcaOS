@@ -1,12 +1,10 @@
 import { useState } from 'react';
 import { calculateCurrentFromPower, roundTechnical } from '../core/calculations/electrical';
-import { calculateBudgetSubtotal } from '../core/pricing/budget';
 import type { CalculatorModule, UserPlan } from '../core/access/featureAccess';
 import type { CalculationCapture } from '../core/types/workflow';
 import { getFreeCalculatorCount, getProCalculatorCount } from '../core/access/featureAccess';
 import { BudgetWorkspace } from '../features/budgets/components/BudgetWorkspace';
 import { ElectricalCalculatorWorkspace } from '../features/calculators/components/ElectricalCalculatorWorkspace';
-import { starterElectricalBudgetItems } from '../features/budgets/budgetTemplates';
 import { suggestNextBreaker } from '../data/electrical-tables/commercialBreakers';
 import { suggestMinimumCableSectionByCurrent } from '../data/electrical-tables/cableSections';
 
@@ -23,8 +21,7 @@ type ModuleId =
   | 'refrigeracao'
   | 'motores'
   | 'rebobinagem'
-  | 'automacaoIndustrial'
-  | 'orcamentos';
+  | 'automacaoIndustrial';
 
 interface ModuleCardData {
   id: ModuleId;
@@ -46,13 +43,12 @@ const demoCurrent = calculateCurrentFromPower({
   powerFactor: 1,
 });
 
-const demoBudgetSubtotal = calculateBudgetSubtotal(starterElectricalBudgetItems);
 const suggestedBreaker = suggestNextBreaker(demoCurrent);
 const suggestedCable = suggestMinimumCableSectionByCurrent(demoCurrent);
 const freeCalculatorCount = getFreeCalculatorCount();
 const proCalculatorCount = getProCalculatorCount();
 
-const modules: ModuleCardData[] = [
+const calculationModules: ModuleCardData[] = [
   {
     id: 'fundamentos',
     title: 'Fundamentos',
@@ -129,16 +125,6 @@ const modules: ModuleCardData[] = [
     available: false,
     plan: 'soon',
   },
-  {
-    id: 'orcamentos',
-    title: 'Orçamentos',
-    description: 'Cliente, itens, PDF e histórico local',
-    icon: '▣',
-    tone: 'orange',
-    count: 'Base grátis inicial',
-    available: true,
-    plan: 'free',
-  },
 ];
 
 const featuredCalculators = [
@@ -191,7 +177,7 @@ const storePackages = [
 
 const navItems: Array<{ id: AppTab; label: string; icon: string }> = [
   { id: 'home', label: 'Início', icon: '⌂' },
-  { id: 'modules', label: 'Módulos', icon: '▦' },
+  { id: 'modules', label: 'Cálculos', icon: '▦' },
   { id: 'survey', label: 'Levant.', icon: '▤' },
   { id: 'budgets', label: 'Orçam.', icon: '▣' },
   { id: 'more', label: 'Mais', icon: '•••' },
@@ -277,7 +263,7 @@ function HomeScreen({ goTo, openModule }: { goTo: (tab: AppTab) => void; openMod
         <p>Calculadoras, levantamentos, orçamentos e relatórios técnicos para campo. O essencial fica livre; os módulos profissionais entram no Pro.</p>
       </div>
 
-      <button className="free-plan-card" type="button" onClick={() => openModule(modules[0])}>
+      <button className="free-plan-card" type="button" onClick={() => openModule(calculationModules[0])}>
         <span className="app-icon tone-blue">ϟ</span>
         <span>
           <strong>Fundamentos 100% livres</strong>
@@ -296,12 +282,12 @@ function HomeScreen({ goTo, openModule }: { goTo: (tab: AppTab) => void; openMod
       </div>
 
       <div className="section-title-row">
-        <h2>Módulos</h2>
+        <h2>Cálculos</h2>
         <button type="button" onClick={() => goTo('modules')}>Ver todos</button>
       </div>
 
       <div className="home-module-grid">
-        {modules.slice(0, 6).map((module) => <ModuleCard key={module.id} module={module} onOpen={() => openModule(module)} />)}
+        {calculationModules.slice(0, 6).map((module) => <ModuleCard key={module.id} module={module} onOpen={() => openModule(module)} />)}
       </div>
 
       <div className="section-title-row"><h2>Cálculos em destaque</h2></div>
@@ -314,7 +300,7 @@ function HomeScreen({ goTo, openModule }: { goTo: (tab: AppTab) => void; openMod
         <article><span>Corrente</span><strong>{roundTechnical(demoCurrent)} A</strong></article>
         <article><span>Disjuntor</span><strong>{suggestedBreaker ? `${suggestedBreaker} A` : 'Revisar'}</strong></article>
         <article><span>Cabo</span><strong>{suggestedCable ? `${suggestedCable} mm²` : 'Revisar'}</strong></article>
-        <article><span>Orçamento</span><strong>R$ {roundTechnical(demoBudgetSubtotal)}</strong></article>
+        <article><span>Cálculos Pro</span><strong>{proCalculatorCount}</strong></article>
       </div>
     </section>
   );
@@ -332,8 +318,8 @@ function ModuleDetailScreen({
   onCaptureCalculation: (capture: CalculationCapture) => void;
 }) {
   return (
-    <section className={module.id === 'orcamentos' ? 'app-screen wide-screen' : 'app-screen'}>
-      <button className="back-button" type="button" onClick={goBack}>‹ Voltar aos módulos</button>
+    <section className="app-screen">
+      <button className="back-button" type="button" onClick={goBack}>‹ Voltar aos cálculos</button>
 
       <header className="module-detail-header">
         <span className={`app-icon tone-${module.tone}`}>{module.icon}</span>
@@ -345,9 +331,7 @@ function ModuleDetailScreen({
         </div>
       </header>
 
-      {module.id === 'orcamentos' ? (
-        <BudgetWorkspace />
-      ) : module.calculatorModule ? (
+      {module.calculatorModule ? (
         <ElectricalCalculatorWorkspace selectedModule={module.calculatorModule} userPlan={userPlan} onUpgradeRequest={() => goTo('more')} onCaptureCalculation={onCaptureCalculation} />
       ) : (
         <div className="empty-state-card">
@@ -378,11 +362,11 @@ function ModulesScreen({
   return (
     <section className="app-screen">
       <header className="screen-header">
-        <h1>Módulos</h1>
-        <p>Abra um módulo para acessar apenas os cálculos daquele grupo. Fundamentos ficam livres; módulos profissionais entram como Pro.</p>
+        <h1>Cálculos</h1>
+        <p>Escolha uma categoria técnica. Aqui ficam somente calculadoras; orçamento, levantamento e configurações ficam em abas próprias.</p>
       </header>
       <div className="module-list-app">
-        {modules.map((module) => <ModuleCard key={module.id} module={module} compact onOpen={() => openModule(module)} />)}
+        {calculationModules.map((module) => <ModuleCard key={module.id} module={module} compact onOpen={() => openModule(module)} />)}
       </div>
     </section>
   );
