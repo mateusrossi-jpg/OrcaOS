@@ -7,6 +7,28 @@ export interface Client {
   notes?: string;
 }
 
+export interface BusinessProfile {
+  businessName: string;
+  documentNumber: string;
+  phone: string;
+  email: string;
+  address: string;
+  logoUrl: string;
+  responsibleName: string;
+  defaultPaymentTerms: string;
+  defaultValidity: string;
+  defaultNotes: string;
+}
+
+export interface CatalogItem {
+  id: string;
+  description: string;
+  category: 'labor' | 'material' | 'other';
+  unitPrice: number;
+  defaultQuantity: number;
+  notes?: string;
+}
+
 export interface BudgetItem {
   id: string;
   description: string;
