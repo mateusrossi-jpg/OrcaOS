@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, type ChangeEvent } from 'react';
 import type { Budget, BudgetItem, BudgetTemplateId, BusinessProfile, CatalogItem } from '../../../core/types/business';
 import type { CalculationCapture, CalculationDestination } from '../../../core/types/workflow';
 import { calculateBudgetItemTotal, calculateBudgetSubtotal, calculateBudgetTotal } from '../../../core/pricing/budget';
@@ -252,7 +252,7 @@ export function BudgetWorkspace({ technicalCaptures = [], onTechnicalCaptureConv
     setBusinessProfile((current) => ({ ...current, [key]: value }));
   }
 
-  function handleLogoFileChange(event: React.ChangeEvent<HTMLInputElement>) {
+  function handleLogoFileChange(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     if (!file) return;
 
