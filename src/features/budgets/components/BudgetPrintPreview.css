@@ -1,6 +1,10 @@
 .print-preview-shell {
   display: grid;
   gap: 16px;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow: hidden;
   border: 1px solid rgba(148, 163, 184, 0.2);
   border-radius: 28px;
   padding: 18px;
@@ -13,6 +17,7 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 16px;
+  min-width: 0;
 }
 
 .print-preview-header h3 {
@@ -28,6 +33,10 @@
 }
 
 .print-document {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow: hidden;
   color: #111827;
   background: #ffffff;
   border-radius: 22px;
@@ -39,6 +48,7 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 24px;
+  min-width: 0;
   border-bottom: 2px solid #e5e7eb;
   padding-bottom: 20px;
 }
@@ -55,18 +65,21 @@
 
 .print-document h2 {
   margin: 14px 0 6px;
-  font-size: 2rem;
+  font-size: clamp(1.35rem, 8vw, 2rem);
   line-height: 1.1;
+  overflow-wrap: anywhere;
 }
 
 .print-document p {
   margin: 0;
   color: #4b5563;
+  overflow-wrap: anywhere;
 }
 
 .print-status-box,
 .print-client-box,
 .print-total-box {
+  min-width: 0;
   border: 1px solid #e5e7eb;
   border-radius: 18px;
   padding: 16px;
@@ -74,7 +87,7 @@
 }
 
 .print-status-box {
-  min-width: 220px;
+  min-width: 180px;
 }
 
 .print-status-box span,
@@ -95,6 +108,7 @@
   margin-top: 6px;
   color: #111827;
   font-size: 1.15rem;
+  overflow-wrap: anywhere;
 }
 
 .print-status-box small {
@@ -111,11 +125,15 @@
 }
 
 .print-table-wrap {
+  width: 100%;
+  max-width: 100%;
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .print-table {
   width: 100%;
+  min-width: 560px;
   border-collapse: collapse;
   font-size: 0.95rem;
 }
@@ -165,7 +183,7 @@
 }
 
 .print-grand-total strong {
-  font-size: 1.6rem;
+  font-size: clamp(1.25rem, 7vw, 1.6rem);
 }
 
 .print-footer {
@@ -190,11 +208,24 @@
   }
 
   .print-document {
-    padding: 20px;
+    padding: 18px;
   }
 
   .print-status-box {
     width: 100%;
+  }
+}
+
+@media (max-width: 520px) {
+  .print-preview-shell {
+    margin-inline: -14px;
+    border-radius: 0;
+    padding: 12px;
+  }
+
+  .print-document {
+    border-radius: 18px;
+    padding: 16px;
   }
 }
 
