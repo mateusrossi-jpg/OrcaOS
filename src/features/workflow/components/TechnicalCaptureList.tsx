@@ -25,20 +25,14 @@ function formatCaptureTime(value: string): string {
 }
 
 function normalizeMoneyValue(value: string | undefined): number {
-  if (!value) {
-    return 0;
-  }
-
-  const normalizedValue = value.replace(',', '.').trim();
-  const parsedValue = Number(normalizedValue);
-
+  if (!value) return 0;
+  const parsedValue = Number(value.replace(',', '.').trim());
   return Number.isFinite(parsedValue) ? parsedValue : 0;
 }
 
 function calculateCommercialTotal(capture: CalculationCapture): number {
   const quantity = normalizeMoneyValue(capture.quantity || '1');
   const unitValue = normalizeMoneyValue(capture.unitValue);
-
   return quantity * unitValue;
 }
 
@@ -79,6 +73,12 @@ export function TechnicalCaptureList({ captures, emptyText, onRemove, onUpdate }
               </span>
             </header>
 
+            {capture.imageDataUrl && (
+              <div className="technical-capture-image">
+                <img src={capture.imageDataUrl} alt={`Imagem de ${description}`} />
+              </div>
+            )}
+
             <label className="technical-edit-field">
               <span>Tipo do item</span>
               <select value={itemType} onChange={(event) => onUpdate(capture.id, { itemType: event.target.value as TechnicalItemType })}>
@@ -103,7 +103,7 @@ export function TechnicalCaptureList({ captures, emptyText, onRemove, onUpdate }
             </label>
 
             <details className="technical-capture-details">
-              <summary>Ver resultados do cálculo</summary>
+              <summary>Ver resultados / detalhes</summary>
               <ul>
                 {capture.details.map((detail) => (
                   <li key={detail}>{detail}</li>
