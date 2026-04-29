@@ -1,0 +1,144 @@
+.client-os-workspace {
+  display: grid;
+  gap: 18px;
+  width: 100%;
+  min-width: 0;
+}
+
+.active-os-panel,
+.client-os-panel {
+  display: grid;
+  gap: 14px;
+  border: 1px solid #d6e0eb;
+  border-radius: 24px;
+  padding: 16px;
+  background: #ffffff;
+  box-shadow: 0 1px 0 rgba(15, 31, 51, 0.02);
+}
+
+.active-os-panel {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  border-color: #cfe0f8;
+  background: linear-gradient(135deg, #eff7ff, #ffffff);
+}
+
+.active-os-panel h2,
+.client-os-panel h2 {
+  margin: 0;
+  color: #0b1d31;
+  font-size: 1.28rem;
+}
+
+.active-os-panel p,
+.client-os-panel p {
+  margin: 6px 0 0;
+  color: #607085;
+  line-height: 1.45;
+}
+
+.active-os-panel p strong,
+.active-os-panel p span {
+  display: block;
+}
+
+.active-os-panel p strong {
+  color: #0b1d31;
+}
+
+.client-os-panel-header {
+  display: grid;
+  gap: 4px;
+}
+
+.client-os-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.client-os-wide {
+  grid-column: 1 / -1;
+}
+
+.client-os-list {
+  display: grid;
+  gap: 12px;
+}
+
+.client-os-empty {
+  border: 1px dashed #9fb2c9;
+  border-radius: 18px;
+  padding: 14px;
+  color: #607085;
+  background: #f8fafc;
+  font-weight: 850;
+}
+
+.client-os-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: center;
+  border: 1px solid #d6e0eb;
+  border-radius: 20px;
+  padding: 14px;
+  background: #f8fafc;
+}
+
+.client-os-card.active {
+  border-color: #2267ce;
+  background: #eef5ff;
+}
+
+.client-os-card strong,
+.client-os-card small {
+  display: block;
+}
+
+.client-os-card strong {
+  color: #0b1d31;
+  font-size: 1.05rem;
+  line-height: 1.25;
+}
+
+.client-os-card small {
+  margin-top: 4px;
+  color: #607085;
+  line-height: 1.35;
+}
+
+.client-os-actions {
+  display: grid;
+  gap: 8px;
+  min-width: 150px;
+}
+
+.client-os-actions select {
+  min-height: 42px;
+  border: 1px solid #d6e0eb;
+  border-radius: 14px;
+  color: #0b1d31;
+  background: #ffffff;
+  font: inherit;
+  font-weight: 850;
+  padding: 8px 10px;
+}
+
+@media (max-width: 520px) {
+  .active-os-panel,
+  .client-os-grid,
+  .client-os-card {
+    grid-template-columns: 1fr;
+  }
+
+  .client-os-actions {
+    min-width: 0;
+  }
+
+  .client-os-actions .inline-action,
+  .client-os-actions .danger-action,
+  .active-os-panel .inline-action {
+    width: 100%;
+  }
+}
