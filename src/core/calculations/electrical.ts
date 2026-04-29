@@ -1,6 +1,8 @@
 import type {
   AirConditioningSizingInput,
   AirConditioningSizingResult,
+  AnalogScalingInput,
+  AnalogScalingResult,
   ApparentPowerInput,
   AwgConversionResult,
   CableSectionFromVoltageDropInput,
@@ -14,10 +16,19 @@ import type {
   EnergyConsumptionInput,
   LightingInput,
   LightingResult,
+  MaxDistanceFromVoltageDropInput,
+  MaxDistanceFromVoltageDropResult,
+  MotorCurrentInput,
+  MotorSpeedInput,
+  MotorSpeedResult,
   PowerByResistanceInput,
   PowerFromCurrentInput,
+  PulleyRatioInput,
+  PulleyRatioResult,
   ResistanceFromVoltageCurrentInput,
   ResistorNetworkInput,
+  TransformerSizingInput,
+  TransformerSizingResult,
   VoltageDropInput,
   VoltageDropResult,
 } from '../types/electrical';
@@ -34,6 +45,7 @@ const RESISTIVITY = {
 } as const;
 
 const COMMERCIAL_BTUS = [7500, 9000, 12000, 18000, 22000, 24000, 30000, 36000, 48000, 60000] as const;
+const COMMERCIAL_KVA = [1, 2, 3, 5, 7.5, 10, 15, 20, 30, 45, 75, 112.5, 150, 225, 300, 500, 750, 1000] as const;
 
 const AWG_TABLE: AwgConversionResult[] = [
   { awg: '20', sectionMm2: 0.52 },
@@ -211,6 +223,48 @@ export function calculateCableSectionFromVoltageDrop(input: CableSectionFromVolt
   };
 }
 
+export function calculateMaxDistanceFromVoltageDrop(input: MaxDistanceFromVoltageDropInput): MaxDistanceFromVoltageDropResult {
+  const phase = input.phase ?? 'single-phase';
+  const material = input.material ?? 'copper';
+  const resistivity = RESISTIVITY[material];
+
+  ensurePositiveNumber(input.currentAmps, 'Corrente');
+  ensurePositiveNumber(input.sectionMm2, 'Seção do condutor');
+  ensurePositiveNumber(input.voltageVolts, 'Tensão');
+  ensurePositiveNumber(input.maxDropPercent, 'Queda máxima');
+
+  const maxDropVolts = input.voltageVolts * (input.maxDropPercent / 100);
+  const multiplier = phase === 'three-phase' ? SQRT_3 : 2;
+  const maxDistanceMeters = (maxDropVolts * input.sectionMm2) / (multiplier * resistivity * input.currentAmps);
+
+  return {
+    maxDropVolts,
+    maxDistanceMeters,
+  };
+}
+
+export function calculateTransformerSizing(input: TransformerSizingInput): TransformerSizingResult {
+  const powerFactor = input.powerFactor ?? 1;
+  const safetyMarginPercent = input.safetyMarginPercent ?? 20;
+
+  ensurePositiveNumber(input.loadWatts, 'Carga');
+  ensurePowerFactor(powerFactor);
+
+  if (!Number.isFinite(safetyMarginPercent) || safetyMarginPercent < 0) {
+    throw new Error('Margem de segurança não pode ser negativa.');
+  }
+
+  const apparentPowerKva = input.loadWatts / powerFactor / 1000;
+  const apparentPowerWithMarginKva = apparentPowerKva * (1 + safetyMarginPercent / 100);
+  const suggestedCommercialKva = COMMERCIAL_KVA.find((kva) => kva >= apparentPowerWithMarginKva) ?? COMMERCIAL_KVA[COMMERCIAL_KVA.length - 1];
+
+  return {
+    apparentPowerKva,
+    apparentPowerWithMarginKva,
+    suggestedCommercialKva,
+  };
+}
+
 export function convertAwgToMm2(awg: string): AwgConversionResult | null {
   return AWG_TABLE.find((item) => item.awg === awg.trim().toUpperCase()) ?? null;
 }
@@ -261,6 +315,69 @@ export function calculateAirConditioningSizing(input: AirConditioningSizingInput
   return {
     estimatedBtus,
     suggestedCommercialBtus,
+  };
+}
+
+export function calculateMotorCurrent(input: MotorCurrentInput): number {
+  const efficiency = input.efficiency ?? 0.85;
+  const powerFactor = input.powerFactor ?? 0.8;
+  const phase = input.phase ?? 'three-phase';
+
+  ensurePositiveNumber(input.mechanicalPowerKw, 'Potência mecânica');
+  ensurePositiveNumber(input.voltageVolts, 'Tensão');
+  ensurePowerFactor(powerFactor);
+  ensurePowerFactor(efficiency);
+
+  const electricalPowerWatts = (input.mechanicalPowerKw * 1000) / efficiency;
+
+  return calculateCurrentFromPower({
+    powerWatts: electricalPowerWatts,
+    voltageVolts: input.voltageVolts,
+    powerFactor,
+    phase,
+  });
+}
+
+export function calculateMotorSpeed(input: MotorSpeedInput): MotorSpeedResult {
+  ensurePositiveNumber(input.frequencyHz, 'Frequência');
+  ensurePositiveNumber(input.poles, 'Polos');
+
+  const synchronousRpm = (120 * input.frequencyHz) / input.poles;
+
+  if (input.measuredRpm !== undefined) {
+    ensurePositiveNumber(input.measuredRpm, 'Rotação medida');
+
+    return {
+      synchronousRpm,
+      slipPercent: ((synchronousRpm - input.measuredRpm) / synchronousRpm) * 100,
+    };
+  }
+
+  return { synchronousRpm };
+}
+
+export function calculatePulleyRatio(input: PulleyRatioInput): PulleyRatioResult {
+  ensurePositiveNumber(input.motorRpm, 'Rotação do motor');
+  ensurePositiveNumber(input.motorPulleyDiameterMm, 'Polia motora');
+  ensurePositiveNumber(input.drivenPulleyDiameterMm, 'Polia movida');
+
+  const ratio = input.motorPulleyDiameterMm / input.drivenPulleyDiameterMm;
+
+  return {
+    ratio,
+    drivenRpm: input.motorRpm * ratio,
+  };
+}
+
+export function scaleAnalogSignal(input: AnalogScalingInput): AnalogScalingResult {
+  ensurePositiveNumber(input.inputMax - input.inputMin, 'Faixa de entrada');
+
+  const percent = ((input.inputValue - input.inputMin) / (input.inputMax - input.inputMin)) * 100;
+  const engineeringValue = input.engineeringMin + (percent / 100) * (input.engineeringMax - input.engineeringMin);
+
+  return {
+    engineeringValue,
+    percent,
   };
 }
 
