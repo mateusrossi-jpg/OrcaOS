@@ -1,7 +1,8 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { BudgetItem } from '../../../core/types/business';
 import { calculateBudgetItemTotal, calculateBudgetSubtotal, calculateBudgetTotal } from '../../../core/pricing/budget';
 import { roundTechnical } from '../../../core/calculations/electrical';
+import { clearBudgetDraft, loadBudgetDraft, saveBudgetDraft } from '../storage/budgetDraftStorage';
 import { starterElectricalBudgetItems } from '../budgetTemplates';
 import './BudgetWorkspace.css';
 
@@ -30,6 +31,18 @@ function formatCurrency(value: number): string {
   return currencyFormatter.format(roundTechnical(value));
 }
 
+function formatSavedAt(value: string | null): string {
+  if (!value) {
+    return 'Ainda não salvo nesta sessão';
+  }
+
+  return new Intl.DateTimeFormat('pt-BR', {
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+  }).format(new Date(value));
+}
+
 function categoryLabel(category: BudgetCategory): string {
   if (category === 'labor') {
     return 'Mão de obra';
@@ -43,8 +56,10 @@ function categoryLabel(category: BudgetCategory): string {
 }
 
 function createBudgetItem(draft: DraftBudgetItem): BudgetItem {
+  const id = typeof crypto !== 'undefined' && 'randomUUID' in crypto ? crypto.randomUUID() : `item-${Date.now()}`;
+
   return {
-    id: crypto.randomUUID(),
+    id,
     description: draft.description.trim(),
     quantity: draft.quantity,
     unitPrice: draft.unitPrice,
@@ -52,12 +67,28 @@ function createBudgetItem(draft: DraftBudgetItem): BudgetItem {
   };
 }
 
+const savedDraft = loadBudgetDraft();
+
 export function BudgetWorkspace() {
-  const [items, setItems] = useState<BudgetItem[]>(starterElectricalBudgetItems);
+  const [items, setItems] = useState<BudgetItem[]>(savedDraft?.items ?? starterElectricalBudgetItems);
   const [draft, setDraft] = useState<DraftBudgetItem>(emptyDraftItem);
-  const [discount, setDiscount] = useState(0);
-  const [clientName, setClientName] = useState('Cliente exemplo');
-  const [budgetTitle, setBudgetTitle] = useState('Serviços elétricos');
+  const [discount, setDiscount] = useState(savedDraft?.discount ?? 0);
+  const [clientName, setClientName] = useState(savedDraft?.clientName ?? 'Cliente exemplo');
+  const [budgetTitle, setBudgetTitle] = useState(savedDraft?.budgetTitle ?? 'Serviços elétricos');
+  const [lastSavedAt, setLastSavedAt] = useState<string | null>(savedDraft?.updatedAt ?? null);
+
+  useEffect(() => {
+    const saved = saveBudgetDraft({
+      clientName,
+      budgetTitle,
+      discount,
+      items,
+    });
+
+    if (saved) {
+      setLastSavedAt(saved.updatedAt);
+    }
+  }, [budgetTitle, clientName, discount, items]);
 
   const summary = useMemo(() => {
     const labor = items
@@ -109,10 +140,25 @@ export function BudgetWorkspace() {
     setItems([]);
   }
 
+  function resetBudgetDraft() {
+    clearBudgetDraft();
+    setClientName('Cliente exemplo');
+    setBudgetTitle('Serviços elétricos');
+    setDiscount(0);
+    setItems(starterElectricalBudgetItems);
+    setDraft(emptyDraftItem);
+    setLastSavedAt(null);
+  }
+
   const canAddItem = draft.description.trim().length > 0 && draft.quantity > 0 && draft.unitPrice > 0;
 
   return (
     <div className="budget-workspace">
+      <div className="budget-save-status">
+        <span>Rascunho salvo automaticamente</span>
+        <strong>{formatSavedAt(lastSavedAt)}</strong>
+      </div>
+
       <div className="budget-header-card">
         <label className="budget-field">
           <span>Cliente</span>
@@ -183,7 +229,10 @@ export function BudgetWorkspace() {
               Carregar modelo
             </button>
             <button type="button" className="ghost-action" onClick={clearItems}>
-              Limpar
+              Limpar itens
+            </button>
+            <button type="button" className="danger-action" onClick={resetBudgetDraft}>
+              Reiniciar orçamento
             </button>
           </div>
 
@@ -253,7 +302,7 @@ export function BudgetWorkspace() {
           </div>
 
           <div className="technical-warning">
-            Próximo passo: salvar orçamento, gerar PDF e criar status de envio/aprovação.
+            Este rascunho já fica salvo no navegador. Próximo passo: salvar vários orçamentos e gerar PDF.
           </div>
         </aside>
       </div>
