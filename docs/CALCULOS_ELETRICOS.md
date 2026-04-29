@@ -30,20 +30,11 @@ Onde:
 I = P / (V × FP)
 ```
 
-Onde:
-
-- `FP` = fator de potência.
-
 ### Trifásico
 
 ```text
 I = P / (√3 × V × FP)
 ```
-
-Onde:
-
-- `V` = tensão de linha;
-- `FP` = fator de potência.
 
 ---
 
@@ -60,6 +51,36 @@ P = V × I × FP
 ```text
 P = √3 × V × I × FP
 ```
+
+---
+
+## Conversão W / VA / A
+
+### Potência aparente
+
+```text
+VA = W / FP
+```
+
+### Corrente por potência aparente
+
+Monofásico:
+
+```text
+I = VA / V
+```
+
+Trifásico:
+
+```text
+I = VA / (√3 × V)
+```
+
+Uso inicial:
+
+- comparar potência ativa e potência aparente;
+- estimar corrente a partir de VA;
+- apoiar análise de equipamentos com fator de potência informado.
 
 ---
 
@@ -81,6 +102,12 @@ Resultado:
 (1000 × 2 × 30) / 1000 = 60 kWh
 ```
 
+Custo estimado:
+
+```text
+custo = kWh × tarifa
+```
+
 ---
 
 ## Queda de tensão simplificada
@@ -96,20 +123,17 @@ A queda de tensão depende de:
 - método de instalação;
 - fator de potência.
 
-Na primeira fase, o OrçaOS terá uma função simplificada para apoio inicial, com aviso claro de que o resultado precisa ser validado.
-
 Fórmula simplificada monofásica com cobre:
 
 ```text
 quedaV = (2 × ρ × L × I) / S
 ```
 
-Onde:
+Trifásico simplificado:
 
-- `ρ` = resistividade aproximada do cobre;
-- `L` = distância em metros;
-- `I` = corrente em ampères;
-- `S` = seção do condutor em mm².
+```text
+quedaV = (√3 × ρ × L × I) / S
+```
 
 Percentual:
 
@@ -119,27 +143,24 @@ quedaPercentual = (quedaV / tensão) × 100
 
 ---
 
-## Dimensionamento preliminar de condutor
+## Cabo e disjuntor preliminar
 
-O app pode sugerir uma seção mínima inicial com base em corrente, mas isso deve ser tratado como **pré-dimensionamento**.
+O app pode sugerir uma seção mínima inicial com base na corrente calculada, mas isso deve ser tratado como **pré-dimensionamento**.
 
-Critérios futuros:
+Entrada inicial:
 
-- corrente de projeto;
-- método de instalação;
-- agrupamento;
-- temperatura ambiente;
-- material do condutor;
-- queda de tensão;
-- proteção por disjuntor;
-- tipo de carga;
-- norma aplicável.
+- potência;
+- tensão;
+- fator de potência;
+- tipo de circuito.
 
----
+Saídas:
 
-## Disjuntor recomendado
+- corrente estimada;
+- disjuntor comercial sugerido;
+- seção preliminar de cabo.
 
-O app poderá sugerir disjuntores comerciais acima da corrente calculada, mas com alerta:
+Atenção:
 
 - o disjuntor protege o circuito/condutor, não apenas a carga;
 - a seção do cabo e o método de instalação precisam ser compatíveis;
@@ -148,16 +169,83 @@ O app poderá sugerir disjuntores comerciais acima da corrente calculada, mas co
 
 ---
 
+## Iluminação por ambiente
+
+Fluxo luminoso necessário:
+
+```text
+lumens = área_m² × lux_desejado
+```
+
+Quantidade de luminárias:
+
+```text
+quantidade = arredondar_para_cima(lumens_necessários / lumens_por_luminária)
+```
+
+Uso inicial:
+
+- estimar lúmens necessários para um cômodo;
+- comparar luminárias;
+- montar orçamento preliminar de iluminação.
+
+---
+
+## Ar-condicionado
+
+Estimativa inicial de BTU/h:
+
+```text
+BTU = (área_m² × 600) + ((pessoas - 1) × 600) + (equipamentos × 600)
+```
+
+Com fator de sol/calor:
+
+```text
+BTU_final = BTU × fator
+```
+
+O app arredonda para uma capacidade comercial acima da estimativa, como 9000, 12000, 18000, 22000, 24000, 30000 BTU/h etc.
+
+Atenção:
+
+- é estimativa inicial;
+- não substitui carga térmica completa;
+- insolação, pé-direito, isolamento, janelas e região influenciam muito.
+
+---
+
 ## Eletroduto por ocupação
 
-Futuro cálculo:
+Área aproximada de um cabo circular:
 
-- diâmetro externo dos cabos;
-- área interna do eletroduto;
-- percentual máximo de ocupação;
-- quantidade de cabos;
-- tipo de cabo;
-- norma aplicável.
+```text
+área_cabo = π × diâmetro² / 4
+```
+
+Área total dos cabos:
+
+```text
+área_total = área_cabo × quantidade
+```
+
+Área interna aproximada do eletroduto:
+
+```text
+área_eletroduto = π × diâmetro_interno² / 4
+```
+
+Percentual de ocupação:
+
+```text
+ocupação = (área_total / área_eletroduto) × 100
+```
+
+Atenção:
+
+- usa diâmetro externo do cabo;
+- usa diâmetro interno real do eletroduto;
+- precisa validar norma, tipo de cabo e quantidade de curvas.
 
 ---
 
