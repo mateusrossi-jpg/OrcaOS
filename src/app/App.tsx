@@ -26,7 +26,7 @@ import {
   Sparkles,
   UsersRound,
   Wrench,
-} from 'lucide-react';
+} from './components/InlineIcons';
 import type { CalculatorModule, UserPlan } from '../core/access/featureAccess';
 import type { Client, WorkOrder } from '../core/types/business';
 import type { CalculationCapture, CalculationDestination } from '../core/types/workflow';
