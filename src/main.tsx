@@ -11,6 +11,7 @@ import './styles/clientOsRefinement.css';
 import './styles/reportRefinement.css';
 import './styles/calculationRefinement.css';
 import './styles/storeSettingsRefinement.css';
+import './styles/responsiveConsistency.css';
 
 const rootElement = document.getElementById('root');
 
