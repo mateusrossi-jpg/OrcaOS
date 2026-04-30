@@ -1,0 +1,333 @@
+/* Pacote Premium + Peças: ícones profissionais, profundidade e catálogo de materiais */
+:root {
+  --premium-glow-blue: rgba(34, 103, 206, 0.14);
+  --premium-glow-cyan: rgba(98, 167, 255, 0.18);
+  --premium-depth-1: 0 1px 0 rgba(15, 31, 51, 0.04), 0 10px 26px rgba(15, 31, 51, 0.055);
+  --premium-depth-2: 0 1px 0 rgba(15, 31, 51, 0.04), 0 18px 44px rgba(15, 31, 51, 0.09);
+  --premium-depth-doc: 0 28px 80px rgba(15, 31, 51, 0.13);
+}
+
+body {
+  background:
+    radial-gradient(circle at 0% 0%, rgba(34, 103, 206, 0.13), transparent 26rem),
+    radial-gradient(circle at 100% 14%, rgba(98, 167, 255, 0.11), transparent 28rem),
+    linear-gradient(180deg, #f5f8fc, #edf3fa 58%, #f7f9fc) !important;
+}
+
+.app-icon svg,
+.drawer-nav-icon svg {
+  width: 1.25em;
+  height: 1.25em;
+  display: block;
+}
+
+.app-icon,
+.drawer-nav-icon {
+  position: relative;
+  overflow: hidden;
+}
+
+.app-icon::after,
+.drawer-nav-icon::after {
+  content: '';
+  position: absolute;
+  inset: 1px auto auto 1px;
+  width: 55%;
+  height: 55%;
+  border-radius: inherit;
+  background: rgba(255, 255, 255, 0.32);
+  pointer-events: none;
+}
+
+.app-icon > svg,
+.drawer-nav-icon > svg {
+  position: relative;
+  z-index: 1;
+}
+
+.drawer-brand-mark {
+  background:
+    radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.32), transparent 40%),
+    linear-gradient(135deg, #0d3b63, #2267ce) !important;
+}
+
+.professional-topbar {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(255, 255, 255, 0.88)) !important;
+}
+
+.topbar-menu-button {
+  background:
+    linear-gradient(135deg, #ffffff, #f4f8fd) !important;
+  box-shadow: var(--premium-depth-1) !important;
+}
+
+.home-hero,
+.screen-header,
+.module-detail-header,
+.client-os-hero-panel,
+.report-summary-panel,
+.guided-cart-panel,
+.budget-section-panel,
+.client-os-panel,
+.settings-group {
+  box-shadow: var(--premium-depth-2) !important;
+}
+
+.home-hero,
+.module-detail-header,
+.client-os-hero-panel,
+.report-summary-panel {
+  background:
+    radial-gradient(circle at 88% 8%, var(--premium-glow-cyan), transparent 18rem),
+    radial-gradient(circle at 0% 0%, var(--premium-glow-blue), transparent 20rem),
+    linear-gradient(135deg, #ffffff, #edf6ff 72%, #ffffff) !important;
+}
+
+.screen-header {
+  background:
+    radial-gradient(circle at 100% 0%, rgba(34, 103, 206, 0.08), transparent 18rem),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.88), rgba(248, 250, 252, 0.92)) !important;
+}
+
+.home-action-card,
+.module-app-card,
+.settings-row,
+.store-card,
+.client-os-card,
+.catalog-card,
+.technical-capture-card,
+.editable-budget-item-card,
+.report-item-card,
+.part-result-card,
+.guided-service-card {
+  box-shadow: var(--premium-depth-1) !important;
+}
+
+.home-action-card.primary,
+.module-app-card:not(.disabled):hover,
+.part-result-card.active,
+.guided-service-card.active,
+.client-os-card.active,
+.editable-budget-item-card:hover {
+  box-shadow: var(--premium-depth-2) !important;
+}
+
+.primary-action.inline-action,
+.pro-teaser-card button,
+.store-card button,
+.free-plan-card em {
+  background:
+    radial-gradient(circle at 20% 0%, rgba(255, 255, 255, 0.24), transparent 36%),
+    linear-gradient(135deg, #0d3b63, #2267ce) !important;
+}
+
+.secondary-action.inline-action,
+.ghost-action,
+.back-button {
+  background: linear-gradient(135deg, #f7fbff, #eaf3ff) !important;
+}
+
+/* Catálogo de peças */
+.parts-catalog-panel {
+  display: grid;
+  gap: 14px;
+  border: 1px solid #d8e2ee;
+  border-radius: 26px;
+  padding: 16px;
+  background:
+    radial-gradient(circle at top right, rgba(34, 103, 206, 0.09), transparent 18rem),
+    linear-gradient(135deg, #ffffff, #f8fafc);
+  box-shadow: var(--premium-depth-1);
+}
+
+.parts-search-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(140px, 0.6fr) minmax(160px, 0.7fr);
+  gap: 12px;
+}
+
+.parts-search-wide {
+  grid-column: auto;
+}
+
+.parts-results-header {
+  display: grid;
+  gap: 4px;
+  border: 1px solid #d8e2ee;
+  border-radius: 20px;
+  padding: 12px 14px;
+  background: #ffffff;
+}
+
+.parts-results-header strong {
+  color: #102033;
+  letter-spacing: -0.02em;
+}
+
+.parts-results-header small {
+  color: #627184;
+  line-height: 1.35;
+}
+
+.parts-result-list {
+  display: grid;
+  gap: 12px;
+}
+
+.part-result-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(230px, auto);
+  gap: 14px;
+  align-items: center;
+  overflow: hidden;
+  border: 1px solid #d8e2ee;
+  border-radius: 24px;
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.part-result-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 5px;
+  background: #d8e2ee;
+}
+
+.part-result-card.active {
+  border-color: #cfe0f8;
+  background:
+    radial-gradient(circle at top right, rgba(34, 103, 206, 0.08), transparent 13rem),
+    linear-gradient(135deg, #eef5ff, #ffffff);
+}
+
+.part-result-card.active::before {
+  background: linear-gradient(180deg, #124878, #2267ce);
+}
+
+.part-result-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.part-result-main {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.part-result-main span {
+  width: fit-content;
+  border-radius: 999px;
+  padding: 6px 10px;
+  color: #124878;
+  background: #eaf3ff;
+  font-size: 0.76rem;
+  font-weight: 950;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.part-result-main strong {
+  color: #102033;
+  font-size: 1.06rem;
+  line-height: 1.22;
+  letter-spacing: -0.03em;
+}
+
+.part-result-main small {
+  color: #627184;
+  line-height: 1.35;
+}
+
+.part-result-controls {
+  display: grid;
+  grid-template-columns: auto minmax(74px, 86px) minmax(96px, 110px) minmax(130px, 160px);
+  gap: 8px;
+  align-items: end;
+}
+
+.part-result-controls select,
+.guided-typed-quantity select {
+  width: 100%;
+  min-height: 42px;
+  border: 1px solid #d8e2ee;
+  border-radius: 14px;
+  color: #102033;
+  background: #ffffff;
+  font: inherit;
+  font-weight: 850;
+  padding-inline: 10px;
+}
+
+.guided-typed-quantity {
+  display: grid;
+  gap: 5px;
+}
+
+.guided-typed-quantity span {
+  color: #627184;
+  font-size: 0.72rem;
+  font-weight: 950;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.guided-typed-quantity input {
+  min-height: 42px;
+  border: 1px solid #d8e2ee;
+  border-radius: 14px;
+  color: #102033;
+  background: #ffffff;
+  font: inherit;
+  font-weight: 850;
+  padding-inline: 10px;
+}
+
+/* Ajusta quatro abas do levantamento */
+.section-mode-tabs {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+/* Mantém ícones com proporção em todos os cards */
+.home-action-card .app-icon,
+.module-app-card .app-icon,
+.settings-row .app-icon,
+.store-card .app-icon,
+.active-work-context-card .app-icon,
+.survey-intro-card .app-icon {
+  display: grid;
+  place-items: center;
+}
+
+@media (max-width: 860px) {
+  .parts-search-grid,
+  .part-result-card,
+  .part-result-controls {
+    grid-template-columns: 1fr;
+  }
+
+  .parts-search-wide {
+    grid-column: auto;
+  }
+
+  .part-result-controls .guided-quantity-row,
+  .part-result-controls .guided-typed-quantity {
+    width: 100%;
+  }
+}
+
+@media (max-width: 680px) {
+  .section-mode-tabs {
+    grid-template-columns: 1fr;
+  }
+
+  .parts-catalog-panel {
+    padding: 14px;
+    border-radius: 22px;
+  }
+}
