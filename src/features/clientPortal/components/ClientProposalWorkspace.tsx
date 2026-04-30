@@ -3,6 +3,7 @@ import type { Client, WorkOrder } from '../../../core/types/business';
 import type { CalculationCapture } from '../../../core/types/workflow';
 import { loadProfessionalProfile } from '../../settings/storage/professionalProfileStorage';
 import { buildClientProposalFromCaptures } from '../storage/buildClientProposalFromCaptures';
+import { buildClientProposalShareText, buildClientProposalWhatsAppUrl } from '../storage/clientProposalShareText';
 import {
   clientProposalStatusLabel,
   createClientProposalDraft,
@@ -103,6 +104,21 @@ export function ClientProposalWorkspace({ technicalCaptures = [], activeClient =
     setFeedback(`Proposta marcada como ${clientProposalStatusLabel(status).toLowerCase()}.`);
   }
 
+  async function copyProposalText(proposal: ClientProposal) {
+    const text = buildClientProposalShareText(proposal);
+    try {
+      await navigator.clipboard.writeText(text);
+      setFeedback('Texto da proposta copiado para envio ao cliente.');
+    } catch {
+      setFeedback('Não foi possível copiar automaticamente. Abra o WhatsApp ou selecione o texto manualmente em uma próxima etapa.');
+    }
+  }
+
+  function openWhatsApp(proposal: ClientProposal) {
+    window.open(buildClientProposalWhatsAppUrl(proposal), '_blank', 'noopener,noreferrer');
+    updateProposalStatus(proposal, 'sent');
+  }
+
   function removeProposal(id: string) {
     setProposals(deleteClientProposal(id));
     setFeedback('Proposta removida.');
@@ -169,6 +185,8 @@ export function ClientProposalWorkspace({ technicalCaptures = [], activeClient =
             </div>
 
             <div className="client-proposal-actions">
+              <button className="primary-action inline-action" type="button" onClick={() => copyProposalText(proposal)}>Copiar texto</button>
+              <button className="secondary-action inline-action" type="button" onClick={() => openWhatsApp(proposal)}>Abrir WhatsApp</button>
               <button className="secondary-action inline-action" type="button" onClick={() => updateProposalStatus(proposal, 'sent')}>Marcar enviada</button>
               <button className="secondary-action inline-action" type="button" onClick={() => updateProposalStatus(proposal, 'viewed')}>Visualizada</button>
               <button className="primary-action inline-action" type="button" onClick={() => updateProposalStatus(proposal, 'approved')}>Aprovada</button>
