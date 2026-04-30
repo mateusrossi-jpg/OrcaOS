@@ -1,0 +1,621 @@
+/* OrçaOS — organização estrutural dos componentes e disposição das telas */
+:root {
+  --layout-gap-xs: 8px;
+  --layout-gap-sm: 12px;
+  --layout-gap-md: 16px;
+  --layout-gap-lg: 22px;
+  --layout-gap-xl: 30px;
+  --layout-content-max: 1080px;
+  --layout-wide-max: 1180px;
+}
+
+.professional-app-content {
+  display: grid !important;
+  justify-items: center !important;
+  align-items: start !important;
+  gap: var(--layout-gap-lg) !important;
+}
+
+.professional-app-content > .app-screen {
+  display: grid !important;
+  width: min(100%, var(--layout-content-max)) !important;
+  max-width: var(--layout-content-max) !important;
+  gap: var(--layout-gap-lg) !important;
+  align-content: start !important;
+}
+
+.professional-app-content > .wide-screen {
+  width: min(100%, var(--layout-wide-max)) !important;
+  max-width: var(--layout-wide-max) !important;
+}
+
+.app-screen > .screen-header,
+.app-screen > .module-detail-header,
+.app-screen > .active-work-context-card,
+.app-screen > .section-mode-tabs,
+.app-screen > .guided-cart-panel,
+.app-screen > .budget-workspace,
+.app-screen > .report-workspace,
+.app-screen > .client-os-workspace,
+.app-screen > .settings-group,
+.app-screen > .module-list-app {
+  width: 100% !important;
+}
+
+.screen-header {
+  display: grid !important;
+  gap: 10px !important;
+  min-height: auto !important;
+  padding: clamp(18px, 4vw, 30px) !important;
+}
+
+.screen-header h1 {
+  margin: 0 !important;
+}
+
+.screen-header p {
+  margin: 0 !important;
+}
+
+/* Topbar mais organizada */
+.professional-topbar {
+  display: grid !important;
+  grid-template-columns: auto minmax(0, 1fr) auto !important;
+  align-items: center !important;
+  gap: 12px !important;
+  padding-inline: clamp(12px, 4vw, 26px) !important;
+}
+
+.topbar-title-block {
+  min-width: 0 !important;
+  overflow: hidden !important;
+}
+
+.topbar-title-block strong,
+.topbar-title-block small {
+  display: block !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+/* Drawer: itens mais alinhados e escaneáveis */
+.side-drawer {
+  display: grid !important;
+  grid-template-rows: auto auto minmax(0, 1fr) !important;
+  gap: 14px !important;
+}
+
+.drawer-brand-card,
+.drawer-work-card,
+.drawer-nav button {
+  width: 100% !important;
+}
+
+.drawer-nav {
+  display: grid !important;
+  gap: 10px !important;
+  align-content: start !important;
+  overflow: auto !important;
+  padding-bottom: 12px !important;
+}
+
+.drawer-nav button {
+  grid-template-columns: auto minmax(0, 1fr) !important;
+  align-items: center !important;
+}
+
+.drawer-nav button span:last-child {
+  min-width: 0 !important;
+}
+
+.drawer-nav strong,
+.drawer-nav small {
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+/* Home: composição de dashboard */
+.orca-dashboard-screen {
+  gap: 18px !important;
+}
+
+.orca-dashboard-hero {
+  align-items: stretch !important;
+}
+
+.orca-dashboard-copy {
+  display: grid !important;
+  align-content: center !important;
+  gap: 10px !important;
+}
+
+.orca-dashboard-copy h1,
+.orca-dashboard-copy p {
+  margin: 0 !important;
+}
+
+.orca-dashboard-value-card {
+  min-width: 0 !important;
+}
+
+.orca-kpi-grid,
+.orca-quick-actions,
+.orca-home-columns {
+  width: 100% !important;
+}
+
+.orca-kpi-grid article,
+.orca-quick-actions button,
+.orca-panel-card {
+  min-width: 0 !important;
+}
+
+.orca-quick-actions button {
+  grid-template-rows: auto auto minmax(0, 1fr) !important;
+  align-content: start !important;
+}
+
+.orca-quick-actions .app-icon {
+  margin-bottom: 4px !important;
+}
+
+.orca-panel-card header {
+  min-width: 0 !important;
+}
+
+.orca-panel-card header > div {
+  min-width: 0 !important;
+}
+
+.orca-panel-card header h2 {
+  overflow-wrap: anywhere !important;
+}
+
+.orca-compact-module-list button,
+.orca-activity-list article {
+  min-width: 0 !important;
+}
+
+.orca-compact-module-list button > span:nth-child(2),
+.orca-activity-list article > div {
+  min-width: 0 !important;
+}
+
+.orca-compact-module-list strong,
+.orca-compact-module-list small,
+.orca-activity-list strong,
+.orca-activity-list small {
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+.orca-compact-module-list small,
+.orca-activity-list small {
+  display: -webkit-box !important;
+  -webkit-box-orient: vertical !important;
+  -webkit-line-clamp: 2 !important;
+}
+
+/* Cálculos: lista mais parecida com tela mobile premium */
+.calculations-overview-screen .module-list-app {
+  display: grid !important;
+  gap: 12px !important;
+}
+
+.module-app-card {
+  display: grid !important;
+  grid-template-columns: auto minmax(0, 1fr) auto auto !important;
+  align-items: center !important;
+  gap: 12px !important;
+}
+
+.module-card-body {
+  min-width: 0 !important;
+  display: grid !important;
+  gap: 4px !important;
+}
+
+.module-card-body strong,
+.module-card-body small {
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+.module-card-body small {
+  display: -webkit-box !important;
+  -webkit-box-orient: vertical !important;
+  -webkit-line-clamp: 2 !important;
+}
+
+.module-plan-pill {
+  justify-self: end !important;
+  white-space: nowrap !important;
+}
+
+.chevron {
+  justify-self: end !important;
+}
+
+.module-detail-header {
+  display: grid !important;
+  grid-template-columns: auto minmax(0, 1fr) !important;
+  align-items: center !important;
+  gap: 16px !important;
+}
+
+.module-detail-header > div {
+  min-width: 0 !important;
+}
+
+.module-detail-header h1,
+.module-detail-header p {
+  overflow-wrap: anywhere !important;
+}
+
+/* Área de cálculo: formulário e resultado com fluxo mais claro */
+.electrical-calculator-workspace,
+.calculator-workspace {
+  display: grid !important;
+  gap: 16px !important;
+}
+
+.calculator-panel,
+.calculator-detail-panel,
+.calculator-form,
+.calculation-form,
+.calculator-result-panel,
+.calculation-result-panel,
+.calculation-capture-panel,
+.result-card {
+  width: 100% !important;
+  min-width: 0 !important;
+}
+
+.calculator-panel form,
+.calculator-form form,
+.calculation-form form {
+  display: grid !important;
+  gap: 14px !important;
+}
+
+.calculator-actions,
+.calculation-actions,
+.capture-actions,
+.result-actions {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)) !important;
+  gap: 10px !important;
+}
+
+.calculator-actions button,
+.calculation-actions button,
+.capture-actions button,
+.result-actions button {
+  width: 100% !important;
+}
+
+/* Levantamento: fluxo por seções */
+.section-mode-tabs {
+  width: 100% !important;
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)) !important;
+  gap: 8px !important;
+  padding: 8px !important;
+}
+
+.guided-cart-panel {
+  display: grid !important;
+  gap: 16px !important;
+}
+
+.guided-cart-header {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  align-items: start !important;
+  gap: 14px !important;
+}
+
+.guided-cart-header > div:first-child {
+  min-width: 0 !important;
+}
+
+.guided-service-grid,
+.parts-result-list,
+.technical-capture-list,
+.editable-budget-item-list,
+.client-os-list,
+.catalog-list,
+.saved-budget-list,
+.report-item-list {
+  display: grid !important;
+  gap: 12px !important;
+}
+
+.guided-service-card,
+.part-result-card,
+.technical-capture-card,
+.editable-budget-item-card,
+.client-os-card,
+.catalog-card,
+.saved-budget-card,
+.report-item-card {
+  min-width: 0 !important;
+}
+
+.guided-service-controls,
+.part-result-controls {
+  min-width: 0 !important;
+}
+
+.parts-search-grid {
+  align-items: end !important;
+}
+
+.guided-cart-summary {
+  display: grid !important;
+  gap: 10px !important;
+}
+
+.guided-cart-summary div {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 8px !important;
+}
+
+.guided-cart-summary span {
+  border: 1px solid var(--approved-border, rgba(255,255,255,.1)) !important;
+  border-radius: 999px !important;
+  padding: 7px 10px !important;
+  background: rgba(255, 255, 255, 0.035) !important;
+}
+
+/* Orçamento: separar editor/preview visualmente */
+.budget-workspace,
+.report-workspace,
+.client-os-workspace {
+  display: grid !important;
+  gap: 18px !important;
+}
+
+.budget-section-panel,
+.client-os-panel,
+.report-document,
+.settings-group {
+  display: grid !important;
+  gap: 16px !important;
+  padding: clamp(16px, 3vw, 24px) !important;
+}
+
+.budget-section-header,
+.client-os-panel-header,
+.saved-budget-panel-header,
+.report-summary-panel {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 14px !important;
+}
+
+.budget-section-header > div,
+.client-os-panel-header > div,
+.saved-budget-panel-header > div,
+.report-summary-panel > div {
+  min-width: 0 !important;
+}
+
+.budget-form-grid,
+.budget-config-grid,
+.catalog-form-grid,
+.client-os-grid,
+.guided-manual-grid,
+.technical-commercial-grid {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 12px !important;
+}
+
+.budget-field-wide,
+.client-os-wide,
+.guided-wide-field {
+  grid-column: 1 / -1 !important;
+}
+
+.budget-actions,
+.guided-cart-actions,
+.compact-actions,
+.technical-capture-actions,
+.editable-budget-item-footer,
+.client-os-actions {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 10px !important;
+  align-items: center !important;
+}
+
+.budget-actions button,
+.guided-cart-actions button,
+.compact-actions button,
+.technical-capture-actions button,
+.editable-budget-item-footer button,
+.client-os-actions button {
+  min-width: min(100%, 160px) !important;
+}
+
+/* PDF e relatório: prévia em área própria */
+.preview-section-panel,
+.print-preview-shell,
+.report-document {
+  width: 100% !important;
+  min-width: 0 !important;
+}
+
+.print-preview-shell {
+  display: grid !important;
+  justify-items: center !important;
+  align-items: start !important;
+}
+
+.print-document {
+  justify-self: center !important;
+}
+
+.report-context-box,
+.report-metrics-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)) !important;
+  gap: 10px !important;
+}
+
+.report-item-card {
+  display: grid !important;
+  grid-template-columns: auto minmax(0, 1fr) !important;
+  gap: 14px !important;
+}
+
+.report-item-content {
+  min-width: 0 !important;
+}
+
+/* Loja e configurações */
+.store-card,
+.settings-row {
+  display: grid !important;
+  grid-template-columns: auto minmax(0, 1fr) auto !important;
+  align-items: center !important;
+  gap: 12px !important;
+}
+
+.store-card > span:nth-child(2),
+.settings-row > span:nth-child(2) {
+  min-width: 0 !important;
+}
+
+/* Mobile: telas com cara nativa, sem desktop comprimido */
+@media (max-width: 860px) {
+  .professional-app-content > .app-screen,
+  .professional-app-content > .wide-screen {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .orca-dashboard-hero,
+  .orca-home-columns,
+  .guided-cart-header,
+  .budget-section-header,
+  .client-os-panel-header,
+  .saved-budget-panel-header,
+  .report-summary-panel {
+    grid-template-columns: 1fr !important;
+  }
+
+  .budget-section-header,
+  .client-os-panel-header,
+  .saved-budget-panel-header,
+  .report-summary-panel {
+    align-items: stretch !important;
+    flex-direction: column !important;
+  }
+
+  .budget-form-grid,
+  .budget-config-grid,
+  .catalog-form-grid,
+  .client-os-grid,
+  .guided-manual-grid,
+  .technical-commercial-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 620px) {
+  .professional-topbar {
+    height: 68px !important;
+  }
+
+  .topbar-status-pill {
+    display: none !important;
+  }
+
+  .module-app-card,
+  .store-card,
+  .settings-row {
+    grid-template-columns: auto minmax(0, 1fr) !important;
+  }
+
+  .module-plan-pill,
+  .chevron,
+  .store-card button,
+  .settings-row .chevron {
+    grid-column: 2 !important;
+    justify-self: start !important;
+  }
+
+  .module-detail-header {
+    grid-template-columns: 1fr !important;
+  }
+
+  .section-mode-tabs {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  .guided-cart-total {
+    width: 100% !important;
+  }
+
+  .guided-cart-actions,
+  .budget-actions,
+  .compact-actions,
+  .technical-capture-actions,
+  .editable-budget-item-footer,
+  .client-os-actions {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+
+  .guided-cart-actions button,
+  .budget-actions button,
+  .compact-actions button,
+  .technical-capture-actions button,
+  .editable-budget-item-footer button,
+  .client-os-actions button,
+  .client-os-actions select {
+    width: 100% !important;
+  }
+
+  .part-result-card,
+  .report-item-card {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 420px) {
+  .professional-app-content {
+    padding-inline: 10px !important;
+  }
+
+  .screen-header h1,
+  .module-detail-header h1 {
+    font-size: 2rem !important;
+  }
+
+  .orca-kpi-grid,
+  .orca-quick-actions,
+  .section-mode-tabs {
+    grid-template-columns: 1fr !important;
+  }
+
+  .orca-panel-card header {
+    align-items: start !important;
+    flex-direction: column !important;
+  }
+
+  .orca-compact-module-list button,
+  .orca-activity-list article {
+    grid-template-columns: 1fr !important;
+  }
+
+  .orca-compact-module-list em,
+  .orca-activity-list em {
+    grid-column: auto !important;
+  }
+}
