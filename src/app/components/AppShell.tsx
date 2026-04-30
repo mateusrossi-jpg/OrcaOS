@@ -6,7 +6,7 @@ export interface AppShellNavItem<T extends string> {
   id: T;
   label: string;
   description: string;
-  icon: string;
+  icon: ReactNode;
 }
 
 interface AppShellProps<T extends string> {
