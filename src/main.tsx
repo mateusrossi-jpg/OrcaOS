@@ -5,6 +5,7 @@ import './styles/global.css';
 import './styles/mobileLayoutFix.css';
 import './styles/workContext.css';
 import './styles/professionalPolish.css';
+import './styles/screenRefinement.css';
 
 const rootElement = document.getElementById('root');
 
