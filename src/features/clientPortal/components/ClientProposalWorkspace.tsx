@@ -13,6 +13,7 @@ import {
   type ClientProposal,
   type ClientProposalStatus,
 } from '../storage/clientProposalStorage';
+import { ClientProposalPreview } from './ClientProposalPreview';
 import './ClientProposalWorkspace.css';
 
 interface ClientProposalWorkspaceProps {
@@ -41,6 +42,7 @@ function statusTimestampPatch(status: ClientProposalStatus): Partial<ClientPropo
 
 export function ClientProposalWorkspace({ technicalCaptures = [], activeClient = null, activeWorkOrder = null }: ClientProposalWorkspaceProps) {
   const [proposals, setProposals] = useState<ClientProposal[]>(() => loadClientProposals());
+  const [previewProposal, setPreviewProposal] = useState<ClientProposal | null>(null);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [query, setQuery] = useState('');
 
@@ -67,6 +69,7 @@ export function ClientProposalWorkspace({ technicalCaptures = [], activeClient =
     const proposal = buildClientProposalFromCaptures({ captures: proposalReadyCaptures, activeClient, activeWorkOrder });
     upsertClientProposal(proposal);
     refresh();
+    setPreviewProposal(proposal);
     setFeedback(`Proposta criada a partir de ${proposalReadyCaptures.length} item(ns) técnico(s).`);
   }
 
@@ -95,12 +98,14 @@ export function ClientProposalWorkspace({ technicalCaptures = [], activeClient =
     });
     upsertClientProposal(proposal);
     refresh();
+    setPreviewProposal(proposal);
     setFeedback('Proposta exemplo criada.');
   }
 
   function updateProposalStatus(proposal: ClientProposal, status: ClientProposalStatus) {
-    upsertClientProposal({ ...proposal, ...statusTimestampPatch(status) });
+    const updatedProposal = upsertClientProposal({ ...proposal, ...statusTimestampPatch(status) });
     refresh();
+    setPreviewProposal((current) => (current?.id === proposal.id ? updatedProposal : current));
     setFeedback(`Proposta marcada como ${clientProposalStatusLabel(status).toLowerCase()}.`);
   }
 
@@ -121,6 +126,7 @@ export function ClientProposalWorkspace({ technicalCaptures = [], activeClient =
 
   function removeProposal(id: string) {
     setProposals(deleteClientProposal(id));
+    setPreviewProposal((current) => (current?.id === id ? null : current));
     setFeedback('Proposta removida.');
   }
 
@@ -151,11 +157,13 @@ export function ClientProposalWorkspace({ technicalCaptures = [], activeClient =
         </label>
       </div>
 
+      {previewProposal && <ClientProposalPreview proposal={previewProposal} onClose={() => setPreviewProposal(null)} />}
+
       <div className="client-proposal-list">
         {filteredProposals.length === 0 ? (
           <div className="client-proposal-empty">Nenhuma proposta pública criada ainda.</div>
         ) : filteredProposals.map((proposal) => (
-          <article className="client-proposal-item" key={proposal.id}>
+          <article className={previewProposal?.id === proposal.id ? 'client-proposal-item is-previewing' : 'client-proposal-item'} key={proposal.id}>
             <header>
               <div>
                 <span>{clientProposalStatusLabel(proposal.status)}</span>
@@ -185,6 +193,7 @@ export function ClientProposalWorkspace({ technicalCaptures = [], activeClient =
             </div>
 
             <div className="client-proposal-actions">
+              <button className="primary-action inline-action" type="button" onClick={() => setPreviewProposal(proposal)}>Ver prévia / PDF</button>
               <button className="primary-action inline-action" type="button" onClick={() => copyProposalText(proposal)}>Copiar texto</button>
               <button className="secondary-action inline-action" type="button" onClick={() => openWhatsApp(proposal)}>Abrir WhatsApp</button>
               <button className="secondary-action inline-action" type="button" onClick={() => updateProposalStatus(proposal, 'sent')}>Marcar enviada</button>
