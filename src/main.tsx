@@ -4,6 +4,7 @@ import { App } from './app/App';
 import './styles/global.css';
 import './styles/mobileLayoutFix.css';
 import './styles/workContext.css';
+import './styles/professionalPolish.css';
 
 const rootElement = document.getElementById('root');
 
