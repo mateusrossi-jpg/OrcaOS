@@ -1,4 +1,4 @@
-import { CatalogHubWorkspace } from '../../catalog/components/CatalogHubWorkspace';
+import { CatalogHubWorkspace } from '../../catalog/components/CatalogHubWorkspaceEditable';
 import type { CalculationCapture } from '../../../core/types/workflow';
 import { GuidedBudgetCartRoomAutoBridge } from './GuidedBudgetCartRoomAutoBridge';
 import { GuidedRoomManager } from './GuidedRoomManager';
