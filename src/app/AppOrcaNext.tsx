@@ -10,6 +10,7 @@ import { HydraulicsCalculatorWorkspace } from '../features/calculators/component
 import { ClientWorkOrderWorkspace } from '../features/clients/components/ClientWorkOrderWorkspace';
 import { loadActiveWorkOrderId, loadClients, loadWorkOrders } from '../features/clients/storage/clientWorkOrderStorage';
 import { ReportWorkspace } from '../features/reports/components/ReportWorkspace';
+import { LocalBackupWorkspace } from '../features/settings/components/LocalBackupWorkspace';
 import { GuidedBudgetCart } from '../features/workflow/components/GuidedBudgetCart';
 import { TechnicalCaptureList } from '../features/workflow/components/TechnicalCaptureList';
 import { AppShell } from './components/AppShell';
@@ -226,7 +227,7 @@ function StoreScreen() {
 }
 
 function SettingsScreen() {
-  return <section className="app-screen wide-screen"><header className="screen-header"><span className="orca-kicker">Preferências</span><h1>Configurações</h1><p>Conta, histórico, informações do app e roadmap.</p></header><div className="settings-group"><h2>Conta</h2><article className="settings-row"><span className="app-icon tone-gray">▣</span><span><strong>Meu plano</strong><small>Grátis · base inicial ativa</small></span><span className="chevron">›</span></article><article className="settings-row"><span className="app-icon tone-green">◇</span><span><strong>Roadmap</strong><small>OrçaOS, módulos profissionais, relatórios e OS</small></span><span className="chevron">›</span></article></div></section>;
+  return <section className="app-screen wide-screen"><header className="screen-header"><span className="orca-kicker">Preferências</span><h1>Configurações</h1><p>Conta, histórico, informações do app e roadmap.</p></header><div className="settings-group"><h2>Conta</h2><article className="settings-row"><span className="app-icon tone-gray">▣</span><span><strong>Meu plano</strong><small>Grátis · base inicial ativa</small></span><span className="chevron">›</span></article><article className="settings-row"><span className="app-icon tone-green">◇</span><span><strong>Roadmap</strong><small>OrçaOS, módulos profissionais, relatórios e OS</small></span><span className="chevron">›</span></article></div><LocalBackupWorkspace /></section>;
 }
 
 export function App() {
