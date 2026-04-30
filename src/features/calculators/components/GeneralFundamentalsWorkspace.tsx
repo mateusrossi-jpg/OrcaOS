@@ -7,9 +7,19 @@ type FundamentalMode =
   | 'percentage'
   | 'increase-percent'
   | 'discount-percent'
+  | 'difference-percent'
+  | 'profit-margin'
+  | 'markup'
   | 'rectangle-area'
+  | 'triangle-area'
+  | 'circle-area'
+  | 'rectangle-perimeter'
   | 'simple-volume'
-  | 'cost-per-area';
+  | 'loss-percent'
+  | 'cost-per-area'
+  | 'cost-per-unit'
+  | 'cost-per-meter'
+  | 'productivity-time';
 
 interface GeneralFundamentalsWorkspaceProps {
   onCaptureCalculation?: (capture: CalculationCapture) => void;
@@ -40,9 +50,19 @@ const fundamentalRules: FundamentalRule[] = [
   { mode: 'percentage', label: 'Porcentagem', description: 'Calcule uma porcentagem sobre qualquer valor.', icon: '%' },
   { mode: 'increase-percent', label: 'Acréscimo', description: 'Aplique acréscimo percentual sobre custo, preço ou quantidade.', icon: '+' },
   { mode: 'discount-percent', label: 'Desconto', description: 'Aplique desconto percentual para orçamento e negociação.', icon: '−' },
+  { mode: 'difference-percent', label: 'Diferença %', description: 'Veja a variação percentual entre dois valores.', icon: '∆' },
+  { mode: 'profit-margin', label: 'Margem de lucro', description: 'Calcule lucro e margem real entre custo e venda.', icon: '₿' },
+  { mode: 'markup', label: 'Markup', description: 'Forme preço de venda a partir de custo e margem desejada.', icon: '×' },
   { mode: 'rectangle-area', label: 'Área retangular', description: 'Calcule área em m² para parede, piso, teto, pintura e revestimento.', icon: '▭' },
+  { mode: 'triangle-area', label: 'Área triangular', description: 'Calcule área triangular para recortes, telhados e medições.', icon: '△' },
+  { mode: 'circle-area', label: 'Área circular', description: 'Calcule área circular para bases, reservatórios e peças.', icon: '○' },
+  { mode: 'rectangle-perimeter', label: 'Perímetro', description: 'Calcule perímetro retangular para rodapé, canaleta, moldura ou contorno.', icon: '□' },
   { mode: 'simple-volume', label: 'Volume simples', description: 'Calcule volume de caixa/prisma para concreto, reservatórios e materiais.', icon: '◧' },
-  { mode: 'cost-per-area', label: 'Custo por m²', description: 'Calcule custo total ou unitário por metro quadrado.', icon: 'R$' },
+  { mode: 'loss-percent', label: 'Perda de material', description: 'Adicione perda percentual para compra de material.', icon: '↗' },
+  { mode: 'cost-per-area', label: 'Custo por m²', description: 'Calcule custo total ou unitário por metro quadrado.', icon: 'm²' },
+  { mode: 'cost-per-unit', label: 'Custo por unidade', description: 'Calcule valor unitário ou total por quantidade.', icon: 'un' },
+  { mode: 'cost-per-meter', label: 'Custo por metro', description: 'Calcule valor por metro linear para cabos, tubos, perfis e canaletas.', icon: 'm' },
+  { mode: 'productivity-time', label: 'Tempo por produção', description: 'Estime tempo de execução por produtividade horária.', icon: 'h' },
 ];
 
 const defaultValues: Record<string, string> = {
@@ -50,13 +70,24 @@ const defaultValues: Record<string, string> = {
   baseB: '100',
   targetA: '25',
   value: '100',
+  previousValue: '80',
+  newValue: '100',
   percent: '10',
+  cost: '100',
+  salePrice: '150',
+  desiredMarginPercent: '30',
   width: '3',
   height: '2.8',
   length: '4',
+  radius: '1',
   area: '12',
   totalCost: '600',
   unitCost: '50',
+  quantity: '10',
+  totalMeters: '30',
+  meterCost: '8',
+  totalWork: '120',
+  productivityPerHour: '15',
 };
 
 function parseNumber(value: string): number {
@@ -213,6 +244,59 @@ export function GeneralFundamentalsWorkspace({ onCaptureCalculation }: GeneralFu
         };
       }
 
+      if (activeCalculator === 'difference-percent') {
+        const previousValue = n('previousValue', 'valor anterior');
+        const newValue = n('newValue', 'novo valor');
+        if (previousValue === 0) throw new Error('O valor anterior não pode ser zero.');
+        const difference = newValue - previousValue;
+        const variation = difference / previousValue * 100;
+        return {
+          error: null,
+          cards: [
+            { label: 'Diferença', value: `${round(difference)}`, helper: `${round(newValue)} - ${round(previousValue)}` },
+            { label: 'Variação', value: `${round(variation)}%`, helper: variation >= 0 ? 'aumento' : 'redução' },
+          ],
+          summary: `Variação percentual: ${round(variation)}%`,
+          details: [`Valor anterior: ${round(previousValue)}`, `Novo valor: ${round(newValue)}`, `Diferença: ${round(difference)}`, `Variação: ${round(variation)}%`],
+        };
+      }
+
+      if (activeCalculator === 'profit-margin') {
+        const cost = n('cost', 'custo');
+        const salePrice = n('salePrice', 'preço de venda');
+        if (salePrice === 0) throw new Error('O preço de venda não pode ser zero.');
+        const profit = salePrice - cost;
+        const margin = profit / salePrice * 100;
+        const markup = cost > 0 ? profit / cost * 100 : 0;
+        return {
+          error: null,
+          cards: [
+            { label: 'Lucro', value: money(profit), helper: 'venda - custo' },
+            { label: 'Margem', value: `${round(margin)}%`, helper: 'lucro sobre venda' },
+            { label: 'Markup real', value: `${round(markup)}%`, helper: 'lucro sobre custo' },
+          ],
+          summary: `Margem de lucro: ${round(margin)}%`,
+          details: [`Custo: ${money(cost)}`, `Venda: ${money(salePrice)}`, `Lucro: ${money(profit)}`, `Margem: ${round(margin)}%`, `Markup: ${round(markup)}%`],
+        };
+      }
+
+      if (activeCalculator === 'markup') {
+        const cost = n('cost', 'custo');
+        const margin = n('desiredMarginPercent', 'margem desejada', false);
+        if (margin >= 100) throw new Error('A margem desejada deve ser menor que 100%.');
+        const salePrice = margin <= -100 ? 0 : cost / (1 - margin / 100);
+        const profit = salePrice - cost;
+        return {
+          error: null,
+          cards: [
+            { label: 'Preço de venda', value: money(salePrice), helper: `${round(margin)}% de margem desejada` },
+            { label: 'Lucro', value: money(profit), helper: 'preço - custo' },
+          ],
+          summary: `Preço sugerido por markup: ${money(salePrice)}`,
+          details: [`Custo: ${money(cost)}`, `Margem desejada: ${round(margin)}%`, `Preço de venda: ${money(salePrice)}`, `Lucro: ${money(profit)}`],
+        };
+      }
+
       if (activeCalculator === 'rectangle-area') {
         const width = n('width', 'largura');
         const height = n('height', 'altura/comprimento');
@@ -222,6 +306,45 @@ export function GeneralFundamentalsWorkspace({ onCaptureCalculation }: GeneralFu
           cards: [{ label: 'Área', value: `${round(area)} m²`, helper: 'largura × altura/comprimento' }],
           summary: `Área retangular: ${round(area)} m²`,
           details: [`Largura: ${round(width)} m`, `Altura/comprimento: ${round(height)} m`, `Área: ${round(area)} m²`],
+        };
+      }
+
+      if (activeCalculator === 'triangle-area') {
+        const width = n('width', 'base');
+        const height = n('height', 'altura');
+        const area = width * height / 2;
+        return {
+          error: null,
+          cards: [{ label: 'Área triangular', value: `${round(area)} m²`, helper: '(base × altura) ÷ 2' }],
+          summary: `Área triangular: ${round(area)} m²`,
+          details: [`Base: ${round(width)} m`, `Altura: ${round(height)} m`, `Área: ${round(area)} m²`],
+        };
+      }
+
+      if (activeCalculator === 'circle-area') {
+        const radius = n('radius', 'raio');
+        const area = Math.PI * radius ** 2;
+        const diameter = radius * 2;
+        return {
+          error: null,
+          cards: [
+            { label: 'Área circular', value: `${round(area)} m²`, helper: 'π × raio²' },
+            { label: 'Diâmetro', value: `${round(diameter)} m`, helper: '2 × raio' },
+          ],
+          summary: `Área circular: ${round(area)} m²`,
+          details: [`Raio: ${round(radius)} m`, `Diâmetro: ${round(diameter)} m`, `Área: ${round(area)} m²`],
+        };
+      }
+
+      if (activeCalculator === 'rectangle-perimeter') {
+        const width = n('width', 'largura');
+        const length = n('length', 'comprimento');
+        const perimeter = 2 * (width + length);
+        return {
+          error: null,
+          cards: [{ label: 'Perímetro', value: `${round(perimeter)} m`, helper: '2 × (largura + comprimento)' }],
+          summary: `Perímetro retangular: ${round(perimeter)} m`,
+          details: [`Largura: ${round(width)} m`, `Comprimento: ${round(length)} m`, `Perímetro: ${round(perimeter)} m`],
         };
       }
 
@@ -242,18 +365,83 @@ export function GeneralFundamentalsWorkspace({ onCaptureCalculation }: GeneralFu
         };
       }
 
-      const area = n('area', 'área');
-      const totalCost = n('totalCost', 'custo total');
-      const unitCost = area > 0 ? totalCost / area : 0;
-      const totalFromUnit = area * n('unitCost', 'custo por m²');
+      if (activeCalculator === 'loss-percent') {
+        const quantity = n('quantity', 'quantidade base');
+        const percent = n('percent', 'perda', false);
+        const loss = quantity * percent / 100;
+        const purchaseQuantity = quantity + loss;
+        return {
+          error: null,
+          cards: [
+            { label: 'Perda', value: `${round(loss)}`, helper: `${round(percent)}% sobre ${round(quantity)}` },
+            { label: 'Comprar/considerar', value: `${round(purchaseQuantity)}`, helper: 'quantidade com perda' },
+          ],
+          summary: `Quantidade com perda: ${round(purchaseQuantity)}`,
+          details: [`Quantidade base: ${round(quantity)}`, `Perda: ${round(percent)}%`, `Adicional: ${round(loss)}`, `Total com perda: ${round(purchaseQuantity)}`],
+        };
+      }
+
+      if (activeCalculator === 'cost-per-area') {
+        const area = n('area', 'área');
+        const totalCost = n('totalCost', 'custo total');
+        const unitCost = area > 0 ? totalCost / area : 0;
+        const totalFromUnit = area * n('unitCost', 'custo por m²');
+        return {
+          error: null,
+          cards: [
+            { label: 'Custo por m²', value: money(unitCost), helper: `${money(totalCost)} ÷ ${round(area)} m²` },
+            { label: 'Total pelo unitário', value: money(totalFromUnit), helper: `${round(area)} m² × ${money(n('unitCost', 'custo por m²'))}` },
+          ],
+          summary: `Custo por m²: ${money(unitCost)}`,
+          details: [`Área: ${round(area)} m²`, `Custo total informado: ${money(totalCost)}`, `Custo por m² calculado: ${money(unitCost)}`, `Total pelo custo unitário: ${money(totalFromUnit)}`],
+        };
+      }
+
+      if (activeCalculator === 'cost-per-unit') {
+        const quantity = n('quantity', 'quantidade');
+        const totalCost = n('totalCost', 'custo total');
+        const unitCost = quantity > 0 ? totalCost / quantity : 0;
+        const totalFromUnit = quantity * n('unitCost', 'valor unitário');
+        return {
+          error: null,
+          cards: [
+            { label: 'Custo unitário', value: money(unitCost), helper: `${money(totalCost)} ÷ ${round(quantity)} un.` },
+            { label: 'Total pelo unitário', value: money(totalFromUnit), helper: `${round(quantity)} × ${money(n('unitCost', 'valor unitário'))}` },
+          ],
+          summary: `Custo unitário: ${money(unitCost)}`,
+          details: [`Quantidade: ${round(quantity)}`, `Custo total: ${money(totalCost)}`, `Custo unitário calculado: ${money(unitCost)}`, `Total pelo unitário: ${money(totalFromUnit)}`],
+        };
+      }
+
+      if (activeCalculator === 'cost-per-meter') {
+        const meters = n('totalMeters', 'metros');
+        const totalCost = n('totalCost', 'custo total');
+        const meterCost = meters > 0 ? totalCost / meters : 0;
+        const totalFromMeter = meters * n('meterCost', 'valor por metro');
+        return {
+          error: null,
+          cards: [
+            { label: 'Custo por metro', value: money(meterCost), helper: `${money(totalCost)} ÷ ${round(meters)} m` },
+            { label: 'Total pelo metro', value: money(totalFromMeter), helper: `${round(meters)} m × ${money(n('meterCost', 'valor por metro'))}` },
+          ],
+          summary: `Custo por metro: ${money(meterCost)}`,
+          details: [`Metros: ${round(meters)} m`, `Custo total: ${money(totalCost)}`, `Custo por metro calculado: ${money(meterCost)}`, `Total pelo valor/m: ${money(totalFromMeter)}`],
+        };
+      }
+
+      const totalWork = n('totalWork', 'quantidade total');
+      const productivity = n('productivityPerHour', 'produtividade por hora');
+      if (productivity === 0) throw new Error('A produtividade por hora não pode ser zero.');
+      const hours = totalWork / productivity;
+      const days = hours / 8;
       return {
         error: null,
         cards: [
-          { label: 'Custo por m²', value: money(unitCost), helper: `${money(totalCost)} ÷ ${round(area)} m²` },
-          { label: 'Total pelo unitário', value: money(totalFromUnit), helper: `${round(area)} m² × ${money(n('unitCost', 'custo por m²'))}` },
+          { label: 'Tempo estimado', value: `${round(hours)} h`, helper: `${round(totalWork)} ÷ ${round(productivity)}/h` },
+          { label: 'Dias de 8h', value: `${round(days)} dia(s)`, helper: 'estimativa de jornada' },
         ],
-        summary: `Custo por m²: ${money(unitCost)}`,
-        details: [`Área: ${round(area)} m²`, `Custo total informado: ${money(totalCost)}`, `Custo por m² calculado: ${money(unitCost)}`, `Total pelo custo unitário: ${money(totalFromUnit)}`],
+        summary: `Tempo estimado: ${round(hours)} h`,
+        details: [`Quantidade total: ${round(totalWork)}`, `Produtividade: ${round(productivity)} por hora`, `Horas estimadas: ${round(hours)} h`, `Dias de 8h: ${round(days)}`],
       };
     } catch (error) {
       return { error: error instanceof Error ? error.message : 'Preencha os campos necessários.', cards: [], summary: '', details: [] };
@@ -340,10 +528,40 @@ export function GeneralFundamentalsWorkspace({ onCaptureCalculation }: GeneralFu
                 </>
               )}
 
-              {activeCalculator === 'rectangle-area' && (
+              {activeCalculator === 'difference-percent' && (
+                <>
+                  <NumberField label="Valor anterior" value={values.previousValue} onChange={(value) => setValue('previousValue', value)} />
+                  <NumberField label="Novo valor" value={values.newValue} onChange={(value) => setValue('newValue', value)} />
+                </>
+              )}
+
+              {activeCalculator === 'profit-margin' && (
+                <>
+                  <NumberField label="Custo" value={values.cost} suffix="R$" onChange={(value) => setValue('cost', value)} />
+                  <NumberField label="Preço de venda" value={values.salePrice} suffix="R$" onChange={(value) => setValue('salePrice', value)} />
+                </>
+              )}
+
+              {activeCalculator === 'markup' && (
+                <>
+                  <NumberField label="Custo" value={values.cost} suffix="R$" onChange={(value) => setValue('cost', value)} />
+                  <NumberField label="Margem desejada" value={values.desiredMarginPercent} suffix="%" min={-100} onChange={(value) => setValue('desiredMarginPercent', value)} />
+                </>
+              )}
+
+              {['rectangle-area', 'triangle-area'].includes(activeCalculator) && (
+                <>
+                  <NumberField label={activeCalculator === 'triangle-area' ? 'Base' : 'Largura'} value={values.width} suffix="m" onChange={(value) => setValue('width', value)} />
+                  <NumberField label={activeCalculator === 'triangle-area' ? 'Altura' : 'Altura/comprimento'} value={values.height} suffix="m" onChange={(value) => setValue('height', value)} />
+                </>
+              )}
+
+              {activeCalculator === 'circle-area' && <NumberField label="Raio" value={values.radius} suffix="m" onChange={(value) => setValue('radius', value)} />}
+
+              {activeCalculator === 'rectangle-perimeter' && (
                 <>
                   <NumberField label="Largura" value={values.width} suffix="m" onChange={(value) => setValue('width', value)} />
-                  <NumberField label="Altura/comprimento" value={values.height} suffix="m" onChange={(value) => setValue('height', value)} />
+                  <NumberField label="Comprimento" value={values.length} suffix="m" onChange={(value) => setValue('length', value)} />
                 </>
               )}
 
@@ -355,11 +573,41 @@ export function GeneralFundamentalsWorkspace({ onCaptureCalculation }: GeneralFu
                 </>
               )}
 
+              {activeCalculator === 'loss-percent' && (
+                <>
+                  <NumberField label="Quantidade base" value={values.quantity} onChange={(value) => setValue('quantity', value)} />
+                  <NumberField label="Perda" value={values.percent} suffix="%" min={0} onChange={(value) => setValue('percent', value)} />
+                </>
+              )}
+
               {activeCalculator === 'cost-per-area' && (
                 <>
                   <NumberField label="Área" value={values.area} suffix="m²" onChange={(value) => setValue('area', value)} />
                   <NumberField label="Custo total" value={values.totalCost} suffix="R$" onChange={(value) => setValue('totalCost', value)} />
                   <NumberField label="Custo por m²" value={values.unitCost} suffix="R$/m²" onChange={(value) => setValue('unitCost', value)} />
+                </>
+              )}
+
+              {activeCalculator === 'cost-per-unit' && (
+                <>
+                  <NumberField label="Quantidade" value={values.quantity} suffix="un." onChange={(value) => setValue('quantity', value)} />
+                  <NumberField label="Custo total" value={values.totalCost} suffix="R$" onChange={(value) => setValue('totalCost', value)} />
+                  <NumberField label="Valor unitário" value={values.unitCost} suffix="R$/un." onChange={(value) => setValue('unitCost', value)} />
+                </>
+              )}
+
+              {activeCalculator === 'cost-per-meter' && (
+                <>
+                  <NumberField label="Metros" value={values.totalMeters} suffix="m" onChange={(value) => setValue('totalMeters', value)} />
+                  <NumberField label="Custo total" value={values.totalCost} suffix="R$" onChange={(value) => setValue('totalCost', value)} />
+                  <NumberField label="Valor por metro" value={values.meterCost} suffix="R$/m" onChange={(value) => setValue('meterCost', value)} />
+                </>
+              )}
+
+              {activeCalculator === 'productivity-time' && (
+                <>
+                  <NumberField label="Quantidade total" value={values.totalWork} onChange={(value) => setValue('totalWork', value)} />
+                  <NumberField label="Produtividade por hora" value={values.productivityPerHour} suffix="/h" onChange={(value) => setValue('productivityPerHour', value)} />
                 </>
               )}
             </form>
