@@ -4,6 +4,7 @@ import {
   guidedRoomTypeLabel,
   loadGuidedRooms,
   saveGuidedRooms,
+  setActiveGuidedRoomName,
   type GuidedRoom,
   type GuidedRoomType,
 } from '../storage/guidedRoomsStorage';
@@ -62,8 +63,9 @@ export function GuidedRoomManager() {
     };
 
     setRooms((current) => [...current, newRoom]);
+    setActiveGuidedRoomName(name);
     setDraft(emptyRoomDraft);
-    setFeedback(`${name} foi adicionado à lista de cômodos.`);
+    setFeedback(`${name} foi adicionado e selecionado como ambiente atual.`);
   }
 
   function duplicateRoom(room: GuidedRoom) {
@@ -79,7 +81,8 @@ export function GuidedRoomManager() {
         updatedAt: timestamp,
       },
     ]);
-    setFeedback(`${copyName} foi criado.`);
+    setActiveGuidedRoomName(copyName);
+    setFeedback(`${copyName} foi criado e selecionado como ambiente atual.`);
   }
 
   function removeRoom(id: string) {
@@ -87,8 +90,9 @@ export function GuidedRoomManager() {
   }
 
   function useRoomAsCurrent(room: GuidedRoom) {
+    setActiveGuidedRoomName(room.name);
     setDraft((current) => ({ ...current, name: room.name, type: room.type, notes: room.notes ?? '' }));
-    setFeedback(`${room.name} foi carregado no campo de novo cômodo. Na próxima etapa ele será usado diretamente no seletor do orçamento guiado.`);
+    setFeedback(`${room.name} foi selecionado. O próximo serviço, peça ou kit será lançado nesse ambiente.`);
   }
 
   return (
@@ -105,7 +109,7 @@ export function GuidedRoomManager() {
       <div className="guided-room-card">
         <div>
           <strong>Adicionar cômodo</strong>
-          <small>Use este cadastro como lista de ambientes do orçamento guiado.</small>
+          <small>Ao adicionar, o cômodo já fica selecionado no orçamento guiado.</small>
         </div>
         <div className="guided-room-grid">
           <label>
@@ -123,13 +127,13 @@ export function GuidedRoomManager() {
             <textarea value={draft.notes} placeholder="Ex.: parede de alvenaria, forro de gesso, área úmida, cliente quer linha preta..." onChange={(event) => updateDraft('notes', event.target.value)} />
           </label>
         </div>
-        <button className="primary-action inline-action" type="button" onClick={addRoom}>Adicionar cômodo</button>
+        <button className="primary-action inline-action" type="button" onClick={addRoom}>Adicionar e usar cômodo</button>
       </div>
 
       <div className="guided-room-card">
         <div>
           <strong>Cômodos cadastrados</strong>
-          <small>Lista de ambientes para organizar o levantamento. Use nomes específicos quando houver mais de um quarto/banheiro.</small>
+          <small>Clique em Usar para selecionar o ambiente onde os próximos itens serão lançados.</small>
         </div>
         <label className="guided-room-search">
           <span>Buscar cômodo</span>
@@ -144,7 +148,7 @@ export function GuidedRoomManager() {
                 <small>{room.notes || 'Sem observação'}</small>
               </div>
               <div className="guided-room-actions">
-                <button className="secondary-action inline-action" type="button" onClick={() => useRoomAsCurrent(room)}>Usar</button>
+                <button className="primary-action inline-action" type="button" onClick={() => useRoomAsCurrent(room)}>Usar</button>
                 <button className="secondary-action inline-action" type="button" onClick={() => duplicateRoom(room)}>Duplicar</button>
                 <button className="danger-action" type="button" onClick={() => removeRoom(room.id)}>Remover</button>
               </div>
