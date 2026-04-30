@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { loadBusinessProfile, saveBusinessProfile } from '../../budgets/storage/businessProfileStorage';
 import {
   loadProfessionalProfile,
   resetProfessionalProfileIds,
@@ -20,6 +21,22 @@ const professionalAreas = [
   'Outro',
 ];
 
+function syncProfileToBusinessProfile(profile: ProfessionalProfile) {
+  const currentBusinessProfile = loadBusinessProfile();
+  const address = [profile.city, profile.state].filter(Boolean).join(' / ');
+
+  saveBusinessProfile({
+    ...currentBusinessProfile,
+    businessName: profile.businessName || profile.professionalName || currentBusinessProfile.businessName,
+    documentNumber: profile.document || currentBusinessProfile.documentNumber,
+    phone: profile.phone || currentBusinessProfile.phone,
+    email: profile.email || currentBusinessProfile.email,
+    address: address || currentBusinessProfile.address,
+    responsibleName: profile.professionalName || currentBusinessProfile.responsibleName,
+    defaultNotes: profile.commercialNotes || currentBusinessProfile.defaultNotes,
+  });
+}
+
 export function ProfessionalProfileWorkspace() {
   const [profile, setProfile] = useState<ProfessionalProfile>(() => loadProfessionalProfile());
   const [feedback, setFeedback] = useState<string | null>(null);
@@ -30,13 +47,15 @@ export function ProfessionalProfileWorkspace() {
 
   function saveProfile() {
     saveProfessionalProfile(profile);
-    setFeedback('Perfil profissional/empresa salvo localmente.');
+    syncProfileToBusinessProfile(profile);
+    setFeedback('Perfil salvo e sincronizado com a identidade do orçamento/PDF.');
   }
 
   function regenerateIds() {
     const nextProfile = resetProfessionalProfileIds(profile);
     setProfile(nextProfile);
     saveProfessionalProfile(nextProfile);
+    syncProfileToBusinessProfile(nextProfile);
     setFeedback('Novos IDs locais foram gerados para profissional e empresa.');
   }
 
@@ -72,7 +91,7 @@ export function ProfessionalProfileWorkspace() {
       <div className="professional-profile-card">
         <div>
           <strong>Dados principais</strong>
-          <small>Esses dados serão usados depois no cabeçalho de propostas, relatórios e documentos.</small>
+          <small>Esses dados também serão sincronizados com o cabeçalho da proposta/orçamento.</small>
         </div>
         <div className="professional-profile-grid">
           <label>
@@ -114,7 +133,7 @@ export function ProfessionalProfileWorkspace() {
             <textarea value={profile.commercialNotes} placeholder="Ex.: atende residencial e comercial, preferência por obras de alto padrão, condições padrão de orçamento..." onChange={(event) => updateProfile('commercialNotes', event.target.value)} />
           </label>
         </div>
-        <button className="primary-action inline-action" type="button" onClick={saveProfile}>Salvar perfil</button>
+        <button className="primary-action inline-action" type="button" onClick={saveProfile}>Salvar e sincronizar perfil</button>
       </div>
 
       {feedback && <div className="guided-cart-feedback">{feedback}</div>}
