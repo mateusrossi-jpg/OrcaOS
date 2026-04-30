@@ -9,6 +9,8 @@ export type TechnicalItemType =
   | 'material'
   | 'projectSpecification';
 
+export type MaterialSupplyMode = 'professional' | 'client' | 'mixed' | 'undefined';
+
 export interface CalculationCapture {
   id: string;
   module: CalculatorModule;
@@ -24,6 +26,10 @@ export interface CalculationCapture {
   technicalNote?: string;
   quantity?: string;
   unitValue?: string;
+  materialSupplyMode?: MaterialSupplyMode;
+  materialSupplyLabel?: string;
+  materialReferenceUnitValue?: string;
+  clientPurchaseRequired?: boolean;
   shouldGenerateBudgetItem?: boolean;
   convertedToBudgetItem?: boolean;
   imageDataUrl?: string;
