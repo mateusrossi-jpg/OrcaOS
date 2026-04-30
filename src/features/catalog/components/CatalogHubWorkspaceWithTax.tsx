@@ -1,5 +1,6 @@
 import type { CalculationCapture } from '../../../core/types/workflow';
 import { CatalogHubWorkspace as CatalogHubWorkspaceEditable } from './CatalogHubWorkspaceEditable';
+import { PurchaseToCatalogBridge } from './PurchaseToCatalogBridge';
 import { SupplierTaxMarginWorkspace } from './SupplierTaxMarginWorkspace';
 import './SupplierTaxMarginWorkspace.css';
 
@@ -12,6 +13,7 @@ export function CatalogHubWorkspace({ onSendToBudget }: CatalogHubWorkspaceWithT
     <>
       <CatalogHubWorkspaceEditable onSendToBudget={onSendToBudget} />
       <SupplierTaxMarginWorkspace />
+      <PurchaseToCatalogBridge />
     </>
   );
 }
