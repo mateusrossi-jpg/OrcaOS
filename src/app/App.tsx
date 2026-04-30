@@ -7,6 +7,7 @@ import { BudgetWorkspace } from '../features/budgets/components/BudgetWorkspace'
 import { ClientWorkOrderWorkspace } from '../features/clients/components/ClientWorkOrderWorkspace';
 import { loadActiveWorkOrderId, loadClients, loadWorkOrders } from '../features/clients/storage/clientWorkOrderStorage';
 import { ElectricalCalculatorWorkspace } from '../features/calculators/components/ElectricalCalculatorWorkspace';
+import { GeneralCalculatorWorkspace, type GeneralCalculatorModule } from '../features/calculators/components/GeneralCalculatorWorkspace';
 import { ReportWorkspace } from '../features/reports/components/ReportWorkspace';
 import { GuidedBudgetCart } from '../features/workflow/components/GuidedBudgetCart';
 import { TechnicalCaptureList } from '../features/workflow/components/TechnicalCaptureList';
@@ -15,7 +16,22 @@ import { AppShell } from './components/AppShell';
 type AppTab = 'home' | 'calculations' | 'survey' | 'budgets' | 'reports' | 'clients' | 'store' | 'settings';
 type ModuleTone = 'blue' | 'gray' | 'green' | 'orange' | 'muted';
 type ModulePlan = 'free' | 'pro' | 'soon';
-type ModuleId = 'fundamentos' | 'instalacoes' | 'iluminacao' | 'refrigeracao' | 'motores' | 'rebobinagem' | 'automacaoIndustrial';
+type ModuleId =
+  | 'fundamentos'
+  | 'instalacoes'
+  | 'iluminacao'
+  | 'refrigeracao'
+  | 'motores'
+  | 'automacaoIndustrial'
+  | 'obras'
+  | 'pintura'
+  | 'conversores'
+  | 'orcamentoTecnico'
+  | 'hidraulica'
+  | 'eletronica'
+  | 'transformadores'
+  | 'solar'
+  | 'rebobinagem';
 type SurveySection = 'guided' | 'parts' | 'manual' | 'items';
 type BudgetSection = 'technical' | 'workspace';
 
@@ -48,12 +64,22 @@ const calculationModules: ModuleCardData[] = [
   { id: 'refrigeracao', title: 'Refrigeração', description: 'BTU/h, climatização e carga térmica inicial', icon: '❄', tone: 'blue', count: '1 cálculo Pro', available: true, plan: 'pro', calculatorModule: 'refrigeration' },
   { id: 'motores', title: 'Motores', description: 'Corrente, rotação, escorregamento e relação de polias', icon: '⚙', tone: 'orange', count: '3 cálculos Pro', available: true, plan: 'pro', calculatorModule: 'motors' },
   { id: 'automacaoIndustrial', title: 'Automação industrial', description: 'Escalas 4–20 mA, 0–10 V e valor de engenharia', icon: '▥', tone: 'green', count: '2 cálculos Pro', available: true, plan: 'pro', calculatorModule: 'industrialAutomation' },
+  { id: 'obras', title: 'Obras', description: 'Área, volume, concreto, tijolos, blocos, piso e revestimento', icon: '▧', tone: 'gray', count: '5 cálculos livres', available: true, plan: 'free', calculatorModule: 'obras' },
+  { id: 'pintura', title: 'Pintura', description: 'Área a pintar, litros de tinta, demãos e orçamento por m²', icon: '▨', tone: 'green', count: '3 cálculos livres', available: true, plan: 'free', calculatorModule: 'pintura' },
+  { id: 'conversores', title: 'Conversores', description: 'm³/litros, pressão, potência e BTU/h para watts', icon: '⇄', tone: 'blue', count: '4 cálculos livres', available: true, plan: 'free', calculatorModule: 'conversores' },
+  { id: 'orcamentoTecnico', title: 'Orçamento técnico', description: 'Mão de obra, material, lucro, desconto, imposto e preço final', icon: 'R$', tone: 'orange', count: '2 cálculos livres', available: true, plan: 'free', calculatorModule: 'orcamentoTecnico' },
+  { id: 'hidraulica', title: 'Hidráulica', description: 'Reservatório, vazão, pressão, tubulação e bombas', icon: '≋', tone: 'blue', count: 'Em breve', available: false, plan: 'soon' },
+  { id: 'eletronica', title: 'Eletrônica', description: 'LED, divisor de tensão, RC, PWM, ADC, bateria e fontes', icon: '◌', tone: 'green', count: 'Em breve', available: false, plan: 'soon' },
+  { id: 'transformadores', title: 'Transformadores', description: 'VA, espiras por volt, primário, secundário e fio preliminar', icon: '▤', tone: 'orange', count: 'Em breve', available: false, plan: 'soon' },
+  { id: 'solar', title: 'Solar', description: 'Placas, inversor, cabos, geração, bateria e payback', icon: '☉', tone: 'green', count: 'Em breve', available: false, plan: 'soon' },
   { id: 'rebobinagem', title: 'Rebobinagem', description: 'Bobinas, fechamento, tensão de trabalho e rotação', icon: '⟳', tone: 'muted', count: 'Em breve', available: false, plan: 'soon' },
 ];
 
 const storePackages = [
   { title: 'Fundamentos grátis', description: 'Lei de Ohm, corrente, potência, resistores, W/VA/A e consumo liberados sem assinatura.', price: 'R$ 0', action: 'Já incluso', icon: 'ϟ' },
   { title: 'Pacote Instalações Pro', description: 'Queda de tensão, distância máxima, transformador, AWG, cabo/disjuntor e eletroduto.', price: 'R$ 12,90', action: 'Detalhes', icon: '⌁' },
+  { title: 'Pacote Obras Pro', description: 'Concreto, alvenaria, revestimento, composição e levantamentos por ambiente.', price: 'R$ 12,90', action: 'Detalhes', icon: '▧' },
+  { title: 'Pacote Pintura Pro', description: 'Cálculos avançados, modelos de orçamento por cômodo e lista de materiais.', price: 'R$ 9,90', action: 'Detalhes', icon: '▨' },
   { title: 'Pacote Refrigeração Pro', description: 'BTU/h e estimativas iniciais para climatização.', price: 'R$ 9,90', action: 'Detalhes', icon: '❄' },
   { title: 'Pacote Motores Pro', description: 'Corrente estimada, rotação síncrona e escorregamento e relação de polias.', price: 'R$ 12,90', action: 'Detalhes', icon: '⚙' },
   { title: 'Pacote Automação Industrial Pro', description: 'Escalonamento de sinais 4–20 mA e 0–10 V para valores de engenharia.', price: 'R$ 9,90', action: 'Detalhes', icon: '▥' },
@@ -75,6 +101,10 @@ function planLabel(plan: ModulePlan): string {
   if (plan === 'free') return 'LIVRE';
   if (plan === 'pro') return 'PRO';
   return 'EM BREVE';
+}
+
+function isGeneralCalculatorModule(module: CalculatorModule): module is GeneralCalculatorModule {
+  return module === 'obras' || module === 'pintura' || module === 'conversores' || module === 'orcamentoTecnico';
 }
 
 function statusLabel(status: WorkOrder['status']): string {
@@ -216,7 +246,7 @@ function HomeScreen({ goTo, openModule, captures, clients, workOrders }: { goTo:
       </div>
 
       <div className="orca-quick-actions">
-        <button type="button" onClick={() => openModule(calculationModules[0])}><span className="app-icon tone-blue">▦</span><strong>Novo cálculo</strong><small>{freeCalculatorCount} livres + {proCalculatorCount} Pro</small></button>
+        <button type="button" onClick={() => openModule(calculationModules[0])}><span className="app-icon tone-blue">▦</span><strong>Novo cálculo</strong><small>Elétrica, obras, pintura e orçamento</small></button>
         <button type="button" onClick={() => goTo('survey')}><span className="app-icon tone-green">▤</span><strong>Levantamento guiado</strong><small>Serviços, peças e blocos</small></button>
         <button type="button" onClick={() => goTo('budgets')}><span className="app-icon tone-orange">▣</span><strong>Novo orçamento</strong><small>Proposta e PDF</small></button>
         <button type="button" onClick={() => goTo('clients')}><span className="app-icon tone-gray">◉</span><strong>Clientes / OS</strong><small>Gerenciar atendimentos</small></button>
@@ -226,7 +256,7 @@ function HomeScreen({ goTo, openModule, captures, clients, workOrders }: { goTo:
         <section className="orca-panel-card">
           <header><div><span className="orca-kicker">Módulos</span><h2>Cálculos técnicos</h2></div><button type="button" onClick={() => goTo('calculations')}>Ver todos</button></header>
           <div className="orca-compact-module-list">
-            {calculationModules.slice(0, 5).map((module) => (
+            {calculationModules.slice(0, 6).map((module) => (
               <button key={module.id} type="button" onClick={() => openModule(module)}>
                 <span className={`app-icon tone-${module.tone}`}>{module.icon}</span>
                 <span><strong>{module.title}</strong><small>{module.description}</small></span>
@@ -253,11 +283,15 @@ function HomeScreen({ goTo, openModule, captures, clients, workOrders }: { goTo:
 
 function CalculationsScreen({ selectedModule, openModule, goTo, onCaptureCalculation }: { selectedModule: ModuleCardData | null; openModule: (module: ModuleCardData | null) => void; goTo: (tab: AppTab) => void; onCaptureCalculation: (capture: CalculationCapture) => void }) {
   if (selectedModule) {
+    const module = selectedModule.calculatorModule;
+
     return (
       <section className="app-screen">
         <button className="back-button" type="button" onClick={() => openModule(null)}>‹ Voltar aos cálculos</button>
         <header className="module-detail-header"><span className={`app-icon tone-${selectedModule.tone}`}>{selectedModule.icon}</span><div><em className={`module-plan-pill ${selectedModule.plan}`}>{planLabel(selectedModule.plan)}</em><h1>{selectedModule.title}</h1><p>{selectedModule.description}</p><small>{selectedModule.count}</small></div></header>
-        {selectedModule.calculatorModule ? <ElectricalCalculatorWorkspace selectedModule={selectedModule.calculatorModule} userPlan={userPlan} onUpgradeRequest={() => goTo('store')} onCaptureCalculation={onCaptureCalculation} /> : <div className="empty-state-card"><span className={`app-icon tone-${selectedModule.tone} large-icon`}>{selectedModule.icon}</span><strong>{selectedModule.title} em breve</strong><p>Este módulo já está previsto na arquitetura do OrçaOS e será implementado depois.</p></div>}
+        {module && isGeneralCalculatorModule(module) && <GeneralCalculatorWorkspace selectedModule={module} onCaptureCalculation={onCaptureCalculation} />}
+        {module && !isGeneralCalculatorModule(module) && <ElectricalCalculatorWorkspace selectedModule={module} userPlan={userPlan} onUpgradeRequest={() => goTo('store')} onCaptureCalculation={onCaptureCalculation} />}
+        {!module && <div className="empty-state-card"><span className={`app-icon tone-${selectedModule.tone} large-icon`}>{selectedModule.icon}</span><strong>{selectedModule.title} em breve</strong><p>Este módulo já está previsto na arquitetura do OrçaOS e será implementado depois.</p></div>}
       </section>
     );
   }
