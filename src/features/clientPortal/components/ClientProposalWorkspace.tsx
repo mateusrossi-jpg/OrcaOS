@@ -1,4 +1,8 @@
 import { useMemo, useState } from 'react';
+import type { Client, WorkOrder } from '../../../core/types/business';
+import type { CalculationCapture } from '../../../core/types/workflow';
+import { loadProfessionalProfile } from '../../settings/storage/professionalProfileStorage';
+import { buildClientProposalFromCaptures } from '../storage/buildClientProposalFromCaptures';
 import {
   clientProposalStatusLabel,
   createClientProposalDraft,
@@ -8,8 +12,13 @@ import {
   type ClientProposal,
   type ClientProposalStatus,
 } from '../storage/clientProposalStorage';
-import { loadProfessionalProfile } from '../../settings/storage/professionalProfileStorage';
 import './ClientProposalWorkspace.css';
+
+interface ClientProposalWorkspaceProps {
+  technicalCaptures?: CalculationCapture[];
+  activeClient?: Client | null;
+  activeWorkOrder?: WorkOrder | null;
+}
 
 const currencyFormatter = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
 
@@ -29,7 +38,7 @@ function statusTimestampPatch(status: ClientProposalStatus): Partial<ClientPropo
   return { status };
 }
 
-export function ClientProposalWorkspace() {
+export function ClientProposalWorkspace({ technicalCaptures = [], activeClient = null, activeWorkOrder = null }: ClientProposalWorkspaceProps) {
   const [proposals, setProposals] = useState<ClientProposal[]>(() => loadClientProposals());
   const [feedback, setFeedback] = useState<string | null>(null);
   const [query, setQuery] = useState('');
@@ -40,8 +49,24 @@ export function ClientProposalWorkspace() {
     return proposals.filter((proposal) => [proposal.title, proposal.clientName, proposal.professionalDisplayName, proposal.summary, proposal.publicNotes].join(' ').toLowerCase().includes(normalizedQuery));
   }, [proposals, query]);
 
+  const proposalReadyCaptures = useMemo(() => {
+    return technicalCaptures.filter((capture) => capture.destination === 'budget' || capture.destination === 'both' || capture.itemType === 'service' || capture.itemType === 'material');
+  }, [technicalCaptures]);
+
   function refresh() {
     setProposals(loadClientProposals());
+  }
+
+  function createProposalFromCurrentBudget() {
+    if (proposalReadyCaptures.length === 0) {
+      setFeedback('Nenhum item técnico disponível para gerar proposta do cliente. Envie serviços ou materiais ao orçamento primeiro.');
+      return;
+    }
+
+    const proposal = buildClientProposalFromCaptures({ captures: proposalReadyCaptures, activeClient, activeWorkOrder });
+    upsertClientProposal(proposal);
+    refresh();
+    setFeedback(`Proposta criada a partir de ${proposalReadyCaptures.length} item(ns) técnico(s).`);
   }
 
   function createExampleProposal() {
@@ -96,11 +121,12 @@ export function ClientProposalWorkspace() {
 
       <div className="client-proposal-card">
         <div>
-          <strong>Controle inicial</strong>
-          <small>Esta tela prepara link público, QR Code, área cliente e aceite digital no futuro.</small>
+          <strong>Gerar proposta do cliente</strong>
+          <small>{proposalReadyCaptures.length} item(ns) técnico(s) disponíveis para transformar em proposta pública.</small>
         </div>
         <div className="client-proposal-actions">
-          <button className="primary-action inline-action" type="button" onClick={createExampleProposal}>Criar proposta exemplo</button>
+          <button className="primary-action inline-action" type="button" onClick={createProposalFromCurrentBudget}>Criar proposta do orçamento atual</button>
+          <button className="secondary-action inline-action" type="button" onClick={createExampleProposal}>Criar proposta exemplo</button>
           <button className="secondary-action inline-action" type="button" onClick={refresh}>Atualizar lista</button>
         </div>
         <label className="client-proposal-search">
