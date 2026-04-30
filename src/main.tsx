@@ -7,6 +7,7 @@ import './styles/workContext.css';
 import './styles/professionalPolish.css';
 import './styles/screenRefinement.css';
 import './styles/budgetRefinement.css';
+import './styles/clientOsRefinement.css';
 
 const rootElement = document.getElementById('root');
 
