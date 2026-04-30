@@ -1,10 +1,16 @@
 import { useMemo, useState, type ChangeEvent } from 'react';
 import type { CatalogItem } from '../../../core/types/business';
 import type { CalculationCapture, CalculationDestination, TechnicalItemType } from '../../../core/types/workflow';
+import {
+  catalogPartBrands,
+  catalogPartCategories,
+  searchCatalogParts,
+  type CatalogPart,
+} from '../../../data/parts/catalogParts';
 import { loadCatalogItems } from '../../budgets/storage/catalogStorage';
 import './GuidedBudgetCart.css';
 
-type GuidedCartMode = 'catalog' | 'manual' | 'all';
+type GuidedCartMode = 'catalog' | 'manual' | 'parts' | 'all';
 
 interface GuidedBudgetCartProps {
   onSendToBudget: (items: CalculationCapture[]) => void;
@@ -14,6 +20,13 @@ interface GuidedBudgetCartProps {
 interface CartLine {
   item: CatalogItem;
   quantity: number;
+}
+
+interface PartLine {
+  part: CatalogPart;
+  quantity: number;
+  unitValue: number;
+  destination: CalculationDestination;
 }
 
 interface ManualBlockDraft {
@@ -55,6 +68,10 @@ function cartLineTotal(line: CartLine): number {
   return line.quantity * line.item.unitPrice;
 }
 
+function partLineTotal(line: PartLine): number {
+  return line.quantity * line.unitValue;
+}
+
 function catalogCategoryToItemType(category: CatalogItem['category']): CalculationCapture['itemType'] {
   if (category === 'material') return 'material';
   if (category === 'labor') return 'service';
@@ -81,20 +98,38 @@ function destinationLabel(destination: CalculationDestination): string {
   return 'Levantamento e orçamento';
 }
 
+function partTechnicalNote(part: CatalogPart): string {
+  return [
+    `${part.brand}${part.line ? ` · ${part.line}` : ''}`,
+    part.model ? `Modelo: ${part.model}` : null,
+    part.sku ? `SKU: ${part.sku}` : null,
+    part.voltage ? `Tensão: ${part.voltage}` : null,
+    part.current ? `Corrente: ${part.current}` : null,
+    part.application ? `Aplicação: ${part.application}` : null,
+  ].filter(Boolean).join(' | ');
+}
+
 export function GuidedBudgetCart({ onSendToBudget, mode = 'all' }: GuidedBudgetCartProps) {
   const [catalogItems] = useState<CatalogItem[]>(() => loadCatalogItems());
   const [cartLines, setCartLines] = useState<Record<string, CartLine>>({});
+  const [partLines, setPartLines] = useState<Record<string, PartLine>>({});
+  const [partQuery, setPartQuery] = useState('');
+  const [partBrand, setPartBrand] = useState('');
+  const [partCategory, setPartCategory] = useState('');
   const [manualBlock, setManualBlock] = useState<ManualBlockDraft>(emptyManualBlock);
   const [feedback, setFeedback] = useState<string | null>(null);
 
   const showManual = mode === 'manual' || mode === 'all';
   const showCatalog = mode === 'catalog' || mode === 'all';
+  const showParts = mode === 'parts' || mode === 'all';
   const selectedLines = useMemo(() => Object.values(cartLines).filter((line) => line.quantity > 0), [cartLines]);
-  const totalQuantity = selectedLines.reduce((total, line) => total + line.quantity, 0);
-  const totalValue = selectedLines.reduce((total, line) => total + cartLineTotal(line), 0);
+  const selectedPartLines = useMemo(() => Object.values(partLines).filter((line) => line.quantity > 0), [partLines]);
+  const totalQuantity = selectedLines.reduce((total, line) => total + line.quantity, 0) + selectedPartLines.reduce((total, line) => total + line.quantity, 0);
+  const totalValue = selectedLines.reduce((total, line) => total + cartLineTotal(line), 0) + selectedPartLines.reduce((total, line) => total + partLineTotal(line), 0);
   const manualQuantity = parseDecimal(manualBlock.quantity, 1);
   const manualUnitValue = parseDecimal(manualBlock.unitValue, 0);
   const canAddManualBlock = manualBlock.description.trim().length > 0 && manualQuantity > 0;
+  const partResults = useMemo(() => searchCatalogParts(partQuery, partBrand, partCategory), [partBrand, partCategory, partQuery]);
 
   function updateManualBlock<K extends keyof ManualBlockDraft>(key: K, value: ManualBlockDraft[K]) {
     setManualBlock((current) => ({ ...current, [key]: value }));
@@ -127,6 +162,78 @@ export function GuidedBudgetCart({ onSendToBudget, mode = 'all' }: GuidedBudgetC
       }
       return { ...current, [item.id]: { item, quantity: currentLine.quantity - 1 } };
     });
+  }
+
+  function addPart(part: CatalogPart) {
+    setFeedback(null);
+    setPartLines((current) => ({
+      ...current,
+      [part.id]: {
+        part,
+        quantity: (current[part.id]?.quantity ?? 0) + 1,
+        unitValue: current[part.id]?.unitValue ?? part.estimatedPrice ?? 0,
+        destination: current[part.id]?.destination ?? 'both',
+      },
+    }));
+  }
+
+  function removePart(part: CatalogPart) {
+    setFeedback(null);
+    setPartLines((current) => {
+      const currentLine = current[part.id];
+      if (!currentLine || currentLine.quantity <= 1) {
+        const { [part.id]: _removed, ...remaining } = current;
+        return remaining;
+      }
+      return { ...current, [part.id]: { ...currentLine, quantity: currentLine.quantity - 1 } };
+    });
+  }
+
+  function updatePartQuantity(part: CatalogPart, value: string) {
+    setFeedback(null);
+    const quantity = parseDecimal(value, 0);
+    setPartLines((current) => {
+      if (quantity <= 0) {
+        const { [part.id]: _removed, ...remaining } = current;
+        return remaining;
+      }
+      return {
+        ...current,
+        [part.id]: {
+          part,
+          quantity,
+          unitValue: current[part.id]?.unitValue ?? part.estimatedPrice ?? 0,
+          destination: current[part.id]?.destination ?? 'both',
+        },
+      };
+    });
+  }
+
+  function updatePartUnitValue(part: CatalogPart, value: string) {
+    setFeedback(null);
+    const unitValue = parseDecimal(value, 0);
+    setPartLines((current) => ({
+      ...current,
+      [part.id]: {
+        part,
+        quantity: current[part.id]?.quantity ?? 1,
+        unitValue,
+        destination: current[part.id]?.destination ?? 'both',
+      },
+    }));
+  }
+
+  function updatePartDestination(part: CatalogPart, destination: CalculationDestination) {
+    setFeedback(null);
+    setPartLines((current) => ({
+      ...current,
+      [part.id]: {
+        part,
+        quantity: current[part.id]?.quantity ?? 1,
+        unitValue: current[part.id]?.unitValue ?? part.estimatedPrice ?? 0,
+        destination,
+      },
+    }));
   }
 
   function handleManualImageChange(event: ChangeEvent<HTMLInputElement>) {
@@ -176,10 +283,11 @@ export function GuidedBudgetCart({ onSendToBudget, mode = 'all' }: GuidedBudgetC
 
   function clearCart() {
     setCartLines({});
+    setPartLines({});
     setFeedback(null);
   }
 
-  function sendToBudget() {
+  function sendServicesToBudget() {
     if (selectedLines.length === 0) return;
     const captures: CalculationCapture[] = selectedLines.map((line) => ({
       id: createId('guided'),
@@ -208,17 +316,53 @@ export function GuidedBudgetCart({ onSendToBudget, mode = 'all' }: GuidedBudgetC
     }));
     onSendToBudget(captures);
     setCartLines({});
-    setFeedback(`${captures.length} item(ns) enviados para orçamento.`);
+    setFeedback(`${captures.length} serviço(s)/item(ns) enviados para orçamento.`);
+  }
+
+  function sendPartsToFlow() {
+    if (selectedPartLines.length === 0) return;
+    const captures: CalculationCapture[] = selectedPartLines.map((line) => ({
+      id: createId('part'),
+      module: 'installations',
+      moduleLabel: 'Catálogo de peças',
+      calculatorLabel: `${line.part.brand} · ${line.part.category}`,
+      destination: line.destination,
+      createdAt: new Date().toISOString(),
+      summary: `${line.part.title}: ${line.quantity} ${line.part.unit} × ${formatCurrency(line.unitValue)}`,
+      details: [
+        `Marca: ${line.part.brand}`,
+        line.part.line ? `Linha: ${line.part.line}` : 'Linha: não informada',
+        `Categoria: ${line.part.category}${line.part.subcategory ? ` / ${line.part.subcategory}` : ''}`,
+        line.part.model ? `Modelo: ${line.part.model}` : 'Modelo: não informado',
+        line.part.voltage ? `Tensão: ${line.part.voltage}` : 'Tensão: não informada',
+        line.part.current ? `Corrente: ${line.part.current}` : 'Corrente: não informada',
+        `Quantidade: ${line.quantity} ${line.part.unit}`,
+        `Valor unitário estimado: ${formatCurrency(line.unitValue)}`,
+        `Subtotal estimado: ${formatCurrency(partLineTotal(line))}`,
+        `Destino: ${destinationLabel(line.destination)}`,
+      ],
+      itemType: 'material',
+      editableDescription: `${line.part.title} - ${line.part.brand}`,
+      technicalNote: partTechnicalNote(line.part),
+      quantity: String(line.quantity),
+      unitValue: String(line.unitValue),
+      shouldGenerateBudgetItem: line.destination !== 'survey',
+      convertedToBudgetItem: false,
+      reportReady: line.destination === 'survey' || line.destination === 'both',
+    }));
+    onSendToBudget(captures);
+    setPartLines({});
+    setFeedback(`${captures.length} peça(s) adicionada(s) ao fluxo escolhido.`);
   }
 
   return (
     <section className="guided-cart-panel">
       <div className="guided-cart-header">
         <div>
-          <h2>{showCatalog && !showManual ? 'Levantamento guiado' : showManual && !showCatalog ? 'Bloco manual' : 'Levantamento de campo'}</h2>
-          <p>{showCatalog && !showManual ? 'Use o catálogo como carrinho rápido de serviços e materiais.' : showManual && !showCatalog ? 'Registre blocos manuais com foto, observação, destino e quantidade.' : 'Escolha entre carrinho de catálogo e blocos manuais para organizar a visita.'}</p>
+          <h2>{showParts && !showCatalog && !showManual ? 'Peças e materiais' : showCatalog && !showManual && !showParts ? 'Levantamento guiado' : showManual && !showCatalog && !showParts ? 'Bloco manual' : 'Levantamento de campo'}</h2>
+          <p>{showParts && !showCatalog && !showManual ? 'Busque peças por marca, categoria ou descrição e envie para levantamento, orçamento ou ambos.' : showCatalog && !showManual && !showParts ? 'Use o catálogo como carrinho rápido de serviços e materiais.' : showManual && !showCatalog && !showParts ? 'Registre blocos manuais com foto, observação, destino e quantidade.' : 'Escolha entre serviços, peças e blocos manuais para organizar a visita.'}</p>
         </div>
-        {showCatalog && (
+        {(showCatalog || showParts) && (
           <div className="guided-cart-total">
             <span>{totalQuantity} item(ns)</span>
             <strong>{formatCurrency(totalValue)}</strong>
@@ -258,9 +402,49 @@ export function GuidedBudgetCart({ onSendToBudget, mode = 'all' }: GuidedBudgetC
               );
             })}
           </div>
-          {selectedLines.length > 0 && <div className="guided-cart-summary"><strong>Itens selecionados</strong><div>{selectedLines.map((line) => <span key={line.item.id}>{line.quantity}× {line.item.description}</span>)}</div></div>}
-          <div className="guided-cart-actions"><button className="primary-action inline-action" type="button" disabled={selectedLines.length === 0} onClick={sendToBudget}>Enviar catálogo para orçamento</button><button className="secondary-action inline-action" type="button" disabled={selectedLines.length === 0} onClick={clearCart}>Limpar carrinho</button></div>
+          {selectedLines.length > 0 && <div className="guided-cart-summary"><strong>Serviços selecionados</strong><div>{selectedLines.map((line) => <span key={line.item.id}>{line.quantity}× {line.item.description}</span>)}</div></div>}
+          <div className="guided-cart-actions"><button className="primary-action inline-action" type="button" disabled={selectedLines.length === 0} onClick={sendServicesToBudget}>Enviar serviços para orçamento</button><button className="secondary-action inline-action" type="button" disabled={selectedLines.length === 0 && selectedPartLines.length === 0} onClick={clearCart}>Limpar carrinho</button></div>
         </>
+      )}
+
+      {showParts && (
+        <div className="parts-catalog-panel">
+          <div className="parts-search-grid">
+            <label className="technical-edit-field parts-search-wide"><span>Buscar peça</span><input value={partQuery} placeholder="Ex.: tomada 20A, disjuntor bipolar, contator WEG..." onChange={(event) => setPartQuery(event.target.value)} /></label>
+            <label className="technical-edit-field"><span>Marca</span><select value={partBrand} onChange={(event) => setPartBrand(event.target.value)}><option value="">Todas</option>{catalogPartBrands.map((brand) => <option key={brand} value={brand}>{brand}</option>)}</select></label>
+            <label className="technical-edit-field"><span>Categoria</span><select value={partCategory} onChange={(event) => setPartCategory(event.target.value)}><option value="">Todas</option>{catalogPartCategories.map((category) => <option key={category} value={category}>{category}</option>)}</select></label>
+          </div>
+
+          <div className="parts-results-header"><strong>{partResults.length} peça(s) encontrada(s)</strong><small>Base interna inicial. Adaptadores online por fabricante ficam preparados para uma próxima fase.</small></div>
+
+          <div className="parts-result-list">
+            {partResults.map((part) => {
+              const selectedPart = partLines[part.id];
+              const quantity = selectedPart?.quantity ?? 0;
+              const unitValue = selectedPart?.unitValue ?? part.estimatedPrice ?? 0;
+              const destination = selectedPart?.destination ?? 'both';
+              return (
+                <article className={quantity > 0 ? 'part-result-card active' : 'part-result-card'} key={part.id}>
+                  <div className="part-result-main">
+                    <span>{part.brand}</span>
+                    <strong>{part.title}</strong>
+                    <small>{[part.line, part.category, part.subcategory, part.current, part.voltage].filter(Boolean).join(' · ')}</small>
+                    {part.description && <small>{part.description}</small>}
+                  </div>
+                  <div className="part-result-controls">
+                    <div className="guided-quantity-row"><button type="button" onClick={() => removePart(part)} aria-label={`Remover ${part.title}`}>−</button><span>{quantity}</span><button type="button" onClick={() => addPart(part)} aria-label={`Adicionar ${part.title}`}>+</button></div>
+                    <label className="guided-typed-quantity"><span>Qtd.</span><input inputMode="decimal" value={quantity ? String(quantity) : ''} placeholder="0" onChange={(event) => updatePartQuantity(part, event.target.value)} /></label>
+                    <label className="guided-typed-quantity"><span>Valor</span><input inputMode="decimal" value={unitValue ? String(unitValue) : ''} placeholder="0,00" onChange={(event) => updatePartUnitValue(part, event.target.value)} /></label>
+                    <label className="guided-typed-quantity"><span>Destino</span><select value={destination} onChange={(event) => updatePartDestination(part, event.target.value as CalculationDestination)}><option value="survey">Levantamento</option><option value="budget">Orçamento</option><option value="both">Ambos</option></select></label>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+
+          {selectedPartLines.length > 0 && <div className="guided-cart-summary"><strong>Peças selecionadas</strong><div>{selectedPartLines.map((line) => <span key={line.part.id}>{line.quantity}× {line.part.title}</span>)}</div></div>}
+          <div className="guided-cart-actions"><button className="primary-action inline-action" type="button" disabled={selectedPartLines.length === 0} onClick={sendPartsToFlow}>Enviar peças ao fluxo</button><button className="secondary-action inline-action" type="button" disabled={selectedPartLines.length === 0 && selectedLines.length === 0} onClick={clearCart}>Limpar peças</button></div>
+        </div>
       )}
 
       {feedback && <div className="guided-cart-feedback">{feedback}</div>}
