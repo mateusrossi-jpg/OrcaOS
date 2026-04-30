@@ -1,6 +1,6 @@
 import { CatalogHubWorkspace } from '../../catalog/components/CatalogHubWorkspace';
 import type { CalculationCapture } from '../../../core/types/workflow';
-import { GuidedBudgetCart as GuidedBudgetCartRoomsConnected } from './GuidedBudgetCartRoomsConnected';
+import { GuidedBudgetCartRoomAutoBridge } from './GuidedBudgetCartRoomAutoBridge';
 import { GuidedRoomManager } from './GuidedRoomManager';
 
 type GuidedCartMode = 'catalog' | 'manual' | 'parts' | 'all';
@@ -17,7 +17,7 @@ export function GuidedBudgetCart({ onSendToBudget, mode = 'all' }: GuidedBudgetC
   return (
     <>
       {shouldShowRooms && <GuidedRoomManager />}
-      <GuidedBudgetCartRoomsConnected onSendToBudget={onSendToBudget} mode={mode} />
+      <GuidedBudgetCartRoomAutoBridge onSendToBudget={onSendToBudget} mode={mode} />
       {shouldShowCatalogHub && <CatalogHubWorkspace onSendToBudget={onSendToBudget} />}
     </>
   );
