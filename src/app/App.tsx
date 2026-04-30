@@ -1,4 +1,32 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
+import {
+  BadgeInfo,
+  Bolt,
+  BriefcaseBusiness,
+  Cable,
+  Calculator,
+  ClipboardCheck,
+  ClipboardList,
+  ClipboardPenLine,
+  Cog,
+  Factory,
+  FileSearch,
+  FileText,
+  Gem,
+  History,
+  House,
+  Lightbulb,
+  PackageSearch,
+  PlugZap,
+  ReceiptText,
+  RotateCcw,
+  Settings,
+  ShoppingBag,
+  Snowflake,
+  Sparkles,
+  UsersRound,
+  Wrench,
+} from 'lucide-react';
 import type { CalculatorModule, UserPlan } from '../core/access/featureAccess';
 import type { Client, WorkOrder } from '../core/types/business';
 import type { CalculationCapture, CalculationDestination } from '../core/types/workflow';
@@ -16,14 +44,14 @@ type AppTab = 'home' | 'calculations' | 'survey' | 'budgets' | 'reports' | 'clie
 type ModuleTone = 'blue' | 'gray' | 'green' | 'orange' | 'muted';
 type ModulePlan = 'free' | 'pro' | 'soon';
 type ModuleId = 'fundamentos' | 'instalacoes' | 'iluminacao' | 'refrigeracao' | 'motores' | 'rebobinagem' | 'automacaoIndustrial';
-type SurveySection = 'guided' | 'manual' | 'items';
+type SurveySection = 'guided' | 'parts' | 'manual' | 'items';
 type BudgetSection = 'technical' | 'workspace';
 
 interface ModuleCardData {
   id: ModuleId;
   title: string;
   description: string;
-  icon: string;
+  icon: ReactNode;
   tone: ModuleTone;
   count: string;
   available: boolean;
@@ -40,35 +68,37 @@ const userPlan: UserPlan = 'free';
 const CAPTURES_STORAGE_KEY = 'orcaos:calculation-captures:v1';
 const freeCalculatorCount = getFreeCalculatorCount();
 const proCalculatorCount = getProCalculatorCount();
+const iconProps = { size: 22, strokeWidth: 2.2 };
+const largeIconProps = { size: 28, strokeWidth: 2.1 };
 
 const calculationModules: ModuleCardData[] = [
-  { id: 'fundamentos', title: 'Fundamentos', description: 'Ohm, corrente, potência, resistores, VA e consumo', icon: 'ϟ', tone: 'blue', count: '7 cálculos livres', available: true, plan: 'free', calculatorModule: 'fundamentals' },
-  { id: 'instalacoes', title: 'Instalações elétricas', description: 'Queda, distância, transformador, AWG, disjuntor, cabo e eletroduto', icon: '⌁', tone: 'gray', count: '7 cálculos Pro', available: true, plan: 'pro', calculatorModule: 'installations' },
-  { id: 'iluminacao', title: 'Iluminação', description: 'Lúmens, lux e quantidade de luminárias', icon: '☀', tone: 'green', count: '1 cálculo Pro', available: true, plan: 'pro', calculatorModule: 'lighting' },
-  { id: 'refrigeracao', title: 'Refrigeração', description: 'BTU/h, climatização e carga térmica inicial', icon: '❄', tone: 'blue', count: '1 cálculo Pro', available: true, plan: 'pro', calculatorModule: 'refrigeration' },
-  { id: 'motores', title: 'Motores', description: 'Corrente, rotação, escorregamento e relação de polias', icon: '↻', tone: 'orange', count: '3 cálculos Pro', available: true, plan: 'pro', calculatorModule: 'motors' },
-  { id: 'automacaoIndustrial', title: 'Automação industrial', description: 'Escalas 4–20 mA, 0–10 V e valor de engenharia', icon: '≋', tone: 'green', count: '2 cálculos Pro', available: true, plan: 'pro', calculatorModule: 'industrialAutomation' },
-  { id: 'rebobinagem', title: 'Rebobinagem', description: 'Bobinas, fechamento, tensão de trabalho e rotação', icon: '⟳', tone: 'muted', count: 'Em breve', available: false, plan: 'soon' },
+  { id: 'fundamentos', title: 'Fundamentos', description: 'Ohm, corrente, potência, resistores, VA e consumo', icon: <Bolt {...largeIconProps} />, tone: 'blue', count: '7 cálculos livres', available: true, plan: 'free', calculatorModule: 'fundamentals' },
+  { id: 'instalacoes', title: 'Instalações elétricas', description: 'Queda, distância, transformador, AWG, disjuntor, cabo e eletroduto', icon: <PlugZap {...largeIconProps} />, tone: 'gray', count: '7 cálculos Pro', available: true, plan: 'pro', calculatorModule: 'installations' },
+  { id: 'iluminacao', title: 'Iluminação', description: 'Lúmens, lux e quantidade de luminárias', icon: <Lightbulb {...largeIconProps} />, tone: 'green', count: '1 cálculo Pro', available: true, plan: 'pro', calculatorModule: 'lighting' },
+  { id: 'refrigeracao', title: 'Refrigeração', description: 'BTU/h, climatização e carga térmica inicial', icon: <Snowflake {...largeIconProps} />, tone: 'blue', count: '1 cálculo Pro', available: true, plan: 'pro', calculatorModule: 'refrigeration' },
+  { id: 'motores', title: 'Motores', description: 'Corrente, rotação, escorregamento e relação de polias', icon: <Cog {...largeIconProps} />, tone: 'orange', count: '3 cálculos Pro', available: true, plan: 'pro', calculatorModule: 'motors' },
+  { id: 'automacaoIndustrial', title: 'Automação industrial', description: 'Escalas 4–20 mA, 0–10 V e valor de engenharia', icon: <Factory {...largeIconProps} />, tone: 'green', count: '2 cálculos Pro', available: true, plan: 'pro', calculatorModule: 'industrialAutomation' },
+  { id: 'rebobinagem', title: 'Rebobinagem', description: 'Bobinas, fechamento, tensão de trabalho e rotação', icon: <RotateCcw {...largeIconProps} />, tone: 'muted', count: 'Em breve', available: false, plan: 'soon' },
 ];
 
 const storePackages = [
-  { title: 'Fundamentos grátis', description: 'Lei de Ohm, corrente, potência, resistores, W/VA/A e consumo liberados sem assinatura.', price: 'R$ 0', action: 'Já incluso' },
-  { title: 'Pacote Instalações Pro', description: 'Queda de tensão, distância máxima, transformador, AWG, cabo/disjuntor e eletroduto.', price: 'R$ 12,90', action: 'Detalhes' },
-  { title: 'Pacote Refrigeração Pro', description: 'BTU/h e estimativas iniciais para climatização.', price: 'R$ 9,90', action: 'Detalhes' },
-  { title: 'Pacote Motores Pro', description: 'Corrente estimada, rotação síncrona e escorregamento e relação de polias.', price: 'R$ 12,90', action: 'Detalhes' },
-  { title: 'Pacote Automação Industrial Pro', description: 'Escalonamento de sinais 4–20 mA e 0–10 V para valores de engenharia.', price: 'R$ 9,90', action: 'Detalhes' },
-  { title: 'Pacote Orçamentos Pro', description: 'Modelos avançados, identidade profissional, PDF e recursos comerciais.', price: 'R$ 12,90', action: 'Detalhes' },
+  { title: 'Fundamentos grátis', description: 'Lei de Ohm, corrente, potência, resistores, W/VA/A e consumo liberados sem assinatura.', price: 'R$ 0', action: 'Já incluso', icon: <Bolt {...iconProps} /> },
+  { title: 'Pacote Instalações Pro', description: 'Queda de tensão, distância máxima, transformador, AWG, cabo/disjuntor e eletroduto.', price: 'R$ 12,90', action: 'Detalhes', icon: <Cable {...iconProps} /> },
+  { title: 'Pacote Refrigeração Pro', description: 'BTU/h e estimativas iniciais para climatização.', price: 'R$ 9,90', action: 'Detalhes', icon: <Snowflake {...iconProps} /> },
+  { title: 'Pacote Motores Pro', description: 'Corrente estimada, rotação síncrona e escorregamento e relação de polias.', price: 'R$ 12,90', action: 'Detalhes', icon: <Cog {...iconProps} /> },
+  { title: 'Pacote Automação Industrial Pro', description: 'Escalonamento de sinais 4–20 mA e 0–10 V para valores de engenharia.', price: 'R$ 9,90', action: 'Detalhes', icon: <Factory {...iconProps} /> },
+  { title: 'Pacote Orçamentos Pro', description: 'Modelos avançados, identidade profissional, PDF e recursos comerciais.', price: 'R$ 12,90', action: 'Detalhes', icon: <ReceiptText {...iconProps} /> },
 ];
 
-const navItems: Array<{ id: AppTab; label: string; description: string; icon: string }> = [
-  { id: 'home', label: 'Início', description: 'Atalhos principais', icon: '⌂' },
-  { id: 'calculations', label: 'Cálculos', description: 'Módulos técnicos', icon: '▦' },
-  { id: 'survey', label: 'Levantamento', description: 'Campo e blocos', icon: '▤' },
-  { id: 'budgets', label: 'Orçamentos', description: 'Proposta comercial', icon: '▣' },
-  { id: 'reports', label: 'Relatórios', description: 'Diagnóstico e fotos', icon: '◫' },
-  { id: 'clients', label: 'Clientes / OS', description: 'Atendimentos e histórico', icon: '◉' },
-  { id: 'store', label: 'Loja / Pro', description: 'Pacotes e planos', icon: '◆' },
-  { id: 'settings', label: 'Configurações', description: 'Conta, histórico e sobre', icon: '⚙' },
+const navItems: Array<{ id: AppTab; label: string; description: string; icon: ReactNode }> = [
+  { id: 'home', label: 'Início', description: 'Atalhos principais', icon: <House {...iconProps} /> },
+  { id: 'calculations', label: 'Cálculos', description: 'Módulos técnicos', icon: <Calculator {...iconProps} /> },
+  { id: 'survey', label: 'Levantamento', description: 'Campo, peças e blocos', icon: <ClipboardList {...iconProps} /> },
+  { id: 'budgets', label: 'Orçamentos', description: 'Proposta comercial', icon: <ReceiptText {...iconProps} /> },
+  { id: 'reports', label: 'Relatórios', description: 'Diagnóstico e fotos', icon: <FileSearch {...iconProps} /> },
+  { id: 'clients', label: 'Clientes / OS', description: 'Atendimentos e histórico', icon: <UsersRound {...iconProps} /> },
+  { id: 'store', label: 'Loja / Pro', description: 'Pacotes e planos', icon: <Gem {...iconProps} /> },
+  { id: 'settings', label: 'Configurações', description: 'Conta, histórico e sobre', icon: <Settings {...iconProps} /> },
 ];
 
 function planLabel(plan: ModulePlan): string {
@@ -165,7 +195,7 @@ function ActiveWorkContextCard({ activeClient, activeWorkOrder }: ActiveWorkCont
   if (!activeWorkOrder) {
     return (
       <aside className="active-work-context-card empty-context">
-        <span className="app-icon tone-gray">◇</span>
+        <span className="app-icon tone-gray"><BriefcaseBusiness {...iconProps} /></span>
         <div>
           <strong>Nenhuma OS ativa</strong>
           <small>Crie ou ative uma OS em Clientes / OS para vincular o atendimento atual.</small>
@@ -176,7 +206,7 @@ function ActiveWorkContextCard({ activeClient, activeWorkOrder }: ActiveWorkCont
 
   return (
     <aside className="active-work-context-card">
-      <span className="app-icon tone-blue">▣</span>
+      <span className="app-icon tone-blue"><BriefcaseBusiness {...iconProps} /></span>
       <div>
         <strong>{activeWorkOrder.title}</strong>
         <small>{activeClient?.name ?? 'Cliente não vinculado'} · {statusLabel(activeWorkOrder.status)} · Prioridade {priorityLabel(activeWorkOrder.priority)}</small>
@@ -197,29 +227,29 @@ function HomeScreen({ goTo, openModule }: { goTo: (tab: AppTab) => void; openMod
 
       <div className="home-action-grid">
         <button className="home-action-card primary" type="button" onClick={() => openModule(calculationModules[0])}>
-          <span className="app-icon tone-blue">ϟ</span>
+          <span className="app-icon tone-blue"><Calculator {...iconProps} /></span>
           <strong>Começar pelos cálculos</strong>
           <small>{freeCalculatorCount} cálculos essenciais livres.</small>
         </button>
         <button className="home-action-card" type="button" onClick={() => goTo('survey')}>
-          <span className="app-icon tone-green">▤</span>
+          <span className="app-icon tone-green"><ClipboardPenLine {...iconProps} /></span>
           <strong>Fazer levantamento</strong>
-          <small>Guiado, manual ou itens salvos.</small>
+          <small>Serviços, peças, blocos e itens salvos.</small>
         </button>
         <button className="home-action-card" type="button" onClick={() => goTo('budgets')}>
-          <span className="app-icon tone-orange">▣</span>
+          <span className="app-icon tone-orange"><ReceiptText {...iconProps} /></span>
           <strong>Montar orçamento</strong>
           <small>Proposta, catálogo e PDF.</small>
         </button>
         <button className="home-action-card" type="button" onClick={() => goTo('reports')}>
-          <span className="app-icon tone-gray">◫</span>
+          <span className="app-icon tone-gray"><FileText {...iconProps} /></span>
           <strong>Gerar relatório</strong>
           <small>Diagnóstico, fotos e observações.</small>
         </button>
       </div>
 
       <div className="pro-teaser-card compact-home-card">
-        <span className="app-icon tone-orange">◆</span>
+        <span className="app-icon tone-orange"><Sparkles {...iconProps} /></span>
         <span><strong>OrçaOS Pro</strong><small>{proCalculatorCount} cálculos avançados, modelos profissionais e módulos técnicos.</small></span>
         <button type="button" onClick={() => goTo('store')}>Ver planos</button>
       </div>
@@ -250,17 +280,19 @@ function SurveyScreen({ captures, context, onRemove, onUpdate, onAddMany }: { ca
       <header className="screen-header"><h1>Levantamento</h1><p>Escolha o modo de trabalho para a visita técnica atual.</p></header>
       <ActiveWorkContextCard {...context} />
       <div className="section-mode-tabs">
-        <button className={activeSection === 'guided' ? 'active' : ''} type="button" onClick={() => setActiveSection('guided')}>Guiado</button>
+        <button className={activeSection === 'guided' ? 'active' : ''} type="button" onClick={() => setActiveSection('guided')}>Serviços</button>
+        <button className={activeSection === 'parts' ? 'active' : ''} type="button" onClick={() => setActiveSection('parts')}>Peças</button>
         <button className={activeSection === 'manual' ? 'active' : ''} type="button" onClick={() => setActiveSection('manual')}>Bloco manual</button>
         <button className={activeSection === 'items' ? 'active' : ''} type="button" onClick={() => setActiveSection('items')}>Itens salvos</button>
       </div>
 
       {activeSection === 'guided' && <GuidedBudgetCart mode="catalog" onSendToBudget={onAddMany} />}
+      {activeSection === 'parts' && <GuidedBudgetCart mode="parts" onSendToBudget={onAddMany} />}
       {activeSection === 'manual' && <GuidedBudgetCart mode="manual" onSendToBudget={onAddMany} />}
       {activeSection === 'items' && (
         <>
-          <div className="survey-intro-card"><span className="app-icon tone-blue">▤</span><span><strong>Itens do levantamento</strong><small>{surveyCaptures.length} item(ns) salvos para relatório, projeto ou orçamento.</small></span></div>
-          <TechnicalCaptureList captures={surveyCaptures} emptyText="Use o modo guiado, crie um bloco manual ou envie um cálculo para o levantamento." onRemove={onRemove} onUpdate={onUpdate} />
+          <div className="survey-intro-card"><span className="app-icon tone-blue"><ClipboardCheck {...iconProps} /></span><span><strong>Itens do levantamento</strong><small>{surveyCaptures.length} item(ns) salvos para relatório, projeto ou orçamento.</small></span></div>
+          <TechnicalCaptureList captures={surveyCaptures} emptyText="Use serviços, peças, bloco manual ou envie um cálculo para o levantamento." onRemove={onRemove} onUpdate={onUpdate} />
         </>
       )}
     </section>
@@ -280,7 +312,7 @@ function BudgetsScreen({ captures, context, onRemove, onUpdate }: { captures: Ca
       </div>
       {activeSection === 'technical' && (
         <>
-          <div className="survey-intro-card"><span className="app-icon tone-orange">▣</span><span><strong>Base técnica do orçamento</strong><small>{budgetCaptures.length} item(ns) enviados para orçamento.</small></span></div>
+          <div className="survey-intro-card"><span className="app-icon tone-orange"><PackageSearch {...iconProps} /></span><span><strong>Base técnica do orçamento</strong><small>{budgetCaptures.length} item(ns) enviados para orçamento.</small></span></div>
           <TechnicalCaptureList captures={budgetCaptures} emptyText="Abra um cálculo ou use o levantamento guiado para enviar itens ao orçamento." onRemove={onRemove} onUpdate={onUpdate} />
         </>
       )}
@@ -312,7 +344,7 @@ function StoreScreen() {
   return (
     <section className="app-screen wide-screen">
       <header className="screen-header"><h1>Loja / Pro</h1><p>Pacotes de cálculos, modelos de orçamento e recursos profissionais.</p></header>
-      <div className="settings-group"><h2>Pacotes disponíveis</h2>{storePackages.map((pack) => <article className="store-card" key={pack.title}><span className="app-icon tone-blue">▣</span><span><strong>{pack.title}</strong><small>{pack.description}</small><b>{pack.price}</b></span><button type="button">{pack.action}</button></article>)}</div>
+      <div className="settings-group"><h2>Pacotes disponíveis</h2>{storePackages.map((pack) => <article className="store-card" key={pack.title}><span className="app-icon tone-blue">{pack.icon}</span><span><strong>{pack.title}</strong><small>{pack.description}</small><b>{pack.price}</b></span><button type="button">{pack.action}</button></article>)}</div>
     </section>
   );
 }
@@ -321,8 +353,8 @@ function SettingsScreen() {
   return (
     <section className="app-screen wide-screen">
       <header className="screen-header"><h1>Configurações</h1><p>Conta, histórico, informações do app e roadmap.</p></header>
-      <div className="settings-group"><h2>Conta</h2><article className="settings-row"><span className="app-icon tone-gray">▣</span><span><strong>Meu plano</strong><small>{userPlan === 'pro' ? 'Pro ativo' : 'Grátis · Fundamentos livres'}</small></span><span className="chevron">›</span></article><article className="settings-row"><span className="app-icon tone-green">◷</span><span><strong>Histórico</strong><small>Orçamentos, levantamentos, relatórios e cálculos recentes</small></span><span className="chevron">›</span></article></div>
-      <div className="settings-group"><h2>Sobre</h2><article className="settings-row"><span className="app-icon tone-blue">i</span><span><strong>Sobre o app</strong><small>Versão 0.1.0</small></span><span className="chevron">›</span></article><article className="settings-row"><span className="app-icon tone-green">◇</span><span><strong>Roadmap</strong><small>OrçaOS, levantamentos, relatórios, OS e mais módulos</small></span><span className="chevron">›</span></article></div>
+      <div className="settings-group"><h2>Conta</h2><article className="settings-row"><span className="app-icon tone-gray"><ShoppingBag {...iconProps} /></span><span><strong>Meu plano</strong><small>{userPlan === 'pro' ? 'Pro ativo' : 'Grátis · Fundamentos livres'}</small></span><span className="chevron">›</span></article><article className="settings-row"><span className="app-icon tone-green"><History {...iconProps} /></span><span><strong>Histórico</strong><small>Orçamentos, levantamentos, relatórios e cálculos recentes</small></span><span className="chevron">›</span></article></div>
+      <div className="settings-group"><h2>Sobre</h2><article className="settings-row"><span className="app-icon tone-blue"><BadgeInfo {...iconProps} /></span><span><strong>Sobre o app</strong><small>Versão 0.1.0</small></span><span className="chevron">›</span></article><article className="settings-row"><span className="app-icon tone-green"><Wrench {...iconProps} /></span><span><strong>Roadmap</strong><small>OrçaOS, levantamentos, relatórios, OS e mais módulos</small></span><span className="chevron">›</span></article></div>
     </section>
   );
 }
