@@ -43,7 +43,7 @@ const proCalculatorCount = getProCalculatorCount();
 
 const calculationModules: ModuleCardData[] = [
   { id: 'fundamentos', title: 'Fundamentos', description: 'Ohm, corrente, potência, resistores, VA e consumo', icon: 'ϟ', tone: 'blue', count: '7 cálculos livres', available: true, plan: 'free', calculatorModule: 'fundamentals' },
-  { id: 'instalacoes', title: 'Instalações elétricas', description: 'Queda, distância, transformador, AWG, disjuntor, cabo e eletroduto', icon: '⎋', tone: 'gray', count: '7 cálculos Pro', available: true, plan: 'pro', calculatorModule: 'installations' },
+  { id: 'instalacoes', title: 'Instalações elétricas', description: 'Queda, distância, transformador, AWG, disjuntor, cabo e eletroduto', icon: '⌁', tone: 'gray', count: '7 cálculos Pro', available: true, plan: 'pro', calculatorModule: 'installations' },
   { id: 'iluminacao', title: 'Iluminação', description: 'Lúmens, lux e quantidade de luminárias', icon: '☼', tone: 'green', count: '1 cálculo Pro', available: true, plan: 'pro', calculatorModule: 'lighting' },
   { id: 'refrigeracao', title: 'Refrigeração', description: 'BTU/h, climatização e carga térmica inicial', icon: '❄', tone: 'blue', count: '1 cálculo Pro', available: true, plan: 'pro', calculatorModule: 'refrigeration' },
   { id: 'motores', title: 'Motores', description: 'Corrente, rotação, escorregamento e relação de polias', icon: '⚙', tone: 'orange', count: '3 cálculos Pro', available: true, plan: 'pro', calculatorModule: 'motors' },
@@ -53,7 +53,7 @@ const calculationModules: ModuleCardData[] = [
 
 const storePackages = [
   { title: 'Fundamentos grátis', description: 'Lei de Ohm, corrente, potência, resistores, W/VA/A e consumo liberados sem assinatura.', price: 'R$ 0', action: 'Já incluso', icon: 'ϟ' },
-  { title: 'Pacote Instalações Pro', description: 'Queda de tensão, distância máxima, transformador, AWG, cabo/disjuntor e eletroduto.', price: 'R$ 12,90', action: 'Detalhes', icon: '⎋' },
+  { title: 'Pacote Instalações Pro', description: 'Queda de tensão, distância máxima, transformador, AWG, cabo/disjuntor e eletroduto.', price: 'R$ 12,90', action: 'Detalhes', icon: '⌁' },
   { title: 'Pacote Refrigeração Pro', description: 'BTU/h e estimativas iniciais para climatização.', price: 'R$ 9,90', action: 'Detalhes', icon: '❄' },
   { title: 'Pacote Motores Pro', description: 'Corrente estimada, rotação síncrona e escorregamento e relação de polias.', price: 'R$ 12,90', action: 'Detalhes', icon: '⚙' },
   { title: 'Pacote Automação Industrial Pro', description: 'Escalonamento de sinais 4–20 mA e 0–10 V para valores de engenharia.', price: 'R$ 9,90', action: 'Detalhes', icon: '▥' },
@@ -61,11 +61,11 @@ const storePackages = [
 ];
 
 const navItems: Array<{ id: AppTab; label: string; description: string; icon: string }> = [
-  { id: 'home', label: 'Início', description: 'Atalhos principais', icon: '⌂' },
-  { id: 'calculations', label: 'Cálculos', description: 'Módulos técnicos', icon: '▦' },
-  { id: 'survey', label: 'Levantamento', description: 'Campo, peças e blocos', icon: '▤' },
+  { id: 'home', label: 'Início', description: 'Visão do dia e ações rápidas', icon: '⌂' },
+  { id: 'calculations', label: 'Cálculos', description: 'Módulos e calculadoras', icon: '▦' },
+  { id: 'survey', label: 'Levantamento', description: 'Guia de campo e peças', icon: '▤' },
   { id: 'budgets', label: 'Orçamentos', description: 'Proposta comercial', icon: '▣' },
-  { id: 'reports', label: 'Relatórios', description: 'Diagnóstico e fotos', icon: '◫' },
+  { id: 'reports', label: 'Relatórios', description: 'PDFs e diagnósticos', icon: '◫' },
   { id: 'clients', label: 'Clientes / OS', description: 'Atendimentos e histórico', icon: '◉' },
   { id: 'store', label: 'Loja / Pro', description: 'Pacotes e planos', icon: '◆' },
   { id: 'settings', label: 'Configurações', description: 'Conta, histórico e sobre', icon: '⚙' },
@@ -186,42 +186,66 @@ function ActiveWorkContextCard({ activeClient, activeWorkOrder }: ActiveWorkCont
   );
 }
 
-function HomeScreen({ goTo, openModule }: { goTo: (tab: AppTab) => void; openModule: (module: ModuleCardData) => void }) {
+function HomeScreen({ goTo, openModule, captures, clients, workOrders }: { goTo: (tab: AppTab) => void; openModule: (module: ModuleCardData) => void; captures: CalculationCapture[]; clients: Client[]; workOrders: WorkOrder[] }) {
+  const openWorkOrders = workOrders.filter((workOrder) => workOrder.status !== 'done' && workOrder.status !== 'cancelled').length;
+  const budgetItems = captures.filter((capture) => capture.destination === 'budget' || capture.destination === 'both').length;
+  const surveyItems = captures.filter((capture) => capture.destination === 'survey' || capture.destination === 'both').length;
+  const recentItems = captures.slice(0, 4);
+
   return (
-    <section className="app-screen">
-      <div className="home-hero">
-        <span>Olá, profissional</span>
-        <h1>Orça<span>OS</span></h1>
-        <p>Ferramenta de bolso para cálculo, levantamento, orçamento, relatório técnico e OS.</p>
+    <section className="app-screen orca-dashboard-screen">
+      <div className="orca-dashboard-hero">
+        <div className="orca-dashboard-copy">
+          <span className="orca-kicker">OrçaOS · ferramenta de campo</span>
+          <h1>Olá, profissional.</h1>
+          <p>Construa melhores decisões com cálculos técnicos, levantamentos, propostas e relatórios em um fluxo único.</p>
+        </div>
+        <div className="orca-dashboard-value-card">
+          <span>Resumo de hoje</span>
+          <strong>{captures.length + workOrders.length}</strong>
+          <small>registros entre cálculos, OS e levantamentos</small>
+          <div className="mini-sparkline" aria-hidden="true"><i /><i /><i /><i /><i /></div>
+        </div>
       </div>
 
-      <div className="home-action-grid">
-        <button className="home-action-card primary" type="button" onClick={() => openModule(calculationModules[0])}>
-          <span className="app-icon tone-blue">▦</span>
-          <strong>Começar pelos cálculos</strong>
-          <small>{freeCalculatorCount} cálculos essenciais livres.</small>
-        </button>
-        <button className="home-action-card" type="button" onClick={() => goTo('survey')}>
-          <span className="app-icon tone-green">▤</span>
-          <strong>Fazer levantamento</strong>
-          <small>Serviços, peças, blocos e itens salvos.</small>
-        </button>
-        <button className="home-action-card" type="button" onClick={() => goTo('budgets')}>
-          <span className="app-icon tone-orange">▣</span>
-          <strong>Montar orçamento</strong>
-          <small>Proposta, catálogo e PDF.</small>
-        </button>
-        <button className="home-action-card" type="button" onClick={() => goTo('reports')}>
-          <span className="app-icon tone-gray">◫</span>
-          <strong>Gerar relatório</strong>
-          <small>Diagnóstico, fotos e observações.</small>
-        </button>
+      <div className="orca-kpi-grid">
+        <article><span>Cálculos salvos</span><strong>{captures.length}</strong><small>+ fluxo técnico</small></article>
+        <article><span>Levantamentos</span><strong>{surveyItems}</strong><small>itens prontos</small></article>
+        <article><span>Orçamentos</span><strong>{budgetItems}</strong><small>base comercial</small></article>
+        <article><span>Clientes / OS</span><strong>{clients.length}/{openWorkOrders}</strong><small>clientes e OS abertas</small></article>
       </div>
 
-      <div className="pro-teaser-card compact-home-card">
-        <span className="app-icon tone-orange">✦</span>
-        <span><strong>OrçaOS Pro</strong><small>{proCalculatorCount} cálculos avançados, modelos profissionais e módulos técnicos.</small></span>
-        <button type="button" onClick={() => goTo('store')}>Ver planos</button>
+      <div className="orca-quick-actions">
+        <button type="button" onClick={() => openModule(calculationModules[0])}><span className="app-icon tone-blue">▦</span><strong>Novo cálculo</strong><small>{freeCalculatorCount} livres + {proCalculatorCount} Pro</small></button>
+        <button type="button" onClick={() => goTo('survey')}><span className="app-icon tone-green">▤</span><strong>Levantamento guiado</strong><small>Serviços, peças e blocos</small></button>
+        <button type="button" onClick={() => goTo('budgets')}><span className="app-icon tone-orange">▣</span><strong>Novo orçamento</strong><small>Proposta e PDF</small></button>
+        <button type="button" onClick={() => goTo('clients')}><span className="app-icon tone-gray">◉</span><strong>Clientes / OS</strong><small>Gerenciar atendimentos</small></button>
+      </div>
+
+      <div className="orca-home-columns">
+        <section className="orca-panel-card">
+          <header><div><span className="orca-kicker">Módulos</span><h2>Cálculos técnicos</h2></div><button type="button" onClick={() => goTo('calculations')}>Ver todos</button></header>
+          <div className="orca-compact-module-list">
+            {calculationModules.slice(0, 5).map((module) => (
+              <button key={module.id} type="button" onClick={() => openModule(module)}>
+                <span className={`app-icon tone-${module.tone}`}>{module.icon}</span>
+                <span><strong>{module.title}</strong><small>{module.description}</small></span>
+                <em>{module.count}</em>
+              </button>
+            ))}
+          </div>
+        </section>
+
+        <section className="orca-panel-card">
+          <header><div><span className="orca-kicker">Atividade</span><h2>Recentes</h2></div><button type="button" onClick={() => goTo('survey')}>Abrir</button></header>
+          <div className="orca-activity-list">
+            {recentItems.length === 0 ? (
+              <article><span className="app-icon tone-green">+</span><div><strong>Comece seu primeiro fluxo</strong><small>Faça um cálculo ou levantamento para aparecer aqui.</small></div></article>
+            ) : recentItems.map((capture) => (
+              <article key={capture.id}><span className="app-icon tone-green">✓</span><div><strong>{capture.calculatorLabel}</strong><small>{capture.summary}</small></div><em>{capture.destination === 'both' ? 'Ambos' : capture.destination === 'budget' ? 'Orç.' : 'Levant.'}</em></article>
+            ))}
+          </div>
+        </section>
       </div>
     </section>
   );
@@ -238,7 +262,7 @@ function CalculationsScreen({ selectedModule, openModule, goTo, onCaptureCalcula
     );
   }
 
-  return <section className="app-screen"><header className="screen-header"><h1>Cálculos</h1><p>Escolha uma categoria técnica. Orçamento, levantamento e relatórios ficam em áreas próprias.</p></header><div className="module-list-app">{calculationModules.map((module) => <ModuleCard key={module.id} module={module} compact onOpen={() => openModule(module)} />)}</div></section>;
+  return <section className="app-screen calculations-overview-screen"><header className="screen-header"><span className="orca-kicker">Módulos especializados</span><h1>Cálculos</h1><p>Escolha o módulo ou calculadora que deseja utilizar. Conceito mantido: módulos por profissão, cálculo objetivo e envio para levantamento/orçamento.</p></header><div className="module-list-app">{calculationModules.map((module) => <ModuleCard key={module.id} module={module} compact onOpen={() => openModule(module)} />)}</div></section>;
 }
 
 function SurveyScreen({ captures, context, onRemove, onUpdate, onAddMany }: { captures: CalculationCapture[]; context: ActiveWorkContext; onRemove: (id: string) => void; onUpdate: (id: string, patch: Partial<CalculationCapture>) => void; onAddMany: (items: CalculationCapture[]) => void }) {
@@ -247,7 +271,7 @@ function SurveyScreen({ captures, context, onRemove, onUpdate, onAddMany }: { ca
 
   return (
     <section className="app-screen">
-      <header className="screen-header"><h1>Levantamento</h1><p>Escolha o modo de trabalho para a visita técnica atual.</p></header>
+      <header className="screen-header"><span className="orca-kicker">Guia de campo</span><h1>Levantamento</h1><p>Escolha o modo de trabalho para a visita técnica atual.</p></header>
       <ActiveWorkContextCard {...context} />
       <div className="section-mode-tabs">
         <button className={activeSection === 'guided' ? 'active' : ''} type="button" onClick={() => setActiveSection('guided')}>Serviços</button>
@@ -274,7 +298,7 @@ function BudgetsScreen({ captures, context, onRemove, onUpdate }: { captures: Ca
   const budgetCaptures = captures.filter((capture) => capture.destination === 'budget' || capture.destination === 'both');
   return (
     <section className="app-screen wide-screen">
-      <header className="screen-header"><h1>Orçamentos</h1><p>Separe os itens técnicos da montagem da proposta comercial.</p></header>
+      <header className="screen-header"><span className="orca-kicker">Editor de proposta</span><h1>Orçamentos</h1><p>Separe os itens técnicos da montagem da proposta comercial.</p></header>
       <ActiveWorkContextCard {...context} />
       <div className="section-mode-tabs">
         <button className={activeSection === 'workspace' ? 'active' : ''} type="button" onClick={() => setActiveSection('workspace')}>Montar proposta</button>
@@ -294,7 +318,7 @@ function BudgetsScreen({ captures, context, onRemove, onUpdate }: { captures: Ca
 function ReportsScreen({ captures, context }: { captures: CalculationCapture[]; context: ActiveWorkContext }) {
   return (
     <section className="app-screen wide-screen">
-      <header className="screen-header"><h1>Relatórios</h1><p>Gere uma prévia técnica com fotos, diagnósticos, observações e especificações vindas do levantamento.</p></header>
+      <header className="screen-header"><span className="orca-kicker">PDF e diagnóstico</span><h1>Relatórios</h1><p>Gere uma prévia técnica com fotos, diagnósticos, observações e especificações vindas do levantamento.</p></header>
       <ActiveWorkContextCard {...context} />
       <ReportWorkspace captures={captures} activeClient={context.activeClient} activeWorkOrder={context.activeWorkOrder} />
     </section>
@@ -304,7 +328,7 @@ function ReportsScreen({ captures, context }: { captures: CalculationCapture[]; 
 function ClientsScreen({ onContextChange }: { onContextChange: (clients: Client[], workOrders: WorkOrder[], activeWorkOrderId: string | null) => void }) {
   return (
     <section className="app-screen wide-screen">
-      <header className="screen-header"><h1>Clientes / OS</h1><p>Cadastre clientes, crie ordens de serviço e selecione o atendimento ativo.</p></header>
+      <header className="screen-header"><span className="orca-kicker">Atendimentos</span><h1>Clientes / OS</h1><p>Cadastre clientes, crie ordens de serviço e selecione o atendimento ativo.</p></header>
       <ClientWorkOrderWorkspace onContextChange={onContextChange} />
     </section>
   );
@@ -313,7 +337,7 @@ function ClientsScreen({ onContextChange }: { onContextChange: (clients: Client[
 function StoreScreen() {
   return (
     <section className="app-screen wide-screen">
-      <header className="screen-header"><h1>Loja / Pro</h1><p>Pacotes de cálculos, modelos de orçamento e recursos profissionais.</p></header>
+      <header className="screen-header"><span className="orca-kicker">Recursos premium</span><h1>Loja / Pro</h1><p>Pacotes de cálculos, modelos de orçamento e recursos profissionais.</p></header>
       <div className="settings-group"><h2>Pacotes disponíveis</h2>{storePackages.map((pack) => <article className="store-card" key={pack.title}><span className="app-icon tone-blue">{pack.icon}</span><span><strong>{pack.title}</strong><small>{pack.description}</small><b>{pack.price}</b></span><button type="button">{pack.action}</button></article>)}</div>
     </section>
   );
@@ -322,7 +346,7 @@ function StoreScreen() {
 function SettingsScreen() {
   return (
     <section className="app-screen wide-screen">
-      <header className="screen-header"><h1>Configurações</h1><p>Conta, histórico, informações do app e roadmap.</p></header>
+      <header className="screen-header"><span className="orca-kicker">Preferências</span><h1>Configurações</h1><p>Conta, histórico, informações do app e roadmap.</p></header>
       <div className="settings-group"><h2>Conta</h2><article className="settings-row"><span className="app-icon tone-gray">▣</span><span><strong>Meu plano</strong><small>{userPlan === 'pro' ? 'Pro ativo' : 'Grátis · Fundamentos livres'}</small></span><span className="chevron">›</span></article><article className="settings-row"><span className="app-icon tone-green">◷</span><span><strong>Histórico</strong><small>Orçamentos, levantamentos, relatórios e cálculos recentes</small></span><span className="chevron">›</span></article></div>
       <div className="settings-group"><h2>Sobre</h2><article className="settings-row"><span className="app-icon tone-blue">i</span><span><strong>Sobre o app</strong><small>Versão 0.1.0</small></span><span className="chevron">›</span></article><article className="settings-row"><span className="app-icon tone-green">◇</span><span><strong>Roadmap</strong><small>OrçaOS, levantamentos, relatórios, OS e mais módulos</small></span><span className="chevron">›</span></article></div>
     </section>
@@ -395,7 +419,7 @@ export function App() {
       activeWorkOrder={activeWorkOrder}
       onNavigate={goTo}
     >
-      {activeTab === 'home' && <HomeScreen goTo={goTo} openModule={openModule} />}
+      {activeTab === 'home' && <HomeScreen goTo={goTo} openModule={openModule} captures={captures} clients={clients} workOrders={workOrders} />}
       {activeTab === 'calculations' && <CalculationsScreen selectedModule={selectedModule} openModule={openModule} goTo={goTo} onCaptureCalculation={addCalculationCapture} />}
       {activeTab === 'survey' && <SurveyScreen captures={captures} context={context} onRemove={removeCalculationCapture} onUpdate={updateCalculationCapture} onAddMany={addManyCalculationCaptures} />}
       {activeTab === 'budgets' && <BudgetsScreen captures={captures} context={context} onRemove={removeCalculationCapture} onUpdate={updateCalculationCapture} />}
