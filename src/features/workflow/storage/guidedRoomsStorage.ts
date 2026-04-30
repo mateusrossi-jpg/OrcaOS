@@ -19,6 +19,8 @@ export interface GuidedRoom {
 }
 
 const STORAGE_KEY = 'orcaos:guided-rooms:v1';
+const ACTIVE_ROOM_KEY = 'orcaos:guided-active-room:v1';
+export const GUIDED_ACTIVE_ROOM_EVENT = 'orcaos:guided-active-room-changed';
 
 const now = () => new Date().toISOString();
 
@@ -47,6 +49,11 @@ function safeParseRooms(value: string | null): GuidedRoom[] {
   }
 }
 
+function dispatchActiveRoomEvent(roomName: string): void {
+  if (typeof window === 'undefined') return;
+  window.dispatchEvent(new CustomEvent(GUIDED_ACTIVE_ROOM_EVENT, { detail: { roomName } }));
+}
+
 export function loadGuidedRooms(): GuidedRoom[] {
   if (typeof window === 'undefined') return starterRooms;
   return safeParseRooms(window.localStorage.getItem(STORAGE_KEY));
@@ -55,6 +62,27 @@ export function loadGuidedRooms(): GuidedRoom[] {
 export function saveGuidedRooms(rooms: GuidedRoom[]): void {
   if (typeof window === 'undefined') return;
   window.localStorage.setItem(STORAGE_KEY, JSON.stringify(rooms));
+}
+
+export function loadActiveGuidedRoomName(): string {
+  if (typeof window === 'undefined') return '';
+  return window.localStorage.getItem(ACTIVE_ROOM_KEY) ?? '';
+}
+
+export function setActiveGuidedRoomName(roomName: string): void {
+  if (typeof window === 'undefined') return;
+  const normalizedRoomName = roomName.trim();
+  if (!normalizedRoomName) return;
+  window.localStorage.setItem(ACTIVE_ROOM_KEY, normalizedRoomName);
+  dispatchActiveRoomEvent(normalizedRoomName);
+}
+
+export function prioritizeGuidedRoom(rooms: GuidedRoom[], roomName: string): GuidedRoom[] {
+  const normalizedRoomName = roomName.trim().toLowerCase();
+  if (!normalizedRoomName) return rooms;
+  const selectedRoom = rooms.find((room) => room.name.trim().toLowerCase() === normalizedRoomName);
+  if (!selectedRoom) return rooms;
+  return [selectedRoom, ...rooms.filter((room) => room.id !== selectedRoom.id)];
 }
 
 export function createGuidedRoomId(): string {
