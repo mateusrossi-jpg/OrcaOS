@@ -1,0 +1,539 @@
+/* OrçaOS — estabilização visual mínima para continuar desenvolvimento sem bagunça */
+:root {
+  --stable-bg: #070b09;
+  --stable-surface: #101713;
+  --stable-surface-2: #151f19;
+  --stable-surface-3: #1a261f;
+  --stable-border: rgba(255, 255, 255, 0.09);
+  --stable-border-2: rgba(34, 197, 94, 0.22);
+  --stable-green: #22c55e;
+  --stable-green-2: #16a34a;
+  --stable-text: #f8fafc;
+  --stable-muted: #a7b3ad;
+  --stable-muted-2: #6f7f76;
+  --stable-radius: 18px;
+  --stable-radius-lg: 24px;
+  --stable-shadow: 0 12px 32px rgba(0, 0, 0, 0.22);
+  --stable-font: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --stable-bg: #f6faf7;
+    --stable-surface: #ffffff;
+    --stable-surface-2: #f2f7f4;
+    --stable-surface-3: #eaf3ee;
+    --stable-border: rgba(7, 11, 9, 0.10);
+    --stable-border-2: rgba(22, 163, 74, 0.20);
+    --stable-text: #07100b;
+    --stable-muted: #526159;
+    --stable-muted-2: #728078;
+    --stable-shadow: 0 10px 28px rgba(7, 11, 9, 0.08);
+  }
+}
+
+html,
+body,
+#root {
+  background: var(--stable-bg) !important;
+  color: var(--stable-text) !important;
+  font-family: var(--stable-font) !important;
+}
+
+body {
+  background: linear-gradient(180deg, var(--stable-bg), #0b120e) !important;
+}
+
+@media (prefers-color-scheme: light) {
+  body {
+    background: linear-gradient(180deg, var(--stable-bg), #eef6f1) !important;
+  }
+}
+
+/* Reset de excessos visuais temporários */
+.orca-dashboard-screen {
+  gap: 16px !important;
+}
+
+.orca-kpi-grid,
+.orca-home-columns,
+.orca-dashboard-value-card,
+.mini-sparkline {
+  display: none !important;
+}
+
+.orca-dashboard-hero {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  min-height: auto !important;
+  padding: 22px !important;
+  border: 1px solid var(--stable-border) !important;
+  border-radius: var(--stable-radius-lg) !important;
+  background: linear-gradient(145deg, var(--stable-surface), var(--stable-surface-2)) !important;
+  box-shadow: var(--stable-shadow) !important;
+}
+
+.orca-dashboard-hero::before,
+.orca-dashboard-hero::after {
+  display: none !important;
+}
+
+.orca-dashboard-copy {
+  display: grid !important;
+  gap: 8px !important;
+}
+
+.orca-dashboard-copy h1 {
+  margin: 0 !important;
+  color: var(--stable-text) !important;
+  font-size: clamp(1.7rem, 8vw, 2.7rem) !important;
+  line-height: 1.02 !important;
+  font-weight: 850 !important;
+  letter-spacing: -0.055em !important;
+}
+
+.orca-dashboard-copy p {
+  max-width: 620px !important;
+  margin: 0 !important;
+  color: var(--stable-muted) !important;
+  font-size: 0.98rem !important;
+  line-height: 1.45 !important;
+}
+
+.orca-kicker {
+  color: var(--stable-green) !important;
+  font-size: 0.72rem !important;
+  font-weight: 850 !important;
+  letter-spacing: 0.06em !important;
+}
+
+.orca-kicker::before {
+  width: 14px !important;
+  background: var(--stable-green) !important;
+  box-shadow: none !important;
+}
+
+.orca-quick-actions {
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  gap: 12px !important;
+}
+
+.orca-quick-actions button {
+  min-height: 112px !important;
+  border: 1px solid var(--stable-border) !important;
+  border-radius: var(--stable-radius) !important;
+  padding: 14px !important;
+  color: var(--stable-text) !important;
+  background: var(--stable-surface) !important;
+  box-shadow: none !important;
+}
+
+.orca-quick-actions button:hover {
+  border-color: var(--stable-border-2) !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.orca-quick-actions strong {
+  color: var(--stable-text) !important;
+  font-size: 0.98rem !important;
+  font-weight: 800 !important;
+}
+
+.orca-quick-actions small {
+  color: var(--stable-muted) !important;
+  font-size: 0.82rem !important;
+}
+
+/* Topbar/menu: menos grosseiro e mais estável */
+.professional-topbar {
+  height: 64px !important;
+  padding-inline: 12px !important;
+  border-bottom: 1px solid var(--stable-border) !important;
+  background: rgba(7, 11, 9, 0.94) !important;
+  box-shadow: none !important;
+  backdrop-filter: blur(14px) !important;
+}
+
+@media (prefers-color-scheme: light) {
+  .professional-topbar {
+    background: rgba(255, 255, 255, 0.94) !important;
+  }
+}
+
+.topbar-menu-button {
+  width: 42px !important;
+  height: 42px !important;
+  border: 1px solid var(--stable-border) !important;
+  border-radius: 14px !important;
+  background: var(--stable-surface) !important;
+  box-shadow: none !important;
+}
+
+.topbar-menu-button span {
+  width: 17px !important;
+  height: 2px !important;
+  border-radius: 999px !important;
+  background: var(--stable-text) !important;
+}
+
+.topbar-title-block strong {
+  color: var(--stable-text) !important;
+  font-size: 0.98rem !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.025em !important;
+}
+
+.topbar-title-block small {
+  color: var(--stable-muted) !important;
+  font-size: 0.75rem !important;
+}
+
+.topbar-status-pill {
+  display: none !important;
+}
+
+.side-drawer {
+  width: min(88vw, 340px) !important;
+  padding: 12px !important;
+  border-right: 1px solid var(--stable-border) !important;
+  background: var(--stable-bg) !important;
+  box-shadow: 0 22px 60px rgba(0, 0, 0, 0.35) !important;
+}
+
+.drawer-brand-card,
+.drawer-work-card,
+.drawer-nav button {
+  border: 1px solid var(--stable-border) !important;
+  border-radius: var(--stable-radius) !important;
+  background: var(--stable-surface) !important;
+  box-shadow: none !important;
+}
+
+.drawer-brand-mark {
+  width: 44px !important;
+  height: 44px !important;
+  border-radius: 13px !important;
+  color: #041008 !important;
+  background: var(--stable-green) !important;
+  box-shadow: none !important;
+}
+
+.drawer-nav {
+  gap: 8px !important;
+}
+
+.drawer-nav button {
+  min-height: 62px !important;
+  padding: 10px !important;
+}
+
+.drawer-nav button.active {
+  border-color: var(--stable-border-2) !important;
+  background: var(--stable-surface-2) !important;
+}
+
+.drawer-brand-card strong,
+.drawer-work-card strong,
+.drawer-nav strong {
+  color: var(--stable-text) !important;
+  font-size: 0.94rem !important;
+}
+
+.drawer-brand-card small,
+.drawer-work-card small,
+.drawer-nav small {
+  color: var(--stable-muted) !important;
+  font-size: 0.76rem !important;
+}
+
+.drawer-nav-icon,
+.app-icon {
+  border: 1px solid var(--stable-border) !important;
+  color: var(--stable-green) !important;
+  background: var(--stable-surface-2) !important;
+  box-shadow: none !important;
+}
+
+.drawer-nav-icon::after,
+.app-icon::after {
+  display: none !important;
+}
+
+/* Superfícies: tema escuro consistente e sem cartões brancos nos cálculos */
+.screen-header,
+.module-detail-header,
+.module-app-card,
+.calculator-row,
+.calculator-panel,
+.calculator-detail-panel,
+.calculator-form,
+.calculation-form,
+.calculator-result-panel,
+.calculation-result-panel,
+.calculation-capture-panel,
+.result-card,
+.guided-cart-panel,
+.guided-service-card,
+.part-result-card,
+.parts-catalog-panel,
+.budget-section-panel,
+.budget-editor,
+.budget-summary,
+.logo-editor-card,
+.saved-budget-panel,
+.preview-section-panel,
+.client-os-panel,
+.client-os-card,
+.report-document,
+.report-summary-panel,
+.settings-group,
+.settings-row,
+.store-card,
+.active-work-context-card,
+.survey-intro-card,
+.technical-capture-card,
+.editable-budget-item-card,
+.catalog-card {
+  border: 1px solid var(--stable-border) !important;
+  color: var(--stable-text) !important;
+  background: var(--stable-surface) !important;
+  box-shadow: none !important;
+}
+
+.screen-header,
+.module-detail-header,
+.guided-cart-panel,
+.budget-section-panel,
+.client-os-panel,
+.report-document,
+.settings-group {
+  border-radius: var(--stable-radius-lg) !important;
+}
+
+.module-app-card,
+.calculator-row,
+.calculator-panel,
+.calculator-detail-panel,
+.calculator-form,
+.calculation-form,
+.calculator-result-panel,
+.calculation-result-panel,
+.result-card,
+.guided-service-card,
+.part-result-card,
+.settings-row,
+.store-card,
+.active-work-context-card,
+.survey-intro-card,
+.technical-capture-card,
+.editable-budget-item-card,
+.catalog-card {
+  border-radius: var(--stable-radius) !important;
+}
+
+.screen-header::before,
+.screen-header::after,
+.module-detail-header::before,
+.module-detail-header::after,
+.guided-cart-panel::before,
+.budget-section-panel::before,
+.client-os-panel::before,
+.report-document::before,
+.settings-group::before,
+.report-summary-panel::after,
+.client-os-hero-panel::after,
+.module-list-app .module-app-card::after {
+  display: none !important;
+}
+
+.screen-header h1,
+.module-detail-header h1,
+.calculator-panel h2,
+.calculator-detail-panel h2,
+.calculator-form h2,
+.calculation-form h2,
+.calculator-result-panel h2,
+.calculation-result-panel h2,
+.result-card h2,
+.budget-section-header h3,
+.settings-group h2,
+.report-document-header h1 {
+  color: var(--stable-text) !important;
+  font-weight: 820 !important;
+  letter-spacing: -0.045em !important;
+}
+
+.screen-header p,
+.module-detail-header p,
+.calculator-panel p,
+.calculator-detail-panel p,
+.calculator-form p,
+.calculation-form p,
+.calculator-result-panel p,
+.calculation-result-panel p,
+.module-card-body small,
+.guided-cart-header p,
+.part-result-main small,
+.budget-section-header p,
+.settings-row small,
+.store-card small,
+.active-work-context-card small,
+.survey-intro-card small {
+  color: var(--stable-muted) !important;
+}
+
+/* Inputs e selects */
+input,
+select,
+textarea,
+.calculator-panel input,
+.calculator-panel select,
+.calculator-panel textarea,
+.calculation-form input,
+.calculation-form select,
+.calculation-form textarea,
+.budget-field input,
+.budget-field select,
+.budget-field textarea,
+.technical-edit-field input,
+.technical-edit-field select,
+.technical-edit-field textarea,
+.guided-typed-quantity input,
+.guided-typed-quantity select,
+.part-result-controls select {
+  border: 1px solid var(--stable-border) !important;
+  color: var(--stable-text) !important;
+  background: var(--stable-surface-2) !important;
+  box-shadow: none !important;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--stable-green) !important;
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.14) !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--stable-muted-2) !important;
+}
+
+/* Botões e abas mais simples */
+.primary-action.inline-action,
+.pro-teaser-card button,
+.store-card button,
+.free-plan-card em,
+button.primary-action,
+.guided-quantity-row button {
+  border: 1px solid var(--stable-green-2) !important;
+  color: #041008 !important;
+  background: var(--stable-green) !important;
+  box-shadow: none !important;
+}
+
+.secondary-action.inline-action,
+.back-button,
+.ghost-action,
+button.secondary-action {
+  border: 1px solid var(--stable-border-2) !important;
+  color: var(--stable-green) !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.section-mode-tabs,
+.budget-workspace-tabs,
+.client-os-section-tabs {
+  border: 1px solid var(--stable-border) !important;
+  border-radius: var(--stable-radius) !important;
+  padding: 6px !important;
+  background: var(--stable-surface) !important;
+  box-shadow: none !important;
+}
+
+.section-mode-tabs button,
+.budget-workspace-tabs button,
+.client-os-section-tabs button {
+  min-height: 44px !important;
+  border-radius: 12px !important;
+  color: var(--stable-muted) !important;
+}
+
+.section-mode-tabs button::before,
+.budget-workspace-tabs button::before,
+.client-os-section-tabs button::before {
+  display: none !important;
+}
+
+.section-mode-tabs button.active,
+.budget-workspace-tabs button.active,
+.client-os-section-tabs button.active {
+  color: var(--stable-text) !important;
+  background: var(--stable-surface-3) !important;
+  box-shadow: inset 0 0 0 1px var(--stable-border-2) !important;
+}
+
+/* Tipografia mais contida */
+.screen-header h1,
+.module-detail-header h1 {
+  font-size: clamp(1.55rem, 7vw, 2.35rem) !important;
+  line-height: 1.06 !important;
+}
+
+.screen-header p,
+.module-detail-header p {
+  font-size: 0.94rem !important;
+}
+
+/* PDF: manter branco, mas mais controlado */
+.print-preview-shell {
+  border: 1px solid var(--stable-border) !important;
+  background: var(--stable-surface) !important;
+  box-shadow: none !important;
+}
+
+.print-document {
+  color: #111827 !important;
+  background: #ffffff !important;
+  box-shadow: none !important;
+}
+
+@media (max-width: 760px) {
+  .orca-quick-actions {
+    grid-template-columns: 1fr 1fr !important;
+  }
+}
+
+@media (max-width: 520px) {
+  .professional-app-content {
+    padding: 12px 10px calc(18px + env(safe-area-inset-bottom)) !important;
+  }
+
+  .orca-dashboard-hero,
+  .screen-header,
+  .module-detail-header,
+  .guided-cart-panel,
+  .budget-section-panel,
+  .client-os-panel,
+  .report-document,
+  .settings-group,
+  .active-work-context-card {
+    padding: 14px !important;
+    border-radius: 18px !important;
+  }
+
+  .orca-quick-actions {
+    grid-template-columns: 1fr !important;
+  }
+
+  .orca-quick-actions button {
+    min-height: 88px !important;
+  }
+
+  .module-app-card {
+    grid-template-columns: auto minmax(0, 1fr) !important;
+  }
+}
