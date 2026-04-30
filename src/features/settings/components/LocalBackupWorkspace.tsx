@@ -9,6 +9,7 @@ import {
   summarizeOrcaBackup,
   type OrcaLocalBackup,
 } from '../storage/localBackup';
+import { ProfessionalProfileWorkspace } from './ProfessionalProfileWorkspace';
 import './LocalBackupWorkspace.css';
 
 export function LocalBackupWorkspace() {
@@ -84,69 +85,73 @@ export function LocalBackupWorkspace() {
   }
 
   return (
-    <section className="local-backup-workspace">
-      <div className="local-backup-header">
-        <div>
-          <span className="orca-kicker">Backup local</span>
-          <h2>Exportar e restaurar dados do OrçaOS</h2>
-          <p>Salve uma cópia dos dados locais do app antes de trocar de navegador, limpar cache ou testar grandes mudanças.</p>
-        </div>
-        <strong>{summary.keyCount} grupo(s) · {summary.estimatedSizeKb} KB</strong>
-      </div>
+    <>
+      <ProfessionalProfileWorkspace />
 
-      <div className="local-backup-grid">
-        <article className="local-backup-card">
-          <strong>Exportar backup</strong>
-          <small>Gera um JSON com clientes, OS, cálculos, catálogo, fornecedores, compras, estoque e configurações salvas localmente.</small>
-          <div className="local-backup-actions">
-            <button className="primary-action inline-action" type="button" onClick={downloadBackup}>Baixar JSON</button>
-            <button className="secondary-action inline-action" type="button" onClick={copyBackup}>Copiar backup</button>
-            <button className="secondary-action inline-action" type="button" onClick={refreshBackupText}>Gerar na caixa</button>
+      <section className="local-backup-workspace">
+        <div className="local-backup-header">
+          <div>
+            <span className="orca-kicker">Backup local</span>
+            <h2>Exportar e restaurar dados do OrçaOS</h2>
+            <p>Salve uma cópia dos dados locais do app antes de trocar de navegador, limpar cache ou testar grandes mudanças.</p>
           </div>
-        </article>
-
-        <article className="local-backup-card">
-          <strong>Restaurar backup</strong>
-          <small>Importe um JSON do OrçaOS. Mesclar mantém dados atuais; substituir apaga dados locais do OrçaOS antes de restaurar.</small>
-          <label className="local-backup-file">
-            <span>Arquivo JSON</span>
-            <input type="file" accept="application/json,.json" onChange={(event) => handleFileImport(event.target.files?.[0] ?? null)} />
-          </label>
-          <label className="local-backup-file">
-            <span>Modo de restauração</span>
-            <select value={restoreMode} onChange={(event) => setRestoreMode(event.target.value as 'merge' | 'replace')}>
-              <option value="merge">Mesclar com dados atuais</option>
-              <option value="replace">Substituir dados locais do OrçaOS</option>
-            </select>
-          </label>
-          <div className="local-backup-actions">
-            <button className="secondary-action inline-action" type="button" onClick={previewImport}>Verificar backup</button>
-            <button className="primary-action inline-action" type="button" onClick={restoreImport}>Restaurar</button>
-          </div>
-        </article>
-      </div>
-
-      <label className="local-backup-textarea">
-        <span>Conteúdo do backup JSON</span>
-        <textarea value={backupText} placeholder="Cole aqui um backup JSON do OrçaOS ou gere um backup para visualizar." onChange={(event) => setBackupText(event.target.value)} />
-      </label>
-
-      {importPreview && (
-        <div className="local-backup-preview">
-          <strong>Prévia do backup</strong>
-          <small>Exportado em: {new Date(importPreview.exportedAt).toLocaleString('pt-BR')} · {Object.keys(importPreview.keys).length} grupo(s)</small>
-          <ul>
-            {Object.keys(importPreview.keys).slice(0, 12).map((key) => <li key={key}>{key}</li>)}
-          </ul>
+          <strong>{summary.keyCount} grupo(s) · {summary.estimatedSizeKb} KB</strong>
         </div>
-      )}
 
-      <div className="local-backup-warning">
-        <strong>Atenção</strong>
-        <p>Este backup salva apenas os dados locais deste navegador/dispositivo. Fotos grandes e arquivos externos podem precisar de estratégia própria no futuro.</p>
-      </div>
+        <div className="local-backup-grid">
+          <article className="local-backup-card">
+            <strong>Exportar backup</strong>
+            <small>Gera um JSON com clientes, OS, cálculos, catálogo, fornecedores, compras, estoque, perfil profissional e configurações salvas localmente.</small>
+            <div className="local-backup-actions">
+              <button className="primary-action inline-action" type="button" onClick={downloadBackup}>Baixar JSON</button>
+              <button className="secondary-action inline-action" type="button" onClick={copyBackup}>Copiar backup</button>
+              <button className="secondary-action inline-action" type="button" onClick={refreshBackupText}>Gerar na caixa</button>
+            </div>
+          </article>
 
-      {feedback && <div className="guided-cart-feedback">{feedback}</div>}
-    </section>
+          <article className="local-backup-card">
+            <strong>Restaurar backup</strong>
+            <small>Importe um JSON do OrçaOS. Mesclar mantém dados atuais; substituir apaga dados locais do OrçaOS antes de restaurar.</small>
+            <label className="local-backup-file">
+              <span>Arquivo JSON</span>
+              <input type="file" accept="application/json,.json" onChange={(event) => handleFileImport(event.target.files?.[0] ?? null)} />
+            </label>
+            <label className="local-backup-file">
+              <span>Modo de restauração</span>
+              <select value={restoreMode} onChange={(event) => setRestoreMode(event.target.value as 'merge' | 'replace')}>
+                <option value="merge">Mesclar com dados atuais</option>
+                <option value="replace">Substituir dados locais do OrçaOS</option>
+              </select>
+            </label>
+            <div className="local-backup-actions">
+              <button className="secondary-action inline-action" type="button" onClick={previewImport}>Verificar backup</button>
+              <button className="primary-action inline-action" type="button" onClick={restoreImport}>Restaurar</button>
+            </div>
+          </article>
+        </div>
+
+        <label className="local-backup-textarea">
+          <span>Conteúdo do backup JSON</span>
+          <textarea value={backupText} placeholder="Cole aqui um backup JSON do OrçaOS ou gere um backup para visualizar." onChange={(event) => setBackupText(event.target.value)} />
+        </label>
+
+        {importPreview && (
+          <div className="local-backup-preview">
+            <strong>Prévia do backup</strong>
+            <small>Exportado em: {new Date(importPreview.exportedAt).toLocaleString('pt-BR')} · {Object.keys(importPreview.keys).length} grupo(s)</small>
+            <ul>
+              {Object.keys(importPreview.keys).slice(0, 12).map((key) => <li key={key}>{key}</li>)}
+            </ul>
+          </div>
+        )}
+
+        <div className="local-backup-warning">
+          <strong>Atenção</strong>
+          <p>Este backup salva apenas os dados locais deste navegador/dispositivo. Fotos grandes e arquivos externos podem precisar de estratégia própria no futuro.</p>
+        </div>
+
+        {feedback && <div className="guided-cart-feedback">{feedback}</div>}
+      </section>
+    </>
   );
 }
