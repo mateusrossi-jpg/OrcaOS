@@ -6,7 +6,7 @@ import { BudgetWorkspace } from '../features/budgets/components/BudgetWorkspace'
 import { ElectricalCalculatorWorkspace } from '../features/calculators/components/ElectricalCalculatorWorkspace';
 import { GeneralCalculatorWorkspace, type GeneralCalculatorModule } from '../features/calculators/components/GeneralCalculatorWorkspace';
 import { GeneralFundamentalsWorkspace } from '../features/calculators/components/GeneralFundamentalsWorkspace';
-import { HydraulicsCalculatorWorkspace } from '../features/calculators/components/HydraulicsCalculatorWorkspace';
+import { HydraulicsCalculatorWorkspace } from '../features/calculators/components/StableHydraulicsCalculatorWorkspace';
 import { ClientWorkOrderWorkspace } from '../features/clients/components/ClientWorkOrderWorkspace';
 import { loadActiveWorkOrderId, loadClients, loadWorkOrders } from '../features/clients/storage/clientWorkOrderStorage';
 import { ReportWorkspace } from '../features/reports/components/ReportWorkspace';
