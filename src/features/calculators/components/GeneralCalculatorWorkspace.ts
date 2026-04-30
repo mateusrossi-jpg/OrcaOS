@@ -1,2 +1,2 @@
-export { GeneralCalculatorWorkspace } from './EnhancedGeneralCalculatorWorkspace';
-export type { GeneralCalculatorModule } from './EnhancedGeneralCalculatorWorkspace';
+export { GeneralCalculatorWorkspace } from './StableGeneralCalculatorWorkspace';
+export type { GeneralCalculatorModule } from './StableGeneralCalculatorWorkspace';
