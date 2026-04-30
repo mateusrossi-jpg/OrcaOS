@@ -15,6 +15,7 @@ import './styles/responsiveConsistency.css';
 import './styles/premiumPartsAndIcons.css';
 import './styles/orcaosOfficialTheme.css';
 import './styles/orcaosApprovedConcept.css';
+import './styles/orcaosLayoutComposition.css';
 
 const rootElement = document.getElementById('root');
 
