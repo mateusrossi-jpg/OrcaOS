@@ -9,6 +9,7 @@ import './styles/screenRefinement.css';
 import './styles/budgetRefinement.css';
 import './styles/clientOsRefinement.css';
 import './styles/reportRefinement.css';
+import './styles/calculationRefinement.css';
 
 const rootElement = document.getElementById('root');
 
