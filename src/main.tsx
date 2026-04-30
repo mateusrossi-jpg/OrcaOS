@@ -8,6 +8,7 @@ import './styles/professionalPolish.css';
 import './styles/screenRefinement.css';
 import './styles/budgetRefinement.css';
 import './styles/clientOsRefinement.css';
+import './styles/reportRefinement.css';
 
 const rootElement = document.getElementById('root');
 
