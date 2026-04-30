@@ -30,7 +30,11 @@ export type CalculatorModule =
   | 'refrigeration'
   | 'motors'
   | 'rewinding'
-  | 'industrialAutomation';
+  | 'industrialAutomation'
+  | 'obras'
+  | 'pintura'
+  | 'conversores'
+  | 'orcamentoTecnico';
 
 export interface CalculatorAccessRule {
   mode: CalculatorMode;
