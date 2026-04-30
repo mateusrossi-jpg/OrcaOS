@@ -1,0 +1,333 @@
+.app-screen {
+  gap: 18px;
+}
+
+/* Início — aparência de dashboard profissional */
+.home-hero {
+  min-height: 188px;
+  align-content: end;
+  isolation: isolate;
+}
+
+.home-hero::before {
+  content: 'PRO';
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  z-index: 1;
+  border: 1px solid rgba(207, 224, 248, 0.95);
+  border-radius: 999px;
+  padding: 8px 12px;
+  color: #124878;
+  background: rgba(255, 255, 255, 0.82);
+  font-size: 0.72rem;
+  font-weight: 950;
+  letter-spacing: 0.08em;
+}
+
+.home-hero > * {
+  position: relative;
+  z-index: 2;
+}
+
+.home-action-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.home-action-card {
+  position: relative;
+  align-content: start;
+  overflow: hidden;
+}
+
+.home-action-card::after {
+  content: '';
+  position: absolute;
+  right: -26px;
+  bottom: -30px;
+  width: 94px;
+  height: 94px;
+  border-radius: 999px;
+  background: rgba(34, 103, 206, 0.06);
+  pointer-events: none;
+}
+
+.home-action-card .app-icon,
+.home-action-card strong,
+.home-action-card small {
+  position: relative;
+  z-index: 1;
+}
+
+.home-action-card strong {
+  max-width: 12rem;
+  font-size: 1.12rem;
+}
+
+.home-action-card small {
+  max-width: 15rem;
+  font-size: 0.92rem;
+}
+
+.compact-home-card {
+  border-radius: 26px !important;
+}
+
+.compact-home-card .app-icon {
+  width: 54px;
+  height: 54px;
+  font-size: 1.55rem;
+}
+
+/* Levantamento — seleção de modo com cara de etapa */
+.section-mode-tabs {
+  position: relative;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  padding: 10px;
+  border-radius: 26px;
+}
+
+.section-mode-tabs button {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 54px;
+  border-radius: 18px;
+  line-height: 1.2;
+}
+
+.section-mode-tabs button::before {
+  content: '';
+  display: block;
+  width: 7px;
+  height: 7px;
+  margin-bottom: 5px;
+  border-radius: 999px;
+  background: #c5d4e5;
+}
+
+.section-mode-tabs button.active::before {
+  background: #2267ce;
+  box-shadow: 0 0 0 4px rgba(34, 103, 206, 0.12);
+}
+
+.active-work-context-card {
+  border-radius: 26px;
+}
+
+.guided-cart-panel {
+  position: relative;
+  overflow: hidden;
+}
+
+.guided-cart-panel::after {
+  content: '';
+  position: absolute;
+  top: -48px;
+  right: -52px;
+  width: 150px;
+  height: 150px;
+  border-radius: 999px;
+  background: rgba(34, 103, 206, 0.08);
+  pointer-events: none;
+}
+
+.guided-cart-panel > * {
+  position: relative;
+  z-index: 1;
+}
+
+.guided-cart-header {
+  align-items: center;
+}
+
+.guided-cart-header h2 {
+  letter-spacing: -0.035em;
+}
+
+.guided-cart-header p {
+  max-width: 42rem;
+  font-size: 0.94rem;
+}
+
+.guided-cart-total {
+  border-radius: 18px;
+}
+
+.guided-service-card,
+.guided-manual-block-card,
+.technical-capture-card {
+  border-radius: 22px !important;
+}
+
+.guided-service-card {
+  align-items: stretch;
+}
+
+.guided-service-card > div:first-child {
+  display: grid;
+  align-content: center;
+  gap: 2px;
+  min-width: 0;
+}
+
+.guided-service-card strong {
+  letter-spacing: -0.025em;
+}
+
+.guided-service-controls {
+  align-self: center;
+}
+
+.guided-quantity-row button {
+  background: linear-gradient(135deg, #124878, #2267ce) !important;
+  box-shadow: 0 8px 18px rgba(18, 72, 120, 0.16);
+}
+
+.guided-typed-quantity input,
+.technical-edit-field input,
+.technical-edit-field select,
+.technical-edit-field textarea {
+  border-radius: 16px;
+}
+
+.guided-manual-block-card {
+  background: rgba(255, 255, 255, 0.9) !important;
+}
+
+.guided-image-row {
+  border-radius: 20px;
+  background: linear-gradient(135deg, #f8fafc, #ffffff) !important;
+}
+
+.guided-image-preview {
+  border-radius: 18px;
+}
+
+.technical-capture-list {
+  gap: 12px;
+}
+
+.technical-capture-card {
+  background: rgba(255, 255, 255, 0.94) !important;
+}
+
+.technical-capture-header .app-icon {
+  width: 48px;
+  height: 48px;
+  font-size: 1.45rem;
+}
+
+.technical-capture-header strong {
+  letter-spacing: -0.02em;
+}
+
+/* Cálculos e módulos — acabamento leve */
+.module-list-app .module-app-card {
+  grid-template-columns: auto minmax(0, 1fr) auto;
+}
+
+.module-list-app .module-plan-pill {
+  justify-self: end;
+}
+
+.module-list-app .chevron {
+  display: none;
+}
+
+.module-app-card {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(248, 250, 252, 0.92)) !important;
+}
+
+.module-app-card.disabled {
+  filter: grayscale(0.2);
+}
+
+/* Orçamento e relatório — pequena coerência visual */
+.budget-workspace-tabs,
+.section-mode-tabs {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  backdrop-filter: blur(12px);
+}
+
+.budget-section-header h3,
+.report-summary-panel h2,
+.client-os-panel h2,
+.active-os-panel h2 {
+  letter-spacing: -0.035em;
+}
+
+.report-document {
+  box-shadow: 0 20px 54px rgba(15, 31, 51, 0.08) !important;
+}
+
+/* Menu lateral — mais app profissional */
+.side-drawer {
+  background:
+    radial-gradient(circle at top left, rgba(34, 103, 206, 0.12), transparent 18rem),
+    #ffffff;
+}
+
+.drawer-brand-card {
+  background: rgba(255, 255, 255, 0.88) !important;
+}
+
+.drawer-work-card {
+  border-color: #cfe0f8 !important;
+}
+
+.drawer-nav button {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.drawer-nav button.active {
+  transform: translateX(2px);
+}
+
+@media (max-width: 680px) {
+  .home-action-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .home-hero {
+    min-height: 172px;
+  }
+
+  .section-mode-tabs {
+    grid-template-columns: 1fr;
+  }
+
+  .section-mode-tabs button {
+    grid-template-columns: auto minmax(0, 1fr);
+    place-items: center start;
+    min-height: 50px;
+    padding-inline: 14px;
+  }
+
+  .section-mode-tabs button::before {
+    margin: 0 10px 0 0;
+  }
+
+  .guided-cart-header {
+    align-items: start;
+  }
+}
+
+@media (max-width: 420px) {
+  .home-hero::before {
+    top: 14px;
+    right: 14px;
+  }
+
+  .compact-home-card {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .compact-home-card button {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+}
