@@ -1,0 +1,674 @@
+:root {
+  color-scheme: dark;
+  --os-green: #22c55e;
+  --os-green-strong: #16a34a;
+  --os-green-soft: rgba(34, 197, 94, 0.14);
+  --os-green-line: rgba(34, 197, 94, 0.42);
+  --os-bg: #080f0c;
+  --os-bg-2: #0b1410;
+  --os-surface: rgba(18, 27, 23, 0.92);
+  --os-surface-2: rgba(23, 34, 29, 0.86);
+  --os-surface-3: rgba(30, 44, 38, 0.74);
+  --os-border: rgba(255, 255, 255, 0.10);
+  --os-border-strong: rgba(34, 197, 94, 0.32);
+  --os-text: #f8fafc;
+  --os-text-2: #d9e3dd;
+  --os-muted: #93a39a;
+  --os-faint: #66756d;
+  --os-danger: #ef4444;
+  --os-warning: #f59e0b;
+  --os-blue: #38bdf8;
+  --os-radius-sm: 12px;
+  --os-radius-md: 18px;
+  --os-radius-lg: 24px;
+  --os-radius-xl: 32px;
+  --os-shadow-1: 0 10px 30px rgba(0, 0, 0, 0.20);
+  --os-shadow-2: 0 22px 70px rgba(0, 0, 0, 0.34);
+  --os-shadow-green: 0 18px 44px rgba(34, 197, 94, 0.10);
+  --os-ring: 0 0 0 4px rgba(34, 197, 94, 0.16);
+  --orca-bg: var(--os-bg);
+  --orca-surface: var(--os-surface);
+  --orca-surface-soft: var(--os-surface-2);
+  --orca-border: var(--os-border);
+  --orca-text: var(--os-text);
+  --orca-muted: var(--os-muted);
+  --orca-primary: var(--os-green);
+  --orca-primary-strong: var(--os-green-strong);
+  --orca-primary-soft: var(--os-green-soft);
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color-scheme: light;
+    --os-bg: #f7faf8;
+    --os-bg-2: #eef5f0;
+    --os-surface: rgba(255, 255, 255, 0.96);
+    --os-surface-2: rgba(248, 251, 249, 0.94);
+    --os-surface-3: rgba(239, 247, 242, 0.82);
+    --os-border: rgba(8, 15, 12, 0.10);
+    --os-border-strong: rgba(22, 163, 74, 0.30);
+    --os-text: #070b09;
+    --os-text-2: #18211c;
+    --os-muted: #526159;
+    --os-faint: #77827c;
+    --os-shadow-1: 0 10px 28px rgba(8, 15, 12, 0.06);
+    --os-shadow-2: 0 22px 62px rgba(8, 15, 12, 0.10);
+    --os-shadow-green: 0 18px 44px rgba(22, 163, 74, 0.10);
+  }
+}
+
+html,
+body,
+#root {
+  background: var(--os-bg) !important;
+  color: var(--os-text) !important;
+}
+
+body {
+  min-height: 100dvh;
+  background:
+    radial-gradient(circle at 5% 0%, rgba(34, 197, 94, 0.16), transparent 28rem),
+    radial-gradient(circle at 100% 12%, rgba(34, 197, 94, 0.08), transparent 24rem),
+    linear-gradient(180deg, var(--os-bg), var(--os-bg-2)) !important;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+}
+
+.professional-app-shell {
+  background: transparent !important;
+}
+
+.professional-topbar {
+  border-bottom: 1px solid var(--os-border) !important;
+  background: color-mix(in srgb, var(--os-bg) 82%, transparent) !important;
+  box-shadow: none !important;
+}
+
+.topbar-menu-button {
+  border: 1px solid var(--os-border) !important;
+  background: linear-gradient(180deg, var(--os-surface-2), var(--os-surface)) !important;
+  box-shadow: var(--os-shadow-1) !important;
+}
+
+.topbar-menu-button span {
+  background: var(--os-text) !important;
+}
+
+.topbar-title-block strong,
+.topbar-title-block small,
+.screen-header h1,
+.home-hero h1,
+.module-detail-header h1,
+.budget-section-header h3,
+.client-os-panel-header h2,
+.report-document-header h1,
+.settings-group h2 {
+  color: var(--os-text) !important;
+}
+
+.topbar-title-block small,
+.screen-header p,
+.home-hero p,
+.module-detail-header p,
+.budget-section-header p,
+.client-os-panel-header p,
+.report-document-header p,
+.settings-row small,
+.store-card small,
+.module-card-body small,
+.part-result-main small,
+.guided-cart-header p,
+.active-work-context-card small {
+  color: var(--os-muted) !important;
+}
+
+.topbar-status-pill {
+  border: 1px solid var(--os-border-strong) !important;
+  color: var(--os-green) !important;
+  background: var(--os-green-soft) !important;
+}
+
+.professional-app-content {
+  background: transparent !important;
+}
+
+.side-drawer {
+  border-right: 1px solid var(--os-border) !important;
+  background:
+    radial-gradient(circle at top left, rgba(34, 197, 94, 0.16), transparent 18rem),
+    linear-gradient(180deg, color-mix(in srgb, var(--os-bg) 96%, transparent), var(--os-bg-2)) !important;
+  box-shadow: var(--os-shadow-2) !important;
+}
+
+.drawer-brand-card,
+.drawer-work-card,
+.drawer-nav button {
+  border: 1px solid var(--os-border) !important;
+  background: color-mix(in srgb, var(--os-surface) 92%, transparent) !important;
+  box-shadow: none !important;
+}
+
+.drawer-brand-mark {
+  color: #061009 !important;
+  background: linear-gradient(135deg, var(--os-green), var(--os-green-strong)) !important;
+}
+
+.drawer-brand-card strong,
+.drawer-work-card strong,
+.drawer-nav strong {
+  color: var(--os-text) !important;
+}
+
+.drawer-brand-card small,
+.drawer-work-card small,
+.drawer-nav small {
+  color: var(--os-muted) !important;
+}
+
+.drawer-work-card span,
+.drawer-nav button.active strong {
+  color: var(--os-green) !important;
+}
+
+.drawer-nav button.active {
+  border-color: var(--os-border-strong) !important;
+  background: linear-gradient(135deg, var(--os-green-soft), color-mix(in srgb, var(--os-surface) 90%, transparent)) !important;
+}
+
+.drawer-nav-icon,
+.app-icon {
+  display: grid !important;
+  place-items: center !important;
+  border: 1px solid var(--os-border) !important;
+  color: var(--os-green) !important;
+  background:
+    radial-gradient(circle at 30% 18%, rgba(255, 255, 255, 0.10), transparent 40%),
+    linear-gradient(135deg, var(--os-green-soft), color-mix(in srgb, var(--os-surface-3) 90%, transparent)) !important;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.03) !important;
+}
+
+.drawer-nav button.active .drawer-nav-icon {
+  color: #061009 !important;
+  background: linear-gradient(135deg, var(--os-green), var(--os-green-strong)) !important;
+}
+
+.home-hero,
+.screen-header,
+.module-detail-header,
+.guided-cart-panel,
+.budget-section-panel,
+.client-os-panel,
+.active-os-panel,
+.client-os-hero-panel,
+.report-summary-panel,
+.report-document,
+.settings-group,
+.active-work-context-card,
+.pro-teaser-card,
+.free-plan-card,
+.budget-editor,
+.budget-summary,
+.saved-budget-panel,
+.logo-editor-card,
+.preview-section-panel,
+.parts-catalog-panel {
+  border: 1px solid var(--os-border) !important;
+  background:
+    radial-gradient(circle at top right, rgba(34, 197, 94, 0.08), transparent 18rem),
+    linear-gradient(145deg, color-mix(in srgb, var(--os-surface) 96%, transparent), color-mix(in srgb, var(--os-surface-2) 96%, transparent)) !important;
+  box-shadow: var(--os-shadow-1) !important;
+}
+
+.home-hero,
+.module-detail-header,
+.client-os-hero-panel,
+.report-summary-panel {
+  border-color: var(--os-border-strong) !important;
+  box-shadow: var(--os-shadow-green), var(--os-shadow-1) !important;
+}
+
+.home-hero span,
+.module-plan-pill.free,
+.module-plan-pill.pro,
+.summary-kicker,
+.part-result-main span,
+.drawer-work-card span,
+.budget-field span,
+.technical-edit-field span,
+.guided-typed-quantity span,
+.client-os-metrics-grid span,
+.report-metrics-grid span,
+.budget-summary-strip span {
+  color: var(--os-green) !important;
+}
+
+.home-hero h1 span,
+.drawer-brand-card strong::first-letter {
+  color: var(--os-green) !important;
+}
+
+.home-action-card,
+.module-app-card,
+.calculator-row,
+.settings-row,
+.store-card,
+.survey-intro-card,
+.client-os-card,
+.catalog-card,
+.technical-capture-card,
+.editable-budget-item-card,
+.report-item-card,
+.part-result-card,
+.guided-service-card,
+.guided-manual-block-card,
+.logo-preview-box,
+.print-status-box,
+.print-client-box,
+.print-summary-box,
+.budget-header-card,
+.budget-summary-strip article,
+.report-metrics-grid article,
+.client-os-metrics-grid article,
+.client-os-quick-actions button,
+.parts-results-header,
+.report-context-box div,
+.report-technical-note,
+.report-item-content ul,
+.guided-image-row,
+.compact-import-list,
+.catalog-form-grid,
+.budget-config-grid {
+  border: 1px solid var(--os-border) !important;
+  color: var(--os-text) !important;
+  background: linear-gradient(145deg, var(--os-surface), var(--os-surface-2)) !important;
+  box-shadow: var(--os-shadow-1) !important;
+}
+
+.home-action-card strong,
+.module-app-card strong,
+.calculator-row strong,
+.settings-row strong,
+.store-card strong,
+.survey-intro-card strong,
+.client-os-card strong,
+.catalog-card strong,
+.technical-capture-card strong,
+.editable-budget-item-card strong,
+.report-item-card strong,
+.part-result-main strong,
+.guided-service-card strong,
+.guided-manual-block-card strong,
+.parts-results-header strong,
+.budget-summary-strip strong,
+.report-metrics-grid strong,
+.client-os-metrics-grid strong,
+.print-document strong,
+.report-context-box strong {
+  color: var(--os-text) !important;
+}
+
+.home-action-card:hover,
+.module-app-card:hover,
+.settings-row:hover,
+.store-card:hover,
+.client-os-card:hover,
+.part-result-card:hover,
+.guided-service-card:hover {
+  border-color: var(--os-border-strong) !important;
+  transform: translateY(-1px);
+}
+
+.home-action-card.primary,
+.part-result-card.active,
+.guided-service-card.active,
+.client-os-card.active,
+.saved-budget-card.active,
+.budget-template-card.active {
+  border-color: var(--os-border-strong) !important;
+  background:
+    radial-gradient(circle at top right, rgba(34, 197, 94, 0.12), transparent 14rem),
+    linear-gradient(145deg, color-mix(in srgb, var(--os-green-soft) 42%, var(--os-surface)), var(--os-surface)) !important;
+}
+
+.primary-action.inline-action,
+.pro-teaser-card button,
+.store-card button,
+.free-plan-card em,
+.guided-quantity-row button,
+.budget-actions button.primary-action,
+.print-action-primary,
+button.primary-action {
+  border: 1px solid color-mix(in srgb, var(--os-green) 70%, white 0%) !important;
+  color: #061009 !important;
+  background: linear-gradient(135deg, var(--os-green), var(--os-green-strong)) !important;
+  box-shadow: 0 16px 34px rgba(34, 197, 94, 0.20) !important;
+}
+
+.secondary-action.inline-action,
+.ghost-action,
+.back-button,
+button.secondary-action {
+  border: 1px solid var(--os-border-strong) !important;
+  color: var(--os-green) !important;
+  background: var(--os-green-soft) !important;
+  box-shadow: none !important;
+}
+
+.danger-action,
+.saved-budget-delete {
+  border-color: rgba(239, 68, 68, 0.30) !important;
+  color: var(--os-danger) !important;
+  background: rgba(239, 68, 68, 0.10) !important;
+}
+
+.section-mode-tabs,
+.budget-workspace-tabs,
+.client-os-section-tabs {
+  border: 1px solid var(--os-border) !important;
+  background: color-mix(in srgb, var(--os-surface) 88%, transparent) !important;
+  box-shadow: var(--os-shadow-1) !important;
+}
+
+.section-mode-tabs button,
+.budget-workspace-tabs button,
+.client-os-section-tabs button {
+  color: var(--os-muted) !important;
+  background: transparent !important;
+}
+
+.section-mode-tabs button::before,
+.budget-workspace-tabs button::before,
+.client-os-section-tabs button::before {
+  background: var(--os-faint) !important;
+}
+
+.section-mode-tabs button.active,
+.budget-workspace-tabs button.active,
+.client-os-section-tabs button.active {
+  color: var(--os-green) !important;
+  background: var(--os-green-soft) !important;
+  box-shadow: inset 0 0 0 1px var(--os-border-strong) !important;
+}
+
+.section-mode-tabs button.active::before,
+.budget-workspace-tabs button.active::before,
+.client-os-section-tabs button.active::before {
+  background: var(--os-green) !important;
+  box-shadow: var(--os-ring) !important;
+}
+
+input,
+select,
+textarea,
+.budget-field input,
+.budget-field select,
+.budget-field textarea,
+.technical-edit-field input,
+.technical-edit-field select,
+.technical-edit-field textarea,
+.guided-typed-quantity input,
+.guided-typed-quantity select,
+.part-result-controls select,
+.client-os-actions select,
+.calculator-panel input,
+.calculator-panel select,
+.calculator-panel textarea,
+.calculation-form input,
+.calculation-form select,
+.calculation-form textarea {
+  border: 1px solid var(--os-border) !important;
+  color: var(--os-text) !important;
+  background: color-mix(in srgb, var(--os-surface-2) 88%, transparent) !important;
+  box-shadow: none !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--os-faint) !important;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--os-green) !important;
+  box-shadow: var(--os-ring) !important;
+  outline: none !important;
+}
+
+.module-plan-pill,
+.badge-free,
+.badge-pro,
+.store-card b,
+.report-item-content header span {
+  border: 1px solid var(--os-border-strong) !important;
+  color: var(--os-green) !important;
+  background: var(--os-green-soft) !important;
+}
+
+.guided-cart-total,
+.budget-save-status {
+  border: 1px solid var(--os-border-strong) !important;
+  background: var(--os-green-soft) !important;
+}
+
+.guided-cart-total span,
+.guided-cart-total strong,
+.budget-save-status span {
+  color: var(--os-green) !important;
+}
+
+.parts-catalog-panel,
+.guided-cart-panel {
+  gap: 18px !important;
+}
+
+.part-result-card::before,
+.editable-budget-item-card::before,
+.report-item-card::before,
+.client-os-card.active::before,
+.budget-section-panel::before,
+.client-os-panel::before,
+.settings-group::before,
+.report-document::before {
+  background: linear-gradient(180deg, var(--os-green), var(--os-green-strong)) !important;
+}
+
+.budget-section-panel::before,
+.client-os-panel::before,
+.settings-group::before,
+.report-document::before {
+  height: 3px !important;
+}
+
+.print-preview-shell {
+  display: grid !important;
+  justify-items: center !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow: auto !important;
+  padding: 18px !important;
+  border-radius: var(--os-radius-lg) !important;
+  background: color-mix(in srgb, var(--os-bg) 92%, var(--os-surface)) !important;
+  box-shadow: inset 0 0 0 1px var(--os-border), var(--os-shadow-1) !important;
+}
+
+.print-document {
+  box-sizing: border-box !important;
+  width: min(100%, 794px) !important;
+  max-width: 794px !important;
+  min-width: 0 !important;
+  aspect-ratio: auto !important;
+  margin: 0 auto !important;
+  border: 1px solid rgba(0, 0, 0, 0.12) !important;
+  border-radius: 10px !important;
+  padding: clamp(18px, 3vw, 34px) !important;
+  color: #111827 !important;
+  background: #ffffff !important;
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.18) !important;
+  overflow: hidden !important;
+}
+
+.print-document *,
+.print-document strong,
+.print-document h1,
+.print-document h2,
+.print-document h3,
+.print-document p,
+.print-document span,
+.print-document td,
+.print-document th {
+  color: #111827 !important;
+  max-width: 100% !important;
+  overflow-wrap: anywhere !important;
+  word-break: normal !important;
+}
+
+.print-document h1 {
+  font-size: clamp(1.45rem, 4vw, 2.4rem) !important;
+  line-height: 1.05 !important;
+}
+
+.print-document p,
+.print-document td,
+.print-document th,
+.print-document small,
+.print-document span {
+  font-size: clamp(0.64rem, 1.55vw, 0.88rem) !important;
+  line-height: 1.35 !important;
+}
+
+.print-document-top,
+.print-status-box,
+.print-client-box,
+.print-summary-box {
+  color: #111827 !important;
+  background: #ffffff !important;
+  border-color: #e5e7eb !important;
+}
+
+.print-table-wrap {
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow-x: auto !important;
+  border-radius: 8px !important;
+}
+
+.print-table-wrap table,
+.print-document table {
+  width: 100% !important;
+  min-width: 0 !important;
+  table-layout: fixed !important;
+  border-collapse: collapse !important;
+}
+
+.print-document th {
+  color: #ffffff !important;
+  background: #0a0f0c !important;
+}
+
+.print-document th,
+.print-document td {
+  padding: clamp(4px, 1vw, 8px) !important;
+  white-space: normal !important;
+}
+
+.print-summary-box strong:last-child,
+.print-document .total,
+.print-document [class*="total"] strong {
+  color: #15803d !important;
+}
+
+.report-document {
+  color: var(--os-text) !important;
+}
+
+.report-document-footer,
+.signature-line {
+  border-color: var(--os-border) !important;
+  color: var(--os-muted) !important;
+}
+
+@media (max-width: 680px) {
+  .home-hero,
+  .screen-header,
+  .module-detail-header,
+  .guided-cart-panel,
+  .budget-section-panel,
+  .client-os-panel,
+  .report-document,
+  .settings-group,
+  .active-work-context-card,
+  .active-os-panel,
+  .parts-catalog-panel {
+    border-radius: var(--os-radius-lg) !important;
+  }
+
+  .print-preview-shell {
+    padding: 10px !important;
+  }
+
+  .print-document {
+    width: 100% !important;
+    padding: 16px !important;
+    transform: none !important;
+  }
+}
+
+@media print {
+  html,
+  body,
+  #root {
+    background: #ffffff !important;
+  }
+
+  .professional-topbar,
+  .side-drawer,
+  .drawer-backdrop,
+  .screen-header,
+  .active-work-context-card,
+  .budget-workspace-tabs,
+  .section-mode-tabs,
+  .client-os-section-tabs,
+  .budget-save-status,
+  .budget-context-panel,
+  .no-print {
+    display: none !important;
+  }
+
+  .professional-app-shell,
+  .professional-app-content,
+  .app-screen,
+  .wide-screen,
+  .budget-section-panel,
+  .preview-section-panel,
+  .print-preview-shell {
+    display: block !important;
+    width: 100% !important;
+    max-width: none !important;
+    height: auto !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    border: 0 !important;
+    background: #ffffff !important;
+    box-shadow: none !important;
+  }
+
+  .print-document {
+    width: 210mm !important;
+    max-width: 210mm !important;
+    min-height: 297mm !important;
+    margin: 0 auto !important;
+    padding: 14mm !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+}
