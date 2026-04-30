@@ -16,7 +16,7 @@ export function BudgetWorkspaceClientBridge(props: BudgetWorkspaceClientBridgePr
     <>
       <ProfessionalIdentityCard contextLabel="Identidade da proposta" />
       <BudgetWorkspace {...props} />
-      <ClientProposalWorkspace />
+      <ClientProposalWorkspace technicalCaptures={props.technicalCaptures ?? []} activeClient={props.activeClient ?? null} activeWorkOrder={props.activeWorkOrder ?? null} />
     </>
   );
 }
