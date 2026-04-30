@@ -24,6 +24,7 @@ export type CalculatorMode =
   | 'analog-0-10v';
 
 export type CalculatorModule =
+  | 'fundamentosGerais'
   | 'fundamentals'
   | 'installations'
   | 'lighting'
