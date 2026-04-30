@@ -1,5 +1,6 @@
 import type { Client, WorkOrder } from '../../../core/types/business';
 import type { CalculationCapture } from '../../../core/types/workflow';
+import { ProfessionalIdentityCard } from '../../settings/components/ProfessionalIdentityCard';
 import './ReportWorkspace.css';
 
 interface ReportWorkspaceProps {
@@ -62,6 +63,8 @@ export function ReportWorkspace({ captures, activeClient = null, activeWorkOrder
 
   return (
     <div className="report-workspace">
+      <ProfessionalIdentityCard contextLabel="Identidade do relatório" />
+
       <section className="report-summary-panel no-print">
         <div>
           <h2>Relatório técnico</h2>
