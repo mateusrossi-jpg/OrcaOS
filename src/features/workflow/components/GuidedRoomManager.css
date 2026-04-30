@@ -1,0 +1,132 @@
+.guided-room-manager {
+  display: grid;
+  gap: 16px;
+}
+
+.guided-room-header,
+.guided-room-card {
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 24px;
+  background: linear-gradient(145deg, rgba(15, 23, 42, 0.94), rgba(2, 6, 23, 0.98));
+  box-shadow: 0 20px 60px rgba(2, 6, 23, 0.2);
+}
+
+.guided-room-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px;
+}
+
+.guided-room-header h2,
+.guided-room-card strong,
+.guided-room-item strong {
+  color: #f8fafc;
+}
+
+.guided-room-header p,
+.guided-room-header strong,
+.guided-room-card small,
+.guided-room-item small {
+  color: #94a3b8;
+}
+
+.guided-room-card {
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+}
+
+.guided-room-grid {
+  display: grid;
+  grid-template-columns: 1.3fr 0.7fr;
+  gap: 12px;
+}
+
+.guided-room-grid label,
+.guided-room-search {
+  display: grid;
+  gap: 7px;
+  color: #cbd5e1;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.guided-room-grid label.wide {
+  grid-column: 1 / -1;
+}
+
+.guided-room-grid input,
+.guided-room-grid select,
+.guided-room-grid textarea,
+.guided-room-search input {
+  width: 100%;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 15px;
+  background: rgba(15, 23, 42, 0.76);
+  color: #f8fafc;
+  padding: 12px 13px;
+  font: inherit;
+  outline: none;
+}
+
+.guided-room-grid textarea {
+  min-height: 86px;
+  resize: vertical;
+}
+
+.guided-room-list {
+  display: grid;
+  gap: 10px;
+}
+
+.guided-room-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: center;
+  padding: 14px;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 18px;
+  background: rgba(15, 23, 42, 0.62);
+}
+
+.guided-room-item > div:first-child {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.guided-room-item span {
+  color: #22c55e;
+  font-size: 0.72rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.guided-room-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+@media (max-width: 760px) {
+  .guided-room-header,
+  .guided-room-item,
+  .guided-room-grid {
+    grid-template-columns: 1fr;
+    display: grid;
+  }
+
+  .guided-room-actions {
+    justify-content: stretch;
+  }
+
+  .guided-room-actions > * {
+    flex: 1;
+  }
+}
