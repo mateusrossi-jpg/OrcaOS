@@ -1,0 +1,419 @@
+/* Orçamento — refinamento visual de proposta comercial */
+.budget-workspace {
+  gap: 18px;
+}
+
+.budget-save-status {
+  position: relative;
+  overflow: hidden;
+  border-radius: 22px !important;
+  background: linear-gradient(135deg, #ffffff, #f3f9ff) !important;
+}
+
+.budget-save-status::before {
+  content: '';
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  background: #16a34a;
+  box-shadow: 0 0 0 6px rgba(22, 163, 74, 0.12);
+}
+
+.budget-save-status span {
+  margin-right: auto;
+}
+
+.budget-context-panel {
+  position: relative;
+  overflow: hidden;
+}
+
+.budget-context-panel::after {
+  content: '';
+  position: absolute;
+  right: -38px;
+  bottom: -44px;
+  width: 118px;
+  height: 118px;
+  border-radius: 999px;
+  background: rgba(34, 103, 206, 0.08);
+}
+
+.budget-context-panel > * {
+  position: relative;
+  z-index: 1;
+}
+
+.budget-workspace-tabs {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  padding: 10px;
+  border-radius: 26px;
+}
+
+.budget-workspace-tabs button {
+  display: grid;
+  place-items: center;
+  min-height: 54px;
+  padding-inline: 8px;
+  font-size: 0.84rem;
+  line-height: 1.15;
+}
+
+.budget-workspace-tabs button::before {
+  content: '';
+  display: block;
+  width: 6px;
+  height: 6px;
+  margin-bottom: 5px;
+  border-radius: 999px;
+  background: #c5d4e5;
+}
+
+.budget-workspace-tabs button.active::before {
+  background: #2267ce;
+  box-shadow: 0 0 0 4px rgba(34, 103, 206, 0.12);
+}
+
+.budget-section-panel {
+  position: relative;
+  overflow: hidden;
+  border-radius: 28px !important;
+}
+
+.budget-section-panel::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 4px;
+  background: linear-gradient(90deg, #124878, #2267ce, #62a7ff);
+  opacity: 0.9;
+}
+
+.budget-section-panel > * {
+  position: relative;
+  z-index: 1;
+}
+
+.budget-section-header {
+  padding-top: 4px;
+}
+
+.budget-section-header h3 {
+  font-size: clamp(1.3rem, 5vw, 1.8rem);
+}
+
+.budget-section-header p {
+  max-width: 42rem;
+}
+
+.budget-header-card {
+  border-radius: 24px !important;
+  background: linear-gradient(135deg, #ffffff, #f8fafc) !important;
+}
+
+.budget-summary-strip {
+  gap: 12px;
+}
+
+.budget-summary-strip article {
+  position: relative;
+  overflow: hidden;
+  border-radius: 22px;
+  min-height: 94px;
+}
+
+.budget-summary-strip article::after {
+  content: '';
+  position: absolute;
+  right: -22px;
+  bottom: -26px;
+  width: 72px;
+  height: 72px;
+  border-radius: 999px;
+  background: rgba(34, 103, 206, 0.06);
+}
+
+.budget-summary-strip span,
+.budget-summary-strip strong {
+  position: relative;
+  z-index: 1;
+}
+
+.budget-summary-strip strong {
+  font-size: clamp(1.18rem, 4.5vw, 1.55rem);
+}
+
+.saved-budget-panel {
+  border-radius: 24px !important;
+  background: linear-gradient(135deg, #ffffff, #f8fafc) !important;
+}
+
+.saved-budget-card {
+  border-radius: 20px;
+  background: #ffffff !important;
+}
+
+.saved-budget-card.active {
+  background: linear-gradient(135deg, #eef5ff, #ffffff) !important;
+}
+
+.saved-budget-open strong {
+  font-size: 1.02rem;
+}
+
+.saved-budget-delete {
+  min-width: 84px;
+}
+
+.budget-editor {
+  border-radius: 24px !important;
+  background: linear-gradient(135deg, #ffffff, #f8fafc) !important;
+}
+
+.budget-editor-title {
+  display: grid;
+  gap: 4px;
+}
+
+.budget-editor-title h3 {
+  letter-spacing: -0.035em;
+}
+
+.budget-form-grid {
+  gap: 14px;
+}
+
+.budget-field span,
+.technical-edit-field span {
+  color: #59697c;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.budget-field input,
+.budget-field select,
+.budget-field textarea {
+  min-height: 52px;
+  border-radius: 18px !important;
+}
+
+.budget-field textarea {
+  padding-top: 14px;
+}
+
+.editable-budget-item-list {
+  gap: 14px;
+}
+
+.editable-budget-item-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 24px !important;
+}
+
+.editable-budget-item-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 5px;
+  background: linear-gradient(180deg, #124878, #2267ce);
+}
+
+.editable-budget-item-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.editable-budget-item-footer {
+  gap: 12px;
+}
+
+.editable-budget-item-footer strong {
+  font-size: clamp(1.22rem, 5vw, 1.55rem);
+}
+
+.catalog-form-grid {
+  border: 1px solid #d8e2ee;
+  border-radius: 24px;
+  padding: 16px;
+  background: linear-gradient(135deg, #ffffff, #f8fafc);
+}
+
+.catalog-list {
+  gap: 12px;
+}
+
+.catalog-card {
+  border-radius: 22px !important;
+}
+
+.catalog-card strong {
+  font-size: 1.02rem;
+}
+
+.logo-editor-card {
+  border-radius: 24px !important;
+  background: linear-gradient(135deg, #ffffff, #f8fafc) !important;
+}
+
+.logo-preview-box {
+  border-radius: 22px !important;
+  background:
+    linear-gradient(135deg, rgba(234, 243, 255, 0.7), rgba(255, 255, 255, 0.95)),
+    #f8fafc !important;
+}
+
+.budget-config-grid {
+  border: 1px solid #d8e2ee;
+  border-radius: 24px;
+  padding: 16px;
+  background: linear-gradient(135deg, #ffffff, #f8fafc);
+}
+
+.budget-template-grid {
+  gap: 14px;
+}
+
+.budget-template-card {
+  position: relative;
+  min-height: 150px;
+  border-radius: 24px !important;
+  overflow: hidden;
+}
+
+.budget-template-card::after {
+  content: '';
+  position: absolute;
+  right: -24px;
+  bottom: -30px;
+  width: 92px;
+  height: 92px;
+  border-radius: 999px;
+  background: rgba(34, 103, 206, 0.06);
+}
+
+.budget-template-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.budget-template-card.active {
+  background: linear-gradient(135deg, #eef5ff, #ffffff) !important;
+}
+
+.preview-section-panel {
+  background: linear-gradient(135deg, #f8fafc, #ffffff) !important;
+}
+
+.print-preview-shell {
+  border-radius: 26px !important;
+  box-shadow: 0 24px 70px rgba(15, 31, 51, 0.12) !important;
+}
+
+.print-document {
+  border-radius: 22px !important;
+  overflow: hidden;
+}
+
+.print-document-top {
+  background: linear-gradient(135deg, #ffffff, #f8fafc) !important;
+}
+
+.print-status-box,
+.print-client-box {
+  border-radius: 20px !important;
+}
+
+.print-table-wrap {
+  border-radius: 20px;
+}
+
+.print-summary-box {
+  border-radius: 22px !important;
+}
+
+.technical-import-card {
+  border-radius: 22px !important;
+}
+
+.compact-import-list {
+  border: 1px solid #d8e2ee;
+  border-radius: 24px;
+  padding: 12px;
+  background: #f8fafc;
+}
+
+@media (max-width: 760px) {
+  .budget-workspace-tabs {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .budget-workspace-tabs button {
+    min-height: 50px;
+  }
+
+  .budget-section-header {
+    gap: 12px;
+  }
+}
+
+@media (max-width: 520px) {
+  .budget-workspace-tabs {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .budget-section-panel {
+    padding: 16px !important;
+  }
+
+  .budget-summary-strip {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .catalog-form-grid,
+  .budget-config-grid {
+    padding: 12px;
+    border-radius: 20px;
+  }
+
+  .budget-template-card {
+    min-height: 126px;
+  }
+}
+
+@media print {
+  .budget-workspace-tabs,
+  .budget-save-status,
+  .budget-context-panel,
+  .budget-section-header,
+  .active-work-context-card,
+  .professional-topbar,
+  .side-drawer,
+  .drawer-backdrop {
+    display: none !important;
+  }
+
+  .professional-app-shell,
+  .professional-app-content,
+  .budget-section-panel,
+  .preview-section-panel {
+    display: block !important;
+    height: auto !important;
+    overflow: visible !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+    box-shadow: none !important;
+    border: 0 !important;
+  }
+
+  .budget-section-panel::before {
+    display: none !important;
+  }
+
+  .print-preview-shell {
+    box-shadow: none !important;
+  }
+}
