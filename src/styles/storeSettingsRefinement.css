@@ -1,0 +1,217 @@
+/* Loja / Pro e Configurações — aparência comercial e área de conta */
+.store-card,
+.settings-row,
+.settings-group {
+  position: relative;
+}
+
+.settings-group {
+  display: grid;
+  gap: 14px;
+  border: 1px solid #d8e2ee;
+  border-radius: 28px;
+  padding: 18px;
+  background: linear-gradient(135deg, #ffffff, #f8fafc);
+  box-shadow: 0 10px 30px rgba(15, 31, 51, 0.06);
+  overflow: hidden;
+}
+
+.settings-group::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 4px;
+  background: linear-gradient(90deg, #124878, #2267ce, #62a7ff);
+  opacity: 0.82;
+}
+
+.settings-group > * {
+  position: relative;
+  z-index: 1;
+}
+
+.settings-group h2 {
+  margin: 0;
+  color: #102033;
+  font-size: clamp(1.3rem, 5vw, 1.75rem);
+  letter-spacing: -0.045em;
+}
+
+.store-card {
+  align-items: stretch;
+  border-radius: 26px !important;
+  overflow: hidden;
+  background: #ffffff !important;
+}
+
+.store-card::after {
+  content: '';
+  position: absolute;
+  right: -28px;
+  bottom: -34px;
+  width: 102px;
+  height: 102px;
+  border-radius: 999px;
+  background: rgba(34, 103, 206, 0.06);
+}
+
+.store-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.store-card .app-icon {
+  width: 56px;
+  height: 56px;
+  font-size: 1.55rem;
+}
+
+.store-card span:nth-child(2) {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.store-card strong {
+  font-size: 1.08rem;
+  letter-spacing: -0.035em;
+}
+
+.store-card small {
+  max-width: 44rem;
+  line-height: 1.42;
+}
+
+.store-card b {
+  display: inline-flex;
+  width: fit-content;
+  margin-top: 4px;
+  border-radius: 999px;
+  padding: 7px 11px;
+  color: #124878;
+  background: #eaf3ff;
+  font-size: 0.92rem;
+  font-weight: 950;
+}
+
+.store-card button {
+  align-self: center;
+  min-width: 112px;
+  min-height: 44px;
+  border: 0;
+  border-radius: 16px;
+  color: #ffffff;
+  font: inherit;
+  font-weight: 950;
+}
+
+.store-card:first-of-type {
+  background: linear-gradient(135deg, #ffffff, #eaf3ff) !important;
+  border-color: #cfe0f8 !important;
+}
+
+.store-card:first-of-type b {
+  color: #168a4a;
+  background: #e7f7ed;
+}
+
+.settings-row {
+  border-radius: 24px !important;
+  overflow: hidden;
+  background: #ffffff !important;
+}
+
+.settings-row::after {
+  content: '';
+  position: absolute;
+  right: -24px;
+  bottom: -28px;
+  width: 82px;
+  height: 82px;
+  border-radius: 999px;
+  background: rgba(34, 103, 206, 0.045);
+}
+
+.settings-row > * {
+  position: relative;
+  z-index: 1;
+}
+
+.settings-row .app-icon {
+  width: 52px;
+  height: 52px;
+  font-size: 1.45rem;
+}
+
+.settings-row strong {
+  font-size: 1.04rem;
+}
+
+.settings-row small {
+  max-width: 36rem;
+  line-height: 1.42;
+}
+
+.chevron {
+  color: #8ba0b8;
+  font-size: 1.55rem;
+  font-weight: 950;
+}
+
+/* Hero implícito para Loja / Pro */
+.app-screen:has(.store-card) .screen-header {
+  background:
+    radial-gradient(circle at top right, rgba(34, 103, 206, 0.16), transparent 18rem),
+    linear-gradient(135deg, #ffffff, #eef5ff) !important;
+}
+
+.app-screen:has(.store-card) .screen-header::after {
+  content: 'PRO';
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  border: 1px solid #cfe0f8;
+  border-radius: 999px;
+  padding: 8px 12px;
+  color: #124878;
+  background: rgba(255, 255, 255, 0.82);
+  font-size: 0.72rem;
+  font-weight: 950;
+  letter-spacing: 0.08em;
+}
+
+/* Hero implícito para Configurações */
+.app-screen:has(.settings-row) .screen-header {
+  background:
+    radial-gradient(circle at top right, rgba(34, 103, 206, 0.12), transparent 18rem),
+    linear-gradient(135deg, #ffffff, #f8fafc) !important;
+}
+
+@media (max-width: 760px) {
+  .store-card,
+  .settings-row {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .store-card button {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+}
+
+@media (max-width: 520px) {
+  .settings-group {
+    border-radius: 22px;
+    padding: 16px;
+  }
+
+  .store-card,
+  .settings-row {
+    border-radius: 22px !important;
+  }
+
+  .app-screen:has(.store-card) .screen-header::after {
+    top: 14px;
+    right: 14px;
+  }
+}
