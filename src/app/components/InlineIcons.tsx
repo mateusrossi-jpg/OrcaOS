@@ -1,3 +1,4 @@
+import { createElement } from 'react';
 import type { SVGProps } from 'react';
 
 interface IconProps extends SVGProps<SVGSVGElement> {
@@ -63,49 +64,47 @@ const iconPaths: Record<IconName, string[]> = {
 };
 
 function Icon({ name, size = 22, strokeWidth = 2.2, ...props }: IconProps & { name: IconName }) {
-  return (
-    <svg
-      aria-hidden="true"
-      fill="none"
-      height={size}
-      stroke="currentColor"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={strokeWidth}
-      viewBox="0 0 24 24"
-      width={size}
-      {...props}
-    >
-      {iconPaths[name].map((pathData) => (
-        <path d={pathData} key={pathData} />
-      ))}
-    </svg>
+  return createElement(
+    'svg',
+    {
+      'aria-hidden': true,
+      fill: 'none',
+      height: size,
+      stroke: 'currentColor',
+      strokeLinecap: 'round',
+      strokeLinejoin: 'round',
+      strokeWidth,
+      viewBox: '0 0 24 24',
+      width: size,
+      ...props,
+    },
+    iconPaths[name].map((pathData) => createElement('path', { d: pathData, key: pathData })),
   );
 }
 
-export function BadgeInfo(props: IconProps) { return <Icon name="badgeInfo" {...props} />; }
-export function Bolt(props: IconProps) { return <Icon name="bolt" {...props} />; }
-export function BriefcaseBusiness(props: IconProps) { return <Icon name="briefcase" {...props} />; }
-export function Cable(props: IconProps) { return <Icon name="cable" {...props} />; }
-export function Calculator(props: IconProps) { return <Icon name="calculator" {...props} />; }
-export function ClipboardCheck(props: IconProps) { return <Icon name="clipboardCheck" {...props} />; }
-export function ClipboardList(props: IconProps) { return <Icon name="clipboardList" {...props} />; }
-export function ClipboardPenLine(props: IconProps) { return <Icon name="clipboardPen" {...props} />; }
-export function Cog(props: IconProps) { return <Icon name="cog" {...props} />; }
-export function Factory(props: IconProps) { return <Icon name="factory" {...props} />; }
-export function FileSearch(props: IconProps) { return <Icon name="fileSearch" {...props} />; }
-export function FileText(props: IconProps) { return <Icon name="fileText" {...props} />; }
-export function Gem(props: IconProps) { return <Icon name="gem" {...props} />; }
-export function History(props: IconProps) { return <Icon name="history" {...props} />; }
-export function House(props: IconProps) { return <Icon name="house" {...props} />; }
-export function Lightbulb(props: IconProps) { return <Icon name="lightbulb" {...props} />; }
-export function PackageSearch(props: IconProps) { return <Icon name="packageSearch" {...props} />; }
-export function PlugZap(props: IconProps) { return <Icon name="plugZap" {...props} />; }
-export function ReceiptText(props: IconProps) { return <Icon name="receiptText" {...props} />; }
-export function RotateCcw(props: IconProps) { return <Icon name="rotateCcw" {...props} />; }
-export function Settings(props: IconProps) { return <Icon name="settings" {...props} />; }
-export function ShoppingBag(props: IconProps) { return <Icon name="shoppingBag" {...props} />; }
-export function Snowflake(props: IconProps) { return <Icon name="snowflake" {...props} />; }
-export function Sparkles(props: IconProps) { return <Icon name="sparkles" {...props} />; }
-export function UsersRound(props: IconProps) { return <Icon name="users" {...props} />; }
-export function Wrench(props: IconProps) { return <Icon name="wrench" {...props} />; }
+export function BadgeInfo(props: IconProps) { return Icon({ name: 'badgeInfo', ...props }); }
+export function Bolt(props: IconProps) { return Icon({ name: 'bolt', ...props }); }
+export function BriefcaseBusiness(props: IconProps) { return Icon({ name: 'briefcase', ...props }); }
+export function Cable(props: IconProps) { return Icon({ name: 'cable', ...props }); }
+export function Calculator(props: IconProps) { return Icon({ name: 'calculator', ...props }); }
+export function ClipboardCheck(props: IconProps) { return Icon({ name: 'clipboardCheck', ...props }); }
+export function ClipboardList(props: IconProps) { return Icon({ name: 'clipboardList', ...props }); }
+export function ClipboardPenLine(props: IconProps) { return Icon({ name: 'clipboardPen', ...props }); }
+export function Cog(props: IconProps) { return Icon({ name: 'cog', ...props }); }
+export function Factory(props: IconProps) { return Icon({ name: 'factory', ...props }); }
+export function FileSearch(props: IconProps) { return Icon({ name: 'fileSearch', ...props }); }
+export function FileText(props: IconProps) { return Icon({ name: 'fileText', ...props }); }
+export function Gem(props: IconProps) { return Icon({ name: 'gem', ...props }); }
+export function History(props: IconProps) { return Icon({ name: 'history', ...props }); }
+export function House(props: IconProps) { return Icon({ name: 'house', ...props }); }
+export function Lightbulb(props: IconProps) { return Icon({ name: 'lightbulb', ...props }); }
+export function PackageSearch(props: IconProps) { return Icon({ name: 'packageSearch', ...props }); }
+export function PlugZap(props: IconProps) { return Icon({ name: 'plugZap', ...props }); }
+export function ReceiptText(props: IconProps) { return Icon({ name: 'receiptText', ...props }); }
+export function RotateCcw(props: IconProps) { return Icon({ name: 'rotateCcw', ...props }); }
+export function Settings(props: IconProps) { return Icon({ name: 'settings', ...props }); }
+export function ShoppingBag(props: IconProps) { return Icon({ name: 'shoppingBag', ...props }); }
+export function Snowflake(props: IconProps) { return Icon({ name: 'snowflake', ...props }); }
+export function Sparkles(props: IconProps) { return Icon({ name: 'sparkles', ...props }); }
+export function UsersRound(props: IconProps) { return Icon({ name: 'users', ...props }); }
+export function Wrench(props: IconProps) { return Icon({ name: 'wrench', ...props }); }
