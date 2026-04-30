@@ -1,7 +1,7 @@
 import { CatalogHubWorkspace } from '../../catalog/components/CatalogHubWorkspaceWithTax';
 import type { CalculationCapture } from '../../../core/types/workflow';
-import { GuidedBudgetCartRoomAutoBridge } from './GuidedBudgetCartRoomAutoBridge';
 import { GuidedRoomManager } from './GuidedRoomManager';
+import { MaterialSupplyModeBridge } from './MaterialSupplyModeBridge';
 
 type GuidedCartMode = 'catalog' | 'manual' | 'parts' | 'all';
 
@@ -17,7 +17,7 @@ export function GuidedBudgetCart({ onSendToBudget, mode = 'all' }: GuidedBudgetC
   return (
     <>
       {shouldShowRooms && <GuidedRoomManager />}
-      <GuidedBudgetCartRoomAutoBridge onSendToBudget={onSendToBudget} mode={mode} />
+      <MaterialSupplyModeBridge onSendToBudget={onSendToBudget} mode={mode} />
       {shouldShowCatalogHub && <CatalogHubWorkspace onSendToBudget={onSendToBudget} />}
     </>
   );
