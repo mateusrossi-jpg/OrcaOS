@@ -4,25 +4,25 @@ Este documento define como os cálculos devem ser separados dentro do OrçaOS.
 
 ## Regra principal
 
-Os cálculos devem ser separados por coerência de uso profissional:
+Os cálculos devem ser separados por setor/profissão, e não por um bloco genérico chamado “Obras”.
+
+A organização oficial passa a ser:
 
 1. Fundamentos gerais
-2. Fundamentos elétricos
-3. Instalações elétricas
-4. Iluminação
-5. Refrigeração
-6. Motores
+2. Serviços elétricos
+3. Construção civil
+4. Pintura e acabamento
+5. Serviços hidráulicos
+6. Refrigeração e climatização
 7. Automação industrial
-8. Obras / construção civil
-9. Pintura / acabamento
-10. Hidráulica
-11. Eletrônica
-12. Transformadores
-13. Rebobinagem
-14. Solar
-15. Orçamento técnico
-16. Conversores
-17. Diagnóstico técnico
+8. Motores elétricos
+9. Eletrônica
+10. Transformadores
+11. Rebobinagem
+12. Energia solar
+13. Orçamento técnico
+14. Conversores
+15. Diagnóstico técnico
 
 ## 1. Fundamentos gerais
 
@@ -56,9 +56,17 @@ Plano sugerido:
 - 7 a 10 gratuitos.
 - Restante em pacote Pro ou pacote de produtividade.
 
-## 2. Fundamentos elétricos
+## 2. Serviços elétricos
 
-Cálculos elétricos básicos que podem ficar gratuitos para atrair eletricistas, estudantes e técnicos.
+Área voltada para eletricistas, instaladores, técnicos de manutenção e profissionais de baixa tensão.
+
+Pode ser subdividida em:
+
+- Fundamentos elétricos.
+- Instalações elétricas.
+- Iluminação.
+- Motores elétricos.
+- Quadros e proteção.
 
 Exemplos:
 
@@ -66,28 +74,11 @@ Exemplos:
 - Potência.
 - Lei de Ohm.
 - Potência por resistência.
-- Resistores em série.
-- Resistores em paralelo.
+- Resistores em série/paralelo.
 - W / VA / A.
 - Consumo kWh.
-- Custo de energia.
-- Corrente DC 12/24/48 V.
-- Autonomia de bateria básica.
-
-Plano sugerido:
-
-- 7 gratuitos.
-- Restante Pro.
-
-## 3. Instalações elétricas
-
-Cálculos específicos de eletricista/instalador.
-
-Exemplos:
-
 - Queda de tensão.
 - Seção por queda.
-- Distância máxima.
 - Cabo/disjuntor.
 - Eletroduto.
 - Transformador básico.
@@ -104,9 +95,27 @@ Exemplos:
 - Balanceamento de fases.
 - Aterramento básico.
 
-## 4. Obras / construção civil
+Plano sugerido:
 
-Cálculos específicos de obra.
+- 7 fundamentos elétricos gratuitos.
+- Instalações, proteção, quadros e cálculos avançados no pacote Pro.
+
+## 3. Construção civil
+
+Área voltada para pedreiros, mestres de obras, empreiteiros e profissionais de execução civil.
+
+Este módulo substitui o nome genérico “Obras”. “Obras” é amplo demais e deve ser tratado como um contexto de trabalho, não como categoria principal de cálculo.
+
+Subáreas recomendadas:
+
+- Alvenaria.
+- Concreto.
+- Contrapiso.
+- Argamassa.
+- Pisos e revestimentos.
+- Telhado.
+- Fundação e estrutura básica.
+- Medições de obra.
 
 Exemplos:
 
@@ -129,9 +138,9 @@ Exemplos:
 - Aço por estimativa.
 - Peso de material.
 
-## 5. Pintura / acabamento
+## 4. Pintura e acabamento
 
-Cálculos específicos de pintura e acabamento.
+Área voltada para pintores, acabadores, gesseiros e profissionais de acabamento.
 
 Exemplos:
 
@@ -150,8 +159,83 @@ Exemplos:
 - Orçamento por m².
 - Orçamento por cômodo.
 - Tempo estimado.
+- Gesso/drywall futuramente.
 
-## 6. Orçamento técnico
+## 5. Serviços hidráulicos
+
+Área voltada para encanadores, instaladores hidráulicos e manutenção predial.
+
+Exemplos:
+
+- Volume de caixa d’água.
+- Consumo diário.
+- Vazão.
+- Tempo de enchimento.
+- Tempo de esvaziamento.
+- Conversão mca/bar/psi.
+- Dimensionamento básico de bomba.
+- Altura manométrica.
+- Tubulação.
+- Quantidade de conexões.
+- Inclinação de esgoto.
+- Perda de carga simplificada.
+
+## 6. Refrigeração e climatização
+
+Área voltada para instaladores e técnicos de ar-condicionado.
+
+Exemplos:
+
+- BTU/h.
+- Carga térmica inicial.
+- Pessoas.
+- Insolação.
+- Eletrônicos.
+- Capacidade comercial.
+- Consumo mensal.
+- Cabo/disjuntor dedicado.
+- Dreno.
+- Tubulação de cobre.
+- Lista de materiais para instalação.
+
+## 7. Automação industrial
+
+Área voltada para instrumentação, painéis, comandos, CLP e manutenção industrial.
+
+Exemplos:
+
+- 4–20 mA.
+- 0–10 V.
+- Valor de engenharia.
+- Fonte 24 V.
+- Corrente de sensores.
+- Queda em 24 V.
+- Temporizador ON delay.
+- Temporizador OFF delay.
+- Tempo de ciclo.
+- Produção por hora.
+- Encoder.
+- Entradas e saídas de CLP.
+
+## 8. Motores elétricos
+
+Área voltada para motores, comandos, bombas e transmissão mecânica.
+
+Exemplos:
+
+- Corrente de motor.
+- Rotação síncrona.
+- Escorregamento.
+- Polias.
+- Torque.
+- CV/HP/kW.
+- Capacitor permanente.
+- Capacitor de partida.
+- Relé térmico.
+- Contator.
+- Proteção preliminar.
+
+## 9. Orçamento técnico
 
 Cálculos comerciais que servem para todas as áreas.
 
@@ -174,7 +258,7 @@ Exemplos:
 - Saldo restante.
 - Comparativo básico/premium.
 
-## 7. Conversores
+## 10. Conversores
 
 Conversões úteis para várias áreas.
 
@@ -205,16 +289,17 @@ Cada categoria pode ter:
 Para a primeira versão apresentável:
 
 1. Fundamentos gerais.
-2. Fundamentos elétricos.
-3. Obras.
-4. Pintura.
+2. Serviços elétricos.
+3. Construção civil.
+4. Pintura e acabamento.
 5. Orçamento técnico.
 6. Conversores.
-7. Instalações elétricas.
+7. Refrigeração básica.
+8. Automação básica.
 
 Depois:
 
-1. Hidráulica.
+1. Serviços hidráulicos.
 2. Eletrônica.
 3. Solar.
 4. Transformadores.
