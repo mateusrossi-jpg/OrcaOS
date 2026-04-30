@@ -13,6 +13,7 @@ import './styles/calculationRefinement.css';
 import './styles/storeSettingsRefinement.css';
 import './styles/responsiveConsistency.css';
 import './styles/premiumPartsAndIcons.css';
+import './styles/orcaosOfficialTheme.css';
 
 const rootElement = document.getElementById('root');
 
