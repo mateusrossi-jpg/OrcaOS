@@ -12,6 +12,7 @@ import './styles/reportRefinement.css';
 import './styles/calculationRefinement.css';
 import './styles/storeSettingsRefinement.css';
 import './styles/responsiveConsistency.css';
+import './styles/premiumPartsAndIcons.css';
 
 const rootElement = document.getElementById('root');
 
