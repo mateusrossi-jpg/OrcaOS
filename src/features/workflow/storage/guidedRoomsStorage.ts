@@ -73,7 +73,13 @@ export function setActiveGuidedRoomName(roomName: string): void {
   if (typeof window === 'undefined') return;
   const normalizedRoomName = roomName.trim();
   if (!normalizedRoomName) return;
+
   window.localStorage.setItem(ACTIVE_ROOM_KEY, normalizedRoomName);
+
+  const rooms = safeParseRooms(window.localStorage.getItem(STORAGE_KEY));
+  const prioritizedRooms = prioritizeGuidedRoom(rooms, normalizedRoomName);
+  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(prioritizedRooms));
+
   dispatchActiveRoomEvent(normalizedRoomName);
 }
 
