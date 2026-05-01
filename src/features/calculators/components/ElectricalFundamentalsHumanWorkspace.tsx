@@ -69,8 +69,8 @@ const defaultValues: Record<string, string> = {
 };
 
 function parseNumber(value: string): number {
-  const parsed = Number(value.trim().replace(',', '.'));
-  return Number.isFinite(parsed) ? parsed : Number.NaN;
+  const normalizedValue = value.trim().replace(',', '.');
+  return normalizedValue ? Number(normalizedValue) : Number.NaN;
 }
 
 function ensurePositive(value: number, label: string): number {
@@ -113,6 +113,10 @@ function phaseMultiplier(phase: PhaseMode): number {
 
 function phaseLabel(phase: PhaseMode): string {
   return phase === 'three' ? 'trifásico' : 'monofásico/bifásico simplificado';
+}
+
+function emptyResult(): CalcResult {
+  return { error: null, summary: '', details: [], cards: [], orientation: '' };
 }
 
 function NumberField({ label, value, suffix, step = 0.01, onChange }: { label: string; value: string; suffix?: string; step?: number; onChange: (value: string) => void }) {
@@ -163,27 +167,41 @@ export function ElectricalFundamentalsHumanWorkspace({ onCaptureCalculation }: P
   }
 
   function optionalN(key: string, label: string): number {
-    return ensureNonNegative(parseNumber(values[key] ?? ''), label);
+    const rawValue = values[key] ?? '';
+    if (!rawValue.trim()) return 0;
+    return ensureNonNegative(parseNumber(rawValue), label);
+  }
+
+  function fp(): number {
+    return ensurePowerFactor(parseNumber(values.powerFactor ?? '1'));
+  }
+
+  function resistorValues(): number[] {
+    return ['resistorOneOhms', 'resistorTwoOhms', 'resistorThreeOhms'].reduce<number[]>((items, key, index) => {
+      const rawValue = values[key] ?? '';
+      if (!rawValue.trim()) return items;
+      items.push(ensurePositive(parseNumber(rawValue), `resistor ${index + 1}`));
+      return items;
+    }, []);
   }
 
   const calculated = useMemo<CalcResult>(() => {
-    if (!activeRule) return { error: null, summary: '', details: [], cards: [], orientation: '' };
+    if (!activeRule) return emptyResult();
 
     try {
-      const fp = ensurePowerFactor(parseNumber(values.powerFactor ?? '1'));
-      const multiplier = phaseMultiplier(phase);
-
       if (activeRule.mode === 'current-from-power') {
         const power = n('powerWatts', 'potência');
         const voltage = n('voltageVolts', 'tensão');
-        const current = power / (multiplier * voltage * fp);
+        const factor = fp();
+        const multiplier = phaseMultiplier(phase);
+        const current = power / (multiplier * voltage * factor);
         return result(
           `Corrente calculada: ${round(current)} A`,
           [
             { label: 'Corrente', value: `${round(current)} A`, helper: 'base para disjuntor e cabo' },
-            { label: 'Dados usados', value: `${round(power)} W / ${round(voltage)} V`, helper: showAdvanced ? `FP ${round(fp, 2)} · ${phaseLabel(phase)}` : 'modo simples' },
+            { label: 'Dados usados', value: `${round(power)} W / ${round(voltage)} V`, helper: showAdvanced ? `FP ${round(factor, 2)} · ${phaseLabel(phase)}` : 'modo simples' },
           ],
-          [`Potência: ${round(power)} W`, `Tensão: ${round(voltage)} V`, `Fator de potência: ${round(fp, 2)}`, `Circuito: ${phaseLabel(phase)}`, `Corrente: ${round(current)} A`],
+          [`Potência: ${round(power)} W`, `Tensão: ${round(voltage)} V`, `Fator de potência: ${round(factor, 2)}`, `Circuito: ${phaseLabel(phase)}`, `Corrente: ${round(current)} A`],
           'Use a corrente como ponto de partida. Para escolher cabo/disjuntor, valide método de instalação, distância, queda de tensão e norma aplicável.',
         );
       }
@@ -191,14 +209,16 @@ export function ElectricalFundamentalsHumanWorkspace({ onCaptureCalculation }: P
       if (activeRule.mode === 'power-from-current') {
         const voltage = n('voltageVolts', 'tensão');
         const current = n('currentAmps', 'corrente');
-        const power = multiplier * voltage * current * fp;
+        const factor = fp();
+        const multiplier = phaseMultiplier(phase);
+        const power = multiplier * voltage * current * factor;
         return result(
           `Potência calculada: ${round(power)} W`,
           [
             { label: 'Potência', value: `${round(power)} W`, helper: `${round(power / 1000)} kW` },
-            { label: 'Dados usados', value: `${round(voltage)} V × ${round(current)} A`, helper: showAdvanced ? `FP ${round(fp, 2)} · ${phaseLabel(phase)}` : 'modo simples' },
+            { label: 'Dados usados', value: `${round(voltage)} V × ${round(current)} A`, helper: showAdvanced ? `FP ${round(factor, 2)} · ${phaseLabel(phase)}` : 'modo simples' },
           ],
-          [`Tensão: ${round(voltage)} V`, `Corrente: ${round(current)} A`, `Fator de potência: ${round(fp, 2)}`, `Circuito: ${phaseLabel(phase)}`, `Potência: ${round(power)} W`],
+          [`Tensão: ${round(voltage)} V`, `Corrente: ${round(current)} A`, `Fator de potência: ${round(factor, 2)}`, `Circuito: ${phaseLabel(phase)}`, `Potência: ${round(power)} W`],
           'Use para estimar potência de uma carga conhecida. Para motores e cargas indutivas, ajuste o fator de potência em avançado.',
         );
       }
@@ -206,24 +226,24 @@ export function ElectricalFundamentalsHumanWorkspace({ onCaptureCalculation }: P
       if (activeRule.mode === 'voltage-from-power-current') {
         const power = n('powerWatts', 'potência');
         const current = n('currentAmps', 'corrente');
-        const voltage = power / (multiplier * current * fp);
+        const factor = fp();
+        const multiplier = phaseMultiplier(phase);
+        const voltage = power / (multiplier * current * factor);
         return result(
           `Tensão calculada: ${round(voltage)} V`,
           [
             { label: 'Tensão', value: `${round(voltage)} V`, helper: 'estimativa pela potência e corrente' },
-            { label: 'Dados usados', value: `${round(power)} W / ${round(current)} A`, helper: showAdvanced ? `FP ${round(fp, 2)} · ${phaseLabel(phase)}` : 'modo simples' },
+            { label: 'Dados usados', value: `${round(power)} W / ${round(current)} A`, helper: showAdvanced ? `FP ${round(factor, 2)} · ${phaseLabel(phase)}` : 'modo simples' },
           ],
-          [`Potência: ${round(power)} W`, `Corrente: ${round(current)} A`, `Fator de potência: ${round(fp, 2)}`, `Circuito: ${phaseLabel(phase)}`, `Tensão: ${round(voltage)} V`],
+          [`Potência: ${round(power)} W`, `Corrente: ${round(current)} A`, `Fator de potência: ${round(factor, 2)}`, `Circuito: ${phaseLabel(phase)}`, `Tensão: ${round(voltage)} V`],
           'Use como conferência rápida. Em campo, confirme a tensão real com instrumento adequado.',
         );
       }
 
       if (activeRule.mode === 'ohms-law') {
-        const voltage = n('voltageVolts', 'tensão');
-        const current = n('currentAmps', 'corrente');
-        const resistance = n('resistanceOhms', 'resistência');
-
         if (ohmsTarget === 'resistance') {
+          const voltage = n('voltageVolts', 'tensão');
+          const current = n('currentAmps', 'corrente');
           const calculatedResistance = voltage / current;
           return result(
             `Resistência: ${round(calculatedResistance)} Ω`,
@@ -234,6 +254,8 @@ export function ElectricalFundamentalsHumanWorkspace({ onCaptureCalculation }: P
         }
 
         if (ohmsTarget === 'current') {
+          const voltage = n('voltageVolts', 'tensão');
+          const resistance = n('resistanceOhms', 'resistência');
           const calculatedCurrent = voltage / resistance;
           return result(
             `Corrente: ${round(calculatedCurrent)} A`,
@@ -243,6 +265,8 @@ export function ElectricalFundamentalsHumanWorkspace({ onCaptureCalculation }: P
           );
         }
 
+        const resistance = n('resistanceOhms', 'resistência');
+        const current = n('currentAmps', 'corrente');
         const calculatedVoltage = resistance * current;
         return result(
           `Tensão: ${round(calculatedVoltage)} V`,
@@ -278,17 +302,19 @@ export function ElectricalFundamentalsHumanWorkspace({ onCaptureCalculation }: P
       if (activeRule.mode === 'apparent-power') {
         if (apparentTarget === 'va-from-watts') {
           const power = n('powerWatts', 'potência');
-          const va = power / fp;
+          const factor = fp();
+          const va = power / factor;
           return result(
             `Potência aparente: ${round(va)} VA`,
-            [{ label: 'Potência aparente', value: `${round(va)} VA`, helper: `FP ${round(fp, 2)}` }],
-            [`Potência ativa: ${round(power)} W`, `Fator de potência: ${round(fp, 2)}`, `Potência aparente: ${round(va)} VA`],
+            [{ label: 'Potência aparente', value: `${round(va)} VA`, helper: `FP ${round(factor, 2)}` }],
+            [`Potência ativa: ${round(power)} W`, `Fator de potência: ${round(factor, 2)}`, `Potência aparente: ${round(va)} VA`],
             'Use para dimensionar nobreak, transformador e equipamentos especificados em VA. Ajuste o FP quando a carga não for resistiva.',
           );
         }
 
         const va = n('apparentPowerVa', 'potência aparente');
         const voltage = n('voltageVolts', 'tensão');
+        const multiplier = phaseMultiplier(phase);
         const current = va / (multiplier * voltage);
         return result(
           `Corrente por VA: ${round(current)} A`,
@@ -299,7 +325,8 @@ export function ElectricalFundamentalsHumanWorkspace({ onCaptureCalculation }: P
       }
 
       if (activeRule.mode === 'resistor-network') {
-        const resistors = [n('resistorOneOhms', 'resistor 1'), n('resistorTwoOhms', 'resistor 2'), n('resistorThreeOhms', 'resistor 3')];
+        const resistors = resistorValues();
+        if (resistors.length === 0) throw new Error('Informe pelo menos um resistor válido.');
         const series = resistors.reduce((sum, item) => sum + item, 0);
         const parallel = 1 / resistors.reduce((sum, item) => sum + 1 / item, 0);
         return result(
@@ -362,6 +389,10 @@ export function ElectricalFundamentalsHumanWorkspace({ onCaptureCalculation }: P
     setAddedMessage(null);
     setShowAdvanced(false);
   }
+
+  const showAdvancedControls = activeRule ? ['current-from-power', 'power-from-current', 'voltage-from-power-current', 'apparent-power'].includes(activeRule.mode) : false;
+  const showPowerFactorField = activeRule?.mode !== 'apparent-power' || apparentTarget === 'va-from-watts';
+  const showPhaseField = activeRule?.mode !== 'apparent-power' || apparentTarget === 'current-from-va';
 
   return (
     <div className="human-fundamentals-workspace">
@@ -479,7 +510,7 @@ export function ElectricalFundamentalsHumanWorkspace({ onCaptureCalculation }: P
                 <>
                   <NumberField label="Resistor 1" value={values.resistorOneOhms} suffix="Ω" onChange={(value) => setValue('resistorOneOhms', value)} />
                   <NumberField label="Resistor 2" value={values.resistorTwoOhms} suffix="Ω" onChange={(value) => setValue('resistorTwoOhms', value)} />
-                  <NumberField label="Resistor 3" value={values.resistorThreeOhms} suffix="Ω" onChange={(value) => setValue('resistorThreeOhms', value)} />
+                  <NumberField label="Resistor 3 (opcional)" value={values.resistorThreeOhms} suffix="Ω" onChange={(value) => setValue('resistorThreeOhms', value)} />
                 </>
               )}
 
@@ -492,15 +523,13 @@ export function ElectricalFundamentalsHumanWorkspace({ onCaptureCalculation }: P
                 </>
               )}
 
-              {['current-from-power', 'power-from-current', 'voltage-from-power-current', 'apparent-power'].includes(activeRule.mode) && (
+              {showAdvancedControls && (
                 <div className="human-advanced-block">
                   <button type="button" onClick={() => setShowAdvanced((current) => !current)}>{showAdvanced ? 'Ocultar ajustes avançados' : 'Mostrar ajustes avançados'}</button>
                   {showAdvanced && (
                     <div className="human-advanced-grid">
-                      {activeRule.mode !== 'apparent-power' || apparentTarget === 'va-from-watts' ? (
-                        <NumberField label="Fator de potência" value={values.powerFactor} suffix="FP" onChange={(value) => setValue('powerFactor', value)} />
-                      ) : null}
-                      {(activeRule.mode !== 'apparent-power' || apparentTarget === 'current-from-va') && (
+                      {showPowerFactorField && <NumberField label="Fator de potência" value={values.powerFactor} suffix="FP" onChange={(value) => setValue('powerFactor', value)} />}
+                      {showPhaseField && (
                         <SelectField<PhaseMode>
                           label="Tipo de circuito"
                           value={phase}
