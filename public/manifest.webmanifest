@@ -1,0 +1,21 @@
+{
+  "name": "OrçaOS",
+  "short_name": "OrçaOS",
+  "description": "Calculadoras, orçamentos, relatórios e ordens de serviço para profissionais técnicos.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#111827",
+  "orientation": "portrait-primary",
+  "lang": "pt-BR",
+  "categories": ["productivity", "business", "utilities"],
+  "icons": [
+    {
+      "src": "/icons/orcaos-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
