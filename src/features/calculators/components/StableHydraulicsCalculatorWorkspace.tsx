@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import type { CalculationCapture, CalculationDestination } from '../../../core/types/workflow';
 import './GeneralCalculatorWorkspace.css';
 
@@ -11,16 +11,18 @@ type HydraulicMode =
   | 'fill-time'
   | 'pressure-head';
 
+type FlowUnit = 'lmin' | 'm3h';
+type PressureUnit = 'bar' | 'psi' | 'mca';
+
 interface Props {
   onCaptureCalculation?: (capture: CalculationCapture) => void;
 }
 
-interface FieldConfig {
-  key: string;
+interface Rule {
+  mode: HydraulicMode;
   label: string;
-  suffix?: string;
-  min?: number;
-  step?: number;
+  description: string;
+  icon: string;
 }
 
 interface ResultCardData {
@@ -34,15 +36,7 @@ interface CalcResult {
   summary: string;
   details: string[];
   cards: ResultCardData[];
-}
-
-interface Rule {
-  mode: HydraulicMode;
-  label: string;
-  description: string;
-  icon: string;
-  fields: FieldConfig[];
-  compute: (n: (key: string, label: string) => number) => CalcResult;
+  orientation: string;
 }
 
 const defaultValues: Record<string, string> = {
@@ -53,21 +47,31 @@ const defaultValues: Record<string, string> = {
   people: '4',
   consumptionPerPerson: '150',
   reservoirLiters: '1000',
-  flowLiterPerMinute: '20',
-  flowCubicMeterPerHour: '1.2',
+  flowValue: '20',
   volumeLiters: '1000',
-  pressureBar: '1',
-  pressurePsi: '14.5',
-  headMca: '10.2',
+  pressureValue: '1',
 };
 
+const PRESSURE_PSI_PER_BAR = 14.5038;
+const PRESSURE_MCA_PER_BAR = 10.197;
+
+const rules: Rule[] = [
+  { mode: 'rectangular-reservoir', label: 'Reservatório retangular', description: 'Volume em m³ e litros para caixas e cisternas retangulares.', icon: '▭' },
+  { mode: 'cylindrical-reservoir', label: 'Reservatório cilíndrico', description: 'Volume em m³ e litros para tanque cilíndrico.', icon: '◯' },
+  { mode: 'daily-consumption', label: 'Consumo diário', description: 'Consumo diário estimado por quantidade de pessoas.', icon: '☰' },
+  { mode: 'reservoir-autonomy', label: 'Autonomia da caixa', description: 'Quantos dias o reservatório atende pelo consumo informado.', icon: '◷' },
+  { mode: 'flow-rate', label: 'Vazão', description: 'Converta uma vazão informada para L/min, L/h e m³/h.', icon: '≈' },
+  { mode: 'fill-time', label: 'Tempo de enchimento', description: 'Tempo para encher reservatório pela vazão.', icon: '⏱' },
+  { mode: 'pressure-head', label: 'Pressão / MCA', description: 'Converta uma pressão informada para bar, psi e mca.', icon: '↕' },
+];
+
 function parseNumber(value: string): number {
-  const parsed = Number(value.trim().replace(',', '.'));
-  return Number.isFinite(parsed) ? parsed : Number.NaN;
+  const normalizedValue = value.trim().replace(',', '.');
+  return normalizedValue ? Number(normalizedValue) : Number.NaN;
 }
 
-function requireNumber(value: number, label: string): number {
-  if (!Number.isFinite(value) || value < 0) throw new Error(`Informe um valor válido para ${label}.`);
+function requirePositive(value: number, label: string): number {
+  if (!Number.isFinite(value) || value <= 0) throw new Error(`Informe um valor maior que zero para ${label}.`);
   return value;
 }
 
@@ -86,105 +90,47 @@ function card(label: string, value: string, helper?: string): ResultCardData {
   return { label, value, helper };
 }
 
-function result(summary: string, cards: ResultCardData[], details: string[]): CalcResult {
-  return { error: null, summary, cards, details };
+function result(summary: string, cards: ResultCardData[], details: string[], orientation: string): CalcResult {
+  return { error: null, summary, cards, details, orientation };
 }
 
-const rules: Rule[] = [
-  {
-    mode: 'rectangular-reservoir',
-    label: 'Reservatório retangular',
-    description: 'Volume em m³ e litros para caixas e cisternas retangulares.',
-    icon: '▭',
-    fields: [{ key: 'width', label: 'Largura', suffix: 'm' }, { key: 'length', label: 'Comprimento', suffix: 'm' }, { key: 'height', label: 'Altura útil', suffix: 'm' }],
-    compute: (n) => {
-      const volume = n('width', 'largura') * n('length', 'comprimento') * n('height', 'altura');
-      const liters = volume * 1000;
-      return result(`Reservatório retangular: ${round(liters)} L`, [card('Volume', `${round(volume, 3)} m³`), card('Capacidade', `${round(liters)} L`)], [`Volume: ${round(volume, 3)} m³`, `Capacidade: ${round(liters)} L`]);
-    },
-  },
-  {
-    mode: 'cylindrical-reservoir',
-    label: 'Reservatório cilíndrico',
-    description: 'Volume em m³ e litros para tanque cilíndrico.',
-    icon: '◯',
-    fields: [{ key: 'diameter', label: 'Diâmetro', suffix: 'm' }, { key: 'height', label: 'Altura útil', suffix: 'm' }],
-    compute: (n) => {
-      const radius = n('diameter', 'diâmetro') / 2;
-      const volume = Math.PI * radius ** 2 * n('height', 'altura');
-      const liters = volume * 1000;
-      return result(`Reservatório cilíndrico: ${round(liters)} L`, [card('Volume', `${round(volume, 3)} m³`), card('Capacidade', `${round(liters)} L`)], [`Volume: ${round(volume, 3)} m³`, `Capacidade: ${round(liters)} L`]);
-    },
-  },
-  {
-    mode: 'daily-consumption',
-    label: 'Consumo diário',
-    description: 'Consumo diário estimado por quantidade de pessoas.',
-    icon: '☰',
-    fields: [{ key: 'people', label: 'Pessoas', suffix: 'pessoas', step: 1 }, { key: 'consumptionPerPerson', label: 'Consumo por pessoa', suffix: 'L/dia' }],
-    compute: (n) => {
-      const total = n('people', 'pessoas') * n('consumptionPerPerson', 'consumo');
-      return result(`Consumo diário: ${round(total)} L/dia`, [card('Consumo diário', `${round(total)} L`), card('Em m³', `${round(total / 1000, 3)} m³`)], [`Consumo diário: ${round(total)} L`]);
-    },
-  },
-  {
-    mode: 'reservoir-autonomy',
-    label: 'Autonomia da caixa',
-    description: 'Quantos dias o reservatório atende pelo consumo informado.',
-    icon: '◷',
-    fields: [{ key: 'reservoirLiters', label: 'Reservatório', suffix: 'L' }, { key: 'people', label: 'Pessoas', suffix: 'pessoas', step: 1 }, { key: 'consumptionPerPerson', label: 'Consumo por pessoa', suffix: 'L/dia' }],
-    compute: (n) => {
-      const daily = n('people', 'pessoas') * n('consumptionPerPerson', 'consumo');
-      const days = daily > 0 ? n('reservoirLiters', 'reservatório') / daily : 0;
-      return result(`Autonomia estimada: ${round(days)} dia(s)`, [card('Consumo diário', `${round(daily)} L`), card('Autonomia', `${round(days)} dia(s)`)], [`Consumo diário: ${round(daily)} L`, `Autonomia: ${round(days)} dia(s)`]);
-    },
-  },
-  {
-    mode: 'flow-rate',
-    label: 'Vazão',
-    description: 'Conversão entre L/min, L/h e m³/h.',
-    icon: '≈',
-    fields: [{ key: 'flowLiterPerMinute', label: 'Vazão', suffix: 'L/min' }, { key: 'flowCubicMeterPerHour', label: 'Vazão', suffix: 'm³/h' }],
-    compute: (n) => {
-      const lmin = n('flowLiterPerMinute', 'vazão L/min');
-      const m3h = n('flowCubicMeterPerHour', 'vazão m³/h');
-      return result(`${round(lmin)} L/min = ${round(lmin * 0.06)} m³/h`, [card('L/min → L/h', `${round(lmin * 60)} L/h`), card('L/min → m³/h', `${round(lmin * 0.06)} m³/h`), card('m³/h → L/min', `${round(m3h * 1000 / 60)} L/min`)], [`${round(lmin)} L/min = ${round(lmin * 0.06)} m³/h`]);
-    },
-  },
-  {
-    mode: 'fill-time',
-    label: 'Tempo de enchimento',
-    description: 'Tempo para encher reservatório pela vazão.',
-    icon: '⏱',
-    fields: [{ key: 'volumeLiters', label: 'Volume', suffix: 'L' }, { key: 'flowLiterPerMinute', label: 'Vazão', suffix: 'L/min' }],
-    compute: (n) => {
-      const minutes = n('volumeLiters', 'volume') / n('flowLiterPerMinute', 'vazão');
-      return result(`Tempo de enchimento: ${round(minutes)} min`, [card('Minutos', `${round(minutes)} min`), card('Horas', `${round(minutes / 60)} h`)], [`Tempo: ${round(minutes)} min`]);
-    },
-  },
-  {
-    mode: 'pressure-head',
-    label: 'Pressão / MCA',
-    description: 'Conversão entre bar, psi e metros de coluna d’água.',
-    icon: '↕',
-    fields: [{ key: 'pressureBar', label: 'Pressão', suffix: 'bar' }, { key: 'pressurePsi', label: 'Pressão', suffix: 'psi' }, { key: 'headMca', label: 'Altura', suffix: 'mca' }],
-    compute: (n) => {
-      const bar = n('pressureBar', 'bar');
-      const psi = n('pressurePsi', 'psi');
-      const mca = n('headMca', 'mca');
-      return result(`Pressão: ${round(bar * 10.197)} mca`, [card('bar → mca', `${round(bar * 10.197)} mca`), card('bar → psi', `${round(bar * 14.5038)} psi`), card('psi → bar', `${round(psi / 14.5038)} bar`), card('mca → bar', `${round(mca / 10.197)} bar`)], ['Conversão de pressão']);
-    },
-  },
-];
+function emptyResult(): CalcResult {
+  return { error: null, summary: '', details: [], cards: [], orientation: '' };
+}
 
-function NumberField({ field, value, onChange }: { field: FieldConfig; value: string; onChange: (value: string) => void }) {
+function pressureToBar(value: number, unit: PressureUnit): number {
+  if (unit === 'psi') return value / PRESSURE_PSI_PER_BAR;
+  if (unit === 'mca') return value / PRESSURE_MCA_PER_BAR;
+  return value;
+}
+
+function flowToLitersPerMinute(value: number, unit: FlowUnit): number {
+  return unit === 'm3h' ? value * 1000 / 60 : value;
+}
+
+function flowUnitLabel(unit: FlowUnit): string {
+  return unit === 'm3h' ? 'm³/h' : 'L/min';
+}
+
+function NumberField({ label, value, suffix, step = 0.01, onChange }: { label: string; value: string; suffix?: string; step?: number; onChange: (value: string) => void }) {
   return (
     <label className="general-form-field">
-      <span>{field.label}</span>
+      <span>{label}</span>
       <div>
-        <input type="number" inputMode="decimal" min={field.min ?? 0} step={field.step ?? 0.01} value={value} onChange={(event) => onChange(event.target.value)} />
-        {field.suffix && <small>{field.suffix}</small>}
+        <input type="number" inputMode="decimal" min="0" step={step} value={value} onChange={(event) => onChange(event.target.value)} />
+        {suffix && <small>{suffix}</small>}
       </div>
+    </label>
+  );
+}
+
+function SelectField<T extends string>({ label, value, options, onChange }: { label: string; value: T; options: Array<{ value: T; label: string }>; onChange: (value: T) => void }) {
+  return (
+    <label className="general-form-field">
+      <span>{label}</span>
+      <select value={value} onChange={(event) => onChange(event.target.value as T)}>
+        {options.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+      </select>
     </label>
   );
 }
@@ -196,25 +142,118 @@ function ResultCard({ label, value, helper }: ResultCardData) {
 export function HydraulicsCalculatorWorkspace({ onCaptureCalculation }: Props) {
   const [activeMode, setActiveMode] = useState<HydraulicMode | null>(null);
   const [values, setValues] = useState<Record<string, string>>(defaultValues);
+  const [flowUnit, setFlowUnit] = useState<FlowUnit>('lmin');
+  const [pressureUnit, setPressureUnit] = useState<PressureUnit>('bar');
   const [addedMessage, setAddedMessage] = useState<string | null>(null);
-  const activeRule = activeMode ? rules.find((rule) => rule.mode === activeMode) : undefined;
 
-  const read = (key: string, label: string) => requireNumber(parseNumber(values[key] ?? ''), label);
+  const activeRule = activeMode ? rules.find((rule) => rule.mode === activeMode) : undefined;
 
   function setValue(key: string, value: string) {
     setValues((current) => ({ ...current, [key]: value }));
   }
 
-  function calculate(): CalcResult {
-    if (!activeRule) return { error: null, summary: '', details: [], cards: [] };
-    try {
-      return activeRule.compute(read);
-    } catch (error) {
-      return { error: error instanceof Error ? error.message : 'Preencha os campos necessários.', summary: '', details: [], cards: [] };
-    }
+  function n(key: string, label: string): number {
+    return requirePositive(parseNumber(values[key] ?? ''), label);
   }
 
-  const calculated = calculate();
+  const calculated = useMemo<CalcResult>(() => {
+    if (!activeRule) return emptyResult();
+
+    try {
+      if (activeRule.mode === 'rectangular-reservoir') {
+        const width = n('width', 'largura');
+        const length = n('length', 'comprimento');
+        const height = n('height', 'altura útil');
+        const volume = width * length * height;
+        const liters = volume * 1000;
+        return result(
+          `Reservatório retangular: ${round(liters)} L`,
+          [card('Volume', `${round(volume, 3)} m³`, 'largura × comprimento × altura'), card('Capacidade', `${round(liters)} L`, 'volume útil estimado')],
+          [`Largura: ${round(width)} m`, `Comprimento: ${round(length)} m`, `Altura útil: ${round(height)} m`, `Volume: ${round(volume, 3)} m³`, `Capacidade: ${round(liters)} L`],
+          'Use a altura útil da água, não necessariamente a altura total da caixa. Reserve margem para extravasor, tampa e folga operacional.',
+        );
+      }
+
+      if (activeRule.mode === 'cylindrical-reservoir') {
+        const diameter = n('diameter', 'diâmetro');
+        const height = n('height', 'altura útil');
+        const radius = diameter / 2;
+        const volume = Math.PI * radius ** 2 * height;
+        const liters = volume * 1000;
+        return result(
+          `Reservatório cilíndrico: ${round(liters)} L`,
+          [card('Volume', `${round(volume, 3)} m³`, 'π × raio² × altura'), card('Capacidade', `${round(liters)} L`, 'volume útil estimado')],
+          [`Diâmetro: ${round(diameter)} m`, `Altura útil: ${round(height)} m`, `Volume: ${round(volume, 3)} m³`, `Capacidade: ${round(liters)} L`],
+          'Use altura útil quando o reservatório não trabalha totalmente cheio. Para tanque horizontal, este cálculo não representa volume parcial.',
+        );
+      }
+
+      if (activeRule.mode === 'daily-consumption') {
+        const people = n('people', 'pessoas');
+        const consumption = n('consumptionPerPerson', 'consumo por pessoa');
+        const total = people * consumption;
+        return result(
+          `Consumo diário: ${round(total)} L/dia`,
+          [card('Consumo diário', `${round(total)} L`, `${round(people)} pessoa(s)`), card('Em m³', `${round(total / 1000, 3)} m³`, 'por dia')],
+          [`Pessoas: ${round(people)}`, `Consumo por pessoa: ${round(consumption)} L/dia`, `Consumo diário: ${round(total)} L`],
+          'Use como estimativa inicial. Em obra real, ajuste conforme perfil de uso, ocupação, comércio, horários e reserva desejada.',
+        );
+      }
+
+      if (activeRule.mode === 'reservoir-autonomy') {
+        const reservoirLiters = n('reservoirLiters', 'reservatório');
+        const people = n('people', 'pessoas');
+        const consumption = n('consumptionPerPerson', 'consumo por pessoa');
+        const daily = people * consumption;
+        const days = reservoirLiters / daily;
+        return result(
+          `Autonomia estimada: ${round(days)} dia(s)`,
+          [card('Consumo diário', `${round(daily)} L`, `${round(people)} pessoa(s)`), card('Autonomia', `${round(days)} dia(s)`, `${round(reservoirLiters)} L disponíveis`) ],
+          [`Reservatório: ${round(reservoirLiters)} L`, `Consumo diário: ${round(daily)} L`, `Autonomia: ${round(days)} dia(s)`],
+          'Use para pré-dimensionamento. Para atendimento confiável, considere reserva, dias sem abastecimento e consumo de pico.',
+        );
+      }
+
+      if (activeRule.mode === 'flow-rate') {
+        const input = n('flowValue', 'vazão');
+        const lmin = flowToLitersPerMinute(input, flowUnit);
+        const lh = lmin * 60;
+        const m3h = lh / 1000;
+        return result(
+          `Vazão: ${round(lmin, 2)} L/min`,
+          [card('L/min', `${round(lmin, 2)} L/min`, 'litros por minuto'), card('L/h', `${round(lh)} L/h`, 'litros por hora'), card('m³/h', `${round(m3h, 3)} m³/h`, 'metros cúbicos por hora')],
+          [`Entrada: ${round(input, 3)} ${flowUnitLabel(flowUnit)}`, `L/min: ${round(lmin, 2)}`, `L/h: ${round(lh)}`, `m³/h: ${round(m3h, 3)}`],
+          'Use uma única unidade de entrada. Para bomba, valide também altura manométrica, perdas, curva da bomba e diâmetro da tubulação.',
+        );
+      }
+
+      if (activeRule.mode === 'fill-time') {
+        const volume = n('volumeLiters', 'volume');
+        const flow = n('flowValue', 'vazão');
+        const lmin = flowToLitersPerMinute(flow, flowUnit);
+        const minutes = volume / lmin;
+        return result(
+          `Tempo de enchimento: ${round(minutes)} min`,
+          [card('Minutos', `${round(minutes)} min`, `${round(lmin, 2)} L/min`), card('Horas', `${round(minutes / 60, 2)} h`, 'tempo estimado')],
+          [`Volume: ${round(volume)} L`, `Vazão: ${round(lmin, 2)} L/min`, `Tempo: ${round(minutes)} min`, `Tempo: ${round(minutes / 60, 2)} h`],
+          'Use para estimativa. O tempo real pode variar com pressão da rede, boia, bomba, tubulação e perda de carga.',
+        );
+      }
+
+      const input = n('pressureValue', 'pressão');
+      const bar = pressureToBar(input, pressureUnit);
+      const psi = bar * PRESSURE_PSI_PER_BAR;
+      const mca = bar * PRESSURE_MCA_PER_BAR;
+      return result(
+        `Pressão: ${round(mca, 2)} mca`,
+        [card('bar', `${round(bar, 3)} bar`, 'pressão base'), card('psi', `${round(psi, 2)} psi`, 'aproximado'), card('mca', `${round(mca, 2)} mca`, 'coluna d’água')],
+        [`Entrada: ${round(input, 3)} ${pressureUnit}`, `bar: ${round(bar, 3)}`, `psi: ${round(psi, 2)}`, `mca: ${round(mca, 2)}`],
+        'Use mca como referência prática em hidráulica. Para bomba e pressurizador, considere altura geométrica, perdas e curva do fabricante.',
+      );
+    } catch (error) {
+      return { error: error instanceof Error ? error.message : 'Preencha os campos necessários.', summary: '', details: [], cards: [], orientation: '' };
+    }
+  }, [activeRule, values, flowUnit, pressureUnit]);
 
   function includeResult(destination: CalculationDestination) {
     if (!activeRule || calculated.error || calculated.cards.length === 0) return;
@@ -226,7 +265,7 @@ export function HydraulicsCalculatorWorkspace({ onCaptureCalculation }: Props) {
       destination,
       createdAt: new Date().toISOString(),
       summary: calculated.summary,
-      details: calculated.details,
+      details: [...calculated.details, `Orientação: ${calculated.orientation}`],
     };
     onCaptureCalculation?.(capture);
     if (destination === 'survey') setAddedMessage(`${activeRule.label} foi incluído no levantamento.`);
@@ -239,20 +278,34 @@ export function HydraulicsCalculatorWorkspace({ onCaptureCalculation }: Props) {
     setAddedMessage(null);
   }
 
+  function openCalculator(mode: HydraulicMode) {
+    setActiveMode(mode);
+    setAddedMessage(null);
+  }
+
   return (
     <div className="general-calculator-workspace">
       <div className="general-plan-banner"><div><strong>Hidráulica</strong><span>Cálculos estáveis para reservatórios, consumo, vazão, enchimento e pressão.</span></div><em>{rules.length} cálculos</em></div>
       <div className="general-picker-list">
-        {rules.map((rule) => <button className="general-picker-card" key={rule.mode} type="button" onClick={() => setActiveMode(rule.mode)}><span className="app-icon tone-green">{rule.icon}</span><span><strong>{rule.label}</strong><small>{rule.description}</small></span><em>LIVRE</em><span className="chevron">›</span></button>)}
+        {rules.map((rule) => <button className="general-picker-card" key={rule.mode} type="button" onClick={() => openCalculator(rule.mode)}><span className="app-icon tone-green">{rule.icon}</span><span><strong>{rule.label}</strong><small>{rule.description}</small></span><em>LIVRE</em><span className="chevron">›</span></button>)}
       </div>
       {activeRule && (
         <div className="general-calculator-overlay" role="dialog" aria-modal="true" aria-label={activeRule.label}>
           <div className="general-overlay-backdrop" onClick={closeCalculator} />
           <section className="general-overlay-panel">
             <header className="general-overlay-header"><button type="button" onClick={closeCalculator}>‹</button><div><span>Hidráulica</span><h2>{activeRule.label}</h2><p>{activeRule.description}</p></div><em>LIVRE</em></header>
-            <form className="general-calculator-form" onSubmit={(event) => event.preventDefault()}>{activeRule.fields.map((field) => <NumberField key={field.key} field={field} value={values[field.key] ?? ''} onChange={(value) => setValue(field.key, value)} />)}</form>
+            <form className="general-calculator-form" onSubmit={(event) => event.preventDefault()}>
+              {activeRule.mode === 'rectangular-reservoir' && <><NumberField label="Largura" value={values.width} suffix="m" onChange={(value) => setValue('width', value)} /><NumberField label="Comprimento" value={values.length} suffix="m" onChange={(value) => setValue('length', value)} /><NumberField label="Altura útil" value={values.height} suffix="m" onChange={(value) => setValue('height', value)} /></>}
+              {activeRule.mode === 'cylindrical-reservoir' && <><NumberField label="Diâmetro" value={values.diameter} suffix="m" onChange={(value) => setValue('diameter', value)} /><NumberField label="Altura útil" value={values.height} suffix="m" onChange={(value) => setValue('height', value)} /></>}
+              {activeRule.mode === 'daily-consumption' && <><NumberField label="Pessoas" value={values.people} suffix="pessoas" step={1} onChange={(value) => setValue('people', value)} /><NumberField label="Consumo por pessoa" value={values.consumptionPerPerson} suffix="L/dia" onChange={(value) => setValue('consumptionPerPerson', value)} /></>}
+              {activeRule.mode === 'reservoir-autonomy' && <><NumberField label="Reservatório" value={values.reservoirLiters} suffix="L" onChange={(value) => setValue('reservoirLiters', value)} /><NumberField label="Pessoas" value={values.people} suffix="pessoas" step={1} onChange={(value) => setValue('people', value)} /><NumberField label="Consumo por pessoa" value={values.consumptionPerPerson} suffix="L/dia" onChange={(value) => setValue('consumptionPerPerson', value)} /></>}
+              {activeRule.mode === 'flow-rate' && <><SelectField<FlowUnit> label="Unidade de entrada" value={flowUnit} onChange={setFlowUnit} options={[{ value: 'lmin', label: 'L/min' }, { value: 'm3h', label: 'm³/h' }]} /><NumberField label="Vazão" value={values.flowValue} suffix={flowUnitLabel(flowUnit)} onChange={(value) => setValue('flowValue', value)} /></>}
+              {activeRule.mode === 'fill-time' && <><NumberField label="Volume" value={values.volumeLiters} suffix="L" onChange={(value) => setValue('volumeLiters', value)} /><SelectField<FlowUnit> label="Unidade da vazão" value={flowUnit} onChange={setFlowUnit} options={[{ value: 'lmin', label: 'L/min' }, { value: 'm3h', label: 'm³/h' }]} /><NumberField label="Vazão" value={values.flowValue} suffix={flowUnitLabel(flowUnit)} onChange={(value) => setValue('flowValue', value)} /></>}
+              {activeRule.mode === 'pressure-head' && <><SelectField<PressureUnit> label="Unidade de entrada" value={pressureUnit} onChange={setPressureUnit} options={[{ value: 'bar', label: 'bar' }, { value: 'psi', label: 'psi' }, { value: 'mca', label: 'mca' }]} /><NumberField label="Pressão" value={values.pressureValue} suffix={pressureUnit} onChange={(value) => setValue('pressureValue', value)} /></>}
+            </form>
             {calculated.error && <p className="general-error-message">{calculated.error}</p>}
             {calculated.cards.length > 0 && <div className="general-result-grid">{calculated.cards.map((item) => <ResultCard key={item.label} {...item} />)}</div>}
+            {calculated.orientation && <p className="general-helper-text">{calculated.orientation}</p>}
             {addedMessage && <p className="general-added-message">{addedMessage}</p>}
             <div className="general-capture-actions"><button type="button" onClick={() => includeResult('survey')}>Adicionar ao levantamento</button><button type="button" onClick={() => includeResult('budget')}>Adicionar ao orçamento</button><button type="button" onClick={() => includeResult('both')}>Adicionar aos dois</button><button className="secondary-action" type="button" onClick={closeCalculator}>Voltar</button></div>
             <small className="general-technical-note">Cálculo preliminar. Valide as condições reais da instalação hidráulica.</small>
