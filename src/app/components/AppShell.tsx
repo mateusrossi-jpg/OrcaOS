@@ -86,7 +86,7 @@ export function AppShell<T extends string>({
 
       <aside className={isDrawerOpen ? 'side-drawer open' : 'side-drawer'} aria-hidden={!isDrawerOpen}>
         <div className="drawer-brand-card">
-          <div className="drawer-brand-mark" aria-hidden="true">O</div>
+          <div className="drawer-brand-mark" aria-hidden="true"><span>O</span></div>
           <div>
             <strong>OrçaOS</strong>
             <small>Calculadora, OS e orçamento técnico</small>
