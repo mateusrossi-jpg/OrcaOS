@@ -4,6 +4,7 @@ import type { Client, WorkOrder } from '../core/types/business';
 import type { CalculationCapture, CalculationDestination } from '../core/types/workflow';
 import { BudgetWorkspaceClientBridge } from '../features/budgets/components/BudgetWorkspaceClientBridge';
 import { ElectricalCalculatorWorkspace } from '../features/calculators/components/ElectricalCalculatorWorkspace';
+import { ElectricalFundamentalsHumanWorkspace } from '../features/calculators/components/ElectricalFundamentalsHumanWorkspace';
 import { GeneralCalculatorWorkspace, type GeneralCalculatorModule } from '../features/calculators/components/GeneralCalculatorWorkspace';
 import { GeneralFundamentalsWorkspace } from '../features/calculators/components/GeneralFundamentalsWorkspace';
 import { HydraulicsCalculatorWorkspace } from '../features/calculators/components/StableHydraulicsCalculatorWorkspace';
@@ -49,7 +50,7 @@ const navItems: Array<{ id: AppTab; label: string; description: string; icon: st
 
 const calculationModules: ModuleCardData[] = [
   { id: 'fundamentosGerais', title: 'Fundamentos gerais', description: 'Regra de três, porcentagem, áreas, volumes, custos e produtividade', icon: '∑', tone: 'green', count: '17 cálculos livres', available: true, plan: 'free', calculatorModule: 'fundamentosGerais' },
-  { id: 'fundamentos', title: 'Fundamentos elétricos', description: 'Ohm, corrente, potência, resistores, VA e consumo', icon: 'ϟ', tone: 'blue', count: '7 cálculos livres', available: true, plan: 'free', calculatorModule: 'fundamentals' },
+  { id: 'fundamentos', title: 'Fundamentos elétricos', description: 'Ohm, corrente, potência, resistores, VA e consumo', icon: 'ϟ', tone: 'blue', count: '8 cálculos livres', available: true, plan: 'free', calculatorModule: 'fundamentals' },
   { id: 'instalacoes', title: 'Instalações elétricas', description: 'Queda, distância, transformador, AWG, disjuntor, cabo e eletroduto', icon: '⌁', tone: 'gray', count: '7 cálculos Pro', available: true, plan: 'pro', calculatorModule: 'installations' },
   { id: 'iluminacao', title: 'Iluminação', description: 'Lúmens, lux, luminárias e iluminação de ambiente', icon: '☼', tone: 'green', count: '1 cálculo Pro', available: true, plan: 'pro', calculatorModule: 'lighting' },
   { id: 'refrigeracao', title: 'Refrigeração', description: 'BTU/h, climatização e carga térmica inicial', icon: '❄', tone: 'blue', count: '1 cálculo Pro', available: true, plan: 'pro', calculatorModule: 'refrigeration' },
@@ -191,9 +192,10 @@ function CalculationsScreen({ selectedModule, openModule, goTo, onCaptureCalcula
         <button className="back-button" type="button" onClick={() => openModule(null)}>‹ Voltar aos cálculos</button>
         <header className="module-detail-header"><span className={`app-icon tone-${selectedModule.tone}`}>{selectedModule.icon}</span><div><em className={`module-plan-pill ${selectedModule.plan}`}>{planLabel(selectedModule.plan)}</em><h1>{selectedModule.title}</h1><p>{selectedModule.description}</p><small>{selectedModule.count}</small></div></header>
         {module === 'fundamentosGerais' && <GeneralFundamentalsWorkspace onCaptureCalculation={onCaptureCalculation} />}
+        {module === 'fundamentals' && <ElectricalFundamentalsHumanWorkspace onCaptureCalculation={onCaptureCalculation} />}
         {module === 'hidraulica' && <HydraulicsCalculatorWorkspace onCaptureCalculation={onCaptureCalculation} />}
         {module && isGeneralCalculatorModule(module) && <GeneralCalculatorWorkspace selectedModule={module} onCaptureCalculation={onCaptureCalculation} />}
-        {module && module !== 'fundamentosGerais' && module !== 'hidraulica' && !isGeneralCalculatorModule(module) && <ElectricalCalculatorWorkspace selectedModule={module} userPlan={userPlan} onUpgradeRequest={() => goTo('store')} onCaptureCalculation={onCaptureCalculation} />}
+        {module && module !== 'fundamentosGerais' && module !== 'fundamentals' && module !== 'hidraulica' && !isGeneralCalculatorModule(module) && <ElectricalCalculatorWorkspace selectedModule={module} userPlan={userPlan} onUpgradeRequest={() => goTo('store')} onCaptureCalculation={onCaptureCalculation} />}
         {!module && <div className="empty-state-card"><span className={`app-icon tone-${selectedModule.tone} large-icon`}>{selectedModule.icon}</span><strong>{selectedModule.title} em breve</strong><p>Este módulo já está previsto na arquitetura do OrçaOS.</p></div>}
       </section>
     );
