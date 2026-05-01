@@ -295,10 +295,10 @@ export function PaintingHumanWorkspace({ onCaptureCalculation }: Props) {
               )}
 
               {showAdvancedFields && (
-                <div className="human-advanced-block">
+                <div className="general-advanced-block">
                   <button type="button" onClick={() => setShowAdvanced((current) => !current)}>{showAdvanced ? 'Ocultar ajustes avançados' : 'Mostrar ajustes avançados'}</button>
                   {showAdvanced && (
-                    <div className="human-advanced-grid">
+                    <div className="general-advanced-grid">
                       {activeRule.mode === 'paint-area' && <NumberField label="Descontos" value={values.discountArea} suffix="m²" onChange={(value) => setValue('discountArea', value)} />}
                       {activeRule.mode === 'paint-area' && <NumberField label="Área extra/teto" value={values.extraArea} suffix="m²" onChange={(value) => setValue('extraArea', value)} />}
                       {showPaintConsumptionFields && <NumberField label="Perda" value={values.lossPercent} suffix="%" onChange={(value) => setValue('lossPercent', value)} />}
