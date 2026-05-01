@@ -30,6 +30,7 @@ interface ConverterResult {
   summary: string;
   details: string[];
   orientation: string;
+  formula: string[];
   cards: ResultCardData[];
 }
 
@@ -75,11 +76,11 @@ function createId(prefix: string): string {
 }
 
 function emptyResult(): ConverterResult {
-  return { error: null, summary: '', details: [], orientation: '', cards: [] };
+  return { error: null, summary: '', details: [], orientation: '', formula: [], cards: [] };
 }
 
-function result(summary: string, cards: ResultCardData[], details: string[], orientation: string): ConverterResult {
-  return { error: null, summary, cards, details, orientation };
+function result(summary: string, cards: ResultCardData[], details: string[], orientation: string, formula: string[]): ConverterResult {
+  return { error: null, summary, cards, details, orientation, formula };
 }
 
 function pressureToBar(value: number, unit: PressureUnit): number {
@@ -166,6 +167,9 @@ export function ConvertersHumanWorkspace({ onCaptureCalculation }: Props) {
           ],
           [`Entrada: ${round(input, 3)} ${volumeUnit === 'cubicMeters' ? 'm³' : 'L'}`, `Resultado: ${round(cubicMeters, 3)} m³`, `Resultado: ${round(liters)} L`],
           'Use para reservatórios, caixas d’água e volumes simples. Confira sempre se as medidas estão na mesma unidade.',
+          volumeUnit === 'cubicMeters'
+            ? ['Litros = m³ × 1000']
+            : ['m³ = litros ÷ 1000', 'Litros = m³ × 1000'],
         );
       }
 
@@ -183,6 +187,11 @@ export function ConvertersHumanWorkspace({ onCaptureCalculation }: Props) {
           ],
           [`Entrada: ${round(input, 3)} ${pressureUnit}`, `bar: ${round(bar, 3)}`, `psi: ${round(psi, 2)}`, `mca: ${round(mca, 2)}`],
           'Use mca para leitura prática em hidráulica e bombas. Em sistemas críticos, valide curva da bomba, perdas e manômetro.',
+          pressureUnit === 'psi'
+            ? ['bar = psi ÷ 14,5038', 'psi = bar × 14,5038', 'mca = bar × 10,197']
+            : pressureUnit === 'mca'
+              ? ['bar = mca ÷ 10,197', 'psi = bar × 14,5038', 'mca = bar × 10,197']
+              : ['psi = bar × 14,5038', 'mca = bar × 10,197'],
         );
       }
 
@@ -200,6 +209,11 @@ export function ConvertersHumanWorkspace({ onCaptureCalculation }: Props) {
           ],
           [`Entrada: ${round(input, 3)} ${powerUnitLabel(powerUnit)}`, `kW: ${round(kw, 3)}`, `CV: ${round(cv, 2)}`, `HP: ${round(hp, 2)}`],
           'Use como conversão de referência. Para corrente de motor, use cálculo específico com tensão, rendimento e fator de potência.',
+          powerUnit === 'cv'
+            ? ['kW = CV × 0,7355', 'CV = kW ÷ 0,7355', 'HP = kW ÷ 0,7457']
+            : powerUnit === 'hp'
+              ? ['kW = HP × 0,7457', 'CV = kW ÷ 0,7355', 'HP = kW ÷ 0,7457']
+              : ['CV = kW ÷ 0,7355', 'HP = kW ÷ 0,7457'],
         );
       }
 
@@ -214,9 +228,12 @@ export function ConvertersHumanWorkspace({ onCaptureCalculation }: Props) {
         ],
         [`Entrada: ${round(input, 2)} ${thermalUnitLabel(thermalUnit)}`, `BTU/h: ${round(btuh)}`, `Watts: ${round(watts)}`],
         'Use para conversão rápida em refrigeração. Dimensionamento de ar-condicionado deve considerar ambiente, insolação e ocupação.',
+        thermalUnit === 'btuh'
+          ? ['Watts = BTU/h × 0,293071', 'BTU/h = Watts ÷ 0,293071']
+          : ['BTU/h = Watts ÷ 0,293071', 'Watts = BTU/h × 0,293071'],
       );
     } catch (error) {
-      return { error: error instanceof Error ? error.message : 'Preencha o valor que deseja converter.', summary: '', details: [], orientation: '', cards: [] };
+      return { error: error instanceof Error ? error.message : 'Preencha o valor que deseja converter.', summary: '', details: [], orientation: '', formula: [], cards: [] };
     }
   }, [activeRule, values, volumeUnit, pressureUnit, powerUnit, thermalUnit]);
 
@@ -231,7 +248,7 @@ export function ConvertersHumanWorkspace({ onCaptureCalculation }: Props) {
       destination,
       createdAt: new Date().toISOString(),
       summary: calculated.summary,
-      details: [...calculated.details, `Orientação: ${calculated.orientation}`],
+      details: [...calculated.details, ...calculated.formula.map((item) => `Fórmula: ${item}`), `Orientação: ${calculated.orientation}`],
     };
 
     onCaptureCalculation?.(capture);
@@ -354,6 +371,7 @@ export function ConvertersHumanWorkspace({ onCaptureCalculation }: Props) {
 
             {calculated.error && <p className="general-error-message">{calculated.error}</p>}
             {calculated.cards.length > 0 && <div className="general-result-grid">{calculated.cards.map((item) => <ResultCard key={item.label} {...item} />)}</div>}
+            {calculated.formula.length > 0 && <div className="general-formula-box"><strong>Como este cálculo é feito</strong>{calculated.formula.map((item) => <span key={item}>{item}</span>)}</div>}
             {calculated.orientation && <p className="general-helper-text">{calculated.orientation}</p>}
             {addedMessage && <p className="general-added-message">{addedMessage}</p>}
 
