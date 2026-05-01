@@ -61,6 +61,26 @@
 .module-list-app .module-app-card:nth-child(12)::before { content: 'Orçamento e gestão'; }
 .module-list-app .module-app-card:nth-child(11)::before { content: 'Conversores técnicos'; }
 
+.module-list-app .module-app-card:nth-child(8) .module-card-body small,
+.module-list-app .module-app-card:nth-child(11) .module-card-body small {
+  font-size: 0;
+}
+
+.module-list-app .module-app-card:nth-child(8) .module-card-body small::after,
+.module-list-app .module-app-card:nth-child(11) .module-card-body small::after {
+  color: inherit;
+  font-size: 0.82rem;
+  line-height: 1.32;
+}
+
+.module-list-app .module-app-card:nth-child(8) .module-card-body small::after {
+  content: '5 cálculos consolidados';
+}
+
+.module-list-app .module-app-card:nth-child(11) .module-card-body small::after {
+  content: '4 conversores técnicos';
+}
+
 @media (min-width: 920px) {
   .module-list-app {
     grid-template-columns: repeat(2, minmax(0, 1fr));
