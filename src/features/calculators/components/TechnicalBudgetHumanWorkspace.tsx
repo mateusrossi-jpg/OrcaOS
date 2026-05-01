@@ -13,7 +13,7 @@ interface BudgetResult { error: string | null; summary: string; details: string[
 
 const rules: BudgetRule[] = [
   { mode: 'labor', label: 'Mão de obra', description: 'Calcule serviço por quantidade e valor unitário.', icon: 'R$' },
-  { mode: 'final-price', label: 'Preço final', description: 'Some material, mão de obra, margem, impostos e desconto.', icon: 'Σ' },
+  { mode: 'final-price', label: 'Preço final', description: 'Soma material, mão de obra, margem, impostos e desconto.', icon: 'Σ' },
   { mode: 'daily', label: 'Diária', description: 'Estime trabalho por dias de serviço e ajudante.', icon: 'D' },
   { mode: 'hourly', label: 'Hora técnica', description: 'Calcule atendimento por horas trabalhadas.', icon: 'h' },
   { mode: 'installments', label: 'Parcelamento', description: 'Divida o valor final em parcelas com ou sem acréscimo.', icon: '÷' },
