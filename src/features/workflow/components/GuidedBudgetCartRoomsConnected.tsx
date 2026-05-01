@@ -81,6 +81,32 @@ function parseDecimal(value: string, fallback = 0): number {
   return Number.isFinite(parsed) ? parsed : fallback;
 }
 
+function normalizeKeyPart(value?: string): string {
+  return (value ?? '').trim().toLowerCase();
+}
+
+function guidedLineKey(line: GuidedLine): string {
+  return [
+    normalizeKeyPart(line.environment),
+    line.kind,
+    line.itemType,
+    line.destination,
+    normalizeKeyPart(line.description),
+    normalizeKeyPart(line.brand),
+    normalizeKeyPart(line.model),
+    String(line.unitValue),
+  ].join('|');
+}
+
+function mergeLineInto(current: GuidedLine[], incoming: GuidedLine): GuidedLine[] {
+  const incomingKey = guidedLineKey(incoming);
+  const existingIndex = current.findIndex((line) => guidedLineKey(line) === incomingKey);
+
+  if (existingIndex < 0) return [incoming, ...current];
+
+  return current.map((line, index) => index === existingIndex ? { ...line, quantity: line.quantity + incoming.quantity } : line);
+}
+
 function kindLabel(kind: GuidedEntryKind): string {
   if (kind === 'labor') return 'Mão de obra';
   if (kind === 'manual-part') return 'Peça manual';
@@ -108,32 +134,86 @@ function service(description: string, quantity: number, unitValue: number, desti
 
 const kitTemplates: KitTemplate[] = [
   {
-    id: 'simple-outlet-4x2', title: 'Tomada simples 4x2', description: 'Suporte, 1 módulo, placa simples e mão de obra.', defaultQuantity: '1',
-    generate: (q, brand, destination) => [material('Chassis/suporte 4x2 para tomada simples', q, destination, 'Gerado por kit de tomada simples 4x2.', brand), material('Módulo de tomada 2P+T', q, destination, 'Tomada simples: 1 módulo por ponto.', brand), material('Placa 4x2 simples para tomada', q, destination, 'Uma placa simples por tomada.', brand), service('Mão de obra: instalação de tomada simples', q, 45, destination, 'Serviço sugerido pelo kit. Ajuste valor conforme obra.')],
+    id: 'simple-outlet-4x2',
+    title: 'Tomada simples 4x2',
+    description: 'Suporte, 1 módulo, placa simples e mão de obra.',
+    defaultQuantity: '1',
+    generate: (q, brand, destination) => [
+      material('Chassis/suporte 4x2 para tomada simples', q, destination, 'Gerado por kit de tomada simples 4x2.', brand),
+      material('Módulo de tomada 2P+T', q, destination, 'Tomada simples: 1 módulo por ponto.', brand),
+      material('Placa 4x2 simples para tomada', q, destination, 'Uma placa simples por tomada.', brand),
+      service('Mão de obra: instalação de tomada simples', q, 45, destination, 'Serviço sugerido pelo kit. Ajuste valor conforme obra.'),
+    ],
   },
   {
-    id: 'double-outlet-4x2', title: 'Tomada dupla 4x2', description: 'Suporte, 2 módulos, placa dupla e mão de obra.', defaultQuantity: '4',
-    generate: (q, brand, destination) => [material('Chassis/suporte 4x2 para tomada dupla', q, destination, 'Gerado por kit de tomada dupla 4x2.', brand), material('Módulo de tomada 2P+T', q * 2, destination, 'Tomada dupla: 2 módulos por ponto.', brand), material('Placa 4x2 dupla para tomada', q, destination, 'Uma placa dupla por tomada dupla.', brand), service('Mão de obra: instalação de tomada dupla', q, 55, destination, 'Serviço sugerido pelo kit. Ajuste valor conforme obra.')],
+    id: 'double-outlet-4x2',
+    title: 'Tomada dupla 4x2',
+    description: 'Suporte, 2 módulos, placa dupla e mão de obra.',
+    defaultQuantity: '4',
+    generate: (q, brand, destination) => [
+      material('Chassis/suporte 4x2 para tomada dupla', q, destination, 'Gerado por kit de tomada dupla 4x2.', brand),
+      material('Módulo de tomada 2P+T', q * 2, destination, 'Tomada dupla: 2 módulos por ponto.', brand),
+      material('Placa 4x2 dupla para tomada', q, destination, 'Uma placa dupla por tomada dupla.', brand),
+      service('Mão de obra: instalação de tomada dupla', q, 55, destination, 'Serviço sugerido pelo kit. Ajuste valor conforme obra.'),
+    ],
   },
   {
-    id: 'simple-switch-4x2', title: 'Interruptor simples 4x2', description: 'Suporte, módulo interruptor, placa e mão de obra.', defaultQuantity: '1',
-    generate: (q, brand, destination) => [material('Chassis/suporte 4x2 para interruptor', q, destination, 'Gerado por kit de interruptor simples.', brand), material('Módulo interruptor simples', q, destination, 'Um módulo interruptor simples por ponto.', brand), material('Placa 4x2 para interruptor simples', q, destination, 'Uma placa por ponto de interruptor.', brand), service('Mão de obra: instalação de interruptor simples', q, 45, destination, 'Serviço sugerido pelo kit. Ajuste valor conforme obra.')],
+    id: 'simple-switch-4x2',
+    title: 'Interruptor simples 4x2',
+    description: 'Suporte, módulo interruptor, placa e mão de obra.',
+    defaultQuantity: '1',
+    generate: (q, brand, destination) => [
+      material('Chassis/suporte 4x2 para interruptor', q, destination, 'Gerado por kit de interruptor simples.', brand),
+      material('Módulo interruptor simples', q, destination, 'Um módulo interruptor simples por ponto.', brand),
+      material('Placa 4x2 para interruptor simples', q, destination, 'Uma placa por ponto de interruptor.', brand),
+      service('Mão de obra: instalação de interruptor simples', q, 45, destination, 'Serviço sugerido pelo kit. Ajuste valor conforme obra.'),
+    ],
   },
   {
-    id: 'lighting-point', title: 'Ponto de iluminação', description: 'Ponto de luz, conector e luminária a definir.', defaultQuantity: '1',
-    generate: (q, brand, destination) => [service('Mão de obra: instalação de ponto de iluminação', q, 65, destination, 'Confirmar fiação, interruptor e acabamento.'), material('Conector de emenda para iluminação', q, destination, 'Conector sugerido para ligação segura do ponto.', brand), material('Lâmpada/luminária a definir', q, destination, 'Item placeholder: definir modelo com o cliente.', brand)],
+    id: 'lighting-point',
+    title: 'Ponto de iluminação',
+    description: 'Ponto de luz, conector e luminária a definir.',
+    defaultQuantity: '1',
+    generate: (q, brand, destination) => [
+      service('Mão de obra: instalação de ponto de iluminação', q, 65, destination, 'Confirmar fiação, interruptor e acabamento.'),
+      material('Conector de emenda para iluminação', q, destination, 'Conector sugerido para ligação segura do ponto.', brand),
+      material('Lâmpada/luminária a definir', q, destination, 'Item placeholder: definir modelo com o cliente.', brand),
+    ],
   },
   {
-    id: 'spot-led', title: 'Spot LED', description: 'Spot, conector e serviço por unidade.', defaultQuantity: '4',
-    generate: (q, brand, destination) => [material('Spot LED de embutir/sobrepor a definir', q, destination, 'Definir potência, cor da luz e modelo do spot.', brand), material('Conector de emenda para spot LED', q, destination, 'Conector sugerido para ligação do spot.', brand), service('Mão de obra: instalação de spot LED', q, 45, destination, 'Ajuste valor conforme acesso e acabamento.')],
+    id: 'spot-led',
+    title: 'Spot LED',
+    description: 'Spot, conector e serviço por unidade.',
+    defaultQuantity: '4',
+    generate: (q, brand, destination) => [
+      material('Spot LED de embutir/sobrepor a definir', q, destination, 'Definir potência, cor da luz e modelo do spot.', brand),
+      material('Conector de emenda para spot LED', q, destination, 'Conector sugerido para ligação do spot.', brand),
+      service('Mão de obra: instalação de spot LED', q, 45, destination, 'Ajuste valor conforme acesso e acabamento.'),
+    ],
   },
   {
-    id: 'ac-dedicated-circuit', title: 'Circuito dedicado ar-condicionado', description: 'Serviço, disjuntor, tomada/isolador e placeholders.', defaultQuantity: '1',
-    generate: (q, brand, destination) => [service('Mão de obra: circuito dedicado para ar-condicionado', q, 180, destination, 'Validar potência, distância, bitola, disjuntor, DR e padrão do fabricante.'), material('Disjuntor para circuito dedicado de ar-condicionado', q, destination, 'Definir corrente/polos após dimensionamento.', brand), material('Tomada/isolador para ar-condicionado', q, destination, 'Definir padrão conforme equipamento.', brand), material('Cabo elétrico para circuito dedicado', q, destination, 'Placeholder: calcular metragem e seção.', brand)],
+    id: 'ac-dedicated-circuit',
+    title: 'Circuito dedicado ar-condicionado',
+    description: 'Serviço, disjuntor, tomada/isolador e placeholders.',
+    defaultQuantity: '1',
+    generate: (q, brand, destination) => [
+      service('Mão de obra: circuito dedicado para ar-condicionado', q, 180, destination, 'Validar potência, distância, bitola, disjuntor, DR e padrão do fabricante.'),
+      material('Disjuntor para circuito dedicado de ar-condicionado', q, destination, 'Definir corrente/polos após dimensionamento.', brand),
+      material('Tomada/isolador para ar-condicionado', q, destination, 'Definir padrão conforme equipamento.', brand),
+      material('Cabo elétrico para circuito dedicado', q, destination, 'Placeholder: calcular metragem e seção.', brand),
+    ],
   },
   {
-    id: 'external-outlet', title: 'Tomada externa aparente', description: 'Caixa externa, tomada, tampa e serviço.', defaultQuantity: '1',
-    generate: (q, brand, destination) => [material('Caixa/tomada externa aparente com proteção', q, destination, 'Escolher grau de proteção conforme exposição.', brand), material('Módulo de tomada 2P+T para área externa', q, destination, 'Definir 10A ou 20A conforme uso.', brand), material('Tampa/placa para tomada externa', q, destination, 'Acabamento com proteção adequada.', brand), service('Mão de obra: instalação de tomada externa', q, 75, destination, 'Validar vedação, altura, percurso e proteção.')],
+    id: 'external-outlet',
+    title: 'Tomada externa aparente',
+    description: 'Caixa externa, tomada, tampa e serviço.',
+    defaultQuantity: '1',
+    generate: (q, brand, destination) => [
+      material('Caixa/tomada externa aparente com proteção', q, destination, 'Escolher grau de proteção conforme exposição.', brand),
+      material('Módulo de tomada 2P+T para área externa', q, destination, 'Definir 10A ou 20A conforme uso.', brand),
+      material('Tampa/placa para tomada externa', q, destination, 'Acabamento com proteção adequada.', brand),
+      service('Mão de obra: instalação de tomada externa', q, 75, destination, 'Validar vedação, altura, percurso e proteção.'),
+    ],
   },
 ];
 
@@ -151,7 +231,18 @@ function makeCapture(line: GuidedLine): CalculationCapture {
     destination: line.destination,
     createdAt: new Date().toISOString(),
     summary: `${line.environment}: ${line.description} · ${line.quantity} × ${formatCurrency(line.unitValue)}`,
-    details: [`Ambiente: ${line.environment}`, `Tipo: ${kindLabel(line.kind)}`, `Descrição: ${line.description}`, line.brand ? `Marca: ${line.brand}` : 'Marca: não informada', line.model ? `Modelo/referência: ${line.model}` : 'Modelo/referência: não informado', `Quantidade: ${line.quantity}`, `Valor unitário: ${formatCurrency(line.unitValue)}`, `Subtotal: ${formatCurrency(subtotal)}`, `Destino: ${destinationLabel(line.destination)}`, line.note ? `Observação: ${line.note}` : 'Origem: orçamento guiado por ambiente'],
+    details: [
+      `Ambiente: ${line.environment}`,
+      `Tipo: ${kindLabel(line.kind)}`,
+      `Descrição: ${line.description}`,
+      line.brand ? `Marca: ${line.brand}` : 'Marca: não informada',
+      line.model ? `Modelo/referência: ${line.model}` : 'Modelo/referência: não informado',
+      `Quantidade: ${line.quantity}`,
+      `Valor unitário: ${formatCurrency(line.unitValue)}`,
+      `Subtotal: ${formatCurrency(subtotal)}`,
+      `Destino: ${destinationLabel(line.destination)}`,
+      line.note ? `Observação: ${line.note}` : 'Origem: orçamento guiado por ambiente',
+    ],
     itemType: line.itemType,
     editableDescription: `${line.environment} - ${line.description}`,
     technicalNote: line.note || 'Item criado no orçamento guiado por ambiente.',
@@ -203,14 +294,21 @@ export function GuidedBudgetCart({ onSendToBudget, mode = 'all' }: GuidedBudgetC
   const totalValue = environmentGroups.reduce((sum, group) => sum + group.subtotal, 0);
   const totalQuantity = environmentGroups.reduce((sum, group) => sum + group.totalQuantity, 0);
 
+  function quantityInCurrentEnvironment(description: string, itemType?: TechnicalItemType): number {
+    return lines
+      .filter((line) => line.environment === activeEnvironment && line.description === description && (!itemType || line.itemType === itemType))
+      .reduce((sum, line) => sum + line.quantity, 0);
+  }
+
   function addLine(line: Omit<GuidedLine, 'id' | 'environment'> & { environment?: string }) {
     setFeedback(null);
-    setLines((current) => [{ ...line, id: createId('guided-line'), environment: line.environment || activeEnvironment }, ...current]);
+    const incoming = { ...line, id: createId('guided-line'), environment: line.environment || activeEnvironment };
+    setLines((current) => mergeLineInto(current, incoming));
   }
 
   function addLines(nextLines: Array<Omit<GuidedLine, 'id' | 'environment'>>) {
     setFeedback(null);
-    setLines((current) => [...nextLines.map((line) => ({ ...line, id: createId('guided-kit-line'), environment: activeEnvironment })), ...current]);
+    setLines((current) => nextLines.reduce((merged, line) => mergeLineInto(merged, { ...line, id: createId('guided-kit-line'), environment: activeEnvironment }), current));
   }
 
   function addLabor(template: LaborTemplate) {
@@ -251,7 +349,7 @@ export function GuidedBudgetCart({ onSendToBudget, mode = 'all' }: GuidedBudgetC
   }
 
   function duplicateLine(line: GuidedLine) {
-    setLines((current) => [{ ...line, id: createId('copy-guided-line') }, ...current]);
+    setLines((current) => mergeLineInto(current, { ...line, id: createId('copy-guided-line') }));
   }
 
   function removeLine(id: string) {
@@ -261,23 +359,95 @@ export function GuidedBudgetCart({ onSendToBudget, mode = 'all' }: GuidedBudgetC
   function sendAll() {
     if (lines.length === 0) return;
     onSendToBudget(lines.map(makeCapture));
-    setFeedback(`${lines.length} item(ns) enviados para o fluxo escolhido.`);
+    setFeedback(`${lines.length} tipo(s), ${totalQuantity} unidade(s), enviados para o fluxo escolhido.`);
     setLines([]);
   }
 
   return (
     <section className="guided-cart-panel">
-      <div className="guided-cart-header"><div><h2>Orçamento guiado por ambiente</h2><p>Escolha um cômodo cadastrado, monte mão de obra, peças e kits, e envie ao fluxo.</p></div><div className="guided-cart-total"><span>{totalQuantity} item(ns)</span><strong>{formatCurrency(totalValue)}</strong></div></div>
+      <div className="guided-cart-header">
+        <div>
+          <h2>Orçamento guiado por ambiente</h2>
+          <p>Escolha um cômodo cadastrado, monte mão de obra, peças e kits, e envie ao fluxo.</p>
+        </div>
+        <div className="guided-cart-total">
+          <span>{totalQuantity} unidade(s)</span>
+          <strong>{formatCurrency(totalValue)}</strong>
+        </div>
+      </div>
 
-      <div className="guided-manual-block-card"><div><strong>Ambiente atual</strong><small>Os cômodos cadastrados acima aparecem aqui. Use “Atualizar cômodos” após adicionar um novo ambiente.</small></div><div className="guided-manual-grid"><label className="technical-edit-field"><span>Ambiente cadastrado</span><select value={environment} onChange={(event) => setEnvironment(event.target.value)}>{savedRoomNames.map((name) => <option key={name} value={name}>{name}</option>)}</select></label><label className="technical-edit-field guided-wide-field"><span>Ou digite outro ambiente</span><input value={customEnvironment} placeholder="Ex.: Corredor superior, suíte, área gourmet..." onChange={(event) => setCustomEnvironment(event.target.value)} /></label></div><button className="secondary-action inline-action" type="button" onClick={() => setSavedRoomsRefreshKey((current) => current + 1)}>Atualizar cômodos</button></div>
+      <div className="guided-manual-block-card">
+        <div>
+          <strong>Ambiente atual</strong>
+          <small>Os próximos serviços e peças serão lançados neste ambiente.</small>
+        </div>
+        <div className="guided-manual-grid">
+          <label className="technical-edit-field">
+            <span>Ambiente cadastrado</span>
+            <select value={environment} onChange={(event) => setEnvironment(event.target.value)}>
+              {savedRoomNames.map((name) => <option key={name} value={name}>{name}</option>)}
+            </select>
+          </label>
+          <label className="technical-edit-field guided-wide-field">
+            <span>Ou digite outro ambiente</span>
+            <input value={customEnvironment} placeholder="Ex.: Corredor superior, suíte, área gourmet..." onChange={(event) => setCustomEnvironment(event.target.value)} />
+          </label>
+        </div>
+        <button className="secondary-action inline-action" type="button" onClick={() => setSavedRoomsRefreshKey((current) => current + 1)}>Atualizar cômodos</button>
+      </div>
 
-      {showCatalog && <div className="guided-manual-block-card"><div><strong>Mão de obra guiada</strong><small>Clique para somar serviços. Ajuste quantidade e valor antes de adicionar.</small></div><div className="guided-service-grid">{laborTemplates.map((template) => <article className="guided-service-card" key={template.id}><div><strong>{template.title}</strong><small>{formatCurrency(template.defaultUnitValue)} / {template.unit}</small><small>{template.note}</small></div><div className="guided-service-controls"><label className="guided-typed-quantity"><span>Qtd.</span><input inputMode="decimal" value={laborQuantityById[template.id] ?? '1'} onChange={(event) => setLaborQuantityById((current) => ({ ...current, [template.id]: event.target.value }))} /></label><label className="guided-typed-quantity"><span>Valor</span><input inputMode="decimal" value={laborValueById[template.id] ?? String(template.defaultUnitValue)} onChange={(event) => setLaborValueById((current) => ({ ...current, [template.id]: event.target.value }))} /></label><button className="primary-action inline-action" type="button" onClick={() => addLabor(template)}>Adicionar</button></div></article>)}</div></div>}
+      {showCatalog && (
+        <div className="guided-manual-block-card">
+          <div>
+            <strong>Mão de obra guiada</strong>
+            <small>Clique para somar serviços. A quantidade lançada aparece no próprio card.</small>
+          </div>
+          <div className="guided-service-grid">
+            {laborTemplates.map((template) => {
+              const addedQuantity = quantityInCurrentEnvironment(template.title, 'service');
+              return (
+                <article className="guided-service-card" key={template.id}>
+                  <div>
+                    <strong>{template.title}</strong>
+                    <small>{formatCurrency(template.defaultUnitValue)} / {template.unit}</small>
+                    <small>{template.note}</small>
+                    {addedQuantity > 0 && <span className="guided-cart-count">{addedQuantity} lançado(s) neste ambiente</span>}
+                  </div>
+                  <div className="guided-service-controls">
+                    <label className="guided-typed-quantity"><span>Qtd.</span><input inputMode="decimal" value={laborQuantityById[template.id] ?? '1'} onChange={(event) => setLaborQuantityById((current) => ({ ...current, [template.id]: event.target.value }))} /></label>
+                    <label className="guided-typed-quantity"><span>Valor</span><input inputMode="decimal" value={laborValueById[template.id] ?? String(template.defaultUnitValue)} onChange={(event) => setLaborValueById((current) => ({ ...current, [template.id]: event.target.value }))} /></label>
+                    <button className="primary-action inline-action" type="button" onClick={() => addLabor(template)}>Adicionar</button>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
-      {showParts && <><div className="guided-manual-block-card"><div><strong>Kits automáticos</strong><small>Escolha o kit, informe a quantidade e gere materiais + serviços sugeridos no ambiente atual.</small></div><div className="guided-manual-grid"><label className="technical-edit-field guided-wide-field"><span>Kit</span><select value={selectedKitId} onChange={(event) => { const id = event.target.value as KitId; setSelectedKitId(id); setKitQuantity(kitTemplates.find((kit) => kit.id === id)?.defaultQuantity ?? '1'); }}>{kitTemplates.map((kit) => <option key={kit.id} value={kit.id}>{kit.title}</option>)}</select></label><label className="technical-edit-field"><span>Quantidade</span><input inputMode="decimal" value={kitQuantity} onChange={(event) => setKitQuantity(event.target.value)} /></label><label className="technical-edit-field"><span>Marca desejada</span><select value={kitBrand} onChange={(event) => setKitBrand(event.target.value)}>{kitBrands.map((brand) => <option key={brand} value={brand}>{brand}</option>)}</select></label><label className="technical-edit-field"><span>Destino</span><select value={kitDestination} onChange={(event) => setKitDestination(event.target.value as CalculationDestination)}><option value="survey">Levantamento</option><option value="budget">Orçamento</option><option value="both">Ambos</option></select></label></div><div className="guided-cart-summary"><strong>{selectedKit.title}</strong><small>{selectedKit.description}</small></div><button className="primary-action inline-action" type="button" onClick={addSelectedKit}>Gerar kit selecionado</button></div>
+      {showParts && (
+        <>
+          <div className="guided-manual-block-card">
+            <div><strong>Kits automáticos</strong><small>Escolha o kit, informe a quantidade e gere materiais + serviços sugeridos no ambiente atual.</small></div>
+            <div className="guided-manual-grid">
+              <label className="technical-edit-field guided-wide-field"><span>Kit</span><select value={selectedKitId} onChange={(event) => { const id = event.target.value as KitId; setSelectedKitId(id); setKitQuantity(kitTemplates.find((kit) => kit.id === id)?.defaultQuantity ?? '1'); }}>{kitTemplates.map((kit) => <option key={kit.id} value={kit.id}>{kit.title}</option>)}</select></label>
+              <label className="technical-edit-field"><span>Quantidade</span><input inputMode="decimal" value={kitQuantity} onChange={(event) => setKitQuantity(event.target.value)} /></label>
+              <label className="technical-edit-field"><span>Marca desejada</span><select value={kitBrand} onChange={(event) => setKitBrand(event.target.value)}>{kitBrands.map((brand) => <option key={brand} value={brand}>{brand}</option>)}</select></label>
+              <label className="technical-edit-field"><span>Destino</span><select value={kitDestination} onChange={(event) => setKitDestination(event.target.value as CalculationDestination)}><option value="survey">Levantamento</option><option value="budget">Orçamento</option><option value="both">Ambos</option></select></label>
+            </div>
+            <div className="guided-cart-summary"><strong>{selectedKit.title}</strong><small>{selectedKit.description}</small></div>
+            <button className="primary-action inline-action" type="button" onClick={addSelectedKit}>Gerar kit selecionado</button>
+          </div>
 
-      <div className="guided-manual-block-card"><div><strong>Peça/material manual</strong><small>Digite qualquer material, marca, modelo, quantidade e valor.</small></div><div className="guided-manual-grid"><label className="technical-edit-field guided-wide-field"><span>Descrição da peça</span><input value={manualPart.title} placeholder="Ex.: chassis 4x2, tomada 20A, placa dupla..." onChange={(event) => setManualPart((current) => ({ ...current, title: event.target.value }))} /></label><label className="technical-edit-field"><span>Marca</span><input value={manualPart.brand} placeholder="Ex.: Margirius" onChange={(event) => setManualPart((current) => ({ ...current, brand: event.target.value }))} /></label><label className="technical-edit-field"><span>Modelo/ref.</span><input value={manualPart.model} placeholder="Opcional" onChange={(event) => setManualPart((current) => ({ ...current, model: event.target.value }))} /></label><label className="technical-edit-field"><span>Quantidade</span><input inputMode="decimal" value={manualPart.quantity} onChange={(event) => setManualPart((current) => ({ ...current, quantity: event.target.value }))} /></label><label className="technical-edit-field"><span>Valor unitário</span><input inputMode="decimal" value={manualPart.unitValue} placeholder="0,00" onChange={(event) => setManualPart((current) => ({ ...current, unitValue: event.target.value }))} /></label><label className="technical-edit-field"><span>Destino</span><select value={manualPart.destination} onChange={(event) => setManualPart((current) => ({ ...current, destination: event.target.value as CalculationDestination }))}><option value="survey">Levantamento</option><option value="budget">Orçamento</option><option value="both">Ambos</option></select></label><label className="technical-edit-field guided-wide-field"><span>Observação</span><textarea value={manualPart.note} placeholder="Ex.: confirmar disponibilidade, usar 20A na cozinha..." onChange={(event) => setManualPart((current) => ({ ...current, note: event.target.value }))} /></label></div><button className="primary-action inline-action" type="button" onClick={addManualPart}>Adicionar peça manual</button></div>
+          <div className="guided-manual-block-card">
+            <div><strong>Peça/material manual</strong><small>Digite qualquer material, marca, modelo, quantidade e valor.</small></div>
+            <div className="guided-manual-grid"><label className="technical-edit-field guided-wide-field"><span>Descrição da peça</span><input value={manualPart.title} placeholder="Ex.: chassis 4x2, tomada 20A, placa dupla..." onChange={(event) => setManualPart((current) => ({ ...current, title: event.target.value }))} /></label><label className="technical-edit-field"><span>Marca</span><input value={manualPart.brand} placeholder="Ex.: Margirius" onChange={(event) => setManualPart((current) => ({ ...current, brand: event.target.value }))} /></label><label className="technical-edit-field"><span>Modelo/ref.</span><input value={manualPart.model} placeholder="Opcional" onChange={(event) => setManualPart((current) => ({ ...current, model: event.target.value }))} /></label><label className="technical-edit-field"><span>Quantidade</span><input inputMode="decimal" value={manualPart.quantity} onChange={(event) => setManualPart((current) => ({ ...current, quantity: event.target.value }))} /></label><label className="technical-edit-field"><span>Valor unitário</span><input inputMode="decimal" value={manualPart.unitValue} placeholder="0,00" onChange={(event) => setManualPart((current) => ({ ...current, unitValue: event.target.value }))} /></label><label className="technical-edit-field"><span>Destino</span><select value={manualPart.destination} onChange={(event) => setManualPart((current) => ({ ...current, destination: event.target.value as CalculationDestination }))}><option value="survey">Levantamento</option><option value="budget">Orçamento</option><option value="both">Ambos</option></select></label><label className="technical-edit-field guided-wide-field"><span>Observação</span><textarea value={manualPart.note} placeholder="Ex.: confirmar disponibilidade, usar 20A na cozinha..." onChange={(event) => setManualPart((current) => ({ ...current, note: event.target.value }))} /></label></div>
+            <button className="primary-action inline-action" type="button" onClick={addManualPart}>Adicionar peça manual</button>
+          </div>
 
-      <div className="parts-catalog-panel"><div className="parts-search-grid"><label className="technical-edit-field parts-search-wide"><span>Buscar na base interna</span><input value={partQuery} placeholder="Ex.: tomada 20A, disjuntor bipolar..." onChange={(event) => setPartQuery(event.target.value)} /></label><label className="technical-edit-field"><span>Marca</span><select value={partBrand} onChange={(event) => setPartBrand(event.target.value)}><option value="">Todas</option>{catalogPartBrands.map((brand) => <option key={brand} value={brand}>{brand}</option>)}</select></label><label className="technical-edit-field"><span>Categoria</span><select value={partCategory} onChange={(event) => setPartCategory(event.target.value)}><option value="">Todas</option>{catalogPartCategories.map((category) => <option key={category} value={category}>{category}</option>)}</select></label></div><div className="parts-results-header"><strong>{partResults.length} peça(s) encontrada(s)</strong><small>Base interna inicial.</small></div><div className="parts-result-list">{partResults.map((part) => <article className="part-result-card" key={part.id}><div className="part-result-main"><span>{part.brand}</span><strong>{part.title}</strong><small>{[part.line, part.category, part.subcategory, part.current, part.voltage].filter(Boolean).join(' · ')}</small></div><div className="part-result-controls"><button className="primary-action inline-action" type="button" onClick={() => addCatalogPart(part)}>Adicionar</button></div></article>)}</div></div></>}
+          <div className="parts-catalog-panel"><div className="parts-search-grid"><label className="technical-edit-field parts-search-wide"><span>Buscar na base interna</span><input value={partQuery} placeholder="Ex.: tomada 20A, disjuntor bipolar..." onChange={(event) => setPartQuery(event.target.value)} /></label><label className="technical-edit-field"><span>Marca</span><select value={partBrand} onChange={(event) => setPartBrand(event.target.value)}><option value="">Todas</option>{catalogPartBrands.map((brand) => <option key={brand} value={brand}>{brand}</option>)}</select></label><label className="technical-edit-field"><span>Categoria</span><select value={partCategory} onChange={(event) => setPartCategory(event.target.value)}><option value="">Todas</option>{catalogPartCategories.map((category) => <option key={category} value={category}>{category}</option>)}</select></label></div><div className="parts-results-header"><strong>{partResults.length} peça(s) encontrada(s)</strong><small>Base interna inicial.</small></div><div className="parts-result-list">{partResults.map((part) => { const addedQuantity = quantityInCurrentEnvironment(part.title, 'material'); return <article className="part-result-card" key={part.id}><div className="part-result-main"><span>{part.brand}</span><strong>{part.title}</strong><small>{[part.line, part.category, part.subcategory, part.current, part.voltage].filter(Boolean).join(' · ')}</small>{addedQuantity > 0 && <span className="guided-cart-count">{addedQuantity} lançado(s) neste ambiente</span>}</div><div className="part-result-controls"><button className="primary-action inline-action" type="button" onClick={() => addCatalogPart(part)}>Adicionar</button></div></article>; })}</div></div>
+        </>
+      )}
 
       {showManual && mode === 'manual' && <div className="guided-manual-block-card"><div><strong>Bloco manual rápido</strong><small>Para observações livres, use a aba Peças com descrição personalizada.</small></div></div>}
 
