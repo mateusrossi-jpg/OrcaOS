@@ -8,22 +8,24 @@ Este documento registra a decisão visual vigente para o MVP do OrçaOS.
 
 O OrçaOS deve ter aparência profissional, limpa, responsiva e confiável, com pouca poluição visual.
 
-A interface deve parecer uma ferramenta de trabalho de alto nível, não um painel cheio de elementos decorativos.
+A interface deve parecer uma ferramenta de trabalho de alto nível, apoiada em tipografia, hierarquia, espaçamento e clareza, não em excesso de elementos decorativos.
 
 ---
 
-## 2. Direção atual para teste prático
+## 2. Decisão vigente para o MVP
 
-Para o próximo teste do MVP, a interface deve operar em modo minimalista:
+A primeira publicação do MVP deve seguir uma direção tipográfica e minimalista:
 
 ```txt
 ícone principal/marca do OrçaOS: sim
-ícones secundários de navegação: ocultos no teste
-ícones dos módulos da taxonomia: ocultos no teste
-ícones em cálculos internos: não usar
+favicon/app icon: sim
+splash/iconografia institucional: sim
+ícones secundários de navegação: não
+ícones dos módulos da taxonomia: não
+ícones em cálculos internos: não
 ```
 
-A hipótese do teste é que uma boa tipografia, bons agrupamentos, descrições claras, badges e hierarquia visual podem ser suficientes para a primeira publicação.
+A hipótese final para o MVP é que uma boa tipografia, bons agrupamentos, descrições claras, badges e hierarquia visual são suficientes para a primeira publicação.
 
 ---
 
@@ -33,10 +35,9 @@ A hipótese do teste é que uma boa tipografia, bons agrupamentos, descrições 
 
 - marca/ícone principal do OrçaOS;
 - favicon/app icon;
-- splash/iconografia institucional;
-- ícones secundários somente se o teste prático mostrar que fazem falta.
+- splash/iconografia institucional.
 
-### Evitar no MVP
+### Não usar no MVP
 
 - ícones em todos os itens do menu;
 - ícones em todos os módulos da tela Cálculos;
@@ -62,17 +63,11 @@ Reduzir ícones melhora:
 
 ---
 
-## 5. Biblioteca base
+## 5. Limpeza técnica aplicada
 
-A biblioteca base atual é:
+A estrutura de ícones secundários foi removida do MVP tipográfico.
 
-```txt
-lucide-react
-```
-
-Ela permanece no projeto por enquanto porque a estrutura já existe e a decisão final ainda será tomada após o teste prático.
-
-Se o teste confirmar que o MVP ficará sem ícones secundários, a próxima limpeza poderá remover:
+Removidos/dispensados:
 
 ```txt
 lucide-react
@@ -82,7 +77,7 @@ src/features/calculators/config/moduleIconMap.ts
 src/features/calculators/types/iconKeys.ts
 ```
 
-Essa remoção só deve acontecer depois de confirmar que nenhum componente depende mais desses arquivos.
+Se no futuro o OrçaOS voltar a usar ícones secundários, a implementação deve ser feita em uma fase própria, com pack autoral ou biblioteca definida, sem reintroduzir ícones nos cálculos internos.
 
 ---
 
@@ -108,39 +103,41 @@ Essa decisão evita peso extra de carregamento e mantém boa aparência se a fon
 
 ## 7. Sequência de produção visual antes da primeira publicação
 
-### Fase A — Teste minimalista
+### Fase A — MVP tipográfico
 
-1. Ocultar ícones secundários do menu lateral.
-2. Ocultar ícones dos cards da tela Cálculos.
-3. Manter apenas marca/ícone principal do app.
-4. Testar leitura no celular.
-5. Verificar se navegação continua clara sem ícones.
-6. Verificar se a tela Cálculos continua fácil de entender.
+1. Remover ícones secundários da interface.
+2. Manter apenas ícone/marca principal do OrçaOS.
+3. Fortalecer tipografia, títulos e subtítulos.
+4. Melhorar espaçamentos e agrupamentos.
+5. Manter badges claros como LIVRE, PRO e EM BREVE.
+6. Testar leitura no celular.
+7. Validar screenshots para Play Store.
 
-### Fase B — Decisão visual
+### Fase B — Teste prático
 
-Após teste prático, escolher um caminho:
+Validar se:
+
+- o menu continua claro sem ícones;
+- a tela Cálculos continua fácil de entender;
+- os grupos da taxonomia estão bem separados;
+- os módulos são identificáveis por texto;
+- o visual parece profissional e não pobre.
+
+### Fase C — Decisão pós-MVP
+
+Após a primeira publicação ou teste real, escolher:
 
 ```txt
-Caminho 1: MVP sem ícones secundários
-Caminho 2: MVP com poucos ícones estratégicos
+Caminho 1: manter OrçaOS tipográfico e sem ícones secundários
+Caminho 2: adicionar poucos ícones estratégicos com pack próprio
 ```
-
-### Fase C — Organização final
-
-Se escolher o caminho 1:
-
-- remover dependência de ícones;
-- apagar mapas/componentes não usados;
-- manter apenas app icon/brand icon;
-- revisar screenshots da Play Store sem ícones secundários.
 
 Se escolher o caminho 2:
 
-- manter apenas poucos ícones estratégicos;
-- criar/importar ícones próprios do Canva;
+- criar/importar ícones próprios;
+- usar apenas em navegação e módulos principais;
 - não reintroduzir ícones em cálculos internos;
-- mapear ícones apenas em módulos principais.
+- aplicar gradualmente em uma versão futura.
 
 ---
 
@@ -151,7 +148,7 @@ Fazer:
 - melhorar tipografia;
 - melhorar espaçamento;
 - fortalecer hierarquia visual;
-- usar ícones somente se ajudarem a navegação;
+- usar texto claro e bem organizado;
 - manter componentes consolidados.
 
 Evitar:
@@ -166,8 +163,9 @@ Evitar:
 ## 9. Resumo
 
 ```txt
-MVP em teste: quase sem ícones secundários
+MVP: tipográfico e minimalista
 Ícone principal do app: mantido
+Ícones secundários: removidos
 Tipografia: protagonista
 Visual: profissional, escuro, técnico e elegante
 Manutenção: consolidada e sem poluição visual
