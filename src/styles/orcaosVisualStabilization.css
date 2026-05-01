@@ -30,6 +30,11 @@ body {
   background: linear-gradient(180deg, var(--stable-bg), #0b120e) !important;
 }
 
+body.orcaos-drawer-open {
+  overflow: hidden !important;
+  touch-action: none;
+}
+
 /* Reset de excessos visuais temporários */
 .orca-dashboard-screen {
   gap: 16px !important;
@@ -126,7 +131,7 @@ body {
   font-size: 0.82rem !important;
 }
 
-/* Topbar/menu: menos grosseiro e mais estável */
+/* Topbar/menu: estável, contido e sem vazamento */
 .professional-topbar {
   height: 64px !important;
   padding-inline: 12px !important;
@@ -168,58 +173,152 @@ body {
   display: none !important;
 }
 
+.drawer-backdrop {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 80 !important;
+  background: rgba(3, 7, 5, 0.52) !important;
+  backdrop-filter: blur(5px) !important;
+}
+
 .side-drawer {
-  width: min(88vw, 340px) !important;
-  padding: 12px !important;
+  position: fixed !important;
+  inset: 0 auto 0 0 !important;
+  z-index: 90 !important;
+  width: min(84vw, 338px) !important;
+  max-width: calc(100vw - 18px) !important;
+  height: 100dvh !important;
+  min-height: 0 !important;
+  max-height: 100dvh !important;
+  padding: calc(14px + env(safe-area-inset-top)) 12px calc(16px + env(safe-area-inset-bottom)) calc(12px + env(safe-area-inset-left)) !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  overscroll-behavior: contain !important;
+  -webkit-overflow-scrolling: touch !important;
+  border: 0 !important;
   border-right: 1px solid var(--stable-border) !important;
-  background: var(--stable-bg) !important;
-  box-shadow: 0 22px 60px rgba(0, 0, 0, 0.35) !important;
+  border-radius: 0 24px 24px 0 !important;
+  background:
+    radial-gradient(circle at 20% 0%, rgba(34, 197, 94, 0.08), transparent 14rem),
+    var(--stable-bg) !important;
+  box-shadow: 0 22px 70px rgba(0, 0, 0, 0.42) !important;
+  transform: translateX(calc(-100% - 18px)) !important;
+  transition: transform 180ms ease !important;
+}
+
+.side-drawer.open {
+  transform: translateX(0) !important;
+}
+
+.side-drawer > * {
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
 }
 
 .drawer-brand-card,
-.drawer-work-card,
-.drawer-nav button {
+.drawer-work-card {
   border: 1px solid var(--stable-border) !important;
-  border-radius: var(--stable-radius) !important;
-  background: var(--stable-surface) !important;
+  border-radius: 22px !important;
+  background: linear-gradient(135deg, var(--stable-surface), var(--stable-surface-2)) !important;
   box-shadow: none !important;
 }
 
 .drawer-brand-mark {
-  width: 44px !important;
-  height: 44px !important;
-  border-radius: 13px !important;
+  width: 48px !important;
+  height: 48px !important;
+  border-radius: 17px !important;
   color: #041008 !important;
-  background: var(--stable-green) !important;
+  background: linear-gradient(135deg, var(--stable-green), var(--stable-green-2)) !important;
   box-shadow: none !important;
 }
 
 .drawer-nav {
-  gap: 8px !important;
+  display: grid !important;
+  gap: 10px !important;
+  min-width: 0 !important;
 }
 
 .drawer-nav button {
-  min-height: 62px !important;
-  padding: 10px !important;
+  position: relative !important;
+  isolation: isolate !important;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  align-items: center !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-height: 72px !important;
+  overflow: hidden !important;
+  border: 1px solid var(--stable-border) !important;
+  border-radius: 22px !important;
+  padding: 13px 14px !important;
+  color: var(--stable-text) !important;
+  background: linear-gradient(135deg, var(--stable-surface), var(--stable-surface-2)) !important;
+  box-shadow: none !important;
+}
+
+.drawer-nav button::before {
+  content: '' !important;
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: -1 !important;
+  border-radius: inherit !important;
+  opacity: 0 !important;
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.95), rgba(16, 185, 129, 0.35), rgba(255, 255, 255, 0.08)) !important;
+  transition: opacity 160ms ease !important;
+}
+
+.drawer-nav button::after {
+  content: '' !important;
+  position: absolute !important;
+  inset: 1px !important;
+  z-index: -1 !important;
+  border-radius: 21px !important;
+  background: linear-gradient(135deg, var(--stable-surface), var(--stable-surface-2)) !important;
 }
 
 .drawer-nav button.active {
-  border-color: var(--stable-border-2) !important;
-  background: var(--stable-surface-2) !important;
+  border-color: transparent !important;
+  background: transparent !important;
+  box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.06), 0 12px 28px rgba(0, 0, 0, 0.16) !important;
+}
+
+.drawer-nav button.active::before {
+  opacity: 1 !important;
+}
+
+.drawer-nav button.active::after {
+  background:
+    radial-gradient(circle at 100% 0%, rgba(34, 197, 94, 0.12), transparent 7rem),
+    linear-gradient(135deg, var(--stable-surface), var(--stable-surface-2)) !important;
+}
+
+.drawer-nav button > span {
+  display: grid !important;
+  gap: 4px !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
 }
 
 .drawer-brand-card strong,
 .drawer-work-card strong,
 .drawer-nav strong {
   color: var(--stable-text) !important;
-  font-size: 0.94rem !important;
+  font-size: 1rem !important;
+  font-weight: 840 !important;
+  letter-spacing: -0.035em !important;
+}
+
+.drawer-nav button.active strong {
+  color: #bbf7d0 !important;
 }
 
 .drawer-brand-card small,
 .drawer-work-card small,
 .drawer-nav small {
   color: var(--stable-muted) !important;
-  font-size: 0.76rem !important;
+  font-size: 0.82rem !important;
+  line-height: 1.34 !important;
 }
 
 /* MVP tipográfico: remover todos os símbolos/ícones secundários antigos */
