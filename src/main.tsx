@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { App } from './app/AppOrcaNext';
+import { App } from './app/AppOrcaNextOrganized';
 import './styles/global.css';
 import './styles/orcaosTypography.css';
 import './styles/mobileLayoutFix.css';
