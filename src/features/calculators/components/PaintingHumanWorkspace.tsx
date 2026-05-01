@@ -26,6 +26,7 @@ interface PaintingResult {
   summary: string;
   details: string[];
   orientation: string;
+  formula: string[];
   cards: ResultCardData[];
 }
 
@@ -81,11 +82,11 @@ function createId(prefix: string): string {
 }
 
 function emptyResult(): PaintingResult {
-  return { error: null, summary: '', details: [], orientation: '', cards: [] };
+  return { error: null, summary: '', details: [], orientation: '', formula: [], cards: [] };
 }
 
-function result(summary: string, cards: ResultCardData[], details: string[], orientation: string): PaintingResult {
-  return { error: null, summary, cards, details, orientation };
+function result(summary: string, cards: ResultCardData[], details: string[], orientation: string, formula: string[]): PaintingResult {
+  return { error: null, summary, cards, details, orientation, formula };
 }
 
 function estimateLiters(area: number, coats: number, yieldValue: number, lossPercent: number): number {
@@ -150,6 +151,7 @@ export function PaintingHumanWorkspace({ onCaptureCalculation }: Props) {
           ],
           [`Comprimento: ${round(length)} m`, `Largura: ${round(width)} m`, `Altura: ${round(height)} m`, `Área de paredes: ${round(wallArea)} m²`, `Descontos: ${round(discount)} m²`, `Área extra: ${round(extra)} m²`, `Área líquida: ${round(netArea)} m²`],
           'Use essa área líquida nos próximos cálculos. Coloque teto, muros ou detalhes no campo de área extra quando fizer sentido.',
+          ['Perímetro do cômodo = 2 × (comprimento + largura)', 'Área das paredes = perímetro × altura', 'Área líquida = área das paredes + área extra - descontos'],
         );
       }
 
@@ -168,6 +170,7 @@ export function PaintingHumanWorkspace({ onCaptureCalculation }: Props) {
           ],
           [`Área: ${round(area)} m²`, `Demãos: ${round(coats)}`, `Rendimento: ${round(yieldValue)} m²/L`, `Perda: ${round(loss)}%`, `Litros: ${round(liters)} L`, `Galões 3,6 L: ${Math.ceil(liters / 3.6)}`, `Latas 18 L: ${Math.ceil(liters / 18)}`],
           'Rendimento muda conforme tinta, superfície, cor anterior e preparo. Use a embalagem do fabricante quando tiver o dado real.',
+          ['Litros base = área × demãos ÷ rendimento da tinta', 'Litros com perda = litros base × (1 + perda ÷ 100)', 'Galões/latas são arredondados para cima para compra'],
         );
       }
 
@@ -191,9 +194,10 @@ export function PaintingHumanWorkspace({ onCaptureCalculation }: Props) {
         ],
         [`Área: ${round(area)} m²`, `Litros estimados: ${round(liters)} L`, `Material: ${money(material)}`, `Mão de obra: ${money(labor)}`, `Preparo/outros: ${money(prepCost)}`, `Total: ${money(total)}`],
         'Use como base comercial rápida. Ajuste preparo, correção de parede, massa, lixamento, deslocamento e complexidade antes de enviar ao cliente.',
+        ['Litros = área × demãos ÷ rendimento × (1 + perda ÷ 100)', 'Material = litros estimados × preço por litro', 'Mão de obra = área × valor por m²', 'Total = material + mão de obra + preparo/outros custos'],
       );
     } catch (error) {
-      return { error: error instanceof Error ? error.message : 'Preencha os campos necessários.', summary: '', details: [], orientation: '', cards: [] };
+      return { error: error instanceof Error ? error.message : 'Preencha os campos necessários.', summary: '', details: [], orientation: '', formula: [], cards: [] };
     }
   }, [activeRule, values]);
 
@@ -208,7 +212,7 @@ export function PaintingHumanWorkspace({ onCaptureCalculation }: Props) {
       destination,
       createdAt: new Date().toISOString(),
       summary: calculated.summary,
-      details: [...calculated.details, `Orientação: ${calculated.orientation}`],
+      details: [...calculated.details, ...calculated.formula.map((item) => `Fórmula: ${item}`), `Orientação: ${calculated.orientation}`],
     };
 
     onCaptureCalculation?.(capture);
@@ -311,6 +315,7 @@ export function PaintingHumanWorkspace({ onCaptureCalculation }: Props) {
 
             {calculated.error && <p className="general-error-message">{calculated.error}</p>}
             {calculated.cards.length > 0 && <div className="general-result-grid">{calculated.cards.map((item) => <ResultCard key={item.label} {...item} />)}</div>}
+            {calculated.formula.length > 0 && <div className="general-formula-box"><strong>Como este cálculo é feito</strong>{calculated.formula.map((item) => <span key={item}>{item}</span>)}</div>}
             {calculated.orientation && <p className="general-helper-text">{calculated.orientation}</p>}
             {addedMessage && <p className="general-added-message">{addedMessage}</p>}
 
