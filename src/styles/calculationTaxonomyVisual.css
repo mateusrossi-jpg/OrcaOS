@@ -1,0 +1,76 @@
+.module-list-app {
+  display: grid !important;
+  grid-template-columns: 1fr;
+  gap: 12px !important;
+}
+
+.module-list-app .module-app-card {
+  isolation: isolate;
+}
+
+.module-list-app .module-app-card:nth-child(1) { order: 10; }
+.module-list-app .module-app-card:nth-child(2) { order: 11; }
+.module-list-app .module-app-card:nth-child(3) { order: 20; }
+.module-list-app .module-app-card:nth-child(4) { order: 21; }
+.module-list-app .module-app-card:nth-child(10) { order: 22; }
+.module-list-app .module-app-card:nth-child(8) { order: 23; }
+.module-list-app .module-app-card:nth-child(9) { order: 24; }
+.module-list-app .module-app-card:nth-child(5) { order: 25; }
+.module-list-app .module-app-card:nth-child(7) { order: 30; }
+.module-list-app .module-app-card:nth-child(13) { order: 31; }
+.module-list-app .module-app-card:nth-child(6) { order: 32; }
+.module-list-app .module-app-card:nth-child(16) { order: 33; }
+.module-list-app .module-app-card:nth-child(14) { order: 34; }
+.module-list-app .module-app-card:nth-child(15) { order: 35; }
+.module-list-app .module-app-card:nth-child(12) { order: 40; }
+.module-list-app .module-app-card:nth-child(11) { order: 50; }
+
+.module-list-app .module-app-card:nth-child(1),
+.module-list-app .module-app-card:nth-child(3),
+.module-list-app .module-app-card:nth-child(7),
+.module-list-app .module-app-card:nth-child(12),
+.module-list-app .module-app-card:nth-child(11) {
+  margin-top: 36px;
+}
+
+.module-list-app .module-app-card:nth-child(1)::before,
+.module-list-app .module-app-card:nth-child(3)::before,
+.module-list-app .module-app-card:nth-child(7)::before,
+.module-list-app .module-app-card:nth-child(12)::before,
+.module-list-app .module-app-card:nth-child(11)::before {
+  position: absolute;
+  left: 0;
+  top: -31px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  min-height: 23px;
+  border-radius: 999px;
+  padding: 0 10px;
+  color: #124878;
+  background: #eaf3ff;
+  font-size: 0.72rem;
+  font-weight: 950;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.module-list-app .module-app-card:nth-child(1)::before { content: 'Essenciais'; }
+.module-list-app .module-app-card:nth-child(3)::before { content: 'Profissões'; }
+.module-list-app .module-app-card:nth-child(7)::before { content: 'Especialidades'; }
+.module-list-app .module-app-card:nth-child(12)::before { content: 'Orçamento e gestão'; }
+.module-list-app .module-app-card:nth-child(11)::before { content: 'Conversores técnicos'; }
+
+@media (min-width: 920px) {
+  .module-list-app {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .module-list-app .module-app-card:nth-child(1),
+  .module-list-app .module-app-card:nth-child(3),
+  .module-list-app .module-app-card:nth-child(7),
+  .module-list-app .module-app-card:nth-child(12),
+  .module-list-app .module-app-card:nth-child(11) {
+    grid-column: 1 / -1;
+  }
+}
