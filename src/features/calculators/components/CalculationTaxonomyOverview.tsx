@@ -117,7 +117,7 @@ export function CalculationTaxonomyOverview({ modules, onOpenModule }: Props) {
           <section className="taxonomy-group-card" key={group.id}>
             <header>
               <div>
-                <span>{group.id.replaceAll('-', ' ')}</span>
+                <span>{group.title}</span>
                 <h2>{group.title}</h2>
                 <p>{group.subtitle}</p>
               </div>
