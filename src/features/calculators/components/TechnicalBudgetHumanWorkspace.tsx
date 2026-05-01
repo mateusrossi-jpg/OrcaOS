@@ -73,6 +73,11 @@ function requireNonNegative(value: number, label: string): number {
   return value;
 }
 
+function requirePercent(value: number, label: string): number {
+  if (!Number.isFinite(value) || value < 0 || value > 100) throw new Error(`Informe um percentual válido para ${label}, entre 0 e 100%.`);
+  return value;
+}
+
 function round(value: number, decimals = 2): number {
   if (!Number.isFinite(value)) return 0;
   const factor = 10 ** decimals;
@@ -162,7 +167,7 @@ export function TechnicalBudgetHumanWorkspace({ onCaptureCalculation }: Props) {
         const travel = optionalN('travel', 'deslocamento');
         const profitPercent = optionalN('profitPercent', 'margem');
         const taxPercent = optionalN('taxPercent', 'impostos');
-        const discountPercent = optionalN('discountPercent', 'desconto');
+        const discountPercent = requirePercent(parseNumber(values.discountPercent ?? '0'), 'desconto');
         const base = material + labor + travel;
         const profitValue = base * profitPercent / 100;
         const subtotal = base + profitValue;
@@ -239,7 +244,7 @@ export function TechnicalBudgetHumanWorkspace({ onCaptureCalculation }: Props) {
       }
 
       const total = n('total', 'valor total');
-      const upfrontPercent = n('upfrontPercent', 'percentual de entrada');
+      const upfrontPercent = requirePercent(parseNumber(values.upfrontPercent ?? ''), 'entrada');
       const upfrontValue = total * upfrontPercent / 100;
       const remaining = total - upfrontValue;
       return result(
