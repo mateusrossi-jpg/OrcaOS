@@ -222,16 +222,16 @@ body {
   font-size: 0.76rem !important;
 }
 
+/* MVP tipográfico: remover todos os símbolos/ícones secundários antigos */
 .drawer-nav-icon,
-.app-icon {
-  border: 1px solid var(--stable-border) !important;
-  color: var(--stable-green) !important;
-  background: var(--stable-surface-2) !important;
-  box-shadow: none !important;
+.app-icon,
+.large-icon {
+  display: none !important;
 }
 
 .drawer-nav-icon::after,
-.app-icon::after {
+.app-icon::after,
+.large-icon::after {
   display: none !important;
 }
 
@@ -356,6 +356,35 @@ body {
 .active-work-context-card small,
 .survey-intro-card small {
   color: var(--stable-muted) !important;
+}
+
+/* Layouts sem a coluna dos ícones removidos */
+.module-app-card,
+.module-detail-header,
+.active-work-context-card,
+.survey-intro-card,
+.store-card,
+.settings-row,
+.orca-quick-actions button,
+.orca-compact-module-list button,
+.orca-activity-list article,
+.compact-home-card {
+  grid-template-columns: minmax(0, 1fr) auto !important;
+}
+
+.module-detail-header {
+  grid-template-columns: minmax(0, 1fr) !important;
+}
+
+.active-work-context-card,
+.survey-intro-card {
+  grid-template-columns: minmax(0, 1fr) !important;
+}
+
+.store-card > span:not(.app-icon),
+.settings-row > span:not(.app-icon),
+.survey-intro-card > span:not(.app-icon) {
+  min-width: 0 !important;
 }
 
 /* Inputs e selects */
@@ -507,7 +536,11 @@ button.secondary-action {
     min-height: 88px !important;
   }
 
-  .module-app-card {
-    grid-template-columns: auto minmax(0, 1fr) !important;
+  .module-app-card,
+  .store-card,
+  .settings-row,
+  .orca-compact-module-list button,
+  .orca-activity-list article {
+    grid-template-columns: minmax(0, 1fr) auto !important;
   }
 }
