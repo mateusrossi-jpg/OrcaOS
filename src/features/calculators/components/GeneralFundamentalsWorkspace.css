@@ -18,21 +18,24 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  border-radius: 18px;
-  padding: 14px;
+  border-radius: 20px;
+  padding: 15px;
 }
 
 .fundamental-plan-banner strong {
   display: block;
   color: var(--stable-text, #f8fafc);
-  font-weight: 850;
+  font-size: 1.02rem;
+  font-weight: 900;
+  letter-spacing: -0.035em;
 }
 
 .fundamental-plan-banner span {
   display: block;
-  margin-top: 3px;
+  margin-top: 4px;
   color: var(--stable-muted, #a7b3ad);
   font-size: 0.86rem;
+  line-height: 1.4;
 }
 
 .fundamental-plan-banner em,
@@ -40,12 +43,14 @@
 .fundamental-overlay-header em {
   border: 1px solid var(--stable-border-2, rgba(34, 197, 94, 0.22));
   border-radius: 999px;
-  padding: 6px 9px;
+  padding: 7px 10px;
   color: var(--stable-green, #22c55e);
   background: rgba(34, 197, 94, 0.08);
-  font-size: 0.7rem;
+  font-size: 0.68rem;
   font-style: normal;
-  font-weight: 900;
+  font-weight: 950;
+  letter-spacing: 0.055em;
+  text-transform: uppercase;
   white-space: nowrap;
 }
 
@@ -56,33 +61,44 @@
 
 .fundamental-picker-card {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  grid-template-columns: minmax(0, 1fr) auto auto;
   align-items: center;
   gap: 12px;
-  min-height: 82px;
-  border-radius: 18px;
-  padding: 12px;
+  min-height: 88px;
+  border-radius: 20px;
+  padding: 16px;
   text-align: left;
   font: inherit;
 }
 
-.fundamental-picker-card span:nth-child(2) {
+.fundamental-picker-card > .app-icon,
+.fundamental-picker-card > .human-icon,
+.fundamental-picker-card > .fundamental-icon {
+  display: none !important;
+}
+
+.fundamental-picker-card span:nth-child(2),
+.fundamental-picker-card > span:first-child {
   min-width: 0;
 }
 
 .fundamental-picker-card strong {
   display: block;
   color: var(--stable-text, #f8fafc);
-  font-weight: 850;
+  font-size: 1.08rem;
+  font-weight: 900;
+  line-height: 1.15;
+  letter-spacing: -0.043em;
 }
 
 .fundamental-picker-card small {
   display: -webkit-box;
-  margin-top: 3px;
+  margin-top: 6px;
   overflow: hidden;
   color: var(--stable-muted, #a7b3ad);
-  font-size: 0.82rem;
-  line-height: 1.32;
+  font-size: 0.85rem;
+  font-weight: 680;
+  line-height: 1.38;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
 }
@@ -103,7 +119,7 @@
 .fundamental-overlay-backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.58);
+  background: rgba(2, 6, 23, 0.64);
   backdrop-filter: blur(8px);
 }
 
@@ -111,12 +127,12 @@
   position: relative;
   z-index: 1;
   display: grid;
-  gap: 14px;
+  gap: 15px;
   width: min(100%, 760px);
   max-height: min(92dvh, 860px);
   overflow: auto;
-  border-radius: 24px;
-  padding: 16px;
+  border-radius: 26px;
+  padding: 17px;
 }
 
 .fundamental-overlay-header {
@@ -140,25 +156,26 @@
 
 .fundamental-overlay-header span {
   color: var(--stable-green, #22c55e);
-  font-size: 0.74rem;
-  font-weight: 900;
-  letter-spacing: 0.06em;
+  font-size: 0.72rem;
+  font-weight: 950;
+  letter-spacing: 0.075em;
   text-transform: uppercase;
 }
 
 .fundamental-overlay-header h2 {
   margin: 2px 0 0;
   color: var(--stable-text, #f8fafc);
-  font-size: clamp(1.35rem, 6vw, 2.05rem);
-  line-height: 1.02;
-  letter-spacing: -0.055em;
+  font-size: clamp(1.4rem, 6vw, 2.05rem);
+  font-weight: 900;
+  line-height: 1.03;
+  letter-spacing: -0.058em;
 }
 
 .fundamental-overlay-header p {
-  margin: 4px 0 0;
+  margin: 5px 0 0;
   color: var(--stable-muted, #a7b3ad);
   font-size: 0.9rem;
-  line-height: 1.35;
+  line-height: 1.42;
 }
 
 .fundamental-form {
@@ -169,14 +186,14 @@
 
 .fundamental-form-field {
   display: grid;
-  gap: 6px;
+  gap: 7px;
 }
 
 .fundamental-form-field span {
   color: var(--stable-muted, #a7b3ad);
-  font-size: 0.76rem;
-  font-weight: 850;
-  letter-spacing: 0.04em;
+  font-size: 0.74rem;
+  font-weight: 900;
+  letter-spacing: 0.055em;
   text-transform: uppercase;
 }
 
@@ -186,15 +203,15 @@
 
 .fundamental-form-field input {
   width: 100%;
-  min-height: 50px;
+  min-height: 52px;
   box-sizing: border-box;
   border: 1px solid var(--stable-border, rgba(255,255,255,.1));
-  border-radius: 15px;
-  padding: 0 54px 0 12px;
+  border-radius: 16px;
+  padding: 0 54px 0 13px;
   color: var(--stable-text, #f8fafc);
   background: var(--stable-surface-2, #151f19);
   font: inherit;
-  font-weight: 750;
+  font-weight: 760;
 }
 
 .fundamental-form-field small {
@@ -204,7 +221,7 @@
   transform: translateY(-50%);
   color: var(--stable-muted, #a7b3ad);
   font-size: 0.78rem;
-  font-weight: 800;
+  font-weight: 850;
 }
 
 .fundamental-result-grid {
@@ -215,39 +232,40 @@
 
 .fundamental-result-card {
   display: grid;
-  gap: 6px;
-  border-radius: 17px;
-  padding: 13px;
+  gap: 7px;
+  border-radius: 18px;
+  padding: 14px;
 }
 
 .fundamental-result-card span {
   color: var(--stable-muted, #a7b3ad);
-  font-size: 0.74rem;
-  font-weight: 850;
-  letter-spacing: 0.04em;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.055em;
   text-transform: uppercase;
 }
 
 .fundamental-result-card strong {
   color: var(--stable-green, #22c55e);
-  font-size: clamp(1.15rem, 5vw, 1.65rem);
-  line-height: 1.05;
-  letter-spacing: -0.05em;
+  font-size: clamp(1.18rem, 5vw, 1.7rem);
+  font-weight: 900;
+  line-height: 1.04;
+  letter-spacing: -0.055em;
 }
 
 .fundamental-result-card small {
   color: var(--stable-muted, #a7b3ad);
-  line-height: 1.32;
+  line-height: 1.35;
 }
 
 .fundamental-error-message,
 .fundamental-added-message,
 .fundamental-note {
   margin: 0;
-  border-radius: 14px;
-  padding: 11px 12px;
+  border-radius: 15px;
+  padding: 12px 13px;
   font-size: 0.86rem;
-  line-height: 1.35;
+  line-height: 1.42;
 }
 
 .fundamental-error-message {
@@ -274,12 +292,12 @@
 .fundamental-capture-actions button {
   min-height: 46px;
   border: 1px solid var(--stable-green-2, #16a34a);
-  border-radius: 14px;
+  border-radius: 15px;
   color: #041008;
   background: var(--stable-green, #22c55e);
   font: inherit;
   font-size: 0.82rem;
-  font-weight: 850;
+  font-weight: 900;
 }
 
 .fundamental-capture-actions button.secondary-action {
@@ -295,12 +313,11 @@
   }
 
   .fundamental-picker-card {
-    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-columns: 1fr;
   }
 
   .fundamental-picker-card em,
   .fundamental-picker-card .chevron {
-    grid-column: 2;
     justify-self: start;
   }
 }
@@ -314,7 +331,7 @@
     width: 100%;
     max-height: 94dvh;
     border-radius: 24px 24px 0 0;
-    padding: 14px;
+    padding: 15px;
   }
 
   .fundamental-overlay-header {
