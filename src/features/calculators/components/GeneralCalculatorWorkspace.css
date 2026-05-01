@@ -216,7 +216,7 @@
   font-weight: 800;
 }
 
-.human-advanced-block {
+.general-advanced-block {
   display: grid;
   grid-column: 1 / -1;
   gap: 10px;
@@ -226,7 +226,7 @@
   background: rgba(255, 255, 255, 0.025);
 }
 
-.human-advanced-block > button {
+.general-advanced-block > button {
   min-height: 42px;
   border: 1px solid var(--stable-border-2, rgba(34, 197, 94, 0.22));
   border-radius: 13px;
@@ -237,7 +237,7 @@
   font-weight: 850;
 }
 
-.human-advanced-grid {
+.general-advanced-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
@@ -329,7 +329,7 @@
   .general-calculator-form,
   .general-result-grid,
   .general-capture-actions,
-  .human-advanced-grid {
+  .general-advanced-grid {
     grid-template-columns: 1fr;
   }
 
