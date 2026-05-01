@@ -26,6 +26,7 @@ interface ConstructionResult {
   summary: string;
   details: string[];
   orientation: string;
+  formula: string[];
   cards: ResultCardData[];
 }
 
@@ -80,11 +81,11 @@ function createId(prefix: string): string {
 }
 
 function emptyResult(): ConstructionResult {
-  return { error: null, summary: '', details: [], orientation: '', cards: [] };
+  return { error: null, summary: '', details: [], orientation: '', formula: [], cards: [] };
 }
 
-function result(summary: string, cards: ResultCardData[], details: string[], orientation: string): ConstructionResult {
-  return { error: null, summary, cards, details, orientation };
+function result(summary: string, cards: ResultCardData[], details: string[], orientation: string, formula: string[]): ConstructionResult {
+  return { error: null, summary, cards, details, orientation, formula };
 }
 
 function NumberField({ label, value, suffix, step = 0.01, onChange }: { label: string; value: string; suffix?: string; step?: number; onChange: (value: string) => void }) {
@@ -144,6 +145,7 @@ export function ConstructionHumanWorkspace({ onCaptureCalculation }: Props) {
           ],
           [`Largura: ${round(width)} m`, `Altura: ${round(height)} m`, `Paredes: ${round(walls)}`, `Área bruta: ${round(grossArea)} m²`, `Descontos: ${round(discount)} m²`, `Área líquida: ${round(netArea)} m²`],
           'Use a área líquida para pintura, revestimento ou orçamento. Desconte aberturas grandes e confira paredes com medidas diferentes separadamente.',
+          ['Área bruta = largura × altura × quantidade de paredes', 'Área líquida = área bruta - descontos', 'O resultado mínimo considerado é 0 m² para evitar área negativa'],
         );
       }
 
@@ -157,10 +159,11 @@ export function ConstructionHumanWorkspace({ onCaptureCalculation }: Props) {
           `Área base: ${round(area)} m²`,
           [
             { label: 'Área base', value: `${round(area)} m²`, helper: 'largura × comprimento' },
-            { label: 'Com perda', value: `${round(purchaseArea)} m²`, helper: `${round(loss)}% de margem` },
+            { label: 'Com perda', value: `${round(purchaseArea)} m²`, helper: `${round(loss)}% de perda` },
           ],
           [`Largura: ${round(width)} m`, `Comprimento: ${round(length)} m`, `Área base: ${round(area)} m²`, `Perda: ${round(loss)}%`, `Área com perda: ${round(purchaseArea)} m²`],
           'Use a área com perda para compra de material. Aumente a perda em recortes, paginação diagonal ou ambiente irregular.',
+          ['Área base = largura × comprimento', 'Área com perda = área base × (1 + perda ÷ 100)'],
         );
       }
 
@@ -179,6 +182,7 @@ export function ConstructionHumanWorkspace({ onCaptureCalculation }: Props) {
           ],
           [`Largura: ${round(width)} m`, `Comprimento: ${round(length)} m`, `Espessura: ${round(thicknessCm)} cm`, `Volume: ${round(volume, 3)} m³`, `Sacos estimados: ${bags}`],
           'Use como estimativa inicial. Traço, brita, areia, perda, transporte e resistência exigida devem ser definidos conforme o serviço.',
+          ['Espessura em metros = espessura em cm ÷ 100', 'Volume = largura × comprimento × espessura em metros', 'Sacos estimados = arredondar para cima(volume × sacos por m³)'],
         );
       }
 
@@ -202,6 +206,7 @@ export function ConstructionHumanWorkspace({ onCaptureCalculation }: Props) {
           ],
           [`Área líquida: ${round(netArea)} m²`, `Bloco: ${round(blockWidth * 100)} × ${round(blockHeight * 100)} cm`, `Perda: ${round(loss)}%`, `Quantidade: ${totalBlocks} un.`],
           'Use para estimativa rápida. Juntas de argamassa, quebras, amarração e vãos podem alterar a quantidade real.',
+          ['Área líquida = largura × altura × paredes - descontos', 'Área do bloco = largura do bloco × altura do bloco', 'Blocos base = área líquida ÷ área do bloco', 'Blocos finais = arredondar para cima(blocos base × (1 + perda ÷ 100))'],
         );
       }
 
@@ -219,15 +224,16 @@ export function ConstructionHumanWorkspace({ onCaptureCalculation }: Props) {
       return result(
         `Piso/revestimento: ${boxes} caixa(s)`,
         [
-          { label: 'Área com perda', value: `${round(purchaseArea)} m²`, helper: `${round(loss)}% de margem` },
+          { label: 'Área com perda', value: `${round(purchaseArea)} m²`, helper: `${round(loss)}% de perda` },
           { label: 'Peças', value: `${pieces} un.`, helper: `${round(tileWidth * 100)} × ${round(tileHeight * 100)} cm` },
           { label: 'Caixas', value: `${boxes}`, helper: `${round(piecesPerBox)} peças/caixa` },
         ],
         [`Área base: ${round(area)} m²`, `Área com perda: ${round(purchaseArea)} m²`, `Peça: ${round(tileWidth * 100)} × ${round(tileHeight * 100)} cm`, `Peças: ${pieces}`, `Caixas: ${boxes}`],
         'Confira a quantidade de peças por caixa do fabricante. Compre caixas fechadas e preserve sobra para manutenção futura.',
+        ['Área base = largura × comprimento', 'Área com perda = área base × (1 + perda ÷ 100)', 'Área da peça = largura da peça × altura da peça', 'Peças = arredondar para cima(área com perda ÷ área da peça)', 'Caixas = arredondar para cima(peças ÷ peças por caixa)'],
       );
     } catch (error) {
-      return { error: error instanceof Error ? error.message : 'Preencha os campos necessários.', summary: '', details: [], orientation: '', cards: [] };
+      return { error: error instanceof Error ? error.message : 'Preencha os campos necessários.', summary: '', details: [], orientation: '', formula: [], cards: [] };
     }
   }, [activeRule, values]);
 
@@ -242,7 +248,7 @@ export function ConstructionHumanWorkspace({ onCaptureCalculation }: Props) {
       destination,
       createdAt: new Date().toISOString(),
       summary: calculated.summary,
-      details: [...calculated.details, `Orientação: ${calculated.orientation}`],
+      details: [...calculated.details, ...calculated.formula.map((item) => `Fórmula: ${item}`), `Orientação: ${calculated.orientation}`],
     };
 
     onCaptureCalculation?.(capture);
@@ -364,6 +370,7 @@ export function ConstructionHumanWorkspace({ onCaptureCalculation }: Props) {
 
             {calculated.error && <p className="general-error-message">{calculated.error}</p>}
             {calculated.cards.length > 0 && <div className="general-result-grid">{calculated.cards.map((item) => <ResultCard key={item.label} {...item} />)}</div>}
+            {calculated.formula.length > 0 && <div className="general-formula-box"><strong>Como este cálculo é feito</strong>{calculated.formula.map((item) => <span key={item}>{item}</span>)}</div>}
             {calculated.orientation && <p className="general-helper-text">{calculated.orientation}</p>}
             {addedMessage && <p className="general-added-message">{addedMessage}</p>}
 
