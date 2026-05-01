@@ -82,6 +82,28 @@ function result(summary: string, cards: ResultCardData[], details: string[], ori
   return { error: null, summary, cards, details, orientation };
 }
 
+function pressureToBar(value: number, unit: PressureUnit): number {
+  if (unit === 'psi') return value / PRESSURE_PSI_PER_BAR;
+  if (unit === 'mca') return value / PRESSURE_MCA_PER_BAR;
+  return value;
+}
+
+function powerToKw(value: number, unit: PowerUnit): number {
+  if (unit === 'cv') return value * KW_PER_CV;
+  if (unit === 'hp') return value * KW_PER_HP;
+  return value;
+}
+
+function powerUnitLabel(unit: PowerUnit): string {
+  if (unit === 'kw') return 'kW';
+  if (unit === 'cv') return 'CV';
+  return 'HP';
+}
+
+function thermalUnitLabel(unit: ThermalUnit): string {
+  return unit === 'btuh' ? 'BTU/h' : 'W';
+}
+
 function NumberField({ label, value, suffix, step = 0.01, onChange }: { label: string; value: string; suffix?: string; step?: number; onChange: (value: string) => void }) {
   return (
     <label className="general-form-field">
@@ -107,18 +129,6 @@ function SelectField<T extends string>({ label, value, options, onChange }: { la
 
 function ResultCard({ label, value, helper }: ResultCardData) {
   return <article className="general-result-card"><span>{label}</span><strong>{value}</strong>{helper && <small>{helper}</small>}</article>;
-}
-
-function pressureToBar(value: number, unit: PressureUnit): number {
-  if (unit === 'psi') return value / PRESSURE_PSI_PER_BAR;
-  if (unit === 'mca') return value / PRESSURE_MCA_PER_BAR;
-  return value;
-}
-
-function powerToKw(value: number, unit: PowerUnit): number {
-  if (unit === 'cv') return value * KW_PER_CV;
-  if (unit === 'hp') return value * KW_PER_HP;
-  return value;
 }
 
 export function ConvertersHumanWorkspace({ onCaptureCalculation }: Props) {
@@ -188,7 +198,7 @@ export function ConvertersHumanWorkspace({ onCaptureCalculation }: Props) {
             { label: 'CV', value: `${round(cv, 2)} CV`, helper: 'cavalo-vapor' },
             { label: 'HP', value: `${round(hp, 2)} HP`, helper: 'horsepower' },
           ],
-          [`Entrada: ${round(input, 3)} ${powerUnit.toUpperCase()}`, `kW: ${round(kw, 3)}`, `CV: ${round(cv, 2)}`, `HP: ${round(hp, 2)}`],
+          [`Entrada: ${round(input, 3)} ${powerUnitLabel(powerUnit)}`, `kW: ${round(kw, 3)}`, `CV: ${round(cv, 2)}`, `HP: ${round(hp, 2)}`],
           'Use como conversão de referência. Para corrente de motor, use cálculo específico com tensão, rendimento e fator de potência.',
         );
       }
@@ -202,7 +212,7 @@ export function ConvertersHumanWorkspace({ onCaptureCalculation }: Props) {
           { label: 'BTU/h', value: `${round(btuh)} BTU/h`, helper: 'capacidade térmica' },
           { label: 'Watts', value: `${round(watts)} W`, helper: 'potência térmica aproximada' },
         ],
-        [`Entrada: ${round(input, 2)} ${thermalUnit === 'btuh' ? 'BTU/h' : 'W'}`, `BTU/h: ${round(btuh)}`, `Watts: ${round(watts)}`],
+        [`Entrada: ${round(input, 2)} ${thermalUnitLabel(thermalUnit)}`, `BTU/h: ${round(btuh)}`, `Watts: ${round(watts)}`],
         'Use para conversão rápida em refrigeração. Dimensionamento de ar-condicionado deve considerar ambiente, insolação e ocupação.',
       );
     } catch (error) {
@@ -322,7 +332,7 @@ export function ConvertersHumanWorkspace({ onCaptureCalculation }: Props) {
                       { value: 'hp', label: 'HP' },
                     ]}
                   />
-                  <NumberField label="Potência" value={values.powerValue} suffix={powerUnit.toUpperCase()} onChange={(value) => setValue('powerValue', value)} />
+                  <NumberField label="Potência" value={values.powerValue} suffix={powerUnitLabel(powerUnit)} onChange={(value) => setValue('powerValue', value)} />
                 </>
               )}
 
@@ -337,7 +347,7 @@ export function ConvertersHumanWorkspace({ onCaptureCalculation }: Props) {
                       { value: 'watts', label: 'W' },
                     ]}
                   />
-                  <NumberField label="Valor" value={values.thermalValue} suffix={thermalUnit === 'btuh' ? 'BTU/h' : 'W'} step={1} onChange={(value) => setValue('thermalValue', value)} />
+                  <NumberField label="Valor" value={values.thermalValue} suffix={thermalUnitLabel(thermalUnit)} step={1} onChange={(value) => setValue('thermalValue', value)} />
                 </>
               )}
             </form>
