@@ -3,6 +3,7 @@ import type { CalculatorModule, UserPlan } from '../core/access/featureAccess';
 import type { Client, WorkOrder } from '../core/types/business';
 import type { CalculationCapture, CalculationDestination } from '../core/types/workflow';
 import { BudgetWorkspaceClientBridge } from '../features/budgets/components/BudgetWorkspaceClientBridge';
+import { ConvertersHumanWorkspace } from '../features/calculators/components/ConvertersHumanWorkspace';
 import { ElectricalCalculatorWorkspace } from '../features/calculators/components/ElectricalCalculatorWorkspace';
 import { ElectricalFundamentalsHumanWorkspace } from '../features/calculators/components/ElectricalFundamentalsHumanWorkspace';
 import { GeneralCalculatorWorkspace, type GeneralCalculatorModule } from '../features/calculators/components/GeneralCalculatorWorkspace';
@@ -59,7 +60,7 @@ const calculationModules: ModuleCardData[] = [
   { id: 'construcaoCivil', title: 'Construção civil', description: 'Medições, concreto, alvenaria, piso, revestimento e telhado', icon: '▧', tone: 'gray', count: '10 cálculos', available: true, plan: 'free', calculatorModule: 'obras' },
   { id: 'pintura', title: 'Pintura e acabamento', description: 'Tinta, selador, massa, tempo e orçamento por cômodo', icon: '▨', tone: 'green', count: '7 cálculos', available: true, plan: 'free', calculatorModule: 'pintura' },
   { id: 'hidraulica', title: 'Hidráulica', description: 'Reservatório, consumo, autonomia, vazão, enchimento e pressão', icon: '≋', tone: 'blue', count: '7 cálculos livres', available: true, plan: 'free', calculatorModule: 'hidraulica' },
-  { id: 'conversores', title: 'Conversores', description: 'm³/litros, pressão, potência, BTU/h, medidas, temperatura e vazão', icon: '⇄', tone: 'blue', count: '7 cálculos', available: true, plan: 'free', calculatorModule: 'conversores' },
+  { id: 'conversores', title: 'Conversores', description: 'm³/litros, pressão, potência, BTU/h, medidas, temperatura e vazão', icon: '⇄', tone: 'blue', count: '4 conversores', available: true, plan: 'free', calculatorModule: 'conversores' },
   { id: 'orcamentoTecnico', title: 'Orçamento técnico', description: 'Mão de obra, diária, hora técnica, parcelamento, sinal e preço final', icon: 'R$', tone: 'orange', count: '6 cálculos', available: true, plan: 'free', calculatorModule: 'orcamentoTecnico' },
   { id: 'eletronica', title: 'Eletrônica aplicada', description: 'LED, divisor de tensão, RC, PWM, ADC, bateria e fontes', icon: '◌', tone: 'green', count: 'Em breve', available: false, plan: 'soon' },
   { id: 'transformadores', title: 'Transformadores', description: 'VA, espiras por volt, primário, secundário e fio preliminar', icon: '▤', tone: 'orange', count: 'Em breve', available: false, plan: 'soon' },
@@ -82,7 +83,7 @@ function planLabel(plan: ModulePlan): string {
 }
 
 function isGeneralCalculatorModule(module: CalculatorModule): module is GeneralCalculatorModule {
-  return module === 'obras' || module === 'pintura' || module === 'conversores' || module === 'orcamentoTecnico';
+  return module === 'obras' || module === 'pintura' || module === 'orcamentoTecnico';
 }
 
 function isCalculationDestination(value: unknown): value is CalculationDestination {
@@ -194,8 +195,9 @@ function CalculationsScreen({ selectedModule, openModule, goTo, onCaptureCalcula
         {module === 'fundamentosGerais' && <GeneralFundamentalsWorkspace onCaptureCalculation={onCaptureCalculation} />}
         {module === 'fundamentals' && <ElectricalFundamentalsHumanWorkspace onCaptureCalculation={onCaptureCalculation} />}
         {module === 'hidraulica' && <HydraulicsCalculatorWorkspace onCaptureCalculation={onCaptureCalculation} />}
+        {module === 'conversores' && <ConvertersHumanWorkspace onCaptureCalculation={onCaptureCalculation} />}
         {module && isGeneralCalculatorModule(module) && <GeneralCalculatorWorkspace selectedModule={module} onCaptureCalculation={onCaptureCalculation} />}
-        {module && module !== 'fundamentosGerais' && module !== 'fundamentals' && module !== 'hidraulica' && !isGeneralCalculatorModule(module) && <ElectricalCalculatorWorkspace selectedModule={module} userPlan={userPlan} onUpgradeRequest={() => goTo('store')} onCaptureCalculation={onCaptureCalculation} />}
+        {module && module !== 'fundamentosGerais' && module !== 'fundamentals' && module !== 'hidraulica' && module !== 'conversores' && !isGeneralCalculatorModule(module) && <ElectricalCalculatorWorkspace selectedModule={module} userPlan={userPlan} onUpgradeRequest={() => goTo('store')} onCaptureCalculation={onCaptureCalculation} />}
         {!module && <div className="empty-state-card"><span className={`app-icon tone-${selectedModule.tone} large-icon`}>{selectedModule.icon}</span><strong>{selectedModule.title} em breve</strong><p>Este módulo já está previsto na arquitetura do OrçaOS.</p></div>}
       </section>
     );
