@@ -37,6 +37,7 @@ interface CalcResult {
   details: string[];
   cards: ResultCardData[];
   orientation: string;
+  formula: string[];
 }
 
 const defaultValues: Record<string, string> = {
@@ -90,12 +91,12 @@ function card(label: string, value: string, helper?: string): ResultCardData {
   return { label, value, helper };
 }
 
-function result(summary: string, cards: ResultCardData[], details: string[], orientation: string): CalcResult {
-  return { error: null, summary, cards, details, orientation };
+function result(summary: string, cards: ResultCardData[], details: string[], orientation: string, formula: string[]): CalcResult {
+  return { error: null, summary, cards, details, orientation, formula };
 }
 
 function emptyResult(): CalcResult {
-  return { error: null, summary: '', details: [], cards: [], orientation: '' };
+  return { error: null, summary: '', details: [], cards: [], orientation: '', formula: [] };
 }
 
 function pressureToBar(value: number, unit: PressureUnit): number {
@@ -171,6 +172,7 @@ export function HydraulicsCalculatorWorkspace({ onCaptureCalculation }: Props) {
           [card('Volume', `${round(volume, 3)} m³`, 'largura × comprimento × altura'), card('Capacidade', `${round(liters)} L`, 'volume útil estimado')],
           [`Largura: ${round(width)} m`, `Comprimento: ${round(length)} m`, `Altura útil: ${round(height)} m`, `Volume: ${round(volume, 3)} m³`, `Capacidade: ${round(liters)} L`],
           'Use a altura útil da água, não necessariamente a altura total da caixa. Reserve margem para extravasor, tampa e folga operacional.',
+          ['Volume em m³ = largura × comprimento × altura útil', 'Capacidade em litros = volume em m³ × 1000'],
         );
       }
 
@@ -183,8 +185,9 @@ export function HydraulicsCalculatorWorkspace({ onCaptureCalculation }: Props) {
         return result(
           `Reservatório cilíndrico: ${round(liters)} L`,
           [card('Volume', `${round(volume, 3)} m³`, 'π × raio² × altura'), card('Capacidade', `${round(liters)} L`, 'volume útil estimado')],
-          [`Diâmetro: ${round(diameter)} m`, `Altura útil: ${round(height)} m`, `Volume: ${round(volume, 3)} m³`, `Capacidade: ${round(liters)} L`],
+          [`Diâmetro: ${round(diameter)} m`, `Raio: ${round(radius)} m`, `Altura útil: ${round(height)} m`, `Volume: ${round(volume, 3)} m³`, `Capacidade: ${round(liters)} L`],
           'Use altura útil quando o reservatório não trabalha totalmente cheio. Para tanque horizontal, este cálculo não representa volume parcial.',
+          ['Raio = diâmetro ÷ 2', 'Volume em m³ = π × raio² × altura útil', 'Capacidade em litros = volume em m³ × 1000'],
         );
       }
 
@@ -197,6 +200,7 @@ export function HydraulicsCalculatorWorkspace({ onCaptureCalculation }: Props) {
           [card('Consumo diário', `${round(total)} L`, `${round(people)} pessoa(s)`), card('Em m³', `${round(total / 1000, 3)} m³`, 'por dia')],
           [`Pessoas: ${round(people)}`, `Consumo por pessoa: ${round(consumption)} L/dia`, `Consumo diário: ${round(total)} L`],
           'Use como estimativa inicial. Em obra real, ajuste conforme perfil de uso, ocupação, comércio, horários e reserva desejada.',
+          ['Consumo diário em litros = quantidade de pessoas × consumo por pessoa', 'Consumo em m³ = consumo em litros ÷ 1000'],
         );
       }
 
@@ -211,6 +215,7 @@ export function HydraulicsCalculatorWorkspace({ onCaptureCalculation }: Props) {
           [card('Consumo diário', `${round(daily)} L`, `${round(people)} pessoa(s)`), card('Autonomia', `${round(days)} dia(s)`, `${round(reservoirLiters)} L disponíveis`) ],
           [`Reservatório: ${round(reservoirLiters)} L`, `Consumo diário: ${round(daily)} L`, `Autonomia: ${round(days)} dia(s)`],
           'Use para pré-dimensionamento. Para atendimento confiável, considere reserva, dias sem abastecimento e consumo de pico.',
+          ['Consumo diário = pessoas × consumo por pessoa', 'Autonomia em dias = volume do reservatório ÷ consumo diário'],
         );
       }
 
@@ -224,6 +229,9 @@ export function HydraulicsCalculatorWorkspace({ onCaptureCalculation }: Props) {
           [card('L/min', `${round(lmin, 2)} L/min`, 'litros por minuto'), card('L/h', `${round(lh)} L/h`, 'litros por hora'), card('m³/h', `${round(m3h, 3)} m³/h`, 'metros cúbicos por hora')],
           [`Entrada: ${round(input, 3)} ${flowUnitLabel(flowUnit)}`, `L/min: ${round(lmin, 2)}`, `L/h: ${round(lh)}`, `m³/h: ${round(m3h, 3)}`],
           'Use uma única unidade de entrada. Para bomba, valide também altura manométrica, perdas, curva da bomba e diâmetro da tubulação.',
+          flowUnit === 'm3h'
+            ? ['L/min = m³/h × 1000 ÷ 60', 'L/h = L/min × 60', 'm³/h = L/h ÷ 1000']
+            : ['L/h = L/min × 60', 'm³/h = L/h ÷ 1000'],
         );
       }
 
@@ -237,6 +245,7 @@ export function HydraulicsCalculatorWorkspace({ onCaptureCalculation }: Props) {
           [card('Minutos', `${round(minutes)} min`, `${round(lmin, 2)} L/min`), card('Horas', `${round(minutes / 60, 2)} h`, 'tempo estimado')],
           [`Volume: ${round(volume)} L`, `Vazão: ${round(lmin, 2)} L/min`, `Tempo: ${round(minutes)} min`, `Tempo: ${round(minutes / 60, 2)} h`],
           'Use para estimativa. O tempo real pode variar com pressão da rede, boia, bomba, tubulação e perda de carga.',
+          ['Vazão em L/min = vazão informada convertida para L/min', 'Tempo em minutos = volume em litros ÷ vazão em L/min', 'Tempo em horas = tempo em minutos ÷ 60'],
         );
       }
 
@@ -249,9 +258,14 @@ export function HydraulicsCalculatorWorkspace({ onCaptureCalculation }: Props) {
         [card('bar', `${round(bar, 3)} bar`, 'pressão base'), card('psi', `${round(psi, 2)} psi`, 'aproximado'), card('mca', `${round(mca, 2)} mca`, 'coluna d’água')],
         [`Entrada: ${round(input, 3)} ${pressureUnit}`, `bar: ${round(bar, 3)}`, `psi: ${round(psi, 2)}`, `mca: ${round(mca, 2)}`],
         'Use mca como referência prática em hidráulica. Para bomba e pressurizador, considere altura geométrica, perdas e curva do fabricante.',
+        pressureUnit === 'psi'
+          ? ['bar = psi ÷ 14,5038', 'psi = bar × 14,5038', 'mca = bar × 10,197']
+          : pressureUnit === 'mca'
+            ? ['bar = mca ÷ 10,197', 'psi = bar × 14,5038', 'mca = bar × 10,197']
+            : ['psi = bar × 14,5038', 'mca = bar × 10,197'],
       );
     } catch (error) {
-      return { error: error instanceof Error ? error.message : 'Preencha os campos necessários.', summary: '', details: [], cards: [], orientation: '' };
+      return { error: error instanceof Error ? error.message : 'Preencha os campos necessários.', summary: '', details: [], cards: [], orientation: '', formula: [] };
     }
   }, [activeRule, values, flowUnit, pressureUnit]);
 
@@ -265,7 +279,7 @@ export function HydraulicsCalculatorWorkspace({ onCaptureCalculation }: Props) {
       destination,
       createdAt: new Date().toISOString(),
       summary: calculated.summary,
-      details: [...calculated.details, `Orientação: ${calculated.orientation}`],
+      details: [...calculated.details, ...calculated.formula.map((item) => `Fórmula: ${item}`), `Orientação: ${calculated.orientation}`],
     };
     onCaptureCalculation?.(capture);
     if (destination === 'survey') setAddedMessage(`${activeRule.label} foi incluído no levantamento.`);
@@ -305,6 +319,7 @@ export function HydraulicsCalculatorWorkspace({ onCaptureCalculation }: Props) {
             </form>
             {calculated.error && <p className="general-error-message">{calculated.error}</p>}
             {calculated.cards.length > 0 && <div className="general-result-grid">{calculated.cards.map((item) => <ResultCard key={item.label} {...item} />)}</div>}
+            {calculated.formula.length > 0 && <div className="general-formula-box"><strong>Como este cálculo é feito</strong>{calculated.formula.map((item) => <span key={item}>{item}</span>)}</div>}
             {calculated.orientation && <p className="general-helper-text">{calculated.orientation}</p>}
             {addedMessage && <p className="general-added-message">{addedMessage}</p>}
             <div className="general-capture-actions"><button type="button" onClick={() => includeResult('survey')}>Adicionar ao levantamento</button><button type="button" onClick={() => includeResult('budget')}>Adicionar ao orçamento</button><button type="button" onClick={() => includeResult('both')}>Adicionar aos dois</button><button className="secondary-action" type="button" onClick={closeCalculator}>Voltar</button></div>
