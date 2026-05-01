@@ -184,7 +184,8 @@
   position: relative;
 }
 
-.general-form-field input {
+.general-form-field input,
+.general-form-field select {
   width: 100%;
   min-height: 50px;
   box-sizing: border-box;
@@ -195,6 +196,14 @@
   background: var(--stable-surface-2, #151f19);
   font: inherit;
   font-weight: 750;
+}
+
+.general-form-field select {
+  appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, var(--stable-muted, #a7b3ad) 50%), linear-gradient(135deg, var(--stable-muted, #a7b3ad) 50%, transparent 50%);
+  background-position: calc(100% - 18px) 21px, calc(100% - 12px) 21px;
+  background-size: 6px 6px, 6px 6px;
+  background-repeat: no-repeat;
 }
 
 .general-form-field small {
@@ -242,6 +251,7 @@
 
 .general-error-message,
 .general-added-message,
+.general-helper-text,
 .general-technical-note {
   margin: 0;
   border-radius: 14px;
@@ -260,6 +270,7 @@
   background: rgba(34, 197, 94, 0.10);
 }
 
+.general-helper-text,
 .general-technical-note {
   color: var(--stable-muted, #a7b3ad);
   background: rgba(255, 255, 255, 0.035);
