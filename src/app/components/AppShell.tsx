@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import type { Client, WorkOrder } from '../../core/types/business';
 import './AppShell.css';
 
@@ -45,6 +45,14 @@ export function AppShell<T extends string>({
   children,
 }: AppShellProps<T>) {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
+  useEffect(() => {
+    document.body.classList.toggle('orcaos-drawer-open', isDrawerOpen);
+
+    return () => {
+      document.body.classList.remove('orcaos-drawer-open');
+    };
+  }, [isDrawerOpen]);
 
   function navigate(tab: T) {
     onNavigate(tab);
