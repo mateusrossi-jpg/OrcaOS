@@ -18,6 +18,7 @@ import './styles/orcaosOfficialTheme.css';
 import './styles/orcaosApprovedConcept.css';
 import './styles/orcaosLayoutComposition.css';
 import './styles/orcaosVisualStabilization.css';
+import './styles/orcaosDarkThemeLock.css';
 
 const rootElement = document.getElementById('root');
 
