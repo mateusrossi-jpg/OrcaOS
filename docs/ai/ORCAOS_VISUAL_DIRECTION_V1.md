@@ -12,38 +12,57 @@ A interface deve parecer uma ferramenta de trabalho de alto nível, não um pain
 
 ---
 
-## 2. Uso de ícones
+## 2. Direção atual para teste prático
 
-Ícones devem ser usados apenas em pontos estratégicos da árvore visual:
+Para o próximo teste do MVP, a interface deve operar em modo minimalista:
 
-- navegação principal;
-- grupos principais;
-- módulos da taxonomia;
-- áreas importantes como Cálculos, Levantamento, Orçamento, Relatórios, Clientes/OS e Configurações;
-- badges ou estados muito relevantes, quando necessário.
+```txt
+ícone principal/marca do OrçaOS: sim
+ícones secundários de navegação: ocultos no teste
+ícones dos módulos da taxonomia: ocultos no teste
+ícones em cálculos internos: não usar
+```
 
-Não usar ícones em todos os cálculos internos.
-
-Exemplo: dentro de Fundamentos elétricos, cálculos como Lei de Ohm, Corrente, Potência e Consumo podem ser apresentados com boa tipografia, cards, hierarquia e badges, sem necessidade de ícone individual em cada item.
+A hipótese do teste é que uma boa tipografia, bons agrupamentos, descrições claras, badges e hierarquia visual podem ser suficientes para a primeira publicação.
 
 ---
 
-## 3. Justificativa
+## 3. Uso de ícones
 
-Reduzir ícones internos melhora:
+### Permitido no MVP
+
+- marca/ícone principal do OrçaOS;
+- favicon/app icon;
+- splash/iconografia institucional;
+- ícones secundários somente se o teste prático mostrar que fazem falta.
+
+### Evitar no MVP
+
+- ícones em todos os itens do menu;
+- ícones em todos os módulos da tela Cálculos;
+- ícones em cada cálculo interno;
+- emojis como ícone definitivo;
+- bibliotecas de ícones espalhadas diretamente em telas.
+
+---
+
+## 4. Justificativa
+
+Reduzir ícones melhora:
 
 - clareza;
 - elegância;
 - manutenção;
 - velocidade de evolução;
 - consistência visual;
-- sensação de produto maduro.
+- sensação de produto maduro;
+- foco em conteúdo real.
 
 Ícones demais deixam o app visualmente carregado e podem criar retrabalho quando a taxonomia crescer.
 
 ---
 
-## 4. Biblioteca base
+## 5. Biblioteca base
 
 A biblioteca base atual é:
 
@@ -51,23 +70,23 @@ A biblioteca base atual é:
 lucide-react
 ```
 
-Ela deve ser usada através do componente central:
+Ela permanece no projeto por enquanto porque a estrutura já existe e a decisão final ainda será tomada após o teste prático.
+
+Se o teste confirmar que o MVP ficará sem ícones secundários, a próxima limpeza poderá remover:
 
 ```txt
+lucide-react
 src/components/ui/AppIcon.tsx
-```
-
-E dos mapas estratégicos:
-
-```txt
+src/styles/appIcon.css
 src/features/calculators/config/moduleIconMap.ts
+src/features/calculators/types/iconKeys.ts
 ```
 
-Não espalhar imports diretos de ícones em telas sem necessidade.
+Essa remoção só deve acontecer depois de confirmar que nenhum componente depende mais desses arquivos.
 
 ---
 
-## 5. Tipografia
+## 6. Tipografia
 
 A tipografia oficial do MVP usa stack segura, sem carregar fonte externa agora:
 
@@ -87,14 +106,52 @@ Essa decisão evita peso extra de carregamento e mantém boa aparência se a fon
 
 ---
 
-## 6. Diretriz para próximas mudanças
+## 7. Sequência de produção visual antes da primeira publicação
+
+### Fase A — Teste minimalista
+
+1. Ocultar ícones secundários do menu lateral.
+2. Ocultar ícones dos cards da tela Cálculos.
+3. Manter apenas marca/ícone principal do app.
+4. Testar leitura no celular.
+5. Verificar se navegação continua clara sem ícones.
+6. Verificar se a tela Cálculos continua fácil de entender.
+
+### Fase B — Decisão visual
+
+Após teste prático, escolher um caminho:
+
+```txt
+Caminho 1: MVP sem ícones secundários
+Caminho 2: MVP com poucos ícones estratégicos
+```
+
+### Fase C — Organização final
+
+Se escolher o caminho 1:
+
+- remover dependência de ícones;
+- apagar mapas/componentes não usados;
+- manter apenas app icon/brand icon;
+- revisar screenshots da Play Store sem ícones secundários.
+
+Se escolher o caminho 2:
+
+- manter apenas poucos ícones estratégicos;
+- criar/importar ícones próprios do Canva;
+- não reintroduzir ícones em cálculos internos;
+- mapear ícones apenas em módulos principais.
+
+---
+
+## 8. Diretriz para próximas mudanças
 
 Fazer:
 
 - melhorar tipografia;
 - melhorar espaçamento;
 - fortalecer hierarquia visual;
-- usar poucos ícones bem escolhidos;
+- usar ícones somente se ajudarem a navegação;
 - manter componentes consolidados.
 
 Evitar:
@@ -106,11 +163,12 @@ Evitar:
 
 ---
 
-## 7. Resumo
+## 9. Resumo
 
 ```txt
-Ícones: poucos e estratégicos
-Tipografia: forte e limpa
+MVP em teste: quase sem ícones secundários
+Ícone principal do app: mantido
+Tipografia: protagonista
 Visual: profissional, escuro, técnico e elegante
-Manutenção: consolidada, sem ícones espalhados
+Manutenção: consolidada e sem poluição visual
 ```
