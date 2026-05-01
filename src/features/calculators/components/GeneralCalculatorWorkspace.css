@@ -56,14 +56,18 @@
 
 .general-picker-card {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  grid-template-columns: minmax(0, 1fr) auto auto;
   align-items: center;
   gap: 12px;
-  min-height: 82px;
+  min-height: 86px;
   border-radius: 18px;
-  padding: 12px;
+  padding: 15px;
   text-align: left;
   font: inherit;
+}
+
+.general-picker-card > .app-icon {
+  display: none !important;
 }
 
 .general-picker-card span:nth-child(2) {
@@ -73,16 +77,19 @@
 .general-picker-card strong {
   display: block;
   color: var(--stable-text, #f8fafc);
+  font-size: 1.04rem;
   font-weight: 850;
+  line-height: 1.18;
+  letter-spacing: -0.035em;
 }
 
 .general-picker-card small {
   display: -webkit-box;
-  margin-top: 3px;
+  margin-top: 5px;
   overflow: hidden;
   color: var(--stable-muted, #a7b3ad);
-  font-size: 0.82rem;
-  line-height: 1.32;
+  font-size: 0.84rem;
+  line-height: 1.34;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
 }
@@ -358,12 +365,11 @@
   }
 
   .general-picker-card {
-    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-columns: 1fr;
   }
 
   .general-picker-card em,
   .general-picker-card .chevron {
-    grid-column: 2;
     justify-self: start;
   }
 }
