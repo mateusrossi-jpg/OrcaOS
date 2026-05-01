@@ -4,6 +4,25 @@ import './GeneralCalculatorWorkspace.css';
 
 type BudgetMode = 'labor' | 'final-price' | 'daily' | 'hourly' | 'installments' | 'upfront';
 
+type FieldKey =
+  | 'quantity'
+  | 'unitValue'
+  | 'material'
+  | 'labor'
+  | 'travel'
+  | 'profitPercent'
+  | 'taxPercent'
+  | 'discountPercent'
+  | 'days'
+  | 'dailyValue'
+  | 'helperDailyValue'
+  | 'hours'
+  | 'hourlyValue'
+  | 'total'
+  | 'installments'
+  | 'interestPercent'
+  | 'upfrontPercent';
+
 interface Props {
   onCaptureCalculation?: (capture: CalculationCapture) => void;
 }
@@ -13,6 +32,13 @@ interface BudgetRule {
   label: string;
   description: string;
   icon: string;
+}
+
+interface FieldConfig {
+  key: FieldKey;
+  label: string;
+  suffix?: string;
+  step?: number;
 }
 
 interface ResultCardData {
@@ -38,7 +64,7 @@ const rules: BudgetRule[] = [
   { mode: 'upfront', label: 'Sinal / entrada', description: 'Calcule entrada e saldo restante para o cliente.', icon: '%' },
 ];
 
-const defaultValues: Record<string, string> = {
+const defaultValues: Record<FieldKey, string> = {
   quantity: '10',
   unitValue: '45',
   material: '300',
@@ -56,6 +82,50 @@ const defaultValues: Record<string, string> = {
   installments: '3',
   interestPercent: '0',
   upfrontPercent: '30',
+};
+
+const primaryFields: Record<BudgetMode, FieldConfig[]> = {
+  labor: [
+    { key: 'quantity', label: 'Quantidade', step: 1 },
+    { key: 'unitValue', label: 'Valor unitário', suffix: 'R$' },
+  ],
+  'final-price': [
+    { key: 'material', label: 'Material', suffix: 'R$' },
+    { key: 'labor', label: 'Mão de obra', suffix: 'R$' },
+  ],
+  daily: [
+    { key: 'days', label: 'Dias', suffix: 'dias', step: 1 },
+    { key: 'dailyValue', label: 'Diária profissional', suffix: 'R$/dia' },
+  ],
+  hourly: [
+    { key: 'hours', label: 'Horas', suffix: 'h' },
+    { key: 'hourlyValue', label: 'Hora técnica', suffix: 'R$/h' },
+  ],
+  installments: [
+    { key: 'total', label: 'Valor total', suffix: 'R$' },
+    { key: 'installments', label: 'Parcelas', suffix: 'x', step: 1 },
+  ],
+  upfront: [
+    { key: 'total', label: 'Valor total', suffix: 'R$' },
+    { key: 'upfrontPercent', label: 'Entrada', suffix: '%' },
+  ],
+};
+
+const advancedFields: Record<BudgetMode, FieldConfig[]> = {
+  labor: [{ key: 'travel', label: 'Deslocamento', suffix: 'R$' }],
+  'final-price': [
+    { key: 'travel', label: 'Deslocamento', suffix: 'R$' },
+    { key: 'profitPercent', label: 'Margem', suffix: '%' },
+    { key: 'taxPercent', label: 'Impostos/taxas', suffix: '%' },
+    { key: 'discountPercent', label: 'Desconto', suffix: '%' },
+  ],
+  daily: [
+    { key: 'travel', label: 'Deslocamento', suffix: 'R$' },
+    { key: 'helperDailyValue', label: 'Ajudante', suffix: 'R$/dia' },
+  ],
+  hourly: [{ key: 'travel', label: 'Deslocamento', suffix: 'R$' }],
+  installments: [{ key: 'interestPercent', label: 'Acréscimo', suffix: '%' }],
+  upfront: [],
 };
 
 function parseNumber(value: string): number {
@@ -101,13 +171,13 @@ function result(summary: string, cards: ResultCardData[], details: string[], ori
   return { error: null, summary, cards, details, orientation };
 }
 
-function NumberField({ label, value, suffix, step = 0.01, onChange }: { label: string; value: string; suffix?: string; step?: number; onChange: (value: string) => void }) {
+function NumberField({ field, value, onChange }: { field: FieldConfig; value: string; onChange: (value: string) => void }) {
   return (
     <label className="general-form-field">
-      <span>{label}</span>
+      <span>{field.label}</span>
       <div>
-        <input type="number" inputMode="decimal" min="0" step={step} value={value} placeholder="Digite o valor" onChange={(event) => onChange(event.target.value)} />
-        {suffix && <small>{suffix}</small>}
+        <input type="number" inputMode="decimal" min="0" step={field.step ?? 0.01} value={value} placeholder="Digite o valor" onChange={(event) => onChange(event.target.value)} />
+        {field.suffix && <small>{field.suffix}</small>}
       </div>
     </label>
   );
@@ -119,22 +189,22 @@ function ResultCard({ label, value, helper }: ResultCardData) {
 
 export function TechnicalBudgetHumanWorkspace({ onCaptureCalculation }: Props) {
   const [activeMode, setActiveMode] = useState<BudgetMode | null>(null);
-  const [values, setValues] = useState<Record<string, string>>(defaultValues);
+  const [values, setValues] = useState<Record<FieldKey, string>>(defaultValues);
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [addedMessage, setAddedMessage] = useState<string | null>(null);
 
   const activeRule = activeMode ? rules.find((rule) => rule.mode === activeMode) : undefined;
 
-  function setValue(key: string, value: string) {
+  function setValue(key: FieldKey, value: string) {
     setValues((current) => ({ ...current, [key]: value }));
   }
 
-  function n(key: string, label: string): number {
-    return requirePositive(parseNumber(values[key] ?? ''), label);
+  function n(key: FieldKey, label: string): number {
+    return requirePositive(parseNumber(values[key]), label);
   }
 
-  function optionalN(key: string, label: string): number {
-    const rawValue = values[key] ?? '';
+  function optionalN(key: FieldKey, label: string): number {
+    const rawValue = values[key];
     if (!rawValue.trim()) return 0;
     return requireNonNegative(parseNumber(rawValue), label);
   }
@@ -167,7 +237,7 @@ export function TechnicalBudgetHumanWorkspace({ onCaptureCalculation }: Props) {
         const travel = optionalN('travel', 'deslocamento');
         const profitPercent = optionalN('profitPercent', 'margem');
         const taxPercent = optionalN('taxPercent', 'impostos');
-        const discountPercent = requirePercent(parseNumber(values.discountPercent ?? '0'), 'desconto');
+        const discountPercent = requirePercent(parseNumber(values.discountPercent), 'desconto');
         const base = material + labor + travel;
         const profitValue = base * profitPercent / 100;
         const subtotal = base + profitValue;
@@ -244,7 +314,7 @@ export function TechnicalBudgetHumanWorkspace({ onCaptureCalculation }: Props) {
       }
 
       const total = n('total', 'valor total');
-      const upfrontPercent = requirePercent(parseNumber(values.upfrontPercent ?? ''), 'entrada');
+      const upfrontPercent = requirePercent(parseNumber(values.upfrontPercent), 'entrada');
       const upfrontValue = total * upfrontPercent / 100;
       const remaining = total - upfrontValue;
       return result(
@@ -294,8 +364,6 @@ export function TechnicalBudgetHumanWorkspace({ onCaptureCalculation }: Props) {
     setShowAdvanced(false);
   }
 
-  const showAdvancedFields = activeRule !== undefined;
-
   return (
     <div className="general-calculator-workspace">
       <div className="general-plan-banner">
@@ -320,7 +388,7 @@ export function TechnicalBudgetHumanWorkspace({ onCaptureCalculation }: Props) {
         ))}
       </div>
 
-      {activeRule && (
+      {activeRule && activeMode && (
         <div className="general-calculator-overlay" role="dialog" aria-modal="true" aria-label={activeRule.label}>
           <div className="general-overlay-backdrop" onClick={closeCalculator} />
           <section className="general-overlay-panel">
@@ -335,63 +403,17 @@ export function TechnicalBudgetHumanWorkspace({ onCaptureCalculation }: Props) {
             </header>
 
             <form className="general-calculator-form" onSubmit={(event) => event.preventDefault()}>
-              {activeRule.mode === 'labor' && (
-                <>
-                  <NumberField label="Quantidade" value={values.quantity} step={1} onChange={(value) => setValue('quantity', value)} />
-                  <NumberField label="Valor unitário" value={values.unitValue} suffix="R$" onChange={(value) => setValue('unitValue', value)} />
-                </>
-              )}
+              {primaryFields[activeMode].map((field) => <NumberField key={field.key} field={field} value={values[field.key]} onChange={(value) => setValue(field.key, value)} />)}
 
-              {activeRule.mode === 'final-price' && (
-                <>
-                  <NumberField label="Material" value={values.material} suffix="R$" onChange={(value) => setValue('material', value)} />
-                  <NumberField label="Mão de obra" value={values.labor} suffix="R$" onChange={(value) => setValue('labor', value)} />
-                </>
-              )}
-
-              {activeRule.mode === 'daily' && (
-                <>
-                  <NumberField label="Dias" value={values.days} suffix="dias" step={1} onChange={(value) => setValue('days', value)} />
-                  <NumberField label="Diária profissional" value={values.dailyValue} suffix="R$/dia" onChange={(value) => setValue('dailyValue', value)} />
-                </>
-              )}
-
-              {activeRule.mode === 'hourly' && (
-                <>
-                  <NumberField label="Horas" value={values.hours} suffix="h" onChange={(value) => setValue('hours', value)} />
-                  <NumberField label="Hora técnica" value={values.hourlyValue} suffix="R$/h" onChange={(value) => setValue('hourlyValue', value)} />
-                </>
-              )}
-
-              {activeRule.mode === 'installments' && (
-                <>
-                  <NumberField label="Valor total" value={values.total} suffix="R$" onChange={(value) => setValue('total', value)} />
-                  <NumberField label="Parcelas" value={values.installments} suffix="x" step={1} onChange={(value) => setValue('installments', value)} />
-                </>
-              )}
-
-              {activeRule.mode === 'upfront' && (
-                <>
-                  <NumberField label="Valor total" value={values.total} suffix="R$" onChange={(value) => setValue('total', value)} />
-                  <NumberField label="Entrada" value={values.upfrontPercent} suffix="%" onChange={(value) => setValue('upfrontPercent', value)} />
-                </>
-              )}
-
-              {showAdvancedFields && (
-                <div className="general-advanced-block">
-                  <button type="button" onClick={() => setShowAdvanced((current) => !current)}>{showAdvanced ? 'Ocultar ajustes avançados' : 'Mostrar ajustes avançados'}</button>
-                  {showAdvanced && (
-                    <div className="general-advanced-grid">
-                      {(activeRule.mode === 'labor' || activeRule.mode === 'final-price' || activeRule.mode === 'daily' || activeRule.mode === 'hourly') && <NumberField label="Deslocamento" value={values.travel} suffix="R$" onChange={(value) => setValue('travel', value)} />}
-                      {activeRule.mode === 'final-price' && <NumberField label="Margem" value={values.profitPercent} suffix="%" onChange={(value) => setValue('profitPercent', value)} />}
-                      {activeRule.mode === 'final-price' && <NumberField label="Impostos/taxas" value={values.taxPercent} suffix="%" onChange={(value) => setValue('taxPercent', value)} />}
-                      {activeRule.mode === 'final-price' && <NumberField label="Desconto" value={values.discountPercent} suffix="%" onChange={(value) => setValue('discountPercent', value)} />}
-                      {activeRule.mode === 'daily' && <NumberField label="Ajudante" value={values.helperDailyValue} suffix="R$/dia" onChange={(value) => setValue('helperDailyValue', value)} />}
-                      {activeRule.mode === 'installments' && <NumberField label="Acréscimo" value={values.interestPercent} suffix="%" onChange={(value) => setValue('interestPercent', value)} />}
-                    </div>
-                  )}
-                </div>
-              )}
+              <div className="general-advanced-block">
+                <button type="button" onClick={() => setShowAdvanced((current) => !current)}>{showAdvanced ? 'Ocultar ajustes avançados' : 'Mostrar ajustes avançados'}</button>
+                {showAdvanced && (
+                  <div className="general-advanced-grid">
+                    {advancedFields[activeMode].length === 0 && <p className="general-helper-text">Este cálculo não possui campos avançados nesta versão.</p>}
+                    {advancedFields[activeMode].map((field) => <NumberField key={field.key} field={field} value={values[field.key]} onChange={(value) => setValue(field.key, value)} />)}
+                  </div>
+                )}
+              </div>
             </form>
 
             {calculated.error && <p className="general-error-message">{calculated.error}</p>}
