@@ -1,5 +1,8 @@
 import { useState, type ReactNode } from 'react';
+import { AppIcon } from '../../components/ui/AppIcon';
 import type { Client, WorkOrder } from '../../core/types/business';
+import { moduleIconMap } from '../../features/calculators/config/moduleIconMap';
+import type { ModuleIconKey } from '../../features/calculators/types/iconKeys';
 import './AppShell.css';
 
 export interface AppShellNavItem<T extends string> {
@@ -32,6 +35,25 @@ function statusLabel(status?: WorkOrder['status']): string {
   };
 
   return labels[status];
+}
+
+function navIconKey(id: string): ModuleIconKey | null {
+  if (id === 'home') return 'home';
+  if (id === 'calculations') return 'calculations';
+  if (id === 'survey') return 'survey';
+  if (id === 'budgets') return 'budgets';
+  if (id === 'reports') return 'reports';
+  if (id === 'clients') return 'clients-os';
+  if (id === 'store') return 'store';
+  if (id === 'settings') return 'settings';
+  return null;
+}
+
+function DrawerNavIcon({ id, fallback, active }: { id: string; fallback: ReactNode; active: boolean }) {
+  const key = navIconKey(id);
+  if (!key) return <span className="drawer-nav-icon">{fallback}</span>;
+
+  return <AppIcon icon={moduleIconMap[key]} variant="nav" tone={active ? 'green' : 'gray'} active={active} />;
 }
 
 export function AppShell<T extends string>({
@@ -92,15 +114,18 @@ export function AppShell<T extends string>({
         </div>
 
         <nav className="drawer-nav" aria-label="Menu principal">
-          {navItems.map((item) => (
-            <button className={activeTab === item.id ? 'active' : ''} key={item.id} type="button" onClick={() => navigate(item.id)}>
-              <span className="drawer-nav-icon">{item.icon}</span>
-              <span>
-                <strong>{item.label}</strong>
-                <small>{item.description}</small>
-              </span>
-            </button>
-          ))}
+          {navItems.map((item) => {
+            const active = activeTab === item.id;
+            return (
+              <button className={active ? 'active' : ''} key={item.id} type="button" onClick={() => navigate(item.id)}>
+                <DrawerNavIcon id={item.id} fallback={item.icon} active={active} />
+                <span>
+                  <strong>{item.label}</strong>
+                  <small>{item.description}</small>
+                </span>
+              </button>
+            );
+          })}
         </nav>
       </aside>
     </main>
