@@ -40,6 +40,7 @@ interface CalcResult {
   details: string[];
   cards: ResultCardData[];
   orientation: string;
+  formula: string[];
 }
 
 const rules: FundamentalRule[] = [
@@ -103,8 +104,8 @@ function createId(prefix: string): string {
   return `${prefix}-${Date.now()}-${Math.round(Math.random() * 1000)}`;
 }
 
-function result(summary: string, cards: ResultCardData[], details: string[], orientation: string): CalcResult {
-  return { error: null, summary, cards, details, orientation };
+function result(summary: string, cards: ResultCardData[], details: string[], orientation: string, formula: string[]): CalcResult {
+  return { error: null, summary, cards, details, orientation, formula };
 }
 
 function phaseMultiplier(phase: PhaseMode): number {
@@ -116,7 +117,11 @@ function phaseLabel(phase: PhaseMode): string {
 }
 
 function emptyResult(): CalcResult {
-  return { error: null, summary: '', details: [], cards: [], orientation: '' };
+  return { error: null, summary: '', details: [], cards: [], orientation: '', formula: [] };
+}
+
+function phaseFormula(phaseMode: PhaseMode, currentSymbol = 'I'): string {
+  return phaseMode === 'three' ? `${currentSymbol}: usa fator √3 para circuito trifásico` : `${currentSymbol}: usa fator 1 para monofásico/bifásico simplificado`;
 }
 
 function NumberField({ label, value, suffix, step = 0.01, onChange }: { label: string; value: string; suffix?: string; step?: number; onChange: (value: string) => void }) {
@@ -203,6 +208,7 @@ export function ElectricalFundamentalsHumanWorkspace({ onCaptureCalculation }: P
           ],
           [`Potência: ${round(power)} W`, `Tensão: ${round(voltage)} V`, `Fator de potência: ${round(factor, 2)}`, `Circuito: ${phaseLabel(phase)}`, `Corrente: ${round(current)} A`],
           'Use a corrente como ponto de partida. Para escolher cabo/disjuntor, valide método de instalação, distância, queda de tensão e norma aplicável.',
+          ['Corrente = potência ÷ (fator do circuito × tensão × fator de potência)', phaseFormula(phase, 'Fator do circuito')],
         );
       }
 
@@ -220,6 +226,7 @@ export function ElectricalFundamentalsHumanWorkspace({ onCaptureCalculation }: P
           ],
           [`Tensão: ${round(voltage)} V`, `Corrente: ${round(current)} A`, `Fator de potência: ${round(factor, 2)}`, `Circuito: ${phaseLabel(phase)}`, `Potência: ${round(power)} W`],
           'Use para estimar potência de uma carga conhecida. Para motores e cargas indutivas, ajuste o fator de potência em avançado.',
+          ['Potência = fator do circuito × tensão × corrente × fator de potência', phaseFormula(phase, 'Fator do circuito')],
         );
       }
 
@@ -237,6 +244,7 @@ export function ElectricalFundamentalsHumanWorkspace({ onCaptureCalculation }: P
           ],
           [`Potência: ${round(power)} W`, `Corrente: ${round(current)} A`, `Fator de potência: ${round(factor, 2)}`, `Circuito: ${phaseLabel(phase)}`, `Tensão: ${round(voltage)} V`],
           'Use como conferência rápida. Em campo, confirme a tensão real com instrumento adequado.',
+          ['Tensão = potência ÷ (fator do circuito × corrente × fator de potência)', phaseFormula(phase, 'Fator do circuito')],
         );
       }
 
@@ -250,6 +258,7 @@ export function ElectricalFundamentalsHumanWorkspace({ onCaptureCalculation }: P
             [{ label: 'Resistência', value: `${round(calculatedResistance)} Ω`, helper: 'R = V / I' }],
             [`Tensão: ${round(voltage)} V`, `Corrente: ${round(current)} A`, `Resistência: ${round(calculatedResistance)} Ω`],
             'Use para cargas resistivas e conferências básicas. Em circuitos reais, considere temperatura e características do equipamento.',
+            ['Resistência = tensão ÷ corrente'],
           );
         }
 
@@ -262,6 +271,7 @@ export function ElectricalFundamentalsHumanWorkspace({ onCaptureCalculation }: P
             [{ label: 'Corrente', value: `${round(calculatedCurrent)} A`, helper: 'I = V / R' }],
             [`Tensão: ${round(voltage)} V`, `Resistência: ${round(resistance)} Ω`, `Corrente: ${round(calculatedCurrent)} A`],
             'Use para estimativa em carga resistiva. Não substitui medição em circuito energizado.',
+            ['Corrente = tensão ÷ resistência'],
           );
         }
 
@@ -273,6 +283,7 @@ export function ElectricalFundamentalsHumanWorkspace({ onCaptureCalculation }: P
           [{ label: 'Tensão', value: `${round(calculatedVoltage)} V`, helper: 'V = R × I' }],
           [`Resistência: ${round(resistance)} Ω`, `Corrente: ${round(current)} A`, `Tensão: ${round(calculatedVoltage)} V`],
           'Use para estimativa de tensão em carga resistiva. Valide sempre com medição adequada.',
+          ['Tensão = resistência × corrente'],
         );
       }
 
@@ -286,6 +297,7 @@ export function ElectricalFundamentalsHumanWorkspace({ onCaptureCalculation }: P
             [{ label: 'Potência', value: `${round(power)} W`, helper: 'P = V² / R' }],
             [`Tensão: ${round(voltage)} V`, `Resistência: ${round(resistance)} Ω`, `Potência: ${round(power)} W`],
             'Escolha componente/carga com potência suportada acima do resultado e margem de segurança.',
+            ['Potência = tensão² ÷ resistência'],
           );
         }
 
@@ -296,6 +308,7 @@ export function ElectricalFundamentalsHumanWorkspace({ onCaptureCalculation }: P
           [{ label: 'Potência', value: `${round(power)} W`, helper: 'P = I² × R' }],
           [`Corrente: ${round(current)} A`, `Resistência: ${round(resistance)} Ω`, `Potência: ${round(power)} W`],
           'Escolha componente/carga com potência suportada acima do resultado e margem de segurança.',
+          ['Potência = corrente² × resistência'],
         );
       }
 
@@ -309,6 +322,7 @@ export function ElectricalFundamentalsHumanWorkspace({ onCaptureCalculation }: P
             [{ label: 'Potência aparente', value: `${round(va)} VA`, helper: `FP ${round(factor, 2)}` }],
             [`Potência ativa: ${round(power)} W`, `Fator de potência: ${round(factor, 2)}`, `Potência aparente: ${round(va)} VA`],
             'Use para dimensionar nobreak, transformador e equipamentos especificados em VA. Ajuste o FP quando a carga não for resistiva.',
+            ['Potência aparente em VA = potência ativa em W ÷ fator de potência'],
           );
         }
 
@@ -321,6 +335,7 @@ export function ElectricalFundamentalsHumanWorkspace({ onCaptureCalculation }: P
           [{ label: 'Corrente', value: `${round(current)} A`, helper: `${round(va)} VA / ${round(voltage)} V` }],
           [`Potência aparente: ${round(va)} VA`, `Tensão: ${round(voltage)} V`, `Circuito: ${phaseLabel(phase)}`, `Corrente: ${round(current)} A`],
           'Use para equipamentos informados em VA. Para circuito final, valide cabo, proteção e queda de tensão.',
+          ['Corrente = VA ÷ (fator do circuito × tensão)', phaseFormula(phase, 'Fator do circuito')],
         );
       }
 
@@ -337,6 +352,7 @@ export function ElectricalFundamentalsHumanWorkspace({ onCaptureCalculation }: P
           ],
           [`Resistores: ${resistors.map((item) => `${round(item)} Ω`).join(', ')}`, `Série: ${round(series)} Ω`, `Paralelo: ${round(parallel)} Ω`],
           'Use para associação básica. Para potência dos resistores, use o cálculo de potência em resistência.',
+          ['Resistência em série = R1 + R2 + R3', 'Resistência em paralelo = 1 ÷ (1/R1 + 1/R2 + 1/R3)'],
         );
       }
 
@@ -354,9 +370,10 @@ export function ElectricalFundamentalsHumanWorkspace({ onCaptureCalculation }: P
         ],
         [`Potência: ${round(power)} W`, `Horas por dia: ${round(hours)} h`, `Dias: ${round(days)}`, `Consumo: ${round(kwh)} kWh`, `Custo: ${money(cost)}`],
         'Use como estimativa de consumo. O valor final depende da tarifa, impostos, bandeira e perfil real de uso.',
+        ['Consumo em kWh = potência em W × horas por dia × dias ÷ 1000', 'Custo estimado = consumo em kWh × tarifa'],
       );
     } catch (error) {
-      return { error: error instanceof Error ? error.message : 'Preencha os campos necessários.', summary: '', details: [], cards: [], orientation: '' };
+      return { error: error instanceof Error ? error.message : 'Preencha os campos necessários.', summary: '', details: [], cards: [], orientation: '', formula: [] };
     }
   }, [activeRule, values, phase, showAdvanced, ohmsTarget, powerResistanceTarget, apparentTarget]);
 
@@ -370,7 +387,7 @@ export function ElectricalFundamentalsHumanWorkspace({ onCaptureCalculation }: P
       destination,
       createdAt: new Date().toISOString(),
       summary: calculated.summary,
-      details: [...calculated.details, `Orientação: ${calculated.orientation}`],
+      details: [...calculated.details, ...calculated.formula.map((item) => `Fórmula: ${item}`), `Orientação: ${calculated.orientation}`],
     };
     onCaptureCalculation?.(capture);
     if (destination === 'survey') setAddedMessage(`${activeRule.label} foi incluído no levantamento.`);
@@ -548,6 +565,7 @@ export function ElectricalFundamentalsHumanWorkspace({ onCaptureCalculation }: P
 
             {calculated.error && <p className="human-error-message">{calculated.error}</p>}
             {calculated.cards.length > 0 && <div className="human-result-grid">{calculated.cards.map((item) => <ResultCard key={item.label} {...item} />)}</div>}
+            {calculated.formula.length > 0 && <div className="human-formula-box"><strong>Como este cálculo é feito</strong>{calculated.formula.map((item) => <span key={item}>{item}</span>)}</div>}
             {calculated.orientation && <p className="human-orientation">{calculated.orientation}</p>}
             {addedMessage && <p className="human-added-message">{addedMessage}</p>}
 
