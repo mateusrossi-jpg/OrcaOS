@@ -1,0 +1,31 @@
+:root {
+  color-scheme: dark;
+  --stable-bg: #070b09;
+  --stable-surface: #101713;
+  --stable-surface-2: #151f19;
+  --stable-surface-3: #1a261f;
+  --stable-border: rgba(255, 255, 255, 0.09);
+  --stable-border-2: rgba(34, 197, 94, 0.22);
+  --stable-green: #22c55e;
+  --stable-green-2: #16a34a;
+  --stable-text: #f8fafc;
+  --stable-muted: #a7b3ad;
+  --stable-muted-2: #6f7f76;
+  --stable-shadow: 0 12px 32px rgba(0, 0, 0, 0.22);
+}
+
+html,
+body,
+#root {
+  background: var(--stable-bg) !important;
+  color: var(--stable-text) !important;
+}
+
+body {
+  background: linear-gradient(180deg, var(--stable-bg), #0b120e) !important;
+}
+
+.print-document {
+  color: #111827 !important;
+  background: #ffffff !important;
+}
