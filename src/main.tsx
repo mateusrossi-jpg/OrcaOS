@@ -10,6 +10,7 @@ import './styles/budgetRefinement.css';
 import './styles/clientOsRefinement.css';
 import './styles/reportRefinement.css';
 import './styles/calculationRefinement.css';
+import './styles/calculationTaxonomyVisual.css';
 import './styles/storeSettingsRefinement.css';
 import './styles/responsiveConsistency.css';
 import './styles/premiumPartsAndIcons.css';
