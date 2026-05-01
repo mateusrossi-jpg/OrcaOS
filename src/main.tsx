@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { App } from './app/AppOrcaNext';
 import './styles/global.css';
+import './styles/appIcon.css';
 import './styles/mobileLayoutFix.css';
 import './styles/workContext.css';
 import './styles/professionalPolish.css';
