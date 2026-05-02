@@ -40,6 +40,7 @@ npm run dev
 ```
 
 Checklist de fechamento para teste controlado: `docs/ai/ORCAOS_RC1_TEST_READINESS_REVIEW.md`.
+Roteiro manual de simulacao de usuario real: `docs/ai/ORCAOS_BETA_FECHADO_SIMULACAO_USUARIO_REAL.md`.
 
 ## Checklist De Fluxo Principal
 
