@@ -25,6 +25,7 @@ export type CalculatorMode =
 
 export type CalculatorModule =
   | 'fundamentosGerais'
+  | 'eletricaPredial'
   | 'fundamentals'
   | 'installations'
   | 'lighting'

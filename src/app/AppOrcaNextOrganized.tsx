@@ -22,6 +22,7 @@ const PaintingHumanWorkspace = lazy(() => import('../features/calculators/compon
 const ProfessionalDomainWorkspace = lazy(() => import('../features/calculators/components/ProfessionalDomainWorkspace').then((module) => ({ default: module.ProfessionalDomainWorkspace })));
 const UnifiedConstructionWorkspace = lazy(() => import('../features/calculators/components/UnifiedConstructionWorkspace').then((module) => ({ default: module.UnifiedConstructionWorkspace })));
 const UnifiedConvertersWorkspace = lazy(() => import('../features/calculators/components/UnifiedConvertersWorkspace').then((module) => ({ default: module.UnifiedConvertersWorkspace })));
+const UnifiedElectricalWorkspace = lazy(() => import('../features/calculators/components/UnifiedElectricalWorkspace').then((module) => ({ default: module.UnifiedElectricalWorkspace })));
 const UnifiedFinancialWorkspace = lazy(() => import('../features/calculators/components/UnifiedFinancialWorkspace').then((module) => ({ default: module.UnifiedFinancialWorkspace })));
 const UnifiedHydraulicsWorkspace = lazy(() => import('../features/calculators/components/UnifiedHydraulicsWorkspace').then((module) => ({ default: module.UnifiedHydraulicsWorkspace })));
 const CatalogHubWorkspace = lazy(() => import('../features/catalog/components/CatalogHubWorkspaceWithTax').then((module) => ({ default: module.CatalogHubWorkspace })));
@@ -74,6 +75,10 @@ const fundamentalModuleConfig: Record<string, { modes: FundamentalMode[]; title:
 };
 
 const moduleGuidance: Record<string, { title: string; text: string }> = {
+  eletricaPredial: {
+    title: 'Um único fluxo para elétrica predial',
+    text: 'Use as abas internas para começar pela base, avançar para instalação residencial, dimensionar cabos e disjuntores, conferir iluminação ou converter sinais.',
+  },
   conversores: {
     title: 'Um único lugar para conversão de unidades',
     text: 'Use a aba Rápidos para conversões comuns e a aba Técnicos para AWG, polegadas, vazão completa, pressão completa, temperatura e kWh/R$.',
@@ -101,7 +106,7 @@ function HomeScreen({ goTo, openModule, captures, clients, workOrders }: { goTo:
   const budgetItems = captures.filter((capture) => capture.destination === 'budget' || capture.destination === 'both').length;
   const surveyItems = captures.filter((capture) => capture.destination === 'survey' || capture.destination === 'both').length;
   const recentItems = captures.slice(0, 3);
-  const electricalModule = calculationModules.find((module) => module.id === 'fundamentos') ?? calculationModules[0];
+  const electricalModule = calculationModules.find((module) => module.id === 'eletricaPredial') ?? calculationModules[0];
   const hydraulicModule = calculationModules.find((module) => module.id === 'hidraulica') ?? calculationModules[0];
 
   return (
@@ -157,6 +162,7 @@ function CalculationsScreen({ selectedModule, openModule, activeSector, onSelect
         <header className="module-detail-header"><div><em className={`module-plan-pill ${selectedModule.plan}`}>{planLabel(selectedModule.plan)}</em><h1>{selectedModule.title}</h1><p>{selectedModule.description}</p><small>{selectedModule.count}</small></div></header>
         {moduleGuidance[selectedModule.id] && <div className="survey-intro-card"><span><strong>{moduleGuidance[selectedModule.id].title}</strong><small>{moduleGuidance[selectedModule.id].text}</small></span></div>}
         {module === 'fundamentosGerais' && fundamentalConfig && <GeneralFundamentalsWorkspace {...fundamentalConfig} onCaptureCalculation={onCaptureCalculation} />}
+        {module === 'eletricaPredial' && <UnifiedElectricalWorkspace userPlan={userPlan} onUpgradeRequest={() => goTo('store')} onCaptureCalculation={onCaptureCalculation} />}
         {module === 'fundamentals' && <ElectricalFundamentalsHumanWorkspace onCaptureCalculation={onCaptureCalculation} />}
         {module === 'pintura' && <PaintingHumanWorkspace onCaptureCalculation={onCaptureCalculation} />}
         {module === 'hidraulica' && <UnifiedHydraulicsWorkspace onCaptureCalculation={onCaptureCalculation} />}
@@ -166,7 +172,7 @@ function CalculationsScreen({ selectedModule, openModule, activeSector, onSelect
         {module && isExpansionModule(module) && <ExpansionCalculatorsWorkspace selectedModule={module} onCaptureCalculation={onCaptureCalculation} />}
         {module && isProfessionalDomainModule(module) && <ProfessionalDomainWorkspace selectedModule={module} onCaptureCalculation={onCaptureCalculation} />}
         {module && isGeneralCalculatorModule(module) && <GeneralCalculatorWorkspace selectedModule={module} onCaptureCalculation={onCaptureCalculation} />}
-        {module && module !== 'fundamentosGerais' && module !== 'fundamentals' && module !== 'pintura' && module !== 'hidraulica' && module !== 'obras' && module !== 'conversores' && module !== 'orcamentoTecnico' && !isExpansionModule(module) && !isProfessionalDomainModule(module) && !isGeneralCalculatorModule(module) && <ElectricalCalculatorWorkspace selectedModule={module} userPlan={userPlan} onUpgradeRequest={() => goTo('store')} onCaptureCalculation={onCaptureCalculation} />}
+        {module && module !== 'fundamentosGerais' && module !== 'eletricaPredial' && module !== 'fundamentals' && module !== 'pintura' && module !== 'hidraulica' && module !== 'obras' && module !== 'conversores' && module !== 'orcamentoTecnico' && !isExpansionModule(module) && !isProfessionalDomainModule(module) && !isGeneralCalculatorModule(module) && <ElectricalCalculatorWorkspace selectedModule={module} userPlan={userPlan} onUpgradeRequest={() => goTo('store')} onCaptureCalculation={onCaptureCalculation} />}
         {!module && <div className="empty-state-card"><strong>{selectedModule.title} em breve</strong><p>Este módulo já está previsto na arquitetura do OrçaOS.</p></div>}
       </section>
     );

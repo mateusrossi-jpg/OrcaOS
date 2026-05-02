@@ -4,6 +4,7 @@ import { calculationModules, calculationSectorGroups, navItems, planLabel } from
 
 const implementedStandaloneModules: CalculatorModule[] = [
   'fundamentosGerais',
+  'eletricaPredial',
   'fundamentals',
   'obras',
   'pintura',

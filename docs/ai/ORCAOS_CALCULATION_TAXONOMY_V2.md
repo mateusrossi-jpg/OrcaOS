@@ -16,12 +16,23 @@ Cada módulo deve responder a uma pergunta clara:
 
 ### Elétrica
 
-Ordem de leitura:
+Elétrica fica com um módulo principal para rotina predial e módulos específicos para rotinas especializadas.
 
-1. **Fundamentos elétricos**: cálculos rápidos de base, como Ohm, corrente, potência, VA e consumo.
-2. **Instalação residencial**: apoio de obra residencial, cabo, disjuntor, cargas, aterramento e DR/DPS.
-3. **Dimensionamento elétrico**: queda, distância, seção, AWG, transformador e eletroduto.
-4. **Iluminação**, **Climatização**, **Motores e comandos**, **Automação e sinais**, **Transformadores**, **Solar** e **Rebobinagem**: módulos específicos.
+**Elétrica predial** tem abas internas:
+
+- **Base**: Ohm, corrente, potência, resistores, VA e consumo.
+- **Residencial**: cabo, disjuntor, cargas, fases, aterramento e DR/DPS.
+- **Dimensionamento**: queda de tensão, seção, distância máxima, AWG, transformador, cabo/disjuntor e eletroduto.
+- **Iluminação**: lúmens, lux e quantidade inicial de luminárias.
+- **Sinais**: escalas 4-20 mA, 0-10 V e valor de engenharia.
+
+Módulos específicos continuam separados quando representam uma rotina profissional própria:
+
+- **Climatização**.
+- **Motores e comandos**.
+- **Transformadores**.
+- **Solar fotovoltaico**.
+- **Rebobinagem**.
 
 ### Hidráulica
 
@@ -76,7 +87,7 @@ Esses itens devem gerar texto técnico e relatório, não item comercial automat
 
 ### Free
 
-- Fundamentos elétricos.
+- Elétrica predial: base elétrica e cálculos livres internos.
 - Construção civil básica.
 - Pintura.
 - Hidráulica.
@@ -86,12 +97,12 @@ Esses itens devem gerar texto técnico e relatório, não item comercial automat
 
 ### Pro
 
-- Instalação residencial.
-- Dimensionamento elétrico.
-- Iluminação.
+- Instalação residencial dentro de elétrica predial.
+- Dimensionamento elétrico dentro de elétrica predial.
+- Iluminação e sinais dentro de elétrica predial.
 - Climatização.
 - Motores e comandos.
-- Automação e sinais.
+- Automação e sinais dentro de elétrica predial.
 - Transformadores.
 - Solar.
 - Rebobinagem.
