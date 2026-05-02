@@ -209,6 +209,35 @@
   padding-right: 4px;
 }
 
+.guided-labor-manager-controls {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: end;
+  border: 1px solid var(--stable-border, rgba(255, 255, 255, 0.09));
+  border-radius: 18px;
+  padding: 12px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.015)),
+    var(--stable-surface, #101713);
+}
+
+.guided-labor-manager-controls > small {
+  grid-column: 1 / -1;
+  color: var(--stable-muted, #a7b3ad);
+  line-height: 1.45;
+}
+
+.guided-labor-visibility-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
 .guided-labor-editor-row {
   display: grid;
   grid-template-columns: minmax(92px, auto) minmax(220px, 1fr) minmax(94px, 0.36fr) minmax(94px, 0.32fr);
@@ -450,6 +479,19 @@
 
   .guided-labor-actions {
     justify-items: stretch;
+  }
+
+  .guided-labor-manager-controls {
+    position: static;
+    grid-template-columns: 1fr;
+  }
+
+  .guided-labor-visibility-actions {
+    justify-content: stretch;
+  }
+
+  .guided-labor-visibility-actions > * {
+    flex: 1 1 140px;
   }
 
   .guided-labor-editor-row .guided-wide-field:last-child {

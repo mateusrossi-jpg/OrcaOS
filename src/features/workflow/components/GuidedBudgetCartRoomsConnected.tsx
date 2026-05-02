@@ -251,6 +251,7 @@ export function GuidedBudgetCart({ onSendToBudget, mode = 'all' }: GuidedBudgetC
   const [feedback, setFeedback] = useState<string | null>(null);
   const [laborTemplates, setLaborTemplates] = useState<GuidedLaborTemplate[]>(() => loadGuidedLaborTemplates());
   const [showLaborManager, setShowLaborManager] = useState(false);
+  const [laborManagerQuery, setLaborManagerQuery] = useState('');
   const [newLaborTemplate, setNewLaborTemplate] = useState({ title: '', defaultUnitValue: '', unit: 'ponto', note: '' });
   const [laborQuantityById, setLaborQuantityById] = useState<Record<string, string>>({});
   const [laborValueById, setLaborValueById] = useState<Record<string, string>>({});
@@ -269,6 +270,11 @@ export function GuidedBudgetCart({ onSendToBudget, mode = 'all' }: GuidedBudgetC
   const activeEnvironment = customEnvironment.trim() || environment || savedRoomNames[0] || 'Sem ambiente';
   const selectedKit = kitTemplates.find((kit) => kit.id === selectedKitId) ?? kitTemplates[0];
   const visibleLaborTemplates = laborTemplates.filter((template) => template.visible);
+  const filteredLaborTemplates = laborTemplates.filter((template) => {
+    const query = laborManagerQuery.trim().toLowerCase();
+    if (!query) return true;
+    return [template.title, template.unit, template.note].join(' ').toLowerCase().includes(query);
+  });
   const partResults = useMemo(() => searchCatalogParts(partQuery, partBrand, partCategory), [partBrand, partCategory, partQuery]);
   const environmentGroups = useMemo(() => {
     const groups = new Map<string, GuidedLine[]>();
@@ -311,6 +317,12 @@ export function GuidedBudgetCart({ onSendToBudget, mode = 'all' }: GuidedBudgetC
     setLaborTemplates((current) => current.map((template) => (
       template.id === id ? { ...template, ...patch, updatedAt: new Date().toISOString() } : template
     )));
+  }
+
+  function setAllLaborVisibility(visible: boolean) {
+    const updatedAt = new Date().toISOString();
+    setLaborTemplates((current) => current.map((template) => ({ ...template, visible, updatedAt })));
+    setFeedback(visible ? 'Todos os serviços foram liberados para seleção.' : 'Todos os serviços foram ocultados da seleção.');
   }
 
   function addLaborTemplate() {
@@ -470,7 +482,26 @@ export function GuidedBudgetCart({ onSendToBudget, mode = 'all' }: GuidedBudgetC
               </div>
 
               <div className="guided-labor-editor-list">
-                {laborTemplates.map((template) => (
+                <div className="guided-labor-manager-controls">
+                  <label className="technical-edit-field guided-wide-field">
+                    <span>Buscar serviço cadastrado</span>
+                    <input value={laborManagerQuery} placeholder="Ex.: tomada, quadro, luminária..." onChange={(event) => setLaborManagerQuery(event.target.value)} />
+                  </label>
+                  <div className="guided-labor-visibility-actions">
+                    <button className="secondary-action inline-action" type="button" onClick={() => setAllLaborVisibility(true)}>Mostrar todos</button>
+                    <button className="secondary-action inline-action" type="button" onClick={() => setAllLaborVisibility(false)}>Ocultar todos</button>
+                  </div>
+                  <small>Marque como visível apenas os serviços que devem aparecer nos cards de seleção do levantamento.</small>
+                </div>
+
+                {filteredLaborTemplates.length === 0 && (
+                  <div className="guided-labor-empty">
+                    <strong>Nenhum serviço encontrado</strong>
+                    <small>Limpe a busca ou cadastre um novo tipo de trabalho.</small>
+                  </div>
+                )}
+
+                {filteredLaborTemplates.map((template) => (
                   <article className="guided-labor-editor-row" key={template.id}>
                     <label className="guided-labor-visibility">
                       <input checked={template.visible} type="checkbox" onChange={(event) => updateLaborTemplate(template.id, { visible: event.target.checked })} />
