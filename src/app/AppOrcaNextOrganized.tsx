@@ -11,6 +11,7 @@ import {
 } from '../core/access/accountPlanStorage';
 import { isGoogleAccountLoginConfigured, requestGoogleAccountProfile } from '../core/access/googleAccountAuth';
 import { isPlanEntitlementSyncConfigured, refreshPlanEntitlement } from '../core/access/planEntitlements';
+import { isDevToolsEnabled } from '../core/runtime/devTools';
 import type { CalculatorModule, UserPlan } from '../core/access/featureAccess';
 import type { Client, WorkOrder } from '../core/types/business';
 import type { CalculationCapture } from '../core/types/workflow';
@@ -323,9 +324,15 @@ function ClientsScreen({ onContextChange }: { onContextChange: (clients: Client[
 
 function StoreScreen({ account, onAccountChange }: { account: OrcaAccountState; onAccountChange: (account: OrcaAccountState) => void }) {
   const activeUserPlan = account.plan;
+  const devToolsEnabled = isDevToolsEnabled();
   const [feedback, setFeedback] = useState<string | null>(null);
   const [isCheckingPlan, setIsCheckingPlan] = useState(false);
   const canCheckPlan = isPlanEntitlementSyncConfigured() && Boolean(account.userId);
+  const planSourceLabel = account.planSource === 'subscription'
+    ? 'assinatura'
+    : account.planSource === 'local-test' && devToolsEnabled
+      ? 'teste local'
+      : 'verificação local';
 
   async function checkSubscription() {
     setIsCheckingPlan(true);
@@ -341,7 +348,25 @@ function StoreScreen({ account, onAccountChange }: { account: OrcaAccountState; 
     }
   }
 
-  return <section className="app-screen wide-screen"><header className="screen-header"><span className="orca-kicker">Recursos premium</span><h1>Loja / Pro</h1><p>Pacotes de cálculos, modelos de orçamento e recursos profissionais.</p></header><div className="settings-group"><h2>Plano atual</h2><article className="settings-row"><span><strong>{activeUserPlan === 'pro' ? 'Pro ativo' : 'Grátis ativo'}</strong><small>{activeUserPlan === 'pro' ? `Liberado por ${account.planSource === 'subscription' ? 'assinatura' : 'teste local'}.` : 'Cálculos livres liberados. Recursos Pro abrem a tela de upgrade.'}</small></span></article><div className="general-capture-actions"><button type="button" disabled={!canCheckPlan || isCheckingPlan} onClick={checkSubscription}>{isCheckingPlan ? 'Verificando...' : 'Verificar assinatura'}</button><button className="secondary-action" type="button" onClick={() => onAccountChange(setLocalUserPlan('pro'))}>Ativar Pro de teste</button><button className="secondary-action" type="button" onClick={() => onAccountChange(setLocalUserPlan('free'))}>Voltar ao grátis</button></div>{!isPlanEntitlementSyncConfigured() && <p className="general-helper-text">Configure VITE_ORCAOS_ENTITLEMENTS_ENDPOINT para verificar assinaturas reais.</p>}{isPlanEntitlementSyncConfigured() && !account.userId && <p className="general-helper-text">Entre com uma conta antes de verificar assinatura.</p>}{feedback && <p className="general-added-message">{feedback}</p>}</div><div className="settings-group"><h2>Pacotes disponíveis</h2>{storePackages.map((pack) => <article className="store-card" key={pack.title}><span><strong>{pack.title}</strong><small>{pack.description}</small><b>{pack.price}</b></span><button type="button">Detalhes</button></article>)}</div></section>;
+  return (
+    <section className="app-screen wide-screen">
+      <header className="screen-header"><span className="orca-kicker">Recursos premium</span><h1>Loja / Pro</h1><p>Pacotes de cálculos, modelos de orçamento e recursos profissionais.</p></header>
+      <div className="settings-group">
+        <h2>Plano atual</h2>
+        {devToolsEnabled && <div className="dev-tools-badge">Modo desenvolvimento ativo</div>}
+        <article className="settings-row"><span><strong>{activeUserPlan === 'pro' ? 'Pro ativo' : 'Grátis ativo'}</strong><small>{activeUserPlan === 'pro' ? `Liberado por ${planSourceLabel}.` : 'Cálculos livres liberados. Recursos Pro abrem a tela de upgrade.'}</small></span></article>
+        <div className="general-capture-actions">
+          <button type="button" disabled={!canCheckPlan || isCheckingPlan} onClick={checkSubscription}>{isCheckingPlan ? 'Verificando...' : 'Verificar assinatura'}</button>
+          {devToolsEnabled && <button className="secondary-action" type="button" onClick={() => onAccountChange(setLocalUserPlan('pro'))}>Ativar Pro de teste</button>}
+          {devToolsEnabled && <button className="secondary-action" type="button" onClick={() => onAccountChange(setLocalUserPlan('free'))}>Voltar ao grátis</button>}
+        </div>
+        {!isPlanEntitlementSyncConfigured() && <p className="general-helper-text">Configure VITE_ORCAOS_ENTITLEMENTS_ENDPOINT para verificar assinaturas reais.</p>}
+        {isPlanEntitlementSyncConfigured() && !account.userId && <p className="general-helper-text">Entre com uma conta antes de verificar assinatura.</p>}
+        {feedback && <p className="general-added-message">{feedback}</p>}
+      </div>
+      <div className="settings-group"><h2>Pacotes disponíveis</h2>{storePackages.map((pack) => <article className="store-card" key={pack.title}><span><strong>{pack.title}</strong><small>{pack.description}</small><b>{pack.price}</b></span><button type="button">Detalhes</button></article>)}</div>
+    </section>
+  );
 }
 
 function SettingsScreen({ account, onAccountChange }: { account: OrcaAccountState; onAccountChange: (account: OrcaAccountState) => void }) {

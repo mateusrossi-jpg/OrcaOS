@@ -29,7 +29,7 @@ Fluxo principal:
 4. criar OS;
 5. executar calculos livres;
 6. confirmar bloqueio de calculos Pro no plano gratis;
-7. ativar Pro de teste ou verificar assinatura;
+7. verificar assinatura Pro; em desenvolvimento, tambem validar simulacao apenas com `VITE_ORCAOS_DEV_TOOLS=true`;
 8. executar calculo Pro;
 9. enviar calculo para levantamento/orcamento;
 10. montar levantamento;
@@ -63,7 +63,7 @@ Sem essas variaveis, ainda e possivel testar:
 
 - cadastro por e-mail;
 - conta local;
-- Pro de teste;
+- Pro de teste apenas em desenvolvimento com `VITE_ORCAOS_DEV_TOOLS=true`;
 - fluxo tecnico completo;
 - backup local.
 

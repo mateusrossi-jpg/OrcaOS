@@ -13,6 +13,7 @@ Este release candidate serve para validar se o OrcaOS esta pronto para um beta f
 - Remocao das antigas camadas CSS nao importadas.
 - Fluxo principal validavel: Atendimentos -> Calculos/Levantamento -> Orcamento -> Relatorio.
 - Bloqueio comercial minimo com cadastro por e-mail, vinculo Google, conta local, gate Pro e endpoint `/api/entitlements` consultando assinatura server-side com allowlist apenas como fallback de beta.
+- Ferramentas internas de simular plano ficam escondidas quando `VITE_ORCAOS_DEV_TOOLS=false`.
 - Documentos e previews mantidos com fundo branco quando representam papel/PDF.
 - App local-first, com backup local disponivel em Configuracoes.
 
@@ -131,7 +132,15 @@ O RC1 pode ser considerado aprovado para beta fechado se:
 ## Monetizacao Dos Calculos
 
 A matriz Free/Pro dos calculos do RC1 esta documentada em `docs/ai/ORCAOS_CALCULATION_MONETIZATION_MATRIX_RC1.md`.
-No RC1, a separacao aparece na organizacao, nos badges e no bloqueio de abertura dos calculos Pro. A conta/plano fica em `accountPlanStorage`, pode cadastrar e-mail proprio, simular Pro pela tela Loja / Pro, receber identidade Google quando `VITE_GOOGLE_CLIENT_ID` estiver configurado e verificar assinatura via `VITE_ORCAOS_ENTITLEMENTS_ENDPOINT`. A liberacao comercial pode ser feita pela tabela `orcaos_subscriptions` ou por `/api/admin/subscriptions`; o webhook do provedor de pagamento fica para a proxima camada externa.
+No RC1, a separacao aparece na organizacao, nos badges e no bloqueio de abertura dos calculos Pro. A conta/plano fica em `accountPlanStorage`, pode cadastrar e-mail proprio, receber identidade Google quando `VITE_GOOGLE_CLIENT_ID` estiver configurado e verificar assinatura via `VITE_ORCAOS_ENTITLEMENTS_ENDPOINT`. A liberacao comercial pode ser feita pela tabela `orcaos_subscriptions` ou por `/api/admin/subscriptions`; o webhook do provedor de pagamento fica para a proxima camada externa.
+
+Para beta fechado ou cliente real, usar:
+
+```bash
+VITE_ORCAOS_DEV_TOOLS=false
+```
+
+Com essa flag desligada, a Loja / Pro nao mostra botoes de simulacao como "Ativar Pro de teste" ou "Voltar ao gratis". Essas ferramentas sao apenas para desenvolvimento local e devem aparecer somente com `VITE_ORCAOS_DEV_TOOLS=true`.
 O deploy do gate comercial minimo esta documentado em `docs/ai/ORCAOS_COMMERCIAL_GATE_DEPLOYMENT_V1.md`.
 O checklist externo de Supabase, Google OAuth e liberacao do primeiro cliente Pro esta em `docs/ai/ORCAOS_EXTERNAL_MONETIZATION_SETUP_V1.md`.
 
