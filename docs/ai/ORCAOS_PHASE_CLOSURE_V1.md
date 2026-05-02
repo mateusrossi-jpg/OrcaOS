@@ -37,6 +37,13 @@ Status: fechado para V1.
 
 Regra mantida: cálculo não é uma fórmula isolada; deve apoiar decisão técnica, levantamento, orçamento e relatório.
 
+Proteção adicionada:
+
+- teste automatizado garante abas principais únicas;
+- teste automatizado garante setores conectados a módulos existentes;
+- teste automatizado garante módulos ativos apontando para workspace/regra implementada;
+- teste automatizado garante módulos indisponíveis como `Em breve`.
+
 ### 3. Expansão dos cálculos
 
 Status: fechado como implementação inicial.
@@ -79,7 +86,7 @@ Estado atual:
 
 ```txt
 6 arquivos de teste
-51 testes passando
+56 testes passando
 ```
 
 ## Validação técnica executada
