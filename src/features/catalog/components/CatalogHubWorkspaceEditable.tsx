@@ -35,6 +35,8 @@ interface ItemDraft {
   destination: CalculationDestination;
   notes: string;
   sourceUrl: string;
+  imageUrl: string;
+  purchaseGuidance: string;
 }
 
 interface SupplierDraft {
@@ -61,6 +63,8 @@ const emptyItemDraft: ItemDraft = {
   destination: 'both',
   notes: '',
   sourceUrl: '',
+  imageUrl: '',
+  purchaseGuidance: '',
 };
 
 const emptySupplierDraft: SupplierDraft = {
@@ -109,6 +113,8 @@ function itemToDraft(item: CatalogHubItem): ItemDraft {
     destination: item.destination,
     notes: item.notes ?? '',
     sourceUrl: item.sourceUrl ?? '',
+    imageUrl: item.imageUrl ?? '',
+    purchaseGuidance: item.purchaseGuidance ?? '',
   };
 }
 
@@ -135,6 +141,8 @@ function buildCatalogItemFromDraft(draft: ItemDraft, existingItem?: CatalogHubIt
     itemType: kind === 'material' ? 'material' : 'service',
     notes: draft.notes.trim() || undefined,
     sourceUrl: draft.sourceUrl.trim() || undefined,
+    imageUrl: draft.imageUrl.trim() || undefined,
+    purchaseGuidance: draft.purchaseGuidance.trim() || undefined,
     createdAt: existingItem?.createdAt ?? timestamp,
     updatedAt: timestamp,
   };
@@ -162,13 +170,19 @@ function createCaptureFromCatalogItem(item: CatalogHubItem): CalculationCapture 
       `Subtotal: ${money(subtotal)}`,
       `Destino: ${destinationLabel(item.destination)}`,
       item.sourceUrl ? `Fonte/catálogo: ${item.sourceUrl}` : 'Fonte/catálogo: não informado',
+      item.imageUrl ? `Imagem de referência: ${item.imageUrl}` : 'Imagem de referência: não informada',
+      item.purchaseGuidance ? `Orientação de compra: ${item.purchaseGuidance}` : 'Orientação de compra: conferir marca, modelo e compatibilidade antes de comprar.',
       item.notes ? `Observação: ${item.notes}` : 'Origem: cadastro de catálogo profissional',
     ],
     itemType: item.itemType,
     editableDescription: item.title,
-    technicalNote: item.notes || 'Item vindo do catálogo profissional.',
+    technicalNote: [item.purchaseGuidance, item.notes || 'Item vindo do catálogo profissional.'].filter(Boolean).join(' '),
     quantity: String(item.defaultQuantity),
     unitValue: String(item.defaultUnitValue),
+    materialSupplyMode: item.kind === 'material' ? 'client' : undefined,
+    materialSupplyLabel: item.kind === 'material' ? 'Referência para compra do cliente' : undefined,
+    clientPurchaseRequired: item.kind === 'material' ? true : undefined,
+    imageDataUrl: item.imageUrl,
     shouldGenerateBudgetItem: item.destination !== 'survey',
     convertedToBudgetItem: false,
     reportReady: item.destination === 'survey' || item.destination === 'both',
@@ -190,6 +204,8 @@ export function CatalogHubWorkspace({ onSendToBudget, initialTab = 'items', enab
   const [onlineSupplierId, setOnlineSupplierId] = useState('');
   const [onlineObservedPrice, setOnlineObservedPrice] = useState('');
   const [onlineReference, setOnlineReference] = useState('');
+  const [onlineProductUrl, setOnlineProductUrl] = useState('');
+  const [onlineImageUrl, setOnlineImageUrl] = useState('');
   const [feedback, setFeedback] = useState<string | null>(null);
 
   useEffect(() => saveCatalogHubItems(items), [items]);
@@ -302,6 +318,11 @@ export function CatalogHubWorkspace({ onSendToBudget, initialTab = 'items', enab
       observedPrice ? `Preço observado: ${money(parseDecimal(observedPrice))} em ${today}.` : null,
       'Referência online escolhida pelo profissional. Confirmar disponibilidade antes de enviar proposta.',
     ].filter(Boolean).join(' ');
+    const purchaseGuidance = [
+      'Comprar este produto ou equivalente validado pelo profissional.',
+      reference ? `Conferir referência/modelo: ${reference}.` : null,
+      onlineProductUrl.trim() ? `Link de referência: ${onlineProductUrl.trim()}.` : null,
+    ].filter(Boolean).join(' ');
 
     setEditingItemId(null);
     updateItemDraft('title', onlineQuery);
@@ -309,10 +330,30 @@ export function CatalogHubWorkspace({ onSendToBudget, initialTab = 'items', enab
     updateItemDraft('brand', onlineSupplier?.name ?? '');
     updateItemDraft('reference', reference);
     if (observedPrice) updateItemDraft('defaultUnitValue', observedPrice);
-    updateItemDraft('sourceUrl', onlineUrl);
+    updateItemDraft('sourceUrl', onlineProductUrl.trim() || onlineUrl);
+    updateItemDraft('imageUrl', onlineImageUrl.trim());
+    updateItemDraft('purchaseGuidance', purchaseGuidance);
     updateItemDraft('notes', itemDraft.notes.trim() ? `${itemDraft.notes.trim()}\n${onlineNote}` : onlineNote);
     setActiveTab('items');
     setFeedback('Referência online enviada para o formulário. Confira preço, modelo e disponibilidade antes de salvar.');
+  }
+
+  function handleItemImageFile(file: File | undefined) {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === 'string') updateItemDraft('imageUrl', reader.result);
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function handleOnlineImageFile(file: File | undefined) {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === 'string') setOnlineImageUrl(reader.result);
+    };
+    reader.readAsDataURL(file);
   }
 
   return (
@@ -354,8 +395,17 @@ export function CatalogHubWorkspace({ onSendToBudget, initialTab = 'items', enab
               <label><span>Valor unitário</span><input inputMode="decimal" value={itemDraft.defaultUnitValue} onChange={(event) => updateItemDraft('defaultUnitValue', event.target.value)} /></label>
               <label><span>Destino</span><select value={itemDraft.destination} onChange={(event) => updateItemDraft('destination', event.target.value as CalculationDestination)}><option value="survey">Levantamento</option><option value="budget">Orçamento</option><option value="both">Ambos</option></select></label>
               <label className="wide"><span>Link fonte/catálogo</span><input value={itemDraft.sourceUrl} placeholder="https://..." onChange={(event) => updateItemDraft('sourceUrl', event.target.value)} /></label>
+              <label className="wide"><span>Foto ou URL da imagem</span><input value={itemDraft.imageUrl} placeholder="Cole uma URL de imagem ou envie uma foto abaixo" onChange={(event) => updateItemDraft('imageUrl', event.target.value)} /></label>
+              <label className="wide file-reference-field"><span>Enviar foto de referência</span><input accept="image/*" type="file" onChange={(event) => handleItemImageFile(event.target.files?.[0])} /></label>
+              <label className="wide"><span>Orientação para compra</span><textarea value={itemDraft.purchaseGuidance} placeholder="Ex.: comprar exatamente este modelo ou equivalente validado; conferir tensão, cor, linha e encaixe..." onChange={(event) => updateItemDraft('purchaseGuidance', event.target.value)} /></label>
               <label className="wide"><span>Observação</span><textarea value={itemDraft.notes} placeholder="Ex.: confirmar disponibilidade, linha compatível, preço aproximado..." onChange={(event) => updateItemDraft('notes', event.target.value)} /></label>
             </div>
+            {itemDraft.imageUrl && (
+              <div className="catalog-reference-preview">
+                <img src={itemDraft.imageUrl} alt={`Referência de ${itemDraft.title || 'produto'}`} />
+                <span><strong>Foto de referência salva</strong><small>Essa imagem acompanha o item quando ele for enviado para relatório/lista de compra.</small></span>
+              </div>
+            )}
             <div className="catalog-hub-actions start-actions">
               <button className="primary-action inline-action" type="button" onClick={saveItem}>{isEditingItem ? 'Salvar alterações' : 'Cadastrar item'}</button>
               {isEditingItem && <button className="secondary-action inline-action" type="button" onClick={resetItemForm}>Cancelar edição</button>}
@@ -372,10 +422,12 @@ export function CatalogHubWorkspace({ onSendToBudget, initialTab = 'items', enab
             <div className="catalog-hub-list">
               {filteredItems.map((item) => (
                 <article className="catalog-hub-item-card" key={item.id}>
-                  <div>
+                  {item.imageUrl && <img className="catalog-item-thumb" src={item.imageUrl} alt={`Referência de ${item.title}`} />}
+                  <div className="catalog-item-main">
                     <span>{itemKindLabel(item.kind)} · {destinationLabel(item.destination)}</span>
                     <strong>{item.title}</strong>
                     <small>{[item.category, item.brand, item.model, item.reference].filter(Boolean).join(' · ') || 'Sem detalhes adicionais'}</small>
+                    {item.purchaseGuidance && <small>{item.purchaseGuidance}</small>}
                     <small>{item.defaultQuantity} {item.unit} × {money(item.defaultUnitValue)}</small>
                   </div>
                   <div className="catalog-hub-actions">
@@ -410,7 +462,7 @@ export function CatalogHubWorkspace({ onSendToBudget, initialTab = 'items', enab
           <div className="catalog-hub-list">
             {suppliers.map((supplier) => (
               <article className="catalog-hub-item-card" key={supplier.id}>
-                <div><span>{supplier.segment}</span><strong>{supplier.name}</strong><small>{supplier.notes || 'Sem observações'}</small></div>
+                <div className="catalog-item-main"><span>{supplier.segment}</span><strong>{supplier.name}</strong><small>{supplier.notes || 'Sem observações'}</small></div>
                 <div className="catalog-hub-actions">
                   {supplier.websiteUrl && <a className="secondary-action inline-action" href={supplier.websiteUrl} target="_blank" rel="noreferrer">Site</a>}
                   {supplier.catalogUrl && <a className="secondary-action inline-action" href={supplier.catalogUrl} target="_blank" rel="noreferrer">Catálogo</a>}
@@ -430,13 +482,22 @@ export function CatalogHubWorkspace({ onSendToBudget, initialTab = 'items', enab
             <label><span>Fornecedor/fabricante</span><select value={onlineSupplierId} onChange={(event) => setOnlineSupplierId(event.target.value)}>{suppliers.map((supplier) => <option key={supplier.id} value={supplier.id}>{supplier.name}</option>)}</select></label>
             <label><span>Preço observado</span><input inputMode="decimal" value={onlineObservedPrice} placeholder="Ex.: 18,90" onChange={(event) => setOnlineObservedPrice(event.target.value)} /></label>
             <label className="wide"><span>Referência escolhida</span><input value={onlineReference} placeholder="Ex.: SKU, modelo, código do fabricante ou link do produto" onChange={(event) => setOnlineReference(event.target.value)} /></label>
+            <label className="wide"><span>Link do produto escolhido</span><input value={onlineProductUrl} placeholder="Cole aqui o link real do produto após abrir a consulta" onChange={(event) => setOnlineProductUrl(event.target.value)} /></label>
+            <label className="wide"><span>Imagem do produto</span><input value={onlineImageUrl} placeholder="Cole uma URL de imagem ou envie uma foto abaixo" onChange={(event) => setOnlineImageUrl(event.target.value)} /></label>
+            <label className="wide file-reference-field"><span>Enviar foto de referência</span><input accept="image/*" type="file" onChange={(event) => handleOnlineImageFile(event.target.files?.[0])} /></label>
           </div>
           <div className="online-result-box">
             <span>Link preparado</span>
             <strong>{onlineSupplier?.name ?? 'Fornecedor'}</strong>
             <small>{onlineUrl || 'Cadastre um fornecedor com site/catálogo.'}</small>
-            <small>Abra a busca, escolha o item real e registre aqui o preço observado como referência comercial.</small>
+            <small>Abra a busca, escolha o item real e registre link, foto, modelo e preço como referência comercial.</small>
           </div>
+          {onlineImageUrl && (
+            <div className="catalog-reference-preview">
+              <img src={onlineImageUrl} alt={`Referência de ${onlineQuery}`} />
+              <span><strong>Imagem pronta para referência</strong><small>Ao usar como referência, esta imagem será enviada para o cadastro do item.</small></span>
+            </div>
+          )}
           <div className="catalog-hub-actions start-actions">
             {onlineUrl && <a className="primary-action inline-action" href={onlineUrl} target="_blank" rel="noreferrer">Abrir consulta online</a>}
             <button className="secondary-action inline-action" type="button" onClick={fillItemFromOnlineSearch}>Usar como referência</button>

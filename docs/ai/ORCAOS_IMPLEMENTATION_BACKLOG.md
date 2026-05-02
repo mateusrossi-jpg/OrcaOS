@@ -148,6 +148,16 @@ Each catalog item should ideally include:
 
 Prepare the UI for online search, but keep it disabled/fallback until a reliable implementation exists.
 
+Current publishable layer:
+
+- assisted product reference by commercial name;
+- supplier/manufacturer search link;
+- selected product URL;
+- optional product image/reference photo;
+- observed price;
+- model/SKU/reference;
+- purchase guidance for the client.
+
 Potential manufacturer/reference targets:
 
 - Schneider;

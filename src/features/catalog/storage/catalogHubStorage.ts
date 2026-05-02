@@ -18,6 +18,8 @@ export interface CatalogHubItem {
   itemType: TechnicalItemType;
   notes?: string;
   sourceUrl?: string;
+  imageUrl?: string;
+  purchaseGuidance?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -140,6 +142,7 @@ const starterItems: CatalogHubItem[] = [
     destination: 'both',
     itemType: 'material',
     notes: 'Conferir linha/modelo antes da compra.',
+    purchaseGuidance: 'Cliente deve comprar módulo 2P+T 20A compatível com a linha escolhida no acabamento.',
     createdAt: now(),
     updatedAt: now(),
   },
@@ -156,6 +159,7 @@ const starterItems: CatalogHubItem[] = [
     destination: 'both',
     itemType: 'material',
     notes: 'Usar com módulos compatíveis da mesma linha.',
+    purchaseGuidance: 'Comprar placa da mesma linha dos módulos para evitar incompatibilidade de encaixe.',
     createdAt: now(),
     updatedAt: now(),
   },

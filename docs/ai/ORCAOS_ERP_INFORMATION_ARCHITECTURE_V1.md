@@ -163,6 +163,14 @@ Deve conter:
 
 Função: buscar peças/produtos externos para agilizar cadastro.
 
+Estado recomendado para a primeira versão:
+
+- consulta assistida por nome comercial;
+- link de busca por fornecedor/fabricante;
+- profissional escolhe o produto real fora do app;
+- app salva nome comercial, marca, modelo/SKU, link, foto de referência, preço observado e orientação de compra;
+- item pode virar referência para lista do cliente, orçamento e relatório.
+
 Direção futura:
 
 - abrir busca dentro do próprio app;
