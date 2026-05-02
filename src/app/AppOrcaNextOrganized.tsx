@@ -21,8 +21,8 @@ import { TechnicalCaptureList } from '../features/workflow/components/TechnicalC
 import { ActiveWorkContextCard } from './components/ActiveWorkContextCard';
 import { AppShell } from './components/AppShell';
 import { ModuleCard } from './components/ModuleCard';
-import { calculationModules, navItems, planLabel, storePackages, userPlan } from './orcaAppData';
-import type { ActiveWorkContext, AppTab, BudgetSection, ModuleCardData, SurveySection } from './orcaAppTypes';
+import { calculationModules, calculationProfessionGroups, navItems, planLabel, storePackages, userPlan } from './orcaAppData';
+import type { ActiveWorkContext, AppTab, BudgetSection, CalculationProfessionId, ModuleCardData, SurveySection } from './orcaAppTypes';
 import { loadStoredCaptures, saveStoredCaptures } from './storage/calculationCapturesStorage';
 
 function isGeneralCalculatorModule(module: CalculatorModule): module is GeneralCalculatorModule {
@@ -37,6 +37,10 @@ function getScreenTitle(activeTab: AppTab, selectedModule: ModuleCardData | null
 function getScreenSubtitle(activeTab: AppTab, selectedModule: ModuleCardData | null): string {
   if (activeTab === 'calculations' && selectedModule) return selectedModule.description;
   return navItems.find((item) => item.id === activeTab)?.description ?? 'Ferramenta profissional de campo';
+}
+
+function getProfessionForModule(moduleId: string): CalculationProfessionId {
+  return calculationProfessionGroups.find((group) => group.moduleIds.includes(moduleId))?.id ?? 'electrical';
 }
 
 function HomeScreen({ goTo, openModule, captures, clients, workOrders }: { goTo: (tab: AppTab) => void; openModule: (module: ModuleCardData) => void; captures: CalculationCapture[]; clients: Client[]; workOrders: WorkOrder[] }) {
@@ -58,12 +62,13 @@ function HomeScreen({ goTo, openModule, captures, clients, workOrders }: { goTo:
   );
 }
 
-function CalculationsScreen({ selectedModule, openModule, goTo, onCaptureCalculation }: { selectedModule: ModuleCardData | null; openModule: (module: ModuleCardData | null) => void; goTo: (tab: AppTab) => void; onCaptureCalculation: (capture: CalculationCapture) => void }) {
+function CalculationsScreen({ selectedModule, openModule, activeProfession, onSelectProfession, goTo, onCaptureCalculation }: { selectedModule: ModuleCardData | null; openModule: (module: ModuleCardData | null) => void; activeProfession: CalculationProfessionId; onSelectProfession: (profession: CalculationProfessionId) => void; goTo: (tab: AppTab) => void; onCaptureCalculation: (capture: CalculationCapture) => void }) {
   if (selectedModule) {
     const module = selectedModule.calculatorModule;
+    const selectedProfession = calculationProfessionGroups.find((group) => group.id === activeProfession);
     return (
       <section className="app-screen">
-        <button className="back-button" type="button" onClick={() => openModule(null)}>‹ Voltar aos cálculos</button>
+        <button className="back-button" type="button" onClick={() => openModule(null)}>‹ Voltar para {selectedProfession?.title ?? 'cálculos'}</button>
         <header className="module-detail-header"><span className={`app-icon tone-${selectedModule.tone}`}>{selectedModule.icon}</span><div><em className={`module-plan-pill ${selectedModule.plan}`}>{planLabel(selectedModule.plan)}</em><h1>{selectedModule.title}</h1><p>{selectedModule.description}</p><small>{selectedModule.count}</small></div></header>
         {module === 'fundamentosGerais' && <GeneralFundamentalsWorkspace onCaptureCalculation={onCaptureCalculation} />}
         {module === 'fundamentals' && <ElectricalFundamentalsHumanWorkspace onCaptureCalculation={onCaptureCalculation} />}
@@ -77,28 +82,49 @@ function CalculationsScreen({ selectedModule, openModule, goTo, onCaptureCalcula
     );
   }
 
-  return <section className="app-screen calculations-overview-screen"><header className="screen-header"><span className="orca-kicker">Famílias e módulos</span><h1>Cálculos</h1><p>Escolha o setor profissional ou o núcleo transversal.</p></header><div className="module-list-app">{calculationModules.map((module) => <ModuleCard key={module.id} module={module} compact onOpen={() => openModule(module)} />)}</div></section>;
+  const selectedProfession = calculationProfessionGroups.find((group) => group.id === activeProfession) ?? calculationProfessionGroups[0];
+  const professionModules = selectedProfession.moduleIds
+    .map((moduleId) => calculationModules.find((module) => module.id === moduleId))
+    .filter((module): module is ModuleCardData => Boolean(module));
+
+  return (
+    <section className="app-screen calculations-overview-screen">
+      <header className="screen-header"><span className="orca-kicker">Profissões e áreas</span><h1>Cálculos</h1><p>Escolha primeiro a área profissional. Depois abra o módulo técnico dentro da página.</p></header>
+      <div className="section-mode-tabs calculation-profession-tabs">
+        {calculationProfessionGroups.map((group) => (
+          <button className={activeProfession === group.id ? 'active' : ''} key={group.id} type="button" onClick={() => onSelectProfession(group.id)}>
+            {group.title}
+          </button>
+        ))}
+      </div>
+      <div className="survey-intro-card">
+        <span className="app-icon tone-green">{selectedProfession.icon}</span>
+        <span><strong>{selectedProfession.title}</strong><small>{selectedProfession.description}</small></span>
+      </div>
+      <div className="module-list-app">{professionModules.map((module) => <ModuleCard key={module.id} module={module} compact onOpen={() => openModule(module)} />)}</div>
+    </section>
+  );
 }
 
 function SurveyScreen({ captures, context, onRemove, onUpdate, onAddMany }: { captures: CalculationCapture[]; context: { activeClient: Client | null; activeWorkOrder: WorkOrder | null }; onRemove: (id: string) => void; onUpdate: (id: string, patch: Partial<CalculationCapture>) => void; onAddMany: (items: CalculationCapture[]) => void }) {
-  const [activeSection, setActiveSection] = useState<SurveySection>('rooms');
+  const [activeSection, setActiveSection] = useState<SurveySection>('context');
   const surveyCaptures = captures.filter((capture) => capture.destination === 'survey' || capture.destination === 'both');
   return (
     <section className="app-screen">
-      <header className="screen-header"><span className="orca-kicker">Guia de campo</span><h1>Levantamento</h1><p>Organize a visita técnica por ambiente, mão de obra, peças e revisão final.</p></header>
+      <header className="screen-header"><span className="orca-kicker">Fluxo de campo</span><h1>Levantamento</h1><p>Registre contexto, serviços, materiais, observações técnicas e revise o que vai para orçamento ou relatório.</p></header>
       <ActiveWorkContextCard {...context} />
       <div className="section-mode-tabs survey-flow-tabs">
-        <button className={activeSection === 'rooms' ? 'active' : ''} type="button" onClick={() => setActiveSection('rooms')}>Ambientes</button>
-        <button className={activeSection === 'services' ? 'active' : ''} type="button" onClick={() => setActiveSection('services')}>Mão de obra</button>
-        <button className={activeSection === 'parts' ? 'active' : ''} type="button" onClick={() => setActiveSection('parts')}>Peças</button>
-        <button className={activeSection === 'manual' ? 'active' : ''} type="button" onClick={() => setActiveSection('manual')}>Bloco manual</button>
-        <button className={activeSection === 'items' ? 'active' : ''} type="button" onClick={() => setActiveSection('items')}>Revisão</button>
+        <button className={activeSection === 'context' ? 'active' : ''} type="button" onClick={() => setActiveSection('context')}>Ambientes</button>
+        <button className={activeSection === 'labor' ? 'active' : ''} type="button" onClick={() => setActiveSection('labor')}>Serviços</button>
+        <button className={activeSection === 'materials' ? 'active' : ''} type="button" onClick={() => setActiveSection('materials')}>Materiais</button>
+        <button className={activeSection === 'notes' ? 'active' : ''} type="button" onClick={() => setActiveSection('notes')}>Observações</button>
+        <button className={activeSection === 'review' ? 'active' : ''} type="button" onClick={() => setActiveSection('review')}>Revisão</button>
       </div>
-      {activeSection === 'rooms' && <GuidedRoomManager />}
-      {activeSection === 'services' && <GuidedBudgetCart mode="catalog" onSendToBudget={onAddMany} />}
-      {activeSection === 'parts' && <MaterialSupplyModeBridge mode="parts" onSendToBudget={onAddMany} />}
-      {activeSection === 'manual' && <GuidedBudgetCart mode="manual" onSendToBudget={onAddMany} />}
-      {activeSection === 'items' && <><div className="survey-intro-card"><span className="app-icon tone-blue">▤</span><span><strong>Revisão do levantamento</strong><small>{surveyCaptures.length} item(ns) salvos para relatório, orçamento ou lista do cliente.</small></span></div><TechnicalCaptureList captures={surveyCaptures} emptyText="Use ambientes, mão de obra, peças ou bloco manual para montar o levantamento." onRemove={onRemove} onUpdate={onUpdate} /></>}
+      {activeSection === 'context' && <><div className="survey-intro-card"><span className="app-icon tone-green">▤</span><span><strong>Ambientes são o contexto do serviço</strong><small>Defina cômodos, áreas e locais para orientar serviços, materiais e observações.</small></span></div><GuidedRoomManager /></>}
+      {activeSection === 'labor' && <><div className="survey-intro-card"><span className="app-icon tone-orange">▣</span><span><strong>Serviços representam mão de obra</strong><small>Adicione tarefas, quantidades e valores que poderão compor o orçamento.</small></span></div><GuidedBudgetCart mode="catalog" onSendToBudget={onAddMany} /></>}
+      {activeSection === 'materials' && <><div className="survey-intro-card"><span className="app-icon tone-blue">▧</span><span><strong>Materiais e peças</strong><small>Separe itens fornecidos pelo profissional, pelo cliente ou em lista mista.</small></span></div><MaterialSupplyModeBridge mode="parts" onSendToBudget={onAddMany} /></>}
+      {activeSection === 'notes' && <><div className="survey-intro-card"><span className="app-icon tone-gray">◌</span><span><strong>Observações técnicas</strong><small>Use este bloco para diagnóstico, recomendações, riscos, fotos e itens que precisam aparecer no relatório.</small></span></div><GuidedBudgetCart mode="manual" onSendToBudget={onAddMany} /></>}
+      {activeSection === 'review' && <><div className="survey-intro-card"><span className="app-icon tone-blue">✓</span><span><strong>Revisão do levantamento</strong><small>{surveyCaptures.length} item(ns) salvos para relatório, orçamento ou lista do cliente.</small></span></div><TechnicalCaptureList captures={surveyCaptures} emptyText="Use ambientes, serviços, materiais ou observações para montar o levantamento." onRemove={onRemove} onUpdate={onUpdate} /></>}
     </section>
   );
 }
@@ -128,6 +154,7 @@ function SettingsScreen() {
 export function App() {
   const [activeTab, setActiveTab] = useState<AppTab>('home');
   const [selectedModule, setSelectedModule] = useState<ModuleCardData | null>(null);
+  const [activeProfession, setActiveProfession] = useState<CalculationProfessionId>('electrical');
   const [captures, setCaptures] = useState<CalculationCapture[]>(() => loadStoredCaptures());
   const [clients, setClients] = useState<Client[]>(() => loadClients());
   const [workOrders, setWorkOrders] = useState<WorkOrder[]>(() => loadWorkOrders());
@@ -166,13 +193,14 @@ export function App() {
 
   function openModule(module: ModuleCardData | null) {
     setSelectedModule(module);
+    if (module) setActiveProfession(getProfessionForModule(module.id));
     setActiveTab('calculations');
   }
 
   return (
     <AppShell activeTab={activeTab} title={getScreenTitle(activeTab, selectedModule)} subtitle={getScreenSubtitle(activeTab, selectedModule)} navItems={navItems} activeClient={activeClient} activeWorkOrder={activeWorkOrder} onNavigate={goTo}>
       {activeTab === 'home' && <HomeScreen goTo={goTo} openModule={openModule} captures={captures} clients={clients} workOrders={workOrders} />}
-      {activeTab === 'calculations' && <CalculationsScreen selectedModule={selectedModule} openModule={openModule} goTo={goTo} onCaptureCalculation={addCalculationCapture} />}
+      {activeTab === 'calculations' && <CalculationsScreen selectedModule={selectedModule} openModule={openModule} activeProfession={activeProfession} onSelectProfession={setActiveProfession} goTo={goTo} onCaptureCalculation={addCalculationCapture} />}
       {activeTab === 'survey' && <SurveyScreen captures={captures} context={context} onRemove={removeCalculationCapture} onUpdate={updateCalculationCapture} onAddMany={addManyCalculationCaptures} />}
       {activeTab === 'budgets' && <BudgetsScreen captures={captures} context={context} onRemove={removeCalculationCapture} onUpdate={updateCalculationCapture} />}
       {activeTab === 'reports' && <ReportsScreen captures={captures} context={context} />}

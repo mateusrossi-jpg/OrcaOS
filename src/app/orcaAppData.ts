@@ -1,5 +1,5 @@
 import type { UserPlan } from '../core/access/featureAccess';
-import type { AppTab, ModuleCardData, ModulePlan } from './orcaAppTypes';
+import type { AppTab, CalculationProfessionGroup, ModuleCardData, ModulePlan } from './orcaAppTypes';
 
 export const userPlan: UserPlan = 'free';
 
@@ -31,6 +31,51 @@ export const calculationModules: ModuleCardData[] = [
   { id: 'transformadores', title: 'Transformadores', description: 'VA, espiras por volt, primário, secundário e fio preliminar', icon: '▤', tone: 'orange', count: 'Em breve', available: false, plan: 'soon' },
   { id: 'solar', title: 'Solar fotovoltaico', description: 'Placas, inversor, cabos, geração, bateria e payback', icon: '☉', tone: 'green', count: 'Em breve', available: false, plan: 'soon' },
   { id: 'rebobinagem', title: 'Rebobinagem', description: 'Bobinas, fechamento, tensão de trabalho e rotação', icon: '⟳', tone: 'muted', count: 'Em breve', available: false, plan: 'soon' },
+];
+
+export const calculationProfessionGroups: CalculationProfessionGroup[] = [
+  {
+    id: 'electrical',
+    title: 'Elétrica',
+    description: 'Fundamentos, instalações, iluminação, motores, automação e módulos previstos para baixa tensão.',
+    icon: 'ϟ',
+    moduleIds: ['fundamentos', 'instalacoes', 'iluminacao', 'motores', 'automacaoIndustrial', 'transformadores', 'solar', 'eletronica', 'rebobinagem'],
+  },
+  {
+    id: 'hydraulics',
+    title: 'Hidráulica',
+    description: 'Reservatório, consumo, autonomia, vazão, enchimento e pressão.',
+    icon: '≋',
+    moduleIds: ['hidraulica'],
+  },
+  {
+    id: 'construction',
+    title: 'Construção civil',
+    description: 'Medições, concreto, alvenaria, piso, revestimento e telhado.',
+    icon: '▧',
+    moduleIds: ['construcaoCivil'],
+  },
+  {
+    id: 'painting',
+    title: 'Pintura',
+    description: 'Área, rendimento, tinta necessária e orçamento simples por metro quadrado.',
+    icon: '▨',
+    moduleIds: ['pintura'],
+  },
+  {
+    id: 'technicalBudget',
+    title: 'Orçamento técnico',
+    description: 'Hora técnica, diária, mão de obra, margem, sinal e preço final.',
+    icon: 'R$',
+    moduleIds: ['orcamentoTecnico'],
+  },
+  {
+    id: 'converters',
+    title: 'Conversores',
+    description: 'Medidas, pressão, potência, temperatura, vazão e unidades de apoio.',
+    icon: '⇄',
+    moduleIds: ['fundamentosGerais', 'conversores'],
+  },
 ];
 
 export const storePackages = [
