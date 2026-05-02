@@ -23,8 +23,8 @@ npm run build
 
 The current app flow is:
 
-- `src/main.tsx` imports `App` from `src/app/AppOrcaNext.tsx`.
-- `AppOrcaNext.tsx` controls the main screens.
+- `src/main.tsx` imports `App` from `src/app/AppOrcaNextOrganized.tsx`.
+- `AppOrcaNextOrganized.tsx` controls the main screens.
 - The guided survey/budget public bridge is `src/features/workflow/components/GuidedBudgetCart.tsx`.
 - Guided budget currently points to an integrated version with kits and catalog support.
 - Captures use `CalculationCapture` from `src/core/types/workflow.ts`.

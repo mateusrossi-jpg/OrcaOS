@@ -187,7 +187,7 @@ Não fazer ainda:
 
 - criar módulos novos;
 - expandir cálculos Pro;
-- reescrever `AppOrcaNext.tsx` sem necessidade;
+- reescrever `AppOrcaNextOrganized.tsx` sem necessidade;
 - alterar taxonomia V1;
 - remover os workspaces humanos;
 - trocar arquitetura local-first.

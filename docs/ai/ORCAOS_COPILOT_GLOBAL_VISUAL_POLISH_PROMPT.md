@@ -174,20 +174,12 @@ Revisar a cascata visual antes de alterar. Arquivos prováveis:
 
 ```txt
 src/styles/global.css
-src/styles/orcaosOfficialTheme.css
-src/styles/orcaosApprovedConcept.css
-src/styles/orcaosLayoutComposition.css
-src/styles/orcaosVisualStabilization.css
-src/styles/responsiveConsistency.css
-src/styles/professionalPolish.css
-src/styles/screenRefinement.css
-src/styles/calculationRefinement.css
-src/styles/calculationTaxonomyVisual.css
+src/styles/orcaosMvpTheme.css
 src/features/calculators/components/GeneralCalculatorWorkspace.css
 src/features/calculators/components/ElectricalFundamentalsHumanWorkspace.css
 ```
 
-Não é obrigatório mexer em todos. Evitar duplicação e conflito entre CSS existentes.
+Evitar recriar as antigas camadas de CSS. O tema visual do RC1 foi consolidado em `global.css` e `orcaosMvpTheme.css`.
 
 ---
 

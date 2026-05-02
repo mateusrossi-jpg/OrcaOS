@@ -155,7 +155,7 @@ Acceptance:
 
 Prompt:
 
-> Add an about/version card in the Settings screen in `AppOrcaNext.tsx`. It should explain this is an initial functional version, data is saved locally in the browser/device, and calculations are preliminary and must be validated in the real installation.
+> Add an about/version card in the Settings screen in `AppOrcaNextOrganized.tsx`. It should explain this is an initial functional version, data is saved locally in the browser/device, and calculations are preliminary and must be validated in the real installation.
 
 Acceptance:
 

@@ -23,11 +23,10 @@ Foram criados ou alterados arquivos relacionados a:
 - `src/features/calculators/components/PaintingHumanWorkspace.tsx`
 - `src/features/calculators/components/ConstructionHumanWorkspace.tsx`
 - `src/features/calculators/components/TechnicalBudgetHumanWorkspace.tsx`
-- `src/features/calculators/components/StableHydraulicsCalculatorWorkspace.tsx`
+- `src/features/calculators/components/UnifiedHydraulicsWorkspace.tsx`
 - `src/features/calculators/components/GeneralCalculatorWorkspace.ts`
 - `src/features/calculators/components/CalculationTaxonomyOverview.tsx`
 - `src/features/calculators/components/CalculationTaxonomyOverview.css`
-- `src/styles/calculationTaxonomyVisual.css`
 - `src/main.tsx`
 
 ### Taxonomia aprovada
@@ -115,7 +114,7 @@ Verifique especialmente:
 - se não há import quebrado;
 - se não há erro por CSS inexistente;
 - se `CalculationTaxonomyOverview.tsx` não causa erro mesmo ainda não sendo a tela principal conectada diretamente;
-- se `calculationTaxonomyVisual.css` não quebra layout mobile;
+- se `global.css` e `orcaosMvpTheme.css` preservam layout mobile;
 - se os campos avançados aparecem/escondem corretamente;
 - se os botões `Adicionar ao levantamento`, `Adicionar ao orçamento` e `Adicionar aos dois` continuam funcionando;
 - se a tela Cálculos ainda permite abrir todos os módulos disponíveis;
@@ -129,7 +128,7 @@ Não fazer agora:
 - não expandir funcionalidades;
 - não reescrever o app inteiro;
 - não alterar arquitetura principal sem necessidade;
-- não mexer em `AppOrcaNext.tsx` se não for obrigatório para corrigir build;
+- não mexer em `AppOrcaNextOrganized.tsx` se não for obrigatório para corrigir build;
 - não trocar a taxonomia V1 aprovada;
 - não remover telas novas humanas já criadas.
 

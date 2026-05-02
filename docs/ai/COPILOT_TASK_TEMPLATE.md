@@ -25,12 +25,12 @@ Leia os documentos:
 ## Arquivos importantes
 
 - `src/main.tsx`
-- `src/app/AppOrcaNext.tsx`
+- `src/app/AppOrcaNextOrganized.tsx`
 - `src/core/types/workflow.ts`
 - `src/core/access/featureAccess.ts`
 - `src/features/workflow/components/GuidedBudgetCartPro.tsx`
 - `src/features/calculators/components/StableGeneralCalculatorWorkspace.tsx`
-- `src/features/calculators/components/StableHydraulicsCalculatorWorkspace.tsx`
+- `src/features/calculators/components/UnifiedHydraulicsWorkspace.tsx`
 - `src/data/parts/catalogParts.ts`
 
 ## Modelo de pedido

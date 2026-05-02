@@ -12,8 +12,8 @@ Do not add backend assumptions unless asked. The current product is a frontend p
 
 ## Current entry points
 
-- `src/main.tsx` imports `App` from `src/app/AppOrcaNext.tsx`.
-- `src/app/AppOrcaNext.tsx` is the current app composition root.
+- `src/main.tsx` imports `App` from `src/app/AppOrcaNextOrganized.tsx`.
+- `src/app/AppOrcaNextOrganized.tsx` is the current app composition root.
 - `src/app/components/AppShell.tsx` is the main navigation shell.
 
 ## Main domains
@@ -43,7 +43,7 @@ Responsible for:
 - access plan type;
 - calculator access rules for electrical calculators.
 
-When adding modules, make sure the `CalculatorModule` union remains compatible with AppOrcaNext and calculator workspaces.
+When adding modules, make sure the `CalculatorModule` union remains compatible with AppOrcaNextOrganized and calculator workspaces.
 
 ### Shared workflow types
 
@@ -82,11 +82,11 @@ Paths:
 - `src/features/calculators/components/ElectricalCalculatorWorkspace.tsx`
 - `src/features/calculators/components/GeneralCalculatorWorkspace.ts`
 - `src/features/calculators/components/StableGeneralCalculatorWorkspace.tsx`
-- `src/features/calculators/components/StableHydraulicsCalculatorWorkspace.tsx`
+- `src/features/calculators/components/UnifiedHydraulicsWorkspace.tsx`
 
 `GeneralCalculatorWorkspace.ts` is a bridge that exports the current stable general calculator workspace.
 
-Hydraulics currently should be imported from `StableHydraulicsCalculatorWorkspace.tsx`.
+Hydraulics should be opened through `UnifiedHydraulicsWorkspace.tsx`; the stable hydraulics workspace remains an internal basic tab.
 
 Avoid using experimental older files unless intentionally fixing/refactoring them.
 

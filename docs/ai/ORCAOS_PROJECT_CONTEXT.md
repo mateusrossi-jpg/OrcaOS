@@ -75,7 +75,7 @@ The app has:
 - client/work-order workspace;
 - internal catalog parts base.
 
-The current main entry should be `src/app/AppOrcaNext.tsx`, imported by `src/main.tsx`.
+The current main entry should be `src/app/AppOrcaNextOrganized.tsx`, imported by `src/main.tsx`.
 
 ## Important recent decisions
 

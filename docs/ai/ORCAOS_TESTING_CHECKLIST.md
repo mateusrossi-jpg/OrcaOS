@@ -132,7 +132,7 @@ Check:
 
 Be careful with these files:
 
-- `src/app/AppOrcaNext.tsx`
+- `src/app/AppOrcaNextOrganized.tsx`
 - `src/main.tsx`
 - `src/core/types/workflow.ts`
 - `src/core/access/featureAccess.ts`

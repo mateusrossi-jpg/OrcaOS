@@ -125,7 +125,7 @@ Regras:
 - corrigir apenas erros reais;
 - não reescrever o app inteiro;
 - não criar módulos novos;
-- não mexer em `AppOrcaNext.tsx` sem necessidade;
+- não mexer em `AppOrcaNextOrganized.tsx` sem necessidade;
 - não alterar taxonomia V1;
 - manter arquitetura local-first.
 
