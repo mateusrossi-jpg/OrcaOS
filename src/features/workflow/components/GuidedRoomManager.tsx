@@ -213,12 +213,15 @@ export function GuidedRoomManager() {
 
         {filteredRooms.length > 0 ? (
           <>
-            <label className="guided-room-search">
-              <span>Ambiente selecionado</span>
-              <select value={selectedRoom?.id ?? ''} onChange={(event) => setSelectedRoomId(event.target.value)}>
-                {filteredRooms.map((room) => <option key={room.id} value={room.id}>{room.name} · {guidedRoomTypeLabel(room.type)}</option>)}
-              </select>
-            </label>
+            <div className="guided-room-card-list">
+              {filteredRooms.map((room) => (
+                <button className={room.id === selectedRoom?.id ? 'guided-room-option active' : 'guided-room-option'} key={room.id} type="button" onClick={() => useRoomAsCurrent(room)}>
+                  <span>{guidedRoomTypeLabel(room.type)}</span>
+                  <strong>{room.name}</strong>
+                  <small>{room.notes || 'Toque para usar nos próximos lançamentos'}</small>
+                </button>
+              ))}
+            </div>
 
             {selectedRoom && (
               <article className="guided-room-selected">
@@ -228,7 +231,7 @@ export function GuidedRoomManager() {
                   <small>{selectedRoom.notes || 'Sem observação'}</small>
                 </div>
                 <div className="guided-room-actions">
-                  <button className="primary-action inline-action" type="button" onClick={() => useRoomAsCurrent(selectedRoom)}>Usar</button>
+                  <button className="primary-action inline-action" type="button" onClick={() => useRoomAsCurrent(selectedRoom)}>Usar este cômodo</button>
                   <button className="secondary-action inline-action" type="button" onClick={() => startEditRoom(selectedRoom)}>Editar</button>
                   <button className="secondary-action inline-action" type="button" onClick={() => duplicateRoom(selectedRoom)}>Duplicar</button>
                   <button className="danger-action" type="button" onClick={() => removeRoom(selectedRoom.id)}>Remover</button>

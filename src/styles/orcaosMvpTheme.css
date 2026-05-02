@@ -660,6 +660,91 @@ button {
   gap: 12px;
 }
 
+.account-settings-panel {
+  border: 1px solid var(--orca-border);
+  border-radius: 24px;
+  padding: 16px;
+  background:
+    radial-gradient(circle at top right, rgba(34, 197, 94, 0.055), transparent 13rem),
+    linear-gradient(145deg, var(--orca-surface), var(--orca-surface-2));
+}
+
+.settings-panel-title {
+  display: grid;
+  gap: 5px;
+}
+
+.settings-panel-title h2 {
+  margin: 0;
+  color: var(--orca-text);
+  font-size: 1.28rem;
+}
+
+.settings-panel-title p {
+  margin: 0;
+  color: var(--orca-muted);
+  line-height: 1.45;
+}
+
+.account-status-grid,
+.settings-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.account-email-card {
+  display: grid;
+  gap: 14px;
+  border: 1px solid var(--orca-border);
+  border-radius: 20px;
+  padding: 14px;
+  background: rgba(7, 11, 9, 0.28);
+}
+
+.account-email-card strong,
+.account-email-card small {
+  display: block;
+}
+
+.account-email-card strong {
+  color: var(--orca-text);
+  font-size: 1.05rem;
+}
+
+.account-email-card small {
+  margin-top: 4px;
+  color: var(--orca-muted);
+  line-height: 1.35;
+}
+
+.settings-actions-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.settings-actions-row button {
+  min-height: 44px;
+  border: 1px solid var(--orca-border-strong);
+  border-radius: 999px;
+  padding: 0 16px;
+  color: #04130a;
+  background: var(--orca-green);
+  font: inherit;
+  font-weight: 900;
+}
+
+.settings-actions-row button.secondary-action,
+.settings-actions-row button:disabled {
+  color: var(--orca-green);
+  background: rgba(34, 197, 94, 0.08);
+}
+
+.settings-actions-row button:disabled {
+  opacity: 0.58;
+}
+
 .catalog-hub-organized {
   display: grid;
   gap: 14px;
@@ -1843,6 +1928,25 @@ textarea::placeholder {
 }
 
 @media (max-width: 720px) {
+  .account-status-grid,
+  .settings-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .account-settings-panel,
+  .account-email-card {
+    border-radius: 18px;
+    padding: 14px;
+  }
+
+  .settings-actions-row {
+    display: grid;
+  }
+
+  .settings-actions-row button {
+    width: 100%;
+  }
+
   .store-card,
   .module-detail-header,
   .module-list-app .module-app-card,

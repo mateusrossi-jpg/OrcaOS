@@ -98,6 +98,9 @@ export function ClientWorkOrderWorkspace({ onContextChange }: ClientWorkOrderWor
   const [activeWorkOrderId, setActiveWorkOrderId] = useState<string | null>(() => loadActiveWorkOrderId());
   const [clientDraft, setClientDraft] = useState<ClientDraft>(emptyClientDraft);
   const [workOrderDraft, setWorkOrderDraft] = useState<WorkOrderDraft>(emptyWorkOrderDraft);
+  const [clientSearch, setClientSearch] = useState('');
+  const [workOrderSearch, setWorkOrderSearch] = useState('');
+  const [clientPickerSearch, setClientPickerSearch] = useState('');
 
   const activeWorkOrder = workOrders.find((workOrder) => workOrder.id === activeWorkOrderId) ?? null;
   const activeClient = activeWorkOrder?.clientId ? clients.find((client) => client.id === activeWorkOrder.clientId) ?? null : null;
@@ -106,6 +109,24 @@ export function ClientWorkOrderWorkspace({ onContextChange }: ClientWorkOrderWor
     () => [...workOrders].sort((a, b) => (b.updatedAt ?? b.createdAt ?? '').localeCompare(a.updatedAt ?? a.createdAt ?? '')),
     [workOrders],
   );
+  const filteredClients = useMemo(() => {
+    const query = clientSearch.trim().toLowerCase();
+    if (!query) return clients;
+    return clients.filter((client) => [client.name, client.phone, client.email, client.address, client.notes].filter(Boolean).join(' ').toLowerCase().includes(query));
+  }, [clientSearch, clients]);
+  const filteredWorkOrders = useMemo(() => {
+    const query = workOrderSearch.trim().toLowerCase();
+    if (!query) return sortedWorkOrders;
+    return sortedWorkOrders.filter((workOrder) => {
+      const client = workOrder.clientId ? clients.find((item) => item.id === workOrder.clientId) : null;
+      return [workOrder.title, workOrder.description, workOrder.address, statusLabel(workOrder.status), priorityLabel(workOrder.priority), client?.name, client?.phone, client?.email].filter(Boolean).join(' ').toLowerCase().includes(query);
+    });
+  }, [clients, sortedWorkOrders, workOrderSearch]);
+  const clientPickerResults = useMemo(() => {
+    const query = clientPickerSearch.trim().toLowerCase();
+    const source = query ? clients.filter((client) => [client.name, client.phone, client.email, client.address].filter(Boolean).join(' ').toLowerCase().includes(query)) : clients;
+    return source.slice(0, 6);
+  }, [clientPickerSearch, clients]);
 
   const openWorkOrders = workOrders.filter((workOrder) => workOrder.status !== 'done' && workOrder.status !== 'cancelled').length;
   const doneWorkOrders = workOrders.filter((workOrder) => workOrder.status === 'done').length;
@@ -305,7 +326,26 @@ export function ClientWorkOrderWorkspace({ onContextChange }: ClientWorkOrderWor
           </div>
 
           <div className="client-os-grid">
-            <label className="budget-field"><span>Cliente</span><select value={workOrderDraft.clientId} onChange={(event) => fillWorkOrderAddressFromClient(event.target.value)}><option value="">Sem cliente vinculado</option>{clients.map((client) => <option key={client.id} value={client.id}>{client.name}</option>)}</select></label>
+            <div className="client-os-wide client-picker-block">
+              <div className="client-os-picker-head">
+                <span>Cliente vinculado</span>
+                <strong>{clients.find((client) => client.id === workOrderDraft.clientId)?.name ?? 'Sem cliente vinculado'}</strong>
+                <small>Busque pelo nome, telefone, e-mail ou endereço. Isso escala melhor quando houver muitos clientes.</small>
+              </div>
+              <label className="budget-field client-os-wide">
+                <span>Buscar cliente</span>
+                <input value={clientPickerSearch} placeholder="Digite nome, telefone ou endereço..." onChange={(event) => setClientPickerSearch(event.target.value)} />
+              </label>
+              <div className="client-picker-results">
+                <button className={!workOrderDraft.clientId ? 'active' : ''} type="button" onClick={() => fillWorkOrderAddressFromClient('')}>Sem cliente</button>
+                {clientPickerResults.map((client) => (
+                  <button className={workOrderDraft.clientId === client.id ? 'active' : ''} key={client.id} type="button" onClick={() => fillWorkOrderAddressFromClient(client.id)}>
+                    <strong>{client.name}</strong>
+                    <small>{[client.phone, client.email, client.address].filter(Boolean).join(' · ') || 'Sem contato'}</small>
+                  </button>
+                ))}
+              </div>
+            </div>
             <label className="budget-field"><span>Status</span><select value={workOrderDraft.status} onChange={(event) => updateWorkOrderDraft('status', event.target.value as WorkOrder['status'])}><option value="open">Aberta</option><option value="scheduled">Agendada</option><option value="in-progress">Em execução</option><option value="done">Concluída</option><option value="cancelled">Cancelada</option></select></label>
             <label className="budget-field client-os-wide"><span>Título da OS</span><input value={workOrderDraft.title} placeholder="Ex.: Troca de tomadas e revisão de iluminação" onChange={(event) => updateWorkOrderDraft('title', event.target.value)} /></label>
             <label className="budget-field client-os-wide"><span>Descrição</span><textarea value={workOrderDraft.description} onChange={(event) => updateWorkOrderDraft('description', event.target.value)} /></label>
@@ -327,8 +367,12 @@ export function ClientWorkOrderWorkspace({ onContextChange }: ClientWorkOrderWor
             </div>
             <button className="primary-action inline-action" type="button" onClick={() => setActiveSection('newClient')}>Novo cliente</button>
           </div>
+          <label className="budget-field client-os-wide client-os-search-field">
+            <span>Buscar cliente</span>
+            <input value={clientSearch} placeholder="Nome, WhatsApp, e-mail, endereço..." onChange={(event) => setClientSearch(event.target.value)} />
+          </label>
           <div className="client-os-list">
-            {clients.length === 0 ? <div className="client-os-empty">Nenhum cliente cadastrado ainda.</div> : clients.map((client) => (
+            {clients.length === 0 ? <div className="client-os-empty">Nenhum cliente cadastrado ainda.</div> : filteredClients.length === 0 ? <div className="client-os-empty">Nenhum cliente encontrado para essa busca.</div> : filteredClients.map((client) => (
               <article className="client-os-card" key={client.id}>
                 <div>
                   <strong>{client.name}</strong>
@@ -351,8 +395,12 @@ export function ClientWorkOrderWorkspace({ onContextChange }: ClientWorkOrderWor
             </div>
             <button className="primary-action inline-action" type="button" onClick={() => setActiveSection('newWorkOrder')}>Nova OS</button>
           </div>
+          <label className="budget-field client-os-wide client-os-search-field">
+            <span>Buscar OS</span>
+            <input value={workOrderSearch} placeholder="Título, cliente, status, endereço..." onChange={(event) => setWorkOrderSearch(event.target.value)} />
+          </label>
           <div className="client-os-list">
-            {sortedWorkOrders.length === 0 ? <div className="client-os-empty">Nenhuma OS cadastrada ainda.</div> : sortedWorkOrders.map((workOrder) => {
+            {sortedWorkOrders.length === 0 ? <div className="client-os-empty">Nenhuma OS cadastrada ainda.</div> : filteredWorkOrders.length === 0 ? <div className="client-os-empty">Nenhuma OS encontrada para essa busca.</div> : filteredWorkOrders.map((workOrder) => {
               const client = workOrder.clientId ? clients.find((item) => item.id === workOrder.clientId) : null;
               const isActive = workOrder.id === activeWorkOrderId;
 
