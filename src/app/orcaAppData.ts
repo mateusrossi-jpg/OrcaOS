@@ -9,7 +9,7 @@ export const navItems: Array<{ id: AppTab; label: string; description: string; i
   { id: 'calculations', label: 'Cálculos', description: 'Setores técnicos e calculadoras', icon: '▦', section: 'Técnico' },
   { id: 'survey', label: 'Levantamento', description: 'Campo, ambientes e itens', icon: '▤', section: 'Técnico' },
   { id: 'budgets', label: 'Orçamentos', description: 'Proposta comercial', icon: '▣', section: 'Comercial' },
-  { id: 'catalog', label: 'Catálogo / Estoque', description: 'Itens, fornecedores e compras', icon: '▥', section: 'Comercial' },
+  { id: 'catalog', label: 'Catálogo', description: 'Itens, busca, fornecedores e estoque', icon: 'CT', section: 'Comercial' },
   { id: 'reports', label: 'Relatórios', description: 'PDFs e diagnósticos', icon: '◫', section: 'Comercial' },
   { id: 'settings', label: 'Configurações', description: 'Perfil, backup e preferências', icon: '⚙', section: 'Sistema' },
   { id: 'store', label: 'Loja / Pro', description: 'Pacotes e planos', icon: '◆', section: 'Sistema' },

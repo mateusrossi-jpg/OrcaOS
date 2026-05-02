@@ -233,7 +233,7 @@ function BudgetsScreen({ captures, context, onRemove, onUpdate }: { captures: Ca
 }
 
 function CatalogScreen({ onAddMany }: { onAddMany: (items: CalculationCapture[]) => void }) {
-  return <section className="app-screen wide-screen"><header className="screen-header"><span className="orca-kicker">Gestão operacional</span><h1>Catálogo</h1><p>Organize itens, fornecedores, compras, impostos e margem em áreas separadas.</p></header><CatalogHubWorkspace onSendToBudget={onAddMany} /></section>;
+  return <section className="app-screen wide-screen"><header className="screen-header"><span className="orca-kicker">Gestão operacional</span><h1>Catálogo</h1><p>Escolha entre catálogo, busca online, fornecedores, compras/estoque e preço com margem.</p></header><CatalogHubWorkspace onSendToBudget={onAddMany} /></section>;
 }
 
 function ReportsScreen({ captures, context }: { captures: CalculationCapture[]; context: { activeClient: Client | null; activeWorkOrder: WorkOrder | null } }) {

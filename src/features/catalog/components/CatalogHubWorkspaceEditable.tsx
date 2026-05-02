@@ -15,6 +15,8 @@ import './CatalogHubWorkspace.css';
 
 interface CatalogHubWorkspaceProps {
   onSendToBudget: (items: CalculationCapture[]) => void;
+  initialTab?: CatalogTab;
+  enabledTabs?: CatalogTab[];
 }
 
 type CatalogTab = 'items' | 'suppliers' | 'online';
@@ -173,8 +175,9 @@ function createCaptureFromCatalogItem(item: CatalogHubItem): CalculationCapture 
   };
 }
 
-export function CatalogHubWorkspace({ onSendToBudget }: CatalogHubWorkspaceProps) {
-  const [activeTab, setActiveTab] = useState<CatalogTab>('items');
+export function CatalogHubWorkspace({ onSendToBudget, initialTab = 'items', enabledTabs }: CatalogHubWorkspaceProps) {
+  const availableTabs = enabledTabs ?? ['items', 'suppliers', 'online'];
+  const [activeTab, setActiveTab] = useState<CatalogTab>(availableTabs.includes(initialTab) ? initialTab : availableTabs[0] ?? 'items');
   const [items, setItems] = useState<CatalogHubItem[]>(() => loadCatalogHubItems());
   const [suppliers, setSuppliers] = useState<CatalogSupplier[]>(() => loadCatalogSuppliers());
   const [itemDraft, setItemDraft] = useState<ItemDraft>(emptyItemDraft);
@@ -316,18 +319,20 @@ export function CatalogHubWorkspace({ onSendToBudget }: CatalogHubWorkspaceProps
     <section className="catalog-hub-workspace">
       <div className="catalog-hub-header">
         <div>
-          <span className="orca-kicker">Cadastro profissional</span>
-          <h2>Catálogo, serviços e fornecedores</h2>
-          <p>Cadastre materiais, serviços, fornecedores e use consultas online como apoio para montar orçamento guiado.</p>
+          <span className="orca-kicker">{activeTab === 'online' ? 'Referência de produto' : 'Catálogo profissional'}</span>
+          <h2>{activeTab === 'online' ? 'Buscar produto real para referência' : 'Itens e serviços reutilizáveis'}</h2>
+          <p>{activeTab === 'online' ? 'Pesquise no fornecedor, escolha o produto real e traga preço/modelo para o cadastro.' : 'Cadastre materiais, peças e serviços recorrentes para enviar ao levantamento ou orçamento guiado.'}</p>
         </div>
         <strong>{items.length} itens · {suppliers.length} fornecedores</strong>
       </div>
 
-      <div className="section-mode-tabs">
-        <button className={activeTab === 'items' ? 'active' : ''} type="button" onClick={() => setActiveTab('items')}>Itens e serviços</button>
-        <button className={activeTab === 'suppliers' ? 'active' : ''} type="button" onClick={() => setActiveTab('suppliers')}>Fornecedores</button>
-        <button className={activeTab === 'online' ? 'active' : ''} type="button" onClick={() => setActiveTab('online')}>Consulta online</button>
-      </div>
+      {availableTabs.length > 1 && (
+        <div className="section-mode-tabs">
+          {availableTabs.includes('items') && <button className={activeTab === 'items' ? 'active' : ''} type="button" onClick={() => setActiveTab('items')}>Itens e serviços</button>}
+          {availableTabs.includes('suppliers') && <button className={activeTab === 'suppliers' ? 'active' : ''} type="button" onClick={() => setActiveTab('suppliers')}>Fornecedores</button>}
+          {availableTabs.includes('online') && <button className={activeTab === 'online' ? 'active' : ''} type="button" onClick={() => setActiveTab('online')}>Consulta online</button>}
+        </div>
+      )}
 
       {activeTab === 'items' && (
         <>

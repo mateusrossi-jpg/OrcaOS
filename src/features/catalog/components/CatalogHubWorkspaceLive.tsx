@@ -5,9 +5,11 @@ import { CatalogHubWorkspace as CatalogHubWorkspaceEditable } from './CatalogHub
 
 interface CatalogHubWorkspaceLiveProps {
   onSendToBudget: (items: CalculationCapture[]) => void;
+  initialTab?: 'items' | 'suppliers' | 'online';
+  enabledTabs?: Array<'items' | 'suppliers' | 'online'>;
 }
 
-export function CatalogHubWorkspace({ onSendToBudget }: CatalogHubWorkspaceLiveProps) {
+export function CatalogHubWorkspace({ onSendToBudget, initialTab, enabledTabs }: CatalogHubWorkspaceLiveProps) {
   const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
@@ -19,5 +21,5 @@ export function CatalogHubWorkspace({ onSendToBudget }: CatalogHubWorkspaceLiveP
     return () => window.removeEventListener(CATALOG_HUB_ITEMS_CHANGED_EVENT, handleCatalogChanged);
   }, []);
 
-  return <CatalogHubWorkspaceEditable key={refreshKey} onSendToBudget={onSendToBudget} />;
+  return <CatalogHubWorkspaceEditable key={refreshKey} initialTab={initialTab} enabledTabs={enabledTabs} onSendToBudget={onSendToBudget} />;
 }
