@@ -6,9 +6,9 @@ Data: 2026-05-02
 
 Esta etapa fecha o fluxo comercial minimo antes do pagamento integrado:
 
-1. usuario entra com Google;
+1. usuario cadastra e-mail proprio ou entra com Google;
 2. app chama `VITE_ORCAOS_ENTITLEMENTS_ENDPOINT`;
-3. endpoint confere se o email ou `userId` esta na allowlist Pro;
+3. endpoint confere se o e-mail cadastrado, e-mail Google ou `userId` esta na allowlist Pro;
 4. app atualiza `accountPlanStorage`;
 5. gate central libera ou bloqueia calculos Pro.
 
@@ -30,14 +30,14 @@ ORCAOS_ENTITLEMENTS_API_KEY=
 ORCAOS_PRO_USERS=cliente@email.com,google:123456789
 ```
 
-`ORCAOS_PRO_USERS` aceita emails e IDs Google salvos como `google:<sub>`.
+`ORCAOS_PRO_USERS` aceita e-mails cadastrados, e-mails Google e IDs Google salvos como `google:<sub>`.
 
 ## Como Vender No Beta
 
 1. Receba pagamento manualmente ou por link externo.
 2. Adicione o email Google do cliente em `ORCAOS_PRO_USERS`.
 3. Redeploy/restart do endpoint, se a plataforma exigir.
-4. Cliente entra com Google em Configuracoes.
+4. Cliente cadastra o e-mail em Configuracoes ou vincula a conta Google.
 5. Cliente abre Loja / Pro e clica em Verificar assinatura.
 6. App passa para Pro.
 

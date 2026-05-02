@@ -1,6 +1,6 @@
 import type { UserPlan } from './featureAccess';
 
-export type OrcaAccountStatus = 'guest' | 'local' | 'google';
+export type OrcaAccountStatus = 'guest' | 'email' | 'local' | 'google';
 export type OrcaPlanSource = 'free' | 'local-test' | 'subscription';
 
 export interface GoogleAccountProfile {
@@ -37,6 +37,10 @@ function createLocalUserId(): string {
   return `local-${Date.now()}-${Math.round(Math.random() * 1000)}`;
 }
 
+function normalizeEmail(email: string): string {
+  return email.trim().toLowerCase();
+}
+
 function emitChanged(): void {
   if (typeof window === 'undefined') return;
   window.dispatchEvent(new CustomEvent(ORCA_ACCOUNT_CHANGED_EVENT));
@@ -58,10 +62,10 @@ function normalizeAccount(value: Partial<OrcaAccountState> | null): OrcaAccountS
   if (!value) return null;
   const plan: UserPlan = value.plan === 'pro' ? 'pro' : 'free';
   return {
-    status: value.status === 'google' ? 'google' : value.status === 'local' ? 'local' : 'guest',
+    status: value.status === 'google' ? 'google' : value.status === 'email' ? 'email' : value.status === 'local' ? 'local' : 'guest',
     userId: value.userId ?? null,
-    displayName: value.displayName?.trim() || (value.status === 'google' ? 'Conta Google' : value.status === 'local' ? 'Profissional local' : 'Visitante'),
-    email: value.email?.trim() || '',
+    displayName: value.displayName?.trim() || (value.status === 'google' ? 'Conta Google' : value.status === 'email' ? 'Conta por e-mail' : value.status === 'local' ? 'Profissional local' : 'Visitante'),
+    email: value.email ? normalizeEmail(value.email) : '',
     plan,
     planSource: value.planSource === 'subscription' ? 'subscription' : value.planSource === 'local-test' ? 'local-test' : plan === 'pro' ? 'local-test' : 'free',
     updatedAt: value.updatedAt || now(),
@@ -109,14 +113,33 @@ export function signInLocalAccount(displayName = 'Profissional local', email = '
   return next;
 }
 
+export function signInEmailAccount(email: string, displayName = ''): OrcaAccountState {
+  const normalizedEmail = normalizeEmail(email);
+  if (!normalizedEmail || !normalizedEmail.includes('@')) throw new Error('Informe um e-mail válido para cadastrar a conta.');
+
+  const current = loadAccountState();
+  const next: OrcaAccountState = {
+    ...current,
+    status: 'email',
+    userId: `email:${normalizedEmail}`,
+    displayName: displayName.trim() || normalizedEmail,
+    email: normalizedEmail,
+    updatedAt: now(),
+  };
+  saveAccountState(next);
+  return next;
+}
+
 export function signInGoogleAccount(profile: GoogleAccountProfile): OrcaAccountState {
   const current = loadAccountState();
+  const googleEmail = profile.email ? normalizeEmail(profile.email) : '';
+  const sameRegisteredEmail = Boolean(current.email && googleEmail && current.email === googleEmail);
   const next: OrcaAccountState = {
     ...current,
     status: 'google',
     userId: `google:${profile.sub}`,
-    displayName: profile.name?.trim() || profile.email?.trim() || 'Conta Google',
-    email: profile.email?.trim() || '',
+    displayName: profile.name?.trim() || (sameRegisteredEmail ? current.displayName : googleEmail) || 'Conta Google',
+    email: googleEmail || current.email,
     updatedAt: now(),
   };
   saveAccountState(next);

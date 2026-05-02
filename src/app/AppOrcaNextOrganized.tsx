@@ -3,6 +3,7 @@ import {
   loadAccountState,
   ORCA_ACCOUNT_CHANGED_EVENT,
   setLocalUserPlan,
+  signInEmailAccount,
   signInGoogleAccount,
   signInLocalAccount,
   signOutLocalAccount,
@@ -346,9 +347,21 @@ function StoreScreen({ account, onAccountChange }: { account: OrcaAccountState; 
 function SettingsScreen({ account, onAccountChange }: { account: OrcaAccountState; onAccountChange: (account: OrcaAccountState) => void }) {
   const [feedback, setFeedback] = useState<string | null>(null);
   const [isSigningIn, setIsSigningIn] = useState(false);
+  const [emailDraft, setEmailDraft] = useState(account.email);
+  const [nameDraft, setNameDraft] = useState(account.displayName === 'Visitante' ? '' : account.displayName);
   const googleReady = isGoogleAccountLoginConfigured();
-  const accountLabel = account.status === 'google' ? account.displayName : account.status === 'local' ? account.displayName : 'Sem login';
-  const accountDescription = account.status === 'google' ? account.email || 'Conta Google conectada' : account.status === 'local' ? 'Conta local de teste preparada para login real depois' : 'Modo visitante local-first';
+  const accountLabel = account.status === 'google' || account.status === 'email' || account.status === 'local' ? account.displayName : 'Sem login';
+  const accountDescription = account.status === 'google' ? `${account.email || 'E-mail não informado'} · Google vinculado` : account.status === 'email' ? `${account.email} · cadastro por e-mail` : account.status === 'local' ? 'Conta local de teste preparada para login real depois' : 'Modo visitante local-first';
+
+  function registerEmailAccount() {
+    try {
+      const nextAccount = signInEmailAccount(emailDraft, nameDraft);
+      onAccountChange(nextAccount);
+      setFeedback('Conta por e-mail cadastrada.');
+    } catch (error) {
+      setFeedback(error instanceof Error ? error.message : 'Não foi possível cadastrar e-mail.');
+    }
+  }
 
   async function connectGoogle() {
     setIsSigningIn(true);
@@ -365,7 +378,7 @@ function SettingsScreen({ account, onAccountChange }: { account: OrcaAccountStat
     }
   }
 
-  return <section className="app-screen wide-screen"><header className="screen-header"><span className="orca-kicker">Preferências</span><h1>Configurações</h1><p>Perfil profissional, backup, plano e preferências do app.</p></header><div className="settings-group"><h2>Conta</h2><article className="settings-row"><span><strong>{accountLabel}</strong><small>{accountDescription}</small></span></article><article className="settings-row"><span><strong>Meu plano</strong><small>{account.plan === 'pro' ? 'Pro ativo neste ambiente' : 'Grátis · base inicial ativa'}</small></span></article><div className="general-capture-actions"><button type="button" disabled={!googleReady || isSigningIn} onClick={connectGoogle}>{isSigningIn ? 'Conectando...' : 'Entrar com Google'}</button><button className="secondary-action" type="button" onClick={() => onAccountChange(signInLocalAccount())}>Entrar localmente</button><button className="secondary-action" type="button" onClick={() => onAccountChange(signOutLocalAccount())}>Sair</button></div>{!googleReady && <p className="general-helper-text">Configure VITE_GOOGLE_CLIENT_ID para ativar login Google neste ambiente.</p>}{feedback && <p className="general-added-message">{feedback}</p>}<article className="settings-row"><span><strong>Roadmap</strong><small>Assinatura e backup automático serão conectados a esta camada de conta.</small></span></article></div><LocalBackupWorkspace /></section>;
+  return <section className="app-screen wide-screen"><header className="screen-header"><span className="orca-kicker">Preferências</span><h1>Configurações</h1><p>Perfil profissional, backup, plano e preferências do app.</p></header><div className="settings-group"><h2>Conta</h2><article className="settings-row"><span><strong>{accountLabel}</strong><small>{accountDescription}</small></span></article><article className="settings-row"><span><strong>Meu plano</strong><small>{account.plan === 'pro' ? 'Pro ativo neste ambiente' : 'Grátis · base inicial ativa'}</small></span></article><div className="settings-row"><span><strong>Cadastro por e-mail</strong><small>Use o mesmo e-mail da conta Google para vincular os dois acessos.</small></span></div><div className="general-calculator-form"><label className="general-form-field"><span>Nome</span><input value={nameDraft} placeholder="Nome profissional" onChange={(event) => setNameDraft(event.target.value)} /></label><label className="general-form-field"><span>E-mail</span><input type="email" value={emailDraft} placeholder="seu@email.com" onChange={(event) => setEmailDraft(event.target.value)} /></label></div><div className="general-capture-actions"><button type="button" onClick={registerEmailAccount}>Cadastrar e-mail</button><button type="button" disabled={!googleReady || isSigningIn} onClick={connectGoogle}>{isSigningIn ? 'Conectando...' : 'Vincular Google'}</button><button className="secondary-action" type="button" onClick={() => onAccountChange(signInLocalAccount())}>Entrar localmente</button><button className="secondary-action" type="button" onClick={() => onAccountChange(signOutLocalAccount())}>Sair</button></div>{!googleReady && <p className="general-helper-text">Configure VITE_GOOGLE_CLIENT_ID para ativar login Google neste ambiente.</p>}{feedback && <p className="general-added-message">{feedback}</p>}<article className="settings-row"><span><strong>Roadmap</strong><small>Assinatura e backup automático serão conectados a esta camada de conta.</small></span></article></div><LocalBackupWorkspace /></section>;
 }
 
 export function App() {
