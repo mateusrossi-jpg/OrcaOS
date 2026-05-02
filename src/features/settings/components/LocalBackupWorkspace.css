@@ -3,7 +3,8 @@
   gap: 18px;
 }
 
-.google-drive-backup-panel {
+.google-drive-backup-panel,
+.app-security-panel {
   margin-bottom: 18px;
 }
 
