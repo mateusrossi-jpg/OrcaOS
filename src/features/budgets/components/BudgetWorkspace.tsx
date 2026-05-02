@@ -97,6 +97,8 @@ function statusLabel(status: SavedBudgetStatus): string {
     sent: 'Enviado',
     approved: 'Aprovado',
     rejected: 'Recusado',
+    expired: 'Vencido',
+    cancelled: 'Cancelado',
   };
   return labels[status];
 }
@@ -146,6 +148,8 @@ function calculateSavedBudgetTotal(record: SavedBudgetRecord): number {
     title: record.title,
     status: record.status,
     discount: record.discount,
+    travelCost: record.travelCost,
+    additionalFees: record.additionalFees,
     items: record.items,
   };
   return calculateBudgetTotal(budget);
@@ -216,11 +220,19 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
   const [selectedTemplate, setSelectedTemplate] = useState<BudgetTemplateId>('professional');
   const [catalogItems, setCatalogItems] = useState<CatalogItem[]>(() => loadCatalogItems());
   const [catalogDraft, setCatalogDraft] = useState<DraftCatalogItem>(emptyCatalogDraft);
-  const [items, setItems] = useState<BudgetItem[]>(savedDraft?.items ?? starterElectricalBudgetItems);
+  const [items, setItems] = useState<BudgetItem[]>(savedDraft?.items ?? []);
   const [draft, setDraft] = useState<DraftBudgetItem>(emptyDraftItem);
   const [discount, setDiscount] = useState(savedDraft?.discount ?? 0);
-  const [clientName, setClientName] = useState(savedDraft?.clientName ?? 'Cliente exemplo');
-  const [budgetTitle, setBudgetTitle] = useState(savedDraft?.budgetTitle ?? 'Serviços elétricos');
+  const [travelCost, setTravelCost] = useState(savedDraft?.travelCost ?? 0);
+  const [additionalFees, setAdditionalFees] = useState(savedDraft?.additionalFees ?? 0);
+  const [paymentTerms, setPaymentTerms] = useState(savedDraft?.paymentTerms || savedBusinessProfile.defaultPaymentTerms);
+  const [validity, setValidity] = useState(savedDraft?.validity || savedBusinessProfile.defaultValidity);
+  const [guarantee, setGuarantee] = useState(savedDraft?.guarantee || savedBusinessProfile.defaultGuarantee);
+  const [executionDeadline, setExecutionDeadline] = useState(savedDraft?.executionDeadline || savedBusinessProfile.defaultExecutionDeadline);
+  const [commercialNotes, setCommercialNotes] = useState(savedDraft?.commercialNotes || savedBusinessProfile.defaultNotes);
+  const [technicalNotes, setTechnicalNotes] = useState(savedDraft?.technicalNotes ?? '');
+  const [clientName, setClientName] = useState(savedDraft?.clientName ?? activeClient?.name ?? '');
+  const [budgetTitle, setBudgetTitle] = useState(savedDraft?.budgetTitle ?? activeWorkOrder?.title ?? '');
   const [budgetStatus, setBudgetStatus] = useState<SavedBudgetStatus>('draft');
   const [activeBudgetId, setActiveBudgetId] = useState<string | null>(null);
   const [savedBudgets, setSavedBudgets] = useState<SavedBudgetRecord[]>(() => loadSavedBudgets());
@@ -249,18 +261,18 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
   }, [catalogItems]);
 
   useEffect(() => {
-    const saved = saveBudgetDraft({ clientName, budgetTitle, discount, items });
+    const saved = saveBudgetDraft({ clientName, budgetTitle, discount, travelCost, additionalFees, paymentTerms, validity, guarantee, executionDeadline, commercialNotes, technicalNotes, items });
     if (saved) setLastSavedAt(saved.updatedAt);
-  }, [budgetTitle, clientName, discount, items]);
+  }, [additionalFees, budgetTitle, clientName, commercialNotes, discount, executionDeadline, guarantee, items, paymentTerms, technicalNotes, travelCost, validity]);
 
   useEffect(() => {
-    if (activeClient?.name && (!clientName.trim() || clientName === 'Cliente exemplo')) {
+    if (activeClient?.name && !clientName.trim()) {
       setClientName(activeClient.name);
     }
   }, [activeClient?.name, clientName]);
 
   useEffect(() => {
-    if (activeWorkOrder?.title && (!budgetTitle.trim() || budgetTitle === 'Serviços elétricos')) {
+    if (activeWorkOrder?.title && !budgetTitle.trim()) {
       setBudgetTitle(activeWorkOrder.title);
     }
   }, [activeWorkOrder?.title, budgetTitle]);
@@ -270,9 +282,10 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
     const material = items.filter((item) => item.category === 'material').reduce((total, item) => total + calculateBudgetItemTotal(item), 0);
     const other = items.filter((item) => item.category === 'other').reduce((total, item) => total + calculateBudgetItemTotal(item), 0);
     const subtotal = calculateBudgetSubtotal(items);
-    const total = calculateBudgetTotal({ id: activeBudgetId ?? 'preview-budget', title: budgetTitle, items, discount, status: budgetStatus, templateId: selectedTemplate });
-    return { labor, material, other, subtotal, total };
-  }, [activeBudgetId, budgetStatus, budgetTitle, discount, items, selectedTemplate]);
+    const commercialSubtotal = subtotal + travelCost + additionalFees;
+    const total = calculateBudgetTotal({ id: activeBudgetId ?? 'preview-budget', title: budgetTitle, items, discount, travelCost, additionalFees, status: budgetStatus, templateId: selectedTemplate });
+    return { labor, material, other, travel: travelCost, fees: additionalFees, subtotal, commercialSubtotal, total };
+  }, [activeBudgetId, additionalFees, budgetStatus, budgetTitle, discount, items, selectedTemplate, travelCost]);
 
   function updateBusinessProfile<K extends keyof BusinessProfile>(key: K, value: BusinessProfile[K]) {
     setBusinessProfile((current) => ({ ...current, [key]: value }));
@@ -376,17 +389,25 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
     clearBudgetDraft();
     setActiveBudgetId(null);
     setBudgetStatus('draft');
-    setClientName(activeClient?.name ?? 'Cliente exemplo');
-    setBudgetTitle(activeWorkOrder?.title ?? 'Serviços elétricos');
+    setClientName(activeClient?.name ?? '');
+    setBudgetTitle(activeWorkOrder?.title ?? '');
     setDiscount(0);
-    setItems(starterElectricalBudgetItems);
+    setTravelCost(0);
+    setAdditionalFees(0);
+    setPaymentTerms(businessProfile.defaultPaymentTerms);
+    setValidity(businessProfile.defaultValidity);
+    setGuarantee(businessProfile.defaultGuarantee);
+    setExecutionDeadline(businessProfile.defaultExecutionDeadline);
+    setCommercialNotes(businessProfile.defaultNotes);
+    setTechnicalNotes('');
+    setItems([]);
     setDraft(emptyDraftItem);
     setLastSavedAt(null);
     setActiveSection('proposal');
   }
 
   function saveCurrentBudget() {
-    const saved = saveBudgetRecord({ id: activeBudgetId, clientName, title: budgetTitle || 'Orçamento sem título', status: budgetStatus, discount, items });
+    const saved = saveBudgetRecord({ id: activeBudgetId, clientName, title: budgetTitle || 'Orçamento sem título', status: budgetStatus, discount, travelCost, additionalFees, paymentTerms, validity, guarantee, executionDeadline, commercialNotes, technicalNotes, templateId: selectedTemplate, items });
     if (!saved) return;
     setActiveBudgetId(saved.id);
     setSavedBudgets(loadSavedBudgets());
@@ -407,11 +428,16 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
       ...itemLines,
       '',
       `Subtotal: ${formatCurrency(summary.subtotal)}`,
+      travelCost > 0 ? `Deslocamento: ${formatCurrency(travelCost)}` : null,
+      additionalFees > 0 ? `Taxas adicionais: ${formatCurrency(additionalFees)}` : null,
       discount > 0 ? `Desconto: ${formatCurrency(discount)}` : null,
       `Total: ${formatCurrency(summary.total)}`,
-      businessProfile.defaultPaymentTerms ? `Pagamento: ${businessProfile.defaultPaymentTerms}` : null,
-      businessProfile.defaultValidity ? `Validade: ${businessProfile.defaultValidity}` : null,
-      businessProfile.defaultNotes ? `Observações: ${businessProfile.defaultNotes}` : null,
+      paymentTerms ? `Pagamento: ${paymentTerms}` : null,
+      validity ? `Validade: ${validity}` : null,
+      guarantee ? `Garantia: ${guarantee}` : null,
+      executionDeadline ? `Prazo: ${executionDeadline}` : null,
+      commercialNotes ? `Observações comerciais: ${commercialNotes}` : null,
+      technicalNotes ? `Observações técnicas: ${technicalNotes}` : null,
     ]);
   }
 
@@ -438,6 +464,15 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
     setBudgetTitle(record.title);
     setBudgetStatus(record.status);
     setDiscount(record.discount);
+    setTravelCost(record.travelCost);
+    setAdditionalFees(record.additionalFees);
+    setPaymentTerms(record.paymentTerms || businessProfile.defaultPaymentTerms);
+    setValidity(record.validity || businessProfile.defaultValidity);
+    setGuarantee(record.guarantee || businessProfile.defaultGuarantee);
+    setExecutionDeadline(record.executionDeadline || businessProfile.defaultExecutionDeadline);
+    setCommercialNotes(record.commercialNotes || businessProfile.defaultNotes);
+    setTechnicalNotes(record.technicalNotes);
+    if (record.templateId) setSelectedTemplate(record.templateId as BudgetTemplateId);
     setItems(record.items);
     setDraft(emptyDraftItem);
     setActiveSection('proposal');
@@ -470,6 +505,9 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
       <div className="budget-workspace-tabs">
         <button className={activeSection === 'proposal' ? 'active' : ''} type="button" onClick={() => setActiveSection('proposal')}>Dados</button>
         <button className={activeSection === 'items' ? 'active' : ''} type="button" onClick={() => setActiveSection('items')}>Itens</button>
+        <button className={activeSection === 'catalog' ? 'active' : ''} type="button" onClick={() => setActiveSection('catalog')}>Catálogo</button>
+        <button className={activeSection === 'company' ? 'active' : ''} type="button" onClick={() => setActiveSection('company')}>Empresa</button>
+        <button className={activeSection === 'models' ? 'active' : ''} type="button" onClick={() => setActiveSection('models')}>Modelos</button>
         <button className={activeSection === 'review' ? 'active' : ''} type="button" onClick={() => setActiveSection('review')}>Revisão</button>
         <button className={activeSection === 'preview' ? 'active' : ''} type="button" onClick={() => setActiveSection('preview')}>Envio</button>
       </div>
@@ -479,25 +517,42 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
           <div className="budget-section-header">
             <div>
               <h3>Dados da proposta</h3>
-              <p>Defina cliente, título, status e salve rascunhos locais.</p>
+              <p>Defina cliente, condições comerciais, prazo, garantia e status do orçamento.</p>
             </div>
             <button type="button" className="primary-action inline-action" onClick={saveCurrentBudget}>{activeBudgetId ? 'Atualizar orçamento' : 'Salvar orçamento'}</button>
           </div>
 
+          {!activeClient && !activeWorkOrder && <div className="budget-guidance-card">Selecione um cliente/OS para preencher automaticamente.</div>}
+          {!activeBudgetId && <div className="budget-guidance-card">Este orçamento ainda não foi salvo.</div>}
+          {items.length === 0 && <div className="budget-guidance-card">Adicione itens para gerar uma proposta apresentável.</div>}
+          {!businessProfile.businessName.trim() && !businessProfile.responsibleName.trim() && <div className="budget-guidance-card">Configure sua identidade profissional para deixar a proposta completa.</div>}
+
           <div className="budget-header-card compact-budget-card">
-            <label className="budget-field"><span>Cliente</span><input value={clientName} onChange={(event) => setClientName(event.target.value)} /></label>
-            <label className="budget-field"><span>Título do orçamento</span><input value={budgetTitle} onChange={(event) => setBudgetTitle(event.target.value)} /></label>
-            <label className="budget-field"><span>Status</span><select value={budgetStatus} onChange={(event) => setBudgetStatus(event.target.value as SavedBudgetStatus)}><option value="draft">Rascunho</option><option value="sent">Enviado</option><option value="approved">Aprovado</option><option value="rejected">Recusado</option></select></label>
+            <label className="budget-field"><span>Cliente</span><input placeholder="Nome do cliente" value={clientName} onChange={(event) => setClientName(event.target.value)} /></label>
+            <label className="budget-field"><span>Título do orçamento</span><input placeholder="Ex.: Instalação elétrica residencial" value={budgetTitle} onChange={(event) => setBudgetTitle(event.target.value)} /></label>
+            <label className="budget-field"><span>Status</span><select value={budgetStatus} onChange={(event) => setBudgetStatus(event.target.value as SavedBudgetStatus)}><option value="draft">Rascunho</option><option value="sent">Enviado</option><option value="approved">Aprovado</option><option value="rejected">Recusado</option><option value="expired">Vencido</option><option value="cancelled">Cancelado</option></select></label>
           </div>
 
           <div className="budget-summary-strip">
             <article><span>Itens</span><strong>{items.length}</strong></article>
-            <article><span>Subtotal</span><strong>{formatCurrency(summary.subtotal)}</strong></article>
+            <article><span>Mão de obra</span><strong>{formatCurrency(summary.labor)}</strong></article>
+            <article><span>Materiais</span><strong>{formatCurrency(summary.material)}</strong></article>
+            <article><span>Subtotal</span><strong>{formatCurrency(summary.commercialSubtotal)}</strong></article>
             <article><span>Desconto</span><strong>{formatCurrency(discount)}</strong></article>
             <article><span>Total</span><strong>{formatCurrency(summary.total)}</strong></article>
           </div>
 
-          <label className="budget-field discount-field"><span>Desconto</span><input type="number" inputMode="decimal" min="0" step="0.01" value={discount} onChange={(event) => setDiscount(Number(event.target.value))} /></label>
+          <div className="budget-header-card compact-budget-card">
+            <label className="budget-field"><span>Deslocamento</span><input type="number" inputMode="decimal" min="0" step="0.01" value={travelCost} onChange={(event) => setTravelCost(Number(event.target.value))} /></label>
+            <label className="budget-field"><span>Taxas adicionais</span><input type="number" inputMode="decimal" min="0" step="0.01" value={additionalFees} onChange={(event) => setAdditionalFees(Number(event.target.value))} /></label>
+            <label className="budget-field"><span>Desconto</span><input type="number" inputMode="decimal" min="0" step="0.01" value={discount} onChange={(event) => setDiscount(Number(event.target.value))} /></label>
+            <label className="budget-field"><span>Validade</span><input value={validity} placeholder="Ex.: 7 dias" onChange={(event) => setValidity(event.target.value)} /></label>
+            <label className="budget-field"><span>Garantia</span><input value={guarantee} placeholder="Ex.: 90 dias sobre mão de obra" onChange={(event) => setGuarantee(event.target.value)} /></label>
+            <label className="budget-field"><span>Prazo de execução</span><input value={executionDeadline} placeholder="Ex.: 2 dias úteis" onChange={(event) => setExecutionDeadline(event.target.value)} /></label>
+            <label className="budget-field budget-field-wide"><span>Condições de pagamento</span><textarea value={paymentTerms} placeholder="Ex.: 50% na aprovação e 50% na entrega" onChange={(event) => setPaymentTerms(event.target.value)} /></label>
+            <label className="budget-field budget-field-wide"><span>Observações comerciais</span><textarea value={commercialNotes} placeholder="Ex.: valores sujeitos a disponibilidade de materiais" onChange={(event) => setCommercialNotes(event.target.value)} /></label>
+            <label className="budget-field budget-field-wide"><span>Observações técnicas</span><textarea value={technicalNotes} placeholder="Ex.: validar infraestrutura existente antes da execução" onChange={(event) => setTechnicalNotes(event.target.value)} /></label>
+          </div>
 
           <div className="saved-budget-panel inline-saved-panel">
             <div className="saved-budget-panel-header"><div><h3>Orçamentos salvos</h3><p>Abra, atualize ou remova rascunhos deste navegador.</p></div></div>
@@ -584,6 +639,8 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
             <label className="budget-field budget-field-wide"><span>Logo por URL opcional</span><input placeholder="https://.../logo.png" value={businessProfile.logoUrl} onChange={(event) => updateBusinessProfile('logoUrl', event.target.value)} /></label>
             <label className="budget-field"><span>Responsável</span><input value={businessProfile.responsibleName} onChange={(event) => updateBusinessProfile('responsibleName', event.target.value)} /></label>
             <label className="budget-field"><span>Validade padrão</span><input value={businessProfile.defaultValidity} onChange={(event) => updateBusinessProfile('defaultValidity', event.target.value)} /></label>
+            <label className="budget-field"><span>Garantia padrão</span><input value={businessProfile.defaultGuarantee} onChange={(event) => updateBusinessProfile('defaultGuarantee', event.target.value)} /></label>
+            <label className="budget-field"><span>Prazo padrão</span><input value={businessProfile.defaultExecutionDeadline} onChange={(event) => updateBusinessProfile('defaultExecutionDeadline', event.target.value)} /></label>
             <label className="budget-field budget-field-wide"><span>Condições de pagamento</span><textarea value={businessProfile.defaultPaymentTerms} onChange={(event) => updateBusinessProfile('defaultPaymentTerms', event.target.value)} /></label>
             <label className="budget-field budget-field-wide"><span>Observações padrão</span><textarea value={businessProfile.defaultNotes} onChange={(event) => updateBusinessProfile('defaultNotes', event.target.value)} /></label>
           </div>
@@ -620,6 +677,8 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
             </article>
             <article><span>Mão de obra</span><strong>{formatCurrency(summary.labor)}</strong></article>
             <article><span>Materiais</span><strong>{formatCurrency(summary.material)}</strong></article>
+            <article><span>Deslocamento</span><strong>{formatCurrency(summary.travel)}</strong></article>
+            <article><span>Taxas adicionais</span><strong>{formatCurrency(summary.fees)}</strong></article>
             <article><span>Outros</span><strong>{formatCurrency(summary.other)}</strong></article>
           </div>
 
@@ -642,8 +701,10 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
                   return <button className={selectedTemplate === template.id ? 'budget-template-card active' : 'budget-template-card'} disabled={isLocked} key={template.id} type="button" onClick={() => setSelectedTemplate(template.id)}><strong>{template.title}</strong><small>{isLocked ? 'Futuro pacote Pro' : 'Incluso no MVP'}</small></button>;
                 })}
               </div>
-              <small>{businessProfile.defaultPaymentTerms || 'Sem condição de pagamento padrão.'}</small>
-              <small>{businessProfile.defaultValidity || 'Sem validade padrão.'}</small>
+              <small>{paymentTerms || 'Sem condição de pagamento definida.'}</small>
+              <small>{validity || 'Sem validade definida.'}</small>
+              <small>{guarantee || 'Sem garantia definida.'}</small>
+              <small>{executionDeadline || 'Sem prazo de execução definido.'}</small>
             </div>
           </div>
 
@@ -675,7 +736,7 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
             </div>
             {shareFeedback && <small className="budget-share-feedback">{shareFeedback}</small>}
           </div>
-          <BudgetPrintPreview clientName={clientName} budgetTitle={budgetTitle} status={budgetStatus} items={items} discount={discount} subtotal={summary.subtotal} total={summary.total} businessProfile={businessProfile} paymentTerms={businessProfile.defaultPaymentTerms} validity={businessProfile.defaultValidity} notes={businessProfile.defaultNotes} templateId={selectedTemplate} />
+          <BudgetPrintPreview clientName={clientName} budgetTitle={budgetTitle} status={budgetStatus} items={items} discount={discount} travelCost={travelCost} additionalFees={additionalFees} subtotal={summary.subtotal} commercialSubtotal={summary.commercialSubtotal} total={summary.total} businessProfile={businessProfile} paymentTerms={paymentTerms} validity={validity} guarantee={guarantee} executionDeadline={executionDeadline} commercialNotes={commercialNotes} technicalNotes={technicalNotes} templateId={selectedTemplate} />
         </section>
       )}
     </div>

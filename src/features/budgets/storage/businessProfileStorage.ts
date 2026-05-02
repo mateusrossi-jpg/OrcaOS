@@ -13,6 +13,8 @@ export const defaultBusinessProfile: BusinessProfile = {
   responsibleName: '',
   defaultPaymentTerms: 'Condições de pagamento a combinar.',
   defaultValidity: '7 dias',
+  defaultGuarantee: 'Garantia conforme serviço executado e materiais aplicados.',
+  defaultExecutionDeadline: 'Prazo de execução a combinar após aprovação.',
   defaultNotes: 'Valores sujeitos à confirmação após vistoria, disponibilidade de materiais e validação técnica do serviço.',
 };
 
@@ -34,6 +36,8 @@ function isBusinessProfile(value: unknown): value is BusinessProfile {
     typeof profile.responsibleName === 'string' &&
     typeof profile.defaultPaymentTerms === 'string' &&
     typeof profile.defaultValidity === 'string' &&
+    (typeof profile.defaultGuarantee === 'string' || typeof profile.defaultGuarantee === 'undefined') &&
+    (typeof profile.defaultExecutionDeadline === 'string' || typeof profile.defaultExecutionDeadline === 'undefined') &&
     typeof profile.defaultNotes === 'string'
   );
 }

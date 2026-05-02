@@ -10,6 +10,15 @@ export interface SavedBudgetRecord {
   title: string;
   status: SavedBudgetStatus;
   discount: number;
+  travelCost: number;
+  additionalFees: number;
+  paymentTerms: string;
+  validity: string;
+  guarantee: string;
+  executionDeadline: string;
+  commercialNotes: string;
+  technicalNotes: string;
+  templateId?: string;
   items: BudgetItem[];
   createdAt: string;
   updatedAt: string;
@@ -21,6 +30,15 @@ export interface SaveBudgetRecordInput {
   title: string;
   status: SavedBudgetStatus;
   discount: number;
+  travelCost?: number;
+  additionalFees?: number;
+  paymentTerms?: string;
+  validity?: string;
+  guarantee?: string;
+  executionDeadline?: string;
+  commercialNotes?: string;
+  technicalNotes?: string;
+  templateId?: string;
   items: BudgetItem[];
 }
 
@@ -33,7 +51,7 @@ function isBrowserStorageAvailable(): boolean {
 }
 
 function isValidStatus(value: unknown): value is SavedBudgetStatus {
-  return value === 'draft' || value === 'sent' || value === 'approved' || value === 'rejected';
+  return value === 'draft' || value === 'sent' || value === 'approved' || value === 'rejected' || value === 'expired' || value === 'cancelled';
 }
 
 function isBudgetItem(value: unknown): value is BudgetItem {
@@ -71,6 +89,14 @@ function isSavedBudgetRecord(value: unknown): value is SavedBudgetRecord {
     Number.isFinite(record.discount) &&
     Array.isArray(record.items) &&
     record.items.every(isBudgetItem) &&
+    (typeof record.travelCost === 'number' || typeof record.travelCost === 'undefined') &&
+    (typeof record.additionalFees === 'number' || typeof record.additionalFees === 'undefined') &&
+    (typeof record.paymentTerms === 'string' || typeof record.paymentTerms === 'undefined') &&
+    (typeof record.validity === 'string' || typeof record.validity === 'undefined') &&
+    (typeof record.guarantee === 'string' || typeof record.guarantee === 'undefined') &&
+    (typeof record.executionDeadline === 'string' || typeof record.executionDeadline === 'undefined') &&
+    (typeof record.commercialNotes === 'string' || typeof record.commercialNotes === 'undefined') &&
+    (typeof record.technicalNotes === 'string' || typeof record.technicalNotes === 'undefined') &&
     typeof record.createdAt === 'string' &&
     typeof record.updatedAt === 'string'
   );
@@ -94,7 +120,17 @@ export function loadSavedBudgets(): SavedBudgetRecord[] {
       return [];
     }
 
-    return parsed.filter(isSavedBudgetRecord).sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+    return parsed.filter(isSavedBudgetRecord).map((record) => ({
+      ...record,
+      travelCost: record.travelCost ?? 0,
+      additionalFees: record.additionalFees ?? 0,
+      paymentTerms: record.paymentTerms ?? '',
+      validity: record.validity ?? '',
+      guarantee: record.guarantee ?? '',
+      executionDeadline: record.executionDeadline ?? '',
+      commercialNotes: record.commercialNotes ?? '',
+      technicalNotes: record.technicalNotes ?? '',
+    })).sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
   } catch {
     return [];
   }
@@ -123,6 +159,15 @@ export function saveBudgetRecord(input: SaveBudgetRecordInput): SavedBudgetRecor
     title: input.title,
     status: input.status,
     discount: input.discount,
+    travelCost: input.travelCost ?? 0,
+    additionalFees: input.additionalFees ?? 0,
+    paymentTerms: input.paymentTerms ?? '',
+    validity: input.validity ?? '',
+    guarantee: input.guarantee ?? '',
+    executionDeadline: input.executionDeadline ?? '',
+    commercialNotes: input.commercialNotes ?? '',
+    technicalNotes: input.technicalNotes ?? '',
+    templateId: input.templateId,
     items: input.items,
     createdAt: existingRecord?.createdAt ?? now,
     updatedAt: now,

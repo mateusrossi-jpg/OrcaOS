@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { Budget } from '../types/business';
-import { calculateBudgetItemTotal, calculateBudgetSubtotal, calculateBudgetTotal } from './budget';
+import { calculateBudgetCommercialSubtotal, calculateBudgetItemTotal, calculateBudgetSubtotal, calculateBudgetTotal } from './budget';
 
 describe('budget pricing', () => {
   const budget: Budget = {
@@ -36,6 +36,15 @@ describe('budget pricing', () => {
 
   it('calculates total with discount', () => {
     expect(calculateBudgetTotal(budget)).toBe(194);
+  });
+
+  it('adds travel and additional fees to the commercial subtotal', () => {
+    const result = calculateBudgetCommercialSubtotal({ ...budget, travelCost: 30, additionalFees: 15 });
+    expect(result).toBe(259);
+  });
+
+  it('calculates total with travel and additional fees', () => {
+    expect(calculateBudgetTotal({ ...budget, travelCost: 30, additionalFees: 15 })).toBe(239);
   });
 
   it('never returns a negative total', () => {

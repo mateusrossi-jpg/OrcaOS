@@ -6,9 +6,20 @@ export interface BudgetDraftStorageState {
   clientName: string;
   budgetTitle: string;
   discount: number;
+  travelCost: number;
+  additionalFees: number;
+  paymentTerms: string;
+  validity: string;
+  guarantee: string;
+  executionDeadline: string;
+  commercialNotes: string;
+  technicalNotes: string;
   items: BudgetItem[];
   updatedAt: string;
 }
+
+type BudgetDraftSaveInput = Pick<BudgetDraftStorageState, 'clientName' | 'budgetTitle' | 'discount' | 'items'> &
+  Partial<Omit<BudgetDraftStorageState, 'clientName' | 'budgetTitle' | 'discount' | 'items' | 'updatedAt'>>;
 
 function isBrowserStorageAvailable(): boolean {
   return typeof window !== 'undefined' && typeof window.localStorage !== 'undefined';
@@ -55,6 +66,14 @@ export function loadBudgetDraft(): BudgetDraftStorageState | null {
       clientName: typeof parsed.clientName === 'string' ? parsed.clientName : '',
       budgetTitle: typeof parsed.budgetTitle === 'string' ? parsed.budgetTitle : '',
       discount: typeof parsed.discount === 'number' && Number.isFinite(parsed.discount) ? parsed.discount : 0,
+      travelCost: typeof parsed.travelCost === 'number' && Number.isFinite(parsed.travelCost) ? parsed.travelCost : 0,
+      additionalFees: typeof parsed.additionalFees === 'number' && Number.isFinite(parsed.additionalFees) ? parsed.additionalFees : 0,
+      paymentTerms: typeof parsed.paymentTerms === 'string' ? parsed.paymentTerms : '',
+      validity: typeof parsed.validity === 'string' ? parsed.validity : '',
+      guarantee: typeof parsed.guarantee === 'string' ? parsed.guarantee : '',
+      executionDeadline: typeof parsed.executionDeadline === 'string' ? parsed.executionDeadline : '',
+      commercialNotes: typeof parsed.commercialNotes === 'string' ? parsed.commercialNotes : '',
+      technicalNotes: typeof parsed.technicalNotes === 'string' ? parsed.technicalNotes : '',
       items: parsed.items,
       updatedAt: typeof parsed.updatedAt === 'string' ? parsed.updatedAt : new Date().toISOString(),
     };
@@ -63,13 +82,24 @@ export function loadBudgetDraft(): BudgetDraftStorageState | null {
   }
 }
 
-export function saveBudgetDraft(state: Omit<BudgetDraftStorageState, 'updatedAt'>): BudgetDraftStorageState | null {
+export function saveBudgetDraft(state: BudgetDraftSaveInput): BudgetDraftStorageState | null {
   if (!isBrowserStorageAvailable()) {
     return null;
   }
 
   const payload: BudgetDraftStorageState = {
-    ...state,
+    clientName: state.clientName,
+    budgetTitle: state.budgetTitle,
+    discount: state.discount,
+    travelCost: state.travelCost ?? 0,
+    additionalFees: state.additionalFees ?? 0,
+    paymentTerms: state.paymentTerms ?? '',
+    validity: state.validity ?? '',
+    guarantee: state.guarantee ?? '',
+    executionDeadline: state.executionDeadline ?? '',
+    commercialNotes: state.commercialNotes ?? '',
+    technicalNotes: state.technicalNotes ?? '',
+    items: state.items,
     updatedAt: new Date().toISOString(),
   };
 

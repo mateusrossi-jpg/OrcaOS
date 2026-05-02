@@ -10,12 +10,18 @@ interface BudgetPrintPreviewProps {
   status: SavedBudgetStatus;
   items: BudgetItem[];
   discount: number;
+  travelCost: number;
+  additionalFees: number;
   subtotal: number;
+  commercialSubtotal: number;
   total: number;
   businessProfile?: BusinessProfile;
   paymentTerms?: string;
   validity?: string;
-  notes?: string;
+  guarantee?: string;
+  executionDeadline?: string;
+  commercialNotes?: string;
+  technicalNotes?: string;
   templateId?: BudgetTemplateId;
 }
 
@@ -40,6 +46,8 @@ function statusLabel(status: SavedBudgetStatus): string {
     sent: 'Enviado',
     approved: 'Aprovado',
     rejected: 'Recusado',
+    expired: 'Vencido',
+    cancelled: 'Cancelado',
   };
 
   return labels[status];
@@ -55,12 +63,18 @@ export function BudgetPrintPreview({
   status,
   items,
   discount,
+  travelCost,
+  additionalFees,
   subtotal,
+  commercialSubtotal,
   total,
   businessProfile,
   paymentTerms,
   validity,
-  notes,
+  guarantee,
+  executionDeadline,
+  commercialNotes,
+  technicalNotes,
   templateId = 'professional',
 }: BudgetPrintPreviewProps) {
   const issuedAt = new Intl.DateTimeFormat('pt-BR', {
@@ -143,8 +157,24 @@ export function BudgetPrintPreview({
 
         <section className="print-total-box">
           <div>
-            <span>Subtotal</span>
+            <span>Itens</span>
             <strong>{formatCurrency(subtotal)}</strong>
+          </div>
+          {travelCost > 0 && (
+            <div>
+              <span>Deslocamento</span>
+              <strong>{formatCurrency(travelCost)}</strong>
+            </div>
+          )}
+          {additionalFees > 0 && (
+            <div>
+              <span>Taxas adicionais</span>
+              <strong>{formatCurrency(additionalFees)}</strong>
+            </div>
+          )}
+          <div>
+            <span>Subtotal</span>
+            <strong>{formatCurrency(commercialSubtotal)}</strong>
           </div>
           <div>
             <span>Desconto</span>
@@ -160,7 +190,11 @@ export function BudgetPrintPreview({
           <section className="print-client-box">
             <span>Condições</span>
             {paymentTerms && <p>{paymentTerms}</p>}
-            {notes && <p>{notes}</p>}
+            {validity && <p>Validade da proposta: {validity}</p>}
+            {guarantee && <p>Garantia: {guarantee}</p>}
+            {executionDeadline && <p>Prazo de execução: {executionDeadline}</p>}
+            {commercialNotes && <p>Observações comerciais: {commercialNotes}</p>}
+            {technicalNotes && <p>Observações técnicas: {technicalNotes}</p>}
           </section>
         )}
 

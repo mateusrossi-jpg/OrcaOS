@@ -12,8 +12,24 @@ export function calculateBudgetSubtotal(items: BudgetItem[]): number {
   return items.reduce((total, item) => total + calculateBudgetItemTotal(item), 0);
 }
 
-export function calculateBudgetTotal(budget: Budget): number {
+export function calculateBudgetCommercialSubtotal(budget: Budget): number {
   const subtotal = calculateBudgetSubtotal(budget.items);
+  const travelCost = budget.travelCost ?? 0;
+  const additionalFees = budget.additionalFees ?? 0;
+
+  if (travelCost < 0) {
+    throw new Error('Deslocamento não pode ser negativo.');
+  }
+
+  if (additionalFees < 0) {
+    throw new Error('Taxas adicionais não podem ser negativas.');
+  }
+
+  return subtotal + travelCost + additionalFees;
+}
+
+export function calculateBudgetTotal(budget: Budget): number {
+  const subtotal = calculateBudgetCommercialSubtotal(budget);
   const discount = budget.discount ?? 0;
 
   if (discount < 0) {

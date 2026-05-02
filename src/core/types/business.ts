@@ -22,6 +22,8 @@ export interface BusinessProfile {
   responsibleName: string;
   defaultPaymentTerms: string;
   defaultValidity: string;
+  defaultGuarantee: string;
+  defaultExecutionDeadline: string;
   defaultNotes: string;
 }
 
@@ -48,8 +50,16 @@ export interface Budget {
   title: string;
   items: BudgetItem[];
   discount?: number;
+  travelCost?: number;
+  additionalFees?: number;
   notes?: string;
-  status: 'draft' | 'sent' | 'approved' | 'rejected';
+  paymentTerms?: string;
+  validity?: string;
+  guarantee?: string;
+  executionDeadline?: string;
+  commercialNotes?: string;
+  technicalNotes?: string;
+  status: 'draft' | 'sent' | 'approved' | 'rejected' | 'expired' | 'cancelled';
   templateId?: BudgetTemplateId;
 }
 

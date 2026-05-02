@@ -19,6 +19,14 @@ describe('budget draft storage', () => {
       clientName: 'Cliente teste',
       budgetTitle: 'Instalação elétrica',
       discount: 15,
+      travelCost: 25,
+      additionalFees: 10,
+      paymentTerms: '50% entrada',
+      validity: '10 dias',
+      guarantee: '90 dias',
+      executionDeadline: '2 dias úteis',
+      commercialNotes: 'Material incluso.',
+      technicalNotes: 'Validar quadro.',
       items: [
         {
           id: 'item-1',
@@ -36,6 +44,10 @@ describe('budget draft storage', () => {
     expect(loaded?.clientName).toBe('Cliente teste');
     expect(loaded?.budgetTitle).toBe('Instalação elétrica');
     expect(loaded?.discount).toBe(15);
+    expect(loaded?.travelCost).toBe(25);
+    expect(loaded?.additionalFees).toBe(10);
+    expect(loaded?.paymentTerms).toBe('50% entrada');
+    expect(loaded?.guarantee).toBe('90 dias');
     expect(loaded?.items).toHaveLength(1);
   });
 

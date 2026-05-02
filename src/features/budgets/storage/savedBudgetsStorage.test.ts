@@ -56,6 +56,47 @@ describe('saved budgets storage', () => {
     expect(records[0].createdAt).toBe(saved?.createdAt);
   });
 
+  it('loads legacy records with professional commercial fields defaulted', () => {
+    window.localStorage.setItem('orcaos:saved-budgets:v1', JSON.stringify([
+      {
+        id: 'legacy',
+        clientName: 'Cliente legado',
+        title: 'Orçamento antigo',
+        status: 'draft',
+        discount: 0,
+        items: [],
+        createdAt: '2026-05-01T00:00:00.000Z',
+        updatedAt: '2026-05-01T00:00:00.000Z',
+      },
+    ]));
+
+    const [record] = loadSavedBudgets();
+
+    expect(record.travelCost).toBe(0);
+    expect(record.additionalFees).toBe(0);
+    expect(record.paymentTerms).toBe('');
+  });
+
+  it('supports expired and cancelled status', () => {
+    saveBudgetRecord({
+      clientName: 'Cliente A',
+      title: 'Orçamento vencido',
+      status: 'expired',
+      discount: 0,
+      items: [],
+    });
+
+    saveBudgetRecord({
+      clientName: 'Cliente B',
+      title: 'Orçamento cancelado',
+      status: 'cancelled',
+      discount: 0,
+      items: [],
+    });
+
+    expect(loadSavedBudgets().map((record) => record.status)).toEqual(['cancelled', 'expired']);
+  });
+
   it('keeps saved budgets sorted by most recent update', () => {
     window.localStorage.setItem('orcaos:saved-budgets:v1', JSON.stringify([
       {
