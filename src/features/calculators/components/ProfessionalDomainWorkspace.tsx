@@ -141,9 +141,6 @@ const defaultValues: Record<string, string> = {
   autonomyDays: '1',
   batteryVoltage: '24',
   dischargeDepth: '50',
-  riskA: '2',
-  riskB: '2',
-  riskC: '2',
   preventiveCost: '250',
   correctiveCost: '1200',
   failureProbability: '35',
@@ -158,6 +155,11 @@ const defaultOptions: Record<string, string> = {
   startType: 'direct',
   capacitorType: 'permanent',
   diagnosticCategory: 'eletrica',
+  technicalRisk: 'medium',
+  useImpact: 'medium',
+  recurrence: 'occasional',
+  probability: 'possible',
+  severity: 'moderate',
 };
 
 function parseNumber(value: string): number {
@@ -167,11 +169,6 @@ function parseNumber(value: string): number {
 
 function positive(value: number, label: string): number {
   if (!Number.isFinite(value) || value <= 0) throw new Error(`Informe um valor maior que zero para ${label}.`);
-  return value;
-}
-
-function nonNegative(value: number, label: string): number {
-  if (!Number.isFinite(value) || value < 0) throw new Error(`Informe um valor válido para ${label}.`);
   return value;
 }
 
@@ -196,7 +193,7 @@ function moduleLabel(module: CalculatorModule): string {
   if (module === 'rewinding') return 'Rebobinagem';
   if (module === 'transformadores') return 'Transformadores';
   if (module === 'solar') return 'Solar fotovoltaico';
-  if (module === 'diagnosticoTecnico') return 'Assistentes de diagnóstico';
+  if (module === 'diagnosticoTecnico') return 'Assistentes de campo';
   return 'Cálculos técnicos';
 }
 
@@ -213,6 +210,10 @@ function powerToKw(value: number, unit: string): number {
   if (unit === 'cv') return value * 0.7355;
   if (unit === 'hp') return value * 0.7457;
   return value;
+}
+
+function optionScore(value: string, scores: Record<string, number>): number {
+  return scores[value] ?? 0;
 }
 
 const rules: DomainRule[] = [
@@ -244,8 +245,8 @@ const rules: DomainRule[] = [
   { mode: 'solar-generation', module: 'solar', label: 'Geração mensal', description: 'kWh/mês por kWp, HSP e perdas.', plan: 'pro', fields: [{ key: 'kwp', label: 'Sistema', suffix: 'kWp' }, { key: 'sunHours', label: 'Horas sol pico' }, { key: 'losses', label: 'Perdas', suffix: '%' }], compute: ({ n }) => { const kwh = n('kwp', 'kWp') * n('sunHours', 'HSP') * 30 * (1 - n('losses', 'perdas') / 100); return result(`Geração: ${round(kwh)} kWh/mês`, [{ label: 'Geração', value: `${round(kwh)} kWh/mês` }], [`Geração: ${round(kwh)} kWh/mês`], 'Estimativa. Não substitui simulação com dados locais.', ['kWh/mês = kWp × HSP × 30 × eficiência.']); } },
   { mode: 'solar-payback', module: 'solar', label: 'Payback simples', description: 'Retorno por investimento e economia.', plan: 'free', fields: [{ key: 'investment', label: 'Investimento', suffix: 'R$' }, { key: 'monthlySavings', label: 'Economia mensal', suffix: 'R$' }], compute: ({ n }) => { const months = n('investment', 'investimento') / n('monthlySavings', 'economia'); return result(`Payback: ${round(months)} meses`, [{ label: 'Meses', value: `${round(months)}` }, { label: 'Anos', value: `${round(months / 12, 1)}` }], [`Payback: ${round(months)} meses`], 'Payback simples não considera inflação, reajuste tarifário, manutenção ou degradação.', ['Payback = investimento ÷ economia mensal.']); } },
   { mode: 'solar-battery', module: 'solar', label: 'Bateria/autonomia básica', description: 'Banco em Ah por consumo e autonomia.', plan: 'pro', fields: [{ key: 'dailyConsumption', label: 'Consumo diário', suffix: 'kWh' }, { key: 'autonomyDays', label: 'Autonomia', suffix: 'dias' }, { key: 'batteryVoltage', label: 'Tensão banco', suffix: 'V' }, { key: 'dischargeDepth', label: 'Profundidade descarga', suffix: '%' }], compute: ({ n }) => { const ah = n('dailyConsumption', 'consumo') * 1000 * n('autonomyDays', 'autonomia') / (n('batteryVoltage', 'tensão') * (n('dischargeDepth', 'descarga') / 100)); return result(`Banco estimado: ${round(ah)} Ah`, [{ label: 'Capacidade', value: `${round(ah)} Ah` }], [`Capacidade: ${round(ah)} Ah`], 'Estimativa inicial. Baterias exigem projeto específico, corrente, BMS/controlador e regime de descarga.', ['Ah = Wh diário × dias ÷ (tensão × profundidade de descarga).']); } },
-  { mode: 'urgency', module: 'diagnosticoTecnico', label: 'Classificação de urgência', description: 'Baixo, médio, alto ou urgente.', plan: 'pro', fields: [{ key: 'riskA', label: 'Risco técnico', suffix: '0-3' }, { key: 'riskB', label: 'Impacto no uso', suffix: '0-3' }, { key: 'riskC', label: 'Recorrência', suffix: '0-3' }], compute: ({ n }) => { const score = nonNegative(n('riskA', 'risco'), 'risco') + nonNegative(n('riskB', 'impacto'), 'impacto') + nonNegative(n('riskC', 'recorrência'), 'recorrência'); const label = score >= 8 ? 'Urgente' : score >= 6 ? 'Alto' : score >= 3 ? 'Médio' : 'Baixo'; return result(`Urgência: ${label}`, [{ label: 'Classificação', value: label }, { label: 'Pontuação', value: `${round(score)}/9` }], [`Urgência: ${label}`, `Pontuação: ${round(score)}/9`], 'Use como linguagem de relatório para priorizar atendimento e orientar o cliente.', ['Pontuação = risco + impacto + recorrência.'], { itemType: 'diagnostic', shouldGenerateBudgetItem: false }); } },
-  { mode: 'risk', module: 'diagnosticoTecnico', label: 'Classificação de risco', description: 'Matriz simples para relatório.', plan: 'pro', fields: [{ key: 'riskA', label: 'Probabilidade', suffix: '1-5' }, { key: 'riskB', label: 'Severidade', suffix: '1-5' }], compute: ({ n }) => { const score = n('riskA', 'probabilidade') * n('riskB', 'severidade'); const label = score >= 16 ? 'Alto' : score >= 8 ? 'Médio' : 'Baixo'; return result(`Risco: ${label}`, [{ label: 'Risco', value: label }, { label: 'Matriz', value: `${round(score)}` }], [`Risco: ${label}`, `Matriz: ${round(score)}`], 'Útil para relatório técnico, sem substituir inspeção detalhada.', ['Risco = probabilidade × severidade.'], { itemType: 'diagnostic', shouldGenerateBudgetItem: false }); } },
+  { mode: 'urgency', module: 'diagnosticoTecnico', label: 'Prioridade do atendimento', description: 'Classifica urgência com escolhas simples de campo.', plan: 'pro', fields: [], options: [{ key: 'technicalRisk', label: 'Risco técnico observado', options: [{ value: 'low', label: 'Baixo: sem risco imediato aparente' }, { value: 'medium', label: 'Médio: exige correção programada' }, { value: 'high', label: 'Alto: pode gerar dano, parada ou insegurança' }] }, { key: 'useImpact', label: 'Impacto para o cliente', options: [{ value: 'low', label: 'Baixo: uso normal' }, { value: 'medium', label: 'Médio: uso limitado ou desconfortável' }, { value: 'high', label: 'Alto: impede uso ou atendimento' }] }, { key: 'recurrence', label: 'Frequência do problema', options: [{ value: 'isolated', label: 'Pontual: ocorreu uma vez' }, { value: 'occasional', label: 'Recorrente: voltou a acontecer' }, { value: 'constant', label: 'Constante: acontece sempre' }] }], compute: ({ opt }) => { const score = optionScore(opt('technicalRisk'), { low: 1, medium: 2, high: 3 }) + optionScore(opt('useImpact'), { low: 1, medium: 2, high: 3 }) + optionScore(opt('recurrence'), { isolated: 1, occasional: 2, constant: 3 }); const label = score >= 8 ? 'Urgente' : score >= 6 ? 'Alta' : score >= 4 ? 'Média' : 'Baixa'; return result(`Prioridade: ${label}`, [{ label: 'Prioridade', value: label }, { label: 'Leitura', value: score >= 6 ? 'Agendar correção' : 'Monitorar/planejar' }], [`Prioridade do atendimento: ${label}`, `Critério: risco técnico, impacto no uso e recorrência.`], 'Use como texto de apoio para explicar por que o serviço deve ser resolvido agora ou pode ser programado.', ['Classificação orientativa por três perguntas de campo, sem escala numérica visível para o cliente.'], { itemType: 'diagnostic', shouldGenerateBudgetItem: false }); } },
+  { mode: 'risk', module: 'diagnosticoTecnico', label: 'Classificação de risco', description: 'Risco técnico sem matriz numérica exposta.', plan: 'pro', fields: [], options: [{ key: 'probability', label: 'Chance de acontecer novamente', options: [{ value: 'unlikely', label: 'Baixa: pouco provável' }, { value: 'possible', label: 'Média: pode acontecer' }, { value: 'likely', label: 'Alta: provável ou já recorrente' }] }, { key: 'severity', label: 'Consequência se acontecer', options: [{ value: 'minor', label: 'Leve: incômodo ou ajuste simples' }, { value: 'moderate', label: 'Moderada: dano, parada parcial ou retrabalho' }, { value: 'severe', label: 'Grave: risco à segurança, patrimônio ou parada total' }] }], compute: ({ opt }) => { const score = optionScore(opt('probability'), { unlikely: 1, possible: 2, likely: 3 }) * optionScore(opt('severity'), { minor: 1, moderate: 2, severe: 3 }); const label = score >= 6 ? 'Alto' : score >= 3 ? 'Médio' : 'Baixo'; return result(`Risco: ${label}`, [{ label: 'Risco', value: label }, { label: 'Ação sugerida', value: label === 'Alto' ? 'Corrigir com prioridade' : label === 'Médio' ? 'Planejar correção' : 'Acompanhar' }], [`Risco técnico: ${label}`, `Critério: chance de recorrência e consequência para o cliente.`], 'Útil para relatório técnico. Complete com fotos, medições e observações reais antes de entregar ao cliente.', ['Classificação orientativa por probabilidade e consequência.'], { itemType: 'diagnostic', shouldGenerateBudgetItem: false }); } },
   { mode: 'maintenance', module: 'diagnosticoTecnico', label: 'Manutenção preventiva', description: 'Status por última manutenção e periodicidade.', plan: 'free', fields: [{ key: 'lastMaintenanceDays', label: 'Dias desde manutenção' }, { key: 'periodicityDays', label: 'Periodicidade', suffix: 'dias' }], compute: ({ n }) => { const elapsed = n('lastMaintenanceDays', 'dias'); const period = n('periodicityDays', 'periodicidade'); const remaining = period - elapsed; const status = remaining < 0 ? 'Vencida' : remaining <= period * 0.2 ? 'Atenção' : 'Em dia'; return result(`Manutenção: ${status}`, [{ label: 'Status', value: status }, { label: 'Prazo', value: remaining >= 0 ? `${round(remaining)} dias` : `${round(Math.abs(remaining))} dias vencida` }], [`Status: ${status}`], 'Transforma manutenção em ação clara para o cliente.', ['Prazo restante = periodicidade - dias desde a última manutenção.'], { itemType: 'diagnostic', shouldGenerateBudgetItem: false }); } },
   { mode: 'preventive-vs-corrective', module: 'diagnosticoTecnico', label: 'Preventiva vs corretiva', description: 'Economia potencial por probabilidade de falha.', plan: 'pro', fields: [{ key: 'preventiveCost', label: 'Custo preventivo', suffix: 'R$' }, { key: 'correctiveCost', label: 'Custo corretivo', suffix: 'R$' }, { key: 'failureProbability', label: 'Probabilidade', suffix: '%' }], compute: ({ n }) => { const expected = n('correctiveCost', 'corretivo') * n('failureProbability', 'probabilidade') / 100; const economy = expected - n('preventiveCost', 'preventivo'); return result(`Economia potencial: ${money(economy)}`, [{ label: 'Custo esperado', value: money(expected) }, { label: 'Preventiva', value: money(n('preventiveCost', 'preventivo')) }, { label: 'Diferença', value: money(economy) }], [`Economia potencial: ${money(economy)}`], 'Use como argumento comercial quando a preventiva reduz risco e parada.', ['Custo esperado = custo corretivo × probabilidade', 'Economia = custo esperado - custo preventivo.'], { itemType: 'diagnostic', shouldGenerateBudgetItem: false }); } },
   { mode: 'diagnostic-checklist', module: 'diagnosticoTecnico', label: 'Checklist de diagnóstico', description: 'Texto técnico por categoria.', plan: 'free', fields: [], options: [{ key: 'diagnosticCategory', label: 'Categoria', options: [{ value: 'eletrica', label: 'Elétrica' }, { value: 'hidraulica', label: 'Hidráulica' }, { value: 'ar', label: 'Ar-condicionado' }, { value: 'motor', label: 'Motor' }, { value: 'obra', label: 'Pintura/reforma' }] }], compute: ({ opt }) => { const category = opt('diagnosticCategory'); const list = category === 'eletrica' ? ['Conferir quadro, proteções, aquecimento e aterramento.', 'Registrar circuitos críticos e pontos de risco.'] : category === 'hidraulica' ? ['Conferir vazamentos, pressão, registros e reservatório.', 'Registrar pontos de infiltração e urgência.'] : category === 'ar' ? ['Conferir filtros, dreno, serpentina, consumo e instalação elétrica.'] : category === 'motor' ? ['Conferir placa, corrente, ruído, aquecimento, partida e proteção.'] : ['Conferir base, umidade, trincas, rendimento e acabamento.']; return result('Checklist técnico gerado', [{ label: 'Categoria', value: category }], list, 'Use o checklist como base de relatório e complete com fotos, medições e observações reais.', ['Assistente textual, sem fórmula numérica.'], { itemType: 'diagnostic', shouldGenerateBudgetItem: false }); } },
@@ -329,7 +330,7 @@ export function ProfessionalDomainWorkspace({ selectedModule, modeFilter, userPl
 
   return (
     <div className="general-calculator-workspace">
-      <div className="general-plan-banner"><div><strong>{moduleLabel(selectedModule)}</strong><span>Cálculos orientativos com resultado, fórmula e texto técnico para relatório.</span></div><em>{moduleRules.length} cálculos</em></div>
+      <div className="general-plan-banner"><div><strong>{moduleLabel(selectedModule)}</strong><span>{selectedModule === 'diagnosticoTecnico' ? 'Checklists e decisões de campo para relatório técnico. Não são fórmulas.' : 'Cálculos orientativos com resultado, fórmula e texto técnico para relatório.'}</span></div><em>{moduleRules.length} {selectedModule === 'diagnosticoTecnico' ? 'assistentes' : 'cálculos'}</em></div>
       <div className="general-picker-list">{moduleRules.map((rule) => <button className="general-picker-card" key={rule.mode} type="button" onClick={() => openRule(rule.mode)}><span><strong>{rule.label}</strong><small>{rule.description}</small></span><em>{rule.plan === 'pro' ? 'PRO' : rule.plan === 'soon' ? 'EM BREVE' : 'LIVRE'}</em></button>)}</div>
       {lockedRule && (
         <div className="general-calculator-overlay" role="dialog" aria-modal="true" aria-label={proFeatureTitle(lockedRule.plan)}>
@@ -352,11 +353,11 @@ export function ProfessionalDomainWorkspace({ selectedModule, modeFilter, userPl
             </form>
             {computed.error && <p className="general-error-message">{computed.error}</p>}
             {computed.cards.length > 0 && <div className="general-result-grid">{computed.cards.map((item) => <article className="general-result-card" key={item.label}><span>{item.label}</span><strong>{item.value}</strong>{item.helper && <small>{item.helper}</small>}</article>)}</div>}
-            {computed.formula.length > 0 && <div className="general-formula-box"><strong>Como este cálculo é feito</strong>{computed.formula.map((item) => <span key={item}>{item}</span>)}</div>}
+            {computed.formula.length > 0 && <div className="general-formula-box"><strong>{activeRule.module === 'diagnosticoTecnico' ? 'Como este assistente decide' : 'Como este cálculo é feito'}</strong>{computed.formula.map((item) => <span key={item}>{item}</span>)}</div>}
             {computed.orientation && <p className="general-helper-text">{computed.orientation}</p>}
             {addedMessage && <p className="general-added-message">{addedMessage}</p>}
             <div className="general-capture-actions"><button type="button" onClick={() => includeResult('survey')}>Adicionar ao levantamento</button><button type="button" onClick={() => includeResult('budget')}>Adicionar ao orçamento</button><button type="button" onClick={() => includeResult('both')}>Adicionar aos dois</button><button className="secondary-action" type="button" onClick={closeRule}>Voltar</button></div>
-            <small className="general-technical-note">Cálculo preliminar e orientativo. Validar medições, condições reais e critérios técnicos antes de executar ou contratar.</small>
+            <small className="general-technical-note">{activeRule.module === 'diagnosticoTecnico' ? 'Assistente orientativo. Complete com fotos, medições e observações reais antes de enviar ao cliente.' : 'Cálculo preliminar e orientativo. Validar medições, condições reais e critérios técnicos antes de executar ou contratar.'}</small>
           </section>
         </div>
       )}

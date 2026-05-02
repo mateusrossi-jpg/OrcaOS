@@ -32,11 +32,11 @@ describe('OrçaOS app data integrity', () => {
     expect(ids).toEqual([
       'home',
       'clients',
-      'calculations',
       'survey',
+      'calculations',
+      'reports',
       'budgets',
       'catalog',
-      'reports',
       'settings',
       'store',
     ]);

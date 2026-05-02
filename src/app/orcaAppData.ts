@@ -6,11 +6,11 @@ export const userPlan: UserPlan = 'free';
 export const navItems: Array<{ id: AppTab; label: string; description: string; icon: string; section?: string }> = [
   { id: 'home', label: 'Início', description: 'Visão do dia e ações rápidas', icon: 'IN', section: 'Trabalho' },
   { id: 'clients', label: 'Atendimentos', description: 'Clientes, OS e contexto ativo', icon: 'OS', section: 'Trabalho' },
-  { id: 'calculations', label: 'Cálculos', description: 'Setores técnicos e calculadoras', icon: 'CAL', section: 'Técnico' },
-  { id: 'survey', label: 'Levantamento', description: 'Campo, ambientes e itens', icon: 'LEV', section: 'Técnico' },
+  { id: 'survey', label: 'Campo', description: 'Levantamento, ambientes e itens', icon: 'LEV', section: 'Trabalho' },
+  { id: 'calculations', label: 'Cálculos', description: 'Fórmulas, medidas e dimensionamentos', icon: 'CAL', section: 'Técnico' },
+  { id: 'reports', label: 'Relatórios', description: 'Textos técnicos, checklists e PDFs', icon: 'REL', section: 'Técnico' },
   { id: 'budgets', label: 'Orçamentos', description: 'Proposta comercial', icon: 'ORC', section: 'Comercial' },
-  { id: 'catalog', label: 'Catálogo', description: 'Itens, busca, fornecedores e estoque', icon: 'CT', section: 'Comercial' },
-  { id: 'reports', label: 'Relatórios', description: 'PDFs e diagnósticos', icon: 'REL', section: 'Comercial' },
+  { id: 'catalog', label: 'Catálogo', description: 'Itens, fornecedores, estoque e compras', icon: 'CT', section: 'Gestão' },
   { id: 'settings', label: 'Configurações', description: 'Perfil, backup e preferências', icon: 'CFG', section: 'Sistema' },
   { id: 'store', label: 'Loja / Pro', description: 'Pacotes e planos', icon: 'PRO', section: 'Sistema' },
 ];
@@ -28,7 +28,7 @@ export const calculationModules: ModuleCardData[] = [
   { id: 'transformadores', title: 'Transformadores', description: 'VA, correntes, relação, espiras e potência por núcleo', icon: 'T', tone: 'orange', count: '6 cálculos Pro', available: true, plan: 'pro', calculatorModule: 'transformadores' },
   { id: 'solar', title: 'Solar fotovoltaico', description: 'Consumo, kWp, módulos, área, geração, bateria e payback', icon: 'SF', tone: 'green', count: '7 cálculos Pro', available: true, plan: 'pro', calculatorModule: 'solar' },
   { id: 'rebobinagem', title: 'Rebobinagem', description: 'Rotação, polos, passo polar e checklist técnico seguro', icon: 'RB', tone: 'muted', count: '4 assistentes Pro', available: true, plan: 'pro', calculatorModule: 'rewinding' },
-  { id: 'diagnosticoTecnico', title: 'Diagnóstico técnico', description: 'Checklists livres com risco, urgência e decisão preventiva no Pro', icon: 'DG', tone: 'green', count: 'Checklist livre + Pro', available: true, plan: 'pro', calculatorModule: 'diagnosticoTecnico' },
+  { id: 'diagnosticoTecnico', title: 'Assistentes de campo', description: 'Checklists para relatório, urgência, risco e manutenção', icon: 'AS', tone: 'green', count: 'Checklist livre + Pro', available: true, plan: 'pro', calculatorModule: 'diagnosticoTecnico' },
 ];
 
 export const calculationSectorGroups: CalculationSectorGroup[] = [
@@ -76,9 +76,9 @@ export const calculationSectorGroups: CalculationSectorGroup[] = [
   },
   {
     id: 'diagnostics',
-    title: 'Relatório e diagnóstico',
-    description: 'Escolha entre relatório, risco/urgência e manutenção antes de abrir o assistente.',
-    icon: 'DG',
+    title: 'Assistentes de campo',
+    description: 'Não são fórmulas: ajudam a decidir, explicar risco e gerar texto para relatório.',
+    icon: 'AS',
     moduleIds: ['diagnosticoTecnico'],
   },
 ];

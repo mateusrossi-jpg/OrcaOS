@@ -99,8 +99,8 @@ const moduleGuidance: Record<string, { title: string; text: string }> = {
     text: 'Use a aba Rápidos para conversões comuns e a aba Técnicos para AWG, polegadas, vazão completa, pressão completa, temperatura e kWh/R$.',
   },
   diagnosticoTecnico: {
-    title: 'Diagnóstico vira relatório, risco ou manutenção',
-    text: 'Escolha primeiro a intenção: gerar texto técnico, classificar risco/urgência ou justificar manutenção preventiva.',
+    title: 'Assistentes de campo não são cálculos',
+    text: 'Use para organizar checklist, prioridade, risco e manutenção quando a saída precisa virar orientação ou relatório para o cliente.',
   },
   orcamentoTecnico: {
     title: 'Um único lugar para cobrar melhor',

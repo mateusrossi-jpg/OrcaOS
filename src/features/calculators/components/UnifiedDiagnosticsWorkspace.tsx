@@ -13,13 +13,13 @@ interface UnifiedDiagnosticsWorkspaceProps {
 
 const sectionConfig: Record<DiagnosticsSection, { title: string; text: string; modes: DomainMode[] }> = {
   report: {
-    title: 'Texto para relatório',
-    text: 'Use para gerar checklist técnico por área e transformar a inspeção em texto claro para o cliente.',
+    title: 'Checklist para relatório',
+    text: 'Use depois da visita para organizar o que foi conferido e gerar texto claro para o cliente.',
     modes: ['diagnostic-checklist'],
   },
   risk: {
-    title: 'Risco e urgência',
-    text: 'Use quando precisa explicar prioridade, gravidade e risco técnico do atendimento.',
+    title: 'Risco e prioridade',
+    text: 'Use escolhas simples de campo para explicar se o atendimento é baixo, médio, alto ou urgente.',
     modes: ['urgency', 'risk'],
   },
   maintenance: {
@@ -36,8 +36,8 @@ export function UnifiedDiagnosticsWorkspace({ userPlan = 'free', onUpgradeReques
   return (
     <div className="general-calculator-workspace">
       <div className="section-mode-tabs">
-        <button className={activeSection === 'report' ? 'active' : ''} type="button" onClick={() => setActiveSection('report')}>Relatório</button>
-        <button className={activeSection === 'risk' ? 'active' : ''} type="button" onClick={() => setActiveSection('risk')}>Risco</button>
+        <button className={activeSection === 'report' ? 'active' : ''} type="button" onClick={() => setActiveSection('report')}>Checklist</button>
+        <button className={activeSection === 'risk' ? 'active' : ''} type="button" onClick={() => setActiveSection('risk')}>Risco/prioridade</button>
         <button className={activeSection === 'maintenance' ? 'active' : ''} type="button" onClick={() => setActiveSection('maintenance')}>Manutenção</button>
       </div>
 
