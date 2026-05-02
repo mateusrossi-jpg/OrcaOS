@@ -15,6 +15,7 @@ import {
   calculatePaintingBudget,
   calculateRectangularReservoir,
   calculateReservoirAutonomy,
+  calculateRoomPaintingArea,
   calculateTiles,
   calculateUpfront,
   calculateWallArea,
@@ -48,6 +49,9 @@ describe('trade calculations', () => {
   });
 
   it('calculates painting quantities and budget', () => {
+    const room = calculateRoomPaintingArea({ lengthM: 4, widthM: 3, heightM: 2.8, discountAreaM2: 2 });
+    expect(roundTrade(room.wallAreaM2)).toBe(39.2);
+    expect(roundTrade(room.netAreaM2)).toBe(37.2);
     const paint = calculatePaintLiters({ areaM2: 31.6, coats: 2, yieldM2PerLiter: 10, lossPercent: 10 });
     expect(roundTrade(paint.liters, 3)).toBe(6.952);
     expect(paint.gallons36L).toBe(2);

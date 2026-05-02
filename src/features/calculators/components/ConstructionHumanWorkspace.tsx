@@ -1,4 +1,11 @@
 import { useMemo, useState } from 'react';
+import {
+  calculateAreaWithLoss,
+  calculateBlocks,
+  calculateConcreteVolume,
+  calculateTiles,
+  calculateWallArea,
+} from '../../../core/calculations/trade';
 import type { CalculationCapture, CalculationDestination } from '../../../core/types/workflow';
 import './GeneralCalculatorWorkspace.css';
 
@@ -135,8 +142,7 @@ export function ConstructionHumanWorkspace({ onCaptureCalculation }: Props) {
         const height = n('height', 'altura');
         const walls = n('wallsQuantity', 'quantidade de paredes');
         const discount = optionalN('discountArea', 'descontos');
-        const grossArea = width * height * walls;
-        const netArea = Math.max(grossArea - discount, 0);
+        const { grossAreaM2: grossArea, netAreaM2: netArea } = calculateWallArea({ widthM: width, heightM: height, walls, discountAreaM2: discount });
         return result(
           `Área líquida de parede: ${round(netArea)} m²`,
           [
@@ -153,8 +159,7 @@ export function ConstructionHumanWorkspace({ onCaptureCalculation }: Props) {
         const width = n('width', 'largura');
         const length = n('length', 'comprimento');
         const loss = optionalN('lossPercent', 'perda');
-        const area = width * length;
-        const purchaseArea = area * (1 + loss / 100);
+        const { areaM2: area, totalAreaM2: purchaseArea } = calculateAreaWithLoss({ widthM: width, lengthM: length, lossPercent: loss });
         return result(
           `Área base: ${round(area)} m²`,
           [
@@ -172,8 +177,7 @@ export function ConstructionHumanWorkspace({ onCaptureCalculation }: Props) {
         const length = n('length', 'comprimento');
         const thicknessCm = n('thicknessCm', 'espessura');
         const bagsPerM3 = n('cementBagsPerM3', 'sacos por m³');
-        const volume = width * length * (thicknessCm / 100);
-        const bags = Math.ceil(volume * bagsPerM3);
+        const { cubicMeters: volume, bags } = calculateConcreteVolume({ widthM: width, lengthM: length, thicknessCm, bagsPerM3 });
         return result(
           `Volume de concreto: ${round(volume, 3)} m³`,
           [
@@ -192,19 +196,17 @@ export function ConstructionHumanWorkspace({ onCaptureCalculation }: Props) {
         const walls = n('wallsQuantity', 'quantidade de paredes');
         const discount = optionalN('discountArea', 'descontos');
         const loss = optionalN('lossPercent', 'perda');
-        const blockWidth = n('blockWidthCm', 'largura do bloco') / 100;
-        const blockHeight = n('blockHeightCm', 'altura do bloco') / 100;
-        const netArea = Math.max(width * height * walls - discount, 0);
-        const blockArea = blockWidth * blockHeight;
-        const baseBlocks = netArea / blockArea;
-        const totalBlocks = Math.ceil(baseBlocks * (1 + loss / 100));
+        const blockWidthCm = n('blockWidthCm', 'largura do bloco');
+        const blockHeightCm = n('blockHeightCm', 'altura do bloco');
+        const { netAreaM2: netArea } = calculateWallArea({ widthM: width, heightM: height, walls, discountAreaM2: discount });
+        const { blockAreaM2: blockArea, pieces: totalBlocks } = calculateBlocks({ wallAreaM2: netArea, blockWidthCm, blockHeightCm, lossPercent: loss });
         return result(
           `Blocos estimados: ${totalBlocks} un.`,
           [
             { label: 'Área líquida', value: `${round(netArea)} m²`, helper: 'parede descontada' },
             { label: 'Blocos', value: `${totalBlocks} un.`, helper: `${round(loss)}% de perda` },
           ],
-          [`Área líquida: ${round(netArea)} m²`, `Bloco: ${round(blockWidth * 100)} × ${round(blockHeight * 100)} cm`, `Perda: ${round(loss)}%`, `Quantidade: ${totalBlocks} un.`],
+          [`Área líquida: ${round(netArea)} m²`, `Bloco: ${round(blockWidthCm)} × ${round(blockHeightCm)} cm`, `Perda: ${round(loss)}%`, `Quantidade: ${totalBlocks} un.`],
           'Use para estimativa rápida. Juntas de argamassa, quebras, amarração e vãos podem alterar a quantidade real.',
           ['Área líquida = largura × altura × paredes - descontos', 'Área do bloco = largura do bloco × altura do bloco', 'Blocos base = área líquida ÷ área do bloco', 'Blocos finais = arredondar para cima(blocos base × (1 + perda ÷ 100))'],
         );
@@ -217,10 +219,8 @@ export function ConstructionHumanWorkspace({ onCaptureCalculation }: Props) {
       const tileHeight = n('tileHeightCm', 'altura da peça') / 100;
       const piecesPerBox = n('piecesPerBox', 'peças por caixa');
       const area = width * length;
+      const { tileAreaM2: tileArea, pieces, boxes } = calculateTiles({ areaM2: area, tileWidthCm: tileWidth * 100, tileHeightCm: tileHeight * 100, piecesPerBox, lossPercent: loss });
       const purchaseArea = area * (1 + loss / 100);
-      const tileArea = tileWidth * tileHeight;
-      const pieces = Math.ceil(purchaseArea / tileArea);
-      const boxes = Math.ceil(pieces / piecesPerBox);
       return result(
         `Piso/revestimento: ${boxes} caixa(s)`,
         [

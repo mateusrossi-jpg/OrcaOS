@@ -1,4 +1,9 @@
 import { useMemo, useState } from 'react';
+import {
+  calculatePaintLiters,
+  calculatePaintingBudget,
+  calculateRoomPaintingArea,
+} from '../../../core/calculations/trade';
 import type { CalculationCapture, CalculationDestination } from '../../../core/types/workflow';
 import './GeneralCalculatorWorkspace.css';
 
@@ -89,10 +94,6 @@ function result(summary: string, cards: ResultCardData[], details: string[], ori
   return { error: null, summary, cards, details, orientation, formula };
 }
 
-function estimateLiters(area: number, coats: number, yieldValue: number, lossPercent: number): number {
-  return area * coats / yieldValue * (1 + lossPercent / 100);
-}
-
 function NumberField({ label, value, suffix, step = 0.01, onChange }: { label: string; value: string; suffix?: string; step?: number; onChange: (value: string) => void }) {
   return (
     <label className="general-form-field">
@@ -141,8 +142,13 @@ export function PaintingHumanWorkspace({ onCaptureCalculation }: Props) {
         const height = n('height', 'altura');
         const discount = optionalN('discountArea', 'descontos');
         const extra = optionalN('extraArea', 'área extra');
-        const wallArea = 2 * (length + width) * height;
-        const netArea = Math.max(wallArea + extra - discount, 0);
+        const { wallAreaM2: wallArea, netAreaM2: netArea } = calculateRoomPaintingArea({
+          lengthM: length,
+          widthM: width,
+          heightM: height,
+          discountAreaM2: discount,
+          extraAreaM2: extra,
+        });
         return result(
           `Área a pintar: ${round(netArea)} m²`,
           [
@@ -160,15 +166,20 @@ export function PaintingHumanWorkspace({ onCaptureCalculation }: Props) {
         const coats = n('coats', 'demãos');
         const yieldValue = n('paintYieldM2PerLiter', 'rendimento da tinta');
         const loss = optionalN('lossPercent', 'perda');
-        const liters = estimateLiters(area, coats, yieldValue, loss);
+        const { liters, gallons36L, cans18L } = calculatePaintLiters({
+          areaM2: area,
+          coats,
+          yieldM2PerLiter: yieldValue,
+          lossPercent: loss,
+        });
         return result(
           `Tinta estimada: ${round(liters)} L`,
           [
             { label: 'Litros', value: `${round(liters)} L`, helper: `${round(area)} m² · ${round(coats)} demão(s)` },
-            { label: 'Galões 3,6 L', value: `${Math.ceil(liters / 3.6)}`, helper: 'arredondado para compra' },
-            { label: 'Latas 18 L', value: `${Math.ceil(liters / 18)}`, helper: 'arredondado para compra' },
+            { label: 'Galões 3,6 L', value: `${gallons36L}`, helper: 'arredondado para compra' },
+            { label: 'Latas 18 L', value: `${cans18L}`, helper: 'arredondado para compra' },
           ],
-          [`Área: ${round(area)} m²`, `Demãos: ${round(coats)}`, `Rendimento: ${round(yieldValue)} m²/L`, `Perda: ${round(loss)}%`, `Litros: ${round(liters)} L`, `Galões 3,6 L: ${Math.ceil(liters / 3.6)}`, `Latas 18 L: ${Math.ceil(liters / 18)}`],
+          [`Área: ${round(area)} m²`, `Demãos: ${round(coats)}`, `Rendimento: ${round(yieldValue)} m²/L`, `Perda: ${round(loss)}%`, `Litros: ${round(liters)} L`, `Galões 3,6 L: ${gallons36L}`, `Latas 18 L: ${cans18L}`],
           'Rendimento muda conforme tinta, superfície, cor anterior e preparo. Use a embalagem do fabricante quando tiver o dado real.',
           ['Litros base = área × demãos ÷ rendimento da tinta', 'Litros com perda = litros base × (1 + perda ÷ 100)', 'Galões/latas são arredondados para cima para compra'],
         );
@@ -181,10 +192,16 @@ export function PaintingHumanWorkspace({ onCaptureCalculation }: Props) {
       const paintPrice = optionalN('paintLiterPrice', 'preço da tinta por litro');
       const laborPrice = optionalN('laborPricePerM2', 'mão de obra por m²');
       const prepCost = optionalN('prepCost', 'preparo/outros custos');
-      const liters = estimateLiters(area, coats, yieldValue, loss);
-      const material = liters * paintPrice;
-      const labor = area * laborPrice;
-      const total = material + labor + prepCost;
+      const budget = calculatePaintingBudget({
+        areaM2: area,
+        coats,
+        yieldM2PerLiter: yieldValue,
+        paintPricePerLiter: paintPrice,
+        laborPricePerM2: laborPrice,
+        lossPercent: loss,
+      });
+      const { liters, material, labor } = budget;
+      const total = budget.total + prepCost;
       return result(
         `Orçamento de pintura: ${money(total)}`,
         [

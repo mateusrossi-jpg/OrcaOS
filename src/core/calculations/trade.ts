@@ -158,6 +158,19 @@ export function calculatePaintLiters(input: { areaM2: number; coats: number; yie
   return { liters, gallons36L: Math.ceil(liters / 3.6), cans18L: Math.ceil(liters / 18) };
 }
 
+export function calculateRoomPaintingArea(input: { lengthM: number; widthM: number; heightM: number; discountAreaM2?: number; extraAreaM2?: number }) {
+  ensurePositiveNumber(input.lengthM, 'Comprimento');
+  ensurePositiveNumber(input.widthM, 'Largura');
+  ensurePositiveNumber(input.heightM, 'Altura');
+  ensureNonNegativeNumber(input.discountAreaM2 ?? 0, 'Descontos');
+  ensureNonNegativeNumber(input.extraAreaM2 ?? 0, 'Área extra');
+
+  const perimeterM = 2 * (input.lengthM + input.widthM);
+  const wallAreaM2 = perimeterM * input.heightM;
+  const netAreaM2 = Math.max(wallAreaM2 + (input.extraAreaM2 ?? 0) - (input.discountAreaM2 ?? 0), 0);
+  return { perimeterM, wallAreaM2, netAreaM2 };
+}
+
 export function calculatePaintingBudget(input: { areaM2: number; coats: number; yieldM2PerLiter: number; paintPricePerLiter: number; laborPricePerM2: number; lossPercent?: number }) {
   const paint = calculatePaintLiters({
     areaM2: input.areaM2,
