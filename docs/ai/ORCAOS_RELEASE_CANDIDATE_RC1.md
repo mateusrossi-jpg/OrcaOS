@@ -38,6 +38,8 @@ Para teste manual:
 npm run dev
 ```
 
+Checklist de fechamento para teste controlado: `docs/ai/ORCAOS_RC1_TEST_READINESS_REVIEW.md`.
+
 ## Checklist De Fluxo Principal
 
 - Criar um cliente novo.

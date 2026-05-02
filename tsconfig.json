@@ -16,9 +16,5 @@
     "noEmit": true,
     "jsx": "react-jsx"
   },
-  "include": ["src"],
-  "exclude": [
-    "src/features/calculators/components/EnhancedGeneralCalculatorWorkspace.tsx",
-    "src/features/calculators/components/HydraulicsCalculatorWorkspace.tsx"
-  ]
+  "include": ["src"]
 }
