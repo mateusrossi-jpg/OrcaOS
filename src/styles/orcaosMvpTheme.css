@@ -1,0 +1,900 @@
+:root {
+  --orca-bg: #070b09;
+  --orca-bg-2: #0a100d;
+  --orca-surface: #101713;
+  --orca-surface-2: #151f19;
+  --orca-surface-3: #1a261f;
+  --orca-border: rgba(187, 247, 208, 0.12);
+  --orca-border-strong: rgba(34, 197, 94, 0.34);
+  --orca-green: #22c55e;
+  --orca-green-strong: #16a34a;
+  --orca-green-soft: rgba(34, 197, 94, 0.11);
+  --orca-text: #f8fafc;
+  --orca-muted: #a7b3ad;
+  --orca-muted-2: #7f8f87;
+  --orca-danger: #f87171;
+  --orca-warning: #fbbf24;
+  --orca-radius: 22px;
+  --orca-radius-sm: 16px;
+  --orca-shadow: 0 24px 80px rgba(0, 0, 0, 0.38);
+
+  --stable-bg: var(--orca-bg);
+  --stable-surface: var(--orca-surface);
+  --stable-surface-2: var(--orca-surface-2);
+  --stable-surface-3: var(--orca-surface-3);
+  --stable-border: var(--orca-border);
+  --stable-border-2: var(--orca-border-strong);
+  --stable-green: var(--orca-green);
+  --stable-green-2: var(--orca-green-strong);
+  --stable-text: var(--orca-text);
+  --stable-muted: var(--orca-muted);
+
+  color: var(--orca-text);
+  background: var(--orca-bg);
+}
+
+html,
+body,
+#root {
+  background:
+    radial-gradient(circle at top left, rgba(34, 197, 94, 0.08), transparent 22rem),
+    linear-gradient(180deg, var(--orca-bg), var(--orca-bg-2));
+  color: var(--orca-text);
+}
+
+body {
+  color-scheme: dark;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  color: inherit;
+}
+
+::selection {
+  color: #041008;
+  background: var(--orca-green);
+}
+
+.professional-app-shell,
+.mobile-app-shell {
+  background:
+    radial-gradient(circle at top left, rgba(34, 197, 94, 0.07), transparent 20rem),
+    linear-gradient(180deg, var(--orca-bg), var(--orca-bg-2));
+  color: var(--orca-text);
+}
+
+.professional-app-content,
+.mobile-app-content {
+  background: transparent;
+}
+
+.professional-app-content > .app-screen,
+.app-screen {
+  width: 100%;
+  max-width: 1080px;
+  margin: 0 auto;
+}
+
+.wide-screen {
+  max-width: 1180px;
+}
+
+.screen-header,
+.home-hero,
+.module-detail-header {
+  color: var(--orca-text);
+}
+
+.screen-header h1,
+.home-hero h1,
+.module-detail-header h1 {
+  color: var(--orca-text);
+  letter-spacing: 0;
+}
+
+.screen-header p,
+.home-hero p,
+.module-detail-header p,
+.module-detail-header small,
+.orca-dashboard-copy p,
+.orca-panel-card small,
+.orca-activity-list small,
+.orca-compact-module-list small {
+  color: var(--orca-muted);
+}
+
+.orca-kicker,
+.part-result-main > span:first-child,
+.guided-room-selected span,
+.guided-cart-total span {
+  color: var(--orca-green);
+}
+
+.professional-topbar {
+  border-bottom-color: var(--orca-border);
+  background: rgba(7, 11, 9, 0.92);
+}
+
+.topbar-menu-button,
+.topbar-status-pill,
+.side-drawer,
+.drawer-brand-card,
+.drawer-work-card,
+.drawer-nav button {
+  border-color: var(--orca-border);
+  background: linear-gradient(145deg, var(--orca-surface), var(--orca-surface-2));
+  color: var(--orca-text);
+}
+
+.topbar-menu-button {
+  border-radius: 14px;
+}
+
+.topbar-status-pill {
+  border-color: var(--orca-border-strong);
+  color: var(--orca-green);
+  background: var(--orca-green-soft);
+}
+
+.side-drawer {
+  padding: 16px;
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at top left, rgba(34, 197, 94, 0.11), transparent 18rem),
+    var(--orca-bg);
+}
+
+.drawer-nav {
+  gap: 9px;
+}
+
+.drawer-nav button {
+  min-height: 62px;
+  border-radius: 18px;
+  padding: 12px 14px;
+  overflow: hidden;
+}
+
+.drawer-nav button.active {
+  border-color: var(--orca-border-strong);
+  background:
+    radial-gradient(circle at top right, rgba(34, 197, 94, 0.18), transparent 8rem),
+    linear-gradient(145deg, rgba(34, 197, 94, 0.12), var(--orca-surface-2));
+  box-shadow:
+    0 0 0 1px rgba(34, 197, 94, 0.10),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.drawer-nav strong,
+.drawer-brand-card strong,
+.drawer-work-card strong,
+.topbar-title-block strong {
+  color: var(--orca-text);
+}
+
+.drawer-nav small,
+.drawer-brand-card small,
+.drawer-work-card small,
+.topbar-title-block small {
+  color: var(--orca-muted);
+}
+
+.drawer-nav .orca-app-icon,
+.drawer-nav-icon,
+.bottom-nav {
+  display: none;
+}
+
+.free-plan-card,
+.pro-teaser-card,
+.module-app-card,
+.calculator-row,
+.empty-state-card,
+.settings-row,
+.store-card,
+.survey-intro-card,
+.survey-empty-state,
+.survey-flow-grid article,
+.orca-dashboard-hero,
+.orca-dashboard-value-card,
+.orca-kpi-grid article,
+.orca-quick-actions button,
+.orca-panel-card,
+.orca-compact-module-list button,
+.orca-activity-list article,
+.active-work-context-card,
+.budget-save-status,
+.budget-header-card,
+.saved-budget-panel,
+.budget-editor,
+.budget-summary,
+.budget-section-panel,
+.budget-summary-strip article,
+.saved-budget-card,
+.budget-item-row,
+.editable-budget-item-card,
+.budget-template-card,
+.client-os-panel,
+.active-os-panel,
+.client-os-card,
+.client-os-empty,
+.report-summary-panel,
+.report-metrics-grid article,
+.report-empty-state,
+.technical-capture-list,
+.technical-capture-card,
+.client-purchase-card,
+.client-proposal-header,
+.client-proposal-card,
+.client-proposal-item,
+.client-proposal-empty,
+.catalog-hub-panel,
+.supplier-profile-panel,
+.supplier-tax-panel,
+.local-backup-panel,
+.professional-profile-panel,
+.professional-identity-card {
+  border: 1px solid var(--orca-border);
+  background:
+    radial-gradient(circle at top right, rgba(34, 197, 94, 0.055), transparent 13rem),
+    linear-gradient(145deg, var(--orca-surface), var(--orca-surface-2));
+  color: var(--orca-text);
+  box-shadow: none;
+}
+
+.calculator-workspace,
+.calculator-plan-banner,
+.calculator-form,
+.calculator-results,
+.result-card,
+.locked-calculator-card,
+.calculator-picker-card,
+.calculator-overlay-panel,
+.calculator-overlay-header,
+.calculation-next-step-card,
+.general-plan-banner,
+.general-picker-card,
+.general-overlay-panel,
+.general-result-card,
+.general-advanced-block,
+.fundamental-plan-banner,
+.fundamental-picker-card,
+.fundamental-overlay-panel,
+.fundamental-result-card,
+.human-plan-banner,
+.human-picker-card,
+.human-overlay-panel,
+.human-result-card,
+.taxonomy-group-card,
+.local-backup-header,
+.local-backup-card,
+.local-backup-preview,
+.local-backup-warning,
+.professional-profile-header,
+.professional-profile-card,
+.professional-id-grid article {
+  border: 1px solid var(--orca-border);
+  background:
+    radial-gradient(circle at top right, rgba(34, 197, 94, 0.055), transparent 13rem),
+    linear-gradient(145deg, var(--orca-surface), var(--orca-surface-2));
+  color: var(--orca-text);
+  box-shadow: none;
+}
+
+.settings-group {
+  display: grid;
+  gap: 12px;
+}
+
+.settings-group h2,
+.section-title-row h2 {
+  color: var(--orca-muted);
+}
+
+.module-app-card,
+.store-card,
+.settings-row,
+.saved-budget-card,
+.client-os-card,
+.editable-budget-item-card,
+.budget-template-card {
+  transition: border-color 160ms ease, transform 160ms ease, background 160ms ease;
+}
+
+.module-app-card:hover,
+.store-card:hover,
+.settings-row:hover,
+.saved-budget-card:hover,
+.client-os-card:hover,
+.editable-budget-item-card:hover,
+.budget-template-card:hover {
+  border-color: var(--orca-border-strong);
+  transform: translateY(-1px);
+}
+
+.module-app-card.disabled {
+  opacity: 0.58;
+}
+
+.module-app-card strong,
+.calculator-row strong,
+.empty-state-card strong,
+.settings-row strong,
+.store-card strong,
+.survey-intro-card strong,
+.survey-empty-state strong,
+.survey-flow-grid strong,
+.orca-panel-card h2,
+.orca-panel-card strong,
+.orca-dashboard-copy h1,
+.orca-dashboard-value-card strong,
+.orca-kpi-grid strong,
+.orca-quick-actions strong,
+.budget-section-header h3,
+.saved-budget-panel-header h3,
+.budget-editor-title h3,
+.budget-summary h3,
+.budget-summary-strip strong,
+.saved-budget-open strong,
+.editable-budget-item-card strong,
+.budget-item-row strong,
+.client-os-panel h2,
+.active-os-panel h2,
+.client-os-card strong,
+.report-summary-panel h2,
+.report-metrics-grid strong,
+.report-empty-state strong,
+.client-proposal-header h2,
+.client-proposal-card strong,
+.client-proposal-item strong,
+.client-proposal-empty,
+.guided-room-header h2,
+.guided-room-card strong,
+.guided-room-selected strong,
+.guided-cart-header h2,
+.guided-cart-total strong,
+.guided-service-card strong,
+.part-result-main strong,
+.guided-cart-summary strong,
+.parts-results-header strong {
+  color: var(--orca-text);
+}
+
+.calculator-plan-banner strong,
+.calculator-picker-card strong,
+.calculator-overlay-header h2,
+.calculation-next-step-card strong,
+.locked-calculator-card strong,
+.result-card strong,
+.general-plan-banner strong,
+.general-picker-card strong,
+.general-overlay-header h2,
+.general-result-card strong,
+.fundamental-plan-banner strong,
+.fundamental-picker-card strong,
+.fundamental-overlay-header h2,
+.fundamental-result-card strong,
+.human-plan-banner strong,
+.human-picker-card strong,
+.human-overlay-header h2,
+.human-result-card strong,
+.local-backup-header h2,
+.local-backup-header strong,
+.local-backup-card strong,
+.local-backup-preview strong,
+.local-backup-warning strong,
+.professional-profile-header h2,
+.professional-profile-header strong,
+.professional-profile-card strong,
+.professional-id-grid span {
+  color: var(--orca-text);
+}
+
+.module-app-card small,
+.calculator-row small,
+.settings-row small,
+.store-card small,
+.survey-intro-card small,
+.survey-flow-grid small,
+.empty-state-card p,
+.survey-empty-state p,
+.orca-kpi-grid span,
+.orca-kpi-grid small,
+.orca-dashboard-value-card span,
+.orca-dashboard-value-card small,
+.budget-section-header p,
+.saved-budget-panel-header p,
+.budget-editor-title p,
+.budget-summary p,
+.budget-summary-strip span,
+.saved-budget-open small,
+.saved-budget-open span,
+.editable-budget-item-card small,
+.budget-item-row small,
+.client-os-panel p,
+.active-os-panel p,
+.client-os-card small,
+.report-summary-panel p,
+.report-metrics-grid span,
+.report-empty-state p,
+.client-proposal-header p,
+.client-proposal-card small,
+.client-proposal-item small,
+.client-proposal-item p,
+.guided-room-header p,
+.guided-room-header strong,
+.guided-room-card small,
+.guided-room-selected small,
+.guided-room-helper,
+.guided-room-empty,
+.guided-cart-header p,
+.guided-service-card small,
+.part-result-main small,
+.guided-cart-summary small,
+.parts-results-header small {
+  color: var(--orca-muted);
+}
+
+.calculator-plan-banner span,
+.calculator-picker-card small,
+.calculator-overlay-header p,
+.calculator-overlay-header span,
+.calculation-next-step-card p,
+.calculation-next-step-card small,
+.locked-calculator-card p,
+.locked-calculator-card small,
+.result-card span,
+.result-card small,
+.form-field span,
+.input-with-suffix small,
+.general-plan-banner span,
+.general-picker-card small,
+.general-overlay-header p,
+.general-form-field span,
+.general-form-field small,
+.general-result-card span,
+.general-result-card small,
+.fundamental-plan-banner span,
+.fundamental-picker-card small,
+.fundamental-overlay-header p,
+.fundamental-form-field span,
+.fundamental-form-field small,
+.fundamental-result-card span,
+.fundamental-result-card small,
+.human-plan-banner span,
+.human-picker-card small,
+.human-overlay-header p,
+.human-field span,
+.human-field small,
+.human-result-card span,
+.human-result-card small,
+.local-backup-header p,
+.local-backup-card small,
+.local-backup-preview small,
+.local-backup-warning p,
+.local-backup-preview li,
+.professional-profile-header p,
+.professional-profile-card small {
+  color: var(--orca-muted);
+}
+
+.app-icon,
+.tone-blue,
+.tone-gray,
+.tone-green,
+.tone-orange,
+.tone-muted {
+  color: var(--orca-green);
+  background: rgba(34, 197, 94, 0.10);
+}
+
+.tone-orange {
+  color: var(--orca-warning);
+  background: rgba(251, 191, 36, 0.11);
+}
+
+.tone-muted,
+.tone-gray {
+  color: var(--orca-muted);
+  background: rgba(255, 255, 255, 0.055);
+}
+
+.module-plan-pill.free,
+.badge-free {
+  color: #bbf7d0;
+  background: rgba(34, 197, 94, 0.14);
+}
+
+.module-plan-pill.pro,
+.badge-pro {
+  color: #fde68a;
+  background: rgba(251, 191, 36, 0.13);
+}
+
+.module-plan-pill.soon {
+  color: var(--orca-muted);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.section-mode-tabs,
+.budget-workspace-tabs,
+.client-os-section-tabs {
+  border: 1px solid var(--orca-border);
+  border-radius: 18px;
+  padding: 7px;
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.section-mode-tabs button,
+.budget-workspace-tabs button,
+.client-os-section-tabs button {
+  min-height: 42px;
+  border: 1px solid transparent;
+  border-radius: 13px;
+  color: var(--orca-muted);
+  background: transparent;
+}
+
+.section-mode-tabs button.active,
+.budget-workspace-tabs button.active,
+.client-os-section-tabs button.active,
+.saved-budget-card.active,
+.budget-template-card.active,
+.client-os-card.active,
+.guided-service-card.active,
+.part-result-card.active {
+  border-color: var(--orca-border-strong);
+  color: var(--orca-text);
+  background:
+    radial-gradient(circle at top right, rgba(34, 197, 94, 0.14), transparent 9rem),
+    rgba(34, 197, 94, 0.075);
+  box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.08);
+}
+
+.module-list-app {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.module-list-app .module-app-card {
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  min-height: 132px;
+  height: 100%;
+  padding: 16px;
+  overflow: hidden;
+}
+
+.module-card-body {
+  min-width: 0;
+}
+
+.module-card-body strong {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.module-card-body small {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.module-list-app .module-plan-pill {
+  align-self: start;
+  white-space: nowrap;
+}
+
+.module-list-app .chevron {
+  display: none;
+}
+
+.back-button,
+.section-title-row button,
+.inline-action,
+.budget-actions button,
+.store-card button,
+.guided-cart-actions button,
+.guided-room-form-actions button,
+.guided-room-actions button,
+.active-os-panel .inline-action,
+.client-proposal-actions button,
+.client-proposal-search button {
+  border: 1px solid var(--orca-border-strong);
+  color: #041008;
+  background: linear-gradient(135deg, var(--orca-green), var(--orca-green-strong));
+  box-shadow: none;
+}
+
+.secondary-action,
+.ghost-action,
+.budget-workspace-tabs button:not(.active),
+.section-mode-tabs button:not(.active),
+.client-os-section-tabs button:not(.active) {
+  color: var(--orca-muted);
+  background: transparent;
+}
+
+.danger-action,
+.saved-budget-delete,
+.budget-item-total button {
+  border: 1px solid rgba(248, 113, 113, 0.30);
+  color: #fecaca;
+  background: rgba(127, 29, 29, 0.16);
+}
+
+.budget-field span,
+.technical-edit-field span,
+.guided-room-grid label,
+.guided-room-search,
+.guided-typed-quantity span,
+.client-proposal-search span,
+label {
+  color: var(--orca-muted);
+}
+
+.budget-field input,
+.budget-field select,
+.budget-field textarea,
+.technical-edit-field input,
+.technical-edit-field select,
+.technical-edit-field textarea,
+.client-os-actions select,
+.guided-room-grid input,
+.guided-room-grid select,
+.guided-room-grid textarea,
+.guided-room-search input,
+.guided-room-search select,
+.guided-manual-grid input,
+.guided-manual-grid select,
+.guided-manual-grid textarea,
+.parts-search-grid input,
+.parts-search-grid select,
+.client-proposal-search input,
+.input-with-suffix,
+.input-with-suffix input,
+.form-field select,
+.general-form-field input,
+.general-form-field select,
+.fundamental-form-field input,
+.human-field input,
+.human-field select,
+.local-backup-file input,
+.local-backup-file select,
+.local-backup-textarea textarea,
+.professional-profile-grid input,
+.professional-profile-grid select,
+.professional-profile-grid textarea,
+input,
+select,
+textarea {
+  border: 1px solid rgba(255, 255, 255, 0.11);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.015)),
+    var(--orca-surface-2);
+  color: var(--orca-text);
+  outline: none;
+}
+
+.input-with-suffix {
+  overflow: hidden;
+}
+
+.input-with-suffix input {
+  border: 0;
+  box-shadow: none;
+}
+
+.calculator-tabs button {
+  border-color: var(--orca-border);
+  color: var(--orca-muted);
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.calculator-tabs button.active {
+  border-color: var(--orca-border-strong);
+  color: var(--orca-text);
+  background: rgba(34, 197, 94, 0.10);
+}
+
+.tab-plan.free,
+.tab-plan.pro,
+.calculator-plan-banner em,
+.general-plan-banner em,
+.general-picker-card em,
+.general-overlay-header em,
+.fundamental-plan-banner em,
+.fundamental-picker-card em,
+.fundamental-overlay-header em {
+  border: 1px solid var(--orca-border-strong);
+  color: var(--orca-green);
+  background: rgba(34, 197, 94, 0.09);
+}
+
+.calculator-tabs button.active .tab-plan.free,
+.calculator-tabs button.active .tab-plan.pro {
+  color: #041008;
+  background: var(--orca-green);
+}
+
+.technical-warning {
+  border: 1px solid rgba(251, 191, 36, 0.25);
+  color: #fde68a;
+  background: rgba(120, 53, 15, 0.16);
+}
+
+.error-box {
+  border: 1px solid rgba(248, 113, 113, 0.30);
+  color: #fecaca;
+  background: rgba(127, 29, 29, 0.16);
+}
+
+.modal-back-button,
+.general-overlay-header button,
+.fundamental-overlay-header button {
+  border: 1px solid var(--orca-border);
+  color: var(--orca-green);
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.calculator-overlay-backdrop,
+.general-overlay-backdrop,
+.fundamental-overlay-backdrop {
+  background: rgba(2, 6, 23, 0.68);
+}
+
+.budget-field input:focus,
+.budget-field select:focus,
+.budget-field textarea:focus,
+.technical-edit-field input:focus,
+.technical-edit-field select:focus,
+.technical-edit-field textarea:focus,
+.client-os-actions select:focus,
+.guided-room-grid input:focus,
+.guided-room-grid select:focus,
+.guided-room-grid textarea:focus,
+.guided-room-search input:focus,
+.guided-room-search select:focus,
+.guided-manual-grid input:focus,
+.guided-manual-grid select:focus,
+.guided-manual-grid textarea:focus,
+.parts-search-grid input:focus,
+.parts-search-grid select:focus,
+.client-proposal-search input:focus,
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--orca-border-strong);
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.10);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--orca-muted-2);
+}
+
+.budget-summary-strip,
+.report-metrics-grid,
+.orca-kpi-grid,
+.orca-quick-actions,
+.orca-home-columns,
+.budget-form-grid,
+.budget-config-grid,
+.client-os-grid {
+  gap: 12px;
+}
+
+.budget-context-panel,
+.report-context-box {
+  border: 1px solid var(--orca-border);
+  background: rgba(34, 197, 94, 0.06);
+  color: var(--orca-text);
+}
+
+.client-os-empty,
+.report-empty-state,
+.guided-room-empty,
+.empty-budget,
+.survey-empty-state {
+  border-style: dashed;
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.store-card b,
+.budget-item-total strong,
+.editable-budget-item-footer strong,
+.guided-cart-feedback,
+.guided-cart-summary span {
+  color: var(--orca-green);
+}
+
+.report-document,
+.report-document *,
+.print-document,
+.print-document *,
+.budget-print-preview-document,
+.budget-print-preview-document *,
+.client-proposal-preview-document,
+.client-proposal-preview-document * {
+  color-scheme: light;
+}
+
+.report-document,
+.print-document,
+.budget-print-preview-document,
+.client-proposal-preview-document {
+  border-color: #d6e0eb;
+  background: #ffffff;
+  color: #111827;
+}
+
+.report-document :where(h1, h2, h3, strong, p, small, span, li, div),
+.print-document :where(h1, h2, h3, strong, p, small, span, li, div),
+.budget-print-preview-document :where(h1, h2, h3, strong, p, small, span, li, div),
+.client-proposal-preview-document :where(h1, h2, h3, strong, p, small, span, li, div) {
+  color: inherit;
+}
+
+.report-document :where(.report-empty-state, .report-item-card, .report-technical-note, .report-item-image, .report-context-box, .report-metrics-grid article),
+.print-document :where(.print-client-box, article, section),
+.budget-print-preview-document :where(.print-client-box, article, section),
+.client-proposal-preview-document :where(article, section, .client-proposal-preview-identification div, .client-proposal-preview-notes div) {
+  border-color: #d6e0eb;
+  background: #f8fafc;
+  color: #111827;
+}
+
+@media (min-width: 900px) {
+  .calculations-overview-screen .module-list-app {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .module-list-app,
+  .calculations-overview-screen .module-list-app,
+  .budget-summary-strip,
+  .report-metrics-grid,
+  .orca-kpi-grid,
+  .orca-quick-actions,
+  .orca-home-columns,
+  .budget-header-card,
+  .budget-form-grid,
+  .budget-config-grid,
+  .client-os-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .module-list-app .module-app-card {
+    min-height: 118px;
+  }
+}
+
+@media (max-width: 520px) {
+  .professional-app-content {
+    padding-inline: 12px;
+  }
+
+  .side-drawer {
+    left: 8px;
+    right: 8px;
+    width: auto;
+  }
+
+  .section-mode-tabs,
+  .budget-workspace-tabs,
+  .client-os-section-tabs {
+    grid-template-columns: 1fr;
+  }
+}

@@ -48,14 +48,18 @@ describe('electrical calculations', () => {
   });
 
   it('calculates power from current in a three-phase circuit', () => {
+    const currentAmps = 10;
+    const voltageVolts = 380;
+    const powerFactor = 0.92;
     const power = calculatePowerFromCurrent({
-      currentAmps: 10,
-      voltageVolts: 380,
-      powerFactor: 0.92,
+      currentAmps,
+      voltageVolts,
+      powerFactor,
       phase: 'three-phase',
     });
+    const expectedPower = Math.sqrt(3) * voltageVolts * currentAmps * powerFactor;
 
-    expect(roundTechnical(power)).toBe(6055.92);
+    expect(roundTechnical(power)).toBe(roundTechnical(expectedPower));
   });
 
   it('calculates resistance by Ohm law', () => {
