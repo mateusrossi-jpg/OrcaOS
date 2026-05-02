@@ -123,6 +123,25 @@ Estado atualizado:
 82 testes passando
 ```
 
+### 8. Backup Google Drive preparado
+
+Status: fechado como base técnica, pendente apenas de configuração real de OAuth.
+
+- Testes cobrem detecção de `VITE_GOOGLE_CLIENT_ID`.
+- Testes cobrem busca de backup no `appDataFolder`.
+- Testes cobrem download e parse do backup.
+- Testes cobrem criação de backup novo e atualização de backup existente.
+- Testes cobrem erro do Drive e ausência de backup.
+
+Observação: o login Google real depende de configuração externa no Google Cloud e variável de ambiente. A base de código está preparada, mas a publicação exige revisar consentimento, escopos, privacidade e configuração do OAuth.
+
+Estado atualizado:
+
+```txt
+13 arquivos de teste
+90 testes passando
+```
+
 ## Validação técnica executada
 
 Comandos executados:
