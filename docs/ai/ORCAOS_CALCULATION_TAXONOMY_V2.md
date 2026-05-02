@@ -47,12 +47,12 @@ Ordem de leitura:
 
 ### Conversores e unidades
 
-Dois módulos permanecem porque não têm a mesma função:
+Os conversores ficam em um único módulo, com duas abas internas:
 
 - **Conversores rápidos**: o usuário escolhe a unidade de entrada e converte as equivalências principais.
 - **Conversores técnicos**: conversões mais específicas de rotina técnica, como AWG, polegada, vazão completa, pressão completa, temperatura e kWh/R$.
 
-Meta futura: unificar os dois em uma única experiência com seletor de unidade para todos os conversores.
+Essa organização remove a duplicidade de cards na navegação, mas mantém os dois modos de uso.
 
 ### Relatório e diagnóstico
 
@@ -75,8 +75,7 @@ Esses itens devem gerar texto técnico e relatório, não item comercial automat
 - Materiais de obra básicos.
 - Pintura.
 - Hidráulica básica.
-- Conversores rápidos.
-- Conversores técnicos atuais.
+- Conversores técnicos.
 - Orçamento rápido.
 - Percentuais e produtividade.
 - Alguns cálculos internos de módulos Pro quando funcionam como entrada de produto.
@@ -99,7 +98,6 @@ Esses itens devem gerar texto técnico e relatório, não item comercial automat
 
 ## Pontos pendentes
 
-- Unificar visualmente os conversores sem perder seletor de unidade.
 - Separar diagnóstico também em Relatórios/Levantamento, não apenas Cálculos.
 - Deixar bloqueio Free/Pro consistente dentro dos workspaces, pois hoje alguns módulos Pro ainda possuem cálculos internos livres.
 - Revisar nomes internos depois da publicação inicial, sem quebrar storage nem histórico de capturas.

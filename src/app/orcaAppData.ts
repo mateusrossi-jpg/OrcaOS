@@ -29,8 +29,7 @@ export const calculationModules: ModuleCardData[] = [
   { id: 'pintura', title: 'Pintura e acabamento', description: 'Área, tinta, selador, massa, custo e tempo de pintura', icon: '▨', tone: 'green', count: '6 cálculos livres', available: true, plan: 'free', calculatorModule: 'pintura' },
   { id: 'hidraulica', title: 'Hidráulica básica', description: 'Reservatório, consumo, autonomia, vazão, enchimento e pressão', icon: '≋', tone: 'blue', count: '7 cálculos livres', available: true, plan: 'free', calculatorModule: 'hidraulica' },
   { id: 'hidraulicaAvancada', title: 'Instalações hidráulicas', description: 'Caixa por pessoas, piscina, esgoto, pressão por coluna e bomba simples', icon: '≋', tone: 'green', count: '8 cálculos', available: true, plan: 'pro', calculatorModule: 'hidraulicaAvancada' },
-  { id: 'conversores', title: 'Conversores rápidos', description: 'Entrada por unidade escolhida: volume, pressão, potência e BTU/W', icon: '⇄', tone: 'blue', count: '4 conversores livres', available: true, plan: 'free', calculatorModule: 'conversores' },
-  { id: 'conversoresAvancados', title: 'Conversores técnicos', description: 'AWG, potência, térmica, pressão, vazão, polegadas, temperatura e kWh/R$', icon: '⇄', tone: 'green', count: '10 conversores livres', available: true, plan: 'free', calculatorModule: 'conversoresAvancados' },
+  { id: 'conversores', title: 'Conversores técnicos', description: 'Conversões rápidas e técnicas: volume, pressão, potência, BTU/W, AWG, polegadas, vazão e kWh/R$', icon: '⇄', tone: 'blue', count: '14 conversores livres', available: true, plan: 'free', calculatorModule: 'conversores' },
   { id: 'orcamentoTecnico', title: 'Orçamento rápido', description: 'Mão de obra, diária, hora técnica, parcelamento, sinal e preço final', icon: 'R$', tone: 'orange', count: '6 cálculos livres', available: true, plan: 'free', calculatorModule: 'orcamentoTecnico' },
   { id: 'financeiroAvancado', title: 'Preço e margem', description: 'Margem real, markup, desconto máximo, taxas, entrada, hora real e faixas', icon: 'R$', tone: 'orange', count: '9 cálculos', available: true, plan: 'pro', calculatorModule: 'financeiroAvancado' },
   { id: 'percentuaisComerciais', title: 'Percentuais e negociação', description: 'Regra de três, porcentagem, acréscimo, desconto, variação, margem e markup', icon: 'R$', tone: 'orange', count: '7 cálculos livres', available: true, plan: 'free', calculatorModule: 'fundamentosGerais' },
@@ -81,9 +80,9 @@ export const calculationSectorGroups: CalculationSectorGroup[] = [
   {
     id: 'converters',
     title: 'Conversores e unidades',
-    description: 'Use conversores rápidos quando souber a unidade de entrada; use técnicos para tabelas e unidades específicas.',
+    description: 'Um único módulo com conversores rápidos e técnicos organizados por abas internas.',
     icon: '⇄',
-    moduleIds: ['conversores', 'conversoresAvancados'],
+    moduleIds: ['conversores'],
   },
   {
     id: 'diagnostics',

@@ -13,7 +13,6 @@ import type { ActiveWorkContext, AppTab, BudgetSection, CalculationSectorId, Mod
 import { loadStoredCaptures, saveStoredCaptures } from './storage/calculationCapturesStorage';
 
 const BudgetWorkspaceClientBridge = lazy(() => import('../features/budgets/components/BudgetWorkspaceClientBridge').then((module) => ({ default: module.BudgetWorkspaceClientBridge })));
-const ConvertersHumanWorkspace = lazy(() => import('../features/calculators/components/ConvertersHumanWorkspace').then((module) => ({ default: module.ConvertersHumanWorkspace })));
 const ElectricalCalculatorWorkspace = lazy(() => import('../features/calculators/components/ElectricalCalculatorWorkspace').then((module) => ({ default: module.ElectricalCalculatorWorkspace })));
 const ElectricalFundamentalsHumanWorkspace = lazy(() => import('../features/calculators/components/ElectricalFundamentalsHumanWorkspace').then((module) => ({ default: module.ElectricalFundamentalsHumanWorkspace })));
 const ExpansionCalculatorsWorkspace = lazy(() => import('../features/calculators/components/ExpansionCalculatorsWorkspace').then((module) => ({ default: module.ExpansionCalculatorsWorkspace })));
@@ -22,6 +21,7 @@ const GeneralFundamentalsWorkspace = lazy(() => import('../features/calculators/
 const PaintingHumanWorkspace = lazy(() => import('../features/calculators/components/PaintingHumanWorkspace').then((module) => ({ default: module.PaintingHumanWorkspace })));
 const HydraulicsCalculatorWorkspace = lazy(() => import('../features/calculators/components/StableHydraulicsCalculatorWorkspace').then((module) => ({ default: module.HydraulicsCalculatorWorkspace })));
 const ProfessionalDomainWorkspace = lazy(() => import('../features/calculators/components/ProfessionalDomainWorkspace').then((module) => ({ default: module.ProfessionalDomainWorkspace })));
+const UnifiedConvertersWorkspace = lazy(() => import('../features/calculators/components/UnifiedConvertersWorkspace').then((module) => ({ default: module.UnifiedConvertersWorkspace })));
 const CatalogHubWorkspace = lazy(() => import('../features/catalog/components/CatalogHubWorkspaceWithTax').then((module) => ({ default: module.CatalogHubWorkspace })));
 const ClientWorkOrderWorkspace = lazy(() => import('../features/clients/components/ClientWorkOrderWorkspace').then((module) => ({ default: module.ClientWorkOrderWorkspace })));
 const ReportWorkspace = lazy(() => import('../features/reports/components/ReportWorkspace').then((module) => ({ default: module.ReportWorkspace })));
@@ -94,12 +94,8 @@ const fundamentalModuleConfig: Record<string, { modes: FundamentalMode[]; title:
 
 const moduleGuidance: Record<string, { title: string; text: string }> = {
   conversores: {
-    title: 'Use quando você tem um valor em qualquer unidade comum',
-    text: 'Este bloco pergunta a unidade de entrada e devolve as equivalências principais. É o caminho mais simples para volume, pressão, potência e BTU/W.',
-  },
-  conversoresAvancados: {
-    title: 'Use para unidades técnicas específicas',
-    text: 'Aqui ficam conversões de tabela ou de rotina técnica, como AWG, polegadas, vazão, pressão completa, temperatura e kWh para custo.',
+    title: 'Um único lugar para conversão de unidades',
+    text: 'Use a aba Rápidos para conversões comuns e a aba Técnicos para AWG, polegadas, vazão completa, pressão completa, temperatura e kWh/R$.',
   },
   diagnosticoTecnico: {
     title: 'Diagnóstico não é fórmula pura',
@@ -175,7 +171,7 @@ function CalculationsScreen({ selectedModule, openModule, activeSector, onSelect
         {module === 'fundamentals' && <ElectricalFundamentalsHumanWorkspace onCaptureCalculation={onCaptureCalculation} />}
         {module === 'pintura' && <PaintingHumanWorkspace onCaptureCalculation={onCaptureCalculation} />}
         {module === 'hidraulica' && <HydraulicsCalculatorWorkspace onCaptureCalculation={onCaptureCalculation} />}
-        {module === 'conversores' && <ConvertersHumanWorkspace onCaptureCalculation={onCaptureCalculation} />}
+        {module === 'conversores' && <UnifiedConvertersWorkspace onCaptureCalculation={onCaptureCalculation} />}
         {module && isExpansionModule(module) && <ExpansionCalculatorsWorkspace selectedModule={module} onCaptureCalculation={onCaptureCalculation} />}
         {module && isProfessionalDomainModule(module) && <ProfessionalDomainWorkspace selectedModule={module} onCaptureCalculation={onCaptureCalculation} />}
         {module && isGeneralCalculatorModule(module) && <GeneralCalculatorWorkspace selectedModule={module} onCaptureCalculation={onCaptureCalculation} />}
