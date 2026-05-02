@@ -107,6 +107,22 @@ Estado atualizado:
 75 testes passando
 ```
 
+### 7. Segurança local inicial
+
+Status: fechado para MVP local-first.
+
+- Testes cobrem bloqueio local por PIN.
+- Testes cobrem ativação, PIN curto, validação correta/incorreta, bloqueio de sessão, desbloqueio e desativação.
+- Testes cobrem payload inválido no armazenamento local.
+- Esta camada não substitui login com conta Google; ela protege o uso local no dispositivo enquanto a estratégia de autenticação real fica para a próxima fase.
+
+Estado atualizado:
+
+```txt
+12 arquivos de teste
+82 testes passando
+```
+
 ## Validação técnica executada
 
 Comandos executados:
@@ -170,4 +186,5 @@ Esta fase está fechada porque:
 - a taxonomia V1 está coerente;
 - a performance inicial foi melhorada;
 - a persistência local principal tem cobertura de teste;
+- a proteção local por PIN tem cobertura de teste;
 - as próximas pendências estão documentadas como evolução, não como bloqueio técnico imediato.
