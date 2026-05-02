@@ -132,10 +132,10 @@ function createId(prefix: string): string {
 }
 
 function moduleLabel(module: GeneralCalculatorModule): string {
-  if (module === 'obras') return 'Obras';
-  if (module === 'pintura') return 'Pintura';
-  if (module === 'conversores') return 'Conversores';
-  return 'Orçamento técnico';
+  if (module === 'obras') return 'Materiais de obra';
+  if (module === 'pintura') return 'Pintura e acabamento';
+  if (module === 'conversores') return 'Conversores rápidos';
+  return 'Orçamento rápido';
 }
 
 function ResultCard({ label, value, helper }: ResultCardData) {

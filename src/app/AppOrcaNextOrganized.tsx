@@ -92,6 +92,25 @@ const fundamentalModuleConfig: Record<string, { modes: FundamentalMode[]; title:
   },
 };
 
+const moduleGuidance: Record<string, { title: string; text: string }> = {
+  conversores: {
+    title: 'Use quando você tem um valor em qualquer unidade comum',
+    text: 'Este bloco pergunta a unidade de entrada e devolve as equivalências principais. É o caminho mais simples para volume, pressão, potência e BTU/W.',
+  },
+  conversoresAvancados: {
+    title: 'Use para unidades técnicas específicas',
+    text: 'Aqui ficam conversões de tabela ou de rotina técnica, como AWG, polegadas, vazão, pressão completa, temperatura e kWh para custo.',
+  },
+  diagnosticoTecnico: {
+    title: 'Diagnóstico não é fórmula pura',
+    text: 'Estes assistentes ajudam a transformar observações de campo em classificação de risco, urgência, manutenção e texto pronto para relatório.',
+  },
+  financeiroAvancado: {
+    title: 'Preço e margem ficam aqui',
+    text: 'Use este grupo para decidir preço de venda, margem real, markup, desconto máximo, entrada, deslocamento e faixas comerciais.',
+  },
+};
+
 function HomeScreen({ goTo, openModule, captures, clients, workOrders }: { goTo: (tab: AppTab) => void; openModule: (module: ModuleCardData) => void; captures: CalculationCapture[]; clients: Client[]; workOrders: WorkOrder[] }) {
   const openWorkOrders = workOrders.filter((workOrder) => workOrder.status !== 'done' && workOrder.status !== 'cancelled').length;
   const budgetItems = captures.filter((capture) => capture.destination === 'budget' || capture.destination === 'both').length;
@@ -151,6 +170,7 @@ function CalculationsScreen({ selectedModule, openModule, activeSector, onSelect
       <section className="app-screen">
         <button className="back-button" type="button" onClick={() => openModule(null)}>‹ Voltar para {selectedSector?.title ?? 'cálculos'}</button>
         <header className="module-detail-header"><div><em className={`module-plan-pill ${selectedModule.plan}`}>{planLabel(selectedModule.plan)}</em><h1>{selectedModule.title}</h1><p>{selectedModule.description}</p><small>{selectedModule.count}</small></div></header>
+        {moduleGuidance[selectedModule.id] && <div className="survey-intro-card"><span><strong>{moduleGuidance[selectedModule.id].title}</strong><small>{moduleGuidance[selectedModule.id].text}</small></span></div>}
         {module === 'fundamentosGerais' && fundamentalConfig && <GeneralFundamentalsWorkspace {...fundamentalConfig} onCaptureCalculation={onCaptureCalculation} />}
         {module === 'fundamentals' && <ElectricalFundamentalsHumanWorkspace onCaptureCalculation={onCaptureCalculation} />}
         {module === 'pintura' && <PaintingHumanWorkspace onCaptureCalculation={onCaptureCalculation} />}

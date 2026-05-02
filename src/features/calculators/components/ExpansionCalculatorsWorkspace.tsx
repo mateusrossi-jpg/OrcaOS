@@ -236,11 +236,11 @@ function createId(prefix: string): string {
 }
 
 function moduleLabel(module: CalculatorModule): string {
-  if (module === 'eletricaResidencial') return 'Elétrica residencial';
-  if (module === 'financeiroAvancado') return 'Financeiro avançado';
-  if (module === 'construcaoAvancada') return 'Construção avançada';
-  if (module === 'hidraulicaAvancada') return 'Hidráulica avançada';
-  if (module === 'conversoresAvancados') return 'Conversores avançados';
+  if (module === 'eletricaResidencial') return 'Instalação residencial';
+  if (module === 'financeiroAvancado') return 'Preço e margem';
+  if (module === 'construcaoAvancada') return 'Composição de obra';
+  if (module === 'hidraulicaAvancada') return 'Instalações hidráulicas';
+  if (module === 'conversoresAvancados') return 'Conversores técnicos';
   return 'Cálculos técnicos';
 }
 

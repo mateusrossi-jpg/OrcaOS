@@ -1,0 +1,105 @@
+# OrçaOS — Taxonomia de cálculos V2
+
+Data: 2026-05-02
+
+## Diretriz
+
+A tela de cálculos deve ser organizada por setor de trabalho e por decisão prática, não por arquivo interno nem por uma lista solta de fórmulas.
+
+Cada módulo deve responder a uma pergunta clara:
+
+- que informação eu tenho?
+- que decisão preciso tomar?
+- isso vai para levantamento, orçamento ou relatório?
+
+## Setores atuais
+
+### Elétrica
+
+Ordem de leitura:
+
+1. **Fundamentos elétricos**: cálculos rápidos de base, como Ohm, corrente, potência, VA e consumo.
+2. **Instalação residencial**: apoio de obra residencial, cabo, disjuntor, cargas, aterramento e DR/DPS.
+3. **Dimensionamento elétrico**: queda, distância, seção, AWG, transformador e eletroduto.
+4. **Iluminação**, **Climatização**, **Motores e comandos**, **Automação e sinais**, **Transformadores**, **Solar** e **Rebobinagem**: módulos específicos.
+
+### Hidráulica
+
+- **Hidráulica básica**: reservatório, consumo, autonomia, vazão, enchimento e pressão.
+- **Instalações hidráulicas**: piscina, esgoto, pressão por coluna e bomba simples.
+
+### Construção civil
+
+- **Medições de obra**: medir área, perímetro, volume e perda.
+- **Materiais de obra**: transformar medidas em concreto, blocos, piso e revestimento.
+- **Composição de obra**: argamassas, rodapé, telhado, escada e rampa.
+
+### Pintura e acabamento
+
+- Área, rendimento, tinta, selador, massa, custo e tempo.
+
+### Financeiro
+
+- **Orçamento rápido**: mão de obra, diária, hora técnica, parcelamento, sinal e preço final.
+- **Custos e produtividade**: custo por área, unidade, metro e tempo.
+- **Percentuais e negociação**: regra de três, porcentagem, acréscimo, desconto, margem e markup.
+- **Preço e margem**: margem real, markup, desconto máximo, taxas, entrada, hora real e faixas.
+
+### Conversores e unidades
+
+Dois módulos permanecem porque não têm a mesma função:
+
+- **Conversores rápidos**: o usuário escolhe a unidade de entrada e converte as equivalências principais.
+- **Conversores técnicos**: conversões mais específicas de rotina técnica, como AWG, polegada, vazão completa, pressão completa, temperatura e kWh/R$.
+
+Meta futura: unificar os dois em uma única experiência com seletor de unidade para todos os conversores.
+
+### Relatório e diagnóstico
+
+Diagnóstico não é cálculo puro. É assistente de decisão para relatório:
+
+- urgência;
+- risco;
+- manutenção;
+- preventiva vs corretiva;
+- checklist por categoria.
+
+Esses itens devem gerar texto técnico e relatório, não item comercial automaticamente.
+
+## Free / Pro
+
+### Free
+
+- Fundamentos elétricos.
+- Medições de obra.
+- Materiais de obra básicos.
+- Pintura.
+- Hidráulica básica.
+- Conversores rápidos.
+- Conversores técnicos atuais.
+- Orçamento rápido.
+- Percentuais e produtividade.
+- Alguns cálculos internos de módulos Pro quando funcionam como entrada de produto.
+
+### Pro
+
+- Instalação residencial.
+- Dimensionamento elétrico.
+- Iluminação.
+- Climatização.
+- Motores e comandos.
+- Automação e sinais.
+- Transformadores.
+- Solar.
+- Rebobinagem.
+- Instalações hidráulicas avançadas.
+- Composição de obra avançada.
+- Preço e margem avançado.
+- Assistentes de diagnóstico.
+
+## Pontos pendentes
+
+- Unificar visualmente os conversores sem perder seletor de unidade.
+- Separar diagnóstico também em Relatórios/Levantamento, não apenas Cálculos.
+- Deixar bloqueio Free/Pro consistente dentro dos workspaces, pois hoje alguns módulos Pro ainda possuem cálculos internos livres.
+- Revisar nomes internos depois da publicação inicial, sem quebrar storage nem histórico de capturas.

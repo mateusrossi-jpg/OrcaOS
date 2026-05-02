@@ -228,7 +228,7 @@ export function ConvertersHumanWorkspace({ onCaptureCalculation }: Props) {
     const capture: CalculationCapture = {
       id: createId('converter'),
       module: 'conversores',
-      moduleLabel: 'Conversores técnicos',
+      moduleLabel: 'Conversores rápidos',
       calculatorLabel: activeRule.label,
       destination,
       createdAt: new Date().toISOString(),
@@ -256,7 +256,7 @@ export function ConvertersHumanWorkspace({ onCaptureCalculation }: Props) {
     <div className="general-calculator-workspace">
       <div className="general-plan-banner">
         <div>
-          <strong>Conversores técnicos V1</strong>
+          <strong>Conversores rápidos V1</strong>
           <span>Conversões rápidas com uma única unidade de entrada, evitando campos equivalentes desnecessários.</span>
         </div>
         <em>{rules.length} cálculos</em>
@@ -281,7 +281,7 @@ export function ConvertersHumanWorkspace({ onCaptureCalculation }: Props) {
             <header className="general-overlay-header">
               <button type="button" onClick={closeCalculator}>‹</button>
               <div>
-                <span>Conversores técnicos</span>
+                <span>Conversores rápidos</span>
                 <h2>{activeRule.label}</h2>
                 <p>{activeRule.description}</p>
               </div>

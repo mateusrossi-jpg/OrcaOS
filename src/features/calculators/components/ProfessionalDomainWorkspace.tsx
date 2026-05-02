@@ -188,12 +188,12 @@ function createId(prefix: string): string {
 }
 
 function moduleLabel(module: CalculatorModule): string {
-  if (module === 'refrigeration') return 'Refrigeração e climatização';
+  if (module === 'refrigeration') return 'Climatização';
   if (module === 'motors') return 'Motores e comandos';
   if (module === 'rewinding') return 'Rebobinagem';
   if (module === 'transformadores') return 'Transformadores';
   if (module === 'solar') return 'Solar fotovoltaico';
-  if (module === 'diagnosticoTecnico') return 'Diagnóstico técnico';
+  if (module === 'diagnosticoTecnico') return 'Assistentes de diagnóstico';
   return 'Cálculos técnicos';
 }
 

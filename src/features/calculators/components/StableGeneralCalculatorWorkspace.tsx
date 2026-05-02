@@ -172,10 +172,10 @@ function card(label: string, value: string, helper?: string): ResultCardData {
 }
 
 function moduleLabel(module: GeneralCalculatorModule): string {
-  if (module === 'obras') return 'Construção civil';
+  if (module === 'obras') return 'Materiais de obra';
   if (module === 'pintura') return 'Pintura e acabamento';
-  if (module === 'conversores') return 'Conversores';
-  return 'Orçamento técnico';
+  if (module === 'conversores') return 'Conversores rápidos';
+  return 'Orçamento rápido';
 }
 
 function wallArea(n: (key: string, label: string) => number): number {
