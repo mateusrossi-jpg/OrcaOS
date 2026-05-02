@@ -5,7 +5,6 @@ export type AppTab = 'home' | 'calculations' | 'survey' | 'budgets' | 'catalog' 
 export type ModuleTone = 'blue' | 'gray' | 'green' | 'orange' | 'muted';
 export type ModulePlan = 'free' | 'pro' | 'soon';
 export type SurveySection = 'context' | 'labor' | 'materials' | 'notes' | 'review';
-export type BudgetSection = 'workspace' | 'technical';
 
 export type CalculationSectorId =
   | 'electrical'

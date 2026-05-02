@@ -9,7 +9,7 @@ import { ActiveWorkContextCard } from './components/ActiveWorkContextCard';
 import { AppShell } from './components/AppShell';
 import { ModuleCard } from './components/ModuleCard';
 import { calculationModules, calculationSectorGroups, navItems, planLabel, storePackages, userPlan } from './orcaAppData';
-import type { ActiveWorkContext, AppTab, BudgetSection, CalculationSectorId, ModuleCardData, SurveySection } from './orcaAppTypes';
+import type { ActiveWorkContext, AppTab, CalculationSectorId, ModuleCardData, SurveySection } from './orcaAppTypes';
 import { loadStoredCaptures, saveStoredCaptures } from './storage/calculationCapturesStorage';
 
 const BudgetWorkspaceClientBridge = lazy(() => import('../features/budgets/components/BudgetWorkspaceClientBridge').then((module) => ({ default: module.BudgetWorkspaceClientBridge })));
@@ -280,9 +280,21 @@ function SurveyScreen({ captures, context, onRemove, onUpdate, onAddMany, goTo }
 }
 
 function BudgetsScreen({ captures, context, onRemove, onUpdate }: { captures: CalculationCapture[]; context: { activeClient: Client | null; activeWorkOrder: WorkOrder | null }; onRemove: (id: string) => void; onUpdate: (id: string, patch: Partial<CalculationCapture>) => void }) {
-  const [activeSection, setActiveSection] = useState<BudgetSection>('workspace');
   const budgetCaptures = captures.filter((capture) => capture.destination === 'budget' || capture.destination === 'both');
-  return <section className="app-screen wide-screen"><header className="screen-header"><span className="orca-kicker">Editor de proposta</span><h1>Orçamentos</h1><p>Monte a proposta comercial a partir dos itens técnicos.</p></header><ActiveWorkContextCard {...context} /><div className="section-mode-tabs"><button className={activeSection === 'workspace' ? 'active' : ''} type="button" onClick={() => setActiveSection('workspace')}>Montar proposta</button><button className={activeSection === 'technical' ? 'active' : ''} type="button" onClick={() => setActiveSection('technical')}>Itens técnicos</button></div>{activeSection === 'technical' && <><div className="survey-intro-card"><span><strong>Base técnica</strong><small>{budgetCaptures.length} item(ns) enviados para orçamento.</small></span></div><TechnicalCaptureList captures={budgetCaptures} emptyText="Abra um cálculo ou use o levantamento guiado." onRemove={onRemove} onUpdate={onUpdate} /></>}{activeSection === 'workspace' && <BudgetWorkspaceClientBridge technicalCaptures={budgetCaptures} activeClient={context.activeClient} activeWorkOrder={context.activeWorkOrder} onTechnicalCaptureConverted={(id) => onUpdate(id, { convertedToBudgetItem: true })} />}</section>;
+  return (
+    <section className="app-screen wide-screen">
+      <header className="screen-header"><span className="orca-kicker">Editor de proposta</span><h1>Orçamentos</h1><p>Revise a base técnica, monte os itens comerciais, confira e envie a proposta.</p></header>
+      <ActiveWorkContextCard {...context} />
+      <details className="budget-technical-drawer" open={budgetCaptures.length > 0}>
+        <summary>
+          <span><strong>Base técnica do orçamento</strong><small>{budgetCaptures.length} item(ns) vindos de cálculos ou levantamento.</small></span>
+          <em>Revisar</em>
+        </summary>
+        <TechnicalCaptureList captures={budgetCaptures} emptyText="Abra um cálculo ou use o levantamento guiado para montar a base técnica." onRemove={onRemove} onUpdate={onUpdate} />
+      </details>
+      <BudgetWorkspaceClientBridge technicalCaptures={budgetCaptures} activeClient={context.activeClient} activeWorkOrder={context.activeWorkOrder} onTechnicalCaptureConverted={(id) => onUpdate(id, { convertedToBudgetItem: true })} />
+    </section>
+  );
 }
 
 function CatalogScreen({ onAddMany }: { onAddMany: (items: CalculationCapture[]) => void }) {
