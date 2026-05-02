@@ -1,4 +1,13 @@
 import { useMemo, useState } from 'react';
+import {
+  convertPower,
+  convertPressure,
+  convertThermalPower,
+  convertVolume,
+  KW_PER_CV,
+  KW_PER_HP,
+  WATTS_PER_BTUH,
+} from '../../../core/calculations/trade';
 import type { CalculationCapture, CalculationDestination } from '../../../core/types/workflow';
 import './GeneralCalculatorWorkspace.css';
 
@@ -48,12 +57,6 @@ const defaultValues: Record<string, string> = {
   thermalValue: '12000',
 };
 
-const PRESSURE_PSI_PER_BAR = 14.5038;
-const PRESSURE_MCA_PER_BAR = 10.197;
-const KW_PER_CV = 0.7355;
-const KW_PER_HP = 0.7457;
-const WATTS_PER_BTUH = 0.293071;
-
 function parseNumber(value: string): number {
   const normalizedValue = value.trim().replace(',', '.');
   return normalizedValue ? Number(normalizedValue) : Number.NaN;
@@ -81,18 +84,6 @@ function emptyResult(): ConverterResult {
 
 function result(summary: string, cards: ResultCardData[], details: string[], orientation: string, formula: string[]): ConverterResult {
   return { error: null, summary, cards, details, orientation, formula };
-}
-
-function pressureToBar(value: number, unit: PressureUnit): number {
-  if (unit === 'psi') return value / PRESSURE_PSI_PER_BAR;
-  if (unit === 'mca') return value / PRESSURE_MCA_PER_BAR;
-  return value;
-}
-
-function powerToKw(value: number, unit: PowerUnit): number {
-  if (unit === 'cv') return value * KW_PER_CV;
-  if (unit === 'hp') return value * KW_PER_HP;
-  return value;
 }
 
 function powerUnitLabel(unit: PowerUnit): string {
@@ -157,8 +148,7 @@ export function ConvertersHumanWorkspace({ onCaptureCalculation }: Props) {
     try {
       if (activeRule.mode === 'volume') {
         const input = n('volumeValue', 'volume');
-        const cubicMeters = volumeUnit === 'cubicMeters' ? input : input / 1000;
-        const liters = cubicMeters * 1000;
+        const { cubicMeters, liters } = convertVolume({ value: input, unit: volumeUnit });
         return result(
           `${round(cubicMeters, 3)} m³ · ${round(liters)} L`,
           [
@@ -175,9 +165,7 @@ export function ConvertersHumanWorkspace({ onCaptureCalculation }: Props) {
 
       if (activeRule.mode === 'pressure') {
         const input = n('pressureValue', 'pressão');
-        const bar = pressureToBar(input, pressureUnit);
-        const psi = bar * PRESSURE_PSI_PER_BAR;
-        const mca = bar * PRESSURE_MCA_PER_BAR;
+        const { bar, psi, mca } = convertPressure({ value: input, unit: pressureUnit });
         return result(
           `${round(bar, 3)} bar · ${round(psi, 2)} psi · ${round(mca, 2)} mca`,
           [
@@ -197,9 +185,7 @@ export function ConvertersHumanWorkspace({ onCaptureCalculation }: Props) {
 
       if (activeRule.mode === 'power') {
         const input = n('powerValue', 'potência');
-        const kw = powerToKw(input, powerUnit);
-        const cv = kw / KW_PER_CV;
-        const hp = kw / KW_PER_HP;
+        const { kw, cv, hp } = convertPower({ value: input, unit: powerUnit });
         return result(
           `${round(kw, 3)} kW · ${round(cv, 2)} CV · ${round(hp, 2)} HP`,
           [
@@ -218,8 +204,7 @@ export function ConvertersHumanWorkspace({ onCaptureCalculation }: Props) {
       }
 
       const input = n('thermalValue', 'potência térmica');
-      const watts = thermalUnit === 'btuh' ? input * WATTS_PER_BTUH : input;
-      const btuh = watts / WATTS_PER_BTUH;
+      const { watts, btuh } = convertThermalPower({ value: input, unit: thermalUnit });
       return result(
         `${round(btuh)} BTU/h · ${round(watts)} W`,
         [

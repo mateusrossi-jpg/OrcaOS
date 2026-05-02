@@ -1,4 +1,13 @@
 import { useMemo, useState } from 'react';
+import {
+  calculateCylindricalReservoir,
+  calculateDailyWaterConsumption,
+  calculateFillTime,
+  calculateRectangularReservoir,
+  calculateReservoirAutonomy,
+  convertFlow,
+  convertPressure,
+} from '../../../core/calculations/trade';
 import type { CalculationCapture, CalculationDestination } from '../../../core/types/workflow';
 import './GeneralCalculatorWorkspace.css';
 
@@ -53,9 +62,6 @@ const defaultValues: Record<string, string> = {
   pressureValue: '1',
 };
 
-const PRESSURE_PSI_PER_BAR = 14.5038;
-const PRESSURE_MCA_PER_BAR = 10.197;
-
 const rules: Rule[] = [
   { mode: 'rectangular-reservoir', label: 'Reservatório retangular', description: 'Volume em m³ e litros para caixas e cisternas retangulares.', icon: '▭' },
   { mode: 'cylindrical-reservoir', label: 'Reservatório cilíndrico', description: 'Volume em m³ e litros para tanque cilíndrico.', icon: '◯' },
@@ -97,16 +103,6 @@ function result(summary: string, cards: ResultCardData[], details: string[], ori
 
 function emptyResult(): CalcResult {
   return { error: null, summary: '', details: [], cards: [], orientation: '', formula: [] };
-}
-
-function pressureToBar(value: number, unit: PressureUnit): number {
-  if (unit === 'psi') return value / PRESSURE_PSI_PER_BAR;
-  if (unit === 'mca') return value / PRESSURE_MCA_PER_BAR;
-  return value;
-}
-
-function flowToLitersPerMinute(value: number, unit: FlowUnit): number {
-  return unit === 'm3h' ? value * 1000 / 60 : value;
 }
 
 function flowUnitLabel(unit: FlowUnit): string {
@@ -165,8 +161,7 @@ export function HydraulicsCalculatorWorkspace({ onCaptureCalculation }: Props) {
         const width = n('width', 'largura');
         const length = n('length', 'comprimento');
         const height = n('height', 'altura útil');
-        const volume = width * length * height;
-        const liters = volume * 1000;
+        const { cubicMeters: volume, liters } = calculateRectangularReservoir({ widthM: width, lengthM: length, heightM: height });
         return result(
           `Reservatório retangular: ${round(liters)} L`,
           [card('Volume', `${round(volume, 3)} m³`, 'largura × comprimento × altura'), card('Capacidade', `${round(liters)} L`, 'volume útil estimado')],
@@ -179,9 +174,7 @@ export function HydraulicsCalculatorWorkspace({ onCaptureCalculation }: Props) {
       if (activeRule.mode === 'cylindrical-reservoir') {
         const diameter = n('diameter', 'diâmetro');
         const height = n('height', 'altura útil');
-        const radius = diameter / 2;
-        const volume = Math.PI * radius ** 2 * height;
-        const liters = volume * 1000;
+        const { radiusM: radius, cubicMeters: volume, liters } = calculateCylindricalReservoir({ diameterM: diameter, heightM: height });
         return result(
           `Reservatório cilíndrico: ${round(liters)} L`,
           [card('Volume', `${round(volume, 3)} m³`, 'π × raio² × altura'), card('Capacidade', `${round(liters)} L`, 'volume útil estimado')],
@@ -194,7 +187,7 @@ export function HydraulicsCalculatorWorkspace({ onCaptureCalculation }: Props) {
       if (activeRule.mode === 'daily-consumption') {
         const people = n('people', 'pessoas');
         const consumption = n('consumptionPerPerson', 'consumo por pessoa');
-        const total = people * consumption;
+        const { litersPerDay: total } = calculateDailyWaterConsumption({ people, litersPerPersonDay: consumption });
         return result(
           `Consumo diário: ${round(total)} L/dia`,
           [card('Consumo diário', `${round(total)} L`, `${round(people)} pessoa(s)`), card('Em m³', `${round(total / 1000, 3)} m³`, 'por dia')],
@@ -208,8 +201,7 @@ export function HydraulicsCalculatorWorkspace({ onCaptureCalculation }: Props) {
         const reservoirLiters = n('reservoirLiters', 'reservatório');
         const people = n('people', 'pessoas');
         const consumption = n('consumptionPerPerson', 'consumo por pessoa');
-        const daily = people * consumption;
-        const days = reservoirLiters / daily;
+        const { litersPerDay: daily, days } = calculateReservoirAutonomy({ reservoirLiters, people, litersPerPersonDay: consumption });
         return result(
           `Autonomia estimada: ${round(days)} dia(s)`,
           [card('Consumo diário', `${round(daily)} L`, `${round(people)} pessoa(s)`), card('Autonomia', `${round(days)} dia(s)`, `${round(reservoirLiters)} L disponíveis`) ],
@@ -221,9 +213,7 @@ export function HydraulicsCalculatorWorkspace({ onCaptureCalculation }: Props) {
 
       if (activeRule.mode === 'flow-rate') {
         const input = n('flowValue', 'vazão');
-        const lmin = flowToLitersPerMinute(input, flowUnit);
-        const lh = lmin * 60;
-        const m3h = lh / 1000;
+        const { litersPerMinute: lmin, litersPerHour: lh, cubicMetersPerHour: m3h } = convertFlow({ value: input, unit: flowUnit });
         return result(
           `Vazão: ${round(lmin, 2)} L/min`,
           [card('L/min', `${round(lmin, 2)} L/min`, 'litros por minuto'), card('L/h', `${round(lh)} L/h`, 'litros por hora'), card('m³/h', `${round(m3h, 3)} m³/h`, 'metros cúbicos por hora')],
@@ -238,21 +228,18 @@ export function HydraulicsCalculatorWorkspace({ onCaptureCalculation }: Props) {
       if (activeRule.mode === 'fill-time') {
         const volume = n('volumeLiters', 'volume');
         const flow = n('flowValue', 'vazão');
-        const lmin = flowToLitersPerMinute(flow, flowUnit);
-        const minutes = volume / lmin;
+        const { litersPerMinute: lmin, minutes, hours } = calculateFillTime({ volumeLiters: volume, flowValue: flow, flowUnit });
         return result(
           `Tempo de enchimento: ${round(minutes)} min`,
-          [card('Minutos', `${round(minutes)} min`, `${round(lmin, 2)} L/min`), card('Horas', `${round(minutes / 60, 2)} h`, 'tempo estimado')],
-          [`Volume: ${round(volume)} L`, `Vazão: ${round(lmin, 2)} L/min`, `Tempo: ${round(minutes)} min`, `Tempo: ${round(minutes / 60, 2)} h`],
+          [card('Minutos', `${round(minutes)} min`, `${round(lmin, 2)} L/min`), card('Horas', `${round(hours, 2)} h`, 'tempo estimado')],
+          [`Volume: ${round(volume)} L`, `Vazão: ${round(lmin, 2)} L/min`, `Tempo: ${round(minutes)} min`, `Tempo: ${round(hours, 2)} h`],
           'Use para estimativa. O tempo real pode variar com pressão da rede, boia, bomba, tubulação e perda de carga.',
           ['Vazão em L/min = vazão informada convertida para L/min', 'Tempo em minutos = volume em litros ÷ vazão em L/min', 'Tempo em horas = tempo em minutos ÷ 60'],
         );
       }
 
       const input = n('pressureValue', 'pressão');
-      const bar = pressureToBar(input, pressureUnit);
-      const psi = bar * PRESSURE_PSI_PER_BAR;
-      const mca = bar * PRESSURE_MCA_PER_BAR;
+      const { bar, psi, mca } = convertPressure({ value: input, unit: pressureUnit });
       return result(
         `Pressão: ${round(mca, 2)} mca`,
         [card('bar', `${round(bar, 3)} bar`, 'pressão base'), card('psi', `${round(psi, 2)} psi`, 'aproximado'), card('mca', `${round(mca, 2)} mca`, 'coluna d’água')],

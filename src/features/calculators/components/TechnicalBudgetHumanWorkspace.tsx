@@ -1,4 +1,12 @@
 import { useMemo, useState } from 'react';
+import {
+  calculateDailyRate,
+  calculateFinalPrice,
+  calculateHourlyRate,
+  calculateInstallments,
+  calculateLabor,
+  calculateUpfront,
+} from '../../../core/calculations/trade';
 import type { CalculationCapture, CalculationDestination } from '../../../core/types/workflow';
 import './GeneralCalculatorWorkspace.css';
 
@@ -94,8 +102,7 @@ export function TechnicalBudgetHumanWorkspace({ onCaptureCalculation }: Props) {
         const quantity = n('quantity', 'quantidade');
         const unitValue = n('unitValue', 'valor unitário');
         const travel = optionalN('travel', 'deslocamento');
-        const subtotal = quantity * unitValue;
-        const total = subtotal + travel;
+        const { subtotal, total } = calculateLabor({ quantity, unitValue, travel });
         return result(`Mão de obra: ${money(total)}`, [{ label: 'Subtotal', value: money(subtotal), helper: `${round(quantity)} × ${money(unitValue)}` }, { label: 'Deslocamento', value: money(travel), helper: 'custo adicional' }, { label: 'Total', value: money(total), helper: 'valor sugerido' }], [`Quantidade: ${round(quantity)}`, `Valor unitário: ${money(unitValue)}`, `Subtotal: ${money(subtotal)}`, `Deslocamento: ${money(travel)}`, `Total: ${money(total)}`], 'Use para serviços repetitivos por ponto, peça, luminária ou tomada. Ajuste dificuldade, altura, deslocamento e urgência antes de fechar.', [`Subtotal = quantidade × valor unitário`, `Total = subtotal + deslocamento`]);
       }
 
@@ -107,13 +114,13 @@ export function TechnicalBudgetHumanWorkspace({ onCaptureCalculation }: Props) {
         const taxPercent = optionalN('taxPercent', 'impostos');
         const discountPercent = requirePercent(parseNumber(values.discountPercent), 'desconto');
         const base = material + labor + travel;
-        const priceBeforeTax = marginMode === 'margin-sale' ? base / (1 - percent / 100) : base * (1 + percent / 100);
-        const profitValue = priceBeforeTax - base;
-        const taxValue = priceBeforeTax * taxPercent / 100;
-        const beforeDiscount = priceBeforeTax + taxValue;
-        const discountValue = beforeDiscount * discountPercent / 100;
-        const total = beforeDiscount - discountValue;
-        const effectiveMargin = priceBeforeTax > 0 ? profitValue / priceBeforeTax * 100 : 0;
+        const price = calculateFinalPrice({ material, labor, travel, percent, marginMode, taxPercent, discountPercent });
+        const priceBeforeTax = price.priceBeforeTax;
+        const profitValue = price.profit;
+        const taxValue = price.tax;
+        const discountValue = price.discount;
+        const total = price.total;
+        const effectiveMargin = price.effectiveMarginPercent;
         const formula = marginMode === 'margin-sale'
           ? [`Base = material + mão de obra + deslocamento`, `Preço antes de impostos = base / (1 - margem ÷ 100)`, `Margem real antes de impostos = lucro ÷ preço antes de impostos`, `Total = preço antes de impostos + impostos - desconto`]
           : [`Base = material + mão de obra + deslocamento`, `Preço antes de impostos = base × (1 + markup ÷ 100)`, `Margem real antes de impostos = lucro ÷ preço antes de impostos`, `Total = preço antes de impostos + impostos - desconto`];
@@ -125,18 +132,15 @@ export function TechnicalBudgetHumanWorkspace({ onCaptureCalculation }: Props) {
         const dailyValue = n('dailyValue', 'valor da diária');
         const helperDailyValue = optionalN('helperDailyValue', 'ajudante');
         const travel = optionalN('travel', 'deslocamento');
-        const labor = days * dailyValue;
-        const helper = days * helperDailyValue;
-        const total = labor + helper + travel;
-        return result(`Diária: ${money(total)}`, [{ label: 'Profissional', value: money(labor), helper: `${round(days)} dia(s)` }, { label: 'Ajudante', value: money(helper), helper: helperDailyValue > 0 ? `${money(helperDailyValue)}/dia` : 'não informado' }, { label: 'Total', value: money(total), helper: travel > 0 ? `inclui ${money(travel)} deslocamento` : 'sem deslocamento' }], [`Dias: ${round(days)}`, `Diária profissional: ${money(dailyValue)}`, `Ajudante/dia: ${money(helperDailyValue)}`, `Deslocamento: ${money(travel)}`, `Total: ${money(total)}`], 'Use quando o serviço não cabe bem por ponto ou unidade. Defina claramente o que está incluso na diária.', [`Profissional = dias × diária profissional`, `Ajudante = dias × diária do ajudante`, `Total = profissional + ajudante + deslocamento`]);
+        const daily = calculateDailyRate({ days, dailyValue, helperDailyValue, travel });
+        return result(`Diária: ${money(daily.total)}`, [{ label: 'Profissional', value: money(daily.professional), helper: `${round(days)} dia(s)` }, { label: 'Ajudante', value: money(daily.helper), helper: helperDailyValue > 0 ? `${money(helperDailyValue)}/dia` : 'não informado' }, { label: 'Total', value: money(daily.total), helper: travel > 0 ? `inclui ${money(travel)} deslocamento` : 'sem deslocamento' }], [`Dias: ${round(days)}`, `Diária profissional: ${money(dailyValue)}`, `Ajudante/dia: ${money(helperDailyValue)}`, `Deslocamento: ${money(travel)}`, `Total: ${money(daily.total)}`], 'Use quando o serviço não cabe bem por ponto ou unidade. Defina claramente o que está incluso na diária.', [`Profissional = dias × diária profissional`, `Ajudante = dias × diária do ajudante`, `Total = profissional + ajudante + deslocamento`]);
       }
 
       if (activeRule.mode === 'hourly') {
         const hours = n('hours', 'horas');
         const hourlyValue = n('hourlyValue', 'valor hora técnica');
         const travel = optionalN('travel', 'deslocamento');
-        const subtotal = hours * hourlyValue;
-        const total = subtotal + travel;
+        const { subtotal, total } = calculateHourlyRate({ hours, hourlyValue, travel });
         return result(`Hora técnica: ${money(total)}`, [{ label: 'Horas', value: `${round(hours)} h`, helper: `${money(hourlyValue)}/h` }, { label: 'Subtotal', value: money(subtotal), helper: 'sem deslocamento' }, { label: 'Total', value: money(total), helper: travel > 0 ? `inclui ${money(travel)} deslocamento` : 'sem deslocamento' }], [`Horas: ${round(hours)} h`, `Valor hora: ${money(hourlyValue)}`, `Subtotal: ${money(subtotal)}`, `Deslocamento: ${money(travel)}`, `Total: ${money(total)}`], 'Use para diagnóstico, visita técnica, programação, manutenção ou serviços de duração variável.', [`Subtotal = horas × valor da hora técnica`, `Total = subtotal + deslocamento`]);
       }
 
@@ -144,15 +148,13 @@ export function TechnicalBudgetHumanWorkspace({ onCaptureCalculation }: Props) {
         const total = n('total', 'valor total');
         const installments = n('installments', 'parcelas');
         const interestPercent = optionalN('interestPercent', 'acréscimo');
-        const adjustedTotal = total * (1 + interestPercent / 100);
-        const installmentValue = adjustedTotal / installments;
+        const { adjustedTotal, installmentValue } = calculateInstallments({ total, installments, interestPercent });
         return result(`${round(installments)}× de ${money(installmentValue)}`, [{ label: 'Total original', value: money(total), helper: 'sem acréscimo' }, { label: 'Total parcelado', value: money(adjustedTotal), helper: `${round(interestPercent)}% de acréscimo` }, { label: 'Parcela', value: money(installmentValue), helper: `${round(installments)} parcela(s)` }], [`Total original: ${money(total)}`, `Parcelas: ${round(installments)}`, `Acréscimo: ${round(interestPercent)}%`, `Total parcelado: ${money(adjustedTotal)}`, `Valor da parcela: ${money(installmentValue)}`], 'Use para apresentar condição de pagamento. Confira taxas reais da maquininha, banco ou plataforma antes de prometer parcelamento.', [`Total parcelado = total × (1 + acréscimo ÷ 100)`, `Parcela = total parcelado ÷ quantidade de parcelas`]);
       }
 
       const total = n('total', 'valor total');
       const upfrontPercent = requirePercent(parseNumber(values.upfrontPercent), 'entrada');
-      const upfrontValue = total * upfrontPercent / 100;
-      const remaining = total - upfrontValue;
+      const { upfront: upfrontValue, remaining } = calculateUpfront({ total, upfrontPercent });
       return result(`Entrada: ${money(upfrontValue)}`, [{ label: 'Entrada', value: money(upfrontValue), helper: `${round(upfrontPercent)}% do total` }, { label: 'Saldo', value: money(remaining), helper: 'restante a receber' }, { label: 'Total', value: money(total), helper: 'valor da proposta' }], [`Total: ${money(total)}`, `Percentual de entrada: ${round(upfrontPercent)}%`, `Entrada: ${money(upfrontValue)}`, `Saldo: ${money(remaining)}`], 'Use para sinal de material, reserva de agenda ou início de serviço. Combine por escrito quando o saldo será pago.', [`Entrada = total × percentual de entrada ÷ 100`, `Saldo = total - entrada`]);
     } catch (error) {
       return { error: error instanceof Error ? error.message : 'Preencha os campos necessários.', summary: '', details: [], orientation: '', cards: [], formula: [] };
