@@ -133,6 +133,7 @@ O RC1 pode ser considerado aprovado para beta fechado se:
 A matriz Free/Pro dos calculos do RC1 esta documentada em `docs/ai/ORCAOS_CALCULATION_MONETIZATION_MATRIX_RC1.md`.
 No RC1, a separacao aparece na organizacao, nos badges e no bloqueio de abertura dos calculos Pro. A conta/plano fica em `accountPlanStorage`, pode cadastrar e-mail proprio, simular Pro pela tela Loja / Pro, receber identidade Google quando `VITE_GOOGLE_CLIENT_ID` estiver configurado e verificar assinatura via `VITE_ORCAOS_ENTITLEMENTS_ENDPOINT`. A liberacao comercial pode ser feita pela tabela `orcaos_subscriptions` ou por `/api/admin/subscriptions`; o webhook do provedor de pagamento fica para a proxima camada externa.
 O deploy do gate comercial minimo esta documentado em `docs/ai/ORCAOS_COMMERCIAL_GATE_DEPLOYMENT_V1.md`.
+O checklist externo de Supabase, Google OAuth e liberacao do primeiro cliente Pro esta em `docs/ai/ORCAOS_EXTERNAL_MONETIZATION_SETUP_V1.md`.
 
 ## Proxima Decisao
 

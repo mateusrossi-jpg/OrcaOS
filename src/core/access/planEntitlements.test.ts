@@ -69,6 +69,18 @@ describe('plan entitlements', () => {
     );
   });
 
+  it('preserves expired subscription status from the entitlement endpoint', async () => {
+    vi.stubEnv('VITE_ORCAOS_ENTITLEMENTS_ENDPOINT', 'https://api.example.com/entitlements');
+    const account = signInGoogleAccount({ sub: '123', name: 'Mateus', email: 'mateus@example.com' });
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({ plan: 'free', status: 'expired', expiresAt: '2026-01-01T00:00:00.000Z' })));
+
+    const result = await refreshPlanEntitlement(account);
+
+    expect(result.account.plan).toBe('free');
+    expect(result.status).toBe('expired');
+    expect(result.expiresAt).toBe('2026-01-01T00:00:00.000Z');
+  });
+
   it('fails clearly when the entitlement endpoint rejects the request', async () => {
     vi.stubEnv('VITE_ORCAOS_ENTITLEMENTS_ENDPOINT', 'https://api.example.com/entitlements');
     const account = signInGoogleAccount({ sub: '123' });

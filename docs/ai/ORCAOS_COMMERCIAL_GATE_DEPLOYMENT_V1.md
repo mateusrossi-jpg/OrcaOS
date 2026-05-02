@@ -2,6 +2,8 @@
 
 Data: 2026-05-02
 
+Checklist externo completo: `docs/ai/ORCAOS_EXTERNAL_MONETIZATION_SETUP_V1.md`.
+
 ## Objetivo
 
 Esta etapa fecha o fluxo comercial minimo para vender logo apos o lancamento, mantendo o app preparado para integrar pagamento depois:
@@ -40,7 +42,13 @@ ORCAOS_ADMIN_API_KEY=uma_chave_admin_forte
 
 ## Tabela De Assinaturas
 
-Criar no Supabase:
+Criar no Supabase usando a migration versionada:
+
+```text
+supabase/migrations/202605020001_orcaos_subscriptions.sql
+```
+
+SQL principal:
 
 ```sql
 create table if not exists public.orcaos_subscriptions (
@@ -53,7 +61,9 @@ create table if not exists public.orcaos_subscriptions (
   provider text,
   provider_customer_id text,
   created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
+  updated_at timestamptz not null default now(),
+  constraint orcaos_subscriptions_plan_check check (plan in ('free', 'pro')),
+  constraint orcaos_subscriptions_status_check check (status in ('active', 'trial', 'past_due', 'canceled', 'inactive'))
 );
 
 create index if not exists orcaos_subscriptions_user_id_idx

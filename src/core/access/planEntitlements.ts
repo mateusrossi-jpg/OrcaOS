@@ -4,7 +4,7 @@ import type { UserPlan } from './featureAccess';
 export interface PlanEntitlementResponse {
   plan?: UserPlan;
   planSource?: OrcaPlanSource;
-  status?: 'active' | 'inactive' | 'trial' | 'past_due';
+  status?: 'active' | 'inactive' | 'trial' | 'past_due' | 'expired';
   expiresAt?: string | null;
 }
 
@@ -37,7 +37,9 @@ function normalizePlanSource(value: unknown, plan: UserPlan): OrcaPlanSource {
 }
 
 function normalizeStatus(value: unknown, plan: UserPlan): NonNullable<PlanEntitlementResponse['status']> {
-  if (value === 'active' || value === 'trial' || value === 'past_due' || value === 'inactive') return value;
+  if (value === 'active' || value === 'trial' || value === 'past_due' || value === 'inactive' || value === 'expired') {
+    return value;
+  }
   return plan === 'pro' ? 'active' : 'inactive';
 }
 
