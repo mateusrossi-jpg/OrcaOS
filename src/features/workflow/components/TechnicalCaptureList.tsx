@@ -1,4 +1,11 @@
 import type { CalculationCapture, MaterialSupplyMode, TechnicalItemType } from '../../../core/types/workflow';
+import {
+  buildMaterialSupplyPatch,
+  calculateCaptureCommercialTotal,
+  calculateCaptureReferenceTotal,
+  isClientPurchaseMaterial,
+  materialSupplyLabel,
+} from '../utils/captureWorkflow';
 import './TechnicalCaptureList.css';
 
 interface TechnicalCaptureListProps {
@@ -32,53 +39,11 @@ function formatCaptureTime(value: string): string {
   }).format(new Date(value));
 }
 
-function normalizeMoneyValue(value: string | undefined): number {
-  if (!value) return 0;
-  const parsedValue = Number(value.replace(',', '.').trim());
-  return Number.isFinite(parsedValue) ? parsedValue : 0;
-}
-
-function calculateCommercialTotal(capture: CalculationCapture): number {
-  const quantity = normalizeMoneyValue(capture.quantity || '1');
-  const unitValue = normalizeMoneyValue(capture.unitValue);
-  return quantity * unitValue;
-}
-
-function calculateReferenceTotal(capture: CalculationCapture): number {
-  const quantity = normalizeMoneyValue(capture.quantity || '1');
-  const referenceUnitValue = normalizeMoneyValue(capture.materialReferenceUnitValue ?? capture.unitValue);
-  return quantity * referenceUnitValue;
-}
-
 function formatCurrency(value: number): string {
   return new Intl.NumberFormat('pt-BR', {
     style: 'currency',
     currency: 'BRL',
   }).format(value);
-}
-
-function materialSupplyLabel(mode: MaterialSupplyMode | undefined): string {
-  return materialSupplyOptions.find((option) => option.value === mode)?.label ?? 'Profissional fornece';
-}
-
-function isClientPurchaseMaterial(capture: CalculationCapture): boolean {
-  return (
-    capture.itemType === 'material' &&
-    (capture.clientPurchaseRequired || capture.materialSupplyMode === 'client' || capture.materialSupplyMode === 'mixed' || capture.materialSupplyMode === 'undefined')
-  );
-}
-
-function buildMaterialSupplyPatch(capture: CalculationCapture, mode: MaterialSupplyMode): Partial<CalculationCapture> {
-  const isProfessionalSupply = mode === 'professional';
-  const currentReference = capture.materialReferenceUnitValue ?? capture.unitValue ?? '0';
-  return {
-    materialSupplyMode: mode,
-    materialSupplyLabel: materialSupplyLabel(mode),
-    materialReferenceUnitValue: currentReference,
-    clientPurchaseRequired: !isProfessionalSupply,
-    shouldGenerateBudgetItem: isProfessionalSupply,
-    unitValue: isProfessionalSupply ? currentReference : '0',
-  };
 }
 
 export function TechnicalCaptureList({ captures, emptyText, onRemove, onUpdate }: TechnicalCaptureListProps) {
@@ -100,8 +65,8 @@ export function TechnicalCaptureList({ captures, emptyText, onRemove, onUpdate }
     const itemType = capture.itemType ?? 'technicalObservation';
     const quantity = capture.quantity ?? '1';
     const unitValue = capture.unitValue ?? '';
-    const commercialTotal = calculateCommercialTotal(capture);
-    const referenceTotal = calculateReferenceTotal(capture);
+    const commercialTotal = calculateCaptureCommercialTotal(capture);
+    const referenceTotal = calculateCaptureReferenceTotal(capture);
     const clientPurchase = isClientPurchaseMaterial(capture);
     const supplyMode = capture.materialSupplyMode ?? 'professional';
 

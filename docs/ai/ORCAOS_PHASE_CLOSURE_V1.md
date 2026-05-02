@@ -159,6 +159,23 @@ Estado atualizado:
 102 testes passando
 ```
 
+### 10. Relatório e captura técnica
+
+Status: fechado para validação inicial.
+
+- Regras de captura foram extraídas para helper testável.
+- Testes cobrem seleção de itens que entram no relatório.
+- Testes cobrem métricas do relatório: itens, imagens e diagnósticos.
+- Testes cobrem materiais comprados pelo cliente, total comercial, total de referência e patch de fornecimento.
+- `ReportWorkspace` e `TechnicalCaptureList` passam a compartilhar as mesmas regras de captura.
+
+Estado atualizado:
+
+```txt
+16 arquivos de teste
+108 testes passando
+```
+
 ## Validação técnica executada
 
 Comandos executados:

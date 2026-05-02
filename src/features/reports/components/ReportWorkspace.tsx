@@ -1,5 +1,6 @@
 import type { Client, WorkOrder } from '../../../core/types/business';
 import type { CalculationCapture } from '../../../core/types/workflow';
+import { getReportCaptureMetrics } from '../../workflow/utils/captureWorkflow';
 import { ProfessionalIdentityCard } from '../../settings/components/ProfessionalIdentityCard';
 import './ReportWorkspace.css';
 
@@ -49,17 +50,7 @@ function printReport() {
 }
 
 export function ReportWorkspace({ captures, activeClient = null, activeWorkOrder = null }: ReportWorkspaceProps) {
-  const reportItems = captures.filter(
-    (capture) =>
-      capture.reportReady ||
-      capture.destination === 'survey' ||
-      capture.destination === 'both' ||
-      capture.itemType === 'diagnostic' ||
-      capture.itemType === 'projectSpecification',
-  );
-
-  const itemsWithImage = reportItems.filter((capture) => Boolean(capture.imageDataUrl)).length;
-  const diagnostics = reportItems.filter((capture) => capture.itemType === 'diagnostic').length;
+  const { reportItems, itemsWithImage, diagnostics } = getReportCaptureMetrics(captures);
 
   return (
     <div className="report-workspace">
