@@ -245,6 +245,43 @@ export function calculateFinalPrice(input: { material: number; labor: number; tr
   };
 }
 
+export function calculateSalePriceByTargetMargin(input: { cost: number; marginPercent: number; taxPercent?: number; plannedDiscountPercent?: number }) {
+  ensureNonNegativeNumber(input.cost, 'Custo');
+  if (!Number.isFinite(input.marginPercent) || input.marginPercent < 0 || input.marginPercent >= 100) {
+    throw new Error('Margem desejada deve ser menor que 100%.');
+  }
+  ensureNonNegativeNumber(input.taxPercent ?? 0, 'Taxas');
+  ensurePercent(input.plannedDiscountPercent ?? 0, 'Desconto planejado');
+
+  const minimumPrice = input.cost / (1 - input.marginPercent / 100);
+  const priceWithTax = minimumPrice * (1 + (input.taxPercent ?? 0) / 100);
+  const suggestedPrice = priceWithTax / (1 - (input.plannedDiscountPercent ?? 0) / 100);
+  const profit = minimumPrice - input.cost;
+
+  return {
+    minimumPrice,
+    suggestedPrice,
+    profit,
+    effectiveMarginPercent: minimumPrice > 0 ? profit / minimumPrice * 100 : 0,
+  };
+}
+
+export function calculateSalePriceByMarkup(input: { cost: number; markupPercent: number; taxPercent?: number }) {
+  ensureNonNegativeNumber(input.cost, 'Custo');
+  ensureNonNegativeNumber(input.markupPercent, 'Markup');
+  ensureNonNegativeNumber(input.taxPercent ?? 0, 'Taxas');
+
+  const priceBeforeTax = input.cost * (1 + input.markupPercent / 100);
+  const finalPrice = priceBeforeTax * (1 + (input.taxPercent ?? 0) / 100);
+  const grossProfit = finalPrice - input.cost;
+
+  return {
+    finalPrice,
+    grossProfit,
+    effectiveMarginPercent: finalPrice > 0 ? grossProfit / finalPrice * 100 : 0,
+  };
+}
+
 export function calculateDailyRate(input: { days: number; dailyValue: number; helperDailyValue?: number; travel?: number }) {
   ensurePositiveNumber(input.days, 'Dias');
   ensurePositiveNumber(input.dailyValue, 'Diária');
