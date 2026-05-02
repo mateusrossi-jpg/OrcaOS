@@ -9,14 +9,19 @@
   --orca-green: #22c55e;
   --orca-green-strong: #16a34a;
   --orca-green-soft: rgba(34, 197, 94, 0.11);
+  --orca-green-faint: rgba(34, 197, 94, 0.055);
   --orca-text: #f8fafc;
   --orca-muted: #a7b3ad;
   --orca-muted-2: #7f8f87;
   --orca-danger: #f87171;
   --orca-warning: #fbbf24;
+  --orca-focus: rgba(34, 197, 94, 0.18);
   --orca-radius: 22px;
   --orca-radius-sm: 16px;
+  --orca-radius-xs: 12px;
   --orca-shadow: 0 24px 80px rgba(0, 0, 0, 0.38);
+  --orca-shadow-soft: 0 14px 34px rgba(0, 0, 0, 0.22);
+  --orca-ease: 160ms ease;
 
   --stable-bg: var(--orca-bg);
   --stable-surface: var(--orca-surface);
@@ -1562,4 +1567,496 @@ textarea::placeholder {
   .taxonomy-module-card {
     grid-template-columns: 1fr !important;
   }
+}
+
+/* Visual polish pass: calmer surfaces, clearer hierarchy and better touch targets. */
+body {
+  font-feature-settings: "liga" 1, "kern" 1;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+button,
+a,
+input,
+select,
+textarea {
+  transition:
+    border-color var(--orca-ease),
+    background var(--orca-ease),
+    box-shadow var(--orca-ease),
+    color var(--orca-ease),
+    transform var(--orca-ease);
+}
+
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.professional-app-content {
+  padding-block: clamp(16px, 2.5vw, 28px) calc(28px + env(safe-area-inset-bottom));
+  padding-inline: clamp(12px, 3vw, 24px);
+}
+
+.app-screen {
+  gap: clamp(14px, 2vw, 22px);
+}
+
+.screen-header {
+  display: grid;
+  gap: 7px;
+  padding: 2px 2px 4px;
+}
+
+.screen-header h1 {
+  margin: 0;
+  font-size: clamp(1.85rem, 5vw, 3.1rem);
+  line-height: 1.02;
+}
+
+.screen-header p {
+  max-width: 760px;
+  margin: 0;
+  font-size: 0.98rem;
+  line-height: 1.52;
+}
+
+.orca-kicker {
+  font-size: 0.72rem;
+  font-weight: 950;
+  letter-spacing: 0.075em;
+  text-transform: uppercase;
+}
+
+.app-screen :where(
+  .free-plan-card,
+  .pro-teaser-card,
+  .module-detail-header,
+  .module-app-card,
+  .empty-state-card,
+  .settings-row,
+  .store-card,
+  .survey-intro-card,
+  .active-work-context-card,
+  .orca-dashboard-hero,
+  .orca-dashboard-value-card,
+  .orca-kpi-grid article,
+  .orca-quick-actions button,
+  .orca-panel-card,
+  .orca-activity-list article,
+  .budget-header-card,
+  .saved-budget-panel,
+  .budget-editor,
+  .budget-summary,
+  .budget-section-panel,
+  .saved-budget-card,
+  .editable-budget-item-card,
+  .budget-template-card,
+  .client-os-panel,
+  .active-os-panel,
+  .client-os-card,
+  .report-summary-panel,
+  .report-metrics-grid article,
+  .technical-capture-list,
+  .technical-capture-card,
+  .catalog-hub-header,
+  .catalog-hub-card,
+  .catalog-hub-item-card,
+  .material-supply-header,
+  .material-supply-option,
+  .guided-cart-panel,
+  .guided-manual-block-card,
+  .calculator-plan-banner,
+  .calculator-picker-card,
+  .calculator-overlay-panel,
+  .general-plan-banner,
+  .general-picker-card,
+  .general-overlay-panel,
+  .general-result-card,
+  .fundamental-plan-banner,
+  .fundamental-picker-card,
+  .fundamental-overlay-panel,
+  .fundamental-result-card,
+  .human-plan-banner,
+  .human-picker-card,
+  .human-overlay-panel,
+  .human-result-card,
+  .taxonomy-group-card,
+  .taxonomy-module-card,
+  .local-backup-header,
+  .local-backup-card,
+  .professional-profile-header,
+  .professional-profile-card
+) {
+  border-color: rgba(187, 247, 208, 0.13) !important;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.026), rgba(255, 255, 255, 0)),
+    linear-gradient(145deg, rgba(18, 28, 22, 0.98), rgba(10, 16, 13, 0.98)) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035) !important;
+}
+
+.app-screen :where(
+  .module-app-card,
+  .orca-step-card,
+  .orca-quick-actions button,
+  .general-picker-card,
+  .fundamental-picker-card,
+  .human-picker-card,
+  .calculator-picker-card,
+  .taxonomy-module-card,
+  .saved-budget-card,
+  .budget-template-card,
+  .client-os-card,
+  .store-card,
+  .settings-row
+):hover {
+  border-color: var(--orca-border-strong) !important;
+  background:
+    linear-gradient(180deg, rgba(34, 197, 94, 0.055), rgba(255, 255, 255, 0.01)),
+    linear-gradient(145deg, var(--orca-surface-2), var(--orca-bg-2)) !important;
+  transform: translateY(-1px);
+}
+
+.app-screen :where(button, input, select, textarea):focus-visible {
+  outline: 0;
+  border-color: var(--orca-border-strong) !important;
+  box-shadow: 0 0 0 4px var(--orca-focus) !important;
+}
+
+.orca-dashboard-hero {
+  align-items: center;
+  min-height: clamp(260px, 36vw, 390px);
+  padding: clamp(20px, 4vw, 36px);
+  border-radius: 28px;
+  background:
+    linear-gradient(135deg, rgba(34, 197, 94, 0.10), transparent 38%),
+    linear-gradient(145deg, #111c16, #08100c) !important;
+}
+
+.orca-dashboard-copy h1 {
+  max-width: 720px;
+  font-size: clamp(2.15rem, 6vw, 3.65rem);
+  letter-spacing: 0;
+}
+
+.orca-dashboard-copy p {
+  max-width: 620px;
+  color: #c5d4cc !important;
+}
+
+.orca-dashboard-value-card,
+.orca-panel-card,
+.module-detail-header {
+  box-shadow: var(--orca-shadow-soft) !important;
+}
+
+.module-detail-header {
+  padding: clamp(20px, 4vw, 34px) !important;
+  border-radius: 28px !important;
+}
+
+.module-detail-header h1 {
+  font-size: clamp(2rem, 6vw, 3.35rem);
+}
+
+.module-detail-header p {
+  margin-top: 6px;
+  max-width: 700px;
+  line-height: 1.5;
+}
+
+.module-detail-header small,
+.module-plan-pill,
+.badge-free,
+.badge-pro,
+.general-picker-card em,
+.fundamental-picker-card em,
+.human-picker-card em,
+.calculator-picker-card em,
+.taxonomy-count {
+  min-height: 30px;
+  border-radius: 999px !important;
+  padding: 7px 10px !important;
+  font-size: 0.68rem !important;
+  font-weight: 950 !important;
+  letter-spacing: 0.055em;
+  text-transform: uppercase;
+}
+
+.section-mode-tabs,
+.budget-workspace-tabs,
+.client-os-section-tabs {
+  gap: 6px;
+  border-radius: 16px;
+  padding: 6px;
+  background: rgba(255, 255, 255, 0.018);
+}
+
+.section-mode-tabs button,
+.budget-workspace-tabs button,
+.client-os-section-tabs button {
+  min-height: 44px;
+  border-radius: 12px;
+  font-size: 0.88rem;
+  font-weight: 850;
+}
+
+.section-mode-tabs button.active,
+.budget-workspace-tabs button.active,
+.client-os-section-tabs button.active {
+  background:
+    linear-gradient(180deg, rgba(34, 197, 94, 0.16), rgba(34, 197, 94, 0.08)) !important;
+}
+
+.module-list-app,
+.general-picker-list,
+.fundamental-picker-list,
+.human-picker-list,
+.taxonomy-module-list {
+  gap: 10px;
+}
+
+.module-list-app .module-app-card,
+.general-picker-card,
+.fundamental-picker-card,
+.human-picker-card,
+.calculator-picker-card,
+.taxonomy-module-card {
+  min-height: 86px;
+  border-radius: 18px !important;
+  padding: 15px !important;
+}
+
+.module-list-app .module-app-card {
+  min-height: 112px;
+}
+
+.module-card-body,
+.general-picker-card > span:first-child,
+.fundamental-picker-card > span:first-child,
+.human-picker-card > span:first-child,
+.calculator-picker-card > span:first-child,
+.taxonomy-module-body {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+}
+
+.module-card-body strong,
+.general-picker-card strong,
+.fundamental-picker-card strong,
+.human-picker-card strong,
+.calculator-picker-card strong,
+.taxonomy-module-body strong {
+  font-size: 1.02rem !important;
+  line-height: 1.18;
+}
+
+.module-card-body small,
+.general-picker-card small,
+.fundamental-picker-card small,
+.human-picker-card small,
+.calculator-picker-card small,
+.taxonomy-module-body small {
+  font-size: 0.84rem !important;
+  line-height: 1.42 !important;
+}
+
+.general-plan-banner,
+.fundamental-plan-banner,
+.human-fundamentals-banner,
+.calculator-plan-banner,
+.taxonomy-group-card > header,
+.catalog-hub-header,
+.material-supply-header,
+.guided-cart-header,
+.guided-room-header {
+  border-radius: 20px !important;
+}
+
+.general-result-grid,
+.fundamental-result-grid,
+.human-result-grid,
+.result-grid,
+.report-metrics-grid,
+.budget-summary-strip {
+  gap: 10px;
+}
+
+.general-result-card,
+.fundamental-result-card,
+.human-result-card,
+.result-card,
+.report-metrics-grid article,
+.budget-summary-strip article,
+.orca-kpi-grid article {
+  border-radius: 16px !important;
+}
+
+.general-result-card strong,
+.fundamental-result-card strong,
+.human-result-card strong,
+.result-card strong {
+  color: #d8ffe4 !important;
+}
+
+.back-button,
+.section-title-row button,
+.inline-action,
+.budget-actions button,
+.store-card button,
+.guided-cart-actions button,
+.guided-room-form-actions button,
+.guided-room-actions button,
+.active-os-panel .inline-action,
+.client-proposal-actions button,
+.client-proposal-search button {
+  min-height: 42px;
+  border-radius: 999px !important;
+  padding-inline: 15px !important;
+  font-weight: 900 !important;
+}
+
+.back-button:hover,
+.section-title-row button:hover,
+.inline-action:hover,
+.store-card button:hover,
+.guided-cart-actions button:hover,
+.guided-room-form-actions button:hover,
+.guided-room-actions button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px rgba(34, 197, 94, 0.14) !important;
+}
+
+.app-screen :where(
+  input,
+  select,
+  textarea,
+  .input-with-suffix,
+  .general-form-field input,
+  .general-form-field select,
+  .fundamental-form-field input,
+  .human-field input,
+  .human-field select
+) {
+  min-height: 48px;
+  border-radius: 14px !important;
+}
+
+.calculator-overlay-panel,
+.general-overlay-panel,
+.fundamental-overlay-panel,
+.human-overlay-panel {
+  border-radius: 26px !important;
+  box-shadow: var(--orca-shadow) !important;
+}
+
+.calculator-overlay-backdrop,
+.general-overlay-backdrop,
+.fundamental-overlay-backdrop,
+.human-overlay-backdrop {
+  background: rgba(1, 7, 4, 0.72) !important;
+  backdrop-filter: blur(10px);
+}
+
+.drawer-nav button.active {
+  box-shadow:
+    0 0 0 1px rgba(34, 197, 94, 0.14),
+    inset 3px 0 0 var(--orca-green) !important;
+}
+
+@media (max-width: 900px) {
+  .orca-dashboard-hero {
+    min-height: auto;
+  }
+
+  .orca-workflow-steps {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .professional-topbar {
+    padding-bottom: 9px;
+  }
+
+  .screen-header h1,
+  .module-detail-header h1 {
+    font-size: clamp(1.7rem, 9vw, 2.45rem);
+  }
+
+  .orca-dashboard-copy h1 {
+    font-size: clamp(2rem, 11vw, 2.8rem);
+  }
+
+  .orca-dashboard-hero,
+  .module-detail-header,
+  .orca-panel-card,
+  .settings-group,
+  .taxonomy-group-card {
+    border-radius: 20px !important;
+  }
+
+  .orca-workflow-steps,
+  .orca-kpi-grid,
+  .orca-quick-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .module-list-app .module-app-card,
+  .general-picker-card,
+  .fundamental-picker-card,
+  .human-picker-card,
+  .calculator-picker-card,
+  .taxonomy-module-card {
+    min-height: 76px;
+    padding: 14px !important;
+  }
+}
+
+@media (max-width: 520px) {
+  .professional-app-content {
+    padding-inline: 10px;
+  }
+
+  .orca-dashboard-hero {
+    padding: 18px;
+  }
+
+  .section-mode-tabs button,
+  .budget-workspace-tabs button,
+  .client-os-section-tabs button {
+    min-height: 40px;
+    padding-inline: 11px;
+    font-size: 0.82rem;
+  }
+
+  .module-plan-pill,
+  .badge-free,
+  .badge-pro,
+  .general-picker-card em,
+  .fundamental-picker-card em,
+  .human-picker-card em,
+  .calculator-picker-card em {
+    justify-self: start;
+  }
+
+  .calculator-overlay-panel,
+  .general-overlay-panel,
+  .fundamental-overlay-panel,
+  .human-overlay-panel {
+    width: min(100vw, calc(100vw - 12px)) !important;
+    max-height: calc(100dvh - 12px) !important;
+    border-radius: 22px !important;
+    padding: 12px !important;
+  }
+}
+
+.report-document,
+.print-document,
+.budget-print-preview-document,
+.client-proposal-preview-document {
+  background: #ffffff !important;
+  color: #111827 !important;
+  box-shadow: none !important;
 }
