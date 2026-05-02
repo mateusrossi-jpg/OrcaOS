@@ -1036,10 +1036,58 @@ textarea {
   background: rgba(255, 255, 255, 0.025);
 }
 
+.calculator-overlay,
+.general-calculator-overlay,
+.fundamental-overlay,
+.human-calculator-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 80 !important;
+  display: grid !important;
+  place-items: center !important;
+  padding:
+    max(14px, env(safe-area-inset-top))
+    max(14px, env(safe-area-inset-right))
+    max(14px, env(safe-area-inset-bottom))
+    max(14px, env(safe-area-inset-left)) !important;
+}
+
 .calculator-overlay-backdrop,
 .general-overlay-backdrop,
-.fundamental-overlay-backdrop {
+.fundamental-overlay-backdrop,
+.human-overlay-backdrop {
+  position: absolute !important;
+  inset: 0 !important;
   background: rgba(2, 6, 23, 0.68);
+}
+
+.calculator-overlay-panel,
+.general-overlay-panel,
+.fundamental-overlay-panel,
+.human-overlay-panel {
+  position: relative !important;
+  z-index: 1 !important;
+  width: min(920px, calc(100vw - 28px)) !important;
+  max-height: min(860px, calc(100dvh - 28px)) !important;
+  margin: 0 auto !important;
+  overflow: auto !important;
+  overscroll-behavior: contain !important;
+  border-radius: 24px !important;
+  padding: 16px !important;
+}
+
+.calculator-overlay-header,
+.general-overlay-header,
+.fundamental-overlay-header,
+.human-overlay-header {
+  position: sticky !important;
+  top: -16px !important;
+  z-index: 2 !important;
+  min-width: 0 !important;
+  border-radius: 18px !important;
+  background:
+    linear-gradient(180deg, rgba(16, 23, 19, 0.98), rgba(16, 23, 19, 0.90)) !important;
+  backdrop-filter: blur(14px);
 }
 
 .budget-field input:focus,

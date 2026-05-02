@@ -4,6 +4,7 @@ import {
   calculateApparentPower,
   calculateCableSectionFromVoltageDrop,
   calculateConduitFill,
+  calculateCurrentFromVoltageResistance,
   calculateCurrentFromApparentPower,
   calculateCurrentFromPower,
   calculateEnergyConsumption,
@@ -18,6 +19,7 @@ import {
   calculateResistanceFromVoltageCurrent,
   calculateSeriesResistance,
   calculateTransformerSizing,
+  calculateVoltageFromCurrentResistance,
   calculateVoltageDrop,
   convertAwgToMm2,
   recommendCircuit,
@@ -62,13 +64,23 @@ describe('electrical calculations', () => {
     expect(roundTechnical(power)).toBe(roundTechnical(expectedPower));
   });
 
-  it('calculates resistance by Ohm law', () => {
+  it('calculates all Ohm law targets', () => {
     const resistance = calculateResistanceFromVoltageCurrent({
       voltageVolts: 220,
       currentAmps: 10,
     });
+    const current = calculateCurrentFromVoltageResistance({
+      voltageVolts: 220,
+      resistanceOhms: 22,
+    });
+    const voltage = calculateVoltageFromCurrentResistance({
+      currentAmps: 10,
+      resistanceOhms: 22,
+    });
 
     expect(roundTechnical(resistance)).toBe(22);
+    expect(roundTechnical(current)).toBe(10);
+    expect(roundTechnical(voltage)).toBe(220);
   });
 
   it('calculates power by resistance using current and voltage', () => {

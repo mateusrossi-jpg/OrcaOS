@@ -1,4 +1,9 @@
 import { useMemo, useState } from 'react';
+import {
+  calculateCurrentFromVoltageResistance,
+  calculateResistanceFromVoltageCurrent,
+  calculateVoltageFromCurrentResistance,
+} from '../../../core/calculations/electrical';
 import type { CalculationCapture, CalculationDestination } from '../../../core/types/workflow';
 import './ElectricalFundamentalsHumanWorkspace.css';
 
@@ -129,7 +134,7 @@ function NumberField({ label, value, suffix, step = 0.01, onChange }: { label: s
     <label className="human-field">
       <span>{label}</span>
       <div>
-        <input type="number" inputMode="decimal" min="0" step={step} value={value} onChange={(event) => onChange(event.target.value)} />
+        <input type="text" inputMode="decimal" pattern="[0-9]*[,.]?[0-9]*" data-step={step} value={value} onChange={(event) => onChange(event.target.value)} />
         {suffix && <small>{suffix}</small>}
       </div>
     </label>
@@ -252,7 +257,7 @@ export function ElectricalFundamentalsHumanWorkspace({ onCaptureCalculation }: P
         if (ohmsTarget === 'resistance') {
           const voltage = n('voltageVolts', 'tensão');
           const current = n('currentAmps', 'corrente');
-          const calculatedResistance = voltage / current;
+          const calculatedResistance = calculateResistanceFromVoltageCurrent({ voltageVolts: voltage, currentAmps: current });
           return result(
             `Resistência: ${round(calculatedResistance)} Ω`,
             [{ label: 'Resistência', value: `${round(calculatedResistance)} Ω`, helper: 'R = V / I' }],
@@ -265,7 +270,7 @@ export function ElectricalFundamentalsHumanWorkspace({ onCaptureCalculation }: P
         if (ohmsTarget === 'current') {
           const voltage = n('voltageVolts', 'tensão');
           const resistance = n('resistanceOhms', 'resistência');
-          const calculatedCurrent = voltage / resistance;
+          const calculatedCurrent = calculateCurrentFromVoltageResistance({ voltageVolts: voltage, resistanceOhms: resistance });
           return result(
             `Corrente: ${round(calculatedCurrent)} A`,
             [{ label: 'Corrente', value: `${round(calculatedCurrent)} A`, helper: 'I = V / R' }],
@@ -277,7 +282,7 @@ export function ElectricalFundamentalsHumanWorkspace({ onCaptureCalculation }: P
 
         const resistance = n('resistanceOhms', 'resistência');
         const current = n('currentAmps', 'corrente');
-        const calculatedVoltage = resistance * current;
+        const calculatedVoltage = calculateVoltageFromCurrentResistance({ resistanceOhms: resistance, currentAmps: current });
         return result(
           `Tensão: ${round(calculatedVoltage)} V`,
           [{ label: 'Tensão', value: `${round(calculatedVoltage)} V`, helper: 'V = R × I' }],

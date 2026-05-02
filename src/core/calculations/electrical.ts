@@ -101,6 +101,20 @@ export function calculateResistanceFromVoltageCurrent(input: ResistanceFromVolta
   return input.voltageVolts / input.currentAmps;
 }
 
+export function calculateCurrentFromVoltageResistance(input: { voltageVolts: number; resistanceOhms: number }): number {
+  ensurePositiveNumber(input.voltageVolts, 'Tensão');
+  ensurePositiveNumber(input.resistanceOhms, 'Resistência');
+
+  return input.voltageVolts / input.resistanceOhms;
+}
+
+export function calculateVoltageFromCurrentResistance(input: { currentAmps: number; resistanceOhms: number }): number {
+  ensurePositiveNumber(input.currentAmps, 'Corrente');
+  ensurePositiveNumber(input.resistanceOhms, 'Resistência');
+
+  return input.currentAmps * input.resistanceOhms;
+}
+
 export function calculatePowerByResistance(input: PowerByResistanceInput): number {
   ensurePositiveNumber(input.resistanceOhms, 'Resistência');
 
