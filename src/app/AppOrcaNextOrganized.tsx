@@ -22,6 +22,7 @@ const PaintingHumanWorkspace = lazy(() => import('../features/calculators/compon
 const HydraulicsCalculatorWorkspace = lazy(() => import('../features/calculators/components/StableHydraulicsCalculatorWorkspace').then((module) => ({ default: module.HydraulicsCalculatorWorkspace })));
 const ProfessionalDomainWorkspace = lazy(() => import('../features/calculators/components/ProfessionalDomainWorkspace').then((module) => ({ default: module.ProfessionalDomainWorkspace })));
 const UnifiedConvertersWorkspace = lazy(() => import('../features/calculators/components/UnifiedConvertersWorkspace').then((module) => ({ default: module.UnifiedConvertersWorkspace })));
+const UnifiedFinancialWorkspace = lazy(() => import('../features/calculators/components/UnifiedFinancialWorkspace').then((module) => ({ default: module.UnifiedFinancialWorkspace })));
 const CatalogHubWorkspace = lazy(() => import('../features/catalog/components/CatalogHubWorkspaceWithTax').then((module) => ({ default: module.CatalogHubWorkspace })));
 const ClientWorkOrderWorkspace = lazy(() => import('../features/clients/components/ClientWorkOrderWorkspace').then((module) => ({ default: module.ClientWorkOrderWorkspace })));
 const ReportWorkspace = lazy(() => import('../features/reports/components/ReportWorkspace').then((module) => ({ default: module.ReportWorkspace })));
@@ -43,7 +44,7 @@ function LazyWorkspaceFallback() {
 }
 
 function isGeneralCalculatorModule(module: CalculatorModule): module is GeneralCalculatorModule {
-  return module === 'obras' || module === 'orcamentoTecnico';
+  return module === 'obras';
 }
 
 function isProfessionalDomainModule(module: CalculatorModule): boolean {
@@ -76,20 +77,6 @@ const fundamentalModuleConfig: Record<string, { modes: FundamentalMode[]; title:
     moduleLabel: 'Medições de obra',
     note: 'Use como apoio de medição para levantamento, compra de material e conferência em campo.',
   },
-  percentuaisComerciais: {
-    modes: ['rule-of-three', 'percentage', 'increase-percent', 'discount-percent', 'difference-percent', 'profit-margin', 'markup'],
-    title: 'Percentuais comerciais',
-    description: 'Proporções, porcentagens, acréscimos, descontos, variação, margem e markup.',
-    moduleLabel: 'Percentuais comerciais',
-    note: 'Use como apoio comercial para negociação, formação de preço e conferência de margem.',
-  },
-  custosProdutividade: {
-    modes: ['cost-per-area', 'cost-per-unit', 'cost-per-meter', 'productivity-time'],
-    title: 'Custos e produtividade',
-    description: 'Custo por m², unidade, metro linear e tempo estimado por produtividade.',
-    moduleLabel: 'Custos e produtividade',
-    note: 'Use para transformar quantidade, custo e produtividade em base de orçamento.',
-  },
 };
 
 const moduleGuidance: Record<string, { title: string; text: string }> = {
@@ -101,9 +88,9 @@ const moduleGuidance: Record<string, { title: string; text: string }> = {
     title: 'Diagnóstico não é fórmula pura',
     text: 'Estes assistentes ajudam a transformar observações de campo em classificação de risco, urgência, manutenção e texto pronto para relatório.',
   },
-  financeiroAvancado: {
-    title: 'Preço e margem ficam aqui',
-    text: 'Use este grupo para decidir preço de venda, margem real, markup, desconto máximo, entrada, deslocamento e faixas comerciais.',
+  orcamentoTecnico: {
+    title: 'Um único lugar para cobrar melhor',
+    text: 'Use as abas internas para orçamento rápido, produtividade, percentuais de negociação e preço com margem.',
   },
 };
 
@@ -172,10 +159,11 @@ function CalculationsScreen({ selectedModule, openModule, activeSector, onSelect
         {module === 'pintura' && <PaintingHumanWorkspace onCaptureCalculation={onCaptureCalculation} />}
         {module === 'hidraulica' && <HydraulicsCalculatorWorkspace onCaptureCalculation={onCaptureCalculation} />}
         {module === 'conversores' && <UnifiedConvertersWorkspace onCaptureCalculation={onCaptureCalculation} />}
+        {module === 'orcamentoTecnico' && <UnifiedFinancialWorkspace onCaptureCalculation={onCaptureCalculation} />}
         {module && isExpansionModule(module) && <ExpansionCalculatorsWorkspace selectedModule={module} onCaptureCalculation={onCaptureCalculation} />}
         {module && isProfessionalDomainModule(module) && <ProfessionalDomainWorkspace selectedModule={module} onCaptureCalculation={onCaptureCalculation} />}
         {module && isGeneralCalculatorModule(module) && <GeneralCalculatorWorkspace selectedModule={module} onCaptureCalculation={onCaptureCalculation} />}
-        {module && module !== 'fundamentosGerais' && module !== 'fundamentals' && module !== 'pintura' && module !== 'hidraulica' && module !== 'conversores' && !isExpansionModule(module) && !isProfessionalDomainModule(module) && !isGeneralCalculatorModule(module) && <ElectricalCalculatorWorkspace selectedModule={module} userPlan={userPlan} onUpgradeRequest={() => goTo('store')} onCaptureCalculation={onCaptureCalculation} />}
+        {module && module !== 'fundamentosGerais' && module !== 'fundamentals' && module !== 'pintura' && module !== 'hidraulica' && module !== 'conversores' && module !== 'orcamentoTecnico' && !isExpansionModule(module) && !isProfessionalDomainModule(module) && !isGeneralCalculatorModule(module) && <ElectricalCalculatorWorkspace selectedModule={module} userPlan={userPlan} onUpgradeRequest={() => goTo('store')} onCaptureCalculation={onCaptureCalculation} />}
         {!module && <div className="empty-state-card"><strong>{selectedModule.title} em breve</strong><p>Este módulo já está previsto na arquitetura do OrçaOS.</p></div>}
       </section>
     );

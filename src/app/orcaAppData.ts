@@ -30,10 +30,7 @@ export const calculationModules: ModuleCardData[] = [
   { id: 'hidraulica', title: 'Hidráulica básica', description: 'Reservatório, consumo, autonomia, vazão, enchimento e pressão', icon: '≋', tone: 'blue', count: '7 cálculos livres', available: true, plan: 'free', calculatorModule: 'hidraulica' },
   { id: 'hidraulicaAvancada', title: 'Instalações hidráulicas', description: 'Caixa por pessoas, piscina, esgoto, pressão por coluna e bomba simples', icon: '≋', tone: 'green', count: '8 cálculos', available: true, plan: 'pro', calculatorModule: 'hidraulicaAvancada' },
   { id: 'conversores', title: 'Conversores técnicos', description: 'Conversões rápidas e técnicas: volume, pressão, potência, BTU/W, AWG, polegadas, vazão e kWh/R$', icon: '⇄', tone: 'blue', count: '14 conversores livres', available: true, plan: 'free', calculatorModule: 'conversores' },
-  { id: 'orcamentoTecnico', title: 'Orçamento rápido', description: 'Mão de obra, diária, hora técnica, parcelamento, sinal e preço final', icon: 'R$', tone: 'orange', count: '6 cálculos livres', available: true, plan: 'free', calculatorModule: 'orcamentoTecnico' },
-  { id: 'financeiroAvancado', title: 'Preço e margem', description: 'Margem real, markup, desconto máximo, taxas, entrada, hora real e faixas', icon: 'R$', tone: 'orange', count: '9 cálculos', available: true, plan: 'pro', calculatorModule: 'financeiroAvancado' },
-  { id: 'percentuaisComerciais', title: 'Percentuais e negociação', description: 'Regra de três, porcentagem, acréscimo, desconto, variação, margem e markup', icon: 'R$', tone: 'orange', count: '7 cálculos livres', available: true, plan: 'free', calculatorModule: 'fundamentosGerais' },
-  { id: 'custosProdutividade', title: 'Custos e produtividade', description: 'Custo por m², unidade, metro linear e tempo estimado por produtividade', icon: 'R$', tone: 'orange', count: '4 cálculos livres', available: true, plan: 'free', calculatorModule: 'fundamentosGerais' },
+  { id: 'orcamentoTecnico', title: 'Financeiro e preços', description: 'Orçamento, produtividade, percentuais, negociação, margem, taxas, entrada e faixas de preço', icon: 'R$', tone: 'orange', count: '26 cálculos', available: true, plan: 'free', calculatorModule: 'orcamentoTecnico' },
   { id: 'eletronica', title: 'Eletrônica aplicada', description: 'LED, divisor de tensão, RC, PWM, ADC, bateria e fontes', icon: '◌', tone: 'green', count: 'Em breve', available: false, plan: 'soon' },
   { id: 'transformadores', title: 'Transformadores', description: 'VA, correntes, relação, espiras e potência por núcleo', icon: '▤', tone: 'orange', count: '6 cálculos Pro', available: true, plan: 'pro', calculatorModule: 'transformadores' },
   { id: 'solar', title: 'Solar fotovoltaico', description: 'Consumo, kWp, módulos, área, geração, bateria e payback', icon: '☉', tone: 'green', count: '7 cálculos Pro', available: true, plan: 'pro', calculatorModule: 'solar' },
@@ -73,9 +70,9 @@ export const calculationSectorGroups: CalculationSectorGroup[] = [
   {
     id: 'financial',
     title: 'Financeiro',
-    description: 'Transforme custos, tempo, margem, deslocamento e negociação em preço de venda.',
+    description: 'Um único módulo para orçamento rápido, produtividade, percentuais, negociação, preço e margem.',
     icon: 'R$',
-    moduleIds: ['orcamentoTecnico', 'custosProdutividade', 'percentuaisComerciais', 'financeiroAvancado'],
+    moduleIds: ['orcamentoTecnico'],
   },
   {
     id: 'converters',

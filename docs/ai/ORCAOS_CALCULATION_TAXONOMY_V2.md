@@ -40,9 +40,11 @@ Ordem de leitura:
 
 ### Financeiro
 
-- **Orçamento rápido**: mão de obra, diária, hora técnica, parcelamento, sinal e preço final.
-- **Custos e produtividade**: custo por área, unidade, metro e tempo.
-- **Percentuais e negociação**: regra de três, porcentagem, acréscimo, desconto, margem e markup.
+O financeiro fica em um único módulo, com quatro abas internas:
+
+- **Orçamento**: mão de obra, diária, hora técnica, parcelamento, sinal e preço final.
+- **Produtividade**: custo por área, unidade, metro e tempo.
+- **Percentuais**: regra de três, porcentagem, acréscimo, desconto, margem e markup.
 - **Preço e margem**: margem real, markup, desconto máximo, taxas, entrada, hora real e faixas.
 
 ### Conversores e unidades
@@ -76,8 +78,7 @@ Esses itens devem gerar texto técnico e relatório, não item comercial automat
 - Pintura.
 - Hidráulica básica.
 - Conversores técnicos.
-- Orçamento rápido.
-- Percentuais e produtividade.
+- Financeiro e preços.
 - Alguns cálculos internos de módulos Pro quando funcionam como entrada de produto.
 
 ### Pro
@@ -93,7 +94,7 @@ Esses itens devem gerar texto técnico e relatório, não item comercial automat
 - Rebobinagem.
 - Instalações hidráulicas avançadas.
 - Composição de obra avançada.
-- Preço e margem avançado.
+- Preço e margem avançado dentro do módulo financeiro.
 - Assistentes de diagnóstico.
 
 ## Pontos pendentes
