@@ -65,6 +65,18 @@ npm install
 npm run dev
 ```
 
+Antes de publicar ou chamar testadores:
+
+```bash
+npm run rc:check
+```
+
+Documentos do beta fechado:
+
+- `docs/ai/ORCAOS_RELEASE_CANDIDATE_RC2.md`
+- `docs/ai/ORCAOS_BETA_FECHADO_SIMULACAO_USUARIO_REAL.md`
+- `docs/ai/ORCAOS_COMMERCIAL_GATE_DEPLOYMENT_V1.md`
+
 ## Princípios do projeto
 
 - Simples para o usuário comum.
