@@ -1,30 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { createMemoryStorage } from '../../../test/createMemoryStorage';
 import { clearSavedBudgets, deleteSavedBudget, loadSavedBudgets, saveBudgetRecord } from './savedBudgetsStorage';
-
-function createMemoryStorage(): Storage {
-  const data = new Map<string, string>();
-
-  return {
-    get length() {
-      return data.size;
-    },
-    clear() {
-      data.clear();
-    },
-    getItem(key: string) {
-      return data.get(key) ?? null;
-    },
-    key(index: number) {
-      return Array.from(data.keys())[index] ?? null;
-    },
-    removeItem(key: string) {
-      data.delete(key);
-    },
-    setItem(key: string, value: string) {
-      data.set(key, value);
-    },
-  };
-}
 
 describe('saved budgets storage', () => {
   beforeEach(() => {
@@ -77,6 +53,34 @@ describe('saved budgets storage', () => {
     expect(records).toHaveLength(1);
     expect(records[0].clientName).toBe('Cliente B');
     expect(records[0].status).toBe('approved');
+    expect(records[0].createdAt).toBe(saved?.createdAt);
+  });
+
+  it('keeps saved budgets sorted by most recent update', () => {
+    window.localStorage.setItem('orcaos:saved-budgets:v1', JSON.stringify([
+      {
+        id: 'old',
+        clientName: 'Cliente antigo',
+        title: 'Antigo',
+        status: 'draft',
+        discount: 0,
+        items: [],
+        createdAt: '2026-05-01T00:00:00.000Z',
+        updatedAt: '2026-05-01T00:00:00.000Z',
+      },
+      {
+        id: 'new',
+        clientName: 'Cliente novo',
+        title: 'Novo',
+        status: 'sent',
+        discount: 0,
+        items: [],
+        createdAt: '2026-05-02T00:00:00.000Z',
+        updatedAt: '2026-05-02T00:00:00.000Z',
+      },
+    ]));
+
+    expect(loadSavedBudgets().map((record) => record.id)).toEqual(['new', 'old']);
   });
 
   it('deletes a saved budget record', () => {

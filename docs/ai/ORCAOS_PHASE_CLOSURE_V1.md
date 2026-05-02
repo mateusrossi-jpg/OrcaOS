@@ -142,6 +142,23 @@ Estado atualizado:
 90 testes passando
 ```
 
+### 9. Base comercial e proposta
+
+Status: fechado para validação inicial.
+
+- Testes cobrem cálculo de subtotal, desconto, total mínimo e validação de valores inválidos.
+- Testes cobrem rascunho e orçamentos salvos.
+- Testes cobrem ordenação por atualização e preservação de `createdAt` ao atualizar orçamento salvo.
+- Testes cobrem perfil comercial usado na proposta.
+- Testes cobrem catálogo base de itens do orçamento e filtragem de registros inválidos.
+
+Estado atualizado:
+
+```txt
+15 arquivos de teste
+102 testes passando
+```
+
 ## Validação técnica executada
 
 Comandos executados:
