@@ -19,6 +19,7 @@ import './styles/orcaosOfficialTheme.css';
 import './styles/orcaosApprovedConcept.css';
 import './styles/orcaosLayoutComposition.css';
 import './styles/orcaosVisualStabilization.css';
+import './styles/orcaosFinalCoherence.css';
 
 const rootElement = document.getElementById('root');
 
