@@ -1086,6 +1086,28 @@ textarea {
   box-shadow: none;
 }
 
+.human-field > div {
+  grid-template-columns: minmax(0, 1fr) minmax(56px, auto);
+  border-color: rgba(187, 247, 208, 0.13);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.015)),
+    var(--orca-surface-2);
+}
+
+.human-field > div input {
+  min-width: 0;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.human-field > div small {
+  min-width: 56px;
+  border-left: 1px solid rgba(34, 197, 94, 0.18);
+  color: var(--orca-green);
+  background: rgba(34, 197, 94, 0.10);
+}
+
 .calculator-tabs button {
   border-color: var(--orca-border);
   color: var(--orca-muted);
