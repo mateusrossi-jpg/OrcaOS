@@ -302,7 +302,7 @@ function CatalogScreen({ onAddMany }: { onAddMany: (items: CalculationCapture[])
 }
 
 function ReportsScreen({ captures, context }: { captures: CalculationCapture[]; context: { activeClient: Client | null; activeWorkOrder: WorkOrder | null } }) {
-  return <section className="app-screen wide-screen"><header className="screen-header"><span className="orca-kicker">PDF e diagnóstico</span><h1>Relatórios</h1><p>Gere uma prévia técnica com observações e especificações vindas do levantamento.</p></header><ActiveWorkContextCard {...context} /><ReportWorkspace captures={captures} activeClient={context.activeClient} activeWorkOrder={context.activeWorkOrder} /></section>;
+  return <section className="app-screen wide-screen"><header className="screen-header"><span className="orca-kicker">Documento técnico</span><h1>Relatórios</h1><p>Transforme diagnósticos, fotos, observações e itens do levantamento em um documento técnico para o cliente.</p></header><ActiveWorkContextCard {...context} /><ReportWorkspace captures={captures} activeClient={context.activeClient} activeWorkOrder={context.activeWorkOrder} /></section>;
 }
 
 function ClientsScreen({ onContextChange }: { onContextChange: (clients: Client[], workOrders: WorkOrder[], activeWorkOrderId: string | null) => void }) {

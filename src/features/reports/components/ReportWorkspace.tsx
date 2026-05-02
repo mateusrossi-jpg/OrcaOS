@@ -58,8 +58,9 @@ export function ReportWorkspace({ captures, activeClient = null, activeWorkOrder
 
       <section className="report-summary-panel no-print">
         <div>
+          <span className="orca-kicker">Prévia do documento</span>
           <h2>Relatório técnico</h2>
-          <p>Use os itens do levantamento, diagnósticos, observações e fotos para montar uma prévia técnica para o cliente.</p>
+          <p>Revise os itens técnicos, confirme o cliente/OS ativa e só então imprima ou salve em PDF.</p>
         </div>
         <button className="primary-action inline-action" type="button" onClick={printReport} disabled={reportItems.length === 0}>
           Imprimir / salvar PDF
