@@ -7,6 +7,7 @@ import {
   restoreOrcaBackup,
   stringifyOrcaBackup,
   summarizeOrcaBackup,
+  summarizeOrcaBackupData,
 } from './localBackup';
 
 describe('local backup storage', () => {
@@ -46,9 +47,40 @@ describe('local backup storage', () => {
     expect(summary.estimatedSizeKb).toBeGreaterThanOrEqual(1);
   });
 
+  it('summarizes business data groups from backup keys', () => {
+    const backup = parseOrcaBackup(JSON.stringify({
+      app: 'OrçaOS',
+      version: 1,
+      exportedAt: '2026-05-02T00:00:00.000Z',
+      keys: {
+        'orcaos:clients:v1': JSON.stringify([{ id: 'c1' }, { id: 'c2' }]),
+        'orcaos:work-orders:v1': JSON.stringify([{ id: 'os1' }]),
+        'orcaos:saved-budgets:v1': JSON.stringify([{ id: 'b1' }]),
+        'orcaos:catalog-hub-items:v1': JSON.stringify([{ id: 'i1' }, { id: 'i2' }]),
+        'orcaos:catalog-suppliers:v1': JSON.stringify([{ id: 's1' }]),
+        'orcaos:calculation-captures:v1': JSON.stringify([{ id: 'cap1' }]),
+        'orcaos:business-profile:v1': '{}',
+        'orcaos:professional-profile:v1': '{}',
+        'orcaos:account-plan:v1': '{}',
+      },
+    }));
+
+    expect(summarizeOrcaBackupData(backup)).toEqual(expect.arrayContaining([
+      { label: 'Clientes', count: 2 },
+      { label: 'OS', count: 1 },
+      { label: 'Orçamentos', count: 1 },
+      { label: 'Catálogo', count: 2 },
+      { label: 'Fornecedores', count: 1 },
+      { label: 'Capturas/levantamentos', count: 1 },
+      { label: 'Perfil profissional', count: 2 },
+      { label: 'Conta/plano local', count: 1 },
+    ]));
+  });
+
   it('rejects backups from other apps or unsupported versions', () => {
     expect(() => parseOrcaBackup(JSON.stringify({ app: 'Outro', version: 1, keys: {} }))).toThrow('backup do OrçaOS');
     expect(() => parseOrcaBackup(JSON.stringify({ app: 'OrçaOS', version: 2, keys: {} }))).toThrow('Versão de backup');
+    expect(() => parseOrcaBackup('{invalid-json')).toThrow('JSON inválido');
   });
 
   it('ignores unsafe keys while parsing backups', () => {

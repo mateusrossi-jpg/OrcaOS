@@ -28,8 +28,10 @@ export function GoogleDriveBackupPanel() {
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [driveBackup, setDriveBackup] = useState<GoogleDriveBackupMetadata | null>(null);
   const [restoreMode, setRestoreMode] = useState<'merge' | 'replace'>('merge');
+  const [replaceConfirmation, setReplaceConfirmation] = useState('');
   const [feedback, setFeedback] = useState<string | null>(null);
   const [isBusy, setIsBusy] = useState(false);
+  const [canReload, setCanReload] = useState(false);
   const isConfigured = isGoogleDriveBackupConfigured();
 
   async function connectDrive() {
@@ -71,6 +73,10 @@ export function GoogleDriveBackupPanel() {
   }
 
   async function restoreDriveBackup() {
+    if (restoreMode === 'replace' && replaceConfirmation.trim() !== 'SUBSTITUIR') {
+      setFeedback('Isso substituirá os dados locais do OrçaOS neste navegador. Digite SUBSTITUIR para confirmar.');
+      return;
+    }
     setIsBusy(true);
     try {
       const token = await ensureToken();
@@ -78,11 +84,16 @@ export function GoogleDriveBackupPanel() {
       const restoredCount = restoreOrcaBackup(backup, restoreMode);
       setDriveBackup(await findGoogleDriveBackup(token));
       setFeedback(`${restoredCount} grupo(s) restaurado(s) do Drive. Recarregue o app para garantir leitura completa.`);
+      setCanReload(true);
     } catch (error) {
       setFeedback(error instanceof Error ? error.message : 'Não foi possível restaurar do Google Drive.');
     } finally {
       setIsBusy(false);
     }
+  }
+
+  function reloadAppNow() {
+    window.location.reload();
   }
 
   async function refreshDriveStatus() {
@@ -137,9 +148,17 @@ export function GoogleDriveBackupPanel() {
               <option value="replace">Substituir dados locais do OrçaOS</option>
             </select>
           </label>
+          {restoreMode === 'replace' && (
+            <label className="local-backup-file">
+              <span>Confirmação para substituir</span>
+              <input value={replaceConfirmation} placeholder="Digite SUBSTITUIR" onChange={(event) => setReplaceConfirmation(event.target.value)} />
+              <small>Isso substituirá os dados locais do OrçaOS neste navegador.</small>
+            </label>
+          )}
           <div className="local-backup-actions">
             <button className="secondary-action inline-action" disabled={!isConfigured || isBusy} type="button" onClick={refreshDriveStatus}>Ver último backup</button>
             <button className="primary-action inline-action" disabled={!isConfigured || isBusy} type="button" onClick={restoreDriveBackup}>Restaurar</button>
+            {canReload && <button className="secondary-action inline-action" type="button" onClick={reloadAppNow}>Recarregar app agora</button>}
           </div>
         </article>
       </div>

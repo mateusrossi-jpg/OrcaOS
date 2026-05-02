@@ -13,7 +13,30 @@ export interface OrcaBackupSummary {
   version?: number;
 }
 
+export interface OrcaBackupDataSummaryItem {
+  label: string;
+  count: number;
+}
+
 const ORCA_PREFIX = 'orcaos:';
+
+function parseJsonValue(value: string | undefined): unknown {
+  if (!value) return null;
+  try {
+    return JSON.parse(value);
+  } catch {
+    return null;
+  }
+}
+
+function countArrayValue(value: string | undefined): number {
+  const parsedValue = parseJsonValue(value);
+  return Array.isArray(parsedValue) ? parsedValue.length : 0;
+}
+
+function countPresentValue(value: string | undefined): number {
+  return value ? 1 : 0;
+}
 
 export function collectOrcaLocalBackup(): OrcaLocalBackup {
   const keys: Record<string, string> = {};
@@ -51,8 +74,35 @@ export function summarizeOrcaBackup(backup: OrcaLocalBackup): OrcaBackupSummary 
   };
 }
 
+export function summarizeOrcaBackupData(backup: OrcaLocalBackup): OrcaBackupDataSummaryItem[] {
+  const keys = backup.keys;
+  const catalogCount = countArrayValue(keys['orcaos:catalog-hub-items:v1']) + countArrayValue(keys['orcaos:catalog-items:v1']);
+  const supplierCount = countArrayValue(keys['orcaos:catalog-suppliers:v1']) + countArrayValue(keys['orcaos:supplier-profiles:v1']);
+  const surveyCount = countArrayValue(keys['orcaos:calculation-captures:v1']) + countArrayValue(keys['orcaos:guided-rooms:v1']) + countArrayValue(keys['orcaos:guided-labor-templates:v1']);
+  const settingsCount = countPresentValue(keys['orcaos:access-lock:v1']) + countPresentValue(keys['orcaos:purchase-tax-records:v1']);
+  const profileCount = countPresentValue(keys['orcaos:business-profile:v1']) + countPresentValue(keys['orcaos:professional-profile:v1']);
+  const accountCount = countPresentValue(keys['orcaos:account-plan:v1']) + countPresentValue(keys['orcaos:user-plan']);
+
+  return [
+    { label: 'Clientes', count: countArrayValue(keys['orcaos:clients:v1']) },
+    { label: 'OS', count: countArrayValue(keys['orcaos:work-orders:v1']) },
+    { label: 'Orçamentos', count: countArrayValue(keys['orcaos:saved-budgets:v1']) },
+    { label: 'Catálogo', count: catalogCount },
+    { label: 'Fornecedores', count: supplierCount },
+    { label: 'Configurações', count: settingsCount },
+    { label: 'Capturas/levantamentos', count: surveyCount },
+    { label: 'Perfil profissional', count: profileCount },
+    { label: 'Conta/plano local', count: accountCount },
+  ];
+}
+
 export function parseOrcaBackup(value: string): OrcaLocalBackup {
-  const parsed: unknown = JSON.parse(value);
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(value);
+  } catch {
+    throw new Error('JSON inválido. Confira se o conteúdo colado é um backup completo do OrçaOS.');
+  }
   if (!parsed || typeof parsed !== 'object') throw new Error('Arquivo de backup inválido.');
 
   const backup = parsed as Partial<OrcaLocalBackup>;

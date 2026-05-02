@@ -7,6 +7,7 @@ import {
   restoreOrcaBackup,
   stringifyOrcaBackup,
   summarizeOrcaBackup,
+  summarizeOrcaBackupData,
   type OrcaLocalBackup,
 } from '../storage/localBackup';
 import { AppSecurityPanel } from './AppSecurityPanel';
@@ -19,8 +20,12 @@ export function LocalBackupWorkspace() {
   const [restoreMode, setRestoreMode] = useState<'merge' | 'replace'>('merge');
   const [feedback, setFeedback] = useState<string | null>(null);
   const [importPreview, setImportPreview] = useState<OrcaLocalBackup | null>(null);
+  const [replaceConfirmation, setReplaceConfirmation] = useState('');
+  const [canReload, setCanReload] = useState(false);
   const currentBackup = useMemo(() => collectOrcaLocalBackup(), []);
   const summary = summarizeOrcaBackup(currentBackup);
+  const currentDataSummary = summarizeOrcaBackupData(currentBackup);
+  const importDataSummary = importPreview ? summarizeOrcaBackupData(importPreview) : [];
 
   function refreshBackupText() {
     setBackupText(stringifyOrcaBackup(collectOrcaLocalBackup()));
@@ -50,6 +55,7 @@ export function LocalBackupWorkspace() {
       const parsed = parseOrcaBackup(backupText);
       setImportPreview(parsed);
       const importedSummary = summarizeOrcaBackup(parsed);
+      setCanReload(false);
       setFeedback(`Backup válido: ${importedSummary.keyCount} grupo(s) de dados, aproximadamente ${importedSummary.estimatedSizeKb} KB.`);
     } catch (error) {
       setImportPreview(null);
@@ -60,12 +66,21 @@ export function LocalBackupWorkspace() {
   function restoreImport() {
     try {
       const parsed = importPreview ?? parseOrcaBackup(backupText);
+      if (restoreMode === 'replace' && replaceConfirmation.trim() !== 'SUBSTITUIR') {
+        setFeedback('Isso substituirá os dados locais do OrçaOS neste navegador. Digite SUBSTITUIR para confirmar.');
+        return;
+      }
       const restoredCount = restoreOrcaBackup(parsed, restoreMode);
       setFeedback(`${restoredCount} grupo(s) restaurado(s). Recarregue o app para garantir que todas as telas leiam os dados atualizados.`);
       setImportPreview(parsed);
+      setCanReload(true);
     } catch (error) {
       setFeedback(error instanceof Error ? error.message : 'Não foi possível restaurar o backup.');
     }
+  }
+
+  function reloadAppNow() {
+    window.location.reload();
   }
 
   function handleFileImport(file: File | null) {
@@ -106,6 +121,9 @@ export function LocalBackupWorkspace() {
           <article className="local-backup-card">
             <strong>Exportar backup</strong>
             <small>Gera um JSON com clientes, OS, cálculos, catálogo, fornecedores, compras, estoque, perfil profissional e configurações salvas localmente.</small>
+            <div className="local-backup-summary-grid">
+              {currentDataSummary.map((item) => <span key={item.label}>{item.label}: <strong>{item.count}</strong></span>)}
+            </div>
             <div className="local-backup-actions">
               <button className="primary-action inline-action" type="button" onClick={downloadBackup}>Baixar JSON</button>
               <button className="secondary-action inline-action" type="button" onClick={copyBackup}>Copiar backup</button>
@@ -127,9 +145,17 @@ export function LocalBackupWorkspace() {
                 <option value="replace">Substituir dados locais do OrçaOS</option>
               </select>
             </label>
+            {restoreMode === 'replace' && (
+              <label className="local-backup-file">
+                <span>Confirmação para substituir</span>
+                <input value={replaceConfirmation} placeholder="Digite SUBSTITUIR" onChange={(event) => setReplaceConfirmation(event.target.value)} />
+                <small>Isso substituirá os dados locais do OrçaOS neste navegador.</small>
+              </label>
+            )}
             <div className="local-backup-actions">
               <button className="secondary-action inline-action" type="button" onClick={previewImport}>Verificar backup</button>
               <button className="primary-action inline-action" type="button" onClick={restoreImport}>Restaurar</button>
+              {canReload && <button className="secondary-action inline-action" type="button" onClick={reloadAppNow}>Recarregar app agora</button>}
             </div>
           </article>
         </div>
@@ -143,6 +169,9 @@ export function LocalBackupWorkspace() {
           <div className="local-backup-preview">
             <strong>Prévia do backup</strong>
             <small>Exportado em: {new Date(importPreview.exportedAt).toLocaleString('pt-BR')} · {Object.keys(importPreview.keys).length} grupo(s)</small>
+            <div className="local-backup-summary-grid">
+              {importDataSummary.map((item) => <span key={item.label}>{item.label}: <strong>{item.count}</strong></span>)}
+            </div>
             <ul>
               {Object.keys(importPreview.keys).slice(0, 12).map((key) => <li key={key}>{key}</li>)}
             </ul>
@@ -151,7 +180,7 @@ export function LocalBackupWorkspace() {
 
         <div className="local-backup-warning">
           <strong>Atenção</strong>
-          <p>Este backup salva apenas os dados locais deste navegador/dispositivo. Fotos grandes e arquivos externos podem precisar de estratégia própria no futuro.</p>
+          <p>Dados locais podem ser perdidos se o navegador limpar cache. Exporte backup regularmente. Fotos grandes e arquivos externos podem precisar de estratégia própria no futuro.</p>
         </div>
 
         {feedback && <div className="guided-cart-feedback">{feedback}</div>}
