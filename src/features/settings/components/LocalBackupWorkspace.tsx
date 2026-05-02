@@ -9,6 +9,7 @@ import {
   summarizeOrcaBackup,
   type OrcaLocalBackup,
 } from '../storage/localBackup';
+import { GoogleDriveBackupPanel } from './GoogleDriveBackupPanel';
 import { ProfessionalProfileWorkspace } from './ProfessionalProfileWorkspace';
 import './LocalBackupWorkspace.css';
 
@@ -87,6 +88,7 @@ export function LocalBackupWorkspace() {
   return (
     <>
       <ProfessionalProfileWorkspace />
+      <GoogleDriveBackupPanel />
 
       <section className="local-backup-workspace">
         <div className="local-backup-header">
