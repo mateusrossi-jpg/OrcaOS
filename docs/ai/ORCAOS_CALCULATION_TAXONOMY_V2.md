@@ -25,8 +25,10 @@ Ordem de leitura:
 
 ### Hidráulica
 
-- **Hidráulica básica**: reservatório, consumo, autonomia, vazão, enchimento e pressão.
-- **Instalações hidráulicas**: piscina, esgoto, pressão por coluna e bomba simples.
+Hidráulica fica em um único módulo, com duas abas internas:
+
+- **Básico**: reservatório, consumo, autonomia, vazão, enchimento e pressão.
+- **Instalações**: caixa por pessoas, piscina, esgoto, pressão por coluna e bomba simples.
 
 ### Construção civil
 
@@ -77,7 +79,7 @@ Esses itens devem gerar texto técnico e relatório, não item comercial automat
 - Fundamentos elétricos.
 - Construção civil básica.
 - Pintura.
-- Hidráulica básica.
+- Hidráulica.
 - Conversores técnicos.
 - Financeiro e preços.
 - Alguns cálculos internos de módulos Pro quando funcionam como entrada de produto.
@@ -93,7 +95,7 @@ Esses itens devem gerar texto técnico e relatório, não item comercial automat
 - Transformadores.
 - Solar.
 - Rebobinagem.
-- Instalações hidráulicas avançadas.
+- Instalações hidráulicas avançadas dentro do módulo de hidráulica.
 - Composição de obra avançada dentro do módulo de construção.
 - Preço e margem avançado dentro do módulo financeiro.
 - Assistentes de diagnóstico.

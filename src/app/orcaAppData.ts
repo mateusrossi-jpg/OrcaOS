@@ -25,8 +25,7 @@ export const calculationModules: ModuleCardData[] = [
   { id: 'automacaoIndustrial', title: 'Automação e sinais', description: 'Escalas 4–20 mA, 0–10 V e valor de engenharia', icon: '▥', tone: 'green', count: '2 cálculos Pro', available: true, plan: 'pro', calculatorModule: 'industrialAutomation' },
   { id: 'construcaoCivil', title: 'Construção civil', description: 'Medições, concreto, alvenaria, piso, revestimento, argamassas, telhado, escada e rampa', icon: '▧', tone: 'gray', count: '25 cálculos', available: true, plan: 'free', calculatorModule: 'obras' },
   { id: 'pintura', title: 'Pintura e acabamento', description: 'Área, tinta, selador, massa, custo e tempo de pintura', icon: '▨', tone: 'green', count: '6 cálculos livres', available: true, plan: 'free', calculatorModule: 'pintura' },
-  { id: 'hidraulica', title: 'Hidráulica básica', description: 'Reservatório, consumo, autonomia, vazão, enchimento e pressão', icon: '≋', tone: 'blue', count: '7 cálculos livres', available: true, plan: 'free', calculatorModule: 'hidraulica' },
-  { id: 'hidraulicaAvancada', title: 'Instalações hidráulicas', description: 'Caixa por pessoas, piscina, esgoto, pressão por coluna e bomba simples', icon: '≋', tone: 'green', count: '8 cálculos', available: true, plan: 'pro', calculatorModule: 'hidraulicaAvancada' },
+  { id: 'hidraulica', title: 'Hidráulica', description: 'Reservatório, consumo, autonomia, vazão, enchimento, pressão, piscina, esgoto e bomba simples', icon: '≋', tone: 'green', count: '15 cálculos', available: true, plan: 'free', calculatorModule: 'hidraulica' },
   { id: 'conversores', title: 'Conversores técnicos', description: 'Conversões rápidas e técnicas: volume, pressão, potência, BTU/W, AWG, polegadas, vazão e kWh/R$', icon: '⇄', tone: 'blue', count: '14 conversores livres', available: true, plan: 'free', calculatorModule: 'conversores' },
   { id: 'orcamentoTecnico', title: 'Financeiro e preços', description: 'Orçamento, produtividade, percentuais, negociação, margem, taxas, entrada e faixas de preço', icon: 'R$', tone: 'orange', count: '26 cálculos', available: true, plan: 'free', calculatorModule: 'orcamentoTecnico' },
   { id: 'eletronica', title: 'Eletrônica aplicada', description: 'LED, divisor de tensão, RC, PWM, ADC, bateria e fontes', icon: '◌', tone: 'green', count: 'Em breve', available: false, plan: 'soon' },
@@ -47,9 +46,9 @@ export const calculationSectorGroups: CalculationSectorGroup[] = [
   {
     id: 'hydraulics',
     title: 'Hidráulica',
-    description: 'Reservatórios, consumo, vazão, pressão, esgoto, piscina e bomba simples.',
+    description: 'Um único módulo com abas para reservatórios, medições básicas, esgoto, piscina e bomba simples.',
     icon: '≋',
-    moduleIds: ['hidraulica', 'hidraulicaAvancada'],
+    moduleIds: ['hidraulica'],
   },
   {
     id: 'construction',
