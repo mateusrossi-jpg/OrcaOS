@@ -487,13 +487,11 @@ export function GeneralFundamentalsWorkspace({ onCaptureCalculation }: GeneralFu
       <div className="fundamental-picker-list">
         {fundamentalRules.map((calculator) => (
           <button className="fundamental-picker-card" key={calculator.mode} type="button" onClick={() => setActiveCalculator(calculator.mode)}>
-            <span className="app-icon tone-green">{calculator.icon}</span>
             <span>
               <strong>{calculator.label}</strong>
               <small>{calculator.description}</small>
             </span>
             <em>LIVRE</em>
-            <span className="chevron">›</span>
           </button>
         ))}
       </div>

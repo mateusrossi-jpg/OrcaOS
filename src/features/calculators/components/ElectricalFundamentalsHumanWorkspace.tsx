@@ -429,13 +429,11 @@ export function ElectricalFundamentalsHumanWorkspace({ onCaptureCalculation }: P
       <div className="human-picker-list">
         {rules.map((rule) => (
           <button className="human-picker-card" key={rule.mode} type="button" onClick={() => openCalculator(rule.mode)}>
-            <span className="human-icon">{rule.icon}</span>
             <span>
               <strong>{rule.label}</strong>
               <small>{rule.description}</small>
             </span>
             <em>LIVRE</em>
-            <span className="chevron">›</span>
           </button>
         ))}
       </div>

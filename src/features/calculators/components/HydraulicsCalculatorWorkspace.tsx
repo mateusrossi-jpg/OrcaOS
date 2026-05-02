@@ -289,13 +289,11 @@ export function HydraulicsCalculatorWorkspace({ onCaptureCalculation }: Hydrauli
       <div className="general-picker-list">
         {rules.map((calculator) => (
           <button className="general-picker-card" key={calculator.mode} type="button" onClick={() => setActiveMode(calculator.mode)}>
-            <span className="app-icon tone-green">{calculator.icon}</span>
             <span>
               <strong>{calculator.label}</strong>
               <small>{calculator.description}</small>
             </span>
             <em>LIVRE</em>
-            <span className="chevron">›</span>
           </button>
         ))}
       </div>

@@ -288,7 +288,7 @@ export function HydraulicsCalculatorWorkspace({ onCaptureCalculation }: Props) {
     <div className="general-calculator-workspace">
       <div className="general-plan-banner"><div><strong>Hidráulica</strong><span>Cálculos estáveis para reservatórios, consumo, vazão, enchimento e pressão.</span></div><em>{rules.length} cálculos</em></div>
       <div className="general-picker-list">
-        {rules.map((rule) => <button className="general-picker-card" key={rule.mode} type="button" onClick={() => openCalculator(rule.mode)}><span className="app-icon tone-green">{rule.icon}</span><span><strong>{rule.label}</strong><small>{rule.description}</small></span><em>LIVRE</em><span className="chevron">›</span></button>)}
+        {rules.map((rule) => <button className="general-picker-card" key={rule.mode} type="button" onClick={() => openCalculator(rule.mode)}><span><strong>{rule.label}</strong><small>{rule.description}</small></span><em>LIVRE</em></button>)}
       </div>
       {activeRule && (
         <div className="general-calculator-overlay" role="dialog" aria-modal="true" aria-label={activeRule.label}>

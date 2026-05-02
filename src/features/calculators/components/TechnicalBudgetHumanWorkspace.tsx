@@ -175,7 +175,7 @@ export function TechnicalBudgetHumanWorkspace({ onCaptureCalculation }: Props) {
   return (
     <div className="general-calculator-workspace">
       <div className="general-plan-banner"><div><strong>Orçamento técnico V1</strong><span>Cálculos comerciais simples para serviço, preço final, diária, hora técnica e pagamento.</span></div><em>{rules.length} cálculos</em></div>
-      <div className="general-picker-list">{rules.map((rule) => <button className="general-picker-card" key={rule.mode} type="button" onClick={() => openCalculator(rule.mode)}><span className="app-icon tone-orange">{rule.icon}</span><span><strong>{rule.label}</strong><small>{rule.description}</small></span><em>LIVRE</em><span className="chevron">›</span></button>)}</div>
+      <div className="general-picker-list">{rules.map((rule) => <button className="general-picker-card" key={rule.mode} type="button" onClick={() => openCalculator(rule.mode)}><span><strong>{rule.label}</strong><small>{rule.description}</small></span><em>LIVRE</em></button>)}</div>
 
       {activeRule && activeMode && (
         <div className="general-calculator-overlay" role="dialog" aria-modal="true" aria-label={activeRule.label}>

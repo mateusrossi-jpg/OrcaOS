@@ -523,13 +523,11 @@ export function GeneralCalculatorWorkspace({ selectedModule, onCaptureCalculatio
       <div className="general-picker-list">
         {availableCalculators.map((calculator) => (
           <button className="general-picker-card" key={calculator.mode} type="button" onClick={() => setActiveCalculator(calculator.mode)}>
-            <span className="app-icon tone-green">{calculator.icon}</span>
             <span>
               <strong>{calculator.label}</strong>
               <small>{calculator.description}</small>
             </span>
             <em>{calculator.plan === 'pro' ? 'PRO' : 'LIVRE'}</em>
-            <span className="chevron">›</span>
           </button>
         ))}
       </div>

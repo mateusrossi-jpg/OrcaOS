@@ -65,7 +65,7 @@
 
 .taxonomy-module-card {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto auto auto;
+  grid-template-columns: minmax(0, 1fr) auto auto;
   align-items: center;
   gap: 10px;
   width: 100%;
@@ -121,13 +121,11 @@
   }
 
   .taxonomy-module-card {
-    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-columns: 1fr;
   }
 
   .taxonomy-module-card .module-plan-pill,
-  .taxonomy-module-card .taxonomy-count,
-  .taxonomy-module-card .chevron {
-    grid-column: 2;
+  .taxonomy-module-card .taxonomy-count {
     justify-self: start;
   }
 }

@@ -270,7 +270,7 @@
 
 .calculator-picker-card {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   gap: 14px;
   width: 100%;
@@ -460,7 +460,7 @@
 
 @media (max-width: 540px) {
   .calculator-picker-card {
-    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-columns: minmax(0, 1fr) auto;
   }
 
   .calculator-picker-card .chevron {

@@ -852,7 +852,7 @@ button {
 
 .module-list-app .module-app-card {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   gap: 12px;
   min-height: 132px;
@@ -1497,7 +1497,7 @@ textarea::placeholder {
   }
 
   .module-list-app .module-app-card {
-    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-columns: minmax(0, 1fr) auto;
     min-height: 96px;
     padding: 12px;
   }
@@ -1516,5 +1516,50 @@ textarea::placeholder {
   .budget-workspace-tabs,
   .client-os-section-tabs {
     margin-inline: -2px;
+  }
+}
+
+/* Typographic UI: icons are intentionally hidden so hierarchy comes from text, spacing and badges. */
+.app-icon,
+.human-icon,
+.chevron {
+  display: none !important;
+}
+
+.orca-quick-actions button,
+.orca-activity-list article,
+.survey-intro-card,
+.settings-row {
+  grid-template-columns: minmax(0, 1fr) !important;
+}
+
+.store-card {
+  grid-template-columns: minmax(0, 1fr) auto !important;
+}
+
+.module-detail-header,
+.module-list-app .module-app-card,
+.general-picker-card,
+.fundamental-picker-card,
+.human-picker-card,
+.calculator-picker-card,
+.taxonomy-module-card {
+  grid-template-columns: minmax(0, 1fr) auto !important;
+}
+
+.taxonomy-module-card {
+  grid-template-columns: minmax(0, 1fr) auto auto !important;
+}
+
+@media (max-width: 720px) {
+  .store-card,
+  .module-detail-header,
+  .module-list-app .module-app-card,
+  .general-picker-card,
+  .fundamental-picker-card,
+  .human-picker-card,
+  .calculator-picker-card,
+  .taxonomy-module-card {
+    grid-template-columns: 1fr !important;
   }
 }

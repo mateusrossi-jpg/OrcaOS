@@ -75,7 +75,7 @@
 
 .human-picker-card {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto auto;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   gap: 12px;
   min-height: 88px;
@@ -93,7 +93,7 @@
   display: none;
 }
 
-.human-picker-card > span:nth-child(2) {
+.human-picker-card > span:first-child {
   display: grid;
   gap: 6px;
   min-width: 0;

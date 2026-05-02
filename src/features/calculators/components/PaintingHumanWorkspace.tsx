@@ -266,13 +266,11 @@ export function PaintingHumanWorkspace({ onCaptureCalculation }: Props) {
       <div className="general-picker-list">
         {rules.map((rule) => (
           <button className="general-picker-card" key={rule.mode} type="button" onClick={() => openCalculator(rule.mode)}>
-            <span className="app-icon tone-green">{rule.icon}</span>
             <span>
               <strong>{rule.label}</strong>
               <small>{rule.description}</small>
             </span>
             <em>LIVRE</em>
-            <span className="chevron">›</span>
           </button>
         ))}
       </div>

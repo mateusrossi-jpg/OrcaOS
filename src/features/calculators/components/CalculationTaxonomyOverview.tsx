@@ -89,14 +89,12 @@ function buildTaxonomy(modules: TaxonomyModuleCardData[]): TaxonomyGroup[] {
 function TaxonomyModuleCard({ module, onOpenModule }: { module: TaxonomyModuleCardData; onOpenModule: (module: TaxonomyModuleCardData) => void }) {
   return (
     <button className={module.available ? 'taxonomy-module-card' : 'taxonomy-module-card disabled'} type="button" onClick={() => onOpenModule(module)}>
-      <span className={`app-icon tone-${module.tone}`}>{module.icon}</span>
       <span className="taxonomy-module-body">
         <strong>{module.title}</strong>
         <small>{module.description}</small>
       </span>
       <em className={`module-plan-pill ${module.plan}`}>{planLabel(module.plan)}</em>
       <span className="taxonomy-count">{module.count}</span>
-      <span className="chevron">›</span>
     </button>
   );
 }

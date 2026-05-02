@@ -120,15 +120,6 @@ function moduleName(module: CalculatorModule | undefined): string {
   return 'Calculadoras';
 }
 
-function modeIcon(mode: CalculatorMode): string {
-  if (mode.includes('motor') || mode === 'pulley-ratio') return '↻';
-  if (mode.includes('analog')) return '≋';
-  if (mode === 'air-conditioning') return '❄';
-  if (mode === 'lighting') return '☀';
-  if (mode.includes('drop') || mode === 'transformer-sizing' || mode === 'awg-conversion' || mode === 'conduit-fill') return '⌁';
-  return 'ϟ';
-}
-
 function NumberField({ label, value, suffix, min = 0, step = 0.01, onChange }: {
   label: string;
   value: string;
@@ -457,13 +448,11 @@ export function ElectricalCalculatorWorkspace({ userPlan = 'free', selectedModul
           const isLocked = !canUseCalculator(calculator.mode, userPlan);
           return (
             <button className="calculator-picker-card" key={calculator.mode} type="button" onClick={() => setActiveCalculator(calculator.mode)}>
-              <span className="app-icon tone-blue">{modeIcon(calculator.mode)}</span>
               <span>
                 <strong>{calculator.label}</strong>
                 <small>{calculator.shortDescription}</small>
               </span>
               <em className={isLocked ? 'badge-pro' : 'badge-free'}>{isLocked ? 'PRO' : 'LIVRE'}</em>
-              <span className="chevron">›</span>
             </button>
           );
         })}
