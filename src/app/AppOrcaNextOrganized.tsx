@@ -322,6 +322,24 @@ function ClientsScreen({ onContextChange }: { onContextChange: (clients: Client[
   return <section className="app-screen wide-screen"><header className="screen-header"><span className="orca-kicker">Início do serviço</span><h1>Atendimentos</h1><p>Escolha o cliente e a OS ativa antes de calcular, levantar campo, orçar ou gerar relatório.</p></header><ClientWorkOrderWorkspace onContextChange={onContextChange} /></section>;
 }
 
+function planStatusTitle(account: OrcaAccountState): string {
+  if (account.plan === 'pro' && account.planStatus === 'trial') return 'Pro em teste';
+  if (account.plan === 'pro') return 'Pro ativo';
+  if (account.planStatus === 'expired') return 'Assinatura vencida';
+  if (account.planStatus === 'past_due') return 'Pagamento pendente';
+  if (account.planStatus === 'inactive') return 'Nenhuma assinatura encontrada';
+  return 'Plano grátis';
+}
+
+function planStatusDescription(account: OrcaAccountState, planSourceLabel: string): string {
+  if (account.plan === 'pro' && account.planStatus === 'trial') return `Teste Pro liberado por ${planSourceLabel}.`;
+  if (account.plan === 'pro') return `Recursos Pro liberados por ${planSourceLabel}.`;
+  if (account.planStatus === 'expired') return 'A assinatura foi encontrada, mas está vencida. Recursos Pro permanecem bloqueados.';
+  if (account.planStatus === 'past_due') return 'Existe pagamento pendente. Em beta, a liberação pode ser regularizada manualmente.';
+  if (account.planStatus === 'inactive') return 'Nenhuma assinatura ativa foi encontrada para a conta/e-mail usado.';
+  return 'Cálculos livres liberados. Recursos Pro exigem verificação de assinatura.';
+}
+
 function StoreScreen({ account, onAccountChange }: { account: OrcaAccountState; onAccountChange: (account: OrcaAccountState) => void }) {
   const activeUserPlan = account.plan;
   const devToolsEnabled = isDevToolsEnabled();
@@ -340,7 +358,7 @@ function StoreScreen({ account, onAccountChange }: { account: OrcaAccountState; 
     try {
       const result = await refreshPlanEntitlement(account);
       onAccountChange(result.account);
-      setFeedback(result.account.plan === 'pro' ? 'Assinatura Pro confirmada.' : 'Nenhuma assinatura Pro ativa para esta conta.');
+      setFeedback(planStatusDescription(result.account, 'assinatura'));
     } catch (error) {
       setFeedback(error instanceof Error ? error.message : 'Não foi possível verificar assinatura.');
     } finally {
@@ -354,14 +372,15 @@ function StoreScreen({ account, onAccountChange }: { account: OrcaAccountState; 
       <div className="settings-group">
         <h2>Plano atual</h2>
         {devToolsEnabled && <div className="dev-tools-badge">Modo desenvolvimento ativo</div>}
-        <article className="settings-row"><span><strong>{activeUserPlan === 'pro' ? 'Pro ativo' : 'Grátis ativo'}</strong><small>{activeUserPlan === 'pro' ? `Liberado por ${planSourceLabel}.` : 'Cálculos livres liberados. Recursos Pro abrem a tela de upgrade.'}</small></span></article>
+        <article className="settings-row"><span><strong>{planStatusTitle(account)}</strong><small>{planStatusDescription(account, planSourceLabel)}</small>{account.planExpiresAt && <small>Válido até: {new Date(account.planExpiresAt).toLocaleDateString('pt-BR')}</small>}</span></article>
         <div className="general-capture-actions">
           <button type="button" disabled={!canCheckPlan || isCheckingPlan} onClick={checkSubscription}>{isCheckingPlan ? 'Verificando...' : 'Verificar assinatura'}</button>
           {devToolsEnabled && <button className="secondary-action" type="button" onClick={() => onAccountChange(setLocalUserPlan('pro'))}>Ativar Pro de teste</button>}
           {devToolsEnabled && <button className="secondary-action" type="button" onClick={() => onAccountChange(setLocalUserPlan('free'))}>Voltar ao grátis</button>}
         </div>
-        {!isPlanEntitlementSyncConfigured() && <p className="general-helper-text">Configure VITE_ORCAOS_ENTITLEMENTS_ENDPOINT para verificar assinaturas reais.</p>}
+        {!isPlanEntitlementSyncConfigured() && <p className="general-helper-text">Endpoint de assinatura não configurado. No beta fechado, liberação Pro pode ser manual/assistida pelo e-mail da conta.</p>}
         {isPlanEntitlementSyncConfigured() && !account.userId && <p className="general-helper-text">Entre com uma conta antes de verificar assinatura.</p>}
+        <p className="general-helper-text">A verificação depende da conta/e-mail cadastrado. Pagamento automático e webhook ficam fora deste beta.</p>
         {feedback && <p className="general-added-message">{feedback}</p>}
       </div>
       <div className="settings-group"><h2>Pacotes disponíveis</h2>{storePackages.map((pack) => <article className="store-card" key={pack.title}><span><strong>{pack.title}</strong><small>{pack.description}</small><b>{pack.price}</b></span><button type="button">Detalhes</button></article>)}</div>
@@ -423,7 +442,7 @@ function SettingsScreen({ account, onAccountChange }: { account: OrcaAccountStat
             <span><strong>{accountLabel}</strong><small>{accountDescription}</small></span>
           </article>
           <article className="settings-row">
-            <span><strong>{account.plan === 'pro' ? 'Pro ativo' : 'Plano grátis'}</strong><small>{account.plan === 'pro' ? 'Recursos Pro liberados neste ambiente.' : 'Base inicial ativa. Verifique assinatura na Loja / Pro.'}</small></span>
+            <span><strong>{planStatusTitle(account)}</strong><small>{planStatusDescription(account, account.planSource === 'subscription' ? 'assinatura' : 'verificação local')}</small></span>
           </article>
         </div>
 

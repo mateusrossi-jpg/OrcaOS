@@ -59,6 +59,8 @@ describe('plan entitlements', () => {
 
     expect(result.account.plan).toBe('pro');
     expect(result.account.planSource).toBe('subscription');
+    expect(result.account.planStatus).toBe('active');
+    expect(result.account.planExpiresAt).toBe('2026-06-01T00:00:00.000Z');
     expect(result.status).toBe('active');
     expect(fetchMock).toHaveBeenCalledWith(
       'https://api.example.com/entitlements',
@@ -77,8 +79,31 @@ describe('plan entitlements', () => {
     const result = await refreshPlanEntitlement(account);
 
     expect(result.account.plan).toBe('free');
+    expect(result.account.planStatus).toBe('expired');
     expect(result.status).toBe('expired');
     expect(result.expiresAt).toBe('2026-01-01T00:00:00.000Z');
+  });
+
+  it('allows trial subscriptions as Pro', async () => {
+    vi.stubEnv('VITE_ORCAOS_ENTITLEMENTS_ENDPOINT', 'https://api.example.com/entitlements');
+    const account = signInGoogleAccount({ sub: '123', email: 'mateus@example.com' });
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({ plan: 'pro', status: 'trial', planSource: 'subscription' })));
+
+    const result = await refreshPlanEntitlement(account);
+
+    expect(result.account.plan).toBe('pro');
+    expect(result.account.planStatus).toBe('trial');
+  });
+
+  it('does not release Pro when subscription is past due', async () => {
+    vi.stubEnv('VITE_ORCAOS_ENTITLEMENTS_ENDPOINT', 'https://api.example.com/entitlements');
+    const account = signInGoogleAccount({ sub: '123', email: 'mateus@example.com' });
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({ plan: 'pro', status: 'past_due', planSource: 'subscription' })));
+
+    const result = await refreshPlanEntitlement(account);
+
+    expect(result.account.plan).toBe('free');
+    expect(result.account.planStatus).toBe('past_due');
   });
 
   it('fails clearly when the entitlement endpoint rejects the request', async () => {

@@ -1,16 +1,16 @@
-import { loadAccountState, saveAccountState, type OrcaAccountState, type OrcaPlanSource } from './accountPlanStorage';
+import { loadAccountState, saveAccountState, type OrcaAccountState, type OrcaPlanSource, type OrcaPlanStatus } from './accountPlanStorage';
 import type { UserPlan } from './featureAccess';
 
 export interface PlanEntitlementResponse {
   plan?: UserPlan;
   planSource?: OrcaPlanSource;
-  status?: 'active' | 'inactive' | 'trial' | 'past_due' | 'expired';
+  status?: 'active' | 'inactive' | 'trial' | 'past_due' | 'expired' | 'canceled';
   expiresAt?: string | null;
 }
 
 export interface PlanEntitlementResult {
   account: OrcaAccountState;
-  status: NonNullable<PlanEntitlementResponse['status']>;
+  status: OrcaPlanStatus;
   expiresAt: string | null;
 }
 
@@ -36,11 +36,16 @@ function normalizePlanSource(value: unknown, plan: UserPlan): OrcaPlanSource {
   return plan === 'pro' ? 'subscription' : 'free';
 }
 
-function normalizeStatus(value: unknown, plan: UserPlan): NonNullable<PlanEntitlementResponse['status']> {
+function normalizeStatus(value: unknown, plan: UserPlan): OrcaPlanStatus {
   if (value === 'active' || value === 'trial' || value === 'past_due' || value === 'inactive' || value === 'expired') {
     return value;
   }
+  if (value === 'canceled') return 'inactive';
   return plan === 'pro' ? 'active' : 'inactive';
+}
+
+function resolveEffectivePlan(plan: UserPlan, status: OrcaPlanStatus): UserPlan {
+  return plan === 'pro' && (status === 'active' || status === 'trial') ? 'pro' : 'free';
 }
 
 export async function refreshPlanEntitlement(account = loadAccountState()): Promise<PlanEntitlementResult> {
@@ -68,18 +73,23 @@ export async function refreshPlanEntitlement(account = loadAccountState()): Prom
   }
 
   const entitlement = await response.json() as PlanEntitlementResponse;
-  const plan = normalizePlan(entitlement.plan);
+  const requestedPlan = normalizePlan(entitlement.plan);
+  const status = normalizeStatus(entitlement.status, requestedPlan);
+  const plan = resolveEffectivePlan(requestedPlan, status);
+  const expiresAt = entitlement.expiresAt ?? null;
   const nextAccount: OrcaAccountState = {
     ...account,
     plan,
     planSource: normalizePlanSource(entitlement.planSource, plan),
+    planStatus: plan === 'free' && status === 'active' ? 'inactive' : status,
+    planExpiresAt: expiresAt,
     updatedAt: new Date().toISOString(),
   };
   saveAccountState(nextAccount);
 
   return {
     account: nextAccount,
-    status: normalizeStatus(entitlement.status, plan),
-    expiresAt: entitlement.expiresAt ?? null,
+    status: nextAccount.planStatus,
+    expiresAt,
   };
 }

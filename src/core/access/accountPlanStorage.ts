@@ -2,6 +2,7 @@ import type { UserPlan } from './featureAccess';
 
 export type OrcaAccountStatus = 'guest' | 'email' | 'local' | 'google';
 export type OrcaPlanSource = 'free' | 'local-test' | 'subscription';
+export type OrcaPlanStatus = 'free' | 'active' | 'trial' | 'expired' | 'inactive' | 'past_due';
 
 export interface GoogleAccountProfile {
   sub: string;
@@ -16,6 +17,8 @@ export interface OrcaAccountState {
   email: string;
   plan: UserPlan;
   planSource: OrcaPlanSource;
+  planStatus: OrcaPlanStatus;
+  planExpiresAt: string | null;
   updatedAt: string;
 }
 
@@ -54,8 +57,15 @@ export function createGuestAccount(plan: UserPlan = 'free', planSource: OrcaPlan
     email: '',
     plan,
     planSource,
+    planStatus: plan === 'pro' ? 'active' : 'free',
+    planExpiresAt: null,
     updatedAt: now(),
   };
+}
+
+function normalizePlanStatus(value: unknown, plan: UserPlan): OrcaPlanStatus {
+  if (value === 'active' || value === 'trial' || value === 'expired' || value === 'inactive' || value === 'past_due') return value;
+  return plan === 'pro' ? 'active' : 'free';
 }
 
 function normalizeAccount(value: Partial<OrcaAccountState> | null): OrcaAccountState | null {
@@ -68,6 +78,8 @@ function normalizeAccount(value: Partial<OrcaAccountState> | null): OrcaAccountS
     email: value.email ? normalizeEmail(value.email) : '',
     plan,
     planSource: value.planSource === 'subscription' ? 'subscription' : value.planSource === 'local-test' ? 'local-test' : plan === 'pro' ? 'local-test' : 'free',
+    planStatus: normalizePlanStatus(value.planStatus, plan),
+    planExpiresAt: typeof value.planExpiresAt === 'string' ? value.planExpiresAt : null,
     updatedAt: value.updatedAt || now(),
   };
 }
@@ -158,6 +170,8 @@ export function setLocalUserPlan(plan: UserPlan): OrcaAccountState {
     ...current,
     plan,
     planSource: plan === 'pro' ? 'local-test' : 'free',
+    planStatus: plan === 'pro' ? 'active' : 'free',
+    planExpiresAt: null,
     updatedAt: now(),
   };
   saveAccountState(next);

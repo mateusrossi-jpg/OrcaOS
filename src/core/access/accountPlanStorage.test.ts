@@ -35,6 +35,7 @@ describe('account plan storage', () => {
 
     expect(account.status).toBe('guest');
     expect(account.plan).toBe('free');
+    expect(account.planStatus).toBe('free');
     expect(resolveUserPlan()).toBe('free');
   });
 
@@ -86,17 +87,20 @@ describe('account plan storage', () => {
 
     expect(resolveUserPlan()).toBe('pro');
     expect(loadAccountState().planSource).toBe('local-test');
+    expect(loadAccountState().planStatus).toBe('active');
 
     setLocalUserPlan('free');
 
     expect(resolveUserPlan()).toBe('free');
     expect(loadAccountState().planSource).toBe('free');
+    expect(loadAccountState().planStatus).toBe('free');
   });
 
   it('migrates the previous user plan override', () => {
     window.localStorage.setItem('orcaos:user-plan', 'pro');
 
     expect(loadAccountState().plan).toBe('pro');
+    expect(loadAccountState().planStatus).toBe('active');
   });
 
   it('signs out to a free guest account', () => {

@@ -16,6 +16,15 @@ Esta etapa fecha o fluxo comercial minimo para vender logo apos o lancamento, ma
 
 A allowlist `ORCAOS_PRO_USERS` continua disponivel apenas como fallback de beta quando Supabase ainda nao estiver configurado.
 
+## Politica Do Beta Fechado
+
+- O beta fechado usa venda manual assistida: Pix, link externo ou combinacao direta com o cliente.
+- Pagamento automatico e webhook ficam fora do beta inicial.
+- A verificacao Pro depende da conta/e-mail usado no app. O cliente deve cadastrar o mesmo e-mail liberado no backend ou vincular a conta Google correspondente.
+- `active` e `trial` liberam Pro.
+- `expired`, `inactive` e `past_due` mantem o usuario no Free e exibem mensagem clara na Loja / Pro.
+- Validacao server-side forte de identidade, recibos e historico financeiro entram antes de escala publica.
+
 ## Variaveis Do Frontend
 
 ```bash
@@ -39,6 +48,7 @@ ORCAOS_ADMIN_API_KEY=uma_chave_admin_forte
 
 `ORCAOS_PRO_USERS` aceita e-mails cadastrados, e-mails Google e IDs Google salvos como `google:<sub>`.
 `ORCAOS_SUPABASE_SERVICE_ROLE_KEY` e `ORCAOS_ADMIN_API_KEY` nunca devem usar prefixo `VITE_` e nunca devem ir para o frontend.
+`ORCAOS_ALLOWED_ORIGIN` deve apontar para o dominio real em producao; nao deixe `*` em ambiente publico.
 
 ## Tabela De Assinaturas
 
@@ -105,6 +115,14 @@ curl -X POST https://seu-dominio.com/api/admin/subscriptions \
 ```
 
 Esse endpoint deve ser usado apenas por voce, painel administrativo ou webhook confiavel.
+
+## Seguranca Operacional
+
+- A service role do Supabase fica somente no backend/API.
+- Nunca crie variavel `VITE_` com service role, chave admin ou segredo de webhook.
+- `ORCAOS_ADMIN_API_KEY` e obrigatorio para liberar assinatura pelo endpoint administrativo.
+- O frontend nunca deve liberar Pro por conta propria quando o endpoint responde erro, `inactive`, `expired` ou `past_due`.
+- As ferramentas locais de teste ficam atras de `VITE_ORCAOS_DEV_TOOLS=true` e devem ficar desligadas no beta comercial.
 
 ## Proxima Camada
 
