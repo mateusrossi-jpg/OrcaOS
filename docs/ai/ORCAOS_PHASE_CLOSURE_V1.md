@@ -89,6 +89,22 @@ Estado atual:
 56 testes passando
 ```
 
+### 6. Persistência local-first
+
+Status: fechado para validação inicial.
+
+- Testes cobrem capturas de cálculo salvas no navegador.
+- Testes cobrem clientes, ordens de serviço e OS ativa.
+- Testes cobrem JSON inválido e ambiente sem `window`.
+- Storages retornam valores seguros quando os dados locais estão vazios ou corrompidos.
+
+Estado atualizado:
+
+```txt
+9 arquivos de teste
+64 testes passando
+```
+
 ## Validação técnica executada
 
 Comandos executados:
@@ -151,4 +167,5 @@ Esta fase está fechada porque:
 - a expansão de cálculos está integrada;
 - a taxonomia V1 está coerente;
 - a performance inicial foi melhorada;
+- a persistência local principal tem cobertura de teste;
 - as próximas pendências estão documentadas como evolução, não como bloqueio técnico imediato.
