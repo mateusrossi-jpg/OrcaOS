@@ -185,6 +185,8 @@ export function CatalogHubWorkspace({ onSendToBudget }: CatalogHubWorkspaceProps
   const [supplierFilter, setSupplierFilter] = useState('');
   const [onlineQuery, setOnlineQuery] = useState('tomada 20A branca');
   const [onlineSupplierId, setOnlineSupplierId] = useState('');
+  const [onlineObservedPrice, setOnlineObservedPrice] = useState('');
+  const [onlineReference, setOnlineReference] = useState('');
   const [feedback, setFeedback] = useState<string | null>(null);
 
   useEffect(() => saveCatalogHubItems(items), [items]);
@@ -290,13 +292,24 @@ export function CatalogHubWorkspace({ onSendToBudget }: CatalogHubWorkspaceProps
   }
 
   function fillItemFromOnlineSearch() {
+    const observedPrice = onlineObservedPrice.trim();
+    const reference = onlineReference.trim();
+    const today = new Intl.DateTimeFormat('pt-BR').format(new Date());
+    const onlineNote = [
+      observedPrice ? `Preço observado: ${money(parseDecimal(observedPrice))} em ${today}.` : null,
+      'Referência online escolhida pelo profissional. Confirmar disponibilidade antes de enviar proposta.',
+    ].filter(Boolean).join(' ');
+
     setEditingItemId(null);
     updateItemDraft('title', onlineQuery);
     updateItemDraft('supplierId', onlineSupplier?.id ?? '');
     updateItemDraft('brand', onlineSupplier?.name ?? '');
+    updateItemDraft('reference', reference);
+    if (observedPrice) updateItemDraft('defaultUnitValue', observedPrice);
     updateItemDraft('sourceUrl', onlineUrl);
+    updateItemDraft('notes', itemDraft.notes.trim() ? `${itemDraft.notes.trim()}\n${onlineNote}` : onlineNote);
     setActiveTab('items');
-    setFeedback('Busca online enviada para o formulário de item. Confira dados, preço e referência antes de salvar.');
+    setFeedback('Referência online enviada para o formulário. Confira preço, modelo e disponibilidade antes de salvar.');
   }
 
   return (
@@ -410,15 +423,18 @@ export function CatalogHubWorkspace({ onSendToBudget }: CatalogHubWorkspaceProps
           <div className="catalog-hub-grid">
             <label className="wide"><span>O que pesquisar?</span><input value={onlineQuery} placeholder="Ex.: tomada 20A branca 2P+T" onChange={(event) => setOnlineQuery(event.target.value)} /></label>
             <label><span>Fornecedor/fabricante</span><select value={onlineSupplierId} onChange={(event) => setOnlineSupplierId(event.target.value)}>{suppliers.map((supplier) => <option key={supplier.id} value={supplier.id}>{supplier.name}</option>)}</select></label>
+            <label><span>Preço observado</span><input inputMode="decimal" value={onlineObservedPrice} placeholder="Ex.: 18,90" onChange={(event) => setOnlineObservedPrice(event.target.value)} /></label>
+            <label className="wide"><span>Referência escolhida</span><input value={onlineReference} placeholder="Ex.: SKU, modelo, código do fabricante ou link do produto" onChange={(event) => setOnlineReference(event.target.value)} /></label>
           </div>
           <div className="online-result-box">
             <span>Link preparado</span>
             <strong>{onlineSupplier?.name ?? 'Fornecedor'}</strong>
             <small>{onlineUrl || 'Cadastre um fornecedor com site/catálogo.'}</small>
+            <small>Abra a busca, escolha o item real e registre aqui o preço observado como referência comercial.</small>
           </div>
           <div className="catalog-hub-actions start-actions">
             {onlineUrl && <a className="primary-action inline-action" href={onlineUrl} target="_blank" rel="noreferrer">Abrir consulta online</a>}
-            <button className="secondary-action inline-action" type="button" onClick={fillItemFromOnlineSearch}>Usar busca no cadastro</button>
+            <button className="secondary-action inline-action" type="button" onClick={fillItemFromOnlineSearch}>Usar como referência</button>
           </div>
         </div>
       )}

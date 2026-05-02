@@ -101,6 +101,10 @@ function statusLabel(status: SavedBudgetStatus): string {
   return labels[status];
 }
 
+function joinTextLines(lines: Array<string | false | null | undefined>): string {
+  return lines.filter((line): line is string => Boolean(line && line.trim())).join('\n');
+}
+
 function createId(prefix: string): string {
   return typeof crypto !== 'undefined' && 'randomUUID' in crypto ? crypto.randomUUID() : `${prefix}-${Date.now()}`;
 }
@@ -222,6 +226,7 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
   const [savedBudgets, setSavedBudgets] = useState<SavedBudgetRecord[]>(() => loadSavedBudgets());
   const [lastSavedAt, setLastSavedAt] = useState<string | null>(savedDraft?.updatedAt ?? null);
   const [storedTechnicalCaptures, setStoredTechnicalCaptures] = useState<CalculationCapture[]>(() => loadStoredTechnicalCaptures());
+  const [shareFeedback, setShareFeedback] = useState<string | null>(null);
 
   const availableTechnicalCaptures = technicalCaptures.length > 0 ? technicalCaptures : storedTechnicalCaptures;
 
@@ -385,6 +390,46 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
     if (!saved) return;
     setActiveBudgetId(saved.id);
     setSavedBudgets(loadSavedBudgets());
+  }
+
+  function buildBudgetShareText(): string {
+    const companyName = businessProfile.businessName || businessProfile.responsibleName || 'OrçaOS';
+    const itemLines = items.length > 0
+      ? items.map((item, index) => `${index + 1}. ${item.description} - ${item.quantity} x ${formatCurrency(item.unitPrice)} = ${formatCurrency(calculateBudgetItemTotal(item))}`)
+      : ['Sem itens cadastrados ainda.'];
+
+    return joinTextLines([
+      `${budgetTitle || 'Orçamento técnico'}`,
+      `Profissional: ${companyName}`,
+      clientName.trim() ? `Cliente: ${clientName.trim()}` : null,
+      '',
+      'Itens:',
+      ...itemLines,
+      '',
+      `Subtotal: ${formatCurrency(summary.subtotal)}`,
+      discount > 0 ? `Desconto: ${formatCurrency(discount)}` : null,
+      `Total: ${formatCurrency(summary.total)}`,
+      businessProfile.defaultPaymentTerms ? `Pagamento: ${businessProfile.defaultPaymentTerms}` : null,
+      businessProfile.defaultValidity ? `Validade: ${businessProfile.defaultValidity}` : null,
+      businessProfile.defaultNotes ? `Observações: ${businessProfile.defaultNotes}` : null,
+    ]);
+  }
+
+  async function copyBudgetShareText() {
+    const text = buildBudgetShareText();
+    try {
+      await navigator.clipboard.writeText(text);
+      setShareFeedback('Texto da proposta copiado.');
+    } catch {
+      setShareFeedback('Não foi possível copiar automaticamente. Use a prévia para conferir e imprimir.');
+    }
+  }
+
+  function openBudgetWhatsApp() {
+    const url = `https://wa.me/?text=${encodeURIComponent(buildBudgetShareText())}`;
+    window.open(url, '_blank', 'noopener,noreferrer');
+    setBudgetStatus('sent');
+    setShareFeedback('WhatsApp aberto com o texto da proposta.');
   }
 
   function openSavedBudget(record: SavedBudgetRecord) {
@@ -560,6 +605,17 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
       {activeSection === 'preview' && (
         <section className="budget-section-panel preview-section-panel">
           <div className="budget-section-header"><div><h3>Prévia do orçamento</h3><p>Confira o documento antes de imprimir ou salvar em PDF.</p></div></div>
+          <div className="budget-share-card">
+            <div>
+              <strong>Enviar proposta</strong>
+              <small>Copie um resumo comercial ou abra o WhatsApp com valores e itens principais.</small>
+            </div>
+            <div className="budget-actions compact-actions">
+              <button type="button" className="secondary-action inline-action" onClick={copyBudgetShareText}>Copiar texto</button>
+              <button type="button" className="primary-action inline-action" onClick={openBudgetWhatsApp}>Abrir WhatsApp</button>
+            </div>
+            {shareFeedback && <small className="budget-share-feedback">{shareFeedback}</small>}
+          </div>
           <BudgetPrintPreview clientName={clientName} budgetTitle={budgetTitle} status={budgetStatus} items={items} discount={discount} subtotal={summary.subtotal} total={summary.total} businessProfile={businessProfile} paymentTerms={businessProfile.defaultPaymentTerms} validity={businessProfile.defaultValidity} notes={businessProfile.defaultNotes} templateId={selectedTemplate} />
         </section>
       )}

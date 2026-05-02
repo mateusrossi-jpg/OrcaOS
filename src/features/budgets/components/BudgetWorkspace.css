@@ -72,6 +72,27 @@
   padding: 18px;
 }
 
+.budget-share-card {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+  border: 1px solid var(--orca-border, rgba(187, 247, 208, 0.14));
+  border-radius: 20px;
+  padding: 16px;
+  background:
+    radial-gradient(circle at top right, rgba(34, 197, 94, 0.08), transparent 12rem),
+    var(--orca-surface-2, #151f19);
+}
+
+.budget-share-card strong {
+  color: var(--orca-text, #f8fafc);
+}
+
+.budget-share-card small,
+.budget-share-feedback {
+  color: var(--orca-muted, #a7b3ad);
+}
+
 .budget-section-header {
   display: flex;
   align-items: flex-start;
