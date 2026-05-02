@@ -16,7 +16,6 @@ export const navItems: Array<{ id: AppTab; label: string; description: string; i
 ];
 
 export const calculationModules: ModuleCardData[] = [
-  { id: 'fundamentosGerais', title: 'Fundamentos gerais', description: 'Regra de três, porcentagem, áreas, volumes, custos e produtividade', icon: '∑', tone: 'green', count: '17 cálculos livres', available: true, plan: 'free', calculatorModule: 'fundamentosGerais' },
   { id: 'fundamentos', title: 'Fundamentos elétricos', description: 'Ohm, corrente, potência, resistores, VA e consumo', icon: 'ϟ', tone: 'blue', count: '8 cálculos livres', available: true, plan: 'free', calculatorModule: 'fundamentals' },
   { id: 'instalacoes', title: 'Instalações elétricas', description: 'Queda, distância, transformador, AWG, disjuntor, cabo e eletroduto', icon: '⌁', tone: 'gray', count: '7 cálculos Pro', available: true, plan: 'pro', calculatorModule: 'installations' },
   { id: 'iluminacao', title: 'Iluminação', description: 'Lúmens, lux, luminárias e iluminação de ambiente', icon: '☼', tone: 'green', count: '1 cálculo Pro', available: true, plan: 'pro', calculatorModule: 'lighting' },
@@ -24,10 +23,13 @@ export const calculationModules: ModuleCardData[] = [
   { id: 'motores', title: 'Motores', description: 'Corrente, rotação, escorregamento e relação de polias', icon: '⚙', tone: 'orange', count: '3 cálculos Pro', available: true, plan: 'pro', calculatorModule: 'motors' },
   { id: 'automacaoIndustrial', title: 'Automação industrial', description: 'Escalas 4–20 mA, 0–10 V e valor de engenharia', icon: '▥', tone: 'green', count: '2 cálculos Pro', available: true, plan: 'pro', calculatorModule: 'industrialAutomation' },
   { id: 'construcaoCivil', title: 'Construção civil', description: 'Medições, concreto, alvenaria, piso, revestimento e telhado', icon: '▧', tone: 'gray', count: '10 cálculos', available: true, plan: 'free', calculatorModule: 'obras' },
+  { id: 'medicoesObra', title: 'Medições de obra', description: 'Áreas, perímetro, volume simples e perda de material para levantamento.', icon: '▧', tone: 'gray', count: '6 cálculos livres', available: true, plan: 'free', calculatorModule: 'fundamentosGerais' },
   { id: 'pintura', title: 'Pintura e acabamento', description: 'Área, tinta necessária e orçamento simples por m²', icon: '▨', tone: 'green', count: '3 cálculos', available: true, plan: 'free', calculatorModule: 'pintura' },
   { id: 'hidraulica', title: 'Hidráulica', description: 'Reservatório, consumo, autonomia, vazão, enchimento e pressão', icon: '≋', tone: 'blue', count: '7 cálculos livres', available: true, plan: 'free', calculatorModule: 'hidraulica' },
   { id: 'conversores', title: 'Conversores', description: 'm³/litros, pressão, potência, BTU/h, medidas, temperatura e vazão', icon: '⇄', tone: 'blue', count: '4 conversores', available: true, plan: 'free', calculatorModule: 'conversores' },
   { id: 'orcamentoTecnico', title: 'Financeiro técnico', description: 'Mão de obra, diária, hora técnica, parcelamento, sinal, margem e preço final', icon: 'R$', tone: 'orange', count: '6 cálculos', available: true, plan: 'free', calculatorModule: 'orcamentoTecnico' },
+  { id: 'percentuaisComerciais', title: 'Percentuais comerciais', description: 'Regra de três, porcentagem, acréscimo, desconto, variação, margem e markup.', icon: 'R$', tone: 'orange', count: '7 cálculos livres', available: true, plan: 'free', calculatorModule: 'fundamentosGerais' },
+  { id: 'custosProdutividade', title: 'Custos e produtividade', description: 'Custo por m², unidade, metro linear e tempo estimado por produtividade.', icon: 'R$', tone: 'orange', count: '4 cálculos livres', available: true, plan: 'free', calculatorModule: 'fundamentosGerais' },
   { id: 'eletronica', title: 'Eletrônica aplicada', description: 'LED, divisor de tensão, RC, PWM, ADC, bateria e fontes', icon: '◌', tone: 'green', count: 'Em breve', available: false, plan: 'soon' },
   { id: 'transformadores', title: 'Transformadores', description: 'VA, espiras por volt, primário, secundário e fio preliminar', icon: '▤', tone: 'orange', count: 'Em breve', available: false, plan: 'soon' },
   { id: 'solar', title: 'Solar fotovoltaico', description: 'Placas, inversor, cabos, geração, bateria e payback', icon: '☉', tone: 'green', count: 'Em breve', available: false, plan: 'soon' },
@@ -54,7 +56,7 @@ export const calculationSectorGroups: CalculationSectorGroup[] = [
     title: 'Construção civil',
     description: 'Medições, concreto, alvenaria, piso, revestimento, telhado e quantificação de obra.',
     icon: '▧',
-    moduleIds: ['construcaoCivil'],
+    moduleIds: ['construcaoCivil', 'medicoesObra'],
   },
   {
     id: 'painting',
@@ -68,19 +70,19 @@ export const calculationSectorGroups: CalculationSectorGroup[] = [
     title: 'Financeiro',
     description: 'Preço de venda, mão de obra, diária, hora técnica, parcelamento, sinal e margem do serviço.',
     icon: 'R$',
-    moduleIds: ['orcamentoTecnico'],
+    moduleIds: ['orcamentoTecnico', 'percentuaisComerciais', 'custosProdutividade'],
   },
   {
     id: 'converters',
     title: 'Conversores e unidades',
-    description: 'Fundamentos gerais, medidas, pressão, potência, temperatura, vazão e unidades de apoio.',
+    description: 'Conversões rápidas de unidades usadas em obra, manutenção e orçamento.',
     icon: '⇄',
-    moduleIds: ['fundamentosGerais', 'conversores'],
+    moduleIds: ['conversores'],
   },
 ];
 
 export const storePackages = [
-  { title: 'Base gratuita', description: 'Fundamentos gerais, hidráulica inicial, construção civil básica, pintura, conversores e orçamento simples.', price: 'R$ 0', icon: '∑' },
+  { title: 'Base gratuita', description: 'Elétrica inicial, hidráulica, construção civil, pintura, conversores, medições e financeiro simples.', price: 'R$ 0', icon: '∑' },
   { title: 'Pacote Instalações Pro', description: 'Queda de tensão, distância máxima, cabo/disjuntor, transformador, AWG e eletroduto.', price: 'R$ 12,90', icon: '⌁' },
   { title: 'Pacote Construção Civil Pro', description: 'Alvenaria, revestimento, telhado, argamassa, concreto, listas e composições avançadas.', price: 'R$ 12,90', icon: '▧' },
   { title: 'Pacote Hidráulica Pro', description: 'Bombas, perda de carga, conexões, esgoto, drenagem, reservatórios e lista de materiais.', price: 'R$ 12,90', icon: '≋' },

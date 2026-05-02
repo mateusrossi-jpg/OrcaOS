@@ -50,8 +50,8 @@ function buildTaxonomy(modules: TaxonomyModuleCardData[]): TaxonomyGroup[] {
     {
       id: 'essenciais',
       title: 'Essenciais',
-      subtitle: 'Base transversal para qualquer profissional: fundamentos, medidas, consumo e cálculos rápidos.',
-      modules: existing(['fundamentosGerais', 'fundamentos']),
+      subtitle: 'Base elétrica inicial para qualquer rotina técnica.',
+      modules: existing(['fundamentos']),
     },
     {
       id: 'profissoes',
@@ -60,7 +60,7 @@ function buildTaxonomy(modules: TaxonomyModuleCardData[]): TaxonomyGroup[] {
       modules: [
         ...existing(['instalacoes']),
         createFutureModule('redes-seguranca-automacao', 'Redes, segurança e automação residencial', 'Infraestrutura, CFTV, automação residencial e baixa tensão.', '⌘', 'blue'),
-        ...existing(['hidraulica', 'construcaoCivil', 'pintura', 'refrigeracao']),
+        ...existing(['hidraulica', 'construcaoCivil', 'medicoesObra', 'pintura', 'refrigeracao']),
       ],
     },
     {
@@ -75,7 +75,7 @@ function buildTaxonomy(modules: TaxonomyModuleCardData[]): TaxonomyGroup[] {
       id: 'orcamento-gestao',
       title: 'Orçamento e gestão',
       subtitle: 'Cálculos e ferramentas para transformar levantamento em proposta e operação.',
-      modules: existing(['orcamentoTecnico']),
+      modules: existing(['orcamentoTecnico', 'percentuaisComerciais', 'custosProdutividade']),
     },
     {
       id: 'conversores-tecnicos',

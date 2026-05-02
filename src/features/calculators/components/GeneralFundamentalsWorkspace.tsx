@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import type { CalculationCapture, CalculationDestination } from '../../../core/types/workflow';
 import './GeneralFundamentalsWorkspace.css';
 
-type FundamentalMode =
+export type FundamentalMode =
   | 'rule-of-three'
   | 'percentage'
   | 'increase-percent'
@@ -23,6 +23,11 @@ type FundamentalMode =
 
 interface GeneralFundamentalsWorkspaceProps {
   onCaptureCalculation?: (capture: CalculationCapture) => void;
+  modes?: FundamentalMode[];
+  title?: string;
+  description?: string;
+  moduleLabel?: string;
+  note?: string;
 }
 
 interface FundamentalRule {
@@ -164,12 +169,23 @@ function NumberField({ label, value, suffix, min, step = 0.01, onChange }: {
   );
 }
 
-export function GeneralFundamentalsWorkspace({ onCaptureCalculation }: GeneralFundamentalsWorkspaceProps) {
+export function GeneralFundamentalsWorkspace({
+  onCaptureCalculation,
+  modes,
+  title = 'Cálculos de apoio',
+  description = 'Base gratuita transversal para elétrica, construção civil, hidráulica, pintura, orçamento e demais serviços.',
+  moduleLabel = 'Cálculos de apoio',
+  note = 'Cálculo geral de apoio. Use para estimativas, conferências rápidas, levantamentos e formação de orçamento.',
+}: GeneralFundamentalsWorkspaceProps) {
   const [activeCalculator, setActiveCalculator] = useState<FundamentalMode | null>(null);
   const [values, setValues] = useState<Record<string, string>>(defaultValues);
   const [addedMessage, setAddedMessage] = useState<string | null>(null);
 
-  const activeRule = activeCalculator ? fundamentalRules.find((rule) => rule.mode === activeCalculator) : null;
+  const visibleRules = useMemo(
+    () => (modes ? fundamentalRules.filter((rule) => modes.includes(rule.mode)) : fundamentalRules),
+    [modes],
+  );
+  const activeRule = activeCalculator ? visibleRules.find((rule) => rule.mode === activeCalculator) : null;
 
   function setValue(key: string, value: string) {
     setValues((current) => ({ ...current, [key]: value }));
@@ -454,7 +470,7 @@ export function GeneralFundamentalsWorkspace({ onCaptureCalculation }: GeneralFu
     const capture: CalculationCapture = {
       id: createId('general-fundamental'),
       module: 'fundamentosGerais',
-      moduleLabel: 'Fundamentos gerais',
+      moduleLabel,
       calculatorLabel: activeRule.label,
       destination,
       createdAt: new Date().toISOString(),
@@ -478,14 +494,14 @@ export function GeneralFundamentalsWorkspace({ onCaptureCalculation }: GeneralFu
     <div className="fundamental-workspace">
       <div className="fundamental-plan-banner">
         <div>
-          <strong>Fundamentos gerais</strong>
-          <span>Base gratuita transversal para elétrica, construção civil, hidráulica, pintura, orçamento e demais serviços.</span>
+          <strong>{title}</strong>
+          <span>{description}</span>
         </div>
-        <em>{fundamentalRules.length} grátis</em>
+        <em>{visibleRules.length} grátis</em>
       </div>
 
       <div className="fundamental-picker-list">
-        {fundamentalRules.map((calculator) => (
+        {visibleRules.map((calculator) => (
           <button className="fundamental-picker-card" key={calculator.mode} type="button" onClick={() => setActiveCalculator(calculator.mode)}>
             <span>
               <strong>{calculator.label}</strong>
@@ -503,7 +519,7 @@ export function GeneralFundamentalsWorkspace({ onCaptureCalculation }: GeneralFu
             <header className="fundamental-overlay-header">
               <button type="button" onClick={closeCalculator}>‹</button>
               <div>
-                <span>Fundamentos gerais</span>
+                <span>{title}</span>
                 <h2>{activeRule.label}</h2>
                 <p>{activeRule.description}</p>
               </div>
@@ -627,7 +643,7 @@ export function GeneralFundamentalsWorkspace({ onCaptureCalculation }: GeneralFu
               <button className="secondary-action" type="button" onClick={closeCalculator}>Voltar</button>
             </div>
 
-            <small className="fundamental-note">Cálculo geral de apoio. Use para estimativas, conferências rápidas, levantamentos e formação de orçamento.</small>
+            <small className="fundamental-note">{note}</small>
           </section>
         </div>
       )}

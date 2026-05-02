@@ -7,7 +7,7 @@ import { ConvertersHumanWorkspace } from '../features/calculators/components/Con
 import { ElectricalCalculatorWorkspace } from '../features/calculators/components/ElectricalCalculatorWorkspace';
 import { ElectricalFundamentalsHumanWorkspace } from '../features/calculators/components/ElectricalFundamentalsHumanWorkspace';
 import { GeneralCalculatorWorkspace, type GeneralCalculatorModule } from '../features/calculators/components/GeneralCalculatorWorkspace';
-import { GeneralFundamentalsWorkspace } from '../features/calculators/components/GeneralFundamentalsWorkspace';
+import { GeneralFundamentalsWorkspace, type FundamentalMode } from '../features/calculators/components/GeneralFundamentalsWorkspace';
 import { PaintingHumanWorkspace } from '../features/calculators/components/PaintingHumanWorkspace';
 import { HydraulicsCalculatorWorkspace } from '../features/calculators/components/StableHydraulicsCalculatorWorkspace';
 import { CatalogHubWorkspace } from '../features/catalog/components/CatalogHubWorkspaceWithTax';
@@ -44,11 +44,37 @@ function getSectorForModule(moduleId: string): CalculationSectorId {
   return calculationSectorGroups.find((group) => group.moduleIds.includes(moduleId))?.id ?? 'electrical';
 }
 
+const fundamentalModuleConfig: Record<string, { modes: FundamentalMode[]; title: string; description: string; moduleLabel: string; note: string }> = {
+  medicoesObra: {
+    modes: ['rectangle-area', 'triangle-area', 'circle-area', 'rectangle-perimeter', 'simple-volume', 'loss-percent'],
+    title: 'Medições de obra',
+    description: 'Áreas, perímetro, volume simples e perda de material para levantamento de obra.',
+    moduleLabel: 'Medições de obra',
+    note: 'Use como apoio de medição para levantamento, compra de material e conferência em campo.',
+  },
+  percentuaisComerciais: {
+    modes: ['rule-of-three', 'percentage', 'increase-percent', 'discount-percent', 'difference-percent', 'profit-margin', 'markup'],
+    title: 'Percentuais comerciais',
+    description: 'Proporções, porcentagens, acréscimos, descontos, variação, margem e markup.',
+    moduleLabel: 'Percentuais comerciais',
+    note: 'Use como apoio comercial para negociação, formação de preço e conferência de margem.',
+  },
+  custosProdutividade: {
+    modes: ['cost-per-area', 'cost-per-unit', 'cost-per-meter', 'productivity-time'],
+    title: 'Custos e produtividade',
+    description: 'Custo por m², unidade, metro linear e tempo estimado por produtividade.',
+    moduleLabel: 'Custos e produtividade',
+    note: 'Use para transformar quantidade, custo e produtividade em base de orçamento.',
+  },
+};
+
 function HomeScreen({ goTo, openModule, captures, clients, workOrders }: { goTo: (tab: AppTab) => void; openModule: (module: ModuleCardData) => void; captures: CalculationCapture[]; clients: Client[]; workOrders: WorkOrder[] }) {
   const openWorkOrders = workOrders.filter((workOrder) => workOrder.status !== 'done' && workOrder.status !== 'cancelled').length;
   const budgetItems = captures.filter((capture) => capture.destination === 'budget' || capture.destination === 'both').length;
   const surveyItems = captures.filter((capture) => capture.destination === 'survey' || capture.destination === 'both').length;
   const recentItems = captures.slice(0, 4);
+  const electricalModule = calculationModules.find((module) => module.id === 'fundamentos') ?? calculationModules[0];
+  const hydraulicModule = calculationModules.find((module) => module.id === 'hidraulica') ?? calculationModules[0];
 
   return (
     <section className="app-screen orca-dashboard-screen">
@@ -63,7 +89,7 @@ function HomeScreen({ goTo, openModule, captures, clients, workOrders }: { goTo:
         <button type="button" className="orca-step-card" onClick={() => goTo('budgets')}><span className="orca-step-number">4</span><strong>Orçamento</strong><small>Revise e monte a proposta.</small></button>
       </div>
       <div className="orca-kpi-grid"><article><span>Cálculos salvos</span><strong>{captures.length}</strong><small>fluxo técnico</small></article><article><span>Levantamentos</span><strong>{surveyItems}</strong><small>itens prontos</small></article><article><span>Orçamentos</span><strong>{budgetItems}</strong><small>base comercial</small></article><article><span>Atendimentos</span><strong>{clients.length}/{openWorkOrders}</strong><small>clientes e OS abertas</small></article></div>
-      <div className="orca-quick-actions"><button type="button" onClick={() => openModule(calculationModules[0])}><span><strong>Fundamentos</strong><small>cálculos livres</small></span></button><button type="button" onClick={() => openModule(calculationModules[9])}><span><strong>Hidráulica</strong><small>7 cálculos novos</small></span></button><button type="button" onClick={() => goTo('survey')}><span><strong>Levantamento</strong><small>serviços e peças</small></span></button><button type="button" onClick={() => goTo('budgets')}><span><strong>Orçamento</strong><small>proposta e PDF</small></span></button></div>
+      <div className="orca-quick-actions"><button type="button" onClick={() => openModule(electricalModule)}><span><strong>Elétrica</strong><small>fundamentos técnicos</small></span></button><button type="button" onClick={() => openModule(hydraulicModule)}><span><strong>Hidráulica</strong><small>reservatório e vazão</small></span></button><button type="button" onClick={() => goTo('survey')}><span><strong>Levantamento</strong><small>serviços e peças</small></span></button><button type="button" onClick={() => goTo('budgets')}><span><strong>Orçamento</strong><small>proposta e PDF</small></span></button></div>
       <div className="orca-home-columns"><section className="orca-panel-card"><header><div><span className="orca-kicker">Atividade</span><h2>Recentes</h2></div><button type="button" onClick={() => goTo('survey')}>Abrir levantamento</button></header><div className="orca-activity-list">{recentItems.length === 0 ? <article><div><strong>Comece pelo fluxo principal</strong><small>Crie uma OS, faça um cálculo ou lance um item no levantamento.</small></div></article> : recentItems.map((capture) => <article key={capture.id}><div><strong>{capture.calculatorLabel}</strong><small>{capture.summary}</small></div><em>{capture.destination === 'both' ? 'Ambos' : capture.destination === 'budget' ? 'Orç.' : 'Levant.'}</em></article>)}</div></section></div>
     </section>
   );
@@ -73,11 +99,12 @@ function CalculationsScreen({ selectedModule, openModule, activeSector, onSelect
   if (selectedModule) {
     const module = selectedModule.calculatorModule;
     const selectedSector = calculationSectorGroups.find((group) => group.id === activeSector);
+    const fundamentalConfig = fundamentalModuleConfig[selectedModule.id];
     return (
       <section className="app-screen">
         <button className="back-button" type="button" onClick={() => openModule(null)}>‹ Voltar para {selectedSector?.title ?? 'cálculos'}</button>
         <header className="module-detail-header"><div><em className={`module-plan-pill ${selectedModule.plan}`}>{planLabel(selectedModule.plan)}</em><h1>{selectedModule.title}</h1><p>{selectedModule.description}</p><small>{selectedModule.count}</small></div></header>
-        {module === 'fundamentosGerais' && <GeneralFundamentalsWorkspace onCaptureCalculation={onCaptureCalculation} />}
+        {module === 'fundamentosGerais' && fundamentalConfig && <GeneralFundamentalsWorkspace {...fundamentalConfig} onCaptureCalculation={onCaptureCalculation} />}
         {module === 'fundamentals' && <ElectricalFundamentalsHumanWorkspace onCaptureCalculation={onCaptureCalculation} />}
         {module === 'pintura' && <PaintingHumanWorkspace onCaptureCalculation={onCaptureCalculation} />}
         {module === 'hidraulica' && <HydraulicsCalculatorWorkspace onCaptureCalculation={onCaptureCalculation} />}
