@@ -1,3 +1,4 @@
+import { loadBusinessProfile } from '../../budgets/storage/businessProfileStorage';
 import { loadProfessionalProfile } from '../storage/professionalProfileStorage';
 import './ProfessionalIdentityCard.css';
 
@@ -12,10 +13,14 @@ function hasVisibleProfileData(profile: ReturnType<typeof loadProfessionalProfil
 
 export function ProfessionalIdentityCard({ compact = false, contextLabel = 'Identidade profissional' }: ProfessionalIdentityCardProps) {
   const profile = loadProfessionalProfile();
-  const hasData = hasVisibleProfileData(profile);
-  const displayName = profile.businessName || profile.professionalName || 'Perfil profissional não configurado';
-  const responsibleName = profile.professionalName && profile.businessName ? profile.professionalName : '';
-  const location = [profile.city, profile.state].filter(Boolean).join(' / ');
+  const businessProfile = loadBusinessProfile();
+  const hasData = hasVisibleProfileData(profile) || Boolean(businessProfile.businessName || businessProfile.responsibleName || businessProfile.phone || businessProfile.email);
+  const displayName = profile.businessName || businessProfile.businessName || profile.professionalName || businessProfile.responsibleName || 'Perfil profissional não configurado';
+  const responsibleName = profile.professionalName && displayName !== profile.professionalName ? profile.professionalName : businessProfile.responsibleName && displayName !== businessProfile.responsibleName ? businessProfile.responsibleName : '';
+  const location = [profile.address || businessProfile.address, [profile.city, profile.state].filter(Boolean).join(' / ')].filter(Boolean).join(' - ');
+  const document = profile.document || businessProfile.documentNumber;
+  const phone = profile.phone || businessProfile.phone;
+  const email = profile.email || businessProfile.email;
 
   return (
     <aside className={compact ? 'professional-identity-card compact' : 'professional-identity-card'}>
@@ -31,9 +36,9 @@ export function ProfessionalIdentityCard({ compact = false, contextLabel = 'Iden
 
       {hasData && (
         <div className="professional-identity-details">
-          {profile.document && <span>Doc.: {profile.document}</span>}
-          {profile.phone && <span>WhatsApp: {profile.phone}</span>}
-          {profile.email && <span>E-mail: {profile.email}</span>}
+          {document && <span>Doc.: {document}</span>}
+          {phone && <span>WhatsApp: {phone}</span>}
+          {email && <span>E-mail: {email}</span>}
           {location && <span>Local: {location}</span>}
           {profile.mainArea && <span>Área: {profile.mainArea}</span>}
         </div>

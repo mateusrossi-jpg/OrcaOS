@@ -75,8 +75,43 @@
   padding-bottom: 16px;
 }
 
-.report-document-header span {
+.report-company-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  min-width: 0;
+}
+
+.report-company-row img {
+  display: block;
+  width: 92px;
+  height: 62px;
+  object-fit: contain;
+  border: 1px solid #d6e0eb;
+  border-radius: 14px;
+  background: #ffffff;
+}
+
+.report-company-row > div {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.report-company-row strong {
+  color: #0b1d31;
+  font-size: 1.05rem;
+}
+
+.report-company-row small {
+  color: #607085;
+  overflow-wrap: anywhere;
+}
+
+.report-company-row span {
   display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border-radius: 999px;
   padding: 6px 10px;
   color: #16a34a;
@@ -207,8 +242,13 @@
 @media (max-width: 520px) {
   .report-summary-panel,
   .report-item-card,
-  .report-metrics-grid {
+  .report-metrics-grid,
+  .report-company-row {
     grid-template-columns: 1fr;
+  }
+
+  .report-company-row {
+    display: grid;
   }
 
   .report-document {

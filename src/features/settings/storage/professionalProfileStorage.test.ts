@@ -24,6 +24,8 @@ describe('professional profile storage', () => {
     expect(profile.professionalId).toMatch(/^pro-/);
     expect(profile.companyId).toMatch(/^company-/);
     expect(profile.mainArea).toBe('Elétrica');
+    expect(profile.defaultPaymentTerms).toBe('Condições de pagamento a combinar.');
+    expect(profile.defaultValidity).toBe('7 dias');
     expect(window.localStorage.getItem('orcaos:professional-profile:v1')).toBeTruthy();
   });
 
@@ -34,8 +36,10 @@ describe('professional profile storage', () => {
       ...profile,
       professionalName: 'Mateus Rossi',
       businessName: 'OrçaOS Serviços',
+      address: 'Rua Teste, 123',
       city: 'São Paulo',
       state: 'SP',
+      defaultGuarantee: '90 dias',
     });
 
     const loaded = loadProfessionalProfile();
@@ -44,7 +48,24 @@ describe('professional profile storage', () => {
     expect(loaded.companyId).toBe(profile.companyId);
     expect(loaded.professionalName).toBe('Mateus Rossi');
     expect(loaded.businessName).toBe('OrçaOS Serviços');
+    expect(loaded.address).toBe('Rua Teste, 123');
     expect(loaded.city).toBe('São Paulo');
+    expect(loaded.defaultGuarantee).toBe('90 dias');
+  });
+
+  it('keeps compatibility when commercial defaults are missing from older data', () => {
+    const profile = loadProfessionalProfile();
+    window.localStorage.setItem('orcaos:professional-profile:v1', JSON.stringify({
+      professionalId: profile.professionalId,
+      companyId: profile.companyId,
+      professionalName: 'Perfil antigo',
+    }));
+
+    const loaded = loadProfessionalProfile();
+
+    expect(loaded.professionalName).toBe('Perfil antigo');
+    expect(loaded.defaultPaymentTerms).toBe('Condições de pagamento a combinar.');
+    expect(loaded.defaultExecutionDeadline).toBe('Prazo de execução a combinar após aprovação.');
   });
 
   it('falls back safely when stored JSON is invalid', () => {

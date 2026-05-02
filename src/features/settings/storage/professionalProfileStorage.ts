@@ -6,10 +6,17 @@ export interface ProfessionalProfile {
   document: string;
   phone: string;
   email: string;
+  address: string;
   city: string;
   state: string;
+  logoUrl: string;
+  logoDataUrl: string;
   mainArea: string;
   commercialNotes: string;
+  defaultPaymentTerms: string;
+  defaultValidity: string;
+  defaultGuarantee: string;
+  defaultExecutionDeadline: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -31,10 +38,17 @@ function createEmptyProfile(): ProfessionalProfile {
     document: '',
     phone: '',
     email: '',
+    address: '',
     city: '',
     state: '',
+    logoUrl: '',
+    logoDataUrl: '',
     mainArea: 'Elétrica',
     commercialNotes: '',
+    defaultPaymentTerms: 'Condições de pagamento a combinar.',
+    defaultValidity: '7 dias',
+    defaultGuarantee: 'Garantia conforme serviço executado e materiais aplicados.',
+    defaultExecutionDeadline: 'Prazo de execução a combinar após aprovação.',
     createdAt: timestamp,
     updatedAt: timestamp,
   };

@@ -61,7 +61,6 @@ const emptyCatalogDraft: DraftCatalogItem = {
 
 const CAPTURES_STORAGE_KEY = 'orcaos:calculation-captures:v1';
 const savedDraft = loadBudgetDraft();
-const savedBusinessProfile = loadBusinessProfile();
 
 const currencyFormatter = new Intl.NumberFormat('pt-BR', {
   style: 'currency',
@@ -247,8 +246,9 @@ function saveStoredTechnicalCaptures(captures: CalculationCapture[]): void {
 }
 
 export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, activeWorkOrder = null, onTechnicalCaptureConverted }: BudgetWorkspaceProps) {
+  const initialBusinessProfile = useMemo(() => loadBusinessProfile(), []);
   const [activeSection, setActiveSection] = useState<BudgetWorkspaceSection>('proposal');
-  const [businessProfile, setBusinessProfile] = useState<BusinessProfile>(savedBusinessProfile);
+  const [businessProfile, setBusinessProfile] = useState<BusinessProfile>(initialBusinessProfile);
   const [selectedTemplate, setSelectedTemplate] = useState<BudgetTemplateId>('professional');
   const [catalogItems, setCatalogItems] = useState<CatalogItem[]>(() => loadCatalogItems());
   const [catalogDraft, setCatalogDraft] = useState<DraftCatalogItem>(emptyCatalogDraft);
@@ -257,11 +257,11 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
   const [discount, setDiscount] = useState(savedDraft?.discount ?? 0);
   const [travelCost, setTravelCost] = useState(savedDraft?.travelCost ?? 0);
   const [additionalFees, setAdditionalFees] = useState(savedDraft?.additionalFees ?? 0);
-  const [paymentTerms, setPaymentTerms] = useState(savedDraft?.paymentTerms || savedBusinessProfile.defaultPaymentTerms);
-  const [validity, setValidity] = useState(savedDraft?.validity || savedBusinessProfile.defaultValidity);
-  const [guarantee, setGuarantee] = useState(savedDraft?.guarantee || savedBusinessProfile.defaultGuarantee);
-  const [executionDeadline, setExecutionDeadline] = useState(savedDraft?.executionDeadline || savedBusinessProfile.defaultExecutionDeadline);
-  const [commercialNotes, setCommercialNotes] = useState(savedDraft?.commercialNotes || savedBusinessProfile.defaultNotes);
+  const [paymentTerms, setPaymentTerms] = useState(savedDraft?.paymentTerms || initialBusinessProfile.defaultPaymentTerms);
+  const [validity, setValidity] = useState(savedDraft?.validity || initialBusinessProfile.defaultValidity);
+  const [guarantee, setGuarantee] = useState(savedDraft?.guarantee || initialBusinessProfile.defaultGuarantee);
+  const [executionDeadline, setExecutionDeadline] = useState(savedDraft?.executionDeadline || initialBusinessProfile.defaultExecutionDeadline);
+  const [commercialNotes, setCommercialNotes] = useState(savedDraft?.commercialNotes || initialBusinessProfile.defaultNotes);
   const [technicalNotes, setTechnicalNotes] = useState(savedDraft?.technicalNotes ?? '');
   const [clientName, setClientName] = useState(savedDraft?.clientName ?? activeClient?.name ?? '');
   const [budgetTitle, setBudgetTitle] = useState(savedDraft?.budgetTitle ?? activeWorkOrder?.title ?? '');

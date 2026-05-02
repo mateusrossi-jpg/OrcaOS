@@ -3,7 +3,7 @@ import type { BusinessProfile } from '../../../core/types/business';
 const BUSINESS_PROFILE_STORAGE_KEY = 'orcaos:business-profile:v1';
 
 export const defaultBusinessProfile: BusinessProfile = {
-  businessName: 'Minha empresa / profissional',
+  businessName: '',
   documentNumber: '',
   phone: '',
   email: '',

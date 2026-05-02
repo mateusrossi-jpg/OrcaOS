@@ -1,6 +1,7 @@
 import type { Client, WorkOrder } from '../../../core/types/business';
 import type { CalculationCapture } from '../../../core/types/workflow';
 import { getReportCaptureMetrics } from '../../workflow/utils/captureWorkflow';
+import { loadBusinessProfile } from '../../budgets/storage/businessProfileStorage';
 import { ProfessionalIdentityCard } from '../../settings/components/ProfessionalIdentityCard';
 import './ReportWorkspace.css';
 
@@ -51,6 +52,10 @@ function printReport() {
 
 export function ReportWorkspace({ captures, activeClient = null, activeWorkOrder = null }: ReportWorkspaceProps) {
   const { reportItems, itemsWithImage, diagnostics } = getReportCaptureMetrics(captures);
+  const businessProfile = loadBusinessProfile();
+  const profileName = businessProfile.businessName || businessProfile.responsibleName || 'OrçaOS';
+  const contactLine = [businessProfile.phone, businessProfile.email].filter(Boolean).join(' · ');
+  const logoSource = businessProfile.logoDataUrl || businessProfile.logoUrl;
 
   return (
     <div className="report-workspace">
@@ -75,7 +80,15 @@ export function ReportWorkspace({ captures, activeClient = null, activeWorkOrder
 
       <article className="report-document">
         <header className="report-document-header">
-          <span>OrçaOS</span>
+          <div className="report-company-row">
+            {logoSource ? <img src={logoSource} alt={`Logo ${profileName}`} /> : <span>OrçaOS</span>}
+            <div>
+              <strong>{profileName}</strong>
+              {businessProfile.documentNumber && <small>{businessProfile.documentNumber}</small>}
+              {contactLine && <small>{contactLine}</small>}
+              {businessProfile.address && <small>{businessProfile.address}</small>}
+            </div>
+          </div>
           <h1>{activeWorkOrder?.title || 'Relatório técnico de visita'}</h1>
           <p>{activeWorkOrder?.description || 'Documento preliminar gerado a partir do levantamento técnico em campo.'}</p>
           <small>Emitido em {formatDateTime(new Date().toISOString())}</small>
