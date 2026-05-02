@@ -8,12 +8,11 @@ export type SurveySection = 'context' | 'labor' | 'materials' | 'notes' | 'revie
 export type BudgetSection = 'workspace' | 'technical';
 
 export type CalculationProfessionId =
-  | 'electrical'
-  | 'hydraulics'
-  | 'construction'
+  | 'electrician'
+  | 'plumber'
+  | 'builder'
   | 'painting'
-  | 'technicalBudget'
-  | 'converters';
+  | 'generalTechnician';
 
 export interface ModuleCardData {
   id: string;

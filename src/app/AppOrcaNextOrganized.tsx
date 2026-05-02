@@ -40,7 +40,7 @@ function getScreenSubtitle(activeTab: AppTab, selectedModule: ModuleCardData | n
 }
 
 function getProfessionForModule(moduleId: string): CalculationProfessionId {
-  return calculationProfessionGroups.find((group) => group.moduleIds.includes(moduleId))?.id ?? 'electrical';
+  return calculationProfessionGroups.find((group) => group.moduleIds.includes(moduleId))?.id ?? 'electrician';
 }
 
 function HomeScreen({ goTo, openModule, captures, clients, workOrders }: { goTo: (tab: AppTab) => void; openModule: (module: ModuleCardData) => void; captures: CalculationCapture[]; clients: Client[]; workOrders: WorkOrder[] }) {
@@ -89,7 +89,7 @@ function CalculationsScreen({ selectedModule, openModule, activeProfession, onSe
 
   return (
     <section className="app-screen calculations-overview-screen">
-      <header className="screen-header"><span className="orca-kicker">Profissões e áreas</span><h1>Cálculos</h1><p>Escolha primeiro a área profissional. Depois abra o módulo técnico dentro da página.</p></header>
+      <header className="screen-header"><span className="orca-kicker">Profissões</span><h1>Cálculos</h1><p>Escolha a profissão primeiro. Depois abra os cálculos técnicos daquela rotina de trabalho.</p></header>
       <div className="section-mode-tabs calculation-profession-tabs">
         {calculationProfessionGroups.map((group) => (
           <button className={activeProfession === group.id ? 'active' : ''} key={group.id} type="button" onClick={() => onSelectProfession(group.id)}>
@@ -154,7 +154,7 @@ function SettingsScreen() {
 export function App() {
   const [activeTab, setActiveTab] = useState<AppTab>('home');
   const [selectedModule, setSelectedModule] = useState<ModuleCardData | null>(null);
-  const [activeProfession, setActiveProfession] = useState<CalculationProfessionId>('electrical');
+  const [activeProfession, setActiveProfession] = useState<CalculationProfessionId>('electrician');
   const [captures, setCaptures] = useState<CalculationCapture[]>(() => loadStoredCaptures());
   const [clients, setClients] = useState<Client[]>(() => loadClients());
   const [workOrders, setWorkOrders] = useState<WorkOrder[]>(() => loadWorkOrders());
