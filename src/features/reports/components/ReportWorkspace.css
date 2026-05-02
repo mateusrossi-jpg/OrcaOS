@@ -79,8 +79,8 @@
   display: inline-flex;
   border-radius: 999px;
   padding: 6px 10px;
-  color: #124878;
-  background: #e8f0fb;
+  color: #16a34a;
+  background: #dcfce7;
   font-weight: 950;
 }
 
@@ -135,7 +135,7 @@
   height: 42px;
   border-radius: 14px;
   color: #ffffff;
-  background: #124878;
+  background: #16a34a;
   font-weight: 950;
 }
 
@@ -146,7 +146,7 @@
 }
 
 .report-item-content header span {
-  color: #124878;
+  color: #16a34a;
   font-size: 0.82rem;
   font-weight: 950;
 }
@@ -178,7 +178,7 @@
 
 .report-technical-note {
   margin: 0;
-  border-left: 4px solid #2267ce;
+  border-left: 4px solid #16a34a;
   border-radius: 12px;
   padding: 12px 14px;
   color: #0b1d31;
