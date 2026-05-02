@@ -10,6 +10,7 @@ import { GeneralCalculatorWorkspace, type GeneralCalculatorModule } from '../fea
 import { GeneralFundamentalsWorkspace, type FundamentalMode } from '../features/calculators/components/GeneralFundamentalsWorkspace';
 import { PaintingHumanWorkspace } from '../features/calculators/components/PaintingHumanWorkspace';
 import { HydraulicsCalculatorWorkspace } from '../features/calculators/components/StableHydraulicsCalculatorWorkspace';
+import { ProfessionalDomainWorkspace } from '../features/calculators/components/ProfessionalDomainWorkspace';
 import { CatalogHubWorkspace } from '../features/catalog/components/CatalogHubWorkspaceWithTax';
 import { ClientWorkOrderWorkspace } from '../features/clients/components/ClientWorkOrderWorkspace';
 import { loadActiveWorkOrderId, loadClients, loadWorkOrders } from '../features/clients/storage/clientWorkOrderStorage';
@@ -28,6 +29,10 @@ import { loadStoredCaptures, saveStoredCaptures } from './storage/calculationCap
 
 function isGeneralCalculatorModule(module: CalculatorModule): module is GeneralCalculatorModule {
   return module === 'obras' || module === 'orcamentoTecnico';
+}
+
+function isProfessionalDomainModule(module: CalculatorModule): boolean {
+  return module === 'refrigeration' || module === 'motors' || module === 'rewinding' || module === 'transformadores' || module === 'solar' || module === 'diagnosticoTecnico';
 }
 
 function getScreenTitle(activeTab: AppTab, selectedModule: ModuleCardData | null): string {
@@ -132,8 +137,9 @@ function CalculationsScreen({ selectedModule, openModule, activeSector, onSelect
         {module === 'pintura' && <PaintingHumanWorkspace onCaptureCalculation={onCaptureCalculation} />}
         {module === 'hidraulica' && <HydraulicsCalculatorWorkspace onCaptureCalculation={onCaptureCalculation} />}
         {module === 'conversores' && <ConvertersHumanWorkspace onCaptureCalculation={onCaptureCalculation} />}
+        {module && isProfessionalDomainModule(module) && <ProfessionalDomainWorkspace selectedModule={module} onCaptureCalculation={onCaptureCalculation} />}
         {module && isGeneralCalculatorModule(module) && <GeneralCalculatorWorkspace selectedModule={module} onCaptureCalculation={onCaptureCalculation} />}
-        {module && module !== 'fundamentosGerais' && module !== 'fundamentals' && module !== 'pintura' && module !== 'hidraulica' && module !== 'conversores' && !isGeneralCalculatorModule(module) && <ElectricalCalculatorWorkspace selectedModule={module} userPlan={userPlan} onUpgradeRequest={() => goTo('store')} onCaptureCalculation={onCaptureCalculation} />}
+        {module && module !== 'fundamentosGerais' && module !== 'fundamentals' && module !== 'pintura' && module !== 'hidraulica' && module !== 'conversores' && !isProfessionalDomainModule(module) && !isGeneralCalculatorModule(module) && <ElectricalCalculatorWorkspace selectedModule={module} userPlan={userPlan} onUpgradeRequest={() => goTo('store')} onCaptureCalculation={onCaptureCalculation} />}
         {!module && <div className="empty-state-card"><strong>{selectedModule.title} em breve</strong><p>Este módulo já está previsto na arquitetura do OrçaOS.</p></div>}
       </section>
     );

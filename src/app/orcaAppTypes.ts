@@ -13,7 +13,8 @@ export type CalculationSectorId =
   | 'construction'
   | 'painting'
   | 'financial'
-  | 'converters';
+  | 'converters'
+  | 'diagnostics';
 
 export interface ModuleCardData {
   id: string;

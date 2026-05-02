@@ -36,7 +36,10 @@ export type CalculatorModule =
   | 'pintura'
   | 'conversores'
   | 'orcamentoTecnico'
-  | 'hidraulica';
+  | 'hidraulica'
+  | 'transformadores'
+  | 'solar'
+  | 'diagnosticoTecnico';
 
 export interface CalculatorAccessRule {
   mode: CalculatorMode;
