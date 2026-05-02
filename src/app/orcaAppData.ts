@@ -1,5 +1,5 @@
 import type { UserPlan } from '../core/access/featureAccess';
-import type { AppTab, CalculationProfessionGroup, ModuleCardData, ModulePlan } from './orcaAppTypes';
+import type { AppTab, CalculationSectorGroup, ModuleCardData, ModulePlan } from './orcaAppTypes';
 
 export const userPlan: UserPlan = 'free';
 
@@ -26,48 +26,55 @@ export const calculationModules: ModuleCardData[] = [
   { id: 'pintura', title: 'Pintura e acabamento', description: 'Área, tinta necessária e orçamento simples por m²', icon: '▨', tone: 'green', count: '3 cálculos', available: true, plan: 'free', calculatorModule: 'pintura' },
   { id: 'hidraulica', title: 'Hidráulica', description: 'Reservatório, consumo, autonomia, vazão, enchimento e pressão', icon: '≋', tone: 'blue', count: '7 cálculos livres', available: true, plan: 'free', calculatorModule: 'hidraulica' },
   { id: 'conversores', title: 'Conversores', description: 'm³/litros, pressão, potência, BTU/h, medidas, temperatura e vazão', icon: '⇄', tone: 'blue', count: '4 conversores', available: true, plan: 'free', calculatorModule: 'conversores' },
-  { id: 'orcamentoTecnico', title: 'Orçamento técnico', description: 'Mão de obra, diária, hora técnica, parcelamento, sinal e preço final', icon: 'R$', tone: 'orange', count: '6 cálculos', available: true, plan: 'free', calculatorModule: 'orcamentoTecnico' },
+  { id: 'orcamentoTecnico', title: 'Financeiro técnico', description: 'Mão de obra, diária, hora técnica, parcelamento, sinal, margem e preço final', icon: 'R$', tone: 'orange', count: '6 cálculos', available: true, plan: 'free', calculatorModule: 'orcamentoTecnico' },
   { id: 'eletronica', title: 'Eletrônica aplicada', description: 'LED, divisor de tensão, RC, PWM, ADC, bateria e fontes', icon: '◌', tone: 'green', count: 'Em breve', available: false, plan: 'soon' },
   { id: 'transformadores', title: 'Transformadores', description: 'VA, espiras por volt, primário, secundário e fio preliminar', icon: '▤', tone: 'orange', count: 'Em breve', available: false, plan: 'soon' },
   { id: 'solar', title: 'Solar fotovoltaico', description: 'Placas, inversor, cabos, geração, bateria e payback', icon: '☉', tone: 'green', count: 'Em breve', available: false, plan: 'soon' },
   { id: 'rebobinagem', title: 'Rebobinagem', description: 'Bobinas, fechamento, tensão de trabalho e rotação', icon: '⟳', tone: 'muted', count: 'Em breve', available: false, plan: 'soon' },
 ];
 
-export const calculationProfessionGroups: CalculationProfessionGroup[] = [
+export const calculationSectorGroups: CalculationSectorGroup[] = [
   {
-    id: 'electrician',
-    title: 'Eletricista',
-    description: 'Cálculos de baixa tensão, instalações, iluminação, motores, automação e módulos elétricos previstos.',
+    id: 'electrical',
+    title: 'Elétrica',
+    description: 'Baixa tensão, instalações, iluminação, motores, automação e módulos elétricos previstos.',
     icon: 'ϟ',
     moduleIds: ['fundamentos', 'instalacoes', 'iluminacao', 'motores', 'automacaoIndustrial', 'transformadores', 'solar', 'eletronica', 'rebobinagem'],
   },
   {
-    id: 'plumber',
-    title: 'Encanador / hidráulico',
+    id: 'hydraulics',
+    title: 'Hidráulica',
     description: 'Reservatório, consumo, autonomia, vazão, enchimento, pressão e apoio para instalações hidráulicas.',
     icon: '≋',
     moduleIds: ['hidraulica'],
   },
   {
-    id: 'builder',
-    title: 'Pedreiro / obras',
+    id: 'construction',
+    title: 'Construção civil',
     description: 'Medições, concreto, alvenaria, piso, revestimento, telhado e quantificação de obra.',
     icon: '▧',
     moduleIds: ['construcaoCivil'],
   },
   {
     id: 'painting',
-    title: 'Pintor',
+    title: 'Pintura e acabamento',
     description: 'Área, rendimento, tinta necessária e orçamento simples por metro quadrado.',
     icon: '▨',
     moduleIds: ['pintura'],
   },
   {
-    id: 'generalTechnician',
-    title: 'Técnico generalista',
-    description: 'Fundamentos gerais, conversores e orçamento técnico para prestadores que atuam em múltiplos serviços.',
+    id: 'financial',
+    title: 'Financeiro',
+    description: 'Preço de venda, mão de obra, diária, hora técnica, parcelamento, sinal e margem do serviço.',
+    icon: 'R$',
+    moduleIds: ['orcamentoTecnico'],
+  },
+  {
+    id: 'converters',
+    title: 'Conversores e unidades',
+    description: 'Fundamentos gerais, medidas, pressão, potência, temperatura, vazão e unidades de apoio.',
     icon: '⇄',
-    moduleIds: ['fundamentosGerais', 'conversores', 'orcamentoTecnico'],
+    moduleIds: ['fundamentosGerais', 'conversores'],
   },
 ];
 

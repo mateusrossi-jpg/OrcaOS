@@ -7,12 +7,13 @@ export type ModulePlan = 'free' | 'pro' | 'soon';
 export type SurveySection = 'context' | 'labor' | 'materials' | 'notes' | 'review';
 export type BudgetSection = 'workspace' | 'technical';
 
-export type CalculationProfessionId =
-  | 'electrician'
-  | 'plumber'
-  | 'builder'
+export type CalculationSectorId =
+  | 'electrical'
+  | 'hydraulics'
+  | 'construction'
   | 'painting'
-  | 'generalTechnician';
+  | 'financial'
+  | 'converters';
 
 export interface ModuleCardData {
   id: string;
@@ -26,8 +27,8 @@ export interface ModuleCardData {
   calculatorModule?: CalculatorModule;
 }
 
-export interface CalculationProfessionGroup {
-  id: CalculationProfessionId;
+export interface CalculationSectorGroup {
+  id: CalculationSectorId;
   title: string;
   description: string;
   icon: string;
