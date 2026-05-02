@@ -16,19 +16,19 @@ export const navItems: Array<{ id: AppTab; label: string; description: string; i
 ];
 
 export const calculationModules: ModuleCardData[] = [
-  { id: 'eletricaPredial', title: 'Elétrica predial', description: 'Base elétrica, instalação residencial, dimensionamento, iluminação e sinais de automação', icon: 'E', tone: 'green', count: '27 cálculos', available: true, plan: 'free', calculatorModule: 'eletricaPredial' },
+  { id: 'eletricaPredial', title: 'Elétrica predial', description: 'Fundamentos livres com dimensionamento, instalação e validação técnica no Pro', icon: 'E', tone: 'green', count: 'Base livre + Pro', available: true, plan: 'free', calculatorModule: 'eletricaPredial' },
   { id: 'refrigeracao', title: 'Climatização', description: 'BTU/h, consumo, circuito dedicado e carga térmica inicial', icon: 'CL', tone: 'blue', count: '3 cálculos Pro', available: true, plan: 'pro', calculatorModule: 'refrigeration' },
   { id: 'motores', title: 'Motores e comandos', description: 'Corrente, partida, relé, contator, capacitor, torque e polias', icon: 'M', tone: 'orange', count: '8 cálculos Pro', available: true, plan: 'pro', calculatorModule: 'motors' },
-  { id: 'construcaoCivil', title: 'Construção civil', description: 'Medições, concreto, alvenaria, piso, revestimento, argamassas, telhado, escada e rampa', icon: 'OB', tone: 'gray', count: '25 cálculos', available: true, plan: 'free', calculatorModule: 'obras' },
-  { id: 'pintura', title: 'Pintura e acabamento', description: 'Área, tinta, selador, massa, custo e tempo de pintura', icon: 'P', tone: 'green', count: '6 cálculos livres', available: true, plan: 'free', calculatorModule: 'pintura' },
-  { id: 'hidraulica', title: 'Hidráulica', description: 'Reservatório, consumo, autonomia, vazão, enchimento, pressão, piscina, esgoto e bomba simples', icon: 'H', tone: 'green', count: '15 cálculos', available: true, plan: 'free', calculatorModule: 'hidraulica' },
-  { id: 'conversores', title: 'Conversores técnicos', description: 'Conversões rápidas e técnicas: volume, pressão, potência, BTU/W, AWG, polegadas, vazão e kWh/R$', icon: 'CV', tone: 'blue', count: '14 conversores livres', available: true, plan: 'free', calculatorModule: 'conversores' },
-  { id: 'orcamentoTecnico', title: 'Financeiro e preços', description: 'Orçamento, produtividade, percentuais, negociação, margem, taxas, entrada e faixas de preço', icon: 'R$', tone: 'orange', count: '26 cálculos', available: true, plan: 'free', calculatorModule: 'orcamentoTecnico' },
+  { id: 'construcaoCivil', title: 'Construção civil', description: 'Medições livres com composições, perdas, telhado e escada no Pro', icon: 'OB', tone: 'gray', count: 'Base livre + Pro', available: true, plan: 'free', calculatorModule: 'obras' },
+  { id: 'pintura', title: 'Pintura e acabamento', description: 'Área e material base livres com custo, tempo e acabamento avançado no Pro', icon: 'P', tone: 'green', count: 'Base livre + Pro', available: true, plan: 'free', calculatorModule: 'pintura' },
+  { id: 'hidraulica', title: 'Hidráulica', description: 'Reservatório e medições livres com piscina, esgoto e bomba no Pro', icon: 'H', tone: 'green', count: 'Base livre + Pro', available: true, plan: 'free', calculatorModule: 'hidraulica' },
+  { id: 'conversores', title: 'Conversores técnicos', description: 'Conversões rápidas livres com referências técnicas e comerciais no Pro', icon: 'CV', tone: 'blue', count: 'Rápidos livres + Pro', available: true, plan: 'free', calculatorModule: 'conversores' },
+  { id: 'orcamentoTecnico', title: 'Financeiro e preços', description: 'Preço base livre com negociação, parcelamento, diária e faixas comerciais no Pro', icon: 'R$', tone: 'orange', count: 'Base livre + Pro', available: true, plan: 'free', calculatorModule: 'orcamentoTecnico' },
   { id: 'eletronica', title: 'Eletrônica aplicada', description: 'LED, divisor de tensão, RC, PWM, ADC, bateria e fontes', icon: 'EL', tone: 'green', count: 'Em breve', available: false, plan: 'soon' },
   { id: 'transformadores', title: 'Transformadores', description: 'VA, correntes, relação, espiras e potência por núcleo', icon: 'T', tone: 'orange', count: '6 cálculos Pro', available: true, plan: 'pro', calculatorModule: 'transformadores' },
   { id: 'solar', title: 'Solar fotovoltaico', description: 'Consumo, kWp, módulos, área, geração, bateria e payback', icon: 'SF', tone: 'green', count: '7 cálculos Pro', available: true, plan: 'pro', calculatorModule: 'solar' },
   { id: 'rebobinagem', title: 'Rebobinagem', description: 'Rotação, polos, passo polar e checklist técnico seguro', icon: 'RB', tone: 'muted', count: '4 assistentes Pro', available: true, plan: 'pro', calculatorModule: 'rewinding' },
-  { id: 'diagnosticoTecnico', title: 'Diagnóstico técnico', description: 'Relatório, risco, urgência, manutenção e checklist por intenção de uso', icon: 'DG', tone: 'green', count: '5 assistentes', available: true, plan: 'pro', calculatorModule: 'diagnosticoTecnico' },
+  { id: 'diagnosticoTecnico', title: 'Diagnóstico técnico', description: 'Checklists livres com risco, urgência e decisão preventiva no Pro', icon: 'DG', tone: 'green', count: 'Checklist livre + Pro', available: true, plan: 'pro', calculatorModule: 'diagnosticoTecnico' },
 ];
 
 export const calculationSectorGroups: CalculationSectorGroup[] = [

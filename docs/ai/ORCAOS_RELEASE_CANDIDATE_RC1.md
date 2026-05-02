@@ -124,6 +124,11 @@ O RC1 pode ser considerado aprovado para beta fechado se:
 - ERP completo.
 - Catalogo online automatizado por fornecedores reais.
 
+## Monetizacao Dos Calculos
+
+A matriz Free/Pro dos calculos do RC1 esta documentada em `docs/ai/ORCAOS_CALCULATION_MONETIZATION_MATRIX_RC1.md`.
+No RC1, a separacao aparece na organizacao e nos badges dos calculos; o bloqueio comercial real fica para a etapa de login/assinatura.
+
 ## Proxima Decisao
 
 Depois do teste do RC1:
