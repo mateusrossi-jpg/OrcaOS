@@ -1482,6 +1482,102 @@ textarea::placeholder {
   color-scheme: light;
 }
 
+.survey-step-guide {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.survey-step-guide button {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 9px;
+  align-items: center;
+  min-width: 0;
+  border: 1px solid var(--orca-border);
+  border-radius: 18px;
+  padding: 12px;
+  color: var(--orca-muted);
+  background: linear-gradient(145deg, var(--orca-surface), var(--orca-surface-2));
+}
+
+.survey-step-guide button span {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  color: var(--orca-green);
+  background: var(--orca-green-soft);
+  font-size: 0.78rem;
+  font-weight: 950;
+}
+
+.survey-step-guide button strong {
+  min-width: 0;
+  overflow: hidden;
+  color: inherit;
+  font-size: 0.82rem;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.survey-step-guide button.active {
+  border-color: var(--orca-border-strong);
+  color: var(--orca-text);
+  background:
+    radial-gradient(circle at top right, rgba(34, 197, 94, 0.15), transparent 8rem),
+    linear-gradient(145deg, rgba(34, 197, 94, 0.11), var(--orca-surface-2));
+}
+
+.survey-step-guide button.completed {
+  border-color: rgba(34, 197, 94, 0.22);
+  color: var(--orca-text);
+}
+
+.survey-step-actions {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  border: 1px solid var(--orca-border);
+  border-radius: 18px;
+  padding: 12px;
+  background: rgba(7, 11, 9, 0.36);
+}
+
+.survey-step-actions span {
+  min-width: 0;
+  color: var(--orca-muted);
+  font-size: 0.85rem;
+  font-weight: 800;
+  text-align: center;
+}
+
+.survey-step-actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+@media (max-width: 760px) {
+  .survey-step-guide {
+    grid-template-columns: 1fr;
+  }
+
+  .survey-step-guide button {
+    min-height: 48px;
+  }
+
+  .survey-step-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .survey-step-actions span {
+    order: -1;
+  }
+}
+
 .report-document,
 .print-document,
 .budget-print-preview-document,

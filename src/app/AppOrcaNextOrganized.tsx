@@ -102,6 +102,39 @@ const moduleGuidance: Record<string, { title: string; text: string }> = {
   },
 };
 
+const surveyFlowSteps: Array<{ id: SurveySection; label: string; title: string; text: string }> = [
+  {
+    id: 'context',
+    label: 'Ambientes',
+    title: '1. Ambientes',
+    text: 'Comece pelo local do serviço. O ambiente selecionado orienta os próximos serviços, peças e observações.',
+  },
+  {
+    id: 'labor',
+    label: 'Serviços',
+    title: '2. Serviços',
+    text: 'Lance mão de obra, quantidade e valor previsto para montar a base técnica do orçamento.',
+  },
+  {
+    id: 'materials',
+    label: 'Materiais',
+    title: '3. Materiais',
+    text: 'Defina quem compra os materiais e envie peças para proposta, lista do cliente ou revisão.',
+  },
+  {
+    id: 'notes',
+    label: 'Observações',
+    title: '4. Observações',
+    text: 'Registre diagnóstico, recomendações, riscos e informações que precisam aparecer no relatório.',
+  },
+  {
+    id: 'review',
+    label: 'Revisão',
+    title: '5. Revisão',
+    text: 'Confira tudo que foi salvo antes de avançar para orçamento ou relatório.',
+  },
+];
+
 function HomeScreen({ goTo, openModule, captures, clients, workOrders }: { goTo: (tab: AppTab) => void; openModule: (module: ModuleCardData) => void; captures: CalculationCapture[]; clients: Client[]; workOrders: WorkOrder[] }) {
   const openWorkOrders = workOrders.filter((workOrder) => workOrder.status !== 'done' && workOrder.status !== 'cancelled').length;
   const budgetItems = captures.filter((capture) => capture.destination === 'budget' || capture.destination === 'both').length;
@@ -203,25 +236,45 @@ function CalculationsScreen({ selectedModule, openModule, activeSector, onSelect
   );
 }
 
-function SurveyScreen({ captures, context, onRemove, onUpdate, onAddMany }: { captures: CalculationCapture[]; context: { activeClient: Client | null; activeWorkOrder: WorkOrder | null }; onRemove: (id: string) => void; onUpdate: (id: string, patch: Partial<CalculationCapture>) => void; onAddMany: (items: CalculationCapture[]) => void }) {
+function SurveyScreen({ captures, context, onRemove, onUpdate, onAddMany, goTo }: { captures: CalculationCapture[]; context: { activeClient: Client | null; activeWorkOrder: WorkOrder | null }; onRemove: (id: string) => void; onUpdate: (id: string, patch: Partial<CalculationCapture>) => void; onAddMany: (items: CalculationCapture[]) => void; goTo: (tab: AppTab) => void }) {
   const [activeSection, setActiveSection] = useState<SurveySection>('context');
   const surveyCaptures = captures.filter((capture) => capture.destination === 'survey' || capture.destination === 'both');
+  const activeStepIndex = Math.max(0, surveyFlowSteps.findIndex((step) => step.id === activeSection));
+  const activeStep = surveyFlowSteps[activeStepIndex] ?? surveyFlowSteps[0];
+  const previousStep = surveyFlowSteps[activeStepIndex - 1];
+  const nextStep = surveyFlowSteps[activeStepIndex + 1];
+
+  function advanceSurvey() {
+    if (nextStep) {
+      setActiveSection(nextStep.id);
+      return;
+    }
+    goTo('budgets');
+  }
+
   return (
     <section className="app-screen">
       <header className="screen-header"><span className="orca-kicker">Fluxo de campo</span><h1>Levantamento</h1><p>Registre contexto, serviços, materiais, observações técnicas e revise o que vai para orçamento ou relatório.</p></header>
       <ActiveWorkContextCard {...context} />
-      <div className="section-mode-tabs survey-flow-tabs">
-        <button className={activeSection === 'context' ? 'active' : ''} type="button" onClick={() => setActiveSection('context')}>Ambientes</button>
-        <button className={activeSection === 'labor' ? 'active' : ''} type="button" onClick={() => setActiveSection('labor')}>Serviços</button>
-        <button className={activeSection === 'materials' ? 'active' : ''} type="button" onClick={() => setActiveSection('materials')}>Materiais</button>
-        <button className={activeSection === 'notes' ? 'active' : ''} type="button" onClick={() => setActiveSection('notes')}>Observações</button>
-        <button className={activeSection === 'review' ? 'active' : ''} type="button" onClick={() => setActiveSection('review')}>Revisão</button>
+      <div className="survey-step-guide" aria-label="Etapas do levantamento">
+        {surveyFlowSteps.map((step, index) => (
+          <button className={activeSection === step.id ? 'active' : index < activeStepIndex ? 'completed' : ''} key={step.id} type="button" onClick={() => setActiveSection(step.id)}>
+            <span>{index + 1}</span>
+            <strong>{step.label}</strong>
+          </button>
+        ))}
       </div>
-      {activeSection === 'context' && <><div className="survey-intro-card"><span><strong>Ambientes são o contexto do serviço</strong><small>Defina cômodos, áreas e locais para orientar serviços, materiais e observações.</small></span></div><GuidedRoomManager /></>}
-      {activeSection === 'labor' && <><div className="survey-intro-card"><span><strong>Serviços representam mão de obra</strong><small>Adicione tarefas, quantidades e valores que poderão compor o orçamento.</small></span></div><GuidedBudgetCartRoomAutoBridge mode="catalog" onSendToBudget={onAddMany} /></>}
-      {activeSection === 'materials' && <><div className="survey-intro-card"><span><strong>Materiais e peças</strong><small>Separe itens fornecidos pelo profissional, pelo cliente ou em lista mista.</small></span></div><MaterialSupplyModeBridge mode="parts" onSendToBudget={onAddMany} /></>}
-      {activeSection === 'notes' && <><div className="survey-intro-card"><span><strong>Observações técnicas</strong><small>Use este bloco para diagnóstico, recomendações, riscos, fotos e itens que precisam aparecer no relatório.</small></span></div><GuidedBudgetCartRoomAutoBridge mode="manual" onSendToBudget={onAddMany} /></>}
-      {activeSection === 'review' && <><div className="survey-intro-card"><span><strong>Revisão do levantamento</strong><small>{surveyCaptures.length} item(ns) salvos para relatório, orçamento ou lista do cliente.</small></span></div><TechnicalCaptureList captures={surveyCaptures} emptyText="Use ambientes, serviços, materiais ou observações para montar o levantamento." onRemove={onRemove} onUpdate={onUpdate} /></>}
+      <div className="survey-intro-card"><span><strong>{activeStep.title}</strong><small>{activeStep.text}</small></span></div>
+      {activeSection === 'context' && <GuidedRoomManager />}
+      {activeSection === 'labor' && <GuidedBudgetCartRoomAutoBridge mode="catalog" onSendToBudget={onAddMany} />}
+      {activeSection === 'materials' && <MaterialSupplyModeBridge mode="parts" onSendToBudget={onAddMany} />}
+      {activeSection === 'notes' && <GuidedBudgetCartRoomAutoBridge mode="manual" onSendToBudget={onAddMany} />}
+      {activeSection === 'review' && <TechnicalCaptureList captures={surveyCaptures} emptyText="Use ambientes, serviços, materiais ou observações para montar o levantamento." onRemove={onRemove} onUpdate={onUpdate} />}
+      <div className="survey-step-actions">
+        <button className="secondary-action inline-action" type="button" disabled={!previousStep} onClick={() => previousStep && setActiveSection(previousStep.id)}>Voltar</button>
+        <span>{activeStepIndex + 1} de {surveyFlowSteps.length} · {surveyCaptures.length} item(ns) salvos</span>
+        <button className="primary-action inline-action" type="button" onClick={advanceSurvey}>{nextStep ? `Próximo: ${nextStep.label}` : 'Ir para orçamento'}</button>
+      </div>
     </section>
   );
 }
@@ -303,7 +356,7 @@ export function App() {
       <Suspense fallback={<LazyWorkspaceFallback />}>
         {activeTab === 'home' && <HomeScreen goTo={goTo} openModule={openModule} captures={captures} clients={clients} workOrders={workOrders} />}
         {activeTab === 'calculations' && <CalculationsScreen selectedModule={selectedModule} openModule={openModule} activeSector={activeSector} onSelectSector={setActiveSector} goTo={goTo} onCaptureCalculation={addCalculationCapture} />}
-        {activeTab === 'survey' && <SurveyScreen captures={captures} context={context} onRemove={removeCalculationCapture} onUpdate={updateCalculationCapture} onAddMany={addManyCalculationCaptures} />}
+        {activeTab === 'survey' && <SurveyScreen captures={captures} context={context} onRemove={removeCalculationCapture} onUpdate={updateCalculationCapture} onAddMany={addManyCalculationCaptures} goTo={goTo} />}
         {activeTab === 'budgets' && <BudgetsScreen captures={captures} context={context} onRemove={removeCalculationCapture} onUpdate={updateCalculationCapture} />}
         {activeTab === 'catalog' && <CatalogScreen onAddMany={addManyCalculationCaptures} />}
         {activeTab === 'reports' && <ReportsScreen captures={captures} context={context} />}
