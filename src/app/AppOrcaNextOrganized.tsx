@@ -1,32 +1,46 @@
-import { useEffect, useMemo, useState } from 'react';
+import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
 import type { CalculatorModule } from '../core/access/featureAccess';
 import type { Client, WorkOrder } from '../core/types/business';
 import type { CalculationCapture } from '../core/types/workflow';
-import { BudgetWorkspaceClientBridge } from '../features/budgets/components/BudgetWorkspaceClientBridge';
-import { ConvertersHumanWorkspace } from '../features/calculators/components/ConvertersHumanWorkspace';
-import { ElectricalCalculatorWorkspace } from '../features/calculators/components/ElectricalCalculatorWorkspace';
-import { ElectricalFundamentalsHumanWorkspace } from '../features/calculators/components/ElectricalFundamentalsHumanWorkspace';
-import { ExpansionCalculatorsWorkspace } from '../features/calculators/components/ExpansionCalculatorsWorkspace';
-import { GeneralCalculatorWorkspace, type GeneralCalculatorModule } from '../features/calculators/components/GeneralCalculatorWorkspace';
-import { GeneralFundamentalsWorkspace, type FundamentalMode } from '../features/calculators/components/GeneralFundamentalsWorkspace';
-import { PaintingHumanWorkspace } from '../features/calculators/components/PaintingHumanWorkspace';
-import { HydraulicsCalculatorWorkspace } from '../features/calculators/components/StableHydraulicsCalculatorWorkspace';
-import { ProfessionalDomainWorkspace } from '../features/calculators/components/ProfessionalDomainWorkspace';
-import { CatalogHubWorkspace } from '../features/catalog/components/CatalogHubWorkspaceWithTax';
-import { ClientWorkOrderWorkspace } from '../features/clients/components/ClientWorkOrderWorkspace';
+import type { GeneralCalculatorModule } from '../features/calculators/components/GeneralCalculatorWorkspace';
+import type { FundamentalMode } from '../features/calculators/components/GeneralFundamentalsWorkspace';
 import { loadActiveWorkOrderId, loadClients, loadWorkOrders } from '../features/clients/storage/clientWorkOrderStorage';
-import { ReportWorkspace } from '../features/reports/components/ReportWorkspace';
-import { LocalBackupWorkspace } from '../features/settings/components/LocalBackupWorkspace';
-import { GuidedBudgetCartRoomAutoBridge } from '../features/workflow/components/GuidedBudgetCartRoomAutoBridge';
-import { GuidedRoomManager } from '../features/workflow/components/GuidedRoomManager';
-import { MaterialSupplyModeBridge } from '../features/workflow/components/MaterialSupplyModeBridge';
-import { TechnicalCaptureList } from '../features/workflow/components/TechnicalCaptureList';
 import { ActiveWorkContextCard } from './components/ActiveWorkContextCard';
 import { AppShell } from './components/AppShell';
 import { ModuleCard } from './components/ModuleCard';
 import { calculationModules, calculationSectorGroups, navItems, planLabel, storePackages, userPlan } from './orcaAppData';
 import type { ActiveWorkContext, AppTab, BudgetSection, CalculationSectorId, ModuleCardData, SurveySection } from './orcaAppTypes';
 import { loadStoredCaptures, saveStoredCaptures } from './storage/calculationCapturesStorage';
+
+const BudgetWorkspaceClientBridge = lazy(() => import('../features/budgets/components/BudgetWorkspaceClientBridge').then((module) => ({ default: module.BudgetWorkspaceClientBridge })));
+const ConvertersHumanWorkspace = lazy(() => import('../features/calculators/components/ConvertersHumanWorkspace').then((module) => ({ default: module.ConvertersHumanWorkspace })));
+const ElectricalCalculatorWorkspace = lazy(() => import('../features/calculators/components/ElectricalCalculatorWorkspace').then((module) => ({ default: module.ElectricalCalculatorWorkspace })));
+const ElectricalFundamentalsHumanWorkspace = lazy(() => import('../features/calculators/components/ElectricalFundamentalsHumanWorkspace').then((module) => ({ default: module.ElectricalFundamentalsHumanWorkspace })));
+const ExpansionCalculatorsWorkspace = lazy(() => import('../features/calculators/components/ExpansionCalculatorsWorkspace').then((module) => ({ default: module.ExpansionCalculatorsWorkspace })));
+const GeneralCalculatorWorkspace = lazy(() => import('../features/calculators/components/GeneralCalculatorWorkspace').then((module) => ({ default: module.GeneralCalculatorWorkspace })));
+const GeneralFundamentalsWorkspace = lazy(() => import('../features/calculators/components/GeneralFundamentalsWorkspace').then((module) => ({ default: module.GeneralFundamentalsWorkspace })));
+const PaintingHumanWorkspace = lazy(() => import('../features/calculators/components/PaintingHumanWorkspace').then((module) => ({ default: module.PaintingHumanWorkspace })));
+const HydraulicsCalculatorWorkspace = lazy(() => import('../features/calculators/components/StableHydraulicsCalculatorWorkspace').then((module) => ({ default: module.HydraulicsCalculatorWorkspace })));
+const ProfessionalDomainWorkspace = lazy(() => import('../features/calculators/components/ProfessionalDomainWorkspace').then((module) => ({ default: module.ProfessionalDomainWorkspace })));
+const CatalogHubWorkspace = lazy(() => import('../features/catalog/components/CatalogHubWorkspaceWithTax').then((module) => ({ default: module.CatalogHubWorkspace })));
+const ClientWorkOrderWorkspace = lazy(() => import('../features/clients/components/ClientWorkOrderWorkspace').then((module) => ({ default: module.ClientWorkOrderWorkspace })));
+const ReportWorkspace = lazy(() => import('../features/reports/components/ReportWorkspace').then((module) => ({ default: module.ReportWorkspace })));
+const LocalBackupWorkspace = lazy(() => import('../features/settings/components/LocalBackupWorkspace').then((module) => ({ default: module.LocalBackupWorkspace })));
+const GuidedBudgetCartRoomAutoBridge = lazy(() => import('../features/workflow/components/GuidedBudgetCartRoomAutoBridge').then((module) => ({ default: module.GuidedBudgetCartRoomAutoBridge })));
+const GuidedRoomManager = lazy(() => import('../features/workflow/components/GuidedRoomManager').then((module) => ({ default: module.GuidedRoomManager })));
+const MaterialSupplyModeBridge = lazy(() => import('../features/workflow/components/MaterialSupplyModeBridge').then((module) => ({ default: module.MaterialSupplyModeBridge })));
+const TechnicalCaptureList = lazy(() => import('../features/workflow/components/TechnicalCaptureList').then((module) => ({ default: module.TechnicalCaptureList })));
+
+function LazyWorkspaceFallback() {
+  return (
+    <section className="app-screen">
+      <div className="empty-state-card">
+        <strong>Carregando área de trabalho</strong>
+        <p>Preparando os recursos desta tela.</p>
+      </div>
+    </section>
+  );
+}
 
 function isGeneralCalculatorModule(module: CalculatorModule): module is GeneralCalculatorModule {
   return module === 'obras' || module === 'orcamentoTecnico';
@@ -271,15 +285,17 @@ export function App() {
 
   return (
     <AppShell activeTab={activeTab} title={getScreenTitle(activeTab, selectedModule)} subtitle={getScreenSubtitle(activeTab, selectedModule)} navItems={navItems} activeClient={activeClient} activeWorkOrder={activeWorkOrder} onNavigate={goTo}>
-      {activeTab === 'home' && <HomeScreen goTo={goTo} openModule={openModule} captures={captures} clients={clients} workOrders={workOrders} />}
-      {activeTab === 'calculations' && <CalculationsScreen selectedModule={selectedModule} openModule={openModule} activeSector={activeSector} onSelectSector={setActiveSector} goTo={goTo} onCaptureCalculation={addCalculationCapture} />}
-      {activeTab === 'survey' && <SurveyScreen captures={captures} context={context} onRemove={removeCalculationCapture} onUpdate={updateCalculationCapture} onAddMany={addManyCalculationCaptures} />}
-      {activeTab === 'budgets' && <BudgetsScreen captures={captures} context={context} onRemove={removeCalculationCapture} onUpdate={updateCalculationCapture} />}
-      {activeTab === 'catalog' && <CatalogScreen onAddMany={addManyCalculationCaptures} />}
-      {activeTab === 'reports' && <ReportsScreen captures={captures} context={context} />}
-      {activeTab === 'clients' && <ClientsScreen onContextChange={(nextClients, nextWorkOrders, nextActiveWorkOrderId) => { setClients(nextClients); setWorkOrders(nextWorkOrders); setActiveWorkOrderId(nextActiveWorkOrderId); }} />}
-      {activeTab === 'store' && <StoreScreen />}
-      {activeTab === 'settings' && <SettingsScreen />}
+      <Suspense fallback={<LazyWorkspaceFallback />}>
+        {activeTab === 'home' && <HomeScreen goTo={goTo} openModule={openModule} captures={captures} clients={clients} workOrders={workOrders} />}
+        {activeTab === 'calculations' && <CalculationsScreen selectedModule={selectedModule} openModule={openModule} activeSector={activeSector} onSelectSector={setActiveSector} goTo={goTo} onCaptureCalculation={addCalculationCapture} />}
+        {activeTab === 'survey' && <SurveyScreen captures={captures} context={context} onRemove={removeCalculationCapture} onUpdate={updateCalculationCapture} onAddMany={addManyCalculationCaptures} />}
+        {activeTab === 'budgets' && <BudgetsScreen captures={captures} context={context} onRemove={removeCalculationCapture} onUpdate={updateCalculationCapture} />}
+        {activeTab === 'catalog' && <CatalogScreen onAddMany={addManyCalculationCaptures} />}
+        {activeTab === 'reports' && <ReportsScreen captures={captures} context={context} />}
+        {activeTab === 'clients' && <ClientsScreen onContextChange={(nextClients, nextWorkOrders, nextActiveWorkOrderId) => { setClients(nextClients); setWorkOrders(nextWorkOrders); setActiveWorkOrderId(nextActiveWorkOrderId); }} />}
+        {activeTab === 'store' && <StoreScreen />}
+        {activeTab === 'settings' && <SettingsScreen />}
+      </Suspense>
     </AppShell>
   );
 }
