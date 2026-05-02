@@ -32,6 +32,31 @@
   line-height: 1.5;
 }
 
+.print-validation-alert {
+  display: grid;
+  gap: 10px;
+  border: 1px solid rgba(248, 113, 113, 0.32);
+  border-radius: 18px;
+  padding: 14px 16px;
+  color: var(--orca-text, #f8fafc);
+  background: rgba(248, 113, 113, 0.08);
+}
+
+.print-validation-alert ul {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding-left: 18px;
+}
+
+.print-validation-alert li {
+  color: #fecaca;
+}
+
+.print-validation-alert li.warning {
+  color: #fde68a;
+}
+
 .print-document {
   width: 100%;
   max-width: 100%;

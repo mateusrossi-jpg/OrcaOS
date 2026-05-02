@@ -1,5 +1,6 @@
 import type { BudgetItem, BudgetTemplateId, BusinessProfile } from '../../../core/types/business';
 import { calculateBudgetItemTotal } from '../../../core/pricing/budget';
+import { hasBlockingBudgetIssues, type BudgetValidationIssue } from '../../../core/pricing/budgetValidation';
 import { roundTechnical } from '../../../core/calculations/electrical';
 import type { SavedBudgetStatus } from '../storage/savedBudgetsStorage';
 import './BudgetPrintPreview.css';
@@ -23,6 +24,7 @@ interface BudgetPrintPreviewProps {
   commercialNotes?: string;
   technicalNotes?: string;
   templateId?: BudgetTemplateId;
+  validationIssues?: BudgetValidationIssue[];
 }
 
 const currencyFormatter = new Intl.NumberFormat('pt-BR', {
@@ -57,6 +59,14 @@ function printBudget() {
   window.print();
 }
 
+function safeBudgetItemTotal(item: BudgetItem): number {
+  try {
+    return calculateBudgetItemTotal(item);
+  } catch {
+    return 0;
+  }
+}
+
 export function BudgetPrintPreview({
   clientName,
   budgetTitle,
@@ -76,7 +86,9 @@ export function BudgetPrintPreview({
   commercialNotes,
   technicalNotes,
   templateId = 'professional',
+  validationIssues = [],
 }: BudgetPrintPreviewProps) {
+  const hasBlockingIssues = hasBlockingBudgetIssues(validationIssues);
   const issuedAt = new Intl.DateTimeFormat('pt-BR', {
     dateStyle: 'short',
     timeStyle: 'short',
@@ -96,10 +108,21 @@ export function BudgetPrintPreview({
           <h3>Prévia para cliente</h3>
           <p>Use imprimir para salvar em PDF pelo navegador.</p>
         </div>
-        <button type="button" className="primary-action inline-action" onClick={printBudget}>
+        <button type="button" className="primary-action inline-action" disabled={hasBlockingIssues} onClick={printBudget}>
           Imprimir / salvar PDF
         </button>
       </div>
+
+      {validationIssues.length > 0 && (
+        <div className="print-validation-alert no-print" role="status">
+          <strong>{hasBlockingIssues ? 'Revise antes de gerar o PDF' : 'Atenção antes do envio'}</strong>
+          <ul>
+            {validationIssues.map((issue) => (
+              <li className={issue.severity} key={`${issue.code}-${issue.message}`}>{issue.message}</li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       <article className={`print-document print-template-${templateId}`} aria-label="Prévia impressa do orçamento">
         <header className="print-document-top">
@@ -147,7 +170,7 @@ export function BudgetPrintPreview({
                     <td>{categoryLabel(item.category)}</td>
                     <td>{item.quantity}</td>
                     <td>{formatCurrency(item.unitPrice)}</td>
-                    <td>{formatCurrency(calculateBudgetItemTotal(item))}</td>
+                    <td>{formatCurrency(safeBudgetItemTotal(item))}</td>
                   </tr>
                 ))
               )}

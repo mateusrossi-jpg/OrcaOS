@@ -103,6 +103,45 @@
   color: var(--orca-muted, #a7b3ad);
 }
 
+.budget-validation-panel {
+  display: grid;
+  gap: 10px;
+  border: 1px solid rgba(250, 204, 21, 0.30);
+  border-radius: 18px;
+  padding: 14px 16px;
+  color: var(--orca-text, #f8fafc);
+  background: rgba(250, 204, 21, 0.07);
+}
+
+.budget-validation-panel.has-errors {
+  border-color: rgba(248, 113, 113, 0.35);
+  background: rgba(248, 113, 113, 0.08);
+}
+
+.budget-validation-panel strong {
+  color: var(--orca-text, #f8fafc);
+}
+
+.budget-validation-panel ul {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding-left: 18px;
+}
+
+.budget-validation-panel li {
+  color: var(--orca-muted, #a7b3ad);
+  line-height: 1.4;
+}
+
+.budget-validation-panel li.error {
+  color: #fecaca;
+}
+
+.budget-validation-panel li.warning {
+  color: #fde68a;
+}
+
 .budget-section-header {
   display: flex;
   align-items: flex-start;
