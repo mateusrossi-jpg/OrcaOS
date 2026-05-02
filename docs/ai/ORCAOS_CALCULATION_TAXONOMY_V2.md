@@ -73,13 +73,11 @@ Essa organização remove a duplicidade de cards na navegação, mas mantém os 
 
 ### Relatório e diagnóstico
 
-Diagnóstico não é cálculo puro. É assistente de decisão para relatório:
+Diagnóstico não é cálculo puro. É assistente de decisão para relatório e fica organizado por intenção:
 
-- urgência;
-- risco;
-- manutenção;
-- preventiva vs corretiva;
-- checklist por categoria.
+- **Relatório**: checklist por categoria e texto técnico inicial.
+- **Risco**: urgência e classificação de risco.
+- **Manutenção**: manutenção preventiva e preventiva vs corretiva.
 
 Esses itens devem gerar texto técnico e relatório, não item comercial automaticamente.
 

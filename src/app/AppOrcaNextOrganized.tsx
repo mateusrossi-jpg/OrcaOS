@@ -22,6 +22,7 @@ const PaintingHumanWorkspace = lazy(() => import('../features/calculators/compon
 const ProfessionalDomainWorkspace = lazy(() => import('../features/calculators/components/ProfessionalDomainWorkspace').then((module) => ({ default: module.ProfessionalDomainWorkspace })));
 const UnifiedConstructionWorkspace = lazy(() => import('../features/calculators/components/UnifiedConstructionWorkspace').then((module) => ({ default: module.UnifiedConstructionWorkspace })));
 const UnifiedConvertersWorkspace = lazy(() => import('../features/calculators/components/UnifiedConvertersWorkspace').then((module) => ({ default: module.UnifiedConvertersWorkspace })));
+const UnifiedDiagnosticsWorkspace = lazy(() => import('../features/calculators/components/UnifiedDiagnosticsWorkspace').then((module) => ({ default: module.UnifiedDiagnosticsWorkspace })));
 const UnifiedElectricalWorkspace = lazy(() => import('../features/calculators/components/UnifiedElectricalWorkspace').then((module) => ({ default: module.UnifiedElectricalWorkspace })));
 const UnifiedFinancialWorkspace = lazy(() => import('../features/calculators/components/UnifiedFinancialWorkspace').then((module) => ({ default: module.UnifiedFinancialWorkspace })));
 const UnifiedHydraulicsWorkspace = lazy(() => import('../features/calculators/components/UnifiedHydraulicsWorkspace').then((module) => ({ default: module.UnifiedHydraulicsWorkspace })));
@@ -50,7 +51,7 @@ function isGeneralCalculatorModule(module: CalculatorModule): module is GeneralC
 }
 
 function isProfessionalDomainModule(module: CalculatorModule): boolean {
-  return module === 'refrigeration' || module === 'motors' || module === 'rewinding' || module === 'transformadores' || module === 'solar' || module === 'diagnosticoTecnico';
+  return module === 'refrigeration' || module === 'motors' || module === 'rewinding' || module === 'transformadores' || module === 'solar';
 }
 
 function isExpansionModule(module: CalculatorModule): boolean {
@@ -84,8 +85,8 @@ const moduleGuidance: Record<string, { title: string; text: string }> = {
     text: 'Use a aba Rápidos para conversões comuns e a aba Técnicos para AWG, polegadas, vazão completa, pressão completa, temperatura e kWh/R$.',
   },
   diagnosticoTecnico: {
-    title: 'Diagnóstico não é fórmula pura',
-    text: 'Estes assistentes ajudam a transformar observações de campo em classificação de risco, urgência, manutenção e texto pronto para relatório.',
+    title: 'Diagnóstico vira relatório, risco ou manutenção',
+    text: 'Escolha primeiro a intenção: gerar texto técnico, classificar risco/urgência ou justificar manutenção preventiva.',
   },
   orcamentoTecnico: {
     title: 'Um único lugar para cobrar melhor',
@@ -168,11 +169,12 @@ function CalculationsScreen({ selectedModule, openModule, activeSector, onSelect
         {module === 'hidraulica' && <UnifiedHydraulicsWorkspace onCaptureCalculation={onCaptureCalculation} />}
         {module === 'obras' && <UnifiedConstructionWorkspace onCaptureCalculation={onCaptureCalculation} />}
         {module === 'conversores' && <UnifiedConvertersWorkspace onCaptureCalculation={onCaptureCalculation} />}
+        {module === 'diagnosticoTecnico' && <UnifiedDiagnosticsWorkspace onCaptureCalculation={onCaptureCalculation} />}
         {module === 'orcamentoTecnico' && <UnifiedFinancialWorkspace onCaptureCalculation={onCaptureCalculation} />}
         {module && isExpansionModule(module) && <ExpansionCalculatorsWorkspace selectedModule={module} onCaptureCalculation={onCaptureCalculation} />}
         {module && isProfessionalDomainModule(module) && <ProfessionalDomainWorkspace selectedModule={module} onCaptureCalculation={onCaptureCalculation} />}
         {module && isGeneralCalculatorModule(module) && <GeneralCalculatorWorkspace selectedModule={module} onCaptureCalculation={onCaptureCalculation} />}
-        {module && module !== 'fundamentosGerais' && module !== 'eletricaPredial' && module !== 'fundamentals' && module !== 'pintura' && module !== 'hidraulica' && module !== 'obras' && module !== 'conversores' && module !== 'orcamentoTecnico' && !isExpansionModule(module) && !isProfessionalDomainModule(module) && !isGeneralCalculatorModule(module) && <ElectricalCalculatorWorkspace selectedModule={module} userPlan={userPlan} onUpgradeRequest={() => goTo('store')} onCaptureCalculation={onCaptureCalculation} />}
+        {module && module !== 'fundamentosGerais' && module !== 'eletricaPredial' && module !== 'fundamentals' && module !== 'pintura' && module !== 'hidraulica' && module !== 'obras' && module !== 'conversores' && module !== 'diagnosticoTecnico' && module !== 'orcamentoTecnico' && !isExpansionModule(module) && !isProfessionalDomainModule(module) && !isGeneralCalculatorModule(module) && <ElectricalCalculatorWorkspace selectedModule={module} userPlan={userPlan} onUpgradeRequest={() => goTo('store')} onCaptureCalculation={onCaptureCalculation} />}
         {!module && <div className="empty-state-card"><strong>{selectedModule.title} em breve</strong><p>Este módulo já está previsto na arquitetura do OrçaOS.</p></div>}
       </section>
     );

@@ -3,7 +3,7 @@ import type { CalculatorModule } from '../../../core/access/featureAccess';
 import type { CalculationCapture, CalculationDestination, TechnicalItemType } from '../../../core/types/workflow';
 import './GeneralCalculatorWorkspace.css';
 
-type DomainMode =
+export type DomainMode =
   | 'btu-area'
   | 'ac-consumption'
   | 'ac-circuit'
@@ -40,6 +40,7 @@ type DomainMode =
 
 interface Props {
   selectedModule: CalculatorModule;
+  modeFilter?: DomainMode[];
   onCaptureCalculation?: (capture: CalculationCapture) => void;
 }
 
@@ -256,12 +257,12 @@ function SelectField({ option, value, onChange }: { option: OptionConfig; value:
   return <label className="general-form-field"><span>{option.label}</span><select value={value} onChange={(event) => onChange(event.target.value)}>{option.options.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}</select></label>;
 }
 
-export function ProfessionalDomainWorkspace({ selectedModule, onCaptureCalculation }: Props) {
+export function ProfessionalDomainWorkspace({ selectedModule, modeFilter, onCaptureCalculation }: Props) {
   const [activeMode, setActiveMode] = useState<DomainMode | null>(null);
   const [values, setValues] = useState<Record<string, string>>(defaultValues);
   const [options, setOptions] = useState<Record<string, string>>(defaultOptions);
   const [addedMessage, setAddedMessage] = useState<string | null>(null);
-  const moduleRules = rules.filter((rule) => rule.module === selectedModule);
+  const moduleRules = rules.filter((rule) => rule.module === selectedModule && (!modeFilter || modeFilter.includes(rule.mode)));
   const activeRule = activeMode ? rules.find((rule) => rule.mode === activeMode) : undefined;
 
   const computed = useMemo<DomainResult>(() => {

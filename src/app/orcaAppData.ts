@@ -28,7 +28,7 @@ export const calculationModules: ModuleCardData[] = [
   { id: 'transformadores', title: 'Transformadores', description: 'VA, correntes, relação, espiras e potência por núcleo', icon: 'T', tone: 'orange', count: '6 cálculos Pro', available: true, plan: 'pro', calculatorModule: 'transformadores' },
   { id: 'solar', title: 'Solar fotovoltaico', description: 'Consumo, kWp, módulos, área, geração, bateria e payback', icon: 'SF', tone: 'green', count: '7 cálculos Pro', available: true, plan: 'pro', calculatorModule: 'solar' },
   { id: 'rebobinagem', title: 'Rebobinagem', description: 'Rotação, polos, passo polar e checklist técnico seguro', icon: 'RB', tone: 'muted', count: '4 assistentes Pro', available: true, plan: 'pro', calculatorModule: 'rewinding' },
-  { id: 'diagnosticoTecnico', title: 'Assistentes de diagnóstico', description: 'Urgência, risco, manutenção, checklist e texto técnico para relatório', icon: 'DG', tone: 'green', count: '5 assistentes', available: true, plan: 'pro', calculatorModule: 'diagnosticoTecnico' },
+  { id: 'diagnosticoTecnico', title: 'Diagnóstico técnico', description: 'Relatório, risco, urgência, manutenção e checklist por intenção de uso', icon: 'DG', tone: 'green', count: '5 assistentes', available: true, plan: 'pro', calculatorModule: 'diagnosticoTecnico' },
 ];
 
 export const calculationSectorGroups: CalculationSectorGroup[] = [
@@ -77,7 +77,7 @@ export const calculationSectorGroups: CalculationSectorGroup[] = [
   {
     id: 'diagnostics',
     title: 'Relatório e diagnóstico',
-    description: 'Assistentes que não são fórmulas puras: ajudam a classificar risco, urgência e texto técnico.',
+    description: 'Escolha entre relatório, risco/urgência e manutenção antes de abrir o assistente.',
     icon: 'DG',
     moduleIds: ['diagnosticoTecnico'],
   },
