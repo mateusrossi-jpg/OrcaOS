@@ -95,14 +95,16 @@ Status: fechado para validação inicial.
 
 - Testes cobrem capturas de cálculo salvas no navegador.
 - Testes cobrem clientes, ordens de serviço e OS ativa.
+- Testes cobrem backup local: coleta, parse, resumo, merge e replace.
+- Testes cobrem perfil profissional: criação, salvamento, fallback e reset de IDs.
 - Testes cobrem JSON inválido e ambiente sem `window`.
 - Storages retornam valores seguros quando os dados locais estão vazios ou corrompidos.
 
 Estado atualizado:
 
 ```txt
-9 arquivos de teste
-64 testes passando
+11 arquivos de teste
+75 testes passando
 ```
 
 ## Validação técnica executada
