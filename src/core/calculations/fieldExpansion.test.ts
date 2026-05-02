@@ -6,10 +6,19 @@ import {
   roundTechnical,
 } from './electrical';
 import {
+  calculateAreaWithLoss,
+  calculateBlocks,
+  calculateConcreteVolume,
+  calculateDailyRate,
   calculateFinalPrice,
+  calculateHourlyRate,
+  calculateInstallments,
+  calculatePaintLiters,
   calculateReservoirAutonomy,
   calculateSalePriceByMarkup,
   calculateSalePriceByTargetMargin,
+  calculateTiles,
+  calculateUpfront,
   convertFlow,
   convertPower,
   convertPressure,
@@ -95,6 +104,36 @@ describe('field expansion calculation coverage', () => {
     expect(roundTrade(autonomy.days)).toBe(1.67);
     expect(roundTrade(flow.litersPerMinute)).toBe(20);
     expect(roundTrade(pressure.bar, 3)).toBe(1.177);
+  });
+
+  it('covers construction quantities used by advanced field modules', () => {
+    const area = calculateAreaWithLoss({ widthM: 4, lengthM: 5, lossPercent: 10 });
+    const concrete = calculateConcreteVolume({ widthM: 3, lengthM: 4, thicknessCm: 10, lossPercent: 10, bagsPerM3: 7 });
+    const blocks = calculateBlocks({ wallAreaM2: 10, blockWidthCm: 39, blockHeightCm: 19, lossPercent: 10 });
+    const tiles = calculateTiles({ areaM2: 20, tileWidthCm: 60, tileHeightCm: 60, piecesPerBox: 4, lossPercent: 10 });
+
+    expect(roundTrade(area.totalAreaM2)).toBe(22);
+    expect(roundTrade(concrete.totalCubicMeters)).toBe(1.32);
+    expect(concrete.bags).toBe(10);
+    expect(blocks.pieces).toBe(149);
+    expect(tiles.pieces).toBe(62);
+    expect(tiles.boxes).toBe(16);
+  });
+
+  it('covers painting quantity and commercial service helpers', () => {
+    const paint = calculatePaintLiters({ areaM2: 45, coats: 2, yieldM2PerLiter: 10, lossPercent: 10 });
+    const daily = calculateDailyRate({ days: 2, dailyValue: 320, helperDailyValue: 180, travel: 80 });
+    const hourly = calculateHourlyRate({ hours: 5, hourlyValue: 95, travel: 60 });
+    const installments = calculateInstallments({ total: 1200, installments: 6, interestPercent: 12 });
+    const upfront = calculateUpfront({ total: 1200, upfrontPercent: 35 });
+
+    expect(roundTrade(paint.liters)).toBe(9.9);
+    expect(paint.gallons36L).toBe(3);
+    expect(daily.total).toBe(1080);
+    expect(hourly.total).toBe(535);
+    expect(roundTrade(installments.installmentValue)).toBe(224);
+    expect(upfront.upfront).toBe(420);
+    expect(upfront.remaining).toBe(780);
   });
 
   it('covers advanced unit converters without asking equivalent values twice', () => {
