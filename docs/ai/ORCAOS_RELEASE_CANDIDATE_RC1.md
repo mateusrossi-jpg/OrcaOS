@@ -111,7 +111,7 @@ O RC1 pode ser considerado aprovado para beta fechado se:
 
 ## Riscos Conhecidos
 
-- Login Google esta preparado no frontend quando `VITE_GOOGLE_CLIENT_ID` estiver configurado; assinatura e backend de plano ainda nao estao implementados.
+- Login Google esta preparado no frontend quando `VITE_GOOGLE_CLIENT_ID` estiver configurado; a verificacao de assinatura pode consultar `VITE_ORCAOS_ENTITLEMENTS_ENDPOINT`, mas o backend/pagamento ainda nao esta implementado neste repositorio.
 - Backup Google Drive manual esta preparado quando `VITE_GOOGLE_CLIENT_ID` estiver configurado; backup automatico ainda nao esta implementado.
 - O app segue local-first; perda de dados pode ocorrer se o navegador limpar armazenamento local e o usuario nao tiver backup exportado.
 - Calculos tecnicos sao estimativas de apoio e precisam de validacao profissional em campo.
@@ -121,14 +121,14 @@ O RC1 pode ser considerado aprovado para beta fechado se:
 
 - Backend de login social.
 - Sincronizacao em nuvem.
-- Assinatura/pagamento Pro real.
+- Backend de assinatura/pagamento Pro real.
 - ERP completo.
 - Catalogo online automatizado por fornecedores reais.
 
 ## Monetizacao Dos Calculos
 
 A matriz Free/Pro dos calculos do RC1 esta documentada em `docs/ai/ORCAOS_CALCULATION_MONETIZATION_MATRIX_RC1.md`.
-No RC1, a separacao aparece na organizacao, nos badges e no bloqueio de abertura dos calculos Pro. A conta/plano fica em `accountPlanStorage`, pode simular Pro pela tela Loja / Pro e pode receber identidade Google quando `VITE_GOOGLE_CLIENT_ID` estiver configurado. Assinatura e pagamento real ficam para a proxima camada externa.
+No RC1, a separacao aparece na organizacao, nos badges e no bloqueio de abertura dos calculos Pro. A conta/plano fica em `accountPlanStorage`, pode simular Pro pela tela Loja / Pro, pode receber identidade Google quando `VITE_GOOGLE_CLIENT_ID` estiver configurado e pode verificar assinatura via `VITE_ORCAOS_ENTITLEMENTS_ENDPOINT`. Pagamento real fica para a proxima camada externa.
 
 ## Proxima Decisao
 
