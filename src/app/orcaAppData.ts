@@ -23,9 +23,7 @@ export const calculationModules: ModuleCardData[] = [
   { id: 'refrigeracao', title: 'Climatização', description: 'BTU/h, consumo, circuito dedicado e carga térmica inicial', icon: '❄', tone: 'blue', count: '3 cálculos Pro', available: true, plan: 'pro', calculatorModule: 'refrigeration' },
   { id: 'motores', title: 'Motores e comandos', description: 'Corrente, partida, relé, contator, capacitor, torque e polias', icon: '⚙', tone: 'orange', count: '8 cálculos Pro', available: true, plan: 'pro', calculatorModule: 'motors' },
   { id: 'automacaoIndustrial', title: 'Automação e sinais', description: 'Escalas 4–20 mA, 0–10 V e valor de engenharia', icon: '▥', tone: 'green', count: '2 cálculos Pro', available: true, plan: 'pro', calculatorModule: 'industrialAutomation' },
-  { id: 'medicoesObra', title: 'Medições de obra', description: 'Áreas, perímetro, volume simples e perda de material para levantamento', icon: '▧', tone: 'gray', count: '6 cálculos livres', available: true, plan: 'free', calculatorModule: 'fundamentosGerais' },
-  { id: 'construcaoCivil', title: 'Materiais de obra', description: 'Concreto, alvenaria, piso, revestimento e quantidades básicas', icon: '▧', tone: 'gray', count: '10 cálculos livres', available: true, plan: 'free', calculatorModule: 'obras' },
-  { id: 'construcaoAvancada', title: 'Composição de obra', description: 'Argamassas, rodapé, telhado, escada, rampa e estimativas mais completas', icon: '▧', tone: 'gray', count: '9 cálculos Pro', available: true, plan: 'pro', calculatorModule: 'construcaoAvancada' },
+  { id: 'construcaoCivil', title: 'Construção civil', description: 'Medições, concreto, alvenaria, piso, revestimento, argamassas, telhado, escada e rampa', icon: '▧', tone: 'gray', count: '25 cálculos', available: true, plan: 'free', calculatorModule: 'obras' },
   { id: 'pintura', title: 'Pintura e acabamento', description: 'Área, tinta, selador, massa, custo e tempo de pintura', icon: '▨', tone: 'green', count: '6 cálculos livres', available: true, plan: 'free', calculatorModule: 'pintura' },
   { id: 'hidraulica', title: 'Hidráulica básica', description: 'Reservatório, consumo, autonomia, vazão, enchimento e pressão', icon: '≋', tone: 'blue', count: '7 cálculos livres', available: true, plan: 'free', calculatorModule: 'hidraulica' },
   { id: 'hidraulicaAvancada', title: 'Instalações hidráulicas', description: 'Caixa por pessoas, piscina, esgoto, pressão por coluna e bomba simples', icon: '≋', tone: 'green', count: '8 cálculos', available: true, plan: 'pro', calculatorModule: 'hidraulicaAvancada' },
@@ -56,9 +54,9 @@ export const calculationSectorGroups: CalculationSectorGroup[] = [
   {
     id: 'construction',
     title: 'Construção civil',
-    description: 'Meça primeiro, estime materiais depois e use composições quando a obra exigir mais detalhe.',
+    description: 'Um único módulo para medir, quantificar materiais e montar composições de obra.',
     icon: '▧',
-    moduleIds: ['medicoesObra', 'construcaoCivil', 'construcaoAvancada'],
+    moduleIds: ['construcaoCivil'],
   },
   {
     id: 'painting',

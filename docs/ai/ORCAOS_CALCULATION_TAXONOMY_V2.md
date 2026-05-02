@@ -30,9 +30,11 @@ Ordem de leitura:
 
 ### Construção civil
 
-- **Medições de obra**: medir área, perímetro, volume e perda.
-- **Materiais de obra**: transformar medidas em concreto, blocos, piso e revestimento.
-- **Composição de obra**: argamassas, rodapé, telhado, escada e rampa.
+Construção civil fica em um único módulo, com três abas internas:
+
+- **Medições**: medir área, perímetro, volume e perda.
+- **Materiais**: transformar medidas em concreto, blocos, piso e revestimento.
+- **Composição**: argamassas, rodapé, telhado, escada e rampa.
 
 ### Pintura e acabamento
 
@@ -73,8 +75,7 @@ Esses itens devem gerar texto técnico e relatório, não item comercial automat
 ### Free
 
 - Fundamentos elétricos.
-- Medições de obra.
-- Materiais de obra básicos.
+- Construção civil básica.
 - Pintura.
 - Hidráulica básica.
 - Conversores técnicos.
@@ -93,7 +94,7 @@ Esses itens devem gerar texto técnico e relatório, não item comercial automat
 - Solar.
 - Rebobinagem.
 - Instalações hidráulicas avançadas.
-- Composição de obra avançada.
+- Composição de obra avançada dentro do módulo de construção.
 - Preço e margem avançado dentro do módulo financeiro.
 - Assistentes de diagnóstico.
 
