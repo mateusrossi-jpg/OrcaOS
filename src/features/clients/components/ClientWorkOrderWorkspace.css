@@ -9,31 +9,35 @@
 .client-os-panel {
   display: grid;
   gap: 14px;
-  border: 1px solid #d6e0eb;
+  border: 1px solid var(--orca-border, rgba(187, 247, 208, 0.12));
   border-radius: 24px;
   padding: 16px;
-  background: #ffffff;
-  box-shadow: 0 1px 0 rgba(15, 31, 51, 0.02);
+  background:
+    radial-gradient(circle at top right, rgba(34, 197, 94, 0.06), transparent 12rem),
+    linear-gradient(145deg, var(--orca-surface, #101713), var(--orca-surface-2, #151f19));
+  box-shadow: none;
 }
 
 .active-os-panel {
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  border-color: #cfe0f8;
-  background: linear-gradient(135deg, #eff7ff, #ffffff);
+  border-color: var(--orca-border-strong, rgba(34, 197, 94, 0.34));
+  background:
+    radial-gradient(circle at top right, rgba(34, 197, 94, 0.13), transparent 14rem),
+    linear-gradient(145deg, var(--orca-surface, #101713), var(--orca-surface-2, #151f19));
 }
 
 .active-os-panel h2,
 .client-os-panel h2 {
   margin: 0;
-  color: #0b1d31;
+  color: var(--orca-text, #f8fafc);
   font-size: 1.28rem;
 }
 
 .active-os-panel p,
 .client-os-panel p {
   margin: 6px 0 0;
-  color: #607085;
+  color: var(--orca-muted, #a7b3ad);
   line-height: 1.45;
 }
 
@@ -43,7 +47,7 @@
 }
 
 .active-os-panel p strong {
-  color: #0b1d31;
+  color: var(--orca-text, #f8fafc);
 }
 
 .client-os-panel-header {
@@ -67,11 +71,11 @@
 }
 
 .client-os-empty {
-  border: 1px dashed #9fb2c9;
+  border: 1px dashed var(--orca-border-strong, rgba(34, 197, 94, 0.34));
   border-radius: 18px;
   padding: 14px;
-  color: #607085;
-  background: #f8fafc;
+  color: var(--orca-muted, #a7b3ad);
+  background: rgba(7, 11, 9, 0.36);
   font-weight: 850;
 }
 
@@ -80,15 +84,17 @@
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 14px;
   align-items: center;
-  border: 1px solid #d6e0eb;
+  border: 1px solid var(--orca-border, rgba(187, 247, 208, 0.12));
   border-radius: 20px;
   padding: 14px;
-  background: #f8fafc;
+  background: var(--orca-surface, #101713);
 }
 
 .client-os-card.active {
-  border-color: #2267ce;
-  background: #eef5ff;
+  border-color: var(--orca-border-strong, rgba(34, 197, 94, 0.34));
+  background:
+    radial-gradient(circle at top right, rgba(34, 197, 94, 0.12), transparent 10rem),
+    var(--orca-surface-2, #151f19);
 }
 
 .client-os-card strong,
@@ -97,14 +103,14 @@
 }
 
 .client-os-card strong {
-  color: #0b1d31;
+  color: var(--orca-text, #f8fafc);
   font-size: 1.05rem;
   line-height: 1.25;
 }
 
 .client-os-card small {
   margin-top: 4px;
-  color: #607085;
+  color: var(--orca-muted, #a7b3ad);
   line-height: 1.35;
 }
 
@@ -116,10 +122,10 @@
 
 .client-os-actions select {
   min-height: 42px;
-  border: 1px solid #d6e0eb;
+  border: 1px solid var(--orca-border, rgba(187, 247, 208, 0.12));
   border-radius: 14px;
-  color: #0b1d31;
-  background: #ffffff;
+  color: var(--orca-text, #f8fafc);
+  background: var(--orca-surface-2, #151f19);
   font: inherit;
   font-weight: 850;
   padding: 8px 10px;

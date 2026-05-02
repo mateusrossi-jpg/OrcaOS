@@ -306,7 +306,7 @@ function ReportsScreen({ captures, context }: { captures: CalculationCapture[]; 
 }
 
 function ClientsScreen({ onContextChange }: { onContextChange: (clients: Client[], workOrders: WorkOrder[], activeWorkOrderId: string | null) => void }) {
-  return <section className="app-screen wide-screen"><header className="screen-header"><span className="orca-kicker">Clientes e OS</span><h1>Atendimentos</h1><p>Cadastre clientes, crie ordens de serviço e selecione o atendimento ativo.</p></header><ClientWorkOrderWorkspace onContextChange={onContextChange} /></section>;
+  return <section className="app-screen wide-screen"><header className="screen-header"><span className="orca-kicker">Início do serviço</span><h1>Atendimentos</h1><p>Escolha o cliente e a OS ativa antes de calcular, levantar campo, orçar ou gerar relatório.</p></header><ClientWorkOrderWorkspace onContextChange={onContextChange} /></section>;
 }
 
 function StoreScreen() {

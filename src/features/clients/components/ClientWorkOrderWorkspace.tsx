@@ -206,6 +206,7 @@ export function ClientWorkOrderWorkspace({ onContextChange }: ClientWorkOrderWor
     <div className="client-os-workspace refined-client-os">
       <section className="active-os-panel client-os-hero-panel">
         <div>
+          <span className="orca-kicker">Contexto ativo</span>
           <h2>Atendimento atual</h2>
           {activeWorkOrder ? (
             <p>
@@ -241,6 +242,7 @@ export function ClientWorkOrderWorkspace({ onContextChange }: ClientWorkOrderWor
         <section className="client-os-panel client-os-dashboard-panel">
           <div className="client-os-panel-header">
             <div>
+              <span className="orca-kicker">Primeiro passo</span>
               <h2>Resumo operacional</h2>
               <p>Use esta área para iniciar rapidamente um atendimento, criar uma OS ou retornar para a lista de ordens em aberto.</p>
             </div>
