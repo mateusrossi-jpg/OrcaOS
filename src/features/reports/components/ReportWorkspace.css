@@ -251,6 +251,10 @@
     display: grid;
   }
 
+  .report-summary-panel .inline-action {
+    width: 100%;
+  }
+
   .report-document {
     border-radius: 22px;
     padding: 16px;

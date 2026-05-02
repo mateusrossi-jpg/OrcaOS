@@ -2461,3 +2461,83 @@ button {
   color: #111827 !important;
   box-shadow: none !important;
 }
+
+.app-screen :where(button, .inline-action, .secondary-action, .primary-action, .danger-action, input, select, textarea) {
+  touch-action: manipulation;
+}
+
+.app-screen :where(button, .inline-action, .secondary-action, .primary-action, .danger-action) {
+  min-height: 44px;
+}
+
+.app-screen :where(input, select, textarea) {
+  min-height: 44px;
+}
+
+@media (max-width: 720px) {
+  .professional-app-content {
+    padding: 14px 10px calc(22px + env(safe-area-inset-bottom));
+  }
+
+  .app-screen {
+    gap: 14px;
+  }
+
+  .screen-header {
+    gap: 6px;
+  }
+
+  .settings-row,
+  .store-card,
+  .account-status-grid,
+  .settings-form-grid,
+  .settings-actions-row,
+  .general-capture-actions {
+    grid-template-columns: 1fr !important;
+  }
+
+  .settings-row,
+  .store-card {
+    gap: 12px !important;
+  }
+
+  .store-card button,
+  .settings-actions-row button,
+  .general-capture-actions button,
+  .account-email-card button {
+    width: 100%;
+  }
+
+  .app-screen :where(.settings-group, .local-backup-workspace, .professional-profile-workspace, .client-os-workspace, .budget-workspace, .report-workspace) {
+    min-width: 0;
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 520px) {
+  .professional-app-content {
+    padding-inline: 8px;
+  }
+
+  .screen-header h1,
+  .home-hero h1,
+  .module-detail-header h1 {
+    font-size: clamp(1.65rem, 9vw, 2.25rem) !important;
+    line-height: 1.05;
+  }
+
+  .screen-header p,
+  .home-hero p,
+  .module-detail-header p {
+    font-size: 0.95rem;
+  }
+
+  .app-screen :where(.settings-group, .local-backup-card, .local-backup-preview, .local-backup-warning, .professional-profile-card, .client-os-panel, .active-os-panel, .budget-section-panel) {
+    border-radius: 18px !important;
+  }
+
+  .app-screen :where(.calculator-overlay-panel, .general-overlay-panel, .fundamental-overlay-panel, .human-overlay-panel) {
+    width: calc(100vw - 10px) !important;
+    max-width: calc(100vw - 10px) !important;
+  }
+}
