@@ -425,8 +425,6 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
       <div className="budget-workspace-tabs">
         <button className={activeSection === 'proposal' ? 'active' : ''} type="button" onClick={() => setActiveSection('proposal')}>Dados</button>
         <button className={activeSection === 'items' ? 'active' : ''} type="button" onClick={() => setActiveSection('items')}>Itens</button>
-        <button className={activeSection === 'catalog' ? 'active' : ''} type="button" onClick={() => setActiveSection('catalog')}>Catálogo</button>
-        <button className={activeSection === 'company' ? 'active' : ''} type="button" onClick={() => setActiveSection('company')}>Empresa</button>
         <button className={activeSection === 'models' ? 'active' : ''} type="button" onClick={() => setActiveSection('models')}>Modelos</button>
         <button className={activeSection === 'preview' ? 'active' : ''} type="button" onClick={() => setActiveSection('preview')}>Prévia</button>
       </div>

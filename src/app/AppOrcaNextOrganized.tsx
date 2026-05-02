@@ -57,12 +57,12 @@ function HomeScreen({ goTo, openModule, captures, clients, workOrders }: { goTo:
         <div className="orca-dashboard-value-card"><span>Hoje no app</span><strong>{captures.length + workOrders.length}</strong><small>registros técnicos e atendimentos</small><div className="mini-sparkline" aria-hidden="true"><i /><i /><i /><i /><i /></div></div>
       </div>
       <div className="orca-workflow-steps">
-        <button type="button" className="orca-step-card" onClick={() => goTo('clients')}><span className="orca-step-number">1</span><strong>Cliente / OS</strong><small>Escolha o atendimento ativo.</small></button>
+        <button type="button" className="orca-step-card" onClick={() => goTo('clients')}><span className="orca-step-number">1</span><strong>Atendimento</strong><small>Escolha cliente e OS.</small></button>
         <button type="button" className="orca-step-card" onClick={() => goTo('calculations')}><span className="orca-step-number">2</span><strong>Cálculos</strong><small>Abra por setor técnico.</small></button>
         <button type="button" className="orca-step-card" onClick={() => goTo('survey')}><span className="orca-step-number">3</span><strong>Levantamento</strong><small>Ambientes, serviços e materiais.</small></button>
         <button type="button" className="orca-step-card" onClick={() => goTo('budgets')}><span className="orca-step-number">4</span><strong>Orçamento</strong><small>Revise e monte a proposta.</small></button>
       </div>
-      <div className="orca-kpi-grid"><article><span>Cálculos salvos</span><strong>{captures.length}</strong><small>fluxo técnico</small></article><article><span>Levantamentos</span><strong>{surveyItems}</strong><small>itens prontos</small></article><article><span>Orçamentos</span><strong>{budgetItems}</strong><small>base comercial</small></article><article><span>Clientes / OS</span><strong>{clients.length}/{openWorkOrders}</strong><small>clientes e OS abertas</small></article></div>
+      <div className="orca-kpi-grid"><article><span>Cálculos salvos</span><strong>{captures.length}</strong><small>fluxo técnico</small></article><article><span>Levantamentos</span><strong>{surveyItems}</strong><small>itens prontos</small></article><article><span>Orçamentos</span><strong>{budgetItems}</strong><small>base comercial</small></article><article><span>Atendimentos</span><strong>{clients.length}/{openWorkOrders}</strong><small>clientes e OS abertas</small></article></div>
       <div className="orca-quick-actions"><button type="button" onClick={() => openModule(calculationModules[0])}><span><strong>Fundamentos</strong><small>cálculos livres</small></span></button><button type="button" onClick={() => openModule(calculationModules[9])}><span><strong>Hidráulica</strong><small>7 cálculos novos</small></span></button><button type="button" onClick={() => goTo('survey')}><span><strong>Levantamento</strong><small>serviços e peças</small></span></button><button type="button" onClick={() => goTo('budgets')}><span><strong>Orçamento</strong><small>proposta e PDF</small></span></button></div>
       <div className="orca-home-columns"><section className="orca-panel-card"><header><div><span className="orca-kicker">Atividade</span><h2>Recentes</h2></div><button type="button" onClick={() => goTo('survey')}>Abrir levantamento</button></header><div className="orca-activity-list">{recentItems.length === 0 ? <article><div><strong>Comece pelo fluxo principal</strong><small>Crie uma OS, faça um cálculo ou lance um item no levantamento.</small></div></article> : recentItems.map((capture) => <article key={capture.id}><div><strong>{capture.calculatorLabel}</strong><small>{capture.summary}</small></div><em>{capture.destination === 'both' ? 'Ambos' : capture.destination === 'budget' ? 'Orç.' : 'Levant.'}</em></article>)}</div></section></div>
     </section>
@@ -142,7 +142,7 @@ function BudgetsScreen({ captures, context, onRemove, onUpdate }: { captures: Ca
 }
 
 function CatalogScreen({ onAddMany }: { onAddMany: (items: CalculationCapture[]) => void }) {
-  return <section className="app-screen wide-screen"><header className="screen-header"><span className="orca-kicker">Gestão operacional</span><h1>Catálogo</h1><p>Centralize itens recorrentes, fornecedores, compras, impostos, margem e base de estoque para apoiar orçamentos.</p></header><CatalogHubWorkspace onSendToBudget={onAddMany} /></section>;
+  return <section className="app-screen wide-screen"><header className="screen-header"><span className="orca-kicker">Gestão operacional</span><h1>Catálogo</h1><p>Organize itens, fornecedores, compras, impostos e margem em áreas separadas.</p></header><CatalogHubWorkspace onSendToBudget={onAddMany} /></section>;
 }
 
 function ReportsScreen({ captures, context }: { captures: CalculationCapture[]; context: { activeClient: Client | null; activeWorkOrder: WorkOrder | null } }) {
@@ -150,7 +150,7 @@ function ReportsScreen({ captures, context }: { captures: CalculationCapture[]; 
 }
 
 function ClientsScreen({ onContextChange }: { onContextChange: (clients: Client[], workOrders: WorkOrder[], activeWorkOrderId: string | null) => void }) {
-  return <section className="app-screen wide-screen"><header className="screen-header"><span className="orca-kicker">Atendimentos</span><h1>Clientes / OS</h1><p>Cadastre clientes, crie ordens de serviço e selecione o atendimento ativo.</p></header><ClientWorkOrderWorkspace onContextChange={onContextChange} /></section>;
+  return <section className="app-screen wide-screen"><header className="screen-header"><span className="orca-kicker">Clientes e OS</span><h1>Atendimentos</h1><p>Cadastre clientes, crie ordens de serviço e selecione o atendimento ativo.</p></header><ClientWorkOrderWorkspace onContextChange={onContextChange} /></section>;
 }
 
 function StoreScreen() {
@@ -158,7 +158,7 @@ function StoreScreen() {
 }
 
 function SettingsScreen() {
-  return <section className="app-screen wide-screen"><header className="screen-header"><span className="orca-kicker">Preferências</span><h1>Configurações</h1><p>Conta, histórico, informações do app e roadmap.</p></header><div className="settings-group"><h2>Conta</h2><article className="settings-row"><span><strong>Meu plano</strong><small>Grátis · base inicial ativa</small></span></article><article className="settings-row"><span><strong>Roadmap</strong><small>OrçaOS, módulos profissionais, relatórios e OS</small></span></article></div><LocalBackupWorkspace /></section>;
+  return <section className="app-screen wide-screen"><header className="screen-header"><span className="orca-kicker">Preferências</span><h1>Configurações</h1><p>Perfil profissional, backup, plano e preferências do app.</p></header><div className="settings-group"><h2>Conta</h2><article className="settings-row"><span><strong>Meu plano</strong><small>Grátis · base inicial ativa</small></span></article><article className="settings-row"><span><strong>Roadmap</strong><small>OrçaOS, módulos profissionais, relatórios e OS</small></span></article></div><LocalBackupWorkspace /></section>;
 }
 
 export function App() {

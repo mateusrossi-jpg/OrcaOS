@@ -568,6 +568,11 @@ button {
   gap: 12px;
 }
 
+.catalog-hub-organized {
+  display: grid;
+  gap: 14px;
+}
+
 .settings-group h2,
 .section-title-row h2 {
   color: var(--orca-muted);
