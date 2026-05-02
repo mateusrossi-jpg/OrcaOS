@@ -3,15 +3,16 @@ import type { AppTab, CalculationSectorGroup, ModuleCardData, ModulePlan } from 
 
 export const userPlan: UserPlan = 'free';
 
-export const navItems: Array<{ id: AppTab; label: string; description: string; icon: string }> = [
-  { id: 'home', label: 'Início', description: 'Visão do dia e ações rápidas', icon: '⌂' },
-  { id: 'clients', label: 'Clientes / OS', description: 'Atendimentos e histórico', icon: '◉' },
-  { id: 'calculations', label: 'Cálculos', description: 'Módulos e calculadoras', icon: '▦' },
-  { id: 'survey', label: 'Levantamento', description: 'Campo, ambientes, mão de obra e peças', icon: '▤' },
-  { id: 'budgets', label: 'Orçamentos', description: 'Proposta comercial', icon: '▣' },
-  { id: 'reports', label: 'Relatórios', description: 'PDFs e diagnósticos', icon: '◫' },
-  { id: 'settings', label: 'Configurações', description: 'Conta, backup e cadastros', icon: '⚙' },
-  { id: 'store', label: 'Loja / Pro', description: 'Pacotes e planos', icon: '◆' },
+export const navItems: Array<{ id: AppTab; label: string; description: string; icon: string; section?: string }> = [
+  { id: 'home', label: 'Início', description: 'Visão do dia e ações rápidas', icon: '⌂', section: 'Trabalho' },
+  { id: 'clients', label: 'Clientes / OS', description: 'Atendimentos e histórico', icon: '◉', section: 'Trabalho' },
+  { id: 'calculations', label: 'Cálculos', description: 'Setores técnicos e calculadoras', icon: '▦', section: 'Técnico' },
+  { id: 'survey', label: 'Levantamento', description: 'Campo, ambientes e itens', icon: '▤', section: 'Técnico' },
+  { id: 'budgets', label: 'Orçamentos', description: 'Proposta comercial', icon: '▣', section: 'Comercial' },
+  { id: 'catalog', label: 'Catálogo / Estoque', description: 'Itens, fornecedores e compras', icon: '▥', section: 'Comercial' },
+  { id: 'reports', label: 'Relatórios', description: 'PDFs e diagnósticos', icon: '◫', section: 'Comercial' },
+  { id: 'settings', label: 'Configurações', description: 'Conta, backup e cadastros', icon: '⚙', section: 'Sistema' },
+  { id: 'store', label: 'Loja / Pro', description: 'Pacotes e planos', icon: '◆', section: 'Sistema' },
 ];
 
 export const calculationModules: ModuleCardData[] = [

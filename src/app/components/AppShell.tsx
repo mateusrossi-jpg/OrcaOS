@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { Fragment, useEffect, useState, type ReactNode } from 'react';
 import type { Client, WorkOrder } from '../../core/types/business';
 import './AppShell.css';
 
@@ -7,6 +7,7 @@ export interface AppShellNavItem<T extends string> {
   label: string;
   description: string;
   icon?: ReactNode;
+  section?: string;
 }
 
 interface AppShellProps<T extends string> {
@@ -100,15 +101,19 @@ export function AppShell<T extends string>({
         </div>
 
         <nav className="drawer-nav" aria-label="Menu principal">
-          {navItems.map((item) => {
+          {navItems.map((item, index) => {
             const active = activeTab === item.id;
+            const showSection = item.section && item.section !== navItems[index - 1]?.section;
             return (
-              <button className={active ? 'active' : ''} key={item.id} type="button" onClick={() => navigate(item.id)}>
-                <span>
-                  <strong>{item.label}</strong>
-                  <small>{item.description}</small>
-                </span>
-              </button>
+              <Fragment key={item.id}>
+                {showSection && <span className="drawer-nav-heading">{item.section}</span>}
+                <button className={active ? 'active' : ''} type="button" onClick={() => navigate(item.id)}>
+                  <span>
+                    <strong>{item.label}</strong>
+                    <small>{item.description}</small>
+                  </span>
+                </button>
+              </Fragment>
             );
           })}
         </nav>

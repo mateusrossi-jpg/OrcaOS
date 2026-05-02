@@ -5,10 +5,12 @@
 
 .material-supply-header,
 .material-supply-note {
-  border: 1px solid rgba(148, 163, 184, 0.18);
+  border: 1px solid var(--orca-border, rgba(187, 247, 208, 0.12));
   border-radius: 24px;
-  background: linear-gradient(145deg, rgba(15, 23, 42, 0.94), rgba(2, 6, 23, 0.98));
-  box-shadow: 0 20px 60px rgba(2, 6, 23, 0.2);
+  background:
+    radial-gradient(circle at top right, rgba(34, 197, 94, 0.055), transparent 13rem),
+    linear-gradient(145deg, var(--orca-surface, #101713), var(--orca-surface-2, #151f19));
+  box-shadow: none;
 }
 
 .material-supply-header {
@@ -23,13 +25,13 @@
 .material-supply-header strong,
 .material-supply-note strong,
 .material-supply-option strong {
-  color: #f8fafc;
+  color: var(--orca-text, #f8fafc);
 }
 
 .material-supply-header p,
 .material-supply-note small,
 .material-supply-option small {
-  color: #94a3b8;
+  color: var(--orca-muted, #a7b3ad);
 }
 
 .material-supply-options {
@@ -43,9 +45,9 @@
   gap: 7px;
   min-height: 126px;
   text-align: left;
-  border: 1px solid rgba(148, 163, 184, 0.18);
+  border: 1px solid var(--orca-border, rgba(187, 247, 208, 0.12));
   border-radius: 20px;
-  background: rgba(15, 23, 42, 0.72);
+  background: var(--orca-surface, #101713);
   padding: 14px;
   cursor: pointer;
 }

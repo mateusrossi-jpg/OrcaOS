@@ -10,11 +10,12 @@ import { GeneralCalculatorWorkspace, type GeneralCalculatorModule } from '../fea
 import { GeneralFundamentalsWorkspace } from '../features/calculators/components/GeneralFundamentalsWorkspace';
 import { PaintingHumanWorkspace } from '../features/calculators/components/PaintingHumanWorkspace';
 import { HydraulicsCalculatorWorkspace } from '../features/calculators/components/StableHydraulicsCalculatorWorkspace';
+import { CatalogHubWorkspace } from '../features/catalog/components/CatalogHubWorkspaceWithTax';
 import { ClientWorkOrderWorkspace } from '../features/clients/components/ClientWorkOrderWorkspace';
 import { loadActiveWorkOrderId, loadClients, loadWorkOrders } from '../features/clients/storage/clientWorkOrderStorage';
 import { ReportWorkspace } from '../features/reports/components/ReportWorkspace';
 import { LocalBackupWorkspace } from '../features/settings/components/LocalBackupWorkspace';
-import { GuidedBudgetCart } from '../features/workflow/components/GuidedBudgetCart';
+import { GuidedBudgetCartRoomAutoBridge } from '../features/workflow/components/GuidedBudgetCartRoomAutoBridge';
 import { GuidedRoomManager } from '../features/workflow/components/GuidedRoomManager';
 import { MaterialSupplyModeBridge } from '../features/workflow/components/MaterialSupplyModeBridge';
 import { TechnicalCaptureList } from '../features/workflow/components/TechnicalCaptureList';
@@ -121,9 +122,9 @@ function SurveyScreen({ captures, context, onRemove, onUpdate, onAddMany }: { ca
         <button className={activeSection === 'review' ? 'active' : ''} type="button" onClick={() => setActiveSection('review')}>Revisão</button>
       </div>
       {activeSection === 'context' && <><div className="survey-intro-card"><span className="app-icon tone-green">▤</span><span><strong>Ambientes são o contexto do serviço</strong><small>Defina cômodos, áreas e locais para orientar serviços, materiais e observações.</small></span></div><GuidedRoomManager /></>}
-      {activeSection === 'labor' && <><div className="survey-intro-card"><span className="app-icon tone-orange">▣</span><span><strong>Serviços representam mão de obra</strong><small>Adicione tarefas, quantidades e valores que poderão compor o orçamento.</small></span></div><GuidedBudgetCart mode="catalog" onSendToBudget={onAddMany} /></>}
+      {activeSection === 'labor' && <><div className="survey-intro-card"><span className="app-icon tone-orange">▣</span><span><strong>Serviços representam mão de obra</strong><small>Adicione tarefas, quantidades e valores que poderão compor o orçamento.</small></span></div><GuidedBudgetCartRoomAutoBridge mode="catalog" onSendToBudget={onAddMany} /></>}
       {activeSection === 'materials' && <><div className="survey-intro-card"><span className="app-icon tone-blue">▧</span><span><strong>Materiais e peças</strong><small>Separe itens fornecidos pelo profissional, pelo cliente ou em lista mista.</small></span></div><MaterialSupplyModeBridge mode="parts" onSendToBudget={onAddMany} /></>}
-      {activeSection === 'notes' && <><div className="survey-intro-card"><span className="app-icon tone-gray">◌</span><span><strong>Observações técnicas</strong><small>Use este bloco para diagnóstico, recomendações, riscos, fotos e itens que precisam aparecer no relatório.</small></span></div><GuidedBudgetCart mode="manual" onSendToBudget={onAddMany} /></>}
+      {activeSection === 'notes' && <><div className="survey-intro-card"><span className="app-icon tone-gray">◌</span><span><strong>Observações técnicas</strong><small>Use este bloco para diagnóstico, recomendações, riscos, fotos e itens que precisam aparecer no relatório.</small></span></div><GuidedBudgetCartRoomAutoBridge mode="manual" onSendToBudget={onAddMany} /></>}
       {activeSection === 'review' && <><div className="survey-intro-card"><span className="app-icon tone-blue">✓</span><span><strong>Revisão do levantamento</strong><small>{surveyCaptures.length} item(ns) salvos para relatório, orçamento ou lista do cliente.</small></span></div><TechnicalCaptureList captures={surveyCaptures} emptyText="Use ambientes, serviços, materiais ou observações para montar o levantamento." onRemove={onRemove} onUpdate={onUpdate} /></>}
     </section>
   );
@@ -133,6 +134,10 @@ function BudgetsScreen({ captures, context, onRemove, onUpdate }: { captures: Ca
   const [activeSection, setActiveSection] = useState<BudgetSection>('workspace');
   const budgetCaptures = captures.filter((capture) => capture.destination === 'budget' || capture.destination === 'both');
   return <section className="app-screen wide-screen"><header className="screen-header"><span className="orca-kicker">Editor de proposta</span><h1>Orçamentos</h1><p>Monte a proposta comercial a partir dos itens técnicos.</p></header><ActiveWorkContextCard {...context} /><div className="section-mode-tabs"><button className={activeSection === 'workspace' ? 'active' : ''} type="button" onClick={() => setActiveSection('workspace')}>Montar proposta</button><button className={activeSection === 'technical' ? 'active' : ''} type="button" onClick={() => setActiveSection('technical')}>Itens técnicos</button></div>{activeSection === 'technical' && <><div className="survey-intro-card"><span className="app-icon tone-orange">▣</span><span><strong>Base técnica</strong><small>{budgetCaptures.length} item(ns) enviados para orçamento.</small></span></div><TechnicalCaptureList captures={budgetCaptures} emptyText="Abra um cálculo ou use o levantamento guiado." onRemove={onRemove} onUpdate={onUpdate} /></>}{activeSection === 'workspace' && <BudgetWorkspaceClientBridge technicalCaptures={budgetCaptures} activeClient={context.activeClient} activeWorkOrder={context.activeWorkOrder} onTechnicalCaptureConverted={(id) => onUpdate(id, { convertedToBudgetItem: true })} />}</section>;
+}
+
+function CatalogScreen({ onAddMany }: { onAddMany: (items: CalculationCapture[]) => void }) {
+  return <section className="app-screen wide-screen"><header className="screen-header"><span className="orca-kicker">Gestão operacional</span><h1>Catálogo</h1><p>Centralize itens recorrentes, fornecedores, compras, impostos, margem e base de estoque para apoiar orçamentos.</p></header><CatalogHubWorkspace onSendToBudget={onAddMany} /></section>;
 }
 
 function ReportsScreen({ captures, context }: { captures: CalculationCapture[]; context: { activeClient: Client | null; activeWorkOrder: WorkOrder | null } }) {
@@ -203,6 +208,7 @@ export function App() {
       {activeTab === 'calculations' && <CalculationsScreen selectedModule={selectedModule} openModule={openModule} activeSector={activeSector} onSelectSector={setActiveSector} goTo={goTo} onCaptureCalculation={addCalculationCapture} />}
       {activeTab === 'survey' && <SurveyScreen captures={captures} context={context} onRemove={removeCalculationCapture} onUpdate={updateCalculationCapture} onAddMany={addManyCalculationCaptures} />}
       {activeTab === 'budgets' && <BudgetsScreen captures={captures} context={context} onRemove={removeCalculationCapture} onUpdate={updateCalculationCapture} />}
+      {activeTab === 'catalog' && <CatalogScreen onAddMany={addManyCalculationCaptures} />}
       {activeTab === 'reports' && <ReportsScreen captures={captures} context={context} />}
       {activeTab === 'clients' && <ClientsScreen onContextChange={(nextClients, nextWorkOrders, nextActiveWorkOrderId) => { setClients(nextClients); setWorkOrders(nextWorkOrders); setActiveWorkOrderId(nextActiveWorkOrderId); }} />}
       {activeTab === 'store' && <StoreScreen />}

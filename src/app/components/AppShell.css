@@ -264,6 +264,19 @@ body,
   min-width: 0;
 }
 
+.drawer-nav-heading {
+  margin: 8px 4px 0;
+  color: var(--orca-primary);
+  font-size: 0.68rem;
+  font-weight: 950;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.drawer-nav-heading:first-child {
+  margin-top: 0;
+}
+
 .drawer-nav button {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
