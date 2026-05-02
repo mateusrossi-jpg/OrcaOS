@@ -37,6 +37,11 @@ export type CalculatorModule =
   | 'conversores'
   | 'orcamentoTecnico'
   | 'hidraulica'
+  | 'eletricaResidencial'
+  | 'financeiroAvancado'
+  | 'construcaoAvancada'
+  | 'hidraulicaAvancada'
+  | 'conversoresAvancados'
   | 'transformadores'
   | 'solar'
   | 'diagnosticoTecnico';
