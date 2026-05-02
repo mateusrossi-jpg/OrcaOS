@@ -1,6 +1,13 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { CalculationCapture, CalculationDestination, TechnicalItemType } from '../../../core/types/workflow';
 import { catalogPartBrands, catalogPartCategories, searchCatalogParts, type CatalogPart } from '../../../data/parts/catalogParts';
+import {
+  createGuidedLaborTemplate,
+  loadGuidedLaborTemplates,
+  saveGuidedLaborTemplates,
+  starterGuidedLaborTemplates,
+  type GuidedLaborTemplate,
+} from '../storage/guidedLaborTemplatesStorage';
 import { loadGuidedRooms } from '../storage/guidedRoomsStorage';
 import './GuidedBudgetCart.css';
 import './GuidedBudgetCartGrouped.css';
@@ -28,14 +35,6 @@ interface GuidedLine {
   model?: string;
 }
 
-interface LaborTemplate {
-  id: string;
-  title: string;
-  defaultUnitValue: number;
-  unit: string;
-  note: string;
-}
-
 interface KitTemplate {
   id: KitId;
   title: string;
@@ -46,17 +45,6 @@ interface KitTemplate {
 
 const currencyFormatter = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
 const kitBrands = ['Margirius', 'Tramontina', 'Schneider', 'WEG', 'Steck', 'Intelbras', 'Outra'];
-
-const laborTemplates: LaborTemplate[] = [
-  { id: 'tomada-circuito', title: 'Lançamento de circuito de tomada', defaultUnitValue: 120, unit: 'ponto', note: 'Passagem/lançamento de circuito de tomada conforme levantamento em campo.' },
-  { id: 'tomada-troca', title: 'Troca/instalação de tomada', defaultUnitValue: 45, unit: 'ponto', note: 'Instalação ou substituição de tomada, considerar material à parte.' },
-  { id: 'spot-led', title: 'Instalação de spot/lâmpada', defaultUnitValue: 45, unit: 'ponto', note: 'Instalação de spot, luminária simples ou ponto de iluminação.' },
-  { id: 'lustre', title: 'Instalação de lustre/luminária decorativa', defaultUnitValue: 120, unit: 'un.', note: 'Instalação de lustre/luminária decorativa, validar peso, altura e fixação.' },
-  { id: 'interruptor', title: 'Instalação de interruptor', defaultUnitValue: 45, unit: 'ponto', note: 'Instalação/substituição de interruptor simples, paralelo ou intermediário.' },
-  { id: 'disjuntor', title: 'Instalação de disjuntor/circuito no quadro', defaultUnitValue: 95, unit: 'circuito', note: 'Serviço no quadro, validar espaço, barramentos, DR/DPS e segurança.' },
-  { id: 'canaleta', title: 'Instalação de canaleta aparente', defaultUnitValue: 18, unit: 'm', note: 'Instalação aparente por metro linear, sem considerar material.' },
-  { id: 'ponto-rede', title: 'Ponto de rede/baixa tensão', defaultUnitValue: 95, unit: 'ponto', note: 'Instalação de ponto de rede/baixa tensão, validar cabo, conector e teste.' },
-];
 
 const emptyManualPart = {
   title: '',
@@ -261,6 +249,9 @@ export function GuidedBudgetCart({ onSendToBudget, mode = 'all' }: GuidedBudgetC
   const [customEnvironment, setCustomEnvironment] = useState('');
   const [lines, setLines] = useState<GuidedLine[]>([]);
   const [feedback, setFeedback] = useState<string | null>(null);
+  const [laborTemplates, setLaborTemplates] = useState<GuidedLaborTemplate[]>(() => loadGuidedLaborTemplates());
+  const [showLaborManager, setShowLaborManager] = useState(false);
+  const [newLaborTemplate, setNewLaborTemplate] = useState({ title: '', defaultUnitValue: '', unit: 'ponto', note: '' });
   const [laborQuantityById, setLaborQuantityById] = useState<Record<string, string>>({});
   const [laborValueById, setLaborValueById] = useState<Record<string, string>>({});
   const [manualPart, setManualPart] = useState(emptyManualPart);
@@ -277,6 +268,7 @@ export function GuidedBudgetCart({ onSendToBudget, mode = 'all' }: GuidedBudgetC
   const showParts = mode === 'parts' || mode === 'all';
   const activeEnvironment = customEnvironment.trim() || environment || savedRoomNames[0] || 'Sem ambiente';
   const selectedKit = kitTemplates.find((kit) => kit.id === selectedKitId) ?? kitTemplates[0];
+  const visibleLaborTemplates = laborTemplates.filter((template) => template.visible);
   const partResults = useMemo(() => searchCatalogParts(partQuery, partBrand, partCategory), [partBrand, partCategory, partQuery]);
   const environmentGroups = useMemo(() => {
     const groups = new Map<string, GuidedLine[]>();
@@ -293,6 +285,10 @@ export function GuidedBudgetCart({ onSendToBudget, mode = 'all' }: GuidedBudgetC
   }, [lines]);
   const totalValue = environmentGroups.reduce((sum, group) => sum + group.subtotal, 0);
   const totalQuantity = environmentGroups.reduce((sum, group) => sum + group.totalQuantity, 0);
+
+  useEffect(() => {
+    saveGuidedLaborTemplates(laborTemplates);
+  }, [laborTemplates]);
 
   function quantityInCurrentEnvironment(description: string, itemType?: TechnicalItemType): number {
     return lines
@@ -311,7 +307,41 @@ export function GuidedBudgetCart({ onSendToBudget, mode = 'all' }: GuidedBudgetC
     setLines((current) => nextLines.reduce((merged, line) => mergeLineInto(merged, { ...line, id: createId('guided-kit-line'), environment: activeEnvironment }), current));
   }
 
-  function addLabor(template: LaborTemplate) {
+  function updateLaborTemplate(id: string, patch: Partial<Pick<GuidedLaborTemplate, 'title' | 'defaultUnitValue' | 'unit' | 'note' | 'visible'>>) {
+    setLaborTemplates((current) => current.map((template) => (
+      template.id === id ? { ...template, ...patch, updatedAt: new Date().toISOString() } : template
+    )));
+  }
+
+  function addLaborTemplate() {
+    const title = newLaborTemplate.title.trim();
+    const defaultUnitValue = parseDecimal(newLaborTemplate.defaultUnitValue, 0);
+    const unit = newLaborTemplate.unit.trim() || 'un.';
+    if (!title) {
+      setFeedback('Informe o nome do serviço para cadastrar na mão de obra guiada.');
+      return;
+    }
+
+    const template = createGuidedLaborTemplate({
+      title,
+      defaultUnitValue,
+      unit,
+      note: newLaborTemplate.note.trim() || 'Serviço personalizado criado na mão de obra guiada.',
+      visible: true,
+    });
+
+    setLaborTemplates((current) => [template, ...current]);
+    setLaborValueById((current) => ({ ...current, [template.id]: String(template.defaultUnitValue) }));
+    setNewLaborTemplate({ title: '', defaultUnitValue: '', unit: 'ponto', note: '' });
+    setFeedback('Serviço cadastrado e liberado para seleção.');
+  }
+
+  function restoreStarterLaborTemplates() {
+    setLaborTemplates(starterGuidedLaborTemplates);
+    setFeedback('Lista padrão de mão de obra restaurada.');
+  }
+
+  function addLabor(template: GuidedLaborTemplate) {
     const quantity = parseDecimal(laborQuantityById[template.id] ?? '1', 1);
     const unitValue = parseDecimal(laborValueById[template.id] ?? String(template.defaultUnitValue), template.defaultUnitValue);
     if (quantity <= 0) return;
@@ -398,12 +428,86 @@ export function GuidedBudgetCart({ onSendToBudget, mode = 'all' }: GuidedBudgetC
 
       {showCatalog && (
         <div className="guided-manual-block-card">
-          <div>
-            <strong>Mão de obra guiada</strong>
-            <small>Clique para somar serviços. A quantidade lançada aparece no próprio card.</small>
+          <div className="guided-labor-toolbar">
+            <div>
+              <strong>Mão de obra guiada</strong>
+              <small>Cadastre serviços, defina valores base e deixe visível só o que vai usar no levantamento.</small>
+            </div>
+            <div className="guided-labor-actions">
+              <span>{visibleLaborTemplates.length} de {laborTemplates.length} visíveis</span>
+              <button className="secondary-action inline-action" type="button" onClick={() => setShowLaborManager((current) => !current)}>
+                {showLaborManager ? 'Fechar ajustes' : 'Gerenciar serviços'}
+              </button>
+            </div>
           </div>
-          <div className="guided-service-grid">
-            {laborTemplates.map((template) => {
+
+          {showLaborManager && (
+            <div className="guided-labor-manager">
+              <div className="guided-labor-new">
+                <div>
+                  <strong>Novo tipo de trabalho</strong>
+                  <small>O valor padrão entra no card, mas pode ser ajustado antes de adicionar ao orçamento.</small>
+                </div>
+                <div className="guided-manual-grid">
+                  <label className="technical-edit-field guided-wide-field">
+                    <span>Serviço</span>
+                    <input value={newLaborTemplate.title} placeholder="Ex.: Instalação de ventilador de teto" onChange={(event) => setNewLaborTemplate((current) => ({ ...current, title: event.target.value }))} />
+                  </label>
+                  <label className="technical-edit-field">
+                    <span>Unidade</span>
+                    <input value={newLaborTemplate.unit} placeholder="ponto, un., m, serviço..." onChange={(event) => setNewLaborTemplate((current) => ({ ...current, unit: event.target.value }))} />
+                  </label>
+                  <label className="technical-edit-field">
+                    <span>Valor padrão</span>
+                    <input inputMode="decimal" value={newLaborTemplate.defaultUnitValue} placeholder="0,00" onChange={(event) => setNewLaborTemplate((current) => ({ ...current, defaultUnitValue: event.target.value }))} />
+                  </label>
+                  <label className="technical-edit-field guided-wide-field">
+                    <span>Observação</span>
+                    <textarea value={newLaborTemplate.note} placeholder="Ex.: validar altura, fixação, acesso e acabamento." onChange={(event) => setNewLaborTemplate((current) => ({ ...current, note: event.target.value }))} />
+                  </label>
+                </div>
+                <button className="primary-action inline-action" type="button" onClick={addLaborTemplate}>Cadastrar serviço</button>
+              </div>
+
+              <div className="guided-labor-editor-list">
+                {laborTemplates.map((template) => (
+                  <article className="guided-labor-editor-row" key={template.id}>
+                    <label className="guided-labor-visibility">
+                      <input checked={template.visible} type="checkbox" onChange={(event) => updateLaborTemplate(template.id, { visible: event.target.checked })} />
+                      <span>{template.visible ? 'Visível' : 'Oculto'}</span>
+                    </label>
+                    <label className="technical-edit-field guided-wide-field">
+                      <span>Serviço</span>
+                      <input value={template.title} onChange={(event) => updateLaborTemplate(template.id, { title: event.target.value })} />
+                    </label>
+                    <label className="technical-edit-field">
+                      <span>Unidade</span>
+                      <input value={template.unit} onChange={(event) => updateLaborTemplate(template.id, { unit: event.target.value })} />
+                    </label>
+                    <label className="technical-edit-field">
+                      <span>Valor</span>
+                      <input inputMode="decimal" value={String(template.defaultUnitValue)} onChange={(event) => updateLaborTemplate(template.id, { defaultUnitValue: parseDecimal(event.target.value, 0) })} />
+                    </label>
+                    <label className="technical-edit-field guided-wide-field">
+                      <span>Observação</span>
+                      <textarea value={template.note} onChange={(event) => updateLaborTemplate(template.id, { note: event.target.value })} />
+                    </label>
+                  </article>
+                ))}
+              </div>
+
+              <button className="secondary-action inline-action" type="button" onClick={restoreStarterLaborTemplates}>Restaurar lista padrão</button>
+            </div>
+          )}
+
+          {visibleLaborTemplates.length === 0 ? (
+            <div className="guided-labor-empty">
+              <strong>Nenhum serviço visível</strong>
+              <small>Abra o gerenciador e marque os tipos de trabalho que devem aparecer no levantamento.</small>
+            </div>
+          ) : (
+            <div className="guided-service-grid">
+              {visibleLaborTemplates.map((template) => {
               const addedQuantity = quantityInCurrentEnvironment(template.title, 'service');
               return (
                 <article className="guided-service-card" key={template.id}>
@@ -420,8 +524,9 @@ export function GuidedBudgetCart({ onSendToBudget, mode = 'all' }: GuidedBudgetC
                   </div>
                 </article>
               );
-            })}
-          </div>
+              })}
+            </div>
+          )}
         </div>
       )}
 
