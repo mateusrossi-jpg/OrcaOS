@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import type { CalculatorModule } from '../../../core/access/featureAccess';
+import { canUsePlanFeature, proFeatureTitle, type CalculatorModule, type UserPlan } from '../../../core/access/featureAccess';
 import { calculateVoltageDrop } from '../../../core/calculations/electrical';
 import { calculateSalePriceByMarkup, calculateSalePriceByTargetMargin } from '../../../core/calculations/trade';
 import type { CalculationCapture, CalculationDestination, TechnicalItemType } from '../../../core/types/workflow';
@@ -56,6 +56,8 @@ type ExpansionMode =
 
 interface Props {
   selectedModule: CalculatorModule;
+  userPlan?: UserPlan;
+  onUpgradeRequest?: () => void;
   onCaptureCalculation?: (capture: CalculationCapture) => void;
 }
 
@@ -344,8 +346,9 @@ function SelectField({ option, value, onChange }: { option: Option; value: strin
   return <label className="general-form-field"><span>{option.label}</span><select value={value} onChange={(event) => onChange(event.target.value)}>{option.options.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}</select></label>;
 }
 
-export function ExpansionCalculatorsWorkspace({ selectedModule, onCaptureCalculation }: Props) {
+export function ExpansionCalculatorsWorkspace({ selectedModule, userPlan = 'free', onUpgradeRequest, onCaptureCalculation }: Props) {
   const [activeMode, setActiveMode] = useState<ExpansionMode | null>(null);
+  const [lockedRule, setLockedRule] = useState<Rule | null>(null);
   const [values, setValues] = useState<Record<string, string>>(defaultValues);
   const [options, setOptions] = useState<Record<string, string>>(defaultOptions);
   const [addedMessage, setAddedMessage] = useState<string | null>(null);
@@ -386,10 +389,29 @@ export function ExpansionCalculatorsWorkspace({ selectedModule, onCaptureCalcula
     setAddedMessage(`${activeRule.label} enviado ao fluxo.`);
   }
 
+  function openRule(rule: Rule) {
+    setAddedMessage(null);
+    if (!canUsePlanFeature(rule.plan, userPlan)) {
+      setLockedRule(rule);
+      return;
+    }
+    setActiveMode(rule.mode);
+  }
+
   return (
     <div className="general-calculator-workspace">
       <div className="general-plan-banner"><div><strong>{moduleLabel(selectedModule)}</strong><span>Assistentes práticos com poucos campos, fórmula e orientação para campo, orçamento e relatório.</span></div><em>{moduleRules.length} cálculos</em></div>
-      <div className="general-picker-list">{moduleRules.map((rule) => <button className="general-picker-card" key={rule.mode} type="button" onClick={() => { setActiveMode(rule.mode); setAddedMessage(null); }}><span><strong>{rule.label}</strong><small>{rule.description}</small></span><em>{rule.plan === 'pro' ? 'PRO' : 'LIVRE'}</em></button>)}</div>
+      <div className="general-picker-list">{moduleRules.map((rule) => <button className="general-picker-card" key={rule.mode} type="button" onClick={() => openRule(rule)}><span><strong>{rule.label}</strong><small>{rule.description}</small></span><em>{rule.plan === 'pro' ? 'PRO' : 'LIVRE'}</em></button>)}</div>
+      {lockedRule && (
+        <div className="general-calculator-overlay" role="dialog" aria-modal="true" aria-label={proFeatureTitle(lockedRule.plan)}>
+          <div className="general-overlay-backdrop" onClick={() => setLockedRule(null)} />
+          <section className="general-overlay-panel general-upgrade-panel">
+            <header className="general-overlay-header"><button type="button" onClick={() => setLockedRule(null)}>‹</button><div><span>{moduleLabel(lockedRule.module)}</span><h2>{proFeatureTitle(lockedRule.plan)}</h2><p>{lockedRule.label} faz parte dos recursos profissionais do OrçaOS.</p></div><em>PRO</em></header>
+            <div className="general-formula-box"><strong>Por que este recurso é Pro</strong><span>Ajuda a tomar decisão técnica, reduzir erro de orçamento e gerar informação pronta para levantamento, proposta ou relatório.</span><span>Os cálculos livres continuam disponíveis para testar o fluxo principal do aplicativo.</span></div>
+            <div className="general-capture-actions"><button type="button" onClick={onUpgradeRequest}>Ver Loja / Pro</button><button className="secondary-action" type="button" onClick={() => setLockedRule(null)}>Continuar no gratuito</button></div>
+          </section>
+        </div>
+      )}
       {activeRule && (
         <div className="general-calculator-overlay" role="dialog" aria-modal="true" aria-label={activeRule.label}>
           <div className="general-overlay-backdrop" onClick={() => setActiveMode(null)} />

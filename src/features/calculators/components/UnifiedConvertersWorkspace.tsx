@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import type { UserPlan } from '../../../core/access/featureAccess';
 import type { CalculationCapture } from '../../../core/types/workflow';
 import { ConvertersHumanWorkspace } from './ConvertersHumanWorkspace';
 import { ExpansionCalculatorsWorkspace } from './ExpansionCalculatorsWorkspace';
@@ -6,10 +7,12 @@ import { ExpansionCalculatorsWorkspace } from './ExpansionCalculatorsWorkspace';
 type ConverterSection = 'quick' | 'technical';
 
 interface Props {
+  userPlan?: UserPlan;
+  onUpgradeRequest?: () => void;
   onCaptureCalculation?: (capture: CalculationCapture) => void;
 }
 
-export function UnifiedConvertersWorkspace({ onCaptureCalculation }: Props) {
+export function UnifiedConvertersWorkspace({ userPlan = 'free', onUpgradeRequest, onCaptureCalculation }: Props) {
   const [activeSection, setActiveSection] = useState<ConverterSection>('quick');
 
   return (
@@ -31,7 +34,7 @@ export function UnifiedConvertersWorkspace({ onCaptureCalculation }: Props) {
       </div>
 
       {activeSection === 'quick' && <ConvertersHumanWorkspace onCaptureCalculation={onCaptureCalculation} />}
-      {activeSection === 'technical' && <ExpansionCalculatorsWorkspace selectedModule="conversoresAvancados" onCaptureCalculation={onCaptureCalculation} />}
+      {activeSection === 'technical' && <ExpansionCalculatorsWorkspace selectedModule="conversoresAvancados" userPlan={userPlan} onUpgradeRequest={onUpgradeRequest} onCaptureCalculation={onCaptureCalculation} />}
     </div>
   );
 }

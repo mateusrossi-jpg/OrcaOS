@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import type { UserPlan } from '../../../core/access/featureAccess';
 import type { CalculationCapture } from '../../../core/types/workflow';
 import { ExpansionCalculatorsWorkspace } from './ExpansionCalculatorsWorkspace';
 import { HydraulicsCalculatorWorkspace } from './StableHydraulicsCalculatorWorkspace';
@@ -6,10 +7,12 @@ import { HydraulicsCalculatorWorkspace } from './StableHydraulicsCalculatorWorks
 type HydraulicsSection = 'basic' | 'installations';
 
 interface UnifiedHydraulicsWorkspaceProps {
+  userPlan?: UserPlan;
+  onUpgradeRequest?: () => void;
   onCaptureCalculation?: (capture: CalculationCapture) => void;
 }
 
-export function UnifiedHydraulicsWorkspace({ onCaptureCalculation }: UnifiedHydraulicsWorkspaceProps) {
+export function UnifiedHydraulicsWorkspace({ userPlan = 'free', onUpgradeRequest, onCaptureCalculation }: UnifiedHydraulicsWorkspaceProps) {
   const [activeSection, setActiveSection] = useState<HydraulicsSection>('basic');
   const isBasic = activeSection === 'basic';
 
@@ -36,7 +39,7 @@ export function UnifiedHydraulicsWorkspace({ onCaptureCalculation }: UnifiedHydr
       </div>
 
       {isBasic && <HydraulicsCalculatorWorkspace onCaptureCalculation={onCaptureCalculation} />}
-      {!isBasic && <ExpansionCalculatorsWorkspace selectedModule="hidraulicaAvancada" onCaptureCalculation={onCaptureCalculation} />}
+      {!isBasic && <ExpansionCalculatorsWorkspace selectedModule="hidraulicaAvancada" userPlan={userPlan} onUpgradeRequest={onUpgradeRequest} onCaptureCalculation={onCaptureCalculation} />}
     </div>
   );
 }

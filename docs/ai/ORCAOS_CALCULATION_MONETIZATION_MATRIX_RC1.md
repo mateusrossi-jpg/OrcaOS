@@ -106,11 +106,12 @@ Pro:
 
 ## Observacoes De Implementacao
 
-- No RC1, a separacao Free/Pro fica refletida na navegacao e nos badges dos calculos.
-- O bloqueio comercial real ainda depende do sistema de login, assinatura e feature gate central.
+- No RC1, a separacao Free/Pro fica refletida na navegacao, nos badges dos calculos e no bloqueio de abertura dos recursos Pro.
+- O gate central usa o plano local do app; pagamento, login e assinatura real ainda serao conectados depois.
 - Nenhum calculo foi removido nesta etapa.
 - A proposta evita esconder todo o valor do app atras do Pro: cada setor mantem uma porta de entrada livre.
+- Para teste interno, o plano Pro pode ser simulado no navegador com `localStorage.setItem('orcaos:user-plan', 'pro')` e recarregamento da pagina.
 
 ## Proxima Etapa
 
-Quando login e assinatura estiverem prontos, conectar esta matriz ao `featureAccess` central para bloquear execucao, exportacao avancada ou envio ao fluxo comercial conforme o plano do usuario.
+Quando login e assinatura estiverem prontos, substituir o plano local por plano vindo da conta do usuario e manter o mesmo gate central para bloquear execucao, exportacao avancada ou envio ao fluxo comercial conforme a assinatura.

@@ -127,7 +127,7 @@ O RC1 pode ser considerado aprovado para beta fechado se:
 ## Monetizacao Dos Calculos
 
 A matriz Free/Pro dos calculos do RC1 esta documentada em `docs/ai/ORCAOS_CALCULATION_MONETIZATION_MATRIX_RC1.md`.
-No RC1, a separacao aparece na organizacao e nos badges dos calculos; o bloqueio comercial real fica para a etapa de login/assinatura.
+No RC1, a separacao aparece na organizacao, nos badges e no bloqueio de abertura dos calculos Pro. Login, assinatura e pagamento real ficam para a proxima camada.
 
 ## Proxima Decisao
 

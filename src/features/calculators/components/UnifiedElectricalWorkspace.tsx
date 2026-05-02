@@ -58,7 +58,7 @@ export function UnifiedElectricalWorkspace({ userPlan = 'free', onUpgradeRequest
       </div>
 
       {activeSection === 'base' && <ElectricalFundamentalsHumanWorkspace onCaptureCalculation={onCaptureCalculation} />}
-      {activeSection === 'residential' && <ExpansionCalculatorsWorkspace selectedModule="eletricaResidencial" onCaptureCalculation={onCaptureCalculation} />}
+      {activeSection === 'residential' && <ExpansionCalculatorsWorkspace selectedModule="eletricaResidencial" userPlan={userPlan} onUpgradeRequest={onUpgradeRequest} onCaptureCalculation={onCaptureCalculation} />}
       {activeSection === 'sizing' && <ElectricalCalculatorWorkspace selectedModule="installations" userPlan={userPlan} onUpgradeRequest={onUpgradeRequest} onCaptureCalculation={onCaptureCalculation} />}
       {activeSection === 'lighting' && <ElectricalCalculatorWorkspace selectedModule="lighting" userPlan={userPlan} onUpgradeRequest={onUpgradeRequest} onCaptureCalculation={onCaptureCalculation} />}
       {activeSection === 'signals' && <ElectricalCalculatorWorkspace selectedModule="industrialAutomation" userPlan={userPlan} onUpgradeRequest={onUpgradeRequest} onCaptureCalculation={onCaptureCalculation} />}

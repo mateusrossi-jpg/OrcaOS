@@ -185,7 +185,7 @@ function LockedCalculator({ mode, onUpgradeRequest }: { mode: CalculatorMode; on
 
   return (
     <div className="locked-calculator-card">
-      <span className="lock-icon">🔒</span>
+      <span className="lock-icon">PRO</span>
       <strong>{rule?.label ?? 'Cálculo Pro'}</strong>
       <p>{rule?.shortDescription ?? 'Este cálculo faz parte dos recursos profissionais do OrçaOS.'}</p>
       <small>Os cálculos fundamentais continuam livres. Este recurso entra no pacote Pro.</small>

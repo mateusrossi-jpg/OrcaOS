@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import type { UserPlan } from '../../../core/access/featureAccess';
 import type { CalculationCapture } from '../../../core/types/workflow';
 import { ExpansionCalculatorsWorkspace } from './ExpansionCalculatorsWorkspace';
 import { GeneralCalculatorWorkspace } from './GeneralCalculatorWorkspace';
@@ -7,12 +8,14 @@ import { GeneralFundamentalsWorkspace, type FundamentalMode } from './GeneralFun
 type ConstructionSection = 'measurements' | 'materials' | 'composition';
 
 interface Props {
+  userPlan?: UserPlan;
+  onUpgradeRequest?: () => void;
   onCaptureCalculation?: (capture: CalculationCapture) => void;
 }
 
 const measurementModes: FundamentalMode[] = ['rectangle-area', 'triangle-area', 'circle-area', 'rectangle-perimeter', 'simple-volume', 'loss-percent'];
 
-export function UnifiedConstructionWorkspace({ onCaptureCalculation }: Props) {
+export function UnifiedConstructionWorkspace({ userPlan = 'free', onUpgradeRequest, onCaptureCalculation }: Props) {
   const [activeSection, setActiveSection] = useState<ConstructionSection>('measurements');
 
   return (
@@ -49,7 +52,7 @@ export function UnifiedConstructionWorkspace({ onCaptureCalculation }: Props) {
         />
       )}
       {activeSection === 'materials' && <GeneralCalculatorWorkspace selectedModule="obras" onCaptureCalculation={onCaptureCalculation} />}
-      {activeSection === 'composition' && <ExpansionCalculatorsWorkspace selectedModule="construcaoAvancada" onCaptureCalculation={onCaptureCalculation} />}
+      {activeSection === 'composition' && <ExpansionCalculatorsWorkspace selectedModule="construcaoAvancada" userPlan={userPlan} onUpgradeRequest={onUpgradeRequest} onCaptureCalculation={onCaptureCalculation} />}
     </div>
   );
 }

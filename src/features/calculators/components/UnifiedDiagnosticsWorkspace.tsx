@@ -1,10 +1,13 @@
 import { useState } from 'react';
+import type { UserPlan } from '../../../core/access/featureAccess';
 import type { CalculationCapture } from '../../../core/types/workflow';
 import { type DomainMode, ProfessionalDomainWorkspace } from './ProfessionalDomainWorkspace';
 
 type DiagnosticsSection = 'report' | 'risk' | 'maintenance';
 
 interface UnifiedDiagnosticsWorkspaceProps {
+  userPlan?: UserPlan;
+  onUpgradeRequest?: () => void;
   onCaptureCalculation?: (capture: CalculationCapture) => void;
 }
 
@@ -26,7 +29,7 @@ const sectionConfig: Record<DiagnosticsSection, { title: string; text: string; m
   },
 };
 
-export function UnifiedDiagnosticsWorkspace({ onCaptureCalculation }: UnifiedDiagnosticsWorkspaceProps) {
+export function UnifiedDiagnosticsWorkspace({ userPlan = 'free', onUpgradeRequest, onCaptureCalculation }: UnifiedDiagnosticsWorkspaceProps) {
   const [activeSection, setActiveSection] = useState<DiagnosticsSection>('report');
   const config = sectionConfig[activeSection];
 
@@ -49,6 +52,8 @@ export function UnifiedDiagnosticsWorkspace({ onCaptureCalculation }: UnifiedDia
         key={activeSection}
         selectedModule="diagnosticoTecnico"
         modeFilter={config.modes}
+        userPlan={userPlan}
+        onUpgradeRequest={onUpgradeRequest}
         onCaptureCalculation={onCaptureCalculation}
       />
     </div>

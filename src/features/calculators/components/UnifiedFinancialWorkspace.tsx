@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import type { UserPlan } from '../../../core/access/featureAccess';
 import type { CalculationCapture } from '../../../core/types/workflow';
 import { ExpansionCalculatorsWorkspace } from './ExpansionCalculatorsWorkspace';
 import { GeneralCalculatorWorkspace } from './GeneralCalculatorWorkspace';
@@ -7,13 +8,15 @@ import { GeneralFundamentalsWorkspace, type FundamentalMode } from './GeneralFun
 type FinancialSection = 'quick' | 'productivity' | 'percentages' | 'margin';
 
 interface Props {
+  userPlan?: UserPlan;
+  onUpgradeRequest?: () => void;
   onCaptureCalculation?: (capture: CalculationCapture) => void;
 }
 
 const productivityModes: FundamentalMode[] = ['cost-per-area', 'cost-per-unit', 'cost-per-meter', 'productivity-time'];
 const percentageModes: FundamentalMode[] = ['rule-of-three', 'percentage', 'increase-percent', 'discount-percent', 'difference-percent', 'profit-margin', 'markup'];
 
-export function UnifiedFinancialWorkspace({ onCaptureCalculation }: Props) {
+export function UnifiedFinancialWorkspace({ userPlan = 'free', onUpgradeRequest, onCaptureCalculation }: Props) {
   const [activeSection, setActiveSection] = useState<FinancialSection>('quick');
 
   return (
@@ -63,7 +66,7 @@ export function UnifiedFinancialWorkspace({ onCaptureCalculation }: Props) {
           onCaptureCalculation={onCaptureCalculation}
         />
       )}
-      {activeSection === 'margin' && <ExpansionCalculatorsWorkspace selectedModule="financeiroAvancado" onCaptureCalculation={onCaptureCalculation} />}
+      {activeSection === 'margin' && <ExpansionCalculatorsWorkspace selectedModule="financeiroAvancado" userPlan={userPlan} onUpgradeRequest={onUpgradeRequest} onCaptureCalculation={onCaptureCalculation} />}
     </div>
   );
 }

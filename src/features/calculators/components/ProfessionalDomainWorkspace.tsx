@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import type { CalculatorModule } from '../../../core/access/featureAccess';
+import { canUsePlanFeature, proFeatureTitle, type CalculatorModule, type UserPlan } from '../../../core/access/featureAccess';
 import type { CalculationCapture, CalculationDestination, TechnicalItemType } from '../../../core/types/workflow';
 import './GeneralCalculatorWorkspace.css';
 
@@ -41,6 +41,8 @@ export type DomainMode =
 interface Props {
   selectedModule: CalculatorModule;
   modeFilter?: DomainMode[];
+  userPlan?: UserPlan;
+  onUpgradeRequest?: () => void;
   onCaptureCalculation?: (capture: CalculationCapture) => void;
 }
 
@@ -257,8 +259,9 @@ function SelectField({ option, value, onChange }: { option: OptionConfig; value:
   return <label className="general-form-field"><span>{option.label}</span><select value={value} onChange={(event) => onChange(event.target.value)}>{option.options.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}</select></label>;
 }
 
-export function ProfessionalDomainWorkspace({ selectedModule, modeFilter, onCaptureCalculation }: Props) {
+export function ProfessionalDomainWorkspace({ selectedModule, modeFilter, userPlan = 'free', onUpgradeRequest, onCaptureCalculation }: Props) {
   const [activeMode, setActiveMode] = useState<DomainMode | null>(null);
+  const [lockedRule, setLockedRule] = useState<DomainRule | null>(null);
   const [values, setValues] = useState<Record<string, string>>(defaultValues);
   const [options, setOptions] = useState<Record<string, string>>(defaultOptions);
   const [addedMessage, setAddedMessage] = useState<string | null>(null);
@@ -286,8 +289,14 @@ export function ProfessionalDomainWorkspace({ selectedModule, modeFilter, onCapt
   }
 
   function openRule(mode: DomainMode) {
-    setActiveMode(mode);
+    const rule = rules.find((item) => item.mode === mode);
     setAddedMessage(null);
+    if (!rule) return;
+    if (!canUsePlanFeature(rule.plan, userPlan)) {
+      setLockedRule(rule);
+      return;
+    }
+    setActiveMode(mode);
   }
 
   function closeRule() {
@@ -322,6 +331,16 @@ export function ProfessionalDomainWorkspace({ selectedModule, modeFilter, onCapt
     <div className="general-calculator-workspace">
       <div className="general-plan-banner"><div><strong>{moduleLabel(selectedModule)}</strong><span>Cálculos orientativos com resultado, fórmula e texto técnico para relatório.</span></div><em>{moduleRules.length} cálculos</em></div>
       <div className="general-picker-list">{moduleRules.map((rule) => <button className="general-picker-card" key={rule.mode} type="button" onClick={() => openRule(rule.mode)}><span><strong>{rule.label}</strong><small>{rule.description}</small></span><em>{rule.plan === 'pro' ? 'PRO' : rule.plan === 'soon' ? 'EM BREVE' : 'LIVRE'}</em></button>)}</div>
+      {lockedRule && (
+        <div className="general-calculator-overlay" role="dialog" aria-modal="true" aria-label={proFeatureTitle(lockedRule.plan)}>
+          <div className="general-overlay-backdrop" onClick={() => setLockedRule(null)} />
+          <section className="general-overlay-panel general-upgrade-panel">
+            <header className="general-overlay-header"><button type="button" onClick={() => setLockedRule(null)}>‹</button><div><span>{moduleLabel(lockedRule.module)}</span><h2>{proFeatureTitle(lockedRule.plan)}</h2><p>{lockedRule.label} faz parte dos recursos profissionais do OrçaOS.</p></div><em>{lockedRule.plan === 'soon' ? 'EM BREVE' : 'PRO'}</em></header>
+            <div className="general-formula-box"><strong>O que este recurso destrava</strong><span>Resultado orientativo, explicação técnica e texto aproveitável no fluxo de levantamento, orçamento ou relatório.</span><span>Os recursos livres permanecem abertos para validar o app no dia a dia.</span></div>
+            <div className="general-capture-actions"><button type="button" onClick={onUpgradeRequest} disabled={lockedRule.plan === 'soon'}>{lockedRule.plan === 'soon' ? 'Ainda não disponível' : 'Ver Loja / Pro'}</button><button className="secondary-action" type="button" onClick={() => setLockedRule(null)}>Continuar no gratuito</button></div>
+          </section>
+        </div>
+      )}
       {activeRule && (
         <div className="general-calculator-overlay" role="dialog" aria-modal="true" aria-label={activeRule.label}>
           <div className="general-overlay-backdrop" onClick={closeRule} />

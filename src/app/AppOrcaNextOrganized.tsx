@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
-import type { CalculatorModule } from '../core/access/featureAccess';
+import type { CalculatorModule, UserPlan } from '../core/access/featureAccess';
 import type { Client, WorkOrder } from '../core/types/business';
 import type { CalculationCapture } from '../core/types/workflow';
 import type { GeneralCalculatorModule } from '../features/calculators/components/GeneralCalculatorWorkspace';
@@ -8,7 +8,7 @@ import { loadActiveWorkOrderId, loadClients, loadWorkOrders } from '../features/
 import { ActiveWorkContextCard } from './components/ActiveWorkContextCard';
 import { AppShell } from './components/AppShell';
 import { ModuleCard } from './components/ModuleCard';
-import { calculationModules, calculationSectorGroups, navItems, planLabel, storePackages, userPlan } from './orcaAppData';
+import { calculationModules, calculationSectorGroups, navItems, planLabel, resolveUserPlan, storePackages, userPlan } from './orcaAppData';
 import type { ActiveWorkContext, AppTab, CalculationSectorId, ModuleCardData, SurveySection } from './orcaAppTypes';
 import { loadStoredCaptures, saveStoredCaptures } from './storage/calculationCapturesStorage';
 
@@ -185,7 +185,7 @@ function HomeScreen({ goTo, openModule, captures, clients, workOrders }: { goTo:
   );
 }
 
-function CalculationsScreen({ selectedModule, openModule, activeSector, onSelectSector, goTo, onCaptureCalculation }: { selectedModule: ModuleCardData | null; openModule: (module: ModuleCardData | null) => void; activeSector: CalculationSectorId; onSelectSector: (sector: CalculationSectorId) => void; goTo: (tab: AppTab) => void; onCaptureCalculation: (capture: CalculationCapture) => void }) {
+function CalculationsScreen({ selectedModule, openModule, activeSector, onSelectSector, goTo, userPlan: activeUserPlan, onCaptureCalculation }: { selectedModule: ModuleCardData | null; openModule: (module: ModuleCardData | null) => void; activeSector: CalculationSectorId; onSelectSector: (sector: CalculationSectorId) => void; goTo: (tab: AppTab) => void; userPlan: UserPlan; onCaptureCalculation: (capture: CalculationCapture) => void }) {
   if (selectedModule) {
     const module = selectedModule.calculatorModule;
     const selectedSector = calculationSectorGroups.find((group) => group.id === activeSector);
@@ -196,18 +196,18 @@ function CalculationsScreen({ selectedModule, openModule, activeSector, onSelect
         <header className="module-detail-header"><div><em className={`module-plan-pill ${selectedModule.plan}`}>{planLabel(selectedModule.plan)}</em><h1>{selectedModule.title}</h1><p>{selectedModule.description}</p><small>{selectedModule.count}</small></div></header>
         {moduleGuidance[selectedModule.id] && <div className="survey-intro-card"><span><strong>{moduleGuidance[selectedModule.id].title}</strong><small>{moduleGuidance[selectedModule.id].text}</small></span></div>}
         {module === 'fundamentosGerais' && fundamentalConfig && <GeneralFundamentalsWorkspace {...fundamentalConfig} onCaptureCalculation={onCaptureCalculation} />}
-        {module === 'eletricaPredial' && <UnifiedElectricalWorkspace userPlan={userPlan} onUpgradeRequest={() => goTo('store')} onCaptureCalculation={onCaptureCalculation} />}
+        {module === 'eletricaPredial' && <UnifiedElectricalWorkspace userPlan={activeUserPlan} onUpgradeRequest={() => goTo('store')} onCaptureCalculation={onCaptureCalculation} />}
         {module === 'fundamentals' && <ElectricalFundamentalsHumanWorkspace onCaptureCalculation={onCaptureCalculation} />}
         {module === 'pintura' && <PaintingHumanWorkspace onCaptureCalculation={onCaptureCalculation} />}
-        {module === 'hidraulica' && <UnifiedHydraulicsWorkspace onCaptureCalculation={onCaptureCalculation} />}
-        {module === 'obras' && <UnifiedConstructionWorkspace onCaptureCalculation={onCaptureCalculation} />}
-        {module === 'conversores' && <UnifiedConvertersWorkspace onCaptureCalculation={onCaptureCalculation} />}
-        {module === 'diagnosticoTecnico' && <UnifiedDiagnosticsWorkspace onCaptureCalculation={onCaptureCalculation} />}
-        {module === 'orcamentoTecnico' && <UnifiedFinancialWorkspace onCaptureCalculation={onCaptureCalculation} />}
-        {module && isExpansionModule(module) && <ExpansionCalculatorsWorkspace selectedModule={module} onCaptureCalculation={onCaptureCalculation} />}
-        {module && isProfessionalDomainModule(module) && <ProfessionalDomainWorkspace selectedModule={module} onCaptureCalculation={onCaptureCalculation} />}
+        {module === 'hidraulica' && <UnifiedHydraulicsWorkspace userPlan={activeUserPlan} onUpgradeRequest={() => goTo('store')} onCaptureCalculation={onCaptureCalculation} />}
+        {module === 'obras' && <UnifiedConstructionWorkspace userPlan={activeUserPlan} onUpgradeRequest={() => goTo('store')} onCaptureCalculation={onCaptureCalculation} />}
+        {module === 'conversores' && <UnifiedConvertersWorkspace userPlan={activeUserPlan} onUpgradeRequest={() => goTo('store')} onCaptureCalculation={onCaptureCalculation} />}
+        {module === 'diagnosticoTecnico' && <UnifiedDiagnosticsWorkspace userPlan={activeUserPlan} onUpgradeRequest={() => goTo('store')} onCaptureCalculation={onCaptureCalculation} />}
+        {module === 'orcamentoTecnico' && <UnifiedFinancialWorkspace userPlan={activeUserPlan} onUpgradeRequest={() => goTo('store')} onCaptureCalculation={onCaptureCalculation} />}
+        {module && isExpansionModule(module) && <ExpansionCalculatorsWorkspace selectedModule={module} userPlan={activeUserPlan} onUpgradeRequest={() => goTo('store')} onCaptureCalculation={onCaptureCalculation} />}
+        {module && isProfessionalDomainModule(module) && <ProfessionalDomainWorkspace selectedModule={module} userPlan={activeUserPlan} onUpgradeRequest={() => goTo('store')} onCaptureCalculation={onCaptureCalculation} />}
         {module && isGeneralCalculatorModule(module) && <GeneralCalculatorWorkspace selectedModule={module} onCaptureCalculation={onCaptureCalculation} />}
-        {module && module !== 'fundamentosGerais' && module !== 'eletricaPredial' && module !== 'fundamentals' && module !== 'pintura' && module !== 'hidraulica' && module !== 'obras' && module !== 'conversores' && module !== 'diagnosticoTecnico' && module !== 'orcamentoTecnico' && !isExpansionModule(module) && !isProfessionalDomainModule(module) && !isGeneralCalculatorModule(module) && <ElectricalCalculatorWorkspace selectedModule={module} userPlan={userPlan} onUpgradeRequest={() => goTo('store')} onCaptureCalculation={onCaptureCalculation} />}
+        {module && module !== 'fundamentosGerais' && module !== 'eletricaPredial' && module !== 'fundamentals' && module !== 'pintura' && module !== 'hidraulica' && module !== 'obras' && module !== 'conversores' && module !== 'diagnosticoTecnico' && module !== 'orcamentoTecnico' && !isExpansionModule(module) && !isProfessionalDomainModule(module) && !isGeneralCalculatorModule(module) && <ElectricalCalculatorWorkspace selectedModule={module} userPlan={activeUserPlan} onUpgradeRequest={() => goTo('store')} onCaptureCalculation={onCaptureCalculation} />}
         {!module && <div className="empty-state-card"><strong>{selectedModule.title} em breve</strong><p>Este módulo já está previsto na arquitetura do OrçaOS.</p></div>}
       </section>
     );
@@ -309,12 +309,12 @@ function ClientsScreen({ onContextChange }: { onContextChange: (clients: Client[
   return <section className="app-screen wide-screen"><header className="screen-header"><span className="orca-kicker">Início do serviço</span><h1>Atendimentos</h1><p>Escolha o cliente e a OS ativa antes de calcular, levantar campo, orçar ou gerar relatório.</p></header><ClientWorkOrderWorkspace onContextChange={onContextChange} /></section>;
 }
 
-function StoreScreen() {
-  return <section className="app-screen wide-screen"><header className="screen-header"><span className="orca-kicker">Recursos premium</span><h1>Loja / Pro</h1><p>Pacotes de cálculos, modelos de orçamento e recursos profissionais.</p></header><div className="settings-group"><h2>Pacotes disponíveis</h2>{storePackages.map((pack) => <article className="store-card" key={pack.title}><span><strong>{pack.title}</strong><small>{pack.description}</small><b>{pack.price}</b></span><button type="button">Detalhes</button></article>)}</div></section>;
+function StoreScreen({ userPlan: activeUserPlan }: { userPlan: UserPlan }) {
+  return <section className="app-screen wide-screen"><header className="screen-header"><span className="orca-kicker">Recursos premium</span><h1>Loja / Pro</h1><p>Pacotes de cálculos, modelos de orçamento e recursos profissionais.</p></header><div className="settings-group"><h2>Plano atual</h2><article className="settings-row"><span><strong>{activeUserPlan === 'pro' ? 'Pro ativo' : 'Grátis ativo'}</strong><small>{activeUserPlan === 'pro' ? 'Todos os cálculos profissionais ficam liberados neste ambiente.' : 'Cálculos livres liberados. Recursos Pro abrem a tela de upgrade.'}</small></span></article></div><div className="settings-group"><h2>Pacotes disponíveis</h2>{storePackages.map((pack) => <article className="store-card" key={pack.title}><span><strong>{pack.title}</strong><small>{pack.description}</small><b>{pack.price}</b></span><button type="button">Detalhes</button></article>)}</div></section>;
 }
 
-function SettingsScreen() {
-  return <section className="app-screen wide-screen"><header className="screen-header"><span className="orca-kicker">Preferências</span><h1>Configurações</h1><p>Perfil profissional, backup, plano e preferências do app.</p></header><div className="settings-group"><h2>Conta</h2><article className="settings-row"><span><strong>Meu plano</strong><small>Grátis · base inicial ativa</small></span></article><article className="settings-row"><span><strong>Roadmap</strong><small>OrçaOS, módulos profissionais, relatórios e OS</small></span></article></div><LocalBackupWorkspace /></section>;
+function SettingsScreen({ userPlan: activeUserPlan }: { userPlan: UserPlan }) {
+  return <section className="app-screen wide-screen"><header className="screen-header"><span className="orca-kicker">Preferências</span><h1>Configurações</h1><p>Perfil profissional, backup, plano e preferências do app.</p></header><div className="settings-group"><h2>Conta</h2><article className="settings-row"><span><strong>Meu plano</strong><small>{activeUserPlan === 'pro' ? 'Pro ativo neste ambiente' : 'Grátis · base inicial ativa'}</small></span></article><article className="settings-row"><span><strong>Roadmap</strong><small>OrçaOS, módulos profissionais, relatórios e OS</small></span></article></div><LocalBackupWorkspace /></section>;
 }
 
 export function App() {
@@ -325,6 +325,7 @@ export function App() {
   const [clients, setClients] = useState<Client[]>(() => loadClients());
   const [workOrders, setWorkOrders] = useState<WorkOrder[]>(() => loadWorkOrders());
   const [activeWorkOrderId, setActiveWorkOrderId] = useState<string | null>(() => loadActiveWorkOrderId());
+  const [activeUserPlan] = useState<UserPlan>(() => resolveUserPlan(userPlan));
 
   useEffect(() => { saveStoredCaptures(captures); }, [captures]);
 
@@ -367,14 +368,14 @@ export function App() {
     <AppShell activeTab={activeTab} title={getScreenTitle(activeTab, selectedModule)} subtitle={getScreenSubtitle(activeTab, selectedModule)} navItems={navItems} activeClient={activeClient} activeWorkOrder={activeWorkOrder} onNavigate={goTo}>
       <Suspense fallback={<LazyWorkspaceFallback />}>
         {activeTab === 'home' && <HomeScreen goTo={goTo} openModule={openModule} captures={captures} clients={clients} workOrders={workOrders} />}
-        {activeTab === 'calculations' && <CalculationsScreen selectedModule={selectedModule} openModule={openModule} activeSector={activeSector} onSelectSector={setActiveSector} goTo={goTo} onCaptureCalculation={addCalculationCapture} />}
+        {activeTab === 'calculations' && <CalculationsScreen selectedModule={selectedModule} openModule={openModule} activeSector={activeSector} onSelectSector={setActiveSector} goTo={goTo} userPlan={activeUserPlan} onCaptureCalculation={addCalculationCapture} />}
         {activeTab === 'survey' && <SurveyScreen captures={captures} context={context} onRemove={removeCalculationCapture} onUpdate={updateCalculationCapture} onAddMany={addManyCalculationCaptures} goTo={goTo} />}
         {activeTab === 'budgets' && <BudgetsScreen captures={captures} context={context} onRemove={removeCalculationCapture} onUpdate={updateCalculationCapture} />}
         {activeTab === 'catalog' && <CatalogScreen onAddMany={addManyCalculationCaptures} />}
         {activeTab === 'reports' && <ReportsScreen captures={captures} context={context} />}
         {activeTab === 'clients' && <ClientsScreen onContextChange={(nextClients, nextWorkOrders, nextActiveWorkOrderId) => { setClients(nextClients); setWorkOrders(nextWorkOrders); setActiveWorkOrderId(nextActiveWorkOrderId); }} />}
-        {activeTab === 'store' && <StoreScreen />}
-        {activeTab === 'settings' && <SettingsScreen />}
+        {activeTab === 'store' && <StoreScreen userPlan={activeUserPlan} />}
+        {activeTab === 'settings' && <SettingsScreen userPlan={activeUserPlan} />}
       </Suspense>
     </AppShell>
   );

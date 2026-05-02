@@ -1,4 +1,5 @@
 export type UserPlan = 'free' | 'pro';
+export type FeaturePlan = UserPlan | 'soon';
 
 export type CalculatorMode =
   | 'current'
@@ -213,6 +214,17 @@ export function canUseCalculator(mode: CalculatorMode, userPlan: UserPlan): bool
   }
 
   return rule.plan === 'free' || userPlan === 'pro';
+}
+
+export function canUsePlanFeature(requiredPlan: FeaturePlan, userPlan: UserPlan): boolean {
+  if (requiredPlan === 'soon') return false;
+  return requiredPlan === 'free' || userPlan === 'pro';
+}
+
+export function proFeatureTitle(requiredPlan: FeaturePlan): string {
+  if (requiredPlan === 'soon') return 'Recurso em breve';
+  if (requiredPlan === 'pro') return 'Recurso do OrçaOS Pro';
+  return 'Recurso livre';
 }
 
 export function getCalculatorAccessRule(mode: CalculatorMode): CalculatorAccessRule | undefined {
