@@ -111,14 +111,15 @@ O RC1 pode ser considerado aprovado para beta fechado se:
 
 ## Riscos Conhecidos
 
-- Login Google e backup automatico no Drive ainda nao estao implementados.
+- Login Google esta preparado no frontend quando `VITE_GOOGLE_CLIENT_ID` estiver configurado; assinatura e backend de plano ainda nao estao implementados.
+- Backup Google Drive manual esta preparado quando `VITE_GOOGLE_CLIENT_ID` estiver configurado; backup automatico ainda nao esta implementado.
 - O app segue local-first; perda de dados pode ocorrer se o navegador limpar armazenamento local e o usuario nao tiver backup exportado.
 - Calculos tecnicos sao estimativas de apoio e precisam de validacao profissional em campo.
 - Publicacao comercial exige politica de privacidade e termos/avisos tecnicos claros.
 
 ## Fora Do RC1
 
-- Login social.
+- Backend de login social.
 - Sincronizacao em nuvem.
 - Assinatura/pagamento Pro real.
 - ERP completo.
@@ -127,7 +128,7 @@ O RC1 pode ser considerado aprovado para beta fechado se:
 ## Monetizacao Dos Calculos
 
 A matriz Free/Pro dos calculos do RC1 esta documentada em `docs/ai/ORCAOS_CALCULATION_MONETIZATION_MATRIX_RC1.md`.
-No RC1, a separacao aparece na organizacao, nos badges e no bloqueio de abertura dos calculos Pro. A conta/plano local fica em `accountPlanStorage` e pode simular Pro pela tela Loja / Pro; login Google, assinatura e pagamento real ficam para a proxima camada externa.
+No RC1, a separacao aparece na organizacao, nos badges e no bloqueio de abertura dos calculos Pro. A conta/plano fica em `accountPlanStorage`, pode simular Pro pela tela Loja / Pro e pode receber identidade Google quando `VITE_GOOGLE_CLIENT_ID` estiver configurado. Assinatura e pagamento real ficam para a proxima camada externa.
 
 ## Proxima Decisao
 

@@ -1,7 +1,13 @@
 import type { UserPlan } from './featureAccess';
 
-export type OrcaAccountStatus = 'guest' | 'local';
+export type OrcaAccountStatus = 'guest' | 'local' | 'google';
 export type OrcaPlanSource = 'free' | 'local-test' | 'subscription';
+
+export interface GoogleAccountProfile {
+  sub: string;
+  name?: string;
+  email?: string;
+}
 
 export interface OrcaAccountState {
   status: OrcaAccountStatus;
@@ -52,9 +58,9 @@ function normalizeAccount(value: Partial<OrcaAccountState> | null): OrcaAccountS
   if (!value) return null;
   const plan: UserPlan = value.plan === 'pro' ? 'pro' : 'free';
   return {
-    status: value.status === 'local' ? 'local' : 'guest',
+    status: value.status === 'google' ? 'google' : value.status === 'local' ? 'local' : 'guest',
     userId: value.userId ?? null,
-    displayName: value.displayName?.trim() || (value.status === 'local' ? 'Profissional local' : 'Visitante'),
+    displayName: value.displayName?.trim() || (value.status === 'google' ? 'Conta Google' : value.status === 'local' ? 'Profissional local' : 'Visitante'),
     email: value.email?.trim() || '',
     plan,
     planSource: value.planSource === 'subscription' ? 'subscription' : value.planSource === 'local-test' ? 'local-test' : plan === 'pro' ? 'local-test' : 'free',
@@ -97,6 +103,20 @@ export function signInLocalAccount(displayName = 'Profissional local', email = '
     userId: current.userId ?? createLocalUserId(),
     displayName: displayName.trim() || 'Profissional local',
     email: email.trim(),
+    updatedAt: now(),
+  };
+  saveAccountState(next);
+  return next;
+}
+
+export function signInGoogleAccount(profile: GoogleAccountProfile): OrcaAccountState {
+  const current = loadAccountState();
+  const next: OrcaAccountState = {
+    ...current,
+    status: 'google',
+    userId: `google:${profile.sub}`,
+    displayName: profile.name?.trim() || profile.email?.trim() || 'Conta Google',
+    email: profile.email?.trim() || '',
     updatedAt: now(),
   };
   saveAccountState(next);

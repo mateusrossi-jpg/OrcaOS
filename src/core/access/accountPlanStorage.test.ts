@@ -4,6 +4,7 @@ import {
   loadAccountState,
   resolveUserPlan,
   setLocalUserPlan,
+  signInGoogleAccount,
   signInLocalAccount,
   signOutLocalAccount,
 } from './accountPlanStorage';
@@ -41,6 +42,16 @@ describe('account plan storage', () => {
 
     expect(account.status).toBe('local');
     expect(account.displayName).toBe('Mateus');
+    expect(account.email).toBe('mateus@example.com');
+    expect(account.plan).toBe('free');
+  });
+
+  it('stores a Google account without changing the current plan', () => {
+    const account = signInGoogleAccount({ sub: '123', name: 'Mateus Rossi', email: 'mateus@example.com' });
+
+    expect(account.status).toBe('google');
+    expect(account.userId).toBe('google:123');
+    expect(account.displayName).toBe('Mateus Rossi');
     expect(account.email).toBe('mateus@example.com');
     expect(account.plan).toBe('free');
   });
