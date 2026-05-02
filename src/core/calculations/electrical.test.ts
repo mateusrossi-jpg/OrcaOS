@@ -21,6 +21,7 @@ import {
   calculateTransformerSizing,
   calculateVoltageFromCurrentResistance,
   calculateVoltageDrop,
+  convertCurrentToAmps,
   convertAwgToMm2,
   recommendCircuit,
   roundTechnical,
@@ -29,6 +30,12 @@ import {
 } from './electrical';
 
 describe('electrical calculations', () => {
+  it('converts current units before using Ohm law formulas', () => {
+    expect(convertCurrentToAmps(20, 'mA')).toBe(0.02);
+    expect(convertCurrentToAmps(10, 'A')).toBe(10);
+    expect(() => convertCurrentToAmps(0, 'mA')).toThrow('Corrente');
+  });
+
   it('calculates current from power in a single-phase circuit', () => {
     const current = calculateCurrentFromPower({
       powerWatts: 2200,
@@ -82,6 +89,22 @@ describe('electrical calculations', () => {
     expect(roundTechnical(current)).toBe(10);
     expect(roundTechnical(voltage)).toBe(220);
   });
+
+  it('calculates Ohm law correctly with milliamp inputs converted to amps', () => {
+    const currentAmps = convertCurrentToAmps(20, 'mA');
+    const resistance = calculateResistanceFromVoltageCurrent({
+      voltageVolts: 12,
+      currentAmps,
+    });
+    const voltage = calculateVoltageFromCurrentResistance({
+      currentAmps,
+      resistanceOhms: 600,
+    });
+
+    expect(roundTechnical(resistance)).toBe(600);
+    expect(roundTechnical(voltage)).toBe(12);
+  });
+
 
   it('calculates power by resistance using current and voltage', () => {
     const byCurrent = calculatePowerByResistance({

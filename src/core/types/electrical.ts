@@ -1,4 +1,5 @@
 export type CircuitPhase = 'single-phase' | 'three-phase';
+export type CurrentInputUnit = 'A' | 'mA';
 
 export type PowerFactor = number;
 

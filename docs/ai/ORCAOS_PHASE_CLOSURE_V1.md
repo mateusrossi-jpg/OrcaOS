@@ -66,6 +66,12 @@ Cobertura adicionada:
 
 Observação: cálculos normativos avançados continuam fora do MVP até validação técnica específica.
 
+Correção aplicada:
+
+- Lei de Ohm continua usando as fórmulas base corretas: `R = V / I`, `I = V / R`, `V = R × I`.
+- A tela de fundamentos elétricos agora permite informar corrente em `A` ou `mA`.
+- Entradas em miliampère são convertidas para ampère antes do cálculo, evitando resultado mil vezes discrepante.
+
 ### 4. Performance inicial
 
 Status: fechado.
@@ -174,6 +180,13 @@ Estado atualizado:
 ```txt
 16 arquivos de teste
 108 testes passando
+```
+
+Estado após correção da Lei de Ohm:
+
+```txt
+16 arquivos de teste
+110 testes passando
 ```
 
 ## Validação técnica executada

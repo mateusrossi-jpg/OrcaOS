@@ -190,6 +190,12 @@
   gap: 12px;
 }
 
+.human-inline-field-group {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(150px, 0.58fr);
+  gap: 12px;
+}
+
 .human-field {
   display: grid;
   gap: 7px;
@@ -370,6 +376,7 @@
   .human-overlay-header,
   .human-calculator-form,
   .human-advanced-grid,
+  .human-inline-field-group,
   .human-result-grid {
     grid-template-columns: 1fr;
   }

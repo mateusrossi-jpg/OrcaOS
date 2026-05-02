@@ -11,6 +11,7 @@ import type {
   CircuitRecommendationResult,
   ConduitFillInput,
   ConduitFillResult,
+  CurrentInputUnit,
   CurrentFromApparentPowerInput,
   CurrentFromPowerInput,
   EnergyConsumptionInput,
@@ -63,6 +64,11 @@ const AWG_TABLE: AwgConversionResult[] = [
   { awg: '3/0', sectionMm2: 85.01 },
   { awg: '4/0', sectionMm2: 107.22 },
 ];
+
+export function convertCurrentToAmps(value: number, unit: CurrentInputUnit = 'A'): number {
+  ensurePositiveNumber(value, 'Corrente');
+  return unit === 'mA' ? value / 1000 : value;
+}
 
 export function calculateCurrentFromPower(input: CurrentFromPowerInput): number {
   const powerFactor = input.powerFactor ?? 1;

@@ -3,7 +3,9 @@ import {
   calculateCurrentFromVoltageResistance,
   calculateResistanceFromVoltageCurrent,
   calculateVoltageFromCurrentResistance,
+  convertCurrentToAmps,
 } from '../../../core/calculations/electrical';
+import type { CurrentInputUnit } from '../../../core/types/electrical';
 import type { CalculationCapture, CalculationDestination } from '../../../core/types/workflow';
 import './ElectricalFundamentalsHumanWorkspace.css';
 
@@ -156,10 +158,28 @@ function ResultCard({ label, value, helper }: ResultCardData) {
   return <article className="human-result-card"><span>{label}</span><strong>{value}</strong>{helper && <small>{helper}</small>}</article>;
 }
 
+function CurrentField({ value, unit, onValueChange, onUnitChange }: { value: string; unit: CurrentInputUnit; onValueChange: (value: string) => void; onUnitChange: (value: CurrentInputUnit) => void }) {
+  return (
+    <div className="human-inline-field-group">
+      <NumberField label="Corrente" value={value} suffix={unit} onChange={onValueChange} />
+      <SelectField<CurrentInputUnit>
+        label="Unidade"
+        value={unit}
+        onChange={onUnitChange}
+        options={[
+          { value: 'A', label: 'Ampère (A)' },
+          { value: 'mA', label: 'Miliampère (mA)' },
+        ]}
+      />
+    </div>
+  );
+}
+
 export function ElectricalFundamentalsHumanWorkspace({ onCaptureCalculation }: Props) {
   const [activeMode, setActiveMode] = useState<FundamentalMode | null>(null);
   const [values, setValues] = useState<Record<string, string>>(defaultValues);
   const [phase, setPhase] = useState<PhaseMode>('single');
+  const [currentUnit, setCurrentUnit] = useState<CurrentInputUnit>('A');
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [ohmsTarget, setOhmsTarget] = useState<OhmsTarget>('resistance');
   const [powerResistanceTarget, setPowerResistanceTarget] = useState<PowerResistanceTarget>('voltage-resistance');
@@ -174,6 +194,16 @@ export function ElectricalFundamentalsHumanWorkspace({ onCaptureCalculation }: P
 
   function n(key: string, label: string): number {
     return ensurePositive(parseNumber(values[key] ?? ''), label);
+  }
+
+  function currentAmps(): number {
+    return convertCurrentToAmps(parseNumber(values.currentAmps ?? ''), currentUnit);
+  }
+
+  function currentInputDetail(): string {
+    const rawCurrent = n('currentAmps', 'corrente');
+    const amps = currentAmps();
+    return currentUnit === 'mA' ? `Corrente informada: ${round(rawCurrent)} mA (${round(amps, 4)} A)` : `Corrente: ${round(amps)} A`;
   }
 
   function optionalN(key: string, label: string): number {
@@ -219,7 +249,7 @@ export function ElectricalFundamentalsHumanWorkspace({ onCaptureCalculation }: P
 
       if (activeRule.mode === 'power-from-current') {
         const voltage = n('voltageVolts', 'tensão');
-        const current = n('currentAmps', 'corrente');
+        const current = currentAmps();
         const factor = fp();
         const multiplier = phaseMultiplier(phase);
         const power = multiplier * voltage * current * factor;
@@ -229,7 +259,7 @@ export function ElectricalFundamentalsHumanWorkspace({ onCaptureCalculation }: P
             { label: 'Potência', value: `${round(power)} W`, helper: `${round(power / 1000)} kW` },
             { label: 'Dados usados', value: `${round(voltage)} V × ${round(current)} A`, helper: showAdvanced ? `FP ${round(factor, 2)} · ${phaseLabel(phase)}` : 'modo simples' },
           ],
-          [`Tensão: ${round(voltage)} V`, `Corrente: ${round(current)} A`, `Fator de potência: ${round(factor, 2)}`, `Circuito: ${phaseLabel(phase)}`, `Potência: ${round(power)} W`],
+          [`Tensão: ${round(voltage)} V`, currentInputDetail(), `Fator de potência: ${round(factor, 2)}`, `Circuito: ${phaseLabel(phase)}`, `Potência: ${round(power)} W`],
           'Use para estimar potência de uma carga conhecida. Para motores e cargas indutivas, ajuste o fator de potência em avançado.',
           ['Potência = fator do circuito × tensão × corrente × fator de potência', phaseFormula(phase, 'Fator do circuito')],
         );
@@ -237,7 +267,7 @@ export function ElectricalFundamentalsHumanWorkspace({ onCaptureCalculation }: P
 
       if (activeRule.mode === 'voltage-from-power-current') {
         const power = n('powerWatts', 'potência');
-        const current = n('currentAmps', 'corrente');
+        const current = currentAmps();
         const factor = fp();
         const multiplier = phaseMultiplier(phase);
         const voltage = power / (multiplier * current * factor);
@@ -247,7 +277,7 @@ export function ElectricalFundamentalsHumanWorkspace({ onCaptureCalculation }: P
             { label: 'Tensão', value: `${round(voltage)} V`, helper: 'estimativa pela potência e corrente' },
             { label: 'Dados usados', value: `${round(power)} W / ${round(current)} A`, helper: showAdvanced ? `FP ${round(factor, 2)} · ${phaseLabel(phase)}` : 'modo simples' },
           ],
-          [`Potência: ${round(power)} W`, `Corrente: ${round(current)} A`, `Fator de potência: ${round(factor, 2)}`, `Circuito: ${phaseLabel(phase)}`, `Tensão: ${round(voltage)} V`],
+          [`Potência: ${round(power)} W`, currentInputDetail(), `Fator de potência: ${round(factor, 2)}`, `Circuito: ${phaseLabel(phase)}`, `Tensão: ${round(voltage)} V`],
           'Use como conferência rápida. Em campo, confirme a tensão real com instrumento adequado.',
           ['Tensão = potência ÷ (fator do circuito × corrente × fator de potência)', phaseFormula(phase, 'Fator do circuito')],
         );
@@ -256,12 +286,12 @@ export function ElectricalFundamentalsHumanWorkspace({ onCaptureCalculation }: P
       if (activeRule.mode === 'ohms-law') {
         if (ohmsTarget === 'resistance') {
           const voltage = n('voltageVolts', 'tensão');
-          const current = n('currentAmps', 'corrente');
+          const current = currentAmps();
           const calculatedResistance = calculateResistanceFromVoltageCurrent({ voltageVolts: voltage, currentAmps: current });
           return result(
             `Resistência: ${round(calculatedResistance)} Ω`,
             [{ label: 'Resistência', value: `${round(calculatedResistance)} Ω`, helper: 'R = V / I' }],
-            [`Tensão: ${round(voltage)} V`, `Corrente: ${round(current)} A`, `Resistência: ${round(calculatedResistance)} Ω`],
+            [`Tensão: ${round(voltage)} V`, currentInputDetail(), `Resistência: ${round(calculatedResistance)} Ω`],
             'Use para cargas resistivas e conferências básicas. Em circuitos reais, considere temperatura e características do equipamento.',
             ['Resistência = tensão ÷ corrente'],
           );
@@ -281,12 +311,12 @@ export function ElectricalFundamentalsHumanWorkspace({ onCaptureCalculation }: P
         }
 
         const resistance = n('resistanceOhms', 'resistência');
-        const current = n('currentAmps', 'corrente');
+        const current = currentAmps();
         const calculatedVoltage = calculateVoltageFromCurrentResistance({ resistanceOhms: resistance, currentAmps: current });
         return result(
           `Tensão: ${round(calculatedVoltage)} V`,
           [{ label: 'Tensão', value: `${round(calculatedVoltage)} V`, helper: 'V = R × I' }],
-          [`Resistência: ${round(resistance)} Ω`, `Corrente: ${round(current)} A`, `Tensão: ${round(calculatedVoltage)} V`],
+          [`Resistência: ${round(resistance)} Ω`, currentInputDetail(), `Tensão: ${round(calculatedVoltage)} V`],
           'Use para estimativa de tensão em carga resistiva. Valide sempre com medição adequada.',
           ['Tensão = resistência × corrente'],
         );
@@ -306,12 +336,12 @@ export function ElectricalFundamentalsHumanWorkspace({ onCaptureCalculation }: P
           );
         }
 
-        const current = n('currentAmps', 'corrente');
+        const current = currentAmps();
         const power = current ** 2 * resistance;
         return result(
           `Potência dissipada: ${round(power)} W`,
           [{ label: 'Potência', value: `${round(power)} W`, helper: 'P = I² × R' }],
-          [`Corrente: ${round(current)} A`, `Resistência: ${round(resistance)} Ω`, `Potência: ${round(power)} W`],
+          [currentInputDetail(), `Resistência: ${round(resistance)} Ω`, `Potência: ${round(power)} W`],
           'Escolha componente/carga com potência suportada acima do resultado e margem de segurança.',
           ['Potência = corrente² × resistência'],
         );
@@ -380,7 +410,7 @@ export function ElectricalFundamentalsHumanWorkspace({ onCaptureCalculation }: P
     } catch (error) {
       return { error: error instanceof Error ? error.message : 'Preencha os campos necessários.', summary: '', details: [], cards: [], orientation: '', formula: [] };
     }
-  }, [activeRule, values, phase, showAdvanced, ohmsTarget, powerResistanceTarget, apparentTarget]);
+  }, [activeRule, values, phase, showAdvanced, ohmsTarget, powerResistanceTarget, apparentTarget, currentUnit]);
 
   function includeResult(destination: CalculationDestination) {
     if (!activeRule || calculated.error || calculated.cards.length === 0) return;
@@ -463,14 +493,14 @@ export function ElectricalFundamentalsHumanWorkspace({ onCaptureCalculation }: P
               {activeRule.mode === 'power-from-current' && (
                 <>
                   <NumberField label="Tensão" value={values.voltageVolts} suffix="V" step={1} onChange={(value) => setValue('voltageVolts', value)} />
-                  <NumberField label="Corrente" value={values.currentAmps} suffix="A" onChange={(value) => setValue('currentAmps', value)} />
+                  <CurrentField value={values.currentAmps} unit={currentUnit} onValueChange={(value) => setValue('currentAmps', value)} onUnitChange={setCurrentUnit} />
                 </>
               )}
 
               {activeRule.mode === 'voltage-from-power-current' && (
                 <>
                   <NumberField label="Potência" value={values.powerWatts} suffix="W" step={1} onChange={(value) => setValue('powerWatts', value)} />
-                  <NumberField label="Corrente" value={values.currentAmps} suffix="A" onChange={(value) => setValue('currentAmps', value)} />
+                  <CurrentField value={values.currentAmps} unit={currentUnit} onValueChange={(value) => setValue('currentAmps', value)} onUnitChange={setCurrentUnit} />
                 </>
               )}
 
@@ -487,7 +517,7 @@ export function ElectricalFundamentalsHumanWorkspace({ onCaptureCalculation }: P
                     ]}
                   />
                   {(ohmsTarget === 'resistance' || ohmsTarget === 'current') && <NumberField label="Tensão" value={values.voltageVolts} suffix="V" step={1} onChange={(value) => setValue('voltageVolts', value)} />}
-                  {(ohmsTarget === 'resistance' || ohmsTarget === 'voltage') && <NumberField label="Corrente" value={values.currentAmps} suffix="A" onChange={(value) => setValue('currentAmps', value)} />}
+                  {(ohmsTarget === 'resistance' || ohmsTarget === 'voltage') && <CurrentField value={values.currentAmps} unit={currentUnit} onValueChange={(value) => setValue('currentAmps', value)} onUnitChange={setCurrentUnit} />}
                   {(ohmsTarget === 'current' || ohmsTarget === 'voltage') && <NumberField label="Resistência" value={values.resistanceOhms} suffix="Ω" onChange={(value) => setValue('resistanceOhms', value)} />}
                 </>
               )}
@@ -504,7 +534,7 @@ export function ElectricalFundamentalsHumanWorkspace({ onCaptureCalculation }: P
                     ]}
                   />
                   {powerResistanceTarget === 'voltage-resistance' && <NumberField label="Tensão" value={values.voltageVolts} suffix="V" step={1} onChange={(value) => setValue('voltageVolts', value)} />}
-                  {powerResistanceTarget === 'current-resistance' && <NumberField label="Corrente" value={values.currentAmps} suffix="A" onChange={(value) => setValue('currentAmps', value)} />}
+                  {powerResistanceTarget === 'current-resistance' && <CurrentField value={values.currentAmps} unit={currentUnit} onValueChange={(value) => setValue('currentAmps', value)} onUnitChange={setCurrentUnit} />}
                   <NumberField label="Resistência" value={values.resistanceOhms} suffix="Ω" onChange={(value) => setValue('resistanceOhms', value)} />
                 </>
               )}
