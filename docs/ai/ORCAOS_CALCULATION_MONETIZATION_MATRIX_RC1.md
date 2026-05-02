@@ -107,7 +107,7 @@ Pro:
 ## Observacoes De Implementacao
 
 - No RC1, a separacao Free/Pro fica refletida na navegacao, nos badges dos calculos e no bloqueio de abertura dos recursos Pro.
-- O gate central usa a camada `accountPlanStorage`; identidade Google pode alimentar a conta quando `VITE_GOOGLE_CLIENT_ID` estiver configurado, e assinatura pode ser verificada via `VITE_ORCAOS_ENTITLEMENTS_ENDPOINT`. Pagamento real ainda sera conectado depois.
+- O gate central usa a camada `accountPlanStorage`; identidade Google pode alimentar a conta quando `VITE_GOOGLE_CLIENT_ID` estiver configurado, e assinatura pode ser verificada via `VITE_ORCAOS_ENTITLEMENTS_ENDPOINT` consultando a tabela server-side `orcaos_subscriptions`. O webhook do provedor de pagamento ainda sera conectado depois.
 - Nenhum calculo foi removido nesta etapa.
 - A proposta evita esconder todo o valor do app atras do Pro: cada setor mantem uma porta de entrada livre.
 - Para teste interno, o plano Pro pode ser simulado pela tela Loja / Pro ou no navegador com `localStorage.setItem('orcaos:user-plan', 'pro')` e recarregamento da pagina.

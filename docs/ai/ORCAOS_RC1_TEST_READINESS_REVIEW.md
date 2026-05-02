@@ -46,7 +46,7 @@ Fluxo principal:
 - `tsconfig.json` nao tem mais exclusoes especiais para arquivos legados.
 - CSS principal continua consolidado em `global.css` e `orcaosMvpTheme.css`.
 - Gate Free/Pro esta centralizado.
-- Endpoint beta `/api/entitlements` existe para liberar Pro por allowlist.
+- Endpoint `/api/entitlements` existe para liberar Pro por assinatura server-side, com allowlist apenas como fallback de beta.
 - Conta aceita e-mail cadastrado e vinculo Google.
 
 ## Dependencias Externas

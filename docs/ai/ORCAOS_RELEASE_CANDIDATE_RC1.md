@@ -12,7 +12,7 @@ Este release candidate serve para validar se o OrcaOS esta pronto para um beta f
 - Tema visual consolidado em `src/styles/global.css` e `src/styles/orcaosMvpTheme.css`.
 - Remocao das antigas camadas CSS nao importadas.
 - Fluxo principal validavel: Atendimentos -> Calculos/Levantamento -> Orcamento -> Relatorio.
-- Bloqueio comercial minimo com cadastro por e-mail, vinculo Google, conta local, gate Pro e endpoint `/api/entitlements` por allowlist.
+- Bloqueio comercial minimo com cadastro por e-mail, vinculo Google, conta local, gate Pro e endpoint `/api/entitlements` consultando assinatura server-side com allowlist apenas como fallback de beta.
 - Documentos e previews mantidos com fundo branco quando representam papel/PDF.
 - App local-first, com backup local disponivel em Configuracoes.
 
@@ -114,7 +114,7 @@ O RC1 pode ser considerado aprovado para beta fechado se:
 
 ## Riscos Conhecidos
 
-- Login Google esta preparado no frontend quando `VITE_GOOGLE_CLIENT_ID` estiver configurado; a verificacao de assinatura pode consultar `/api/entitlements` por allowlist Pro.
+- Login Google esta preparado no frontend quando `VITE_GOOGLE_CLIENT_ID` estiver configurado; a verificacao de assinatura pode consultar `/api/entitlements` com tabela Pro no Supabase e allowlist apenas como fallback.
 - Backup Google Drive manual esta preparado quando `VITE_GOOGLE_CLIENT_ID` estiver configurado; backup automatico ainda nao esta implementado.
 - O app segue local-first; perda de dados pode ocorrer se o navegador limpar armazenamento local e o usuario nao tiver backup exportado.
 - Calculos tecnicos sao estimativas de apoio e precisam de validacao profissional em campo.
@@ -131,7 +131,7 @@ O RC1 pode ser considerado aprovado para beta fechado se:
 ## Monetizacao Dos Calculos
 
 A matriz Free/Pro dos calculos do RC1 esta documentada em `docs/ai/ORCAOS_CALCULATION_MONETIZATION_MATRIX_RC1.md`.
-No RC1, a separacao aparece na organizacao, nos badges e no bloqueio de abertura dos calculos Pro. A conta/plano fica em `accountPlanStorage`, pode cadastrar e-mail proprio, simular Pro pela tela Loja / Pro, receber identidade Google quando `VITE_GOOGLE_CLIENT_ID` estiver configurado e verificar assinatura via `VITE_ORCAOS_ENTITLEMENTS_ENDPOINT`. Pagamento real fica para a proxima camada externa.
+No RC1, a separacao aparece na organizacao, nos badges e no bloqueio de abertura dos calculos Pro. A conta/plano fica em `accountPlanStorage`, pode cadastrar e-mail proprio, simular Pro pela tela Loja / Pro, receber identidade Google quando `VITE_GOOGLE_CLIENT_ID` estiver configurado e verificar assinatura via `VITE_ORCAOS_ENTITLEMENTS_ENDPOINT`. A liberacao comercial pode ser feita pela tabela `orcaos_subscriptions` ou por `/api/admin/subscriptions`; o webhook do provedor de pagamento fica para a proxima camada externa.
 O deploy do gate comercial minimo esta documentado em `docs/ai/ORCAOS_COMMERCIAL_GATE_DEPLOYMENT_V1.md`.
 
 ## Proxima Decisao
