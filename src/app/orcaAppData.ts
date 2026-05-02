@@ -4,15 +4,15 @@ import type { AppTab, CalculationSectorGroup, ModuleCardData, ModulePlan } from 
 export const userPlan: UserPlan = 'free';
 
 export const navItems: Array<{ id: AppTab; label: string; description: string; icon: string; section?: string }> = [
-  { id: 'home', label: 'Início', description: 'Visão do dia e ações rápidas', icon: '⌂', section: 'Trabalho' },
-  { id: 'clients', label: 'Atendimentos', description: 'Clientes, OS e contexto ativo', icon: '◉', section: 'Trabalho' },
-  { id: 'calculations', label: 'Cálculos', description: 'Setores técnicos e calculadoras', icon: '▦', section: 'Técnico' },
-  { id: 'survey', label: 'Levantamento', description: 'Campo, ambientes e itens', icon: '▤', section: 'Técnico' },
-  { id: 'budgets', label: 'Orçamentos', description: 'Proposta comercial', icon: '▣', section: 'Comercial' },
+  { id: 'home', label: 'Início', description: 'Visão do dia e ações rápidas', icon: 'IN', section: 'Trabalho' },
+  { id: 'clients', label: 'Atendimentos', description: 'Clientes, OS e contexto ativo', icon: 'OS', section: 'Trabalho' },
+  { id: 'calculations', label: 'Cálculos', description: 'Setores técnicos e calculadoras', icon: 'CAL', section: 'Técnico' },
+  { id: 'survey', label: 'Levantamento', description: 'Campo, ambientes e itens', icon: 'LEV', section: 'Técnico' },
+  { id: 'budgets', label: 'Orçamentos', description: 'Proposta comercial', icon: 'ORC', section: 'Comercial' },
   { id: 'catalog', label: 'Catálogo', description: 'Itens, busca, fornecedores e estoque', icon: 'CT', section: 'Comercial' },
-  { id: 'reports', label: 'Relatórios', description: 'PDFs e diagnósticos', icon: '◫', section: 'Comercial' },
-  { id: 'settings', label: 'Configurações', description: 'Perfil, backup e preferências', icon: '⚙', section: 'Sistema' },
-  { id: 'store', label: 'Loja / Pro', description: 'Pacotes e planos', icon: '◆', section: 'Sistema' },
+  { id: 'reports', label: 'Relatórios', description: 'PDFs e diagnósticos', icon: 'REL', section: 'Comercial' },
+  { id: 'settings', label: 'Configurações', description: 'Perfil, backup e preferências', icon: 'CFG', section: 'Sistema' },
+  { id: 'store', label: 'Loja / Pro', description: 'Pacotes e planos', icon: 'PRO', section: 'Sistema' },
 ];
 
 export const calculationModules: ModuleCardData[] = [

@@ -50,7 +50,7 @@ export function TechnicalCaptureList({ captures, emptyText, onRemove, onUpdate }
   if (captures.length === 0) {
     return (
       <div className="survey-empty-state">
-        <span className="app-icon tone-gray large-icon">⌁</span>
+        <span className="app-icon tone-gray large-icon">IT</span>
         <strong>Nenhum item ainda</strong>
         <p>{emptyText}</p>
       </div>
@@ -73,7 +73,7 @@ export function TechnicalCaptureList({ captures, emptyText, onRemove, onUpdate }
     return (
       <article className={clientPurchase ? 'technical-capture-card client-purchase-card' : 'technical-capture-card'} key={capture.id}>
         <header className="technical-capture-header">
-          <span className={clientPurchase ? 'app-icon tone-green' : 'app-icon tone-blue'}>{clientPurchase ? '🛒' : '▤'}</span>
+          <span className={clientPurchase ? 'app-icon tone-green' : 'app-icon tone-blue'}>{clientPurchase ? 'PC' : 'IT'}</span>
           <span>
             <strong>{capture.calculatorLabel}</strong>
             <small>{capture.moduleLabel} · {formatCaptureTime(capture.createdAt)}</small>
