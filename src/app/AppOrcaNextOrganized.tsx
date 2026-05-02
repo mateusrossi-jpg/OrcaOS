@@ -24,6 +24,7 @@ import { ModuleCard } from './components/ModuleCard';
 import { calculationModules, calculationSectorGroups, navItems, planLabel, storePackages, userPlan } from './orcaAppData';
 import type { ActiveWorkContext, AppTab, CalculationSectorId, ModuleCardData, SurveySection } from './orcaAppTypes';
 import { loadStoredCaptures, saveStoredCaptures } from './storage/calculationCapturesStorage';
+import { LegalCompliancePanel } from '../features/settings/components/LegalCompliancePanel';
 
 const BudgetWorkspaceClientBridge = lazy(() => import('../features/budgets/components/BudgetWorkspaceClientBridge').then((module) => ({ default: module.BudgetWorkspaceClientBridge })));
 const ElectricalCalculatorWorkspace = lazy(() => import('../features/calculators/components/ElectricalCalculatorWorkspace').then((module) => ({ default: module.ElectricalCalculatorWorkspace })));
@@ -466,6 +467,7 @@ function SettingsScreen({ account, onAccountChange }: { account: OrcaAccountStat
         </section>
       </div>
 
+      <LegalCompliancePanel />
       <LocalBackupWorkspace />
     </section>
   );
