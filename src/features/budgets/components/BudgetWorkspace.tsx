@@ -19,7 +19,7 @@ import { BudgetPrintPreview } from './BudgetPrintPreview';
 import './BudgetWorkspace.css';
 
 type BudgetCategory = BudgetItem['category'];
-type BudgetWorkspaceSection = 'proposal' | 'items' | 'catalog' | 'company' | 'models' | 'preview';
+type BudgetWorkspaceSection = 'proposal' | 'items' | 'catalog' | 'company' | 'models' | 'review' | 'preview';
 
 interface BudgetWorkspaceProps {
   technicalCaptures?: CalculationCapture[];
@@ -470,8 +470,8 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
       <div className="budget-workspace-tabs">
         <button className={activeSection === 'proposal' ? 'active' : ''} type="button" onClick={() => setActiveSection('proposal')}>Dados</button>
         <button className={activeSection === 'items' ? 'active' : ''} type="button" onClick={() => setActiveSection('items')}>Itens</button>
-        <button className={activeSection === 'models' ? 'active' : ''} type="button" onClick={() => setActiveSection('models')}>Modelos</button>
-        <button className={activeSection === 'preview' ? 'active' : ''} type="button" onClick={() => setActiveSection('preview')}>Prévia</button>
+        <button className={activeSection === 'review' ? 'active' : ''} type="button" onClick={() => setActiveSection('review')}>Revisão</button>
+        <button className={activeSection === 'preview' ? 'active' : ''} type="button" onClick={() => setActiveSection('preview')}>Envio</button>
       </div>
 
       {activeSection === 'proposal' && (
@@ -602,9 +602,68 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
         </section>
       )}
 
+      {activeSection === 'review' && (
+        <section className="budget-section-panel budget-review-panel">
+          <div className="budget-section-header">
+            <div>
+              <h3>Revisão da proposta</h3>
+              <p>Confira cliente, itens, composição de valor e pendências antes do envio.</p>
+            </div>
+            <button type="button" className="primary-action inline-action" onClick={() => setActiveSection('preview')}>Ir para envio</button>
+          </div>
+
+          <div className="budget-review-grid">
+            <article className="budget-review-total">
+              <span>Total da proposta</span>
+              <strong>{formatCurrency(summary.total)}</strong>
+              <small>{items.length} item(ns) · {statusLabel(budgetStatus)}</small>
+            </article>
+            <article><span>Mão de obra</span><strong>{formatCurrency(summary.labor)}</strong></article>
+            <article><span>Materiais</span><strong>{formatCurrency(summary.material)}</strong></article>
+            <article><span>Outros</span><strong>{formatCurrency(summary.other)}</strong></article>
+          </div>
+
+          <div className="budget-review-columns">
+            <div className="budget-review-card">
+              <strong>Checklist comercial</strong>
+              <ul>
+                <li className={clientName.trim() ? 'complete' : ''}>Cliente informado</li>
+                <li className={budgetTitle.trim() ? 'complete' : ''}>Título da proposta definido</li>
+                <li className={items.length > 0 ? 'complete' : ''}>Itens adicionados</li>
+                <li className={businessProfile.businessName || businessProfile.responsibleName ? 'complete' : ''}>Perfil profissional preenchido</li>
+              </ul>
+            </div>
+
+            <div className="budget-review-card">
+              <strong>Modelo e condições</strong>
+              <div className="budget-template-grid compact-template-grid">
+                {budgetTemplateOptions.map((template) => {
+                  const isLocked = template.plan === 'pro';
+                  return <button className={selectedTemplate === template.id ? 'budget-template-card active' : 'budget-template-card'} disabled={isLocked} key={template.id} type="button" onClick={() => setSelectedTemplate(template.id)}><strong>{template.title}</strong><small>{isLocked ? 'Futuro pacote Pro' : 'Incluso no MVP'}</small></button>;
+                })}
+              </div>
+              <small>{businessProfile.defaultPaymentTerms || 'Sem condição de pagamento padrão.'}</small>
+              <small>{businessProfile.defaultValidity || 'Sem validade padrão.'}</small>
+            </div>
+          </div>
+
+          <div className="budget-review-card">
+            <strong>Itens para conferência</strong>
+            <div className="budget-review-item-list">
+              {items.length === 0 ? <small>Nenhum item adicionado ainda.</small> : items.map((item) => (
+                <article key={item.id}>
+                  <span><strong>{item.description}</strong><small>{categoryLabel(item.category)} · {item.quantity} × {formatCurrency(item.unitPrice)}</small></span>
+                  <em>{formatCurrency(calculateBudgetItemTotal(item))}</em>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
       {activeSection === 'preview' && (
         <section className="budget-section-panel preview-section-panel">
-          <div className="budget-section-header"><div><h3>Prévia do orçamento</h3><p>Confira o documento antes de imprimir ou salvar em PDF.</p></div></div>
+          <div className="budget-section-header"><div><h3>Envio da proposta</h3><p>Confira o documento, copie o resumo comercial, envie por WhatsApp ou salve em PDF.</p></div></div>
           <div className="budget-share-card">
             <div>
               <strong>Enviar proposta</strong>
