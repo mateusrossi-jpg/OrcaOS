@@ -320,6 +320,98 @@ button {
   line-height: 0.95;
 }
 
+.operational-home-hero {
+  align-items: center;
+}
+
+.operational-home-hero .orca-dashboard-copy h1 {
+  max-width: 680px;
+  font-size: clamp(2.1rem, 4.2vw, 3.4rem);
+}
+
+.home-primary-actions {
+  display: grid;
+  gap: 10px;
+  align-self: stretch;
+  align-content: center;
+}
+
+.home-primary-actions .inline-action {
+  min-height: 52px;
+  justify-content: center;
+}
+
+.home-operational-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(260px, 0.8fr);
+  gap: 12px;
+  align-items: start;
+}
+
+.home-action-list,
+.home-status-list {
+  display: grid;
+  gap: 10px;
+}
+
+.home-action-list button {
+  display: grid;
+  gap: 4px;
+  width: 100%;
+  min-height: 72px;
+  padding: 14px;
+  border: 1px solid var(--orca-border);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.025);
+  color: var(--orca-text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.home-action-list button:hover {
+  border-color: var(--orca-border-strong);
+  background: rgba(34, 197, 94, 0.07);
+}
+
+.home-action-list strong,
+.home-action-list small {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.home-action-list small,
+.home-status-list small {
+  color: var(--orca-muted);
+}
+
+.home-status-list article {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+  padding: 13px;
+  border: 1px solid var(--orca-border);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.home-status-list span {
+  color: var(--orca-muted);
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+.home-status-list strong {
+  color: var(--orca-text);
+  font-size: 1.25rem;
+}
+
+.home-recent-panel .orca-activity-list {
+  max-height: 240px;
+  overflow: auto;
+}
+
 .mini-sparkline {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
@@ -1423,7 +1515,8 @@ textarea::placeholder {
 
 @media (max-width: 900px) {
   .orca-dashboard-hero,
-  .orca-home-columns {
+  .orca-home-columns,
+  .home-operational-grid {
     grid-template-columns: 1fr;
   }
 
@@ -1465,12 +1558,25 @@ textarea::placeholder {
     font-size: clamp(1.85rem, 10vw, 2.8rem);
   }
 
+  .operational-home-hero .orca-dashboard-copy h1 {
+    font-size: clamp(1.9rem, 9vw, 2.65rem);
+  }
+
   .orca-dashboard-value-card {
     display: none;
   }
 
   .orca-panel-card {
     padding: 14px;
+  }
+
+  .home-primary-actions {
+    align-content: stretch;
+  }
+
+  .home-primary-actions .inline-action,
+  .home-action-list button {
+    width: 100%;
   }
 }
 
@@ -1491,6 +1597,7 @@ textarea::placeholder {
 
   .orca-step-card,
   .orca-quick-actions button,
+  .home-action-list button,
   .orca-compact-module-list button,
   .orca-activity-list article {
     min-height: 68px;

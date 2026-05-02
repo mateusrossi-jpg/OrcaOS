@@ -72,15 +72,18 @@ function HomeScreen({ goTo, openModule, captures, clients, workOrders }: { goTo:
   const openWorkOrders = workOrders.filter((workOrder) => workOrder.status !== 'done' && workOrder.status !== 'cancelled').length;
   const budgetItems = captures.filter((capture) => capture.destination === 'budget' || capture.destination === 'both').length;
   const surveyItems = captures.filter((capture) => capture.destination === 'survey' || capture.destination === 'both').length;
-  const recentItems = captures.slice(0, 4);
+  const recentItems = captures.slice(0, 3);
   const electricalModule = calculationModules.find((module) => module.id === 'fundamentos') ?? calculationModules[0];
   const hydraulicModule = calculationModules.find((module) => module.id === 'hidraulica') ?? calculationModules[0];
 
   return (
     <section className="app-screen orca-dashboard-screen">
-      <div className="orca-dashboard-hero">
-        <div className="orca-dashboard-copy"><span className="orca-kicker">Fluxo principal</span><h1>Do atendimento ao orçamento, sem se perder no caminho.</h1><p>Comece pela OS, faça cálculos quando precisar, levante ambientes e envie os itens para a proposta.</p></div>
-        <div className="orca-dashboard-value-card"><span>Hoje no app</span><strong>{captures.length + workOrders.length}</strong><small>registros técnicos e atendimentos</small><div className="mini-sparkline" aria-hidden="true"><i /><i /><i /><i /><i /></div></div>
+      <div className="orca-dashboard-hero operational-home-hero">
+        <div className="orca-dashboard-copy"><span className="orca-kicker">Fluxo principal</span><h1>Continue o atendimento e avance para a proposta.</h1><p>Use a ordem natural do serviço: cliente e OS, cálculo quando necessário, levantamento em campo e orçamento para envio.</p></div>
+        <div className="home-primary-actions">
+          <button type="button" className="primary-action inline-action" onClick={() => goTo(openWorkOrders > 0 ? 'survey' : 'clients')}>{openWorkOrders > 0 ? 'Continuar atendimento' : 'Criar atendimento'}</button>
+          <button type="button" className="secondary-action inline-action" onClick={() => goTo('budgets')}>Abrir orçamento</button>
+        </div>
       </div>
       <div className="orca-workflow-steps">
         <button type="button" className="orca-step-card" onClick={() => goTo('clients')}><span className="orca-step-number">1</span><strong>Atendimento</strong><small>Escolha cliente e OS.</small></button>
@@ -88,9 +91,29 @@ function HomeScreen({ goTo, openModule, captures, clients, workOrders }: { goTo:
         <button type="button" className="orca-step-card" onClick={() => goTo('survey')}><span className="orca-step-number">3</span><strong>Levantamento</strong><small>Ambientes, serviços e materiais.</small></button>
         <button type="button" className="orca-step-card" onClick={() => goTo('budgets')}><span className="orca-step-number">4</span><strong>Orçamento</strong><small>Revise e monte a proposta.</small></button>
       </div>
-      <div className="orca-kpi-grid"><article><span>Cálculos salvos</span><strong>{captures.length}</strong><small>fluxo técnico</small></article><article><span>Levantamentos</span><strong>{surveyItems}</strong><small>itens prontos</small></article><article><span>Orçamentos</span><strong>{budgetItems}</strong><small>base comercial</small></article><article><span>Atendimentos</span><strong>{clients.length}/{openWorkOrders}</strong><small>clientes e OS abertas</small></article></div>
-      <div className="orca-quick-actions"><button type="button" onClick={() => openModule(electricalModule)}><span><strong>Elétrica</strong><small>fundamentos técnicos</small></span></button><button type="button" onClick={() => openModule(hydraulicModule)}><span><strong>Hidráulica</strong><small>reservatório e vazão</small></span></button><button type="button" onClick={() => goTo('survey')}><span><strong>Levantamento</strong><small>serviços e peças</small></span></button><button type="button" onClick={() => goTo('budgets')}><span><strong>Orçamento</strong><small>proposta e PDF</small></span></button></div>
-      <div className="orca-home-columns"><section className="orca-panel-card"><header><div><span className="orca-kicker">Atividade</span><h2>Recentes</h2></div><button type="button" onClick={() => goTo('survey')}>Abrir levantamento</button></header><div className="orca-activity-list">{recentItems.length === 0 ? <article><div><strong>Comece pelo fluxo principal</strong><small>Crie uma OS, faça um cálculo ou lance um item no levantamento.</small></div></article> : recentItems.map((capture) => <article key={capture.id}><div><strong>{capture.calculatorLabel}</strong><small>{capture.summary}</small></div><em>{capture.destination === 'both' ? 'Ambos' : capture.destination === 'budget' ? 'Orç.' : 'Levant.'}</em></article>)}</div></section></div>
+      <div className="home-operational-grid">
+        <section className="orca-panel-card home-focus-panel">
+          <header><div><span className="orca-kicker">Ações rápidas</span><h2>O que fazer agora?</h2></div></header>
+          <div className="home-action-list">
+            <button type="button" onClick={() => goTo('clients')}><strong>Novo cliente / OS</strong><small>Crie ou selecione o atendimento ativo.</small></button>
+            <button type="button" onClick={() => openModule(electricalModule)}><strong>Cálculo elétrico</strong><small>Ohm, potência, corrente e consumo.</small></button>
+            <button type="button" onClick={() => openModule(hydraulicModule)}><strong>Cálculo hidráulico</strong><small>Reservatório, consumo, vazão e pressão.</small></button>
+            <button type="button" onClick={() => goTo('catalog')}><strong>Catálogo e fornecedores</strong><small>Itens reais para referência de orçamento.</small></button>
+          </div>
+        </section>
+        <section className="orca-panel-card home-status-panel">
+          <header><div><span className="orca-kicker">Resumo</span><h2>Hoje</h2></div></header>
+          <div className="home-status-list">
+            <article><span>Atendimentos</span><strong>{clients.length}/{openWorkOrders}</strong><small>clientes e OS abertas</small></article>
+            <article><span>Levantamento</span><strong>{surveyItems}</strong><small>itens prontos</small></article>
+            <article><span>Orçamento</span><strong>{budgetItems}</strong><small>itens comerciais</small></article>
+          </div>
+        </section>
+      </div>
+      <section className="orca-panel-card home-recent-panel">
+        <header><div><span className="orca-kicker">Atividade</span><h2>Recentes</h2></div><button type="button" onClick={() => goTo('survey')}>Abrir levantamento</button></header>
+        <div className="orca-activity-list">{recentItems.length === 0 ? <article><div><strong>Comece pelo atendimento</strong><small>Crie uma OS e avance para cálculos, levantamento e orçamento.</small></div></article> : recentItems.map((capture) => <article key={capture.id}><div><strong>{capture.calculatorLabel}</strong><small>{capture.summary}</small></div><em>{capture.destination === 'both' ? 'Ambos' : capture.destination === 'budget' ? 'Orç.' : 'Levant.'}</em></article>)}</div>
+      </section>
     </section>
   );
 }
