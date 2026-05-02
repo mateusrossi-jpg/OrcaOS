@@ -46,6 +46,17 @@ describe('electrical calculations', () => {
     expect(roundTechnical(current)).toBe(10);
   });
 
+  it('calculates current from power in a three-phase circuit', () => {
+    const current = calculateCurrentFromPower({
+      powerWatts: 10000,
+      voltageVolts: 380,
+      powerFactor: 0.92,
+      phase: 'three-phase',
+    });
+
+    expect(roundTechnical(current)).toBe(16.51);
+  });
+
   it('calculates power from current in a single-phase circuit', () => {
     const power = calculatePowerFromCurrent({
       currentAmps: 10,

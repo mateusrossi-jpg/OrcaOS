@@ -106,6 +106,17 @@ describe('plan entitlements', () => {
     expect(result.account.planStatus).toBe('past_due');
   });
 
+  it('keeps inactive subscription users on free plan', async () => {
+    vi.stubEnv('VITE_ORCAOS_ENTITLEMENTS_ENDPOINT', 'https://api.example.com/entitlements');
+    const account = signInGoogleAccount({ sub: '123', email: 'mateus@example.com' });
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({ plan: 'pro', status: 'inactive', planSource: 'subscription' })));
+
+    const result = await refreshPlanEntitlement(account);
+
+    expect(result.account.plan).toBe('free');
+    expect(result.account.planStatus).toBe('inactive');
+  });
+
   it('fails clearly when the entitlement endpoint rejects the request', async () => {
     vi.stubEnv('VITE_ORCAOS_ENTITLEMENTS_ENDPOINT', 'https://api.example.com/entitlements');
     const account = signInGoogleAccount({ sub: '123' });

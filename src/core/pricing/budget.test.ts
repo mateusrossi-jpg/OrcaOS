@@ -34,6 +34,14 @@ describe('budget pricing', () => {
     expect(calculateBudgetSubtotal(budget.items)).toBe(214);
   });
 
+  it('keeps category subtotals predictable for proposal review', () => {
+    const laborSubtotal = budget.items.filter((item) => item.category === 'labor').reduce((total, item) => total + calculateBudgetItemTotal(item), 0);
+    const materialSubtotal = budget.items.filter((item) => item.category === 'material').reduce((total, item) => total + calculateBudgetItemTotal(item), 0);
+
+    expect(laborSubtotal).toBe(160);
+    expect(materialSubtotal).toBe(54);
+  });
+
   it('calculates total with discount', () => {
     expect(calculateBudgetTotal(budget)).toBe(194);
   });

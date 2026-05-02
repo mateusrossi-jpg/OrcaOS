@@ -50,6 +50,12 @@ describe('budget validation', () => {
     expect(issues.map((issue) => issue.code)).toContain('discount-too-high');
   });
 
+  it('blocks invalid commercial adjustments', () => {
+    const issues = validateBudgetForProposal({ ...validBudget, discount: -1, travelCost: -10, additionalFees: -5 });
+    expect(issues.map((issue) => issue.code)).toEqual(expect.arrayContaining(['discount-negative', 'travel-negative', 'fees-negative']));
+    expect(hasBlockingBudgetIssues(issues)).toBe(true);
+  });
+
   it('warns when client is missing', () => {
     const issues = validateBudgetForProposal({ ...validBudget, clientId: undefined, notes: '' });
     expect(issues.map((issue) => issue.code)).toContain('client-missing');
