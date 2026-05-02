@@ -107,10 +107,10 @@ Pro:
 ## Observacoes De Implementacao
 
 - No RC1, a separacao Free/Pro fica refletida na navegacao, nos badges dos calculos e no bloqueio de abertura dos recursos Pro.
-- O gate central usa o plano local do app; pagamento, login e assinatura real ainda serao conectados depois.
+- O gate central usa a camada `accountPlanStorage`; pagamento, login Google e assinatura real ainda serao conectados depois.
 - Nenhum calculo foi removido nesta etapa.
 - A proposta evita esconder todo o valor do app atras do Pro: cada setor mantem uma porta de entrada livre.
-- Para teste interno, o plano Pro pode ser simulado no navegador com `localStorage.setItem('orcaos:user-plan', 'pro')` e recarregamento da pagina.
+- Para teste interno, o plano Pro pode ser simulado pela tela Loja / Pro ou no navegador com `localStorage.setItem('orcaos:user-plan', 'pro')` e recarregamento da pagina.
 
 ## Proxima Etapa
 

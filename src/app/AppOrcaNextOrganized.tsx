@@ -1,4 +1,12 @@
 import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
+import {
+  loadAccountState,
+  ORCA_ACCOUNT_CHANGED_EVENT,
+  setLocalUserPlan,
+  signInLocalAccount,
+  signOutLocalAccount,
+  type OrcaAccountState,
+} from '../core/access/accountPlanStorage';
 import type { CalculatorModule, UserPlan } from '../core/access/featureAccess';
 import type { Client, WorkOrder } from '../core/types/business';
 import type { CalculationCapture } from '../core/types/workflow';
@@ -8,7 +16,7 @@ import { loadActiveWorkOrderId, loadClients, loadWorkOrders } from '../features/
 import { ActiveWorkContextCard } from './components/ActiveWorkContextCard';
 import { AppShell } from './components/AppShell';
 import { ModuleCard } from './components/ModuleCard';
-import { calculationModules, calculationSectorGroups, navItems, planLabel, resolveUserPlan, storePackages, userPlan } from './orcaAppData';
+import { calculationModules, calculationSectorGroups, navItems, planLabel, storePackages, userPlan } from './orcaAppData';
 import type { ActiveWorkContext, AppTab, CalculationSectorId, ModuleCardData, SurveySection } from './orcaAppTypes';
 import { loadStoredCaptures, saveStoredCaptures } from './storage/calculationCapturesStorage';
 
@@ -309,12 +317,14 @@ function ClientsScreen({ onContextChange }: { onContextChange: (clients: Client[
   return <section className="app-screen wide-screen"><header className="screen-header"><span className="orca-kicker">Início do serviço</span><h1>Atendimentos</h1><p>Escolha o cliente e a OS ativa antes de calcular, levantar campo, orçar ou gerar relatório.</p></header><ClientWorkOrderWorkspace onContextChange={onContextChange} /></section>;
 }
 
-function StoreScreen({ userPlan: activeUserPlan }: { userPlan: UserPlan }) {
-  return <section className="app-screen wide-screen"><header className="screen-header"><span className="orca-kicker">Recursos premium</span><h1>Loja / Pro</h1><p>Pacotes de cálculos, modelos de orçamento e recursos profissionais.</p></header><div className="settings-group"><h2>Plano atual</h2><article className="settings-row"><span><strong>{activeUserPlan === 'pro' ? 'Pro ativo' : 'Grátis ativo'}</strong><small>{activeUserPlan === 'pro' ? 'Todos os cálculos profissionais ficam liberados neste ambiente.' : 'Cálculos livres liberados. Recursos Pro abrem a tela de upgrade.'}</small></span></article></div><div className="settings-group"><h2>Pacotes disponíveis</h2>{storePackages.map((pack) => <article className="store-card" key={pack.title}><span><strong>{pack.title}</strong><small>{pack.description}</small><b>{pack.price}</b></span><button type="button">Detalhes</button></article>)}</div></section>;
+function StoreScreen({ account, onAccountChange }: { account: OrcaAccountState; onAccountChange: (account: OrcaAccountState) => void }) {
+  const activeUserPlan = account.plan;
+
+  return <section className="app-screen wide-screen"><header className="screen-header"><span className="orca-kicker">Recursos premium</span><h1>Loja / Pro</h1><p>Pacotes de cálculos, modelos de orçamento e recursos profissionais.</p></header><div className="settings-group"><h2>Plano atual</h2><article className="settings-row"><span><strong>{activeUserPlan === 'pro' ? 'Pro ativo' : 'Grátis ativo'}</strong><small>{activeUserPlan === 'pro' ? 'Todos os cálculos profissionais ficam liberados neste ambiente de teste.' : 'Cálculos livres liberados. Recursos Pro abrem a tela de upgrade.'}</small></span></article><div className="general-capture-actions"><button type="button" onClick={() => onAccountChange(setLocalUserPlan('pro'))}>Ativar Pro de teste</button><button className="secondary-action" type="button" onClick={() => onAccountChange(setLocalUserPlan('free'))}>Voltar ao grátis</button></div></div><div className="settings-group"><h2>Pacotes disponíveis</h2>{storePackages.map((pack) => <article className="store-card" key={pack.title}><span><strong>{pack.title}</strong><small>{pack.description}</small><b>{pack.price}</b></span><button type="button">Detalhes</button></article>)}</div></section>;
 }
 
-function SettingsScreen({ userPlan: activeUserPlan }: { userPlan: UserPlan }) {
-  return <section className="app-screen wide-screen"><header className="screen-header"><span className="orca-kicker">Preferências</span><h1>Configurações</h1><p>Perfil profissional, backup, plano e preferências do app.</p></header><div className="settings-group"><h2>Conta</h2><article className="settings-row"><span><strong>Meu plano</strong><small>{activeUserPlan === 'pro' ? 'Pro ativo neste ambiente' : 'Grátis · base inicial ativa'}</small></span></article><article className="settings-row"><span><strong>Roadmap</strong><small>OrçaOS, módulos profissionais, relatórios e OS</small></span></article></div><LocalBackupWorkspace /></section>;
+function SettingsScreen({ account, onAccountChange }: { account: OrcaAccountState; onAccountChange: (account: OrcaAccountState) => void }) {
+  return <section className="app-screen wide-screen"><header className="screen-header"><span className="orca-kicker">Preferências</span><h1>Configurações</h1><p>Perfil profissional, backup, plano e preferências do app.</p></header><div className="settings-group"><h2>Conta</h2><article className="settings-row"><span><strong>{account.status === 'local' ? account.displayName : 'Sem login'}</strong><small>{account.status === 'local' ? 'Conta local de teste preparada para login real depois' : 'Modo visitante local-first'}</small></span></article><article className="settings-row"><span><strong>Meu plano</strong><small>{account.plan === 'pro' ? 'Pro ativo neste ambiente' : 'Grátis · base inicial ativa'}</small></span></article><div className="general-capture-actions"><button type="button" onClick={() => onAccountChange(signInLocalAccount())}>Entrar localmente</button><button className="secondary-action" type="button" onClick={() => onAccountChange(signOutLocalAccount())}>Sair</button></div><article className="settings-row"><span><strong>Roadmap</strong><small>Google, assinatura e backup automático serão conectados a esta camada de conta.</small></span></article></div><LocalBackupWorkspace /></section>;
 }
 
 export function App() {
@@ -325,9 +335,18 @@ export function App() {
   const [clients, setClients] = useState<Client[]>(() => loadClients());
   const [workOrders, setWorkOrders] = useState<WorkOrder[]>(() => loadWorkOrders());
   const [activeWorkOrderId, setActiveWorkOrderId] = useState<string | null>(() => loadActiveWorkOrderId());
-  const [activeUserPlan] = useState<UserPlan>(() => resolveUserPlan(userPlan));
+  const [account, setAccount] = useState<OrcaAccountState>(() => loadAccountState());
+  const activeUserPlan = account.plan ?? userPlan;
 
   useEffect(() => { saveStoredCaptures(captures); }, [captures]);
+  useEffect(() => {
+    function syncAccount() {
+      setAccount(loadAccountState());
+    }
+
+    window.addEventListener(ORCA_ACCOUNT_CHANGED_EVENT, syncAccount);
+    return () => window.removeEventListener(ORCA_ACCOUNT_CHANGED_EVENT, syncAccount);
+  }, []);
 
   const activeWorkOrder = useMemo(() => workOrders.find((workOrder) => workOrder.id === activeWorkOrderId) ?? null, [activeWorkOrderId, workOrders]);
   const activeClient = useMemo(() => (activeWorkOrder?.clientId ? clients.find((client) => client.id === activeWorkOrder.clientId) ?? null : null), [activeWorkOrder?.clientId, clients]);
@@ -374,8 +393,8 @@ export function App() {
         {activeTab === 'catalog' && <CatalogScreen onAddMany={addManyCalculationCaptures} />}
         {activeTab === 'reports' && <ReportsScreen captures={captures} context={context} />}
         {activeTab === 'clients' && <ClientsScreen onContextChange={(nextClients, nextWorkOrders, nextActiveWorkOrderId) => { setClients(nextClients); setWorkOrders(nextWorkOrders); setActiveWorkOrderId(nextActiveWorkOrderId); }} />}
-        {activeTab === 'store' && <StoreScreen userPlan={activeUserPlan} />}
-        {activeTab === 'settings' && <SettingsScreen userPlan={activeUserPlan} />}
+        {activeTab === 'store' && <StoreScreen account={account} onAccountChange={setAccount} />}
+        {activeTab === 'settings' && <SettingsScreen account={account} onAccountChange={setAccount} />}
       </Suspense>
     </AppShell>
   );

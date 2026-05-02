@@ -3,13 +3,6 @@ import type { AppTab, CalculationSectorGroup, ModuleCardData, ModulePlan } from 
 
 export const userPlan: UserPlan = 'free';
 
-export function resolveUserPlan(defaultPlan: UserPlan = userPlan): UserPlan {
-  if (typeof window === 'undefined') return defaultPlan;
-
-  const storedPlan = window.localStorage.getItem('orcaos:user-plan');
-  return storedPlan === 'pro' ? 'pro' : defaultPlan;
-}
-
 export const navItems: Array<{ id: AppTab; label: string; description: string; icon: string; section?: string }> = [
   { id: 'home', label: 'Início', description: 'Visão do dia e ações rápidas', icon: 'IN', section: 'Trabalho' },
   { id: 'clients', label: 'Atendimentos', description: 'Clientes, OS e contexto ativo', icon: 'OS', section: 'Trabalho' },
