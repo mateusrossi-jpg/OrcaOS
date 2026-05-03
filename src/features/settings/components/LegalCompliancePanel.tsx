@@ -32,9 +32,11 @@ export function LegalCompliancePanel() {
   return (
     <section className="legal-compliance-panel">
       <div className="legal-compliance-header">
-        <span className="orca-kicker">Responsabilidade e dados</span>
-        <h2>Termos, privacidade e aviso tecnico</h2>
-        <p>Informacoes essenciais para uso responsavel no beta fechado.</p>
+        <div>
+          <span className="orca-kicker">Responsabilidade e dados</span>
+          <h2>Termos, privacidade e aviso tecnico</h2>
+          <p>Informacoes essenciais para uso responsavel no beta fechado.</p>
+        </div>
       </div>
 
       <div className="legal-compliance-grid">

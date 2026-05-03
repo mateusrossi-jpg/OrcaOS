@@ -119,8 +119,10 @@ export function LocalBackupWorkspace() {
 
         <div className="local-backup-grid">
           <article className="local-backup-card">
-            <strong>Exportar backup</strong>
-            <small>Gera um JSON com clientes, OS, cálculos, catálogo, fornecedores, compras, estoque, perfil profissional e configurações salvas localmente.</small>
+            <div className="local-card-heading">
+              <strong>Exportar backup</strong>
+              <small>Gera um JSON com clientes, OS, cálculos, catálogo, fornecedores, compras, estoque, perfil profissional e configurações salvas localmente.</small>
+            </div>
             <div className="local-backup-summary-grid">
               {currentDataSummary.map((item) => <span key={item.label}>{item.label}: <strong>{item.count}</strong></span>)}
             </div>
@@ -132,8 +134,10 @@ export function LocalBackupWorkspace() {
           </article>
 
           <article className="local-backup-card">
-            <strong>Restaurar backup</strong>
-            <small>Importe um JSON do OrçaOS. Mesclar mantém dados atuais; substituir apaga dados locais do OrçaOS antes de restaurar.</small>
+            <div className="local-card-heading">
+              <strong>Restaurar backup</strong>
+              <small>Importe um JSON do OrçaOS. Mesclar mantém dados atuais; substituir apaga dados locais do OrçaOS antes de restaurar.</small>
+            </div>
             <label className="local-backup-file">
               <span>Arquivo JSON</span>
               <input type="file" accept="application/json,.json" onChange={(event) => handleFileImport(event.target.files?.[0] ?? null)} />

@@ -1200,14 +1200,15 @@ button {
 
 .back-button,
 .section-title-row button,
-.inline-action,
-.budget-actions button,
+.primary-action,
+.primary-action-button,
+.budget-actions .primary-action,
 .store-card button,
-.guided-cart-actions button,
-.guided-room-form-actions button,
-.guided-room-actions button,
-.active-os-panel .inline-action,
-.client-proposal-actions button,
+.guided-cart-actions .primary-action,
+.guided-room-form-actions .primary-action,
+.guided-room-actions .primary-action,
+.active-os-panel .primary-action,
+.client-proposal-actions .primary-action,
 .client-proposal-search button {
   border: 1px solid var(--orca-border-strong);
   color: #041008;
@@ -1216,12 +1217,15 @@ button {
 }
 
 .secondary-action,
+.secondary-action-button,
 .ghost-action,
+.inline-action:not(.primary-action):not(.danger-action),
 .budget-workspace-tabs button:not(.active),
 .section-mode-tabs button:not(.active),
 .client-os-section-tabs button:not(.active) {
-  color: var(--orca-muted);
-  background: transparent;
+  border: 1px solid rgba(0, 184, 194, 0.32);
+  color: var(--orca-teal);
+  background: rgba(0, 184, 194, 0.08);
 }
 
 .danger-action,
@@ -1637,14 +1641,13 @@ textarea::placeholder {
 }
 
 .app-screen :where(
-  .inline-action,
   .primary-action,
   .primary-action-button,
   .store-card button,
   .guided-quantity-row button,
-  .guided-cart-actions button,
-  .guided-room-form-actions button,
-  .guided-room-actions button
+  .guided-cart-actions .primary-action,
+  .guided-room-form-actions .primary-action,
+  .guided-room-actions .primary-action
 ) {
   border-color: var(--orca-border-strong) !important;
   color: #041008 !important;
@@ -1655,6 +1658,7 @@ textarea::placeholder {
   .secondary-action,
   .secondary-action-button,
   .ghost-action,
+  .inline-action:not(.primary-action):not(.danger-action),
   .summary-kicker,
   .status-sent,
   .status-approved,
@@ -1669,6 +1673,116 @@ textarea::placeholder {
   border: 1px solid var(--orca-border-strong) !important;
   color: var(--orca-teal) !important;
   background: rgba(0, 184, 194, 0.10) !important;
+}
+
+.app-screen :where(.danger-action, .saved-budget-delete, .budget-item-total button) {
+  border: 1px solid rgba(248, 113, 113, 0.30) !important;
+  color: #fecaca !important;
+  background: rgba(127, 29, 29, 0.16) !important;
+}
+
+.app-screen :where(
+  .screen-header,
+  .budget-section-header,
+  .saved-budget-panel-header,
+  .guided-cart-header,
+  .guided-room-header,
+  .catalog-hub-header,
+  .local-backup-header,
+  .professional-profile-header,
+  .legal-compliance-header,
+  .orca-panel-card > header
+) {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  min-width: 0;
+}
+
+.app-screen :where(
+  .screen-header,
+  .budget-section-header > div,
+  .saved-budget-panel-header > div,
+  .guided-cart-header > div,
+  .guided-room-header > div,
+  .catalog-hub-header > div,
+  .local-backup-header > div,
+  .professional-profile-header > div,
+  .legal-compliance-header > div,
+  .orca-panel-card > header > div,
+  .survey-intro-card > span,
+  .settings-row > span,
+  .store-card > span,
+  .technical-import-card > span,
+  .catalog-card > span,
+  .guided-manual-block-card > div:first-child,
+  .parts-results-header,
+  .guided-cart-summary,
+  .part-result-main,
+  .active-work-context-card > div
+) {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.app-screen :where(h1, h2, h3, h4, p) {
+  margin-block: 0;
+}
+
+.app-screen :where(
+  .screen-header p,
+  .budget-section-header p,
+  .saved-budget-panel-header p,
+  .guided-cart-header p,
+  .guided-room-header p,
+  .catalog-hub-header p,
+  .local-backup-header p,
+  .professional-profile-header p,
+  .legal-compliance-header p,
+  .survey-intro-card small,
+  .settings-row small,
+  .store-card small,
+  .guided-manual-block-card small,
+  .catalog-card small,
+  .technical-import-card small,
+  .part-result-main small
+) {
+  line-height: 1.45;
+}
+
+.app-screen :where(
+  .section-mode-tabs,
+  .budget-workspace-tabs,
+  .client-os-section-tabs
+) {
+  border-color: rgba(148, 214, 218, 0.13) !important;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.028), rgba(255, 255, 255, 0.012)),
+    rgba(6, 14, 16, 0.58) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.025);
+}
+
+.app-screen :where(
+  .section-mode-tabs button,
+  .budget-workspace-tabs button,
+  .client-os-section-tabs button
+) {
+  color: var(--orca-muted) !important;
+  background: transparent !important;
+}
+
+.app-screen :where(
+  .section-mode-tabs button.active,
+  .budget-workspace-tabs button.active,
+  .client-os-section-tabs button.active
+) {
+  border-color: rgba(0, 184, 194, 0.42) !important;
+  color: #d8fbff !important;
+  background:
+    radial-gradient(circle at top right, rgba(0, 184, 194, 0.20), transparent 8rem),
+    rgba(0, 184, 194, 0.12) !important;
 }
 
 .app-screen :where(

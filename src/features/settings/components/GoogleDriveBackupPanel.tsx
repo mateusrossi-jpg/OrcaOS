@@ -130,8 +130,10 @@ export function GoogleDriveBackupPanel() {
 
       <div className="local-backup-grid">
         <article className="local-backup-card">
-          <strong>Salvar no Drive</strong>
-          <small>Cria ou atualiza o arquivo `orcaos-backup.json` dentro do appDataFolder do Google Drive.</small>
+          <div className="local-card-heading">
+            <strong>Salvar no Drive</strong>
+            <small>Cria ou atualiza o arquivo `orcaos-backup.json` dentro do appDataFolder do Google Drive.</small>
+          </div>
           <div className="local-backup-actions">
             <button className="secondary-action inline-action" disabled={!isConfigured || isBusy} type="button" onClick={connectDrive}>Conectar Google</button>
             <button className="primary-action inline-action" disabled={!isConfigured || isBusy} type="button" onClick={saveDriveBackup}>Salvar backup</button>
@@ -139,8 +141,10 @@ export function GoogleDriveBackupPanel() {
         </article>
 
         <article className="local-backup-card">
-          <strong>Restaurar do Drive</strong>
-          <small>Mesclar mantém os dados atuais. Substituir apaga os dados locais do OrçaOS antes de restaurar.</small>
+          <div className="local-card-heading">
+            <strong>Restaurar do Drive</strong>
+            <small>Mesclar mantém os dados atuais. Substituir apaga os dados locais do OrçaOS antes de restaurar.</small>
+          </div>
           <label className="local-backup-file">
             <span>Modo de restauração</span>
             <select value={restoreMode} onChange={(event) => setRestoreMode(event.target.value as 'merge' | 'replace')}>
