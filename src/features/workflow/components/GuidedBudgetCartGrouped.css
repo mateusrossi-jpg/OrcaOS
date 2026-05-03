@@ -34,7 +34,7 @@
 
 .environment-summary-card header b,
 .environment-editor-group > header b {
-  color: var(--stable-green, #22c55e);
+  color: var(--stable-green, #00b8c2);
   white-space: nowrap;
   font-weight: 900;
 }
@@ -84,7 +84,7 @@
 .environment-editor-group > header span {
   display: inline-block;
   margin-bottom: 6px;
-  color: var(--stable-green, #22c55e);
+  color: var(--stable-green, #00b8c2);
   text-transform: uppercase;
   letter-spacing: 0.08em;
   font-weight: 950;

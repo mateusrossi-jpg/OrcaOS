@@ -39,7 +39,7 @@ body,
   overflow: hidden;
   background:
     radial-gradient(circle at top left, rgba(0, 184, 194, 0.09), transparent 18rem),
-    radial-gradient(circle at bottom right, rgba(34, 197, 94, 0.045), transparent 20rem),
+    radial-gradient(circle at bottom right, rgba(0, 184, 194, 0.045), transparent 20rem),
     linear-gradient(180deg, var(--orca-bg), #07100c);
   color: var(--orca-text);
 }
@@ -171,7 +171,7 @@ body,
   border-radius: 26px;
   background:
     radial-gradient(circle at top left, rgba(0, 184, 194, 0.12), transparent 17rem),
-    radial-gradient(circle at bottom right, rgba(34, 197, 94, 0.055), transparent 19rem),
+    radial-gradient(circle at bottom right, rgba(0, 184, 194, 0.055), transparent 19rem),
     var(--orca-bg);
   box-shadow: var(--orca-shadow);
   transform: translateX(calc(-100% - 24px));
@@ -338,7 +338,7 @@ body,
 }
 
 .drawer-nav button.active strong {
-  color: #bbf7d0;
+  color: #b8f7fb;
 }
 
 .bottom-nav {

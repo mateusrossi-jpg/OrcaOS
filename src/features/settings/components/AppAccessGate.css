@@ -13,7 +13,7 @@
   display: grid;
   gap: 14px;
   width: min(100%, 440px);
-  border: 1px solid var(--orca-border, rgba(187, 247, 208, 0.14));
+  border: 1px solid var(--orca-border, rgba(148, 214, 218, 0.14));
   border-radius: 24px;
   padding: 24px;
   background:
@@ -48,7 +48,7 @@
 .app-access-card input {
   width: 100%;
   min-height: 52px;
-  border: 1px solid var(--orca-border, rgba(187, 247, 208, 0.14));
+  border: 1px solid var(--orca-border, rgba(148, 214, 218, 0.14));
   border-radius: 16px;
   background: var(--orca-surface-2, #151f19);
   color: var(--orca-text, #f8fafc);

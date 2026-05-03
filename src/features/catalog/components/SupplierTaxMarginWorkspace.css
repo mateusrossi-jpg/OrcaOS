@@ -6,7 +6,7 @@
 .supplier-tax-header,
 .supplier-tax-card,
 .supplier-tax-note {
-  border: 1px solid var(--orca-border, rgba(187, 247, 208, 0.12));
+  border: 1px solid var(--orca-border, rgba(148, 214, 218, 0.12));
   border-radius: 24px;
   background:
     radial-gradient(circle at top right, rgba(0, 184, 194, 0.065), transparent 13rem),
@@ -75,7 +75,7 @@
 .supplier-tax-form-grid textarea,
 .supplier-tax-search input {
   width: 100%;
-  border: 1px solid rgba(187, 247, 208, 0.13);
+  border: 1px solid rgba(148, 214, 218, 0.13);
   border-radius: 15px;
   background: var(--orca-surface-2, #151f19);
   color: var(--orca-text, #f8fafc);
@@ -97,7 +97,7 @@
 .supplier-tax-result-grid article {
   display: grid;
   gap: 4px;
-  border: 1px solid var(--orca-border, rgba(187, 247, 208, 0.12));
+  border: 1px solid var(--orca-border, rgba(148, 214, 218, 0.12));
   border-radius: 16px;
   background: var(--orca-surface, #101713);
   padding: 12px;
@@ -134,7 +134,7 @@
   gap: 14px;
   align-items: center;
   padding: 14px;
-  border: 1px solid var(--orca-border, rgba(187, 247, 208, 0.12));
+  border: 1px solid var(--orca-border, rgba(148, 214, 218, 0.12));
   border-radius: 18px;
   background: var(--orca-surface, #101713);
 }

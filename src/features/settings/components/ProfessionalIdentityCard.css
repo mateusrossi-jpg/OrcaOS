@@ -1,7 +1,7 @@
 .professional-identity-card {
   display: grid;
   gap: 14px;
-  border: 1px solid var(--orca-border, rgba(187, 247, 208, 0.12));
+  border: 1px solid var(--orca-border, rgba(148, 214, 218, 0.12));
   border-radius: 22px;
   background:
     radial-gradient(circle at top right, rgba(0, 184, 194, 0.07), transparent 12rem),
@@ -44,7 +44,7 @@
 }
 
 .professional-identity-details span {
-  border: 1px solid var(--orca-border, rgba(187, 247, 208, 0.12));
+  border: 1px solid var(--orca-border, rgba(148, 214, 218, 0.12));
   border-radius: 999px;
   background: rgba(0, 184, 194, 0.06);
   color: var(--orca-muted, #a7b3ad);

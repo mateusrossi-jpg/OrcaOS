@@ -74,7 +74,7 @@ export function TechnicalCaptureList({ captures, emptyText, onRemove, onUpdate }
     return (
       <article className={clientPurchase ? 'technical-capture-card client-purchase-card' : 'technical-capture-card'} key={capture.id}>
         <header className="technical-capture-header">
-          <span className={clientPurchase ? 'app-icon tone-green' : 'app-icon tone-blue'}>{clientPurchase ? 'PC' : 'IT'}</span>
+          <span className={clientPurchase ? 'app-icon tone-blue' : 'app-icon tone-blue'}>{clientPurchase ? 'PC' : 'IT'}</span>
           <span>
             <strong>{capture.calculatorLabel}</strong>
             <small>{capture.moduleLabel} · {formatCaptureTime(capture.createdAt)}</small>

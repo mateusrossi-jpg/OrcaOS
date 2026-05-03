@@ -16,19 +16,19 @@ export const navItems: Array<{ id: AppTab; label: string; description: string; i
 ];
 
 export const calculationModules: ModuleCardData[] = [
-  { id: 'eletricaPredial', title: 'Elétrica predial', description: 'Corrente, potência, queda, cabo, disjuntor e proteção para decidir em campo', icon: 'E', tone: 'green', count: 'Base livre + Pro', available: true, plan: 'free', calculatorModule: 'eletricaPredial' },
+  { id: 'eletricaPredial', title: 'Elétrica predial', description: 'Corrente, potência, queda, cabo, disjuntor e proteção para decidir em campo', icon: 'E', tone: 'blue', count: 'Base livre + Pro', available: true, plan: 'free', calculatorModule: 'eletricaPredial' },
   { id: 'refrigeracao', title: 'Climatização', description: 'BTU, consumo e circuito dedicado para orientar instalação e proposta', icon: 'CL', tone: 'blue', count: '3 cálculos Pro', available: true, plan: 'pro', calculatorModule: 'refrigeration' },
   { id: 'motores', title: 'Motores e comandos', description: 'Corrente, partida, relé, contator e torque para manutenção e orçamento', icon: 'M', tone: 'orange', count: '8 cálculos Pro', available: true, plan: 'pro', calculatorModule: 'motors' },
   { id: 'construcaoCivil', title: 'Construção civil', description: 'Medições, perdas, concreto, telhado e escada para comprar e cobrar melhor', icon: 'OB', tone: 'gray', count: 'Base livre + Pro', available: true, plan: 'free', calculatorModule: 'obras' },
-  { id: 'pintura', title: 'Pintura e acabamento', description: 'Área, tinta, custo e tempo por ambiente para fechar material e mão de obra', icon: 'P', tone: 'green', count: 'Base livre + Pro', available: true, plan: 'free', calculatorModule: 'pintura' },
-  { id: 'hidraulica', title: 'Hidráulica', description: 'Reservatório, vazão, pressão, esgoto, piscina e bomba para serviço em campo', icon: 'H', tone: 'green', count: 'Base livre + Pro', available: true, plan: 'free', calculatorModule: 'hidraulica' },
+  { id: 'pintura', title: 'Pintura e acabamento', description: 'Área, tinta, custo e tempo por ambiente para fechar material e mão de obra', icon: 'P', tone: 'blue', count: 'Base livre + Pro', available: true, plan: 'free', calculatorModule: 'pintura' },
+  { id: 'hidraulica', title: 'Hidráulica', description: 'Reservatório, vazão, pressão, esgoto, piscina e bomba para serviço em campo', icon: 'H', tone: 'blue', count: 'Base livre + Pro', available: true, plan: 'free', calculatorModule: 'hidraulica' },
   { id: 'conversores', title: 'Conversores técnicos', description: 'Unidades técnicas rápidas para conferir medida, compra e orçamento', icon: 'CV', tone: 'blue', count: 'Rápidos livres + Pro', available: true, plan: 'free', calculatorModule: 'conversores' },
   { id: 'orcamentoTecnico', title: 'Financeiro e preços', description: 'Preço, margem, desconto, diária, deslocamento e parcelamento do serviço', icon: 'R$', tone: 'orange', count: 'Base livre + Pro', available: true, plan: 'free', calculatorModule: 'orcamentoTecnico' },
-  { id: 'eletronica', title: 'Eletrônica aplicada', description: 'LED, divisor de tensão, RC, PWM, ADC, bateria e fontes', icon: 'EL', tone: 'green', count: 'Em breve', available: false, plan: 'soon' },
+  { id: 'eletronica', title: 'Eletrônica aplicada', description: 'LED, divisor de tensão, RC, PWM, ADC, bateria e fontes', icon: 'EL', tone: 'blue', count: 'Em breve', available: false, plan: 'soon' },
   { id: 'transformadores', title: 'Transformadores', description: 'VA, correntes, relação e espiras para triagem técnica e orçamento', icon: 'T', tone: 'orange', count: '6 cálculos Pro', available: true, plan: 'pro', calculatorModule: 'transformadores' },
-  { id: 'solar', title: 'Solar fotovoltaico', description: 'Consumo, kWp, módulos, área, geração, bateria e payback inicial', icon: 'SF', tone: 'green', count: '7 cálculos Pro', available: true, plan: 'pro', calculatorModule: 'solar' },
+  { id: 'solar', title: 'Solar fotovoltaico', description: 'Consumo, kWp, módulos, área, geração, bateria e payback inicial', icon: 'SF', tone: 'blue', count: '7 cálculos Pro', available: true, plan: 'pro', calculatorModule: 'solar' },
   { id: 'rebobinagem', title: 'Rebobinagem', description: 'Rotação, polos, passo polar e checklist seguro para inspeção inicial', icon: 'RB', tone: 'muted', count: '4 assistentes Pro', available: true, plan: 'pro', calculatorModule: 'rewinding' },
-  { id: 'diagnosticoTecnico', title: 'Assistentes de campo', description: 'Checklist, risco, prioridade e manutenção para gerar texto de relatório', icon: 'AS', tone: 'green', count: 'Checklist livre + Pro', available: true, plan: 'pro', calculatorModule: 'diagnosticoTecnico' },
+  { id: 'diagnosticoTecnico', title: 'Assistentes de campo', description: 'Checklist, risco, prioridade e manutenção para gerar texto de relatório', icon: 'AS', tone: 'blue', count: 'Checklist livre + Pro', available: true, plan: 'pro', calculatorModule: 'diagnosticoTecnico' },
 ];
 
 export const calculationSectorGroups: CalculationSectorGroup[] = [

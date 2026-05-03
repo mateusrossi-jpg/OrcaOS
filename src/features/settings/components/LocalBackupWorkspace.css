@@ -12,7 +12,7 @@
 .local-backup-card,
 .local-backup-preview,
 .local-backup-warning {
-  border: 1px solid var(--orca-border, rgba(187, 247, 208, 0.12));
+  border: 1px solid var(--orca-border, rgba(148, 214, 218, 0.12));
   border-radius: 24px;
   background:
     radial-gradient(circle at top right, rgba(0, 184, 194, 0.07), transparent 12rem),
@@ -71,7 +71,7 @@
 }
 
 .local-backup-summary-grid span {
-  border: 1px solid var(--orca-border, rgba(187, 247, 208, 0.12));
+  border: 1px solid var(--orca-border, rgba(148, 214, 218, 0.12));
   border-radius: 14px;
   padding: 9px 10px;
   color: var(--orca-muted, #a7b3ad);
@@ -97,7 +97,7 @@
 .local-backup-file select,
 .local-backup-textarea textarea {
   width: 100%;
-  border: 1px solid var(--orca-border, rgba(187, 247, 208, 0.12));
+  border: 1px solid var(--orca-border, rgba(148, 214, 218, 0.12));
   border-radius: 15px;
   background: var(--orca-surface-2, #151f19);
   color: var(--orca-text, #f8fafc);

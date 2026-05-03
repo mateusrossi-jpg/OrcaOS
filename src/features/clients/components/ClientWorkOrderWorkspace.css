@@ -9,7 +9,7 @@
 .client-os-panel {
   display: grid;
   gap: 14px;
-  border: 1px solid var(--orca-border, rgba(187, 247, 208, 0.12));
+  border: 1px solid var(--orca-border, rgba(148, 214, 218, 0.12));
   border-radius: 24px;
   padding: 16px;
   background:
@@ -21,10 +21,10 @@
 .active-os-panel {
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  border-color: var(--orca-border-strong, rgba(34, 197, 94, 0.34));
+  border-color: var(--orca-border-strong, rgba(0, 184, 194, 0.34));
   background:
     radial-gradient(circle at top right, rgba(0, 184, 194, 0.15), transparent 14rem),
-    radial-gradient(circle at bottom left, rgba(34, 197, 94, 0.055), transparent 16rem),
+    radial-gradient(circle at bottom left, rgba(0, 184, 194, 0.055), transparent 16rem),
     linear-gradient(145deg, var(--orca-surface, #101713), var(--orca-surface-2, #151f19));
 }
 
@@ -75,7 +75,7 @@
   justify-content: space-between;
   gap: 10px;
   min-width: 0;
-  border: 1px solid var(--orca-border, rgba(187, 247, 208, 0.12));
+  border: 1px solid var(--orca-border, rgba(148, 214, 218, 0.12));
   border-radius: 18px;
   padding: 13px 14px;
   background:
@@ -124,7 +124,7 @@
 .client-picker-block {
   display: grid;
   gap: 12px;
-  border: 1px solid var(--orca-border, rgba(187, 247, 208, 0.12));
+  border: 1px solid var(--orca-border, rgba(148, 214, 218, 0.12));
   border-radius: 20px;
   padding: 14px;
   background: rgba(7, 11, 9, 0.26);
@@ -136,7 +136,7 @@
 }
 
 .client-os-picker-head span {
-  color: var(--orca-teal, var(--orca-green, #22c55e));
+  color: var(--orca-teal, var(--orca-green, #00b8c2));
   font-size: 0.74rem;
   font-weight: 950;
   letter-spacing: 0.075em;
@@ -161,7 +161,7 @@
 
 .client-picker-results button {
   min-height: 66px;
-  border: 1px solid var(--orca-border, rgba(187, 247, 208, 0.12));
+  border: 1px solid var(--orca-border, rgba(148, 214, 218, 0.12));
   border-radius: 16px;
   padding: 11px 12px;
   color: var(--orca-text, #f8fafc);
@@ -170,7 +170,7 @@
 }
 
 .client-picker-results button.active {
-  border-color: var(--orca-border-strong, rgba(34, 197, 94, 0.34));
+  border-color: var(--orca-border-strong, rgba(0, 184, 194, 0.34));
   background:
     radial-gradient(circle at top right, rgba(0, 184, 194, 0.16), transparent 9rem),
     var(--orca-surface-2, #151f19);
@@ -194,7 +194,7 @@
 }
 
 .client-os-empty {
-  border: 1px dashed var(--orca-border-strong, rgba(34, 197, 94, 0.34));
+  border: 1px dashed var(--orca-border-strong, rgba(0, 184, 194, 0.34));
   border-radius: 18px;
   padding: 14px;
   color: var(--orca-muted, #a7b3ad);
@@ -207,14 +207,14 @@
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 14px;
   align-items: center;
-  border: 1px solid var(--orca-border, rgba(187, 247, 208, 0.12));
+  border: 1px solid var(--orca-border, rgba(148, 214, 218, 0.12));
   border-radius: 20px;
   padding: 14px;
   background: var(--orca-surface, #101713);
 }
 
 .client-os-card.active {
-  border-color: var(--orca-border-strong, rgba(34, 197, 94, 0.34));
+  border-color: var(--orca-border-strong, rgba(0, 184, 194, 0.34));
   background:
     radial-gradient(circle at top right, rgba(0, 184, 194, 0.13), transparent 10rem),
     var(--orca-surface-2, #151f19);
@@ -245,7 +245,7 @@
 
 .client-os-actions select {
   min-height: 42px;
-  border: 1px solid var(--orca-border, rgba(187, 247, 208, 0.12));
+  border: 1px solid var(--orca-border, rgba(148, 214, 218, 0.12));
   border-radius: 14px;
   color: var(--orca-text, #f8fafc);
   background: var(--orca-surface-2, #151f19);

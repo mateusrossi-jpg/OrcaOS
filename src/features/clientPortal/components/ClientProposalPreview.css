@@ -33,7 +33,7 @@
 .client-proposal-preview-header span,
 .client-proposal-preview-identification span,
 .client-proposal-preview-totals span {
-  color: #16a34a;
+  color: #00a0ad;
   font-size: 0.72rem;
   font-weight: 900;
   text-transform: uppercase;
@@ -72,7 +72,7 @@
 }
 
 .client-proposal-preview-header aside small {
-  color: #bbf7d0;
+  color: #b8f7fb;
 }
 
 .client-proposal-preview-identification {
@@ -139,7 +139,7 @@
 }
 
 .client-materials {
-  border: 1px solid #bbf7d0;
+  border: 1px solid #b8f7fb;
   border-radius: 20px;
   background: #eefbf2;
   padding: 16px;

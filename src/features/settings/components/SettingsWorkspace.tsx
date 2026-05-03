@@ -15,7 +15,7 @@ export function SettingsWorkspace() {
           <span className="chevron">›</span>
         </article>
         <article className="settings-row">
-          <span className="app-icon tone-green">RM</span>
+          <span className="app-icon tone-blue">RM</span>
           <span>
             <strong>Roadmap</strong>
             <small>OrçaOS, módulos profissionais, relatórios e OS</small>

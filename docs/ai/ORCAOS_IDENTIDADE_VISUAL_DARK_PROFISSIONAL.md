@@ -10,15 +10,15 @@ O app deve parecer um sistema operacional do profissional técnico, não um ERP 
 
 - Grafite: `#080f12`
 - Cinza escuro: `#1a1f24`
-- Teal: `#00b8c2`
-- Verde: `#22c55e`
+- Azul técnico / teal: `#00b8c2`
+- Azul profundo: `#00a0ad`
 - Âmbar: `#f5a623`
 
 Uso recomendado:
 
 - Grafite e cinza escuro: fundos e superfícies.
-- Teal: identidade, tecnologia, foco, navegação ativa, destaques institucionais.
-- Verde: ações primárias, sucesso, aprovação e avanço de fluxo.
+- Azul técnico / teal: identidade, tecnologia, foco, navegação ativa, ações primárias, aprovação e avanço de fluxo.
+- Azul profundo: estados pressionados, bordas fortes e variações de destaque.
 - Âmbar: atenção, prioridade, aviso e status intermediário.
 
 ## Tipografia
@@ -46,7 +46,7 @@ Manter:
 Evitar:
 
 - fundos brancos fora de documento;
-- blocos azuis soltos;
+- blocos coloridos soltos fora da paleta azul técnica;
 - excesso de gradiente;
 - dashboard pesado;
 - ícones decorativos sem função;
