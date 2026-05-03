@@ -6,6 +6,13 @@ if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 }
 
+gradle.taskGraph.whenReady { taskGraph ->
+    def buildsRelease = taskGraph.hasTask(':app:bundleRelease') || taskGraph.hasTask(':app:assembleRelease')
+    if (buildsRelease && !keystorePropertiesFile.exists()) {
+        throw new GradleException("Release signing is not configured. Copy android/keystore.properties.example to android/keystore.properties and point it to a local upload keystore.")
+    }
+}
+
 android {
     namespace = "br.com.orcaos.app"
     compileSdk = rootProject.ext.compileSdkVersion
