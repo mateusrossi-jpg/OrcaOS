@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { CalculationCapture, CalculationDestination, TechnicalItemType } from '../../../core/types/workflow';
+import { handleNumericInputFocus } from '../../../core/ui/numericInputFocus';
 import { catalogPartBrands, catalogPartCategories, searchCatalogParts, type CatalogPart } from '../../../data/parts/catalogParts';
 import {
   createGuidedLaborTemplate,
@@ -103,9 +104,9 @@ function kindLabel(kind: GuidedEntryKind): string {
 }
 
 function destinationLabel(destination: CalculationDestination): string {
-  if (destination === 'survey') return 'Levantamento';
+  if (destination === 'survey') return 'Campo';
   if (destination === 'budget') return 'Orçamento';
-  return 'Levantamento e orçamento';
+  return 'Campo e orçamento';
 }
 
 function lineTotal(line: GuidedLine): number {
@@ -443,7 +444,7 @@ export function GuidedBudgetCart({ onSendToBudget, mode = 'all' }: GuidedBudgetC
           <div className="guided-labor-toolbar">
             <div>
               <strong>Mão de obra guiada</strong>
-              <small>Cadastre serviços, defina valores base e deixe visível só o que vai usar no levantamento.</small>
+              <small>Cadastre serviços, defina valores base e deixe visível só o que vai usar no campo.</small>
             </div>
             <div className="guided-labor-actions">
               <span>{visibleLaborTemplates.length} de {laborTemplates.length} visíveis</span>
@@ -471,7 +472,7 @@ export function GuidedBudgetCart({ onSendToBudget, mode = 'all' }: GuidedBudgetC
                   </label>
                   <label className="technical-edit-field">
                     <span>Valor padrão</span>
-                    <input inputMode="decimal" value={newLaborTemplate.defaultUnitValue} placeholder="0,00" onChange={(event) => setNewLaborTemplate((current) => ({ ...current, defaultUnitValue: event.target.value }))} />
+                    <input inputMode="decimal" onFocus={handleNumericInputFocus} value={newLaborTemplate.defaultUnitValue} placeholder="0,00" onChange={(event) => setNewLaborTemplate((current) => ({ ...current, defaultUnitValue: event.target.value }))} />
                   </label>
                   <label className="technical-edit-field guided-wide-field">
                     <span>Observação</span>
@@ -491,7 +492,7 @@ export function GuidedBudgetCart({ onSendToBudget, mode = 'all' }: GuidedBudgetC
                     <button className="secondary-action inline-action" type="button" onClick={() => setAllLaborVisibility(true)}>Mostrar todos</button>
                     <button className="secondary-action inline-action" type="button" onClick={() => setAllLaborVisibility(false)}>Ocultar todos</button>
                   </div>
-                  <small>Marque como visível apenas os serviços que devem aparecer nos cards de seleção do levantamento.</small>
+                  <small>Marque como visível apenas os serviços que devem aparecer nos cards de seleção do campo.</small>
                 </div>
 
                 {filteredLaborTemplates.length === 0 && (
@@ -517,7 +518,7 @@ export function GuidedBudgetCart({ onSendToBudget, mode = 'all' }: GuidedBudgetC
                     </label>
                     <label className="technical-edit-field">
                       <span>Valor</span>
-                      <input inputMode="decimal" value={String(template.defaultUnitValue)} onChange={(event) => updateLaborTemplate(template.id, { defaultUnitValue: parseDecimal(event.target.value, 0) })} />
+                      <input inputMode="decimal" onFocus={handleNumericInputFocus} value={String(template.defaultUnitValue)} onChange={(event) => updateLaborTemplate(template.id, { defaultUnitValue: parseDecimal(event.target.value, 0) })} />
                     </label>
                     <label className="technical-edit-field guided-wide-field">
                       <span>Observação</span>
@@ -534,7 +535,7 @@ export function GuidedBudgetCart({ onSendToBudget, mode = 'all' }: GuidedBudgetC
           {visibleLaborTemplates.length === 0 ? (
             <div className="guided-labor-empty">
               <strong>Nenhum serviço visível</strong>
-              <small>Abra o gerenciador e marque os tipos de trabalho que devem aparecer no levantamento.</small>
+              <small>Abra o gerenciador e marque os tipos de trabalho que devem aparecer no campo.</small>
             </div>
           ) : (
             <div className="guided-service-grid">
@@ -549,8 +550,8 @@ export function GuidedBudgetCart({ onSendToBudget, mode = 'all' }: GuidedBudgetC
                     {addedQuantity > 0 && <span className="guided-cart-count">{addedQuantity} lançado(s) neste ambiente</span>}
                   </div>
                   <div className="guided-service-controls">
-                    <label className="guided-typed-quantity"><span>Qtd.</span><input inputMode="decimal" value={laborQuantityById[template.id] ?? '1'} onChange={(event) => setLaborQuantityById((current) => ({ ...current, [template.id]: event.target.value }))} /></label>
-                    <label className="guided-typed-quantity"><span>Valor</span><input inputMode="decimal" value={laborValueById[template.id] ?? String(template.defaultUnitValue)} onChange={(event) => setLaborValueById((current) => ({ ...current, [template.id]: event.target.value }))} /></label>
+                    <label className="guided-typed-quantity"><span>Qtd.</span><input inputMode="decimal" onFocus={handleNumericInputFocus} value={laborQuantityById[template.id] ?? '1'} onChange={(event) => setLaborQuantityById((current) => ({ ...current, [template.id]: event.target.value }))} /></label>
+                    <label className="guided-typed-quantity"><span>Valor</span><input inputMode="decimal" onFocus={handleNumericInputFocus} value={laborValueById[template.id] ?? String(template.defaultUnitValue)} onChange={(event) => setLaborValueById((current) => ({ ...current, [template.id]: event.target.value }))} /></label>
                     <button className="primary-action inline-action" type="button" onClick={() => addLabor(template)}>Adicionar</button>
                   </div>
                 </article>
@@ -567,9 +568,9 @@ export function GuidedBudgetCart({ onSendToBudget, mode = 'all' }: GuidedBudgetC
             <div><strong>Kits automáticos</strong><small>Escolha o kit, informe a quantidade e gere materiais + serviços sugeridos no ambiente atual.</small></div>
             <div className="guided-manual-grid">
               <label className="technical-edit-field guided-wide-field"><span>Kit</span><select value={selectedKitId} onChange={(event) => { const id = event.target.value as KitId; setSelectedKitId(id); setKitQuantity(kitTemplates.find((kit) => kit.id === id)?.defaultQuantity ?? '1'); }}>{kitTemplates.map((kit) => <option key={kit.id} value={kit.id}>{kit.title}</option>)}</select></label>
-              <label className="technical-edit-field"><span>Quantidade</span><input inputMode="decimal" value={kitQuantity} onChange={(event) => setKitQuantity(event.target.value)} /></label>
+              <label className="technical-edit-field"><span>Quantidade</span><input inputMode="decimal" onFocus={handleNumericInputFocus} value={kitQuantity} onChange={(event) => setKitQuantity(event.target.value)} /></label>
               <label className="technical-edit-field"><span>Marca desejada</span><select value={kitBrand} onChange={(event) => setKitBrand(event.target.value)}>{kitBrands.map((brand) => <option key={brand} value={brand}>{brand}</option>)}</select></label>
-              <label className="technical-edit-field"><span>Destino</span><select value={kitDestination} onChange={(event) => setKitDestination(event.target.value as CalculationDestination)}><option value="survey">Levantamento</option><option value="budget">Orçamento</option><option value="both">Ambos</option></select></label>
+              <label className="technical-edit-field"><span>Destino</span><select value={kitDestination} onChange={(event) => setKitDestination(event.target.value as CalculationDestination)}><option value="survey">Campo</option><option value="budget">Orçamento</option><option value="both">Ambos</option></select></label>
             </div>
             <div className="guided-cart-summary"><strong>{selectedKit.title}</strong><small>{selectedKit.description}</small></div>
             <button className="primary-action inline-action" type="button" onClick={addSelectedKit}>Gerar kit selecionado</button>
@@ -577,7 +578,7 @@ export function GuidedBudgetCart({ onSendToBudget, mode = 'all' }: GuidedBudgetC
 
           <div className="guided-manual-block-card">
             <div><strong>Peça/material manual</strong><small>Digite qualquer material, marca, modelo, quantidade e valor.</small></div>
-            <div className="guided-manual-grid"><label className="technical-edit-field guided-wide-field"><span>Descrição da peça</span><input value={manualPart.title} placeholder="Ex.: chassis 4x2, tomada 20A, placa dupla..." onChange={(event) => setManualPart((current) => ({ ...current, title: event.target.value }))} /></label><label className="technical-edit-field"><span>Marca</span><input value={manualPart.brand} placeholder="Ex.: Margirius" onChange={(event) => setManualPart((current) => ({ ...current, brand: event.target.value }))} /></label><label className="technical-edit-field"><span>Modelo/ref.</span><input value={manualPart.model} placeholder="Opcional" onChange={(event) => setManualPart((current) => ({ ...current, model: event.target.value }))} /></label><label className="technical-edit-field"><span>Quantidade</span><input inputMode="decimal" value={manualPart.quantity} onChange={(event) => setManualPart((current) => ({ ...current, quantity: event.target.value }))} /></label><label className="technical-edit-field"><span>Valor unitário</span><input inputMode="decimal" value={manualPart.unitValue} placeholder="0,00" onChange={(event) => setManualPart((current) => ({ ...current, unitValue: event.target.value }))} /></label><label className="technical-edit-field"><span>Destino</span><select value={manualPart.destination} onChange={(event) => setManualPart((current) => ({ ...current, destination: event.target.value as CalculationDestination }))}><option value="survey">Levantamento</option><option value="budget">Orçamento</option><option value="both">Ambos</option></select></label><label className="technical-edit-field guided-wide-field"><span>Observação</span><textarea value={manualPart.note} placeholder="Ex.: confirmar disponibilidade, usar 20A na cozinha..." onChange={(event) => setManualPart((current) => ({ ...current, note: event.target.value }))} /></label></div>
+            <div className="guided-manual-grid"><label className="technical-edit-field guided-wide-field"><span>Descrição da peça</span><input value={manualPart.title} placeholder="Ex.: chassis 4x2, tomada 20A, placa dupla..." onChange={(event) => setManualPart((current) => ({ ...current, title: event.target.value }))} /></label><label className="technical-edit-field"><span>Marca</span><input value={manualPart.brand} placeholder="Ex.: Margirius" onChange={(event) => setManualPart((current) => ({ ...current, brand: event.target.value }))} /></label><label className="technical-edit-field"><span>Modelo/ref.</span><input value={manualPart.model} placeholder="Opcional" onChange={(event) => setManualPart((current) => ({ ...current, model: event.target.value }))} /></label><label className="technical-edit-field"><span>Quantidade</span><input inputMode="decimal" onFocus={handleNumericInputFocus} value={manualPart.quantity} onChange={(event) => setManualPart((current) => ({ ...current, quantity: event.target.value }))} /></label><label className="technical-edit-field"><span>Valor unitário</span><input inputMode="decimal" onFocus={handleNumericInputFocus} value={manualPart.unitValue} placeholder="0,00" onChange={(event) => setManualPart((current) => ({ ...current, unitValue: event.target.value }))} /></label><label className="technical-edit-field"><span>Destino</span><select value={manualPart.destination} onChange={(event) => setManualPart((current) => ({ ...current, destination: event.target.value as CalculationDestination }))}><option value="survey">Campo</option><option value="budget">Orçamento</option><option value="both">Ambos</option></select></label><label className="technical-edit-field guided-wide-field"><span>Observação</span><textarea value={manualPart.note} placeholder="Ex.: confirmar disponibilidade, usar 20A na cozinha..." onChange={(event) => setManualPart((current) => ({ ...current, note: event.target.value }))} /></label></div>
             <button className="primary-action inline-action" type="button" onClick={addManualPart}>Adicionar peça manual</button>
           </div>
 
@@ -589,7 +590,7 @@ export function GuidedBudgetCart({ onSendToBudget, mode = 'all' }: GuidedBudgetC
 
       <div className="guided-cart-summary grouped-summary"><strong>Resumo por ambiente</strong>{environmentGroups.length === 0 ? <small>Nenhum item adicionado ainda.</small> : <div className="environment-summary-list">{environmentGroups.map((group) => <article className="environment-summary-card" key={group.name}><header><div><strong>{group.name}</strong><small>{group.itemCount} tipo(s) · {group.totalQuantity} unidade(s)</small></div><b>{formatCurrency(group.subtotal)}</b></header><div className="environment-subtotals"><span>Materiais: {formatCurrency(group.materialSubtotal)}</span><span>Serviços: {formatCurrency(group.serviceSubtotal)}</span></div><div className="environment-line-preview">{group.lines.slice(0, 5).map((line) => <span key={line.id}>{line.quantity}× {line.description}</span>)}{group.lines.length > 5 && <span>+ {group.lines.length - 5} item(ns)</span>}</div></article>)}</div>}</div>
 
-      {environmentGroups.length > 0 && <div className="environment-grouped-editor">{environmentGroups.map((group) => <section className="environment-editor-group" key={group.name}><header><div><span>Ambiente</span><strong>{group.name}</strong></div><b>{formatCurrency(group.subtotal)}</b></header><div className="parts-result-list">{group.lines.map((line) => <article className="part-result-card active" key={line.id}><div className="part-result-main"><span>{kindLabel(line.kind)} · {line.itemType === 'material' ? 'Material' : 'Serviço'}</span><strong>{line.description}</strong><small>{line.brand ? `${line.brand}${line.model ? ` · ${line.model}` : ''}` : line.note}</small></div><div className="part-result-controls"><label className="guided-typed-quantity"><span>Qtd.</span><input inputMode="decimal" value={String(line.quantity)} onChange={(event) => updateLineQuantity(line.id, event.target.value)} /></label><label className="guided-typed-quantity"><span>Valor</span><input inputMode="decimal" value={String(line.unitValue)} onChange={(event) => updateLineUnitValue(line.id, event.target.value)} /></label><button className="secondary-action inline-action" type="button" onClick={() => duplicateLine(line)}>Duplicar</button><button className="danger-action" type="button" onClick={() => removeLine(line.id)}>Remover</button></div></article>)}</div></section>)}</div>}
+      {environmentGroups.length > 0 && <div className="environment-grouped-editor">{environmentGroups.map((group) => <section className="environment-editor-group" key={group.name}><header><div><span>Ambiente</span><strong>{group.name}</strong></div><b>{formatCurrency(group.subtotal)}</b></header><div className="parts-result-list">{group.lines.map((line) => <article className="part-result-card active" key={line.id}><div className="part-result-main"><span>{kindLabel(line.kind)} · {line.itemType === 'material' ? 'Material' : 'Serviço'}</span><strong>{line.description}</strong><small>{line.brand ? `${line.brand}${line.model ? ` · ${line.model}` : ''}` : line.note}</small></div><div className="part-result-controls"><label className="guided-typed-quantity"><span>Qtd.</span><input inputMode="decimal" onFocus={handleNumericInputFocus} value={String(line.quantity)} onChange={(event) => updateLineQuantity(line.id, event.target.value)} /></label><label className="guided-typed-quantity"><span>Valor</span><input inputMode="decimal" onFocus={handleNumericInputFocus} value={String(line.unitValue)} onChange={(event) => updateLineUnitValue(line.id, event.target.value)} /></label><button className="secondary-action inline-action" type="button" onClick={() => duplicateLine(line)}>Duplicar</button><button className="danger-action" type="button" onClick={() => removeLine(line.id)}>Remover</button></div></article>)}</div></section>)}</div>}
 
       <div className="guided-cart-actions"><button className="primary-action inline-action" type="button" disabled={lines.length === 0} onClick={sendAll}>Enviar itens ao fluxo</button><button className="secondary-action inline-action" type="button" disabled={lines.length === 0} onClick={() => setLines([])}>Limpar itens</button></div>{feedback && <div className="guided-cart-feedback">{feedback}</div>}
     </section>

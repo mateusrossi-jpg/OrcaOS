@@ -9,6 +9,7 @@ import {
   WATTS_PER_BTUH,
 } from '../../../core/calculations/trade';
 import type { CalculationCapture, CalculationDestination } from '../../../core/types/workflow';
+import { handleNumericInputFocus } from '../../../core/ui/numericInputFocus';
 import './GeneralCalculatorWorkspace.css';
 
 type ConverterMode = 'volume' | 'pressure' | 'power' | 'thermal';
@@ -101,8 +102,8 @@ function NumberField({ label, value, suffix, step = 0.01, onChange }: { label: s
     <label className="general-form-field">
       <span>{label}</span>
       <div>
-        <input type="number" inputMode="decimal" min="0" step={step} value={value} placeholder="Digite o valor" onChange={(event) => onChange(event.target.value)} />
-        {suffix && <small>{suffix}</small>}
+        <input type="number" inputMode="decimal" min="0" step={step} value={value} placeholder="Digite o valor" onFocus={handleNumericInputFocus} onChange={(event) => onChange(event.target.value)} />
+        {suffix && <small className="technical-unit">{suffix}</small>}
       </div>
     </label>
   );
@@ -237,9 +238,9 @@ export function ConvertersHumanWorkspace({ onCaptureCalculation }: Props) {
     };
 
     onCaptureCalculation?.(capture);
-    if (destination === 'survey') setAddedMessage(`${activeRule.label} foi incluído no levantamento.`);
+    if (destination === 'survey') setAddedMessage(`${activeRule.label} foi incluído no campo.`);
     if (destination === 'budget') setAddedMessage(`${activeRule.label} foi incluído no orçamento.`);
-    if (destination === 'both') setAddedMessage(`${activeRule.label} foi incluído no levantamento e no orçamento.`);
+    if (destination === 'both') setAddedMessage(`${activeRule.label} foi incluído no campo e no orçamento.`);
   }
 
   function closeCalculator() {
@@ -359,7 +360,7 @@ export function ConvertersHumanWorkspace({ onCaptureCalculation }: Props) {
             {addedMessage && <p className="general-added-message">{addedMessage}</p>}
 
             <div className="general-capture-actions">
-              <button type="button" onClick={() => includeResult('survey')}>Adicionar ao levantamento</button>
+              <button type="button" onClick={() => includeResult('survey')}>Adicionar ao campo</button>
               <button type="button" onClick={() => includeResult('budget')}>Adicionar ao orçamento</button>
               <button type="button" onClick={() => includeResult('both')}>Adicionar aos dois</button>
               <button className="secondary-action" type="button" onClick={closeCalculator}>Voltar</button>

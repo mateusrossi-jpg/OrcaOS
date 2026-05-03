@@ -90,7 +90,7 @@ export function ReportWorkspace({ captures, activeClient = null, activeWorkOrder
             </div>
           </div>
           <h1>{activeWorkOrder?.title || 'Relatório técnico de visita'}</h1>
-          <p>{activeWorkOrder?.description || 'Documento preliminar gerado a partir do levantamento técnico em campo.'}</p>
+          <p>{activeWorkOrder?.description || 'Documento preliminar gerado a partir dos registros técnicos de campo.'}</p>
           <small>Emitido em {formatDateTime(new Date().toISOString())}</small>
         </header>
 
@@ -106,7 +106,7 @@ export function ReportWorkspace({ captures, activeClient = null, activeWorkOrder
         {reportItems.length === 0 ? (
           <section className="report-empty-state">
             <strong>Nenhum item técnico para relatório ainda.</strong>
-            <p>Crie blocos manuais no Levantamento com destino “Levantamento” ou “Levantamento e orçamento”, ou envie diagnósticos e observações dos cálculos.</p>
+            <p>Crie blocos manuais no Campo com destino “Campo” ou “Campo e orçamento”, ou envie diagnósticos e observações dos cálculos.</p>
           </section>
         ) : (
           <section className="report-item-list">

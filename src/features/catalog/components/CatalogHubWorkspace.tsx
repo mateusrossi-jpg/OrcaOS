@@ -87,7 +87,7 @@ function itemKindLabel(kind: CatalogHubItemKind): string {
 }
 
 function destinationLabel(destination: CalculationDestination): string {
-  if (destination === 'survey') return 'Levantamento';
+  if (destination === 'survey') return 'Campo';
   if (destination === 'budget') return 'Orçamento';
   return 'Ambos';
 }
@@ -269,7 +269,7 @@ export function CatalogHubWorkspace({ onSendToBudget }: CatalogHubWorkspaceProps
               <label><span>Unidade</span><input value={itemDraft.unit} placeholder="un, m, cx, ponto..." onChange={(event) => updateItemDraft('unit', event.target.value)} /></label>
               <label><span>Qtd. padrão</span><input inputMode="decimal" value={itemDraft.defaultQuantity} onChange={(event) => updateItemDraft('defaultQuantity', event.target.value)} /></label>
               <label><span>Valor unitário</span><input inputMode="decimal" value={itemDraft.defaultUnitValue} onChange={(event) => updateItemDraft('defaultUnitValue', event.target.value)} /></label>
-              <label><span>Destino</span><select value={itemDraft.destination} onChange={(event) => updateItemDraft('destination', event.target.value as CalculationDestination)}><option value="survey">Levantamento</option><option value="budget">Orçamento</option><option value="both">Ambos</option></select></label>
+              <label><span>Destino</span><select value={itemDraft.destination} onChange={(event) => updateItemDraft('destination', event.target.value as CalculationDestination)}><option value="survey">Campo</option><option value="budget">Orçamento</option><option value="both">Ambos</option></select></label>
               <label className="wide"><span>Link fonte/catálogo</span><input value={itemDraft.sourceUrl} placeholder="https://..." onChange={(event) => updateItemDraft('sourceUrl', event.target.value)} /></label>
               <label className="wide"><span>Observação</span><textarea value={itemDraft.notes} placeholder="Ex.: confirmar disponibilidade, linha compatível, preço aproximado..." onChange={(event) => updateItemDraft('notes', event.target.value)} /></label>
             </div>
@@ -277,7 +277,7 @@ export function CatalogHubWorkspace({ onSendToBudget }: CatalogHubWorkspaceProps
           </div>
 
           <div className="catalog-hub-card">
-            <div><strong>Consultar itens cadastrados</strong><small>Filtre e envie itens diretamente para levantamento, orçamento ou ambos.</small></div>
+            <div><strong>Consultar itens cadastrados</strong><small>Filtre e envie itens diretamente para campo, orçamento ou ambos.</small></div>
             <div className="catalog-hub-grid compact">
               <label className="wide"><span>Buscar</span><input value={query} placeholder="tomada, disjuntor, serviço, marca..." onChange={(event) => setQuery(event.target.value)} /></label>
               <label><span>Tipo</span><select value={kindFilter} onChange={(event) => setKindFilter(event.target.value as 'all' | CatalogHubItemKind)}><option value="all">Todos</option><option value="material">Material</option><option value="service">Serviço</option></select></label>

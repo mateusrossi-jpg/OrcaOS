@@ -17,6 +17,7 @@ import type { Client, WorkOrder } from '../core/types/business';
 import type { CalculationCapture } from '../core/types/workflow';
 import type { GeneralCalculatorModule } from '../features/calculators/components/GeneralCalculatorWorkspace';
 import type { FundamentalMode } from '../features/calculators/components/GeneralFundamentalsWorkspace';
+import { loadSavedBudgets, type SavedBudgetRecord } from '../features/budgets/storage/savedBudgetsStorage';
 import { loadActiveWorkOrderId, loadClients, loadWorkOrders } from '../features/clients/storage/clientWorkOrderStorage';
 import { ActiveWorkContextCard } from './components/ActiveWorkContextCard';
 import { AppShell } from './components/AppShell';
@@ -150,7 +151,11 @@ const surveyFlowSteps: Array<{ id: SurveySection; label: string; title: string; 
 ];
 
 function HomeScreen({ goTo, openModule, captures, clients, workOrders }: { goTo: (tab: AppTab) => void; openModule: (module: ModuleCardData) => void; captures: CalculationCapture[]; clients: Client[]; workOrders: WorkOrder[] }) {
+  const savedBudgets = useMemo(() => loadSavedBudgets(), []);
   const openWorkOrders = workOrders.filter((workOrder) => workOrder.status !== 'done' && workOrder.status !== 'cancelled').length;
+  const pendingBudgets = savedBudgets.filter((budget) => budget.status === 'draft' || budget.status === 'sent').length;
+  const approvedBudgets = savedBudgets.filter((budget) => budget.status === 'approved').length;
+  const monthlyBudgetTotal = savedBudgets.filter(isBudgetFromCurrentMonth).reduce((total, budget) => total + calculateSavedBudgetValue(budget), 0);
   const budgetItems = captures.filter((capture) => capture.destination === 'budget' || capture.destination === 'both').length;
   const surveyItems = captures.filter((capture) => capture.destination === 'survey' || capture.destination === 'both').length;
   const recentItems = captures.slice(0, 3);
@@ -160,43 +165,77 @@ function HomeScreen({ goTo, openModule, captures, clients, workOrders }: { goTo:
   return (
     <section className="app-screen orca-dashboard-screen">
       <div className="orca-dashboard-hero operational-home-hero">
-        <div className="orca-dashboard-copy"><span className="orca-kicker">Fluxo principal</span><h1>Continue o atendimento e avance para a proposta.</h1><p>Use a ordem natural do serviço: cliente e OS, cálculo quando necessário, levantamento em campo e orçamento para envio.</p></div>
+        <div className="orca-dashboard-copy"><span className="orca-kicker">ERP técnico leve</span><h1>Gestão simples do atendimento à proposta.</h1><p>Controle cliente, OS, campo, cálculo, orçamento e relatório em um fluxo único para serviço técnico.</p></div>
         <div className="home-primary-actions">
           <button type="button" className="primary-action inline-action" onClick={() => goTo(openWorkOrders > 0 ? 'survey' : 'clients')}>{openWorkOrders > 0 ? 'Continuar atendimento' : 'Criar atendimento'}</button>
-          <button type="button" className="secondary-action inline-action" onClick={() => goTo('budgets')}>Abrir orçamento</button>
+          <button type="button" className="secondary-action inline-action" onClick={() => goTo('budgets')}>Montar proposta</button>
         </div>
       </div>
-      <div className="orca-workflow-steps">
-        <button type="button" className="orca-step-card" onClick={() => goTo('clients')}><span className="orca-step-number">1</span><strong>Atendimento</strong><small>Escolha cliente e OS.</small></button>
-        <button type="button" className="orca-step-card" onClick={() => goTo('calculations')}><span className="orca-step-number">2</span><strong>Cálculos</strong><small>Abra por setor técnico.</small></button>
-        <button type="button" className="orca-step-card" onClick={() => goTo('survey')}><span className="orca-step-number">3</span><strong>Levantamento</strong><small>Ambientes, serviços e materiais.</small></button>
-        <button type="button" className="orca-step-card" onClick={() => goTo('budgets')}><span className="orca-step-number">4</span><strong>Orçamento</strong><small>Revise e monte a proposta.</small></button>
+      <div className="home-management-kpis">
+        <article><span>OS abertas</span><strong>{openWorkOrders}</strong><small>atendimentos em andamento</small></article>
+        <article><span>Orçamentos pendentes</span><strong>{pendingBudgets}</strong><small>rascunhos ou enviados</small></article>
+        <article><span>Clientes</span><strong>{clients.length}</strong><small>cadastro local</small></article>
+        <article><span>Orçado no mês</span><strong>{formatCompactCurrency(monthlyBudgetTotal)}</strong><small>propostas salvas</small></article>
+        <article><span>Aprovadas</span><strong>{approvedBudgets}</strong><small>propostas ganhas</small></article>
       </div>
+      <section className="orca-panel-card home-workflow-panel">
+        <header><div><span className="orca-kicker">Fluxo de trabalho</span><h2>Cliente → OS → Campo → Cálculo → Orçamento → Relatório</h2></div></header>
+        <div className="orca-workflow-steps">
+          <button type="button" className="orca-step-card" onClick={() => goTo('clients')}><span className="orca-step-number">1</span><strong>Cliente</strong><small>Cadastre ou selecione.</small></button>
+          <button type="button" className="orca-step-card" onClick={() => goTo('clients')}><span className="orca-step-number">2</span><strong>OS</strong><small>Defina o atendimento ativo.</small></button>
+          <button type="button" className="orca-step-card" onClick={() => goTo('survey')}><span className="orca-step-number">3</span><strong>Campo</strong><small>Ambientes, serviços e materiais.</small></button>
+          <button type="button" className="orca-step-card" onClick={() => goTo('calculations')}><span className="orca-step-number">4</span><strong>Cálculo</strong><small>Use quando precisar decidir.</small></button>
+          <button type="button" className="orca-step-card" onClick={() => goTo('budgets')}><span className="orca-step-number">5</span><strong>Orçamento</strong><small>Monte a proposta comercial.</small></button>
+          <button type="button" className="orca-step-card" onClick={() => goTo('reports')}><span className="orca-step-number">6</span><strong>Relatório</strong><small>Entregue documento técnico.</small></button>
+        </div>
+      </section>
       <div className="home-operational-grid">
         <section className="orca-panel-card home-focus-panel">
           <header><div><span className="orca-kicker">Ações rápidas</span><h2>O que fazer agora?</h2></div></header>
           <div className="home-action-list">
             <button type="button" onClick={() => goTo('clients')}><strong>Novo cliente / OS</strong><small>Crie ou selecione o atendimento ativo.</small></button>
-            <button type="button" onClick={() => openModule(electricalModule)}><strong>Cálculo elétrico</strong><small>Ohm, potência, corrente e consumo.</small></button>
-            <button type="button" onClick={() => openModule(hydraulicModule)}><strong>Cálculo hidráulico</strong><small>Reservatório, consumo, vazão e pressão.</small></button>
-            <button type="button" onClick={() => goTo('catalog')}><strong>Catálogo e fornecedores</strong><small>Itens reais para referência de orçamento.</small></button>
+            <button type="button" onClick={() => goTo('survey')}><strong>Registrar campo</strong><small>Ambientes, mão de obra, peças e notas.</small></button>
+            <button type="button" onClick={() => openModule(electricalModule)}><strong>Cálculo elétrico</strong><small>Corrente, potência, cabo e proteção.</small></button>
+            <button type="button" onClick={() => openModule(hydraulicModule)}><strong>Cálculo hidráulico</strong><small>Reservatório, vazão, pressão e bomba.</small></button>
+            <button type="button" onClick={() => goTo('catalog')}><strong>Catálogo</strong><small>Serviços, materiais, fornecedores e preços.</small></button>
           </div>
         </section>
         <section className="orca-panel-card home-status-panel">
-          <header><div><span className="orca-kicker">Resumo</span><h2>Hoje</h2></div></header>
+          <header><div><span className="orca-kicker">Gestão simples</span><h2>Painel local</h2></div></header>
           <div className="home-status-list">
-            <article><span>Atendimentos</span><strong>{clients.length}/{openWorkOrders}</strong><small>clientes e OS abertas</small></article>
-            <article><span>Levantamento</span><strong>{surveyItems}</strong><small>itens prontos</small></article>
-            <article><span>Orçamento</span><strong>{budgetItems}</strong><small>itens comerciais</small></article>
+            <article><span>Campo</span><strong>{surveyItems}</strong><small>itens técnicos capturados</small></article>
+            <article><span>Orçamento</span><strong>{budgetItems}</strong><small>itens prontos para proposta</small></article>
+            <article><span>Histórico</span><strong>{savedBudgets.length}</strong><small>orçamentos salvos no navegador</small></article>
+            <article className="home-backup-reminder"><span>Backup</span><strong>Local-first</strong><small>Exporte backup antes de testar em outro aparelho.</small><button type="button" onClick={() => goTo('settings')}>Abrir backup</button></article>
           </div>
         </section>
       </div>
       <section className="orca-panel-card home-recent-panel">
-        <header><div><span className="orca-kicker">Atividade</span><h2>Recentes</h2></div><button type="button" onClick={() => goTo('survey')}>Abrir levantamento</button></header>
-        <div className="orca-activity-list">{recentItems.length === 0 ? <article><div><strong>Comece pelo atendimento</strong><small>Crie uma OS e avance para cálculos, levantamento e orçamento.</small></div></article> : recentItems.map((capture) => <article key={capture.id}><div><strong>{capture.calculatorLabel}</strong><small>{capture.summary}</small></div><em>{capture.destination === 'both' ? 'Ambos' : capture.destination === 'budget' ? 'Orç.' : 'Levant.'}</em></article>)}</div>
+        <header><div><span className="orca-kicker">Atividade</span><h2>Recentes</h2></div><button type="button" onClick={() => goTo('survey')}>Abrir campo</button></header>
+        <div className="orca-activity-list">{recentItems.length === 0 ? <article><div><strong>Comece pelo atendimento</strong><small>Crie uma OS e avance para cálculos, campo e orçamento.</small></div></article> : recentItems.map((capture) => <article key={capture.id}><div><strong>{capture.calculatorLabel}</strong><small>{capture.summary}</small></div><em>{capture.destination === 'both' ? 'Ambos' : capture.destination === 'budget' ? 'Orç.' : 'Campo'}</em></article>)}</div>
       </section>
     </section>
   );
+}
+
+function calculateSavedBudgetValue(budget: SavedBudgetRecord): number {
+  const subtotal = budget.items.reduce((total, item) => total + item.quantity * item.unitPrice, 0);
+  return Math.max(0, subtotal + budget.travelCost + budget.additionalFees - budget.discount);
+}
+
+function isBudgetFromCurrentMonth(budget: SavedBudgetRecord): boolean {
+  const referenceDate = new Date(budget.updatedAt);
+  const now = new Date();
+  return referenceDate.getFullYear() === now.getFullYear() && referenceDate.getMonth() === now.getMonth();
+}
+
+function formatCompactCurrency(value: number): string {
+  return new Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
+    notation: Math.abs(value) >= 10000 ? 'compact' : 'standard',
+    maximumFractionDigits: Math.abs(value) >= 10000 ? 1 : 0,
+  }).format(Number.isFinite(value) ? value : 0);
 }
 
 function CalculationsScreen({ selectedModule, openModule, activeSector, onSelectSector, goTo, userPlan: activeUserPlan, onCaptureCalculation }: { selectedModule: ModuleCardData | null; openModule: (module: ModuleCardData | null) => void; activeSector: CalculationSectorId; onSelectSector: (sector: CalculationSectorId) => void; goTo: (tab: AppTab) => void; userPlan: UserPlan; onCaptureCalculation: (capture: CalculationCapture) => void }) {
@@ -268,9 +307,9 @@ function SurveyScreen({ captures, context, onRemove, onUpdate, onAddMany, goTo }
 
   return (
     <section className="app-screen">
-      <header className="screen-header"><span className="orca-kicker">Fluxo de campo</span><h1>Levantamento</h1><p>Registre contexto, serviços, materiais, observações técnicas e revise o que vai para orçamento ou relatório.</p></header>
+      <header className="screen-header"><span className="orca-kicker">Fluxo de campo</span><h1>Campo</h1><p>Organize ambientes, serviços, materiais e observações antes de montar a proposta ou o relatório.</p></header>
       <ActiveWorkContextCard {...context} />
-      <div className="survey-step-guide" aria-label="Etapas do levantamento">
+      <div className="survey-step-guide" aria-label="Etapas do campo">
         {surveyFlowSteps.map((step, index) => (
           <button className={activeSection === step.id ? 'active' : index < activeStepIndex ? 'completed' : ''} key={step.id} type="button" onClick={() => setActiveSection(step.id)}>
             <span>{index + 1}</span>
@@ -283,7 +322,7 @@ function SurveyScreen({ captures, context, onRemove, onUpdate, onAddMany, goTo }
       {activeSection === 'labor' && <GuidedBudgetCartRoomAutoBridge mode="catalog" onSendToBudget={onAddMany} />}
       {activeSection === 'materials' && <MaterialSupplyModeBridge mode="parts" onSendToBudget={onAddMany} />}
       {activeSection === 'notes' && <GuidedBudgetCartRoomAutoBridge mode="manual" onSendToBudget={onAddMany} />}
-      {activeSection === 'review' && <TechnicalCaptureList captures={surveyCaptures} emptyText="Use ambientes, serviços, materiais ou observações para montar o levantamento." onRemove={onRemove} onUpdate={onUpdate} />}
+      {activeSection === 'review' && <TechnicalCaptureList captures={surveyCaptures} emptyText="Use ambientes, serviços, materiais ou observações para montar o campo." onRemove={onRemove} onUpdate={onUpdate} />}
       <div className="survey-step-actions">
         <button className="secondary-action inline-action" type="button" disabled={!previousStep} onClick={() => previousStep && setActiveSection(previousStep.id)}>Voltar</button>
         <span>{activeStepIndex + 1} de {surveyFlowSteps.length} · {surveyCaptures.length} item(ns) salvos</span>
@@ -297,14 +336,14 @@ function BudgetsScreen({ captures, context, onRemove, onUpdate }: { captures: Ca
   const budgetCaptures = captures.filter((capture) => capture.destination === 'budget' || capture.destination === 'both');
   return (
     <section className="app-screen wide-screen">
-      <header className="screen-header"><span className="orca-kicker">Editor de proposta</span><h1>Orçamentos</h1><p>Revise a base técnica, monte os itens comerciais, confira e envie a proposta.</p></header>
+      <header className="screen-header"><span className="orca-kicker">Proposta comercial</span><h1>Orçamentos</h1><p>Transforme campo, cálculos e catálogo em uma proposta clara para o cliente aprovar.</p></header>
       <ActiveWorkContextCard {...context} />
       <details className="budget-technical-drawer" open={budgetCaptures.length > 0}>
         <summary>
-          <span><strong>Base técnica do orçamento</strong><small>{budgetCaptures.length} item(ns) vindos de cálculos ou levantamento.</small></span>
+          <span><strong>Base técnica do orçamento</strong><small>{budgetCaptures.length} item(ns) vindos de cálculos ou campo.</small></span>
           <em>Revisar</em>
         </summary>
-        <TechnicalCaptureList captures={budgetCaptures} emptyText="Abra um cálculo ou use o levantamento guiado para montar a base técnica." onRemove={onRemove} onUpdate={onUpdate} />
+        <TechnicalCaptureList captures={budgetCaptures} emptyText="Abra um cálculo ou use o campo guiado para montar a base técnica." onRemove={onRemove} onUpdate={onUpdate} />
       </details>
       <BudgetWorkspaceClientBridge technicalCaptures={budgetCaptures} activeClient={context.activeClient} activeWorkOrder={context.activeWorkOrder} onTechnicalCaptureConverted={(id) => onUpdate(id, { convertedToBudgetItem: true })} />
     </section>
@@ -312,15 +351,15 @@ function BudgetsScreen({ captures, context, onRemove, onUpdate }: { captures: Ca
 }
 
 function CatalogScreen({ onAddMany }: { onAddMany: (items: CalculationCapture[]) => void }) {
-  return <section className="app-screen wide-screen"><header className="screen-header"><span className="orca-kicker">Gestão operacional</span><h1>Catálogo</h1><p>Escolha entre catálogo, busca online, fornecedores, compras/estoque e preço com margem.</p></header><CatalogHubWorkspace onSendToBudget={onAddMany} /></section>;
+  return <section className="app-screen wide-screen"><header className="screen-header"><span className="orca-kicker">Base de serviços e materiais</span><h1>Catálogo</h1><p>Padronize serviços, materiais, composições, fornecedores e referências de compra para orçar melhor.</p></header><CatalogHubWorkspace onSendToBudget={onAddMany} /></section>;
 }
 
 function ReportsScreen({ captures, context }: { captures: CalculationCapture[]; context: { activeClient: Client | null; activeWorkOrder: WorkOrder | null } }) {
-  return <section className="app-screen wide-screen"><header className="screen-header"><span className="orca-kicker">Documento técnico</span><h1>Relatórios</h1><p>Transforme diagnósticos, fotos, observações e itens do levantamento em um documento técnico para o cliente.</p></header><ActiveWorkContextCard {...context} /><ReportWorkspace captures={captures} activeClient={context.activeClient} activeWorkOrder={context.activeWorkOrder} /></section>;
+  return <section className="app-screen wide-screen"><header className="screen-header"><span className="orca-kicker">Documento técnico</span><h1>Relatórios</h1><p>Transforme diagnósticos, fotos, observações e itens de campo em um documento técnico para o cliente.</p></header><ActiveWorkContextCard {...context} /><ReportWorkspace captures={captures} activeClient={context.activeClient} activeWorkOrder={context.activeWorkOrder} /></section>;
 }
 
 function ClientsScreen({ onContextChange }: { onContextChange: (clients: Client[], workOrders: WorkOrder[], activeWorkOrderId: string | null) => void }) {
-  return <section className="app-screen wide-screen"><header className="screen-header"><span className="orca-kicker">Início do serviço</span><h1>Atendimentos</h1><p>Escolha o cliente e a OS ativa antes de calcular, levantar campo, orçar ou gerar relatório.</p></header><ClientWorkOrderWorkspace onContextChange={onContextChange} /></section>;
+  return <section className="app-screen wide-screen"><header className="screen-header"><span className="orca-kicker">Cliente e OS</span><h1>Atendimentos</h1><p>Comece pelo cliente, ative uma OS e mantenha o contexto do serviço em todo o fluxo.</p></header><ClientWorkOrderWorkspace onContextChange={onContextChange} /></section>;
 }
 
 function planStatusTitle(account: OrcaAccountState): string {
@@ -369,7 +408,7 @@ function StoreScreen({ account, onAccountChange }: { account: OrcaAccountState; 
 
   return (
     <section className="app-screen wide-screen">
-      <header className="screen-header"><span className="orca-kicker">Recursos premium</span><h1>Loja / Pro</h1><p>Pacotes de cálculos, modelos de orçamento e recursos profissionais.</p></header>
+      <header className="screen-header"><span className="orca-kicker">Plano profissional</span><h1>Loja / Pro</h1><p>Libere recursos para vender melhor: cálculos Pro, proposta profissional, diagnóstico, relatório e apoio comercial.</p></header>
       <div className="settings-group">
         <h2>Plano atual</h2>
         {devToolsEnabled && <div className="dev-tools-badge">Modo desenvolvimento ativo</div>}
@@ -384,7 +423,7 @@ function StoreScreen({ account, onAccountChange }: { account: OrcaAccountState; 
         <p className="general-helper-text">A verificação depende da conta/e-mail cadastrado. Pagamento automático e webhook ficam fora deste beta.</p>
         {feedback && <p className="general-added-message">{feedback}</p>}
       </div>
-      <div className="settings-group"><h2>Pacotes disponíveis</h2>{storePackages.map((pack) => <article className="store-card" key={pack.title}><span><strong>{pack.title}</strong><small>{pack.description}</small><b>{pack.price}</b></span><button type="button">Detalhes</button></article>)}</div>
+      <div className="settings-group"><h2>Pacotes disponíveis</h2>{storePackages.map((pack) => <article className="store-card" key={pack.title}><span><strong>{pack.title}</strong><small>{pack.description}</small><b>{pack.price}</b></span><button type="button">Ver pacote</button></article>)}</div>
     </section>
   );
 }
@@ -428,7 +467,7 @@ function SettingsScreen({ account, onAccountChange }: { account: OrcaAccountStat
       <header className="screen-header">
         <span className="orca-kicker">Preferências</span>
         <h1>Configurações</h1>
-        <p>Conta, plano, perfil profissional e backup do app.</p>
+        <p>Conta, assinatura, identidade profissional, segurança local e backup do app.</p>
       </header>
 
       <div className="settings-group account-settings-panel">

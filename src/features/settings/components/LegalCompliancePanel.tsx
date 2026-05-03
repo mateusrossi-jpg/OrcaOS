@@ -1,7 +1,7 @@
 import './LegalCompliancePanel.css';
 
 const technicalNotice = [
-  'Os calculos do OrcaOS sao ferramentas de apoio para decisao tecnica, levantamento, orcamento e relatorio.',
+  'Os calculos do OrcaOS sao ferramentas de apoio para decisao tecnica, campo, orcamento e relatorio.',
   'O profissional responsavel deve validar resultados, normas aplicaveis e condicoes reais de campo antes da execucao.',
   'Normas tecnicas, fabricantes, concessionarias, projeto real e responsabilidade tecnica prevalecem sobre estimativas do app.',
 ];

@@ -90,7 +90,7 @@ export function summarizeOrcaBackupData(backup: OrcaLocalBackup): OrcaBackupData
     { label: 'Catálogo', count: catalogCount },
     { label: 'Fornecedores', count: supplierCount },
     { label: 'Configurações', count: settingsCount },
-    { label: 'Capturas/levantamentos', count: surveyCount },
+    { label: 'Capturas de campo', count: surveyCount },
     { label: 'Perfil profissional', count: profileCount },
     { label: 'Conta/plano local', count: accountCount },
   ];

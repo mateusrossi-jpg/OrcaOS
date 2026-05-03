@@ -1,6 +1,6 @@
 # OrçaOS
 
-**OrçaOS** é uma plataforma profissional para técnicos, eletricistas e prestadores de serviço. O projeto começa como uma ferramenta prática para eletricistas, com calculadoras confiáveis, apoio a orçamento, relatórios técnicos e organização de ordens de serviço. A longo prazo, a base deve evoluir para um sistema modular de gestão profissional, mantendo a simplicidade para o usuário comum.
+**OrçaOS** é um ERP técnico leve para prestadores de serviço, começando por cálculos, campo, orçamento e relatórios. O produto organiza clientes, OS, levantamento de campo, proposta comercial, documentos técnicos, catálogo e histórico local sem transformar a rotina do técnico em um sistema pesado.
 
 > Nome técnico do repositório: `OrcaOS`  
 > Nome comercial do produto: **OrçaOS**
@@ -10,14 +10,17 @@
 O OrçaOS deve ser mais do que um aplicativo de cálculos. Ele deve unir:
 
 - calculadoras técnicas;
-- orçamento de mão de obra e materiais;
+- campo com ambientes, serviços, materiais e observações;
+- orçamento de mão de obra, materiais, deslocamento e condições comerciais;
 - relatórios de visita técnica;
 - diagnóstico com fotos e observações;
 - cadastro de clientes;
 - ordens de serviço;
+- catálogo de serviços, materiais, composições e fornecedores;
 - histórico de atendimento;
 - lembretes de manutenção preventiva;
-- evolução futura para módulos por profissão.
+- gestão simples local-first;
+- evolução futura para módulos por profissão e recursos Pro.
 
 ## Público inicial
 

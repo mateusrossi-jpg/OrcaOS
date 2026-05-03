@@ -4,12 +4,12 @@
   --orca-surface-soft: var(--stable-surface-2, #151f19);
   --orca-surface-elevated: var(--stable-surface-3, #1a261f);
   --orca-border: var(--stable-border, rgba(255, 255, 255, 0.09));
-  --orca-border-strong: var(--stable-border-2, rgba(34, 197, 94, 0.22));
+  --orca-border-strong: var(--stable-border-2, rgba(0, 184, 194, 0.28));
   --orca-text: var(--stable-text, #f8fafc);
   --orca-muted: var(--stable-muted, #a7b3ad);
-  --orca-primary: var(--stable-green, #22c55e);
-  --orca-primary-strong: var(--stable-green-2, #16a34a);
-  --orca-primary-soft: rgba(34, 197, 94, 0.10);
+  --orca-primary: var(--stable-teal, #00b8c2);
+  --orca-primary-strong: var(--stable-teal-2, #00a0ad);
+  --orca-primary-soft: rgba(0, 184, 194, 0.11);
   --orca-shadow: 0 24px 80px rgba(0, 0, 0, 0.38);
 }
 
@@ -38,7 +38,8 @@ body,
   min-width: 0;
   overflow: hidden;
   background:
-    radial-gradient(circle at top left, rgba(34, 197, 94, 0.07), transparent 18rem),
+    radial-gradient(circle at top left, rgba(0, 184, 194, 0.09), transparent 18rem),
+    radial-gradient(circle at bottom right, rgba(34, 197, 94, 0.045), transparent 20rem),
     linear-gradient(180deg, var(--orca-bg), #07100c);
   color: var(--orca-text);
 }
@@ -169,7 +170,8 @@ body,
   border: 1px solid var(--orca-border);
   border-radius: 26px;
   background:
-    radial-gradient(circle at top left, rgba(34, 197, 94, 0.10), transparent 17rem),
+    radial-gradient(circle at top left, rgba(0, 184, 194, 0.12), transparent 17rem),
+    radial-gradient(circle at bottom right, rgba(34, 197, 94, 0.055), transparent 19rem),
     var(--orca-bg);
   box-shadow: var(--orca-shadow);
   transform: translateX(calc(-100% - 24px));
@@ -211,7 +213,7 @@ body,
   color: #041008;
   background: linear-gradient(135deg, var(--orca-primary), var(--orca-primary-strong));
   font-weight: 950;
-  box-shadow: 0 14px 28px rgba(34, 197, 94, 0.20);
+  box-shadow: 0 14px 28px rgba(0, 184, 194, 0.22);
 }
 
 .drawer-brand-card strong,
@@ -298,8 +300,8 @@ body,
 .drawer-nav button.active {
   border-color: var(--orca-border-strong);
   background:
-    radial-gradient(circle at top right, rgba(34, 197, 94, 0.14), transparent 9rem),
-    linear-gradient(135deg, rgba(34, 197, 94, 0.10), rgba(21, 31, 25, 0.96));
+    radial-gradient(circle at top right, rgba(0, 184, 194, 0.16), transparent 9rem),
+    linear-gradient(135deg, rgba(0, 184, 194, 0.10), rgba(21, 31, 25, 0.96));
 }
 
 .drawer-nav .orca-app-icon,

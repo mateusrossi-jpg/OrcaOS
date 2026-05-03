@@ -39,7 +39,7 @@ const supplyOptions: SupplyOption[] = [
   {
     id: 'undefined',
     label: 'A definir depois',
-    description: 'Use quando o levantamento ainda não decidiu quem compra os materiais.',
+    description: 'Use quando o campo ainda não decidiu quem compra os materiais.',
     customerText: 'Fornecimento de materiais pendente de definição.',
   },
 ];

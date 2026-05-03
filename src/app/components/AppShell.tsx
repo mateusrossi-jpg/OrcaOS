@@ -90,7 +90,7 @@ export function AppShell<T extends string>({
           <div className="drawer-brand-mark" aria-hidden="true"><span>O</span></div>
           <div>
             <strong>OrçaOS</strong>
-            <small>Calculadora, OS e orçamento técnico</small>
+            <small>ERP técnico leve para serviço de campo</small>
           </div>
         </div>
 

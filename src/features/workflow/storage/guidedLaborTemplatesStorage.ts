@@ -22,7 +22,7 @@ const STORAGE_KEY = 'orcaos:guided-labor-templates:v1';
 const STARTER_TIMESTAMP = '2026-01-01T00:00:00.000Z';
 
 export const starterGuidedLaborTemplates: GuidedLaborTemplate[] = [
-  { id: 'tomada-circuito', title: 'Lançamento de circuito de tomada', defaultUnitValue: 120, unit: 'ponto', note: 'Passagem/lançamento de circuito de tomada conforme levantamento em campo.', visible: true, createdAt: STARTER_TIMESTAMP, updatedAt: STARTER_TIMESTAMP },
+  { id: 'tomada-circuito', title: 'Lançamento de circuito de tomada', defaultUnitValue: 120, unit: 'ponto', note: 'Passagem/lançamento de circuito de tomada conforme campo.', visible: true, createdAt: STARTER_TIMESTAMP, updatedAt: STARTER_TIMESTAMP },
   { id: 'tomada-troca', title: 'Troca/instalação de tomada', defaultUnitValue: 45, unit: 'ponto', note: 'Instalação ou substituição de tomada, considerar material à parte.', visible: true, createdAt: STARTER_TIMESTAMP, updatedAt: STARTER_TIMESTAMP },
   { id: 'spot-led', title: 'Instalação de spot/lâmpada', defaultUnitValue: 45, unit: 'ponto', note: 'Instalação de spot, luminária simples ou ponto de iluminação.', visible: true, createdAt: STARTER_TIMESTAMP, updatedAt: STARTER_TIMESTAMP },
   { id: 'lustre', title: 'Instalação de lustre/luminária decorativa', defaultUnitValue: 120, unit: 'un.', note: 'Instalação de lustre/luminária decorativa, validar peso, altura e fixação.', visible: true, createdAt: STARTER_TIMESTAMP, updatedAt: STARTER_TIMESTAMP },

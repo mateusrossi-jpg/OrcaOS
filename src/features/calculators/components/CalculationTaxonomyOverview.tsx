@@ -74,7 +74,7 @@ function buildTaxonomy(modules: TaxonomyModuleCardData[]): TaxonomyGroup[] {
     {
       id: 'orcamento-gestao',
       title: 'Orçamento e gestão',
-      subtitle: 'Cálculos e ferramentas para transformar levantamento em proposta e operação.',
+      subtitle: 'Cálculos e ferramentas para transformar campo em proposta e operação.',
       modules: existing(['orcamentoTecnico', 'percentuaisComerciais', 'custosProdutividade']),
     },
     {

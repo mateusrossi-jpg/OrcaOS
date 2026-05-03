@@ -93,7 +93,7 @@ function itemKindLabel(kind: CatalogHubItemKind): string {
 }
 
 function destinationLabel(destination: CalculationDestination): string {
-  if (destination === 'survey') return 'Levantamento';
+  if (destination === 'survey') return 'Campo';
   if (destination === 'budget') return 'Orçamento';
   return 'Ambos';
 }
@@ -362,7 +362,7 @@ export function CatalogHubWorkspace({ onSendToBudget, initialTab = 'items', enab
         <div>
           <span className="orca-kicker">{activeTab === 'online' ? 'Referência de produto' : 'Catálogo profissional'}</span>
           <h2>{activeTab === 'online' ? 'Buscar produto real para referência' : 'Itens e serviços reutilizáveis'}</h2>
-          <p>{activeTab === 'online' ? 'Pesquise no fornecedor, escolha o produto real e traga preço/modelo para o cadastro.' : 'Cadastre materiais, peças e serviços recorrentes para enviar ao levantamento ou orçamento guiado.'}</p>
+          <p>{activeTab === 'online' ? 'Pesquise no fornecedor, escolha o produto real e traga preço/modelo para o cadastro.' : 'Cadastre materiais, peças e serviços recorrentes para enviar ao campo ou orçamento guiado.'}</p>
         </div>
         <strong>{items.length} itens · {suppliers.length} fornecedores</strong>
       </div>
@@ -393,7 +393,7 @@ export function CatalogHubWorkspace({ onSendToBudget, initialTab = 'items', enab
               <label><span>Unidade</span><input value={itemDraft.unit} placeholder="un, m, cx, ponto..." onChange={(event) => updateItemDraft('unit', event.target.value)} /></label>
               <label><span>Qtd. padrão</span><input inputMode="decimal" value={itemDraft.defaultQuantity} onChange={(event) => updateItemDraft('defaultQuantity', event.target.value)} /></label>
               <label><span>Valor unitário</span><input inputMode="decimal" value={itemDraft.defaultUnitValue} onChange={(event) => updateItemDraft('defaultUnitValue', event.target.value)} /></label>
-              <label><span>Destino</span><select value={itemDraft.destination} onChange={(event) => updateItemDraft('destination', event.target.value as CalculationDestination)}><option value="survey">Levantamento</option><option value="budget">Orçamento</option><option value="both">Ambos</option></select></label>
+              <label><span>Destino</span><select value={itemDraft.destination} onChange={(event) => updateItemDraft('destination', event.target.value as CalculationDestination)}><option value="survey">Campo</option><option value="budget">Orçamento</option><option value="both">Ambos</option></select></label>
               <label className="wide"><span>Link fonte/catálogo</span><input value={itemDraft.sourceUrl} placeholder="https://..." onChange={(event) => updateItemDraft('sourceUrl', event.target.value)} /></label>
               <label className="wide"><span>Foto ou URL da imagem</span><input value={itemDraft.imageUrl} placeholder="Cole uma URL de imagem ou envie uma foto abaixo" onChange={(event) => updateItemDraft('imageUrl', event.target.value)} /></label>
               <label className="wide file-reference-field"><span>Enviar foto de referência</span><input accept="image/*" type="file" onChange={(event) => handleItemImageFile(event.target.files?.[0])} /></label>
@@ -413,7 +413,7 @@ export function CatalogHubWorkspace({ onSendToBudget, initialTab = 'items', enab
           </div>
 
           <div className="catalog-hub-card">
-            <div><strong>Consultar itens cadastrados</strong><small>Filtre, edite, duplique e envie itens diretamente para levantamento, orçamento ou ambos.</small></div>
+            <div><strong>Consultar itens cadastrados</strong><small>Filtre, edite, duplique e envie itens diretamente para campo, orçamento ou ambos.</small></div>
             <div className="catalog-hub-grid compact">
               <label className="wide"><span>Buscar</span><input value={query} placeholder="tomada, disjuntor, serviço, marca..." onChange={(event) => setQuery(event.target.value)} /></label>
               <label><span>Tipo</span><select value={kindFilter} onChange={(event) => setKindFilter(event.target.value as 'all' | CatalogHubItemKind)}><option value="all">Todos</option><option value="material">Material</option><option value="service">Serviço</option></select></label>

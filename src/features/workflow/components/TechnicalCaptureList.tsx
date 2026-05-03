@@ -1,4 +1,5 @@
 import type { CalculationCapture, MaterialSupplyMode, TechnicalItemType } from '../../../core/types/workflow';
+import { handleNumericInputFocus } from '../../../core/ui/numericInputFocus';
 import {
   buildMaterialSupplyPatch,
   calculateCaptureCommercialTotal,
@@ -146,7 +147,7 @@ export function TechnicalCaptureList({ captures, emptyText, onRemove, onUpdate }
         <div className="technical-commercial-grid">
           <label className="technical-edit-field">
             <span>Quantidade</span>
-            <input inputMode="decimal" value={quantity} onChange={(event) => onUpdate(capture.id, { quantity: event.target.value })} />
+            <input inputMode="decimal" value={quantity} onFocus={handleNumericInputFocus} onChange={(event) => onUpdate(capture.id, { quantity: event.target.value })} />
           </label>
           <label className="technical-edit-field">
             <span>{clientPurchase ? 'Valor referência unitário' : 'Valor unitário'}</span>
@@ -154,6 +155,7 @@ export function TechnicalCaptureList({ captures, emptyText, onRemove, onUpdate }
               inputMode="decimal"
               value={clientPurchase ? (capture.materialReferenceUnitValue ?? '') : unitValue}
               placeholder="0,00"
+              onFocus={handleNumericInputFocus}
               onChange={(event) => onUpdate(capture.id, clientPurchase ? { materialReferenceUnitValue: event.target.value } : { unitValue: event.target.value })}
             />
           </label>

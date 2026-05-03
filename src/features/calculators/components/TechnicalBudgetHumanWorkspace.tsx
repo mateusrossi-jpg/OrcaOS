@@ -8,6 +8,7 @@ import {
   calculateUpfront,
 } from '../../../core/calculations/trade';
 import type { CalculationCapture, CalculationDestination } from '../../../core/types/workflow';
+import { handleNumericInputFocus } from '../../../core/ui/numericInputFocus';
 import './GeneralCalculatorWorkspace.css';
 
 type BudgetMode = 'labor' | 'final-price' | 'daily' | 'hourly' | 'installments' | 'upfront';
@@ -64,7 +65,7 @@ function result(summary: string, cards: ResultCardData[], details: string[], ori
 function marginModeLabel(mode: MarginMode): string { return mode === 'markup-cost' ? 'Markup sobre custo' : 'Margem sobre venda'; }
 
 function NumberField({ field, value, onChange }: { field: FieldConfig; value: string; onChange: (value: string) => void }) {
-  return <label className="general-form-field"><span>{field.label}</span><div><input type="number" inputMode="decimal" min="0" step={field.step ?? 0.01} value={value} placeholder="Digite o valor" onChange={(event) => onChange(event.target.value)} />{field.suffix && <small>{field.suffix}</small>}</div></label>;
+  return <label className="general-form-field"><span>{field.label}</span><div><input type="number" inputMode="decimal" min="0" step={field.step ?? 0.01} value={value} placeholder="Digite o valor" onFocus={handleNumericInputFocus} onChange={(event) => onChange(event.target.value)} />{field.suffix && <small className="technical-unit">{field.suffix}</small>}</div></label>;
 }
 
 function SelectField({ value, onChange }: { value: MarginMode; onChange: (value: MarginMode) => void }) {
@@ -164,9 +165,9 @@ export function TechnicalBudgetHumanWorkspace({ onCaptureCalculation }: Props) {
   function includeResult(destination: CalculationDestination) {
     if (!activeRule || calculated.error || calculated.cards.length === 0) return;
     onCaptureCalculation?.({ id: createId('technical-budget-calc'), module: 'orcamentoTecnico', moduleLabel: 'Orçamento técnico', calculatorLabel: activeRule.label, destination, createdAt: new Date().toISOString(), summary: calculated.summary, details: [...calculated.details, ...calculated.formula.map((item) => `Fórmula: ${item}`), `Orientação: ${calculated.orientation}`] });
-    if (destination === 'survey') setAddedMessage(`${activeRule.label} foi incluído no levantamento.`);
+    if (destination === 'survey') setAddedMessage(`${activeRule.label} foi incluído no campo.`);
     if (destination === 'budget') setAddedMessage(`${activeRule.label} foi incluído no orçamento.`);
-    if (destination === 'both') setAddedMessage(`${activeRule.label} foi incluído no levantamento e no orçamento.`);
+    if (destination === 'both') setAddedMessage(`${activeRule.label} foi incluído no campo e no orçamento.`);
   }
 
   function openCalculator(mode: BudgetMode) { setActiveMode(mode); setAddedMessage(null); setShowAdvanced(false); }
@@ -191,7 +192,7 @@ export function TechnicalBudgetHumanWorkspace({ onCaptureCalculation }: Props) {
             {calculated.formula.length > 0 && <div className="general-formula-box"><strong>Como este cálculo é feito</strong>{calculated.formula.map((item) => <span key={item}>{item}</span>)}</div>}
             {calculated.orientation && <p className="general-helper-text">{calculated.orientation}</p>}
             {addedMessage && <p className="general-added-message">{addedMessage}</p>}
-            <div className="general-capture-actions"><button type="button" onClick={() => includeResult('survey')}>Adicionar ao levantamento</button><button type="button" onClick={() => includeResult('budget')}>Adicionar ao orçamento</button><button type="button" onClick={() => includeResult('both')}>Adicionar aos dois</button><button className="secondary-action" type="button" onClick={closeCalculator}>Voltar</button></div>
+            <div className="general-capture-actions"><button type="button" onClick={() => includeResult('survey')}>Adicionar ao campo</button><button type="button" onClick={() => includeResult('budget')}>Adicionar ao orçamento</button><button type="button" onClick={() => includeResult('both')}>Adicionar aos dois</button><button className="secondary-action" type="button" onClick={closeCalculator}>Voltar</button></div>
             <small className="general-technical-note">Cálculo preliminar. Revise escopo, garantia, prazo, impostos e condições antes de enviar ao cliente.</small>
           </section>
         </div>

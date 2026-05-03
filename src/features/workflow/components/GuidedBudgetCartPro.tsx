@@ -43,7 +43,7 @@ const currencyFormatter = new Intl.NumberFormat('pt-BR', { style: 'currency', cu
 const commonEnvironments = ['Sala', 'Cozinha', 'Quarto', 'Banheiro', 'Área externa', 'Garagem', 'Escritório'];
 
 const laborTemplates: LaborTemplate[] = [
-  { id: 'tomada-circuito', title: 'Lançamento de circuito de tomada', defaultUnitValue: 120, unit: 'ponto', note: 'Passagem/lançamento de circuito de tomada conforme levantamento em campo.' },
+  { id: 'tomada-circuito', title: 'Lançamento de circuito de tomada', defaultUnitValue: 120, unit: 'ponto', note: 'Passagem/lançamento de circuito de tomada conforme campo.' },
   { id: 'tomada-troca', title: 'Troca/instalação de tomada', defaultUnitValue: 45, unit: 'ponto', note: 'Instalação ou substituição de tomada, considerar material à parte.' },
   { id: 'spot-led', title: 'Instalação de spot/lâmpada', defaultUnitValue: 45, unit: 'ponto', note: 'Instalação de spot, luminária simples ou ponto de iluminação.' },
   { id: 'lustre', title: 'Instalação de lustre/luminária decorativa', defaultUnitValue: 120, unit: 'un.', note: 'Instalação de lustre/luminária decorativa, validar peso, altura e fixação.' },
@@ -77,9 +77,9 @@ function parseDecimal(value: string, fallback = 0): number {
 }
 
 function destinationLabel(destination: CalculationDestination): string {
-  if (destination === 'survey') return 'Levantamento';
+  if (destination === 'survey') return 'Campo';
   if (destination === 'budget') return 'Orçamento';
-  return 'Levantamento e orçamento';
+  return 'Campo e orçamento';
 }
 
 function kindLabel(kind: GuidedEntryKind): string {
@@ -326,7 +326,7 @@ export function GuidedBudgetCart({ onSendToBudget, mode = 'all' }: GuidedBudgetC
             <div className="guided-manual-grid">
               <label className="technical-edit-field"><span>Tomadas duplas</span><input inputMode="decimal" value={kitDoubleOutletQty} onChange={(event) => setKitDoubleOutletQty(event.target.value)} /></label>
               <label className="technical-edit-field"><span>Marca desejada</span><select value={kitBrand} onChange={(event) => setKitBrand(event.target.value)}>{kitBrands.map((brand) => <option key={brand} value={brand}>{brand}</option>)}</select></label>
-              <label className="technical-edit-field"><span>Destino</span><select value={kitDestination} onChange={(event) => setKitDestination(event.target.value as CalculationDestination)}><option value="survey">Levantamento</option><option value="budget">Orçamento</option><option value="both">Ambos</option></select></label>
+              <label className="technical-edit-field"><span>Destino</span><select value={kitDestination} onChange={(event) => setKitDestination(event.target.value as CalculationDestination)}><option value="survey">Campo</option><option value="budget">Orçamento</option><option value="both">Ambos</option></select></label>
             </div>
             <button className="primary-action inline-action" type="button" onClick={addDoubleOutletKit}>Gerar kit de tomadas</button>
           </div>
@@ -342,7 +342,7 @@ export function GuidedBudgetCart({ onSendToBudget, mode = 'all' }: GuidedBudgetC
               <label className="technical-edit-field"><span>Modelo/ref.</span><input value={manualPart.model} placeholder="Opcional" onChange={(event) => setManualPart((current) => ({ ...current, model: event.target.value }))} /></label>
               <label className="technical-edit-field"><span>Quantidade</span><input inputMode="decimal" value={manualPart.quantity} onChange={(event) => setManualPart((current) => ({ ...current, quantity: event.target.value }))} /></label>
               <label className="technical-edit-field"><span>Valor unitário</span><input inputMode="decimal" value={manualPart.unitValue} placeholder="0,00" onChange={(event) => setManualPart((current) => ({ ...current, unitValue: event.target.value }))} /></label>
-              <label className="technical-edit-field"><span>Destino</span><select value={manualPart.destination} onChange={(event) => setManualPart((current) => ({ ...current, destination: event.target.value as CalculationDestination }))}><option value="survey">Levantamento</option><option value="budget">Orçamento</option><option value="both">Ambos</option></select></label>
+              <label className="technical-edit-field"><span>Destino</span><select value={manualPart.destination} onChange={(event) => setManualPart((current) => ({ ...current, destination: event.target.value as CalculationDestination }))}><option value="survey">Campo</option><option value="budget">Orçamento</option><option value="both">Ambos</option></select></label>
               <label className="technical-edit-field guided-wide-field"><span>Observação</span><textarea value={manualPart.note} placeholder="Ex.: cliente prefere linha branca, confirmar disponibilidade, usar 20A na cozinha..." onChange={(event) => setManualPart((current) => ({ ...current, note: event.target.value }))} /></label>
             </div>
             <button className="primary-action inline-action" type="button" onClick={addManualPart}>Adicionar peça manual</button>

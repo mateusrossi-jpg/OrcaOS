@@ -45,9 +45,9 @@ export function UnifiedConstructionWorkspace({ userPlan = 'free', onUpgradeReque
         <GeneralFundamentalsWorkspace
           modes={measurementModes}
           title="Medições de obra"
-          description="Áreas, perímetro, volume simples e perda de material para levantamento de obra."
+          description="Áreas, perímetro, volume simples e perda de material para campo de obra."
           moduleLabel="Medições de obra"
-          note="Use como apoio de medição para levantamento, compra de material e conferência em campo."
+          note="Use como apoio de medição para campo, compra de material e conferência em campo."
           onCaptureCalculation={onCaptureCalculation}
         />
       )}

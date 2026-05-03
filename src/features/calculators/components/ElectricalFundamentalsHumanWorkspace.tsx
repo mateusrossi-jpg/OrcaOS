@@ -5,8 +5,10 @@ import {
   calculateVoltageFromCurrentResistance,
   convertCurrentToAmps,
 } from '../../../core/calculations/electrical';
+import { formatKilowattsFromWatts } from '../../../core/format/technicalValues';
 import type { CurrentInputUnit } from '../../../core/types/electrical';
 import type { CalculationCapture, CalculationDestination } from '../../../core/types/workflow';
+import { handleNumericInputFocus } from '../../../core/ui/numericInputFocus';
 import './ElectricalFundamentalsHumanWorkspace.css';
 
 type FundamentalMode =
@@ -136,8 +138,8 @@ function NumberField({ label, value, suffix, step = 0.01, onChange }: { label: s
     <label className="human-field">
       <span>{label}</span>
       <div>
-        <input type="text" inputMode="decimal" pattern="[0-9]*[,.]?[0-9]*" data-step={step} value={value} onChange={(event) => onChange(event.target.value)} />
-        {suffix && <small>{suffix}</small>}
+        <input type="text" inputMode="decimal" pattern="[0-9]*[,.]?[0-9]*" data-step={step} value={value} onFocus={handleNumericInputFocus} onChange={(event) => onChange(event.target.value)} />
+        {suffix && <small className="technical-unit">{suffix}</small>}
       </div>
     </label>
   );
@@ -256,7 +258,7 @@ export function ElectricalFundamentalsHumanWorkspace({ onCaptureCalculation }: P
         return result(
           `Potência calculada: ${round(power)} W`,
           [
-            { label: 'Potência', value: `${round(power)} W`, helper: `${round(power / 1000)} kW` },
+            { label: 'Potência', value: `${round(power)} W`, helper: formatKilowattsFromWatts(power) },
             { label: 'Dados usados', value: `${round(voltage)} V × ${round(current)} A`, helper: showAdvanced ? `FP ${round(factor, 2)} · ${phaseLabel(phase)}` : 'modo simples' },
           ],
           [`Tensão: ${round(voltage)} V`, currentInputDetail(), `Fator de potência: ${round(factor, 2)}`, `Circuito: ${phaseLabel(phase)}`, `Potência: ${round(power)} W`],
@@ -425,9 +427,9 @@ export function ElectricalFundamentalsHumanWorkspace({ onCaptureCalculation }: P
       details: [...calculated.details, ...calculated.formula.map((item) => `Fórmula: ${item}`), `Orientação: ${calculated.orientation}`],
     };
     onCaptureCalculation?.(capture);
-    if (destination === 'survey') setAddedMessage(`${activeRule.label} foi incluído no levantamento.`);
+    if (destination === 'survey') setAddedMessage(`${activeRule.label} foi incluído no campo.`);
     if (destination === 'budget') setAddedMessage(`${activeRule.label} foi incluído no orçamento.`);
-    if (destination === 'both') setAddedMessage(`${activeRule.label} foi incluído no levantamento e no orçamento.`);
+    if (destination === 'both') setAddedMessage(`${activeRule.label} foi incluído no campo e no orçamento.`);
   }
 
   function closeCalculator() {
@@ -603,7 +605,7 @@ export function ElectricalFundamentalsHumanWorkspace({ onCaptureCalculation }: P
             {addedMessage && <p className="human-added-message">{addedMessage}</p>}
 
             <div className="human-capture-actions">
-              <button type="button" onClick={() => includeResult('survey')}>Adicionar ao levantamento</button>
+              <button type="button" onClick={() => includeResult('survey')}>Adicionar ao campo</button>
               <button type="button" onClick={() => includeResult('budget')}>Adicionar ao orçamento</button>
               <button type="button" onClick={() => includeResult('both')}>Adicionar aos dois</button>
               <button className="secondary-action" type="button" onClick={closeCalculator}>Voltar</button>

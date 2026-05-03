@@ -71,7 +71,7 @@ describe('local backup storage', () => {
       { label: 'Orçamentos', count: 1 },
       { label: 'Catálogo', count: 2 },
       { label: 'Fornecedores', count: 1 },
-      { label: 'Capturas/levantamentos', count: 1 },
+      { label: 'Capturas de campo', count: 1 },
       { label: 'Perfil profissional', count: 2 },
       { label: 'Conta/plano local', count: 1 },
     ]));

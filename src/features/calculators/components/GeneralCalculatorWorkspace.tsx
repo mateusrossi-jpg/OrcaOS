@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import type { CalculationCapture, CalculationDestination } from '../../../core/types/workflow';
+import { handleNumericInputFocus } from '../../../core/ui/numericInputFocus';
 import './GeneralCalculatorWorkspace.css';
 
 export type GeneralCalculatorModule = 'obras' | 'pintura' | 'conversores' | 'orcamentoTecnico';
@@ -167,9 +168,10 @@ function NumberField({ label, value, suffix, min = 0, step = 0.01, onChange }: {
           step={step}
           value={value}
           placeholder="Digite o valor"
+          onFocus={handleNumericInputFocus}
           onChange={(event) => onChange(event.target.value)}
         />
-        {suffix && <small>{suffix}</small>}
+        {suffix && <small className="technical-unit">{suffix}</small>}
       </div>
     </label>
   );
@@ -468,9 +470,9 @@ export function GeneralCalculatorWorkspace({ selectedModule, onCaptureCalculatio
 
     onCaptureCalculation?.(capture);
 
-    if (destination === 'survey') setAddedMessage(`${activeRule.label} foi incluído no levantamento.`);
+    if (destination === 'survey') setAddedMessage(`${activeRule.label} foi incluído no campo.`);
     if (destination === 'budget') setAddedMessage(`${activeRule.label} foi incluído no orçamento.`);
-    if (destination === 'both') setAddedMessage(`${activeRule.label} foi incluído no levantamento e no orçamento.`);
+    if (destination === 'both') setAddedMessage(`${activeRule.label} foi incluído no campo e no orçamento.`);
   }
 
   function closeCalculator() {
@@ -546,13 +548,13 @@ export function GeneralCalculatorWorkspace({ selectedModule, onCaptureCalculatio
             {addedMessage && <p className="general-added-message">{addedMessage}</p>}
 
             <div className="general-capture-actions">
-              <button type="button" onClick={() => includeResult('survey')}>Adicionar ao levantamento</button>
+              <button type="button" onClick={() => includeResult('survey')}>Adicionar ao campo</button>
               <button type="button" onClick={() => includeResult('budget')}>Adicionar ao orçamento</button>
               <button type="button" onClick={() => includeResult('both')}>Adicionar aos dois</button>
               <button className="secondary-action" type="button" onClick={closeCalculator}>Voltar</button>
             </div>
 
-            <small className="general-technical-note">Cálculo preliminar para orçamento e levantamento. Valide medidas, perdas, materiais e condições reais da obra antes de fechar a proposta.</small>
+            <small className="general-technical-note">Cálculo preliminar para orçamento e campo. Valide medidas, perdas, materiais e condições reais da obra antes de fechar a proposta.</small>
           </section>
         </div>
       )}

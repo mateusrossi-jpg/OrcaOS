@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { CalculationCapture, CalculationDestination } from '../../../core/types/workflow';
+import { handleNumericInputFocus } from '../../../core/ui/numericInputFocus';
 import './GeneralCalculatorWorkspace.css';
 
 export type GeneralCalculatorModule = 'obras' | 'pintura' | 'conversores' | 'orcamentoTecnico';
@@ -227,8 +228,8 @@ function NumberField({ field, value, onChange }: { field: FieldConfig; value: st
     <label className="general-form-field">
       <span>{field.label}</span>
       <div>
-        <input type="number" inputMode="decimal" min={field.min ?? 0} step={field.step ?? 0.01} value={value} onChange={(event) => onChange(event.target.value)} />
-        {field.suffix && <small>{field.suffix}</small>}
+        <input type="number" inputMode="decimal" min={field.min ?? 0} step={field.step ?? 0.01} value={value} onFocus={handleNumericInputFocus} onChange={(event) => onChange(event.target.value)} />
+        {field.suffix && <small className="technical-unit">{field.suffix}</small>}
       </div>
     </label>
   );
@@ -275,9 +276,9 @@ export function GeneralCalculatorWorkspace({ selectedModule, onCaptureCalculatio
       details: calculated.details,
     };
     onCaptureCalculation?.(capture);
-    if (destination === 'survey') setAddedMessage(`${activeRule.label} foi incluído no levantamento.`);
+    if (destination === 'survey') setAddedMessage(`${activeRule.label} foi incluído no campo.`);
     if (destination === 'budget') setAddedMessage(`${activeRule.label} foi incluído no orçamento.`);
-    if (destination === 'both') setAddedMessage(`${activeRule.label} foi incluído no levantamento e no orçamento.`);
+    if (destination === 'both') setAddedMessage(`${activeRule.label} foi incluído no campo e no orçamento.`);
   }
 
   function closeCalculator() {
@@ -300,7 +301,7 @@ export function GeneralCalculatorWorkspace({ selectedModule, onCaptureCalculatio
             {calculated.error && <p className="general-error-message">{calculated.error}</p>}
             {calculated.cards.length > 0 && <div className="general-result-grid">{calculated.cards.map((item) => <ResultCard key={item.label} {...item} />)}</div>}
             {addedMessage && <p className="general-added-message">{addedMessage}</p>}
-            <div className="general-capture-actions"><button type="button" onClick={() => includeResult('survey')}>Adicionar ao levantamento</button><button type="button" onClick={() => includeResult('budget')}>Adicionar ao orçamento</button><button type="button" onClick={() => includeResult('both')}>Adicionar aos dois</button><button className="secondary-action" type="button" onClick={closeCalculator}>Voltar</button></div>
+            <div className="general-capture-actions"><button type="button" onClick={() => includeResult('survey')}>Adicionar ao campo</button><button type="button" onClick={() => includeResult('budget')}>Adicionar ao orçamento</button><button type="button" onClick={() => includeResult('both')}>Adicionar aos dois</button><button className="secondary-action" type="button" onClick={closeCalculator}>Voltar</button></div>
             <small className="general-technical-note">Cálculo preliminar. Valide medidas, perdas, materiais e condições reais antes de fechar a proposta.</small>
           </section>
         </div>

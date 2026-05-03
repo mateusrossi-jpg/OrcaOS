@@ -16,7 +16,7 @@ type CatalogHubSection = 'catalog' | 'online' | 'suppliers' | 'purchases' | 'pri
 const sectionCopy: Record<CatalogHubSection, { title: string; text: string }> = {
   catalog: {
     title: 'Catálogo',
-    text: 'Itens e serviços já validados para reutilizar no levantamento e no orçamento.',
+    text: 'Itens e serviços já validados para reutilizar no campo e no orçamento.',
   },
   online: {
     title: 'Busca online',

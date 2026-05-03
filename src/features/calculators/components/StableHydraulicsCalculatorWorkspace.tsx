@@ -9,6 +9,7 @@ import {
   convertPressure,
 } from '../../../core/calculations/trade';
 import type { CalculationCapture, CalculationDestination } from '../../../core/types/workflow';
+import { handleNumericInputFocus } from '../../../core/ui/numericInputFocus';
 import './GeneralCalculatorWorkspace.css';
 
 type HydraulicMode =
@@ -114,8 +115,8 @@ function NumberField({ label, value, suffix, step = 0.01, onChange }: { label: s
     <label className="general-form-field">
       <span>{label}</span>
       <div>
-        <input type="number" inputMode="decimal" min="0" step={step} value={value} onChange={(event) => onChange(event.target.value)} />
-        {suffix && <small>{suffix}</small>}
+        <input type="number" inputMode="decimal" min="0" step={step} value={value} onFocus={handleNumericInputFocus} onChange={(event) => onChange(event.target.value)} />
+        {suffix && <small className="technical-unit">{suffix}</small>}
       </div>
     </label>
   );
@@ -269,9 +270,9 @@ export function HydraulicsCalculatorWorkspace({ onCaptureCalculation }: Props) {
       details: [...calculated.details, ...calculated.formula.map((item) => `Fórmula: ${item}`), `Orientação: ${calculated.orientation}`],
     };
     onCaptureCalculation?.(capture);
-    if (destination === 'survey') setAddedMessage(`${activeRule.label} foi incluído no levantamento.`);
+    if (destination === 'survey') setAddedMessage(`${activeRule.label} foi incluído no campo.`);
     if (destination === 'budget') setAddedMessage(`${activeRule.label} foi incluído no orçamento.`);
-    if (destination === 'both') setAddedMessage(`${activeRule.label} foi incluído no levantamento e no orçamento.`);
+    if (destination === 'both') setAddedMessage(`${activeRule.label} foi incluído no campo e no orçamento.`);
   }
 
   function closeCalculator() {
@@ -309,7 +310,7 @@ export function HydraulicsCalculatorWorkspace({ onCaptureCalculation }: Props) {
             {calculated.formula.length > 0 && <div className="general-formula-box"><strong>Como este cálculo é feito</strong>{calculated.formula.map((item) => <span key={item}>{item}</span>)}</div>}
             {calculated.orientation && <p className="general-helper-text">{calculated.orientation}</p>}
             {addedMessage && <p className="general-added-message">{addedMessage}</p>}
-            <div className="general-capture-actions"><button type="button" onClick={() => includeResult('survey')}>Adicionar ao levantamento</button><button type="button" onClick={() => includeResult('budget')}>Adicionar ao orçamento</button><button type="button" onClick={() => includeResult('both')}>Adicionar aos dois</button><button className="secondary-action" type="button" onClick={closeCalculator}>Voltar</button></div>
+            <div className="general-capture-actions"><button type="button" onClick={() => includeResult('survey')}>Adicionar ao campo</button><button type="button" onClick={() => includeResult('budget')}>Adicionar ao orçamento</button><button type="button" onClick={() => includeResult('both')}>Adicionar aos dois</button><button className="secondary-action" type="button" onClick={closeCalculator}>Voltar</button></div>
             <small className="general-technical-note">Cálculo preliminar. Valide as condições reais da instalação hidráulica.</small>
           </section>
         </div>

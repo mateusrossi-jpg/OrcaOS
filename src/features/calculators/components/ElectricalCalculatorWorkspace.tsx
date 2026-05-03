@@ -35,6 +35,8 @@ import {
 } from '../../../core/access/featureAccess';
 import type { CircuitPhase } from '../../../core/types/electrical';
 import type { CalculationCapture, CalculationDestination } from '../../../core/types/workflow';
+import { formatKilowattsFromWatts } from '../../../core/format/technicalValues';
+import { handleNumericInputFocus } from '../../../core/ui/numericInputFocus';
 import { suggestNextBreaker } from '../../../data/electrical-tables/commercialBreakers';
 import { suggestMinimumCableSectionByCurrent } from '../../../data/electrical-tables/cableSections';
 import './ElectricalCalculatorWorkspace.css';
@@ -139,9 +141,10 @@ function NumberField({ label, value, suffix, min = 0, step = 0.01, onChange }: {
           step={step}
           value={value}
           placeholder="Digite o valor"
+          onFocus={handleNumericInputFocus}
           onChange={(event) => onChange(event.target.value)}
         />
-        {suffix && <small>{suffix}</small>}
+        {suffix && <small className="technical-unit">{suffix}</small>}
       </div>
     </label>
   );
@@ -240,7 +243,7 @@ export function ElectricalCalculatorWorkspace({ userPlan = 'free', selectedModul
 
       if (activeCalculator === 'power') {
         const power = calculatePowerFromCurrent({ currentAmps: n('currentAmps'), voltageVolts: n('voltageVolts'), powerFactor: n('powerFactor'), phase });
-        return { error: null, cards: [{ label: 'Potência estimada', value: `${roundTechnical(power)} W`, helper: `${roundTechnical(power / 1000)} kW` }] };
+        return { error: null, cards: [{ label: 'Potência estimada', value: `${roundTechnical(power)} W`, helper: formatKilowattsFromWatts(power) }] };
       }
 
       if (activeCalculator === 'ohms-law') {
@@ -418,11 +421,11 @@ export function ElectricalCalculatorWorkspace({ userPlan = 'free', selectedModul
     onCaptureCalculation?.(capture);
 
     if (destination === 'survey') {
-      setAddedMessage(`${activeRule.label} foi incluído no levantamento técnico.`);
+      setAddedMessage(`${activeRule.label} foi incluído no campo técnico.`);
     } else if (destination === 'budget') {
       setAddedMessage(`${activeRule.label} foi incluído no orçamento.`);
     } else {
-      setAddedMessage(`${activeRule.label} foi incluído no levantamento e no orçamento.`);
+      setAddedMessage(`${activeRule.label} foi incluído no campo e no orçamento.`);
     }
   }
 
@@ -509,10 +512,10 @@ export function ElectricalCalculatorWorkspace({ userPlan = 'free', selectedModul
                 {result.cards.length > 0 && !result.error && (
                   <div className="calculation-next-step-card">
                     <strong>Deseja usar este resultado?</strong>
-                    <p>Envie para levantamento técnico, orçamento comercial ou para os dois fluxos da OS.</p>
+                    <p>Envie para campo técnico, orçamento comercial ou para os dois fluxos da OS.</p>
                     {addedMessage && <small>{addedMessage}</small>}
                     <div>
-                      <button className="primary-action-button" type="button" onClick={() => includeResult('survey')}>Adicionar ao levantamento</button>
+                      <button className="primary-action-button" type="button" onClick={() => includeResult('survey')}>Adicionar ao campo</button>
                       <button className="primary-action-button" type="button" onClick={() => includeResult('budget')}>Adicionar ao orçamento</button>
                       <button className="primary-action-button" type="button" onClick={() => includeResult('both')}>Adicionar aos dois</button>
                       <button className="secondary-action-button" type="button" onClick={closeCalculator}>Voltar ao menu anterior</button>

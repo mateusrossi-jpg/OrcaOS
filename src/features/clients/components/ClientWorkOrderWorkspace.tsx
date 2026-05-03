@@ -246,9 +246,9 @@ export function ClientWorkOrderWorkspace({ onContextChange }: ClientWorkOrderWor
       </section>
 
       <div className="client-os-metrics-grid">
-        <article><span>Clientes</span><strong>{clients.length}</strong></article>
-        <article><span>OS abertas</span><strong>{openWorkOrders}</strong></article>
-        <article><span>Concluídas</span><strong>{doneWorkOrders}</strong></article>
+        <article><span>Clientes:</span><strong>{clients.length}</strong></article>
+        <article><span>OS abertas:</span><strong>{openWorkOrders}</strong></article>
+        <article><span>Concluídas:</span><strong>{doneWorkOrders}</strong></article>
       </div>
 
       <div className="client-os-section-tabs">
@@ -263,16 +263,16 @@ export function ClientWorkOrderWorkspace({ onContextChange }: ClientWorkOrderWor
         <section className="client-os-panel client-os-dashboard-panel">
           <div className="client-os-panel-header">
             <div>
-              <span className="orca-kicker">Primeiro passo</span>
+              <span className="orca-kicker">Gestão do atendimento</span>
               <h2>Resumo operacional</h2>
-              <p>Use esta área para iniciar rapidamente um atendimento, criar uma OS ou retornar para a lista de ordens em aberto.</p>
+              <p>Inicie um atendimento, crie uma OS ou retome uma ordem aberta sem perder o contexto do serviço.</p>
             </div>
           </div>
 
           <div className="client-os-quick-actions">
-            <button type="button" onClick={() => setActiveSection('newClient')}><strong>Cadastrar cliente</strong><small>Salve contato e endereço.</small></button>
-            <button type="button" onClick={() => setActiveSection('newWorkOrder')}><strong>Criar OS</strong><small>Abra um atendimento novo.</small></button>
-            <button type="button" onClick={() => setActiveSection('workOrders')}><strong>Ver ordens</strong><small>Ative ou acompanhe uma OS.</small></button>
+            <button type="button" onClick={() => setActiveSection('newClient')}><strong>Cadastrar cliente</strong><small>Contato, endereço e observações.</small></button>
+            <button type="button" onClick={() => setActiveSection('newWorkOrder')}><strong>Criar OS</strong><small>Abra o serviço que será executado.</small></button>
+            <button type="button" onClick={() => setActiveSection('workOrders')}><strong>Ver ordens</strong><small>Ative, acompanhe ou conclua.</small></button>
           </div>
 
           <div className="client-os-list compact-os-list">
@@ -300,13 +300,13 @@ export function ClientWorkOrderWorkspace({ onContextChange }: ClientWorkOrderWor
           <div className="client-os-panel-header">
             <div>
               <h2>Cadastrar cliente</h2>
-              <p>Guarde os dados básicos para vincular orçamentos, relatórios e OS futuramente.</p>
+              <p>Guarde dados práticos para vincular OS, orçamento, relatório e histórico do cliente.</p>
             </div>
           </div>
 
           <div className="client-os-grid">
             <label className="budget-field client-os-wide"><span>Nome do cliente</span><input value={clientDraft.name} onChange={(event) => updateClientDraft('name', event.target.value)} /></label>
-            <label className="budget-field"><span>Telefone / WhatsApp</span><input value={clientDraft.phone} onChange={(event) => updateClientDraft('phone', event.target.value)} /></label>
+            <label className="budget-field"><span>Telefone / WhatsApp</span><input inputMode="tel" value={clientDraft.phone} onChange={(event) => updateClientDraft('phone', event.target.value)} /></label>
             <label className="budget-field"><span>E-mail</span><input value={clientDraft.email} onChange={(event) => updateClientDraft('email', event.target.value)} /></label>
             <label className="budget-field client-os-wide"><span>Endereço</span><input value={clientDraft.address} onChange={(event) => updateClientDraft('address', event.target.value)} /></label>
             <label className="budget-field client-os-wide"><span>Observações</span><textarea value={clientDraft.notes} onChange={(event) => updateClientDraft('notes', event.target.value)} /></label>
@@ -321,7 +321,7 @@ export function ClientWorkOrderWorkspace({ onContextChange }: ClientWorkOrderWor
           <div className="client-os-panel-header">
             <div>
               <h2>Criar OS</h2>
-              <p>A OS organiza o atendimento atual e futuramente vai ligar levantamento, orçamento, relatório e execução.</p>
+              <p>A OS é o centro do serviço: conecta campo, orçamento, relatório, execução e histórico.</p>
             </div>
           </div>
 
@@ -330,11 +330,11 @@ export function ClientWorkOrderWorkspace({ onContextChange }: ClientWorkOrderWor
               <div className="client-os-picker-head">
                 <span>Cliente vinculado</span>
                 <strong>{clients.find((client) => client.id === workOrderDraft.clientId)?.name ?? 'Sem cliente vinculado'}</strong>
-                <small>Busque pelo nome, telefone, e-mail ou endereço. Isso escala melhor quando houver muitos clientes.</small>
+                <small>Busque nome, telefone, e-mail ou endereço.</small>
               </div>
               <label className="budget-field client-os-wide">
                 <span>Buscar cliente</span>
-                <input value={clientPickerSearch} placeholder="Digite nome, telefone ou endereço..." onChange={(event) => setClientPickerSearch(event.target.value)} />
+                <input value={clientPickerSearch} placeholder="Nome, telefone ou endereço" onChange={(event) => setClientPickerSearch(event.target.value)} />
               </label>
               <div className="client-picker-results">
                 <button className={!workOrderDraft.clientId ? 'active' : ''} type="button" onClick={() => fillWorkOrderAddressFromClient('')}>Sem cliente</button>
@@ -347,7 +347,7 @@ export function ClientWorkOrderWorkspace({ onContextChange }: ClientWorkOrderWor
               </div>
             </div>
             <label className="budget-field"><span>Status</span><select value={workOrderDraft.status} onChange={(event) => updateWorkOrderDraft('status', event.target.value as WorkOrder['status'])}><option value="open">Aberta</option><option value="scheduled">Agendada</option><option value="in-progress">Em execução</option><option value="done">Concluída</option><option value="cancelled">Cancelada</option></select></label>
-            <label className="budget-field client-os-wide"><span>Título da OS</span><input value={workOrderDraft.title} placeholder="Ex.: Troca de tomadas e revisão de iluminação" onChange={(event) => updateWorkOrderDraft('title', event.target.value)} /></label>
+            <label className="budget-field client-os-wide"><span>Título da OS</span><input value={workOrderDraft.title} placeholder="Ex.: Troca de tomadas" onChange={(event) => updateWorkOrderDraft('title', event.target.value)} /></label>
             <label className="budget-field client-os-wide"><span>Descrição</span><textarea value={workOrderDraft.description} onChange={(event) => updateWorkOrderDraft('description', event.target.value)} /></label>
             <label className="budget-field"><span>Prioridade</span><select value={workOrderDraft.priority} onChange={(event) => updateWorkOrderDraft('priority', event.target.value as NonNullable<WorkOrder['priority']>)}><option value="low">Baixa</option><option value="normal">Normal</option><option value="high">Alta</option><option value="urgent">Urgente</option></select></label>
             <label className="budget-field"><span>Data agendada</span><input type="datetime-local" value={workOrderDraft.scheduledDate} onChange={(event) => updateWorkOrderDraft('scheduledDate', event.target.value)} /></label>
@@ -369,7 +369,7 @@ export function ClientWorkOrderWorkspace({ onContextChange }: ClientWorkOrderWor
           </div>
           <label className="budget-field client-os-wide client-os-search-field">
             <span>Buscar cliente</span>
-            <input value={clientSearch} placeholder="Nome, WhatsApp, e-mail, endereço..." onChange={(event) => setClientSearch(event.target.value)} />
+            <input value={clientSearch} placeholder="Nome, WhatsApp ou endereço" onChange={(event) => setClientSearch(event.target.value)} />
           </label>
           <div className="client-os-list">
             {clients.length === 0 ? <div className="client-os-empty">Nenhum cliente cadastrado ainda.</div> : filteredClients.length === 0 ? <div className="client-os-empty">Nenhum cliente encontrado para essa busca.</div> : filteredClients.map((client) => (
@@ -397,7 +397,7 @@ export function ClientWorkOrderWorkspace({ onContextChange }: ClientWorkOrderWor
           </div>
           <label className="budget-field client-os-wide client-os-search-field">
             <span>Buscar OS</span>
-            <input value={workOrderSearch} placeholder="Título, cliente, status, endereço..." onChange={(event) => setWorkOrderSearch(event.target.value)} />
+            <input value={workOrderSearch} placeholder="Título, cliente ou endereço" onChange={(event) => setWorkOrderSearch(event.target.value)} />
           </label>
           <div className="client-os-list">
             {sortedWorkOrders.length === 0 ? <div className="client-os-empty">Nenhuma OS cadastrada ainda.</div> : filteredWorkOrders.length === 0 ? <div className="client-os-empty">Nenhuma OS encontrada para essa busca.</div> : filteredWorkOrders.map((workOrder) => {

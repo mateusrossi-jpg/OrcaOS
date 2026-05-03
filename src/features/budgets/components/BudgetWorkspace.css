@@ -33,13 +33,13 @@
   border-radius: 16px;
   padding: 12px 14px;
   color: var(--orca-muted, #a7b3ad);
-  background: rgba(34, 197, 94, 0.055);
+  background: rgba(0, 184, 194, 0.06);
   font-weight: 800;
   line-height: 1.4;
 }
 
 .budget-save-status span {
-  color: var(--orca-green, #22c55e);
+  color: var(--orca-teal, var(--orca-green, #22c55e));
   font-weight: 900;
 }
 
@@ -71,8 +71,8 @@
 }
 
 .budget-workspace-tabs button.active {
-  color: var(--orca-green, #22c55e);
-  background: rgba(34, 197, 94, 0.08);
+  color: var(--orca-teal, var(--orca-green, #22c55e));
+  background: rgba(0, 184, 194, 0.09);
   box-shadow: inset 0 0 0 1px var(--orca-border, rgba(187, 247, 208, 0.14));
 }
 
@@ -90,7 +90,7 @@
   border-radius: 20px;
   padding: 16px;
   background:
-    radial-gradient(circle at top right, rgba(34, 197, 94, 0.08), transparent 12rem),
+    radial-gradient(circle at top right, rgba(0, 184, 194, 0.08), transparent 12rem),
     var(--orca-surface-2, #151f19);
 }
 

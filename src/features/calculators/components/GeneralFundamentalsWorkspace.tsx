@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import type { CalculationCapture, CalculationDestination } from '../../../core/types/workflow';
+import { handleNumericInputFocus } from '../../../core/ui/numericInputFocus';
 import './GeneralFundamentalsWorkspace.css';
 
 export type FundamentalMode =
@@ -161,9 +162,10 @@ function NumberField({ label, value, suffix, min, step = 0.01, onChange }: {
           step={step}
           value={value}
           placeholder="Digite o valor"
+          onFocus={handleNumericInputFocus}
           onChange={(event) => onChange(event.target.value)}
         />
-        {suffix && <small>{suffix}</small>}
+        {suffix && <small className="technical-unit">{suffix}</small>}
       </div>
     </label>
   );
@@ -175,7 +177,7 @@ export function GeneralFundamentalsWorkspace({
   title = 'Cálculos de apoio',
   description = 'Base gratuita transversal para elétrica, construção civil, hidráulica, pintura, orçamento e demais serviços.',
   moduleLabel = 'Cálculos de apoio',
-  note = 'Cálculo geral de apoio. Use para estimativas, conferências rápidas, levantamentos e formação de orçamento.',
+  note = 'Cálculo geral de apoio. Use para estimativas, conferências rápidas, campo e formação de orçamento.',
 }: GeneralFundamentalsWorkspaceProps) {
   const [activeCalculator, setActiveCalculator] = useState<FundamentalMode | null>(null);
   const [values, setValues] = useState<Record<string, string>>(defaultValues);
@@ -480,9 +482,9 @@ export function GeneralFundamentalsWorkspace({
 
     onCaptureCalculation?.(capture);
 
-    if (destination === 'survey') setAddedMessage(`${activeRule.label} foi incluído no levantamento.`);
+    if (destination === 'survey') setAddedMessage(`${activeRule.label} foi incluído no campo.`);
     if (destination === 'budget') setAddedMessage(`${activeRule.label} foi incluído no orçamento.`);
-    if (destination === 'both') setAddedMessage(`${activeRule.label} foi incluído no levantamento e no orçamento.`);
+    if (destination === 'both') setAddedMessage(`${activeRule.label} foi incluído no campo e no orçamento.`);
   }
 
   function closeCalculator() {
@@ -637,7 +639,7 @@ export function GeneralFundamentalsWorkspace({
             {addedMessage && <p className="fundamental-added-message">{addedMessage}</p>}
 
             <div className="fundamental-capture-actions">
-              <button type="button" onClick={() => includeResult('survey')}>Adicionar ao levantamento</button>
+              <button type="button" onClick={() => includeResult('survey')}>Adicionar ao campo</button>
               <button type="button" onClick={() => includeResult('budget')}>Adicionar ao orçamento</button>
               <button type="button" onClick={() => includeResult('both')}>Adicionar aos dois</button>
               <button className="secondary-action" type="button" onClick={closeCalculator}>Voltar</button>
