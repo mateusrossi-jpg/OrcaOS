@@ -64,9 +64,11 @@ export function AppSecurityPanel() {
       </div>
 
       <div className="local-backup-grid">
-        <article className="local-backup-card">
-          <strong>{isEnabled ? 'Alterar PIN' : 'Ativar PIN'}</strong>
-          <small>Este bloqueio protege contra acesso casual no navegador. Segurança forte com conta e criptografia entra na fase de backend.</small>
+        <article className="local-backup-card app-security-card">
+          <div className="local-card-heading">
+            <strong>{isEnabled ? 'Alterar PIN' : 'Ativar PIN'}</strong>
+            <small>Proteção local contra acesso casual neste navegador. Conta e criptografia forte entram na fase de backend.</small>
+          </div>
           <label className="local-backup-file">
             <span>Novo PIN</span>
             <input inputMode="numeric" type="password" value={pin} onChange={(event) => setPin(event.target.value)} />
@@ -80,9 +82,11 @@ export function AppSecurityPanel() {
           </div>
         </article>
 
-        <article className="local-backup-card">
-          <strong>Sessão atual</strong>
-          <small>Bloqueie o app ao emprestar o aparelho ou ao terminar um atendimento em campo.</small>
+        <article className="local-backup-card app-security-card">
+          <div className="local-card-heading">
+            <strong>Sessão atual</strong>
+            <small>Bloqueie o app ao emprestar o aparelho ou ao terminar um atendimento em campo.</small>
+          </div>
           <div className="local-backup-actions">
             <button className="secondary-action inline-action" disabled={!isEnabled} type="button" onClick={lockNow}>Bloquear agora</button>
             <button className="danger-action" disabled={!isEnabled} type="button" onClick={disableLock}>Desativar bloqueio</button>

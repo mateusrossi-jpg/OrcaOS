@@ -96,7 +96,7 @@ export function ProfessionalProfileWorkspace() {
       </div>
 
       <div className="professional-profile-card id-card">
-        <div>
+        <div className="professional-card-heading">
           <strong>IDs locais</strong>
           <small>Esses IDs preparam o OrçaOS para login, licença, backup em nuvem e OrçaOS Cliente no futuro.</small>
         </div>
@@ -114,7 +114,7 @@ export function ProfessionalProfileWorkspace() {
       </div>
 
       <div className="professional-profile-card">
-        <div>
+        <div className="professional-card-heading">
           <strong>Dados principais</strong>
           <small>Esses dados também serão sincronizados com o cabeçalho da proposta/orçamento.</small>
         </div>
@@ -122,7 +122,7 @@ export function ProfessionalProfileWorkspace() {
           <div className="professional-logo-preview">
             {profile.logoDataUrl || profile.logoUrl ? <img src={profile.logoDataUrl || profile.logoUrl} alt="Logo profissional" /> : <span>Sem logo</span>}
           </div>
-          <div>
+          <div className="professional-logo-copy">
             <strong>Logo dos documentos</strong>
             <small>Use uma imagem simples e horizontal sempre que possível. Ela aparece em orçamento e relatório.</small>
             <div className="professional-profile-actions">
@@ -178,7 +178,7 @@ export function ProfessionalProfileWorkspace() {
       </div>
 
       <div className="professional-profile-card">
-        <div>
+        <div className="professional-card-heading">
           <strong>Padrões dos documentos</strong>
           <small>Orçamentos novos usam estes textos como ponto de partida. Você ainda pode editar cada proposta.</small>
         </div>
