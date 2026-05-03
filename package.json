@@ -4,22 +4,31 @@
   "version": "0.1.0-rc.1",
   "type": "module",
   "description": "OrçaOS - plataforma profissional para cálculos, orçamentos, relatórios e ordens de serviço.",
+  "engines": {
+    "node": ">=22.12.0"
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "rc:check": "npm run typecheck && npm test && npm run build"
+    "rc:check": "npm run typecheck && npm test && npm run build",
+    "android:sync": "npm run build && cap sync android",
+    "android:open": "cap open android",
+    "android:build:aab": "npm run build && cap sync android && cd android && ./gradlew bundleRelease"
   },
   "dependencies": {
     "@vitejs/plugin-react": "latest",
-    "vite": "latest",
-    "typescript": "latest",
     "react": "latest",
-    "react-dom": "latest"
+    "react-dom": "latest",
+    "typescript": "latest",
+    "vite": "latest"
   },
   "devDependencies": {
+    "@capacitor/android": "^8.3.1",
+    "@capacitor/cli": "^8.3.1",
+    "@capacitor/core": "^8.3.1",
     "@types/react": "latest",
     "@types/react-dom": "latest",
     "vitest": "latest"

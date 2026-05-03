@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">OrçaOS</string>
+    <string name="title_activity_main">OrçaOS</string>
+    <string name="package_name">br.com.orcaos.app</string>
+    <string name="custom_url_scheme">br.com.orcaos.app</string>
+</resources>
