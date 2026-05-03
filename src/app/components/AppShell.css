@@ -49,8 +49,8 @@ body,
   top: 0;
   z-index: 40;
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  gap: 12px;
+  grid-template-columns: auto auto minmax(0, 1fr) auto;
+  gap: 10px;
   align-items: center;
   width: 100%;
   min-width: 0;
@@ -66,21 +66,38 @@ body,
   display: grid;
   place-items: center;
   gap: 4px;
-  width: 46px;
-  height: 46px;
-  min-width: 46px;
-  border: 1px solid var(--orca-border);
-  border-radius: 16px;
-  background: var(--orca-surface);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  border: 1px solid rgba(0, 184, 194, 0.30);
+  border-radius: 15px;
+  background:
+    radial-gradient(circle at top left, rgba(0, 184, 194, 0.18), transparent 2.7rem),
+    linear-gradient(145deg, rgba(13, 28, 31, 0.96), rgba(8, 15, 17, 0.96));
+  box-shadow:
+    0 10px 24px rgba(0, 0, 0, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
 .topbar-menu-button span {
   display: block;
-  width: 18px;
+  width: 17px;
   height: 2px;
   border-radius: 999px;
-  background: var(--orca-text);
+  background: #d8fbff;
+  box-shadow: 0 0 12px rgba(0, 184, 194, 0.24);
+}
+
+.topbar-brand-mark {
+  display: block;
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
+  border-radius: 13px;
+  object-fit: cover;
+  box-shadow:
+    0 0 0 1px rgba(0, 184, 194, 0.24),
+    0 12px 28px rgba(0, 184, 194, 0.16);
 }
 
 .topbar-title-block {
@@ -205,15 +222,15 @@ body,
 }
 
 .drawer-brand-mark {
-  display: grid;
-  place-items: center;
-  width: 46px;
-  height: 46px;
-  border-radius: 17px;
-  color: #041008;
-  background: linear-gradient(135deg, var(--orca-primary), var(--orca-primary-strong));
-  font-weight: 950;
-  box-shadow: 0 14px 28px rgba(0, 184, 194, 0.22);
+  display: block;
+  width: 54px;
+  height: 54px;
+  min-width: 54px;
+  border-radius: 18px;
+  object-fit: cover;
+  box-shadow:
+    0 0 0 1px rgba(0, 184, 194, 0.28),
+    0 16px 34px rgba(0, 184, 194, 0.18);
 }
 
 .drawer-brand-card strong,
@@ -357,7 +374,8 @@ body,
   }
 
   .professional-topbar {
-    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-columns: auto auto minmax(0, 1fr);
+    gap: 9px;
   }
 
   .side-drawer {

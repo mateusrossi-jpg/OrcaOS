@@ -2,6 +2,8 @@ import { Fragment, useEffect, useState, type ReactNode } from 'react';
 import type { Client, WorkOrder } from '../../core/types/business';
 import './AppShell.css';
 
+const ORCAOS_LOGO_SRC = '/icons/orcaos-icon.svg';
+
 export interface AppShellNavItem<T extends string> {
   id: T;
   label: string;
@@ -69,6 +71,8 @@ export function AppShell<T extends string>({
           <span />
         </button>
 
+        <img className="topbar-brand-mark" src={ORCAOS_LOGO_SRC} alt="" aria-hidden="true" />
+
         <div className="topbar-title-block">
           <strong>{title}</strong>
           {subtitle && <small>{subtitle}</small>}
@@ -87,7 +91,7 @@ export function AppShell<T extends string>({
 
       <aside className={isDrawerOpen ? 'side-drawer open' : 'side-drawer'} aria-hidden={!isDrawerOpen}>
         <div className="drawer-brand-card">
-          <div className="drawer-brand-mark" aria-hidden="true"><span>O</span></div>
+          <img className="drawer-brand-mark" src={ORCAOS_LOGO_SRC} alt="" aria-hidden="true" />
           <div>
             <strong>OrçaOS</strong>
             <small>ERP técnico leve para serviço de campo</small>

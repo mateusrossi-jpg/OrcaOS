@@ -1,11 +1,23 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
   <title id="title">OrçaOS</title>
-  <desc id="desc">Ícone inicial do OrçaOS para PWA e publicação futura.</desc>
-  <rect width="512" height="512" rx="112" fill="#0f172a"/>
-  <circle cx="256" cy="256" r="168" fill="#111827" stroke="#22c55e" stroke-width="24"/>
-  <path d="M162 280c18 58 70 96 132 88 58-8 101-53 108-111" fill="none" stroke="#22c55e" stroke-width="34" stroke-linecap="round"/>
-  <path d="M151 226c17-58 68-96 130-90 45 4 82 28 105 65" fill="none" stroke="#e5e7eb" stroke-width="34" stroke-linecap="round"/>
-  <path d="M204 256h104" stroke="#e5e7eb" stroke-width="30" stroke-linecap="round"/>
-  <path d="M256 204v104" stroke="#e5e7eb" stroke-width="30" stroke-linecap="round"/>
-  <circle cx="362" cy="154" r="28" fill="#22c55e"/>
+  <desc id="desc">Símbolo do OrçaOS com hexágono técnico e marca de conclusão em azul teal.</desc>
+  <defs>
+    <linearGradient id="orcaos-bg" x1="70" x2="442" y1="58" y2="454" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0b1719"/>
+      <stop offset="1" stop-color="#05090b"/>
+    </linearGradient>
+    <linearGradient id="orcaos-accent" x1="124" x2="408" y1="114" y2="398" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#13d5df"/>
+      <stop offset="0.55" stop-color="#00b8c2"/>
+      <stop offset="1" stop-color="#007985"/>
+    </linearGradient>
+    <filter id="orcaos-glow" x="-25%" y="-25%" width="150%" height="150%" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#00b8c2" flood-opacity="0.28"/>
+    </filter>
+  </defs>
+  <rect width="512" height="512" rx="116" fill="url(#orcaos-bg)"/>
+  <path d="M256 72 401 156v168L256 440 111 324V156L256 72Z" fill="#081214" stroke="rgba(255,255,255,.08)" stroke-width="14"/>
+  <path d="M256 93 382 166v146L256 419 130 312V166L256 93Z" fill="none" stroke="url(#orcaos-accent)" stroke-width="30" stroke-linejoin="round" filter="url(#orcaos-glow)"/>
+  <path d="M171 264 230 323 350 199" fill="none" stroke="url(#orcaos-accent)" stroke-width="38" stroke-linecap="round" stroke-linejoin="round" filter="url(#orcaos-glow)"/>
+  <path d="M130 166 256 93 382 166" fill="none" stroke="#43f0f8" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" opacity=".28"/>
 </svg>
