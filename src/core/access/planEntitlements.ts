@@ -48,6 +48,28 @@ function resolveEffectivePlan(plan: UserPlan, status: OrcaPlanStatus): UserPlan 
   return plan === 'pro' && (status === 'active' || status === 'trial') ? 'pro' : 'free';
 }
 
+export function applyPlanEntitlementResponse(account: OrcaAccountState, entitlement: PlanEntitlementResponse): PlanEntitlementResult {
+  const requestedPlan = normalizePlan(entitlement.plan);
+  const status = normalizeStatus(entitlement.status, requestedPlan);
+  const plan = resolveEffectivePlan(requestedPlan, status);
+  const expiresAt = entitlement.expiresAt ?? null;
+  const nextAccount: OrcaAccountState = {
+    ...account,
+    plan,
+    planSource: normalizePlanSource(entitlement.planSource, plan),
+    planStatus: plan === 'free' && status === 'active' ? 'inactive' : status,
+    planExpiresAt: expiresAt,
+    updatedAt: new Date().toISOString(),
+  };
+  saveAccountState(nextAccount);
+
+  return {
+    account: nextAccount,
+    status: nextAccount.planStatus,
+    expiresAt,
+  };
+}
+
 export async function refreshPlanEntitlement(account = loadAccountState()): Promise<PlanEntitlementResult> {
   const endpoint = getEntitlementsEndpoint().trim();
   if (!endpoint) throw new Error('Configure VITE_ORCAOS_ENTITLEMENTS_ENDPOINT para verificar a liberação Pro.');
@@ -73,24 +95,5 @@ export async function refreshPlanEntitlement(account = loadAccountState()): Prom
     throw new Error(errorText || `Não foi possível verificar a liberação Pro: ${response.status}`);
   }
 
-  const entitlement = await response.json() as PlanEntitlementResponse;
-  const requestedPlan = normalizePlan(entitlement.plan);
-  const status = normalizeStatus(entitlement.status, requestedPlan);
-  const plan = resolveEffectivePlan(requestedPlan, status);
-  const expiresAt = entitlement.expiresAt ?? null;
-  const nextAccount: OrcaAccountState = {
-    ...account,
-    plan,
-    planSource: normalizePlanSource(entitlement.planSource, plan),
-    planStatus: plan === 'free' && status === 'active' ? 'inactive' : status,
-    planExpiresAt: expiresAt,
-    updatedAt: new Date().toISOString(),
-  };
-  saveAccountState(nextAccount);
-
-  return {
-    account: nextAccount,
-    status: nextAccount.planStatus,
-    expiresAt,
-  };
+  return applyPlanEntitlementResponse(account, await response.json() as PlanEntitlementResponse);
 }

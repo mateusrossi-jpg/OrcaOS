@@ -12,6 +12,7 @@ import {
 import { getBillingReadiness } from '../core/access/billingReadiness';
 import { buildProCheckoutUrl, buildProManageUrl, isProCheckoutConfigured, isProManageConfigured } from '../core/access/commercialCheckout';
 import { isGoogleAccountLoginConfigured, requestGoogleAccountProfile } from '../core/access/googleAccountAuth';
+import { getGooglePlayBillingSetup, purchaseGooglePlayPro, restoreGooglePlayPurchases, syncGooglePlayPurchaseEntitlement } from '../core/access/googlePlayBilling';
 import { isPlanEntitlementSyncConfigured, refreshPlanEntitlement } from '../core/access/planEntitlements';
 import { freePlanBenefits, futureProBacklog, proPlanBenefits, proV1Priorities } from '../core/access/planStrategy';
 import type { CalculatorModule, UserPlan } from '../core/access/featureAccess';
@@ -693,10 +694,13 @@ function StoreScreen({ account, onAccountChange }: { account: OrcaAccountState; 
   const devToolsEnabled = isDevToolsEnabled();
   const [feedback, setFeedback] = useState<string | null>(null);
   const [isCheckingPlan, setIsCheckingPlan] = useState(false);
+  const [isGooglePlayBusy, setIsGooglePlayBusy] = useState(false);
   const canCheckPlan = isPlanEntitlementSyncConfigured() && Boolean(account.userId);
   const checkoutConfigured = isProCheckoutConfigured();
   const manageConfigured = isProManageConfigured();
   const billingReadiness = getBillingReadiness();
+  const googlePlaySetup = getGooglePlayBillingSetup();
+  const googlePlayMode = billingReadiness.channel === 'google-play';
   const planSourceLabel = account.planSource === 'subscription'
     ? 'verificação Pro'
     : account.planSource === 'local-test' && devToolsEnabled
@@ -737,6 +741,40 @@ function StoreScreen({ account, onAccountChange }: { account: OrcaAccountState; 
     }
   }
 
+  async function buyWithGooglePlay() {
+    setIsGooglePlayBusy(true);
+    setFeedback(null);
+    try {
+      const purchase = await purchaseGooglePlayPro();
+      const result = await syncGooglePlayPurchaseEntitlement(account, purchase, 'purchase');
+      onAccountChange(result.account);
+      setFeedback(planStatusDescription(result.account, 'Google Play'));
+    } catch (error) {
+      setFeedback(error instanceof Error ? error.message : 'Não foi possível concluir a compra pelo Google Play.');
+    } finally {
+      setIsGooglePlayBusy(false);
+    }
+  }
+
+  async function restoreWithGooglePlay() {
+    setIsGooglePlayBusy(true);
+    setFeedback(null);
+    try {
+      const purchases = await restoreGooglePlayPurchases();
+      if (purchases.length === 0) {
+        setFeedback('Nenhuma compra Pro restaurável foi encontrada nesta conta Google Play.');
+        return;
+      }
+      const result = await syncGooglePlayPurchaseEntitlement(account, purchases[0], 'restore');
+      onAccountChange(result.account);
+      setFeedback(planStatusDescription(result.account, 'restauração Google Play'));
+    } catch (error) {
+      setFeedback(error instanceof Error ? error.message : 'Não foi possível restaurar compras pelo Google Play.');
+    } finally {
+      setIsGooglePlayBusy(false);
+    }
+  }
+
   return (
     <section className="app-screen wide-screen">
       <header className="screen-header"><span className="orca-kicker">Venda Pro</span><h1>Loja / Pro</h1><p>O Free continua útil. O Pro libera apresentação profissional, produtividade e controle de lucro por assinatura verificável.</p></header>
@@ -768,11 +806,30 @@ function StoreScreen({ account, onAccountChange }: { account: OrcaAccountState; 
           <article><span>Endpoint Pro</span><strong>{billingReadiness.entitlementEndpointConfigured ? 'Configurado' : 'Pendente'}</strong><small>Responsável por liberar, expirar ou bloquear Pro.</small></article>
           <article><span>Android package</span><strong>{billingReadiness.packageName || 'Pendente'}</strong><small>Necessário para Google Play Billing.</small></article>
           <article><span>Produto Pro</span><strong>{billingReadiness.proProductId || 'Pendente'}</strong><small>ID da assinatura/produto no Play Console.</small></article>
+          <article><span>Bridge Android</span><strong>{billingReadiness.googlePlayBridgeName}</strong><small>{googlePlaySetup.bridgeAvailable ? 'Disponível neste app.' : 'Aguardando plugin nativo.'}</small></article>
         </div>
         <div className="billing-release-list">
           {billingReadiness.releaseChecklist.map((item) => <span key={item}>{item}</span>)}
         </div>
       </div>
+      {googlePlayMode && <div className="settings-group account-settings-panel commercial-checkout-panel">
+        <div className="settings-panel-title">
+          <span className="orca-kicker">Google Play</span>
+          <h2>Compra pela conta Google</h2>
+          <p>Esta tela já chama o bridge nativo, valida o purchaseToken no backend e restaura compras. No navegador, fica aguardando o app Android.</p>
+        </div>
+        <div className="billing-readiness-grid">
+          <article><span>Produto</span><strong>{googlePlaySetup.productId || 'Pendente'}</strong><small>Assinatura/produto Pro no Play Console.</small></article>
+          <article><span>Pacote</span><strong>{googlePlaySetup.packageName || 'Pendente'}</strong><small>Deve bater com o app publicado.</small></article>
+          <article><span>Backend</span><strong>{googlePlaySetup.entitlementEndpoint ? 'Configurado' : 'Pendente'}</strong><small>Valida token com Google, não no front-end.</small></article>
+        </div>
+        <div className="general-capture-actions">
+          <button type="button" disabled={!billingReadiness.isGooglePlayReady || !account.userId || isGooglePlayBusy || activeUserPlan === 'pro'} onClick={buyWithGooglePlay}>{isGooglePlayBusy ? 'Processando...' : 'Comprar com Google Play'}</button>
+          <button type="button" className="secondary-action" disabled={!billingReadiness.isGooglePlayReady || !account.userId || isGooglePlayBusy} onClick={restoreWithGooglePlay}>Restaurar compra</button>
+        </div>
+        {!account.userId && <p className="general-helper-text">Entre com e-mail ou Google antes de comprar/restaurar Pro.</p>}
+        {!googlePlaySetup.bridgeAvailable && <p className="general-helper-text">Bridge nativo pendente: implementar `window.OrcaOSGooglePlayBilling` no Android/Capacitor antes da venda real.</p>}
+      </div>}
       <div className="settings-group account-settings-panel commercial-checkout-panel">
         <div className="settings-panel-title">
           <span className="orca-kicker">Assinatura</span>

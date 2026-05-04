@@ -7,6 +7,7 @@ export interface BillingReadiness {
   isExternalCheckoutReady: boolean;
   packageName: string;
   proProductId: string;
+  googlePlayBridgeName: string;
   entitlementEndpointConfigured: boolean;
   statusTitle: string;
   statusDescription: string;
@@ -51,16 +52,18 @@ export function getBillingReadiness(): BillingReadiness {
       isExternalCheckoutReady,
       packageName: packageName(),
       proProductId: proProductId(),
+      googlePlayBridgeName: 'OrcaOSGooglePlayBilling',
       entitlementEndpointConfigured,
       statusTitle: isGooglePlayReady ? 'Google Play preparado' : 'Google Play pendente',
       statusDescription: isGooglePlayReady
-        ? 'Produto Pro, pacote Android e endpoint de validação estão configurados. A compra nativa ainda precisa do bridge Play Billing no Android.'
-        : 'Configure package name, produto Pro e endpoint antes de liberar cobrança real pela Play Store.',
+        ? 'Produto Pro, pacote Android, bridge esperado e endpoint de validação estão mapeados. Falta apenas conectar o plugin nativo ao bridge.'
+        : 'Configure package name, produto Pro, bridge Android e endpoint antes de liberar cobrança real pela Play Store.',
       releaseChecklist: [
         'Criar assinatura/produto Pro no Google Play Console.',
-        'Implementar bridge nativo Play Billing no Android/Capacitor.',
+        'Conectar Play Billing ao bridge window.OrcaOSGooglePlayBilling.',
         'Enviar purchaseToken e productId para backend seguro.',
         'Validar compra no backend com Google Play Developer API.',
+        'Restaurar compras pelo mesmo bridge quando o usuário trocar de aparelho.',
         'Liberar Pro somente via endpoint de entitlement.',
       ],
     };
@@ -74,6 +77,7 @@ export function getBillingReadiness(): BillingReadiness {
       isExternalCheckoutReady,
       packageName: packageName(),
       proProductId: proProductId(),
+      googlePlayBridgeName: 'OrcaOSGooglePlayBilling',
       entitlementEndpointConfigured,
       statusTitle: isExternalCheckoutReady ? 'Checkout externo preparado' : 'Checkout externo pendente',
       statusDescription: isExternalCheckoutReady
@@ -95,6 +99,7 @@ export function getBillingReadiness(): BillingReadiness {
     isExternalCheckoutReady,
     packageName: packageName(),
     proProductId: proProductId(),
+    googlePlayBridgeName: 'OrcaOSGooglePlayBilling',
     entitlementEndpointConfigured,
     statusTitle: 'Beta sem cobrança real',
     statusDescription: 'A loja mostra a estratégia Pro, mas não deve prometer venda automática até o canal de pagamento ser ativado.',
