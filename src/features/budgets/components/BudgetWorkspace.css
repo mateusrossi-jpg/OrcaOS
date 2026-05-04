@@ -515,13 +515,13 @@
   min-width: 0;
 }
 
-.budget-section-header > div {
+.budget-section-header > div:not(.budget-header-actions) {
   display: grid;
   gap: 5px;
   min-width: 0;
 }
 
-.budget-header-actions {
+.budget-section-header > .budget-header-actions {
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-end;

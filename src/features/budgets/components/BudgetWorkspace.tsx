@@ -1029,8 +1029,8 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
               <p>Defina cliente, condições comerciais, prazo, garantia e status do orçamento.</p>
             </div>
             <div className="budget-header-actions">
-              {activeBudgetId && <button type="button" className="danger-action inline-action" onClick={deleteActiveBudget}>Excluir orçamento</button>}
               <button type="button" className="primary-action inline-action" onClick={saveCurrentBudget}>{activeBudgetId ? 'Atualizar orçamento' : 'Salvar orçamento'}</button>
+              {activeBudgetId && <button type="button" className="danger-action inline-action" onClick={deleteActiveBudget}>Excluir orçamento</button>}
             </div>
           </div>
 
@@ -1082,7 +1082,7 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
             </div>
           </div>
 
-          <div className="budget-actions"><button type="button" className="danger-action" onClick={resetBudgetDraft}>Novo orçamento</button></div>
+          <div className="budget-actions"><button type="button" className="secondary-action inline-action" onClick={resetBudgetDraft}>Novo orçamento</button></div>
         </section>
       )}
 
