@@ -15,7 +15,7 @@ import { GoogleDriveBackupPanel } from './GoogleDriveBackupPanel';
 import { ProfessionalProfileWorkspace } from './ProfessionalProfileWorkspace';
 import './LocalBackupWorkspace.css';
 
-export function LocalBackupWorkspace() {
+export function LocalBackupWorkspace({ includeLinkedSettings = true }: { includeLinkedSettings?: boolean }) {
   const [backupText, setBackupText] = useState('');
   const [restoreMode, setRestoreMode] = useState<'merge' | 'replace'>('merge');
   const [feedback, setFeedback] = useState<string | null>(null);
@@ -103,9 +103,13 @@ export function LocalBackupWorkspace() {
 
   return (
     <>
-      <ProfessionalProfileWorkspace />
-      <AppSecurityPanel />
-      <GoogleDriveBackupPanel />
+      {includeLinkedSettings && (
+        <>
+          <ProfessionalProfileWorkspace />
+          <AppSecurityPanel />
+          <GoogleDriveBackupPanel />
+        </>
+      )}
 
       <section className="local-backup-workspace">
         <div className="local-backup-header">

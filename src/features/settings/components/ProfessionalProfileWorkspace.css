@@ -121,6 +121,11 @@
   display: none;
 }
 
+.professional-profile-actions .file-action {
+  cursor: pointer;
+  position: relative;
+}
+
 .professional-profile-header h2,
 .professional-profile-header strong,
 .professional-profile-card strong,

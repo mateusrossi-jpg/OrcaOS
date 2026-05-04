@@ -48,7 +48,10 @@ const CatalogHubWorkspace = lazy(() => import('../features/catalog/components/Ca
 const ClientWorkOrderWorkspace = lazy(() => import('../features/clients/components/ClientWorkOrderWorkspace').then((module) => ({ default: module.ClientWorkOrderWorkspace })));
 const SimpleFinanceWorkspace = lazy(() => import('../features/finance/components/SimpleFinanceWorkspace').then((module) => ({ default: module.SimpleFinanceWorkspace })));
 const ReportWorkspace = lazy(() => import('../features/reports/components/ReportWorkspace').then((module) => ({ default: module.ReportWorkspace })));
+const AppSecurityPanel = lazy(() => import('../features/settings/components/AppSecurityPanel').then((module) => ({ default: module.AppSecurityPanel })));
+const GoogleDriveBackupPanel = lazy(() => import('../features/settings/components/GoogleDriveBackupPanel').then((module) => ({ default: module.GoogleDriveBackupPanel })));
 const LocalBackupWorkspace = lazy(() => import('../features/settings/components/LocalBackupWorkspace').then((module) => ({ default: module.LocalBackupWorkspace })));
+const ProfessionalProfileWorkspace = lazy(() => import('../features/settings/components/ProfessionalProfileWorkspace').then((module) => ({ default: module.ProfessionalProfileWorkspace })));
 const GuidedBudgetCartRoomAutoBridge = lazy(() => import('../features/workflow/components/GuidedBudgetCartRoomAutoBridge').then((module) => ({ default: module.GuidedBudgetCartRoomAutoBridge })));
 const GuidedRoomManager = lazy(() => import('../features/workflow/components/GuidedRoomManager').then((module) => ({ default: module.GuidedRoomManager })));
 const MaterialSupplyModeBridge = lazy(() => import('../features/workflow/components/MaterialSupplyModeBridge').then((module) => ({ default: module.MaterialSupplyModeBridge })));
@@ -864,6 +867,7 @@ function StoreScreen({ account, onAccountChange }: { account: OrcaAccountState; 
 }
 
 function SettingsScreen({ account, onAccountChange }: { account: OrcaAccountState; onAccountChange: (account: OrcaAccountState) => void }) {
+  const [settingsSection, setSettingsSection] = useState<'account' | 'profile' | 'backup' | 'security' | 'legal'>('account');
   const [feedback, setFeedback] = useState<string | null>(null);
   const [isSigningIn, setIsSigningIn] = useState(false);
   const [emailDraft, setEmailDraft] = useState(account.email);
@@ -911,7 +915,15 @@ function SettingsScreen({ account, onAccountChange }: { account: OrcaAccountStat
         <article><span>Backup</span><strong>Local e Drive</strong><small>Exporte seus dados ou salve uma cópia privada no Google Drive.</small></article>
       </section>
 
-      <div className="settings-group account-settings-panel">
+      <nav className="settings-section-tabs" aria-label="Seções de configurações">
+        <button className={settingsSection === 'account' ? 'active' : ''} type="button" onClick={() => setSettingsSection('account')}>Conta</button>
+        <button className={settingsSection === 'profile' ? 'active' : ''} type="button" onClick={() => setSettingsSection('profile')}>Perfil</button>
+        <button className={settingsSection === 'backup' ? 'active' : ''} type="button" onClick={() => setSettingsSection('backup')}>Backup</button>
+        <button className={settingsSection === 'security' ? 'active' : ''} type="button" onClick={() => setSettingsSection('security')}>Segurança</button>
+        <button className={settingsSection === 'legal' ? 'active' : ''} type="button" onClick={() => setSettingsSection('legal')}>Legal</button>
+      </nav>
+
+      {settingsSection === 'account' && <div className="settings-group account-settings-panel">
         <div className="settings-panel-title">
           <span className="orca-kicker">Conta</span>
           <h2>Acesso opcional</h2>
@@ -945,10 +957,17 @@ function SettingsScreen({ account, onAccountChange }: { account: OrcaAccountStat
           {!googleReady && <p className="general-helper-text">Login Google indisponível neste ambiente. O app continua funcionando com acesso local e e-mail opcional.</p>}
           {feedback && <p className="general-added-message">{feedback}</p>}
         </section>
-      </div>
+      </div>}
 
-      <LegalCompliancePanel />
-      <LocalBackupWorkspace />
+      {settingsSection === 'profile' && <ProfessionalProfileWorkspace />}
+      {settingsSection === 'backup' && (
+        <>
+          <GoogleDriveBackupPanel />
+          <LocalBackupWorkspace includeLinkedSettings={false} />
+        </>
+      )}
+      {settingsSection === 'security' && <AppSecurityPanel />}
+      {settingsSection === 'legal' && <LegalCompliancePanel />}
     </section>
   );
 }
