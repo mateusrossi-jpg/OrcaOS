@@ -167,7 +167,7 @@ export function SupplierTaxMarginWorkspace() {
     const normalizedQuery = query.trim().toLowerCase();
     const source = normalizedQuery
       ? records.filter((record) => [record.supplierName, record.productDescription, record.documentNumber, record.ncm, record.cfop, record.notes].filter(Boolean).join(' ').toLowerCase().includes(normalizedQuery))
-      : records;
+      : [];
     return [...source].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
   }, [query, records]);
   const visibleRecords = filteredRecords.slice(0, TAX_RECORD_VISIBLE_LIMIT);
@@ -291,7 +291,7 @@ export function SupplierTaxMarginWorkspace() {
         <div><strong>Lançamentos salvos</strong><small>Use para comparar fornecedores, formar estoque e revisar margem.</small></div>
         <label className="supplier-tax-search"><span>Buscar</span><input value={query} placeholder="Fornecedor, produto, nota, NCM..." onChange={(event) => setQuery(event.target.value)} /></label>
         <div className="supplier-tax-list">
-          {filteredRecords.length === 0 && <div className="supplier-tax-empty">Nenhum lançamento encontrado com essa busca.</div>}
+          {records.length === 0 ? <div className="supplier-tax-empty">Nenhum lançamento salvo ainda.</div> : !query.trim() ? <div className="supplier-tax-empty">{records.length} lançamento(s) salvo(s). Pesquise para exibir.</div> : filteredRecords.length === 0 && <div className="supplier-tax-empty">Nenhum lançamento encontrado com essa busca.</div>}
           {visibleRecords.map((record) => {
             const summary = calculatePurchaseTaxSummary(record);
             return (

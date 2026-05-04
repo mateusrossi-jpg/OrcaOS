@@ -55,7 +55,7 @@ export function ClientPurchaseListWorkspace({ captures, onUpdate }: ClientPurcha
   const purchaseItems = captures.filter(isClientPurchaseMaterial);
   const filteredPurchaseItems = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
-    if (!normalizedQuery) return purchaseItems;
+    if (!normalizedQuery) return [];
     return purchaseItems.filter((capture) => [itemName(capture), capture.technicalNote, capture.summary, capture.details.join(' ')].filter(Boolean).join(' ').toLowerCase().includes(normalizedQuery));
   }, [purchaseItems, query]);
   const visiblePurchaseItems = filteredPurchaseItems.slice(0, CLIENT_PURCHASE_VISIBLE_LIMIT);
@@ -90,6 +90,8 @@ export function ClientPurchaseListWorkspace({ captures, onUpdate }: ClientPurcha
         <div className="client-purchase-list">
           {purchaseItems.length === 0 ? (
             <div className="client-purchase-empty">Nenhum material marcado como “Cliente compra” ainda. Use o catálogo ou orçamento para adicionar materiais à lista.</div>
+          ) : !query.trim() ? (
+            <div className="client-purchase-empty">{purchaseItems.length} material(is) na lista. Pesquise para exibir e editar.</div>
           ) : filteredPurchaseItems.length === 0 ? (
             <div className="client-purchase-empty">Nenhum material encontrado com essa busca.</div>
           ) : visiblePurchaseItems.map((capture) => {

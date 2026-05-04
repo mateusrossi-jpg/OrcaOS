@@ -271,12 +271,14 @@ export function GuidedBudgetCart({ onSendToBudget, mode = 'all' }: GuidedBudgetC
   const activeEnvironment = customEnvironment.trim() || environment || savedRoomNames[0] || 'Sem ambiente';
   const selectedKit = kitTemplates.find((kit) => kit.id === selectedKitId) ?? kitTemplates[0];
   const visibleLaborTemplates = laborTemplates.filter((template) => template.visible);
+  const hasLaborLookup = laborManagerQuery.trim().length > 0;
   const filteredLaborTemplates = laborTemplates.filter((template) => {
     const query = laborManagerQuery.trim().toLowerCase();
-    if (!query) return true;
+    if (!query) return false;
     return [template.title, template.unit, template.note].join(' ').toLowerCase().includes(query);
   });
-  const partResults = useMemo(() => searchCatalogParts(partQuery, partBrand, partCategory), [partBrand, partCategory, partQuery]);
+  const hasPartLookup = partQuery.trim().length > 0 || partBrand !== '' || partCategory !== '';
+  const partResults = useMemo(() => (hasPartLookup ? searchCatalogParts(partQuery, partBrand, partCategory) : []), [hasPartLookup, partBrand, partCategory, partQuery]);
   const environmentGroups = useMemo(() => {
     const groups = new Map<string, GuidedLine[]>();
     lines.forEach((line) => groups.set(line.environment || 'Sem ambiente', [...(groups.get(line.environment || 'Sem ambiente') ?? []), line]));
@@ -453,6 +455,10 @@ export function GuidedBudgetCart({ onSendToBudget, mode = 'all' }: GuidedBudgetC
               </button>
             </div>
           </div>
+          <label className="technical-edit-field guided-wide-field">
+            <span>Buscar serviço para adicionar</span>
+            <input value={laborManagerQuery} placeholder="Digite tomada, luminária, quadro..." onChange={(event) => setLaborManagerQuery(event.target.value)} />
+          </label>
 
           {showLaborManager && (
             <div className="guided-labor-manager">
@@ -495,7 +501,12 @@ export function GuidedBudgetCart({ onSendToBudget, mode = 'all' }: GuidedBudgetC
                   <small>Marque como visível apenas os serviços que devem aparecer nos cards de seleção do campo.</small>
                 </div>
 
-                {filteredLaborTemplates.length === 0 && (
+                {!hasLaborLookup ? (
+                  <div className="guided-labor-empty">
+                    <strong>Pesquise para listar serviços cadastrados</strong>
+                    <small>Os serviços ficam ocultos até você buscar por nome, unidade ou observação.</small>
+                  </div>
+                ) : filteredLaborTemplates.length === 0 && (
                   <div className="guided-labor-empty">
                     <strong>Nenhum serviço encontrado</strong>
                     <small>Limpe a busca ou cadastre um novo tipo de trabalho.</small>
@@ -532,14 +543,19 @@ export function GuidedBudgetCart({ onSendToBudget, mode = 'all' }: GuidedBudgetC
             </div>
           )}
 
-          {visibleLaborTemplates.length === 0 ? (
+          {!hasLaborLookup ? (
             <div className="guided-labor-empty">
-              <strong>Nenhum serviço visível</strong>
-              <small>Abra o gerenciador e marque os tipos de trabalho que devem aparecer no campo.</small>
+              <strong>Busque um serviço para adicionar</strong>
+              <small>Nenhum serviço aparece por padrão para manter a tela limpa no campo.</small>
+            </div>
+          ) : filteredLaborTemplates.filter((template) => template.visible).length === 0 ? (
+            <div className="guided-labor-empty">
+              <strong>Nenhum serviço visível encontrado</strong>
+              <small>Ajuste a busca ou abra o gerenciador para liberar serviços.</small>
             </div>
           ) : (
             <div className="guided-service-grid">
-              {visibleLaborTemplates.map((template) => {
+              {filteredLaborTemplates.filter((template) => template.visible).map((template) => {
               const addedQuantity = quantityInCurrentEnvironment(template.title, 'service');
               return (
                 <article className="guided-service-card" key={template.id}>
@@ -582,7 +598,7 @@ export function GuidedBudgetCart({ onSendToBudget, mode = 'all' }: GuidedBudgetC
             <button className="primary-action inline-action" type="button" onClick={addManualPart}>Adicionar peça manual</button>
           </div>
 
-          <div className="parts-catalog-panel"><div className="parts-search-grid"><label className="technical-edit-field parts-search-wide"><span>Buscar na base interna</span><input value={partQuery} placeholder="Ex.: tomada 20A, disjuntor bipolar..." onChange={(event) => setPartQuery(event.target.value)} /></label><label className="technical-edit-field"><span>Marca</span><select value={partBrand} onChange={(event) => setPartBrand(event.target.value)}><option value="">Todas</option>{catalogPartBrands.map((brand) => <option key={brand} value={brand}>{brand}</option>)}</select></label><label className="technical-edit-field"><span>Categoria</span><select value={partCategory} onChange={(event) => setPartCategory(event.target.value)}><option value="">Todas</option>{catalogPartCategories.map((category) => <option key={category} value={category}>{category}</option>)}</select></label></div><div className="parts-results-header"><strong>{partResults.length} peça(s) encontrada(s)</strong><small>Base interna inicial.</small></div><div className="parts-result-list">{partResults.map((part) => { const addedQuantity = quantityInCurrentEnvironment(part.title, 'material'); return <article className="part-result-card" key={part.id}><div className="part-result-main"><span>{part.brand}</span><strong>{part.title}</strong><small>{[part.line, part.category, part.subcategory, part.current, part.voltage].filter(Boolean).join(' · ')}</small>{addedQuantity > 0 && <span className="guided-cart-count">{addedQuantity} lançado(s) neste ambiente</span>}</div><div className="part-result-controls"><button className="primary-action inline-action" type="button" onClick={() => addCatalogPart(part)}>Adicionar</button></div></article>; })}</div></div>
+          <div className="parts-catalog-panel"><div className="parts-search-grid"><label className="technical-edit-field parts-search-wide"><span>Buscar na base interna</span><input value={partQuery} placeholder="Ex.: tomada 20A, disjuntor bipolar..." onChange={(event) => setPartQuery(event.target.value)} /></label><label className="technical-edit-field"><span>Marca</span><select value={partBrand} onChange={(event) => setPartBrand(event.target.value)}><option value="">Todas</option>{catalogPartBrands.map((brand) => <option key={brand} value={brand}>{brand}</option>)}</select></label><label className="technical-edit-field"><span>Categoria</span><select value={partCategory} onChange={(event) => setPartCategory(event.target.value)}><option value="">Todas</option>{catalogPartCategories.map((category) => <option key={category} value={category}>{category}</option>)}</select></label></div><div className="parts-results-header"><strong>{hasPartLookup ? `${partResults.length} peça(s) encontrada(s)` : 'Pesquise para exibir peças'}</strong><small>Resultados aparecem apenas após busca ou filtro.</small></div><div className="parts-result-list">{partResults.map((part) => { const addedQuantity = quantityInCurrentEnvironment(part.title, 'material'); return <article className="part-result-card" key={part.id}><div className="part-result-main"><span>{part.brand}</span><strong>{part.title}</strong><small>{[part.line, part.category, part.subcategory, part.current, part.voltage].filter(Boolean).join(' · ')}</small>{addedQuantity > 0 && <span className="guided-cart-count">{addedQuantity} lançado(s) neste ambiente</span>}</div><div className="part-result-controls"><button className="primary-action inline-action" type="button" onClick={() => addCatalogPart(part)}>Adicionar</button></div></article>; })}</div></div>
         </>
       )}
 

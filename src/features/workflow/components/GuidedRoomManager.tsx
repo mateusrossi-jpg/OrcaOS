@@ -36,7 +36,7 @@ export function GuidedRoomManager() {
 
   const filteredRooms = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
-    if (!normalizedQuery) return rooms;
+    if (!normalizedQuery) return [];
     return rooms.filter((room) => [room.name, guidedRoomTypeLabel(room.type), room.notes].filter(Boolean).join(' ').toLowerCase().includes(normalizedQuery));
   }, [query, rooms]);
 
@@ -211,7 +211,9 @@ export function GuidedRoomManager() {
           <input value={query} placeholder="Sala, suíte, banheiro, área externa..." onChange={(event) => setQuery(event.target.value)} />
         </label>
 
-        {filteredRooms.length > 0 ? (
+        {!query.trim() ? (
+          <div className="guided-room-empty">{rooms.length} cômodo(s) cadastrado(s). Pesquise para exibir.</div>
+        ) : filteredRooms.length > 0 ? (
           <>
             <div className="guided-room-card-list">
               {filteredRooms.map((room) => (

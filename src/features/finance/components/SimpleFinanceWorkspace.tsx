@@ -99,7 +99,7 @@ export function SimpleFinanceWorkspace() {
   const approvedBudgets = savedBudgets.filter((budget) => budget.status === 'approved');
   const filteredRecords = useMemo(() => {
     const normalizedSearch = recordSearch.trim().toLowerCase();
-    if (!normalizedSearch) return records;
+    if (!normalizedSearch) return [];
     return records.filter((record) => [record.title, record.clientName, record.status === 'forecast' ? 'Previsto' : 'Recebido', money(record.receivedAmount)].join(' ').toLowerCase().includes(normalizedSearch));
   }, [recordSearch, records]);
   const visibleRecords = filteredRecords.slice(0, FINANCE_VISIBLE_LIMIT);
@@ -262,7 +262,7 @@ export function SimpleFinanceWorkspace() {
         <div className="finance-panel-header"><div><h2>Histórico financeiro</h2><p>Lançamentos locais para o profissional acompanhar quanto realmente ganhou.</p></div></div>
         <label className="finance-field finance-search-field"><span>Buscar lançamento</span><input value={recordSearch} placeholder="Serviço, cliente, status ou valor" onChange={(event) => setRecordSearch(event.target.value)} /></label>
         <div className="finance-record-list">
-          {records.length === 0 ? <div className="finance-empty">Nenhum lançamento financeiro ainda.</div> : visibleRecords.length === 0 ? <div className="finance-empty">Nenhum lançamento encontrado com essa busca.</div> : visibleRecords.map((record) => {
+          {records.length === 0 ? <div className="finance-empty">Nenhum lançamento financeiro ainda.</div> : !recordSearch.trim() ? <div className="finance-empty">{records.length} lançamento(s) salvo(s). Pesquise para exibir.</div> : visibleRecords.length === 0 ? <div className="finance-empty">Nenhum lançamento encontrado com essa busca.</div> : visibleRecords.map((record) => {
             const profit = calculateServiceProfit(record);
             return (
               <article className="finance-record-card" key={record.id}>

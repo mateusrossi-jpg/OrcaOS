@@ -111,7 +111,7 @@ export function SupplierProfileWorkspace() {
     const normalizedQuery = query.trim().toLowerCase();
     const source = normalizedQuery
       ? profiles.filter((profile) => [profile.name, profile.document, profile.segment, profile.city, profile.state, profile.phone, profile.email, profile.purchaseNotes, profile.defaultTaxNotes].filter(Boolean).join(' ').toLowerCase().includes(normalizedQuery))
-      : profiles;
+      : [];
     return [...source].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
   }, [profiles, query]);
   const visibleProfiles = filteredProfiles.slice(0, SUPPLIER_PROFILE_VISIBLE_LIMIT);
@@ -215,7 +215,7 @@ export function SupplierProfileWorkspace() {
         </div>
         <label className="supplier-profile-search"><span>Buscar fornecedor</span><input value={query} placeholder="Nome, CNPJ, cidade, segmento..." onChange={(event) => setQuery(event.target.value)} /></label>
         <div className="supplier-profile-list">
-          {filteredProfiles.length === 0 && <div className="supplier-profile-empty">Nenhum fornecedor encontrado com essa busca.</div>}
+          {profiles.length === 0 ? <div className="supplier-profile-empty">Nenhum fornecedor cadastrado ainda.</div> : !query.trim() ? <div className="supplier-profile-empty">{profiles.length} fornecedor(es) salvo(s). Pesquise para exibir.</div> : filteredProfiles.length === 0 && <div className="supplier-profile-empty">Nenhum fornecedor encontrado com essa busca.</div>}
           {visibleProfiles.map((profile) => (
             <article className="supplier-profile-item" key={profile.id}>
               <div>

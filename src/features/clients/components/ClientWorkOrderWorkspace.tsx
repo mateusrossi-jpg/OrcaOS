@@ -210,12 +210,12 @@ export function ClientWorkOrderWorkspace({ initialSection = 'dashboard', section
   );
   const filteredClients = useMemo(() => {
     const query = clientSearch.trim().toLowerCase();
-    const source = query ? clients.filter((client) => clientSearchText(client).includes(query)) : clients;
+    const source = query ? clients.filter((client) => clientSearchText(client).includes(query)) : [];
     return [...source].sort((a, b) => recentTimestamp(b).localeCompare(recentTimestamp(a)));
   }, [clientSearch, clients]);
   const filteredWorkOrders = useMemo(() => {
     const query = workOrderSearch.trim().toLowerCase();
-    if (!query) return sortedWorkOrders;
+    if (!query) return [];
     return sortedWorkOrders.filter((workOrder) => {
       const client = workOrder.clientId ? clients.find((item) => item.id === workOrder.clientId) : null;
       return [workOrder.title, workOrder.description, workOrder.address, statusLabel(workOrder.status), priorityLabel(workOrder.priority), client?.name, client?.phone, client?.email].filter(Boolean).join(' ').toLowerCase().includes(query);
@@ -223,7 +223,7 @@ export function ClientWorkOrderWorkspace({ initialSection = 'dashboard', section
   }, [clients, sortedWorkOrders, workOrderSearch]);
   const clientPickerResults = useMemo(() => {
     const query = clientPickerSearch.trim().toLowerCase();
-    const source = query ? clients.filter((client) => clientSearchText(client).includes(query)) : clients;
+    const source = query ? clients.filter((client) => clientSearchText(client).includes(query)) : [];
     return source.slice(0, 6);
   }, [clientPickerSearch, clients]);
   const visibleClients = filteredClients.slice(0, CLIENT_OS_VISIBLE_LIMIT);
@@ -657,7 +657,7 @@ export function ClientWorkOrderWorkspace({ initialSection = 'dashboard', section
             <input value={clientSearch} placeholder="Nome, WhatsApp ou endereço" onChange={(event) => setClientSearch(event.target.value)} />
           </label>
           <div className="client-os-list">
-            {clients.length === 0 ? <div className="client-os-empty">Nenhum cliente cadastrado ainda.</div> : filteredClients.length === 0 ? <div className="client-os-empty">Nenhum cliente encontrado para essa busca.</div> : visibleClients.map((client) => (
+            {clients.length === 0 ? <div className="client-os-empty">Nenhum cliente cadastrado ainda.</div> : !clientSearch.trim() ? <div className="client-os-empty">{clients.length} cliente(s) cadastrado(s). Pesquise para exibir.</div> : filteredClients.length === 0 ? <div className="client-os-empty">Nenhum cliente encontrado para essa busca.</div> : visibleClients.map((client) => (
               <article className="client-os-card" key={client.id}>
                 <div>
                   <strong>{client.name}</strong>
@@ -691,7 +691,7 @@ export function ClientWorkOrderWorkspace({ initialSection = 'dashboard', section
             <input value={workOrderSearch} placeholder="Título, cliente ou endereço" onChange={(event) => setWorkOrderSearch(event.target.value)} />
           </label>
           <div className="client-os-list">
-            {sortedWorkOrders.length === 0 ? <div className="client-os-empty">Nenhum atendimento cadastrado ainda.</div> : filteredWorkOrders.length === 0 ? <div className="client-os-empty">Nenhum atendimento encontrado para essa busca.</div> : visibleWorkOrders.map((workOrder) => {
+            {sortedWorkOrders.length === 0 ? <div className="client-os-empty">Nenhum atendimento cadastrado ainda.</div> : !workOrderSearch.trim() ? <div className="client-os-empty">{sortedWorkOrders.length} atendimento(s) cadastrado(s). Pesquise para exibir.</div> : filteredWorkOrders.length === 0 ? <div className="client-os-empty">Nenhum atendimento encontrado para essa busca.</div> : visibleWorkOrders.map((workOrder) => {
               const client = workOrder.clientId ? clients.find((item) => item.id === workOrder.clientId) : null;
               const isActive = workOrder.id === activeWorkOrderId;
 

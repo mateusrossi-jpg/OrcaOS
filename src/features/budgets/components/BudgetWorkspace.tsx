@@ -478,6 +478,7 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
   const blockingProposalIssues = hasBlockingBudgetIssues(proposalIssues);
   const filteredBudgetItems = useMemo(() => {
     const normalizedSearch = budgetItemSearch.trim().toLowerCase();
+    if (!normalizedSearch && budgetItemCategoryFilter === 'all') return [];
     return items.filter((item) => {
       const categoryMatches = budgetItemCategoryFilter === 'all' || item.category === budgetItemCategoryFilter;
       const textMatches = !normalizedSearch || [item.description, categoryLabel(item.category), formatCurrency(safeBudgetItemTotal(item))].join(' ').toLowerCase().includes(normalizedSearch);
@@ -488,7 +489,7 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
   const hiddenBudgetItemCount = Math.max(filteredBudgetItems.length - visibleBudgetItems.length, 0);
   const filteredSavedBudgets = useMemo(() => {
     const normalizedSearch = savedBudgetSearch.trim().toLowerCase();
-    if (!normalizedSearch) return savedBudgets;
+    if (!normalizedSearch) return [];
     return savedBudgets.filter((record) => [record.title, record.clientName, statusLabel(record.status), formatCurrency(calculateSavedBudgetTotal(record))].join(' ').toLowerCase().includes(normalizedSearch));
   }, [savedBudgetSearch, savedBudgets]);
   const visibleSavedBudgets = filteredSavedBudgets.slice(0, VISIBLE_LIST_LIMIT);
@@ -921,10 +922,12 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
   const visibleServiceTemplates = serviceTemplates.filter((template) => {
     if (!template.visible) return false;
     const normalizedSearch = serviceTemplateSearch.trim().toLowerCase();
-    if (!normalizedSearch) return true;
+    if (!normalizedSearch) return false;
     return [template.title, template.description, template.category, template.professionModule, template.suggestedMaterials, template.note].filter(Boolean).join(' ').toLowerCase().includes(normalizedSearch);
   }).sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
   const visibleCatalogItems = catalogItems.filter((item) => {
+    const hasLookup = catalogSearch.trim().length > 0 || catalogCategoryFilter !== 'all';
+    if (!hasLookup) return false;
     const categoryMatches = catalogCategoryFilter === 'all' || item.category === catalogCategoryFilter;
     const normalizedSearch = catalogSearch.trim().toLowerCase();
     const textMatches = !normalizedSearch || [item.description, categoryLabel(item.category), item.notes, formatCurrency(item.unitPrice)].filter(Boolean).join(' ').toLowerCase().includes(normalizedSearch);
@@ -1054,7 +1057,7 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
               <label className="budget-field"><span>Buscar orçamento</span><input value={savedBudgetSearch} placeholder="Cliente, título, status ou valor" onChange={(event) => setSavedBudgetSearch(event.target.value)} /></label>
             </div>
             <div className="saved-budget-list">
-              {savedBudgets.length === 0 ? <div className="empty-budget">Nenhum orçamento salvo ainda.</div> : visibleSavedBudgets.length === 0 ? <div className="empty-budget">Nenhum orçamento encontrado com essa busca.</div> : visibleSavedBudgets.map((record) => <article className={record.id === activeBudgetId ? 'saved-budget-card active' : 'saved-budget-card'} key={record.id}><button type="button" className="saved-budget-open" onClick={() => openSavedBudget(record)}><strong>{record.title || 'Orçamento sem título'}</strong><small>{record.clientName || 'Cliente não informado'}</small><span>{statusLabel(record.status)} · {formatCurrency(calculateSavedBudgetTotal(record))} · {formatDateTime(record.updatedAt)}</span></button><div className="saved-budget-actions"><button type="button" className="secondary-action inline-action" onClick={() => openSavedBudget(record)}>Editar</button>{record.status === 'draft' && <button type="button" className="secondary-action inline-action" onClick={() => updateSavedBudgetStatus(record, 'sent')}>Enviado</button>}{record.status !== 'approved' && <button type="button" className="primary-action inline-action" onClick={() => updateSavedBudgetStatus(record, 'approved')}>Aprovar</button>}{record.status !== 'rejected' && <button type="button" className="secondary-action inline-action" onClick={() => updateSavedBudgetStatus(record, 'rejected')}>Recusar</button>}<button type="button" className="secondary-action inline-action" onClick={() => duplicateSavedBudget(record)}>Duplicar</button><button type="button" className="saved-budget-delete" onClick={() => removeSavedBudget(record.id)}>Excluir</button></div></article>)}
+              {savedBudgets.length === 0 ? <div className="empty-budget">Nenhum orçamento salvo ainda.</div> : !savedBudgetSearch.trim() ? <div className="empty-budget">Há {savedBudgets.length} orçamento(s) salvo(s). Pesquise para exibir.</div> : visibleSavedBudgets.length === 0 ? <div className="empty-budget">Nenhum orçamento encontrado com essa busca.</div> : visibleSavedBudgets.map((record) => <article className={record.id === activeBudgetId ? 'saved-budget-card active' : 'saved-budget-card'} key={record.id}><button type="button" className="saved-budget-open" onClick={() => openSavedBudget(record)}><strong>{record.title || 'Orçamento sem título'}</strong><small>{record.clientName || 'Cliente não informado'}</small><span>{statusLabel(record.status)} · {formatCurrency(calculateSavedBudgetTotal(record))} · {formatDateTime(record.updatedAt)}</span></button><div className="saved-budget-actions"><button type="button" className="secondary-action inline-action" onClick={() => openSavedBudget(record)}>Editar</button>{record.status === 'draft' && <button type="button" className="secondary-action inline-action" onClick={() => updateSavedBudgetStatus(record, 'sent')}>Enviado</button>}{record.status !== 'approved' && <button type="button" className="primary-action inline-action" onClick={() => updateSavedBudgetStatus(record, 'approved')}>Aprovar</button>}{record.status !== 'rejected' && <button type="button" className="secondary-action inline-action" onClick={() => updateSavedBudgetStatus(record, 'rejected')}>Recusar</button>}<button type="button" className="secondary-action inline-action" onClick={() => duplicateSavedBudget(record)}>Duplicar</button><button type="button" className="saved-budget-delete" onClick={() => removeSavedBudget(record.id)}>Excluir</button></div></article>)}
               {hiddenSavedBudgetCount > 0 && <div className="empty-budget compact">Mais {hiddenSavedBudgetCount} orçamento(s) oculto(s). Use a busca para refinar.</div>}
             </div>
           </div>
@@ -1116,7 +1119,7 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
             </div>
             <div className="service-template-grid">
               {visibleServiceTemplates.length === 0 ? (
-                <div className="empty-budget">Nenhum modelo encontrado. Ajuste a busca ou crie um modelo novo.</div>
+                <div className="empty-budget">{serviceTemplateSearch.trim() ? 'Nenhum modelo encontrado. Ajuste a busca ou crie um modelo novo.' : `${serviceTemplates.length} modelo(s) salvo(s). Pesquise para exibir.`}</div>
               ) : visibleServiceTemplates.slice(0, VISIBLE_LIST_LIMIT).map((template) => (
                 <article className="service-template-card" key={template.id}>
                   <div>
@@ -1167,7 +1170,7 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
             {items.length === 0 ? <div className="empty-budget">Nenhum item adicionado ainda.</div> : (
               <div className="budget-item-manager-grid">
                 <div className="budget-item-table" role="list" aria-label="Itens do orçamento">
-                  {visibleBudgetItems.length === 0 ? <div className="empty-budget compact">Nenhum item encontrado com estes filtros.</div> : visibleBudgetItems.map((item) => (
+                  {visibleBudgetItems.length === 0 ? <div className="empty-budget compact">{budgetItemSearch.trim() || budgetItemCategoryFilter !== 'all' ? 'Nenhum item encontrado com estes filtros.' : `${items.length} item(ns) no orçamento. Pesquise para exibir.`}</div> : visibleBudgetItems.map((item) => (
                     <button className={selectedBudgetItemId === item.id ? 'budget-item-table-row active' : 'budget-item-table-row'} key={item.id} type="button" onClick={() => setSelectedBudgetItemId(item.id)}>
                       <span>
                         <strong>{item.description}</strong>
@@ -1228,7 +1231,7 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
             <label className="budget-field"><span>Categoria</span><select value={catalogCategoryFilter} onChange={(event) => setCatalogCategoryFilter(event.target.value as BudgetCategory | 'all')}><option value="all">Todas</option><option value="labor">Mão de obra</option><option value="material">Material</option><option value="other">Outro</option></select></label>
           </div>
           <div className="catalog-list">
-            {visibleCatalogItems.length === 0 ? <div className="empty-budget">Nenhum item encontrado no catálogo simples.</div> : visibleCatalogItems.slice(0, VISIBLE_LIST_LIMIT).map((item) => <article className="catalog-card" key={item.id}><span><strong>{item.description}</strong><small>{categoryLabel(item.category)} · {item.defaultQuantity} × {formatCurrency(item.unitPrice)}</small>{item.notes && <small>{item.notes}</small>}</span><div><button type="button" className="secondary-action inline-action" onClick={() => addCatalogItemToBudget(item)}>Usar</button><button type="button" className="secondary-action inline-action" onClick={() => editCatalogItem(item)}>Editar</button><button type="button" className="danger-action" onClick={() => removeCatalogItem(item.id)}>Remover</button></div></article>)}
+            {visibleCatalogItems.length === 0 ? <div className="empty-budget">{catalogSearch.trim() || catalogCategoryFilter !== 'all' ? 'Nenhum item encontrado no catálogo simples.' : `${catalogItems.length} item(ns) cadastrados. Pesquise para exibir.`}</div> : visibleCatalogItems.slice(0, VISIBLE_LIST_LIMIT).map((item) => <article className="catalog-card" key={item.id}><span><strong>{item.description}</strong><small>{categoryLabel(item.category)} · {item.defaultQuantity} × {formatCurrency(item.unitPrice)}</small>{item.notes && <small>{item.notes}</small>}</span><div><button type="button" className="secondary-action inline-action" onClick={() => addCatalogItemToBudget(item)}>Usar</button><button type="button" className="secondary-action inline-action" onClick={() => editCatalogItem(item)}>Editar</button><button type="button" className="danger-action" onClick={() => removeCatalogItem(item.id)}>Remover</button></div></article>)}
             {visibleCatalogItems.length > VISIBLE_LIST_LIMIT && <div className="empty-budget compact">Mais {visibleCatalogItems.length - VISIBLE_LIST_LIMIT} item(ns) oculto(s). Use a busca para refinar.</div>}
           </div>
         </section>

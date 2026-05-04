@@ -393,7 +393,8 @@ export function CatalogHubWorkspace({ onSendToBudget, initialTab = 'items', enab
   const hiddenFilteredItemCount = hasItemLookup ? Math.max(filteredItems.length - visibleFilteredItems.length, 0) : 0;
   const filteredSuppliers = suppliers.filter((supplier) => {
     const normalizedSearch = supplierSearch.trim().toLowerCase();
-    return !normalizedSearch || [supplier.name, supplier.segment, supplier.websiteUrl, supplier.catalogUrl, supplier.phone, supplier.notes].filter(Boolean).join(' ').toLowerCase().includes(normalizedSearch);
+    if (!normalizedSearch) return false;
+    return [supplier.name, supplier.segment, supplier.websiteUrl, supplier.catalogUrl, supplier.phone, supplier.notes].filter(Boolean).join(' ').toLowerCase().includes(normalizedSearch);
   }).sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
   const visibleSuppliers = filteredSuppliers.slice(0, CATALOG_VISIBLE_LIMIT);
   const hiddenSupplierCount = Math.max(filteredSuppliers.length - visibleSuppliers.length, 0);
@@ -715,9 +716,9 @@ export function CatalogHubWorkspace({ onSendToBudget, initialTab = 'items', enab
           <div className="catalog-hub-list">
             <div className="catalog-list-meta supplier-list-meta">
               <label><span>Buscar fornecedor</span><input value={supplierSearch} placeholder="Nome, segmento, telefone ou observação" onChange={(event) => setSupplierSearch(event.target.value)} /></label>
-              <span>{filteredSuppliers.length} de {suppliers.length} fornecedor(es) · mostrando {visibleSuppliers.length}</span>
+              <span>{supplierSearch.trim() ? `${filteredSuppliers.length} de ${suppliers.length} fornecedor(es) · mostrando ${visibleSuppliers.length}` : `${suppliers.length} fornecedor(es) cadastrado(s). Pesquise para exibir.`}</span>
             </div>
-            {filteredSuppliers.length === 0 && <div className="catalog-empty-row">Nenhum fornecedor encontrado com essa busca.</div>}
+            {!supplierSearch.trim() ? <div className="catalog-empty-row">Digite uma busca para consultar fornecedores.</div> : filteredSuppliers.length === 0 && <div className="catalog-empty-row">Nenhum fornecedor encontrado com essa busca.</div>}
             {visibleSuppliers.map((supplier) => (
               <article className="catalog-hub-item-card" key={supplier.id}>
                 <div className="catalog-item-main"><span>{supplier.segment}</span><strong>{supplier.name}</strong><small>{supplier.notes || 'Sem observações'}</small></div>

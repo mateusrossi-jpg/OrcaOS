@@ -54,7 +54,7 @@ export function TechnicalCaptureList({ captures, emptyText, onRemove, onUpdate }
   const [query, setQuery] = useState('');
   const filteredCaptures = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
-    if (!normalizedQuery) return captures;
+    if (!normalizedQuery) return [];
     return captures.filter((capture) => [capture.summary, capture.editableDescription, capture.moduleLabel, capture.calculatorLabel, capture.technicalNote, capture.details.join(' ')].filter(Boolean).join(' ').toLowerCase().includes(normalizedQuery));
   }, [captures, query]);
 
@@ -200,7 +200,7 @@ export function TechnicalCaptureList({ captures, emptyText, onRemove, onUpdate }
   return (
     <div className="technical-capture-list technical-capture-list-sectioned">
       <label className="technical-capture-search"><span>Buscar item técnico</span><input value={query} placeholder="Descrição, cálculo, observação ou detalhe" onChange={(event) => setQuery(event.target.value)} /></label>
-      {filteredCaptures.length === 0 && <div className="technical-capture-empty">Nenhum item encontrado com essa busca.</div>}
+      {!query.trim() ? <div className="technical-capture-empty">Há {captures.length} item(ns) salvo(s). Pesquise para exibir e editar.</div> : filteredCaptures.length === 0 && <div className="technical-capture-empty">Nenhum item encontrado com essa busca.</div>}
       {budgetableCaptures.length > 0 && (
         <section className="technical-capture-section">
           <header>

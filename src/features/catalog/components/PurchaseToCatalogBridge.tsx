@@ -61,7 +61,7 @@ export function PurchaseToCatalogBridge() {
     const normalizedQuery = query.trim().toLowerCase();
     const source = normalizedQuery
       ? records.filter((record) => [record.supplierName, record.productDescription, record.documentNumber, record.ncm, record.cfop, record.notes].filter(Boolean).join(' ').toLowerCase().includes(normalizedQuery))
-      : records;
+      : [];
     return [...source].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
   }, [query, records]);
   const visibleRecords = filteredRecords.slice(0, PURCHASE_VISIBLE_LIMIT);
@@ -108,7 +108,7 @@ export function PurchaseToCatalogBridge() {
           <input value={query} placeholder="Fornecedor, produto, nota, NCM..." onChange={(event) => setQuery(event.target.value)} />
         </label>
         <div className="supplier-tax-list">
-          {filteredRecords.length === 0 ? <small>Nenhuma compra encontrada. Salve uma compra acima para criar item de catálogo.</small> : visibleRecords.map((record) => {
+          {records.length === 0 ? <small>Nenhuma compra encontrada. Salve uma compra acima para criar item de catálogo.</small> : !query.trim() ? <small>{records.length} compra(s) salva(s). Pesquise para exibir.</small> : filteredRecords.length === 0 ? <small>Nenhuma compra encontrada com essa busca.</small> : visibleRecords.map((record) => {
             const summary = calculatePurchaseTaxSummary(record);
             return (
               <article className="supplier-tax-record" key={record.id}>
