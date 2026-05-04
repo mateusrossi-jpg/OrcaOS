@@ -186,7 +186,7 @@ export function SupplierProfileWorkspace() {
           <small>Use para compras de estoque, comparação de fornecedores, relatórios e histórico de aquisição.</small>
         </div>
         <div className="supplier-profile-grid">
-          <label><span>Nome/razão social</span><input value={draft.name} placeholder="Ex.: Loja Elétrica Central" onChange={(event) => updateDraft('name', event.target.value)} /></label>
+          <label><span>Nome/razão social</span><input value={draft.name} placeholder="Ex.: Fornecedor principal" onChange={(event) => updateDraft('name', event.target.value)} /></label>
           <label><span>CNPJ/CPF</span><input value={draft.document} placeholder="Opcional" onChange={(event) => updateDraft('document', event.target.value)} /></label>
           <label><span>Inscrição estadual</span><input value={draft.stateRegistration} placeholder="Opcional" onChange={(event) => updateDraft('stateRegistration', event.target.value)} /></label>
           <label><span>Segmento</span><input value={draft.segment} placeholder="Materiais elétricos, hidráulica..." onChange={(event) => updateDraft('segment', event.target.value)} /></label>

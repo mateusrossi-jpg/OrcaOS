@@ -920,6 +920,9 @@ function SettingsScreen({ account, onAccountChange }: { account: OrcaAccountStat
           <article className="settings-row">
             <span><strong>{planStatusTitle(account)}</strong><small>{planStatusDescription(account, account.planSource === 'subscription' ? 'verificação Pro' : 'verificação local')}</small></span>
           </article>
+          <article className="settings-row">
+            <span><strong>ID da instalação</strong><small>{account.installationId}</small></span>
+          </article>
         </div>
 
         <section className="account-email-card">

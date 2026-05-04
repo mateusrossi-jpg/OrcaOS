@@ -141,7 +141,7 @@ export function CatalogHubWorkspace({ onSendToBudget }: CatalogHubWorkspaceProps
   const [query, setQuery] = useState('');
   const [kindFilter, setKindFilter] = useState<'all' | CatalogHubItemKind>('all');
   const [supplierFilter, setSupplierFilter] = useState('');
-  const [onlineQuery, setOnlineQuery] = useState('tomada 20A branca');
+  const [onlineQuery, setOnlineQuery] = useState('');
   const [onlineSupplierId, setOnlineSupplierId] = useState('');
   const [feedback, setFeedback] = useState<string | null>(null);
 
@@ -314,7 +314,7 @@ export function CatalogHubWorkspace({ onSendToBudget }: CatalogHubWorkspaceProps
           <div className="catalog-hub-card">
             <div><strong>Novo fornecedor/empresa</strong><small>Cadastre fabricantes, lojas, distribuidores ou fornecedores locais.</small></div>
             <div className="catalog-hub-grid">
-              <label><span>Nome</span><input value={supplierDraft.name} placeholder="Ex.: Loja Elétrica Central" onChange={(event) => updateSupplierDraft('name', event.target.value)} /></label>
+              <label><span>Nome</span><input value={supplierDraft.name} placeholder="Ex.: Fornecedor principal" onChange={(event) => updateSupplierDraft('name', event.target.value)} /></label>
               <label><span>Segmento</span><input value={supplierDraft.segment} placeholder="Ex.: Materiais elétricos" onChange={(event) => updateSupplierDraft('segment', event.target.value)} /></label>
               <label><span>Site</span><input value={supplierDraft.websiteUrl} placeholder="https://..." onChange={(event) => updateSupplierDraft('websiteUrl', event.target.value)} /></label>
               <label><span>Catálogo</span><input value={supplierDraft.catalogUrl} placeholder="https://..." onChange={(event) => updateSupplierDraft('catalogUrl', event.target.value)} /></label>

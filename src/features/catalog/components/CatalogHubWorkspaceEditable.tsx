@@ -342,7 +342,7 @@ export function CatalogHubWorkspace({ onSendToBudget, initialTab = 'items', enab
   const [categoryFilter, setCategoryFilter] = useState('');
   const [brandFilter, setBrandFilter] = useState('');
   const [originFilter, setOriginFilter] = useState<'all' | NonNullable<CatalogHubItem['dataOrigin']>>('all');
-  const [onlineQuery, setOnlineQuery] = useState('tomada 20A branca');
+  const [onlineQuery, setOnlineQuery] = useState('');
   const [onlineSupplierId, setOnlineSupplierId] = useState('');
   const [onlineObservedPrice, setOnlineObservedPrice] = useState('');
   const [onlineReference, setOnlineReference] = useState('');
@@ -700,7 +700,7 @@ export function CatalogHubWorkspace({ onSendToBudget, initialTab = 'items', enab
           <div className="catalog-hub-card">
             <div><strong>{editingSupplierId ? 'Editar fornecedor/empresa' : 'Novo fornecedor/empresa'}</strong><small>{editingSupplierId ? 'Atualize o cadastro e salve sem criar fornecedor duplicado.' : 'Cadastre fabricantes, lojas, distribuidores ou fornecedores locais.'}</small></div>
             <div className="catalog-hub-grid">
-              <label><span>Nome</span><input value={supplierDraft.name} placeholder="Ex.: Loja Elétrica Central" onChange={(event) => updateSupplierDraft('name', event.target.value)} /></label>
+              <label><span>Nome</span><input value={supplierDraft.name} placeholder="Ex.: Fornecedor principal" onChange={(event) => updateSupplierDraft('name', event.target.value)} /></label>
               <label><span>Segmento</span><input value={supplierDraft.segment} placeholder="Ex.: Materiais elétricos" onChange={(event) => updateSupplierDraft('segment', event.target.value)} /></label>
               <label><span>Site</span><input value={supplierDraft.websiteUrl} placeholder="https://..." onChange={(event) => updateSupplierDraft('websiteUrl', event.target.value)} /></label>
               <label><span>Catálogo</span><input value={supplierDraft.catalogUrl} placeholder="https://..." onChange={(event) => updateSupplierDraft('catalogUrl', event.target.value)} /></label>

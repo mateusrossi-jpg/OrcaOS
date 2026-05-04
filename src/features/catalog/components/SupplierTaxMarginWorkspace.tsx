@@ -235,7 +235,7 @@ export function SupplierTaxMarginWorkspace() {
             <small>Use os valores da nota, cupom, pedido ou compra para formar custo gerencial.</small>
           </div>
           <div className="supplier-tax-form-grid">
-            <label><span>Fornecedor</span><input value={draft.supplierName} placeholder="Ex.: Loja Elétrica Central" onChange={(event) => updateDraft('supplierName', event.target.value)} /></label>
+            <label><span>Fornecedor</span><input value={draft.supplierName} placeholder="Ex.: Fornecedor principal" onChange={(event) => updateDraft('supplierName', event.target.value)} /></label>
             <label><span>Nota/pedido</span><input value={draft.documentNumber} placeholder="NF, cupom, pedido..." onChange={(event) => updateDraft('documentNumber', event.target.value)} /></label>
             <label><span>Data</span><input type="date" value={draft.purchaseDate} onChange={(event) => updateDraft('purchaseDate', event.target.value)} /></label>
             <label className="wide"><span>Item/peça/insumo</span><input value={draft.productDescription} placeholder="Ex.: Módulo tomada 2P+T 20A branco" onChange={(event) => updateDraft('productDescription', event.target.value)} /></label>
