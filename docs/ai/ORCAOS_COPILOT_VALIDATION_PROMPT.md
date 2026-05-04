@@ -8,7 +8,7 @@ Use este arquivo como instrução direta para o Copilot validar o estado atual d
 
 Vamos validar o OrçaOS para seguir para as próximas fases do MVP Play Store.
 
-Repositório: `mateusrossi-jpg/OrcaOS`
+Repositório: `ORCAOS_REPOSITORY_URL`
 
 ### Contexto
 

@@ -40,7 +40,7 @@ Para gerar o `.aab`, a máquina precisa de:
 Exemplo de `android/local.properties`:
 
 ```properties
-sdk.dir=/home/mateus/Android/Sdk
+sdk.dir=/caminho/para/Android/Sdk
 ```
 
 Esse arquivo não deve ir para o Git.

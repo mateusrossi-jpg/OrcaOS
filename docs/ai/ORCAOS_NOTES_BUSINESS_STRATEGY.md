@@ -1,6 +1,6 @@
 # OrçaOS — decisões vindas das anotações manuais
 
-Este documento registra decisões estratégicas capturadas das anotações manuais do Mateus para orientar o desenvolvimento do OrçaOS.
+Este documento registra decisões estratégicas capturadas das anotações manuais do projeto para orientar o desenvolvimento do OrçaOS.
 
 ## Direção principal
 
