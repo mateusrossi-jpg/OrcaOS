@@ -28,6 +28,7 @@ import { ModuleCard } from './components/ModuleCard';
 import { calculationModules, calculationSectorGroups, navItems, planLabel, storePackages, userPlan } from './orcaAppData';
 import type { ActiveWorkContext, AppTab, CalculationSectorId, ModuleCardData, SurveySection } from './orcaAppTypes';
 import { loadStoredCaptures, saveStoredCaptures } from './storage/calculationCapturesStorage';
+import { cleanupRuntimeValidationData } from './storage/runtimeValidationCleanup';
 import { LegalCompliancePanel } from '../features/settings/components/LegalCompliancePanel';
 
 const BudgetWorkspaceClientBridge = lazy(() => import('../features/budgets/components/BudgetWorkspaceClientBridge').then((module) => ({ default: module.BudgetWorkspaceClientBridge })));
@@ -964,7 +965,10 @@ export function App() {
   const [activeSector, setActiveSector] = useState<CalculationSectorId>('financial');
   const [clientInitialSection, setClientInitialSection] = useState<'dashboard' | 'newClient' | 'newWorkOrder' | 'clients' | 'workOrders'>('dashboard');
   const [clientSectionRequestKey, setClientSectionRequestKey] = useState(0);
-  const [captures, setCaptures] = useState<CalculationCapture[]>(() => loadStoredCaptures());
+  const [captures, setCaptures] = useState<CalculationCapture[]>(() => {
+    cleanupRuntimeValidationData();
+    return loadStoredCaptures();
+  });
   const [clients, setClients] = useState<Client[]>(() => loadClients());
   const [workOrders, setWorkOrders] = useState<WorkOrder[]>(() => loadWorkOrders());
   const [activeWorkOrderId, setActiveWorkOrderId] = useState<string | null>(() => loadActiveWorkOrderId());
