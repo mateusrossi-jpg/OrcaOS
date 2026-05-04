@@ -867,7 +867,7 @@ function StoreScreen({ account, onAccountChange }: { account: OrcaAccountState; 
 }
 
 function SettingsScreen({ account, onAccountChange }: { account: OrcaAccountState; onAccountChange: (account: OrcaAccountState) => void }) {
-  const [settingsSection, setSettingsSection] = useState<'account' | 'profile' | 'backup' | 'security' | 'legal'>('account');
+  const [settingsSection, setSettingsSection] = useState<'account' | 'company' | 'backup' | 'security' | 'legal'>('account');
   const [feedback, setFeedback] = useState<string | null>(null);
   const [isSigningIn, setIsSigningIn] = useState(false);
   const [emailDraft, setEmailDraft] = useState(account.email);
@@ -917,7 +917,7 @@ function SettingsScreen({ account, onAccountChange }: { account: OrcaAccountStat
 
       <nav className="settings-section-tabs" aria-label="Seções de configurações">
         <button className={settingsSection === 'account' ? 'active' : ''} type="button" onClick={() => setSettingsSection('account')}>Conta</button>
-        <button className={settingsSection === 'profile' ? 'active' : ''} type="button" onClick={() => setSettingsSection('profile')}>Perfil</button>
+        <button className={settingsSection === 'company' ? 'active' : ''} type="button" onClick={() => setSettingsSection('company')}>Empresa</button>
         <button className={settingsSection === 'backup' ? 'active' : ''} type="button" onClick={() => setSettingsSection('backup')}>Backup</button>
         <button className={settingsSection === 'security' ? 'active' : ''} type="button" onClick={() => setSettingsSection('security')}>Segurança</button>
         <button className={settingsSection === 'legal' ? 'active' : ''} type="button" onClick={() => setSettingsSection('legal')}>Legal</button>
@@ -959,7 +959,7 @@ function SettingsScreen({ account, onAccountChange }: { account: OrcaAccountStat
         </section>
       </div>}
 
-      {settingsSection === 'profile' && <ProfessionalProfileWorkspace />}
+      {settingsSection === 'company' && <ProfessionalProfileWorkspace />}
       {settingsSection === 'backup' && (
         <>
           <GoogleDriveBackupPanel />

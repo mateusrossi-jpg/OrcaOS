@@ -88,9 +88,9 @@ export function ProfessionalProfileWorkspace() {
     <section className="professional-profile-workspace">
       <div className="professional-profile-header">
         <div>
-          <span className="orca-kicker">Identidade da plataforma</span>
-          <h2>Perfil profissional / empresa</h2>
-          <p>Defina a identidade local que será vinculada a orçamentos, relatórios, OS, backup e futura sincronização.</p>
+          <span className="orca-kicker">Dados empresariais</span>
+          <h2>Identidade da empresa</h2>
+          <p>Centralize logo, dados comerciais e padrões de documentos usados em orçamentos, relatórios, OS, backup e futura sincronização.</p>
         </div>
         <strong>{profile.mainArea || 'Área não definida'}</strong>
       </div>
@@ -115,8 +115,8 @@ export function ProfessionalProfileWorkspace() {
 
       <div className="professional-profile-card">
         <div className="professional-card-heading">
-          <strong>Dados principais</strong>
-          <small>Esses dados também serão sincronizados com o cabeçalho da proposta/orçamento.</small>
+          <strong>Dados da empresa e profissional</strong>
+          <small>Este é o ponto único para editar identidade, logo e informações que aparecem nos documentos.</small>
         </div>
         <div className="professional-logo-editor">
           <div className="professional-logo-preview">
@@ -204,7 +204,7 @@ export function ProfessionalProfileWorkspace() {
             <textarea value={profile.commercialNotes} placeholder="Ex.: atende residencial e comercial, preferência por obras de alto padrão, condições padrão de orçamento..." onChange={(event) => updateProfile('commercialNotes', event.target.value)} />
           </label>
         </div>
-        <button className="primary-action inline-action" type="button" onClick={saveProfile}>Salvar e sincronizar perfil</button>
+        <button className="primary-action inline-action" type="button" onClick={saveProfile}>Salvar dados empresariais</button>
       </div>
 
       {feedback && <div className="guided-cart-feedback">{feedback}</div>}

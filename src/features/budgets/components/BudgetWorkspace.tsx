@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type ChangeEvent } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { UserPlan } from '../../../core/access/featureAccess';
 import { FREE_PLAN_LIMITS } from '../../../core/access/planStrategy';
 import type { Budget, BudgetItem, BudgetTemplateId, BusinessProfile, CatalogItem, Client, WorkOrder } from '../../../core/types/business';
@@ -29,7 +29,7 @@ import { BudgetPrintPreview } from './BudgetPrintPreview';
 import './BudgetWorkspace.css';
 
 type BudgetCategory = BudgetItem['category'];
-type BudgetWorkspaceSection = 'proposal' | 'items' | 'catalog' | 'company' | 'review' | 'preview';
+type BudgetWorkspaceSection = 'proposal' | 'items' | 'catalog' | 'review' | 'preview';
 
 interface BudgetWorkspaceProps {
   technicalCaptures?: CalculationCapture[];
@@ -493,10 +493,6 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
     }
   }, [items, selectedBudgetItemId]);
 
-  function updateBusinessProfile<K extends keyof BusinessProfile>(key: K, value: BusinessProfile[K]) {
-    setBusinessProfile((current) => ({ ...current, [key]: value }));
-  }
-
   function applyBusinessDefaultsToProposal() {
     setPaymentTerms(businessProfile.defaultPaymentTerms);
     setValidity(businessProfile.defaultValidity);
@@ -516,25 +512,6 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
       defaultNotes: commercialNotes,
     }));
     setShareFeedback('Condições atuais salvas como padrão local para próximos orçamentos.');
-  }
-
-  function handleLogoFileChange(event: ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = () => {
-      const logoDataUrl = reader.result;
-      if (typeof logoDataUrl === 'string') {
-        setBusinessProfile((current) => ({ ...current, logoDataUrl, logoUrl: '' }));
-      }
-    };
-    reader.readAsDataURL(file);
-    event.target.value = '';
-  }
-
-  function removeLogo() {
-    setBusinessProfile((current) => ({ ...current, logoDataUrl: '', logoUrl: '' }));
   }
 
   function updateDraft<K extends keyof DraftBudgetItem>(key: K, value: DraftBudgetItem[K]) {
@@ -941,7 +918,6 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
     const textMatches = !normalizedSearch || [item.description, categoryLabel(item.category), item.notes, formatCurrency(item.unitPrice)].filter(Boolean).join(' ').toLowerCase().includes(normalizedSearch);
     return categoryMatches && textMatches;
   });
-  const logoPreview = businessProfile.logoDataUrl || businessProfile.logoUrl;
   const isProPlan = userPlan === 'pro';
   const savedBudgetLimitReached = !isProPlan && !activeBudgetId && savedBudgets.length >= FREE_PLAN_LIMITS.savedBudgets;
   const catalogLimitReached = !isProPlan && catalogItems.length >= FREE_PLAN_LIMITS.catalogItems;
@@ -1011,7 +987,6 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
       </div>
       <div className="budget-secondary-links" aria-label="Recursos auxiliares do orçamento">
         <button className={activeSection === 'catalog' ? 'active' : ''} type="button" onClick={() => setActiveSection('catalog')}>Catálogo simples</button>
-        <button className={activeSection === 'company' ? 'active' : ''} type="button" onClick={() => setActiveSection('company')}>Identidade do documento</button>
       </div>
 
       {activeSection === 'proposal' && (
@@ -1028,7 +1003,7 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
           {!activeBudgetId && <div className="budget-guidance-card">Este orçamento ainda não foi salvo.</div>}
           {!isProPlan && <div className="budget-pro-limit-card"><div><strong>Free: {savedBudgets.length}/{FREE_PLAN_LIMITS.savedBudgets} orçamentos salvos</strong><small>O orçamento simples continua livre. O Pro libera orçamentos ilimitados, duplicação e modelos de PDF profissionais.</small></div><button type="button" className="secondary-action inline-action" onClick={onUpgradeRequest}>Ver Pro</button></div>}
           {items.length === 0 && <div className="budget-guidance-card">Adicione itens para gerar uma proposta apresentável.</div>}
-          {!businessProfile.businessName.trim() && !businessProfile.responsibleName.trim() && <div className="budget-guidance-card">Configure sua identidade profissional para deixar a proposta completa.</div>}
+          {!businessProfile.businessName.trim() && !businessProfile.responsibleName.trim() && <div className="budget-guidance-card">Configure sua identidade em Configurações &gt; Empresa para deixar a proposta completa.</div>}
 
           <div className="budget-header-card compact-budget-card">
             <label className="budget-field"><span>Cliente</span><input placeholder="Nome do cliente" value={clientName} onChange={(event) => setClientName(event.target.value)} /></label>
@@ -1243,43 +1218,6 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
           <div className="catalog-list">
             {visibleCatalogItems.length === 0 ? <div className="empty-budget">Nenhum item encontrado no catálogo simples.</div> : visibleCatalogItems.slice(0, VISIBLE_LIST_LIMIT).map((item) => <article className="catalog-card" key={item.id}><span><strong>{item.description}</strong><small>{categoryLabel(item.category)} · {item.defaultQuantity} × {formatCurrency(item.unitPrice)}</small>{item.notes && <small>{item.notes}</small>}</span><div><button type="button" className="secondary-action inline-action" onClick={() => addCatalogItemToBudget(item)}>Usar</button><button type="button" className="secondary-action inline-action" onClick={() => editCatalogItem(item)}>Editar</button><button type="button" className="danger-action" onClick={() => removeCatalogItem(item.id)}>Remover</button></div></article>)}
             {visibleCatalogItems.length > VISIBLE_LIST_LIMIT && <div className="empty-budget compact">Mais {visibleCatalogItems.length - VISIBLE_LIST_LIMIT} item(ns) oculto(s). Use a busca para refinar.</div>}
-          </div>
-        </section>
-      )}
-
-      {activeSection === 'company' && (
-        <section className="budget-section-panel">
-          <div className="budget-section-header"><div><h3>Identidade fixa da empresa</h3><p>Esses dados ficam salvos e aparecem automaticamente no cabeçalho do orçamento/PDF.</p></div></div>
-          {!isProPlan && <div className="budget-pro-limit-card"><div><strong>Identidade profissional no PDF é Pro</strong><small>Você pode salvar seus dados localmente, mas logo e modelos com identidade entram nos PDFs profissionais do Pro.</small></div><button type="button" className="secondary-action inline-action" onClick={onUpgradeRequest}>Ver Pro</button></div>}
-          <div className="logo-editor-card">
-            <div className={logoPreview ? 'logo-preview-box has-logo' : 'logo-preview-box'}>
-              {logoPreview ? <img src={logoPreview} alt="Logo do orçamento" /> : <span>Logo</span>}
-            </div>
-            <div className="logo-editor-content">
-              <strong>Logo do orçamento</strong>
-              <small>Use uma imagem simples, com fundo transparente ou escuro, para aparecer no cabeçalho da proposta.</small>
-              <div className="logo-editor-actions">
-                <label className="logo-upload-action">
-                  <span>Escolher imagem</span>
-                  <input accept="image/*" type="file" onChange={handleLogoFileChange} />
-                </label>
-                {logoPreview && <button className="danger-action" type="button" onClick={removeLogo}>Remover</button>}
-              </div>
-            </div>
-          </div>
-          <div className="budget-config-grid">
-            <label className="budget-field"><span>Nome / empresa</span><input value={businessProfile.businessName} onChange={(event) => updateBusinessProfile('businessName', event.target.value)} /></label>
-            <label className="budget-field"><span>CNPJ / CPF</span><input value={businessProfile.documentNumber} onChange={(event) => updateBusinessProfile('documentNumber', event.target.value)} /></label>
-            <label className="budget-field"><span>Telefone / WhatsApp</span><input value={businessProfile.phone} onChange={(event) => updateBusinessProfile('phone', event.target.value)} /></label>
-            <label className="budget-field"><span>E-mail</span><input value={businessProfile.email} onChange={(event) => updateBusinessProfile('email', event.target.value)} /></label>
-            <label className="budget-field budget-field-wide"><span>Endereço</span><input value={businessProfile.address} onChange={(event) => updateBusinessProfile('address', event.target.value)} /></label>
-            <label className="budget-field budget-field-wide"><span>Logo por URL opcional</span><input placeholder="https://.../logo.png" value={businessProfile.logoUrl} onChange={(event) => updateBusinessProfile('logoUrl', event.target.value)} /></label>
-            <label className="budget-field"><span>Responsável</span><input value={businessProfile.responsibleName} onChange={(event) => updateBusinessProfile('responsibleName', event.target.value)} /></label>
-            <label className="budget-field"><span>Validade padrão</span><input value={businessProfile.defaultValidity} onChange={(event) => updateBusinessProfile('defaultValidity', event.target.value)} /></label>
-            <label className="budget-field"><span>Garantia padrão</span><input value={businessProfile.defaultGuarantee} onChange={(event) => updateBusinessProfile('defaultGuarantee', event.target.value)} /></label>
-            <label className="budget-field"><span>Prazo padrão</span><input value={businessProfile.defaultExecutionDeadline} onChange={(event) => updateBusinessProfile('defaultExecutionDeadline', event.target.value)} /></label>
-            <label className="budget-field budget-field-wide"><span>Condições de pagamento</span><textarea value={businessProfile.defaultPaymentTerms} onChange={(event) => updateBusinessProfile('defaultPaymentTerms', event.target.value)} /></label>
-            <label className="budget-field budget-field-wide"><span>Observações padrão</span><textarea value={businessProfile.defaultNotes} onChange={(event) => updateBusinessProfile('defaultNotes', event.target.value)} /></label>
           </div>
         </section>
       )}
