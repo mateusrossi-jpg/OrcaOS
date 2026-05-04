@@ -30,6 +30,19 @@
   line-height: 1.45;
 }
 
+.report-template-chip {
+  justify-self: end;
+  width: fit-content;
+  border: 1px solid rgba(0, 184, 194, 0.35);
+  border-radius: 999px;
+  padding: 8px 11px;
+  color: var(--orca-teal, #00b8c2);
+  background: rgba(0, 184, 194, 0.08);
+  font-size: 0.8rem;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
 .report-metrics-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));

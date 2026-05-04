@@ -1,4 +1,6 @@
 import { useState, type ChangeEvent } from 'react';
+import type { BudgetTemplateId, ReportTemplateId } from '../../../core/types/business';
+import { budgetTemplateOptions } from '../../budgets/budgetTemplatesVisual';
 import { loadBusinessProfile, saveBusinessProfile } from '../../budgets/storage/businessProfileStorage';
 import {
   loadProfessionalProfile,
@@ -21,6 +23,12 @@ const professionalAreas = [
   'Outro',
 ];
 
+const reportTemplateOptions: Array<{ id: ReportTemplateId; title: string; description: string; plan: 'free' | 'pro' }> = [
+  { id: 'technicalSimple', title: 'Relatório técnico simples', description: 'Documento limpo para diagnóstico, observações e itens técnicos essenciais.', plan: 'free' },
+  { id: 'technicalDetailed', title: 'Relatório técnico detalhado', description: 'Medições, recomendações, riscos, itens inclusos e histórico técnico.', plan: 'pro' },
+  { id: 'managerial', title: 'Relatório gerencial', description: 'Visão de aprovação, ticket médio, recorrência e indicadores do profissional.', plan: 'pro' },
+];
+
 function syncProfileToBusinessProfile(profile: ProfessionalProfile) {
   const currentBusinessProfile = loadBusinessProfile();
   const location = [profile.city, profile.state].filter(Boolean).join(' / ');
@@ -41,6 +49,8 @@ function syncProfileToBusinessProfile(profile: ProfessionalProfile) {
     defaultValidity: profile.defaultValidity || currentBusinessProfile.defaultValidity,
     defaultGuarantee: profile.defaultGuarantee || currentBusinessProfile.defaultGuarantee,
     defaultExecutionDeadline: profile.defaultExecutionDeadline || currentBusinessProfile.defaultExecutionDeadline,
+    defaultBudgetTemplateId: profile.defaultBudgetTemplateId || currentBusinessProfile.defaultBudgetTemplateId,
+    defaultReportTemplateId: profile.defaultReportTemplateId || currentBusinessProfile.defaultReportTemplateId,
   });
 }
 
@@ -195,10 +205,26 @@ export function ProfessionalProfileWorkspace() {
             <span>Prazo padrão</span>
             <input value={profile.defaultExecutionDeadline} placeholder="Ex.: 3 dias úteis após aprovação" onChange={(event) => updateProfile('defaultExecutionDeadline', event.target.value)} />
           </label>
+          <label>
+            <span>Modelo padrão de orçamento/PDF</span>
+            <select value={profile.defaultBudgetTemplateId} onChange={(event) => updateProfile('defaultBudgetTemplateId', event.target.value as BudgetTemplateId)}>
+              {budgetTemplateOptions.map((template) => <option key={template.id} value={template.id}>{template.plan === 'pro' ? 'Pro - ' : 'Free - '}{template.title}</option>)}
+            </select>
+          </label>
+          <label>
+            <span>Modelo padrão de relatório</span>
+            <select value={profile.defaultReportTemplateId} onChange={(event) => updateProfile('defaultReportTemplateId', event.target.value as ReportTemplateId)}>
+              {reportTemplateOptions.map((template) => <option key={template.id} value={template.id}>{template.plan === 'pro' ? 'Pro - ' : 'Free - '}{template.title}</option>)}
+            </select>
+          </label>
           <label className="wide">
             <span>Condições padrão de pagamento</span>
             <textarea value={profile.defaultPaymentTerms} placeholder="Ex.: 50% na aprovação e 50% na entrega" onChange={(event) => updateProfile('defaultPaymentTerms', event.target.value)} />
           </label>
+          <div className="professional-template-hint wide">
+            <strong>Modelos Pro ficam preparados para liberação comercial.</strong>
+            <small>Durante o beta, o modelo simples continua seguro para todos. Ao ativar Pro, estes padrões passam a controlar a apresentação dos documentos.</small>
+          </div>
           <label className="wide">
             <span>Observações comerciais</span>
             <textarea value={profile.commercialNotes} placeholder="Ex.: atende residencial e comercial, preferência por obras de alto padrão, condições padrão de orçamento..." onChange={(event) => updateProfile('commercialNotes', event.target.value)} />

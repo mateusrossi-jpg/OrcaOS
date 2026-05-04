@@ -187,6 +187,15 @@
   grid-column: 1 / -1;
 }
 
+.professional-template-hint {
+  display: grid;
+  gap: 5px;
+  border: 1px solid var(--orca-border, rgba(148, 214, 218, 0.12));
+  border-radius: 15px;
+  padding: 12px 13px;
+  background: rgba(0, 184, 194, 0.06);
+}
+
 .professional-profile-grid input,
 .professional-profile-grid select,
 .professional-profile-grid textarea {

@@ -24,7 +24,6 @@ import {
   type SavedBudgetStatus,
 } from '../storage/savedBudgetsStorage';
 import { starterElectricalBudgetItems } from '../budgetTemplates';
-import { budgetTemplateOptions } from '../budgetTemplatesVisual';
 import { BudgetPrintPreview } from './BudgetPrintPreview';
 import './BudgetWorkspace.css';
 
@@ -155,6 +154,19 @@ function statusGuidance(status: SavedBudgetStatus): string {
 
 function proUpgradeMessage(feature: string): string {
   return `${feature} é um recurso Pro para ganhar tempo, vender melhor e organizar mais orçamentos.`;
+}
+
+function budgetTemplateForPlan(templateId: BudgetTemplateId | undefined, userPlan: UserPlan): BudgetTemplateId {
+  if (userPlan === 'pro') return templateId ?? 'simple';
+  return 'simple';
+}
+
+function budgetTemplateLabel(templateId: BudgetTemplateId): string {
+  if (templateId === 'professional') return 'Profissional Comercial';
+  if (templateId === 'technical') return 'Técnico Detalhado';
+  if (templateId === 'premiumModern') return 'Proposta Premium';
+  if (templateId === 'premiumDetailed') return 'Premium Detalhado';
+  return 'Orçamento Simples';
 }
 
 function renderBudgetIssues(issues: BudgetValidationIssue[]) {
@@ -357,7 +369,7 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
   const initialBusinessProfile = useMemo(() => loadBusinessProfile(), []);
   const [activeSection, setActiveSection] = useState<BudgetWorkspaceSection>('proposal');
   const [businessProfile, setBusinessProfile] = useState<BusinessProfile>(initialBusinessProfile);
-  const [selectedTemplate, setSelectedTemplate] = useState<BudgetTemplateId>('simple');
+  const [selectedTemplate, setSelectedTemplate] = useState<BudgetTemplateId>(() => budgetTemplateForPlan(initialBusinessProfile.defaultBudgetTemplateId, userPlan));
   const [catalogItems, setCatalogItems] = useState<CatalogItem[]>(() => loadCatalogItems());
   const [serviceTemplates, setServiceTemplates] = useState<GuidedLaborTemplate[]>(() => loadGuidedLaborTemplates());
   const [catalogDraft, setCatalogDraft] = useState<DraftCatalogItem>(emptyCatalogDraft);
@@ -892,7 +904,7 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
     setExecutionDeadline(record.executionDeadline || businessProfile.defaultExecutionDeadline);
     setCommercialNotes(record.commercialNotes || businessProfile.defaultNotes);
     setTechnicalNotes(record.technicalNotes);
-    if (record.templateId) setSelectedTemplate(record.templateId as BudgetTemplateId);
+    if (record.templateId) setSelectedTemplate(budgetTemplateForPlan(record.templateId as BudgetTemplateId, userPlan));
     setItems(record.items);
     setDraft(emptyDraftItem);
     setActiveSection('proposal');
@@ -1329,15 +1341,10 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
           </div>
           <div className="budget-share-card">
             <div>
-              <strong>Modelo do PDF</strong>
-              <small>O modelo grátis não tem marca d agua. Modelos Pro entram como acabamento profissional para vender melhor.</small>
+              <strong>Modelo aplicado</strong>
+              <small>O padrão do PDF é definido em Configurações &gt; Empresa. Este orçamento usa o modelo salvo no perfil ou no próprio orçamento aberto.</small>
             </div>
-            <div className="budget-template-grid compact-template-grid">
-              {budgetTemplateOptions.map((template) => {
-                const isLocked = template.plan === 'pro' && !isProPlan;
-                return <button className={['budget-template-card', selectedTemplate === template.id ? 'active' : '', isLocked ? 'locked' : ''].filter(Boolean).join(' ')} key={template.id} type="button" onClick={() => { if (isLocked) { setShareFeedback(proUpgradeMessage(template.title)); onUpgradeRequest?.(); return; } setSelectedTemplate(template.id); }}><span>{template.plan === 'free' ? 'Free' : 'Pro'}</span><strong>{template.title}</strong><small>{template.description}</small><em>{isLocked ? template.value : template.plan === 'pro' ? 'Liberado no seu Pro' : 'Incluso no orçamento grátis'}</em></button>;
-              })}
-            </div>
+            <strong>{budgetTemplateLabel(selectedTemplate)}</strong>
           </div>
           <BudgetPrintPreview clientName={clientName} budgetTitle={budgetTitle} status={budgetStatus} items={items} discount={discount} travelCost={travelCost} additionalFees={additionalFees} subtotal={summary.subtotal} commercialSubtotal={summary.commercialSubtotal} total={summary.total} businessProfile={businessProfile} paymentTerms={paymentTerms} validity={validity} guarantee={guarantee} executionDeadline={executionDeadline} commercialNotes={commercialNotes} technicalNotes={technicalNotes} templateId={selectedTemplate} validationIssues={proposalIssues} />
         </section>

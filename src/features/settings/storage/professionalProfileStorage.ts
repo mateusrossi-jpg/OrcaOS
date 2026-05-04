@@ -1,3 +1,5 @@
+import type { BudgetTemplateId, ReportTemplateId } from '../../../core/types/business';
+
 export interface ProfessionalProfile {
   professionalId: string;
   companyId: string;
@@ -17,6 +19,8 @@ export interface ProfessionalProfile {
   defaultValidity: string;
   defaultGuarantee: string;
   defaultExecutionDeadline: string;
+  defaultBudgetTemplateId: BudgetTemplateId;
+  defaultReportTemplateId: ReportTemplateId;
   createdAt: string;
   updatedAt: string;
 }
@@ -49,6 +53,8 @@ function createEmptyProfile(): ProfessionalProfile {
     defaultValidity: '7 dias',
     defaultGuarantee: 'Garantia conforme serviço executado e materiais aplicados.',
     defaultExecutionDeadline: 'Prazo de execução a combinar após aprovação.',
+    defaultBudgetTemplateId: 'simple',
+    defaultReportTemplateId: 'technicalSimple',
     createdAt: timestamp,
     updatedAt: timestamp,
   };

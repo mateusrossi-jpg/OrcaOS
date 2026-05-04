@@ -23,6 +23,7 @@ export interface Client {
 }
 
 export type BudgetTemplateId = 'professional' | 'technical' | 'simple' | 'premiumModern' | 'premiumDetailed';
+export type ReportTemplateId = 'technicalSimple' | 'technicalDetailed' | 'managerial';
 
 export interface BusinessProfile {
   businessName: string;
@@ -38,6 +39,8 @@ export interface BusinessProfile {
   defaultGuarantee: string;
   defaultExecutionDeadline: string;
   defaultNotes: string;
+  defaultBudgetTemplateId: BudgetTemplateId;
+  defaultReportTemplateId: ReportTemplateId;
 }
 
 export interface CatalogItem {

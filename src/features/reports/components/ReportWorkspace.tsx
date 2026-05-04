@@ -1,4 +1,4 @@
-import type { Client, WorkOrder } from '../../../core/types/business';
+import type { Client, ReportTemplateId, WorkOrder } from '../../../core/types/business';
 import type { CalculationCapture } from '../../../core/types/workflow';
 import { getReportCaptureMetrics, isClientPurchaseMaterial } from '../../workflow/utils/captureWorkflow';
 import { loadBusinessProfile } from '../../budgets/storage/businessProfileStorage';
@@ -85,9 +85,16 @@ function money(value: number): string {
   return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number.isFinite(value) ? value : 0);
 }
 
+function reportTemplateLabel(templateId: ReportTemplateId): string {
+  if (templateId === 'technicalDetailed') return 'Relatório técnico detalhado';
+  if (templateId === 'managerial') return 'Relatório gerencial';
+  return 'Relatório técnico simples';
+}
+
 export function ReportWorkspace({ captures, activeClient = null, activeWorkOrder = null }: ReportWorkspaceProps) {
   const { reportItems, itemsWithImage, diagnostics } = getReportCaptureMetrics(captures);
   const businessProfile = loadBusinessProfile();
+  const reportTemplateId = businessProfile.defaultReportTemplateId;
   const profileName = businessProfile.businessName || businessProfile.responsibleName || 'OrçaOS';
   const contactLine = [businessProfile.phone, businessProfile.email].filter(Boolean).join(' · ');
   const logoSource = businessProfile.logoDataUrl || businessProfile.logoUrl;
@@ -120,6 +127,7 @@ export function ReportWorkspace({ captures, activeClient = null, activeWorkOrder
           <h2>Relatório técnico</h2>
           <p>Revise os itens técnicos, confirme o cliente/atendimento ativo e só então imprima ou salve em PDF.</p>
         </div>
+        <span className="report-template-chip">Modelo: {reportTemplateLabel(reportTemplateId)}</span>
         <button className="primary-action inline-action" type="button" onClick={printReport} disabled={reportItems.length === 0}>
           Imprimir / salvar PDF
         </button>
@@ -156,7 +164,7 @@ export function ReportWorkspace({ captures, activeClient = null, activeWorkOrder
         </div>
       </section>
 
-      <article className="report-document">
+      <article className={`report-document report-template-${reportTemplateId}`}>
         <header className="report-document-header">
           <div className="report-company-row">
             {logoSource ? <img src={logoSource} alt={`Logo ${profileName}`} /> : <span>OrçaOS</span>}
