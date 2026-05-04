@@ -1736,6 +1736,10 @@ button {
   color: var(--orca-muted);
 }
 
+.settings-row small {
+  overflow-wrap: anywhere;
+}
+
 .calculator-plan-banner span,
 .calculator-picker-card small,
 .calculator-overlay-header p,
