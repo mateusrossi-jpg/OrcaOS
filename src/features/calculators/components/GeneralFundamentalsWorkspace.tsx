@@ -143,6 +143,42 @@ function ResultCard({ label, value, helper }: ResultCardData) {
   );
 }
 
+function methodLines(mode: FundamentalMode): string[] {
+  const lines: Record<FundamentalMode, string[]> = {
+    'rule-of-three': ['X = valor B × novo valor A ÷ valor A', 'Use apenas quando a relação entre os valores for proporcional.'],
+    percentage: ['Resultado = valor base × porcentagem ÷ 100'],
+    'increase-percent': ['Acréscimo = valor base × percentual ÷ 100', 'Valor final = valor base + acréscimo'],
+    'discount-percent': ['Desconto = valor base × percentual ÷ 100', 'Valor final = valor base - desconto'],
+    'difference-percent': ['Diferença = novo valor - valor anterior', 'Variação % = diferença ÷ valor anterior × 100'],
+    'profit-margin': ['Lucro = preço de venda - custo', 'Margem = lucro ÷ preço de venda × 100', 'Markup = lucro ÷ custo × 100'],
+    markup: ['Preço de venda = custo ÷ (1 - margem desejada ÷ 100)', 'Margem sobre venda não é a mesma coisa que markup sobre custo.'],
+    'rectangle-area': ['Área = largura × altura/comprimento'],
+    'triangle-area': ['Área = base × altura ÷ 2'],
+    'circle-area': ['Área = π × raio²', 'Diâmetro = raio × 2'],
+    'rectangle-perimeter': ['Perímetro = 2 × (largura + comprimento)'],
+    'simple-volume': ['Volume = largura × comprimento × altura', 'Litros = m³ × 1000'],
+    'loss-percent': ['Perda = quantidade base × percentual ÷ 100', 'Quantidade final = quantidade base + perda'],
+    'cost-per-area': ['Custo por m² = custo total ÷ área', 'Total pelo unitário = área × custo por m² informado'],
+    'cost-per-unit': ['Custo unitário = custo total ÷ quantidade', 'Total pelo unitário = quantidade × valor unitário informado'],
+    'cost-per-meter': ['Custo por metro = custo total ÷ metros', 'Total pelo metro = metros × valor por metro informado'],
+    'productivity-time': ['Horas = quantidade total ÷ produtividade por hora', 'Dias estimados = horas ÷ 8'],
+  };
+  return lines[mode];
+}
+
+function orientationText(mode: FundamentalMode): string {
+  if (['profit-margin', 'markup', 'increase-percent', 'discount-percent'].includes(mode)) {
+    return 'Use como apoio comercial. Taxas, impostos, parcelamento e risco do serviço podem mudar a margem real.';
+  }
+  if (['rectangle-area', 'triangle-area', 'circle-area', 'rectangle-perimeter', 'simple-volume', 'loss-percent'].includes(mode)) {
+    return 'Use medidas conferidas em campo. Perdas, recortes, juntas, emendas e condições reais podem exigir margem adicional.';
+  }
+  if (['cost-per-area', 'cost-per-unit', 'cost-per-meter', 'productivity-time'].includes(mode)) {
+    return 'Use como estimativa operacional. Produtividade, deslocamento, preparação, retrabalho e acabamento influenciam o valor final.';
+  }
+  return 'Cálculo matemático direto para conferência rápida. Confirme se a relação usada faz sentido para o caso real.';
+}
+
 function NumberField({ label, value, suffix, min, step = 0.01, onChange }: {
   label: string;
   value: string;
@@ -468,6 +504,8 @@ export function GeneralFundamentalsWorkspace({
 
   function includeResult(destination: CalculationDestination) {
     if (!activeRule || result.cards.length === 0 || result.error) return;
+    const formulas = methodLines(activeRule.mode);
+    const orientation = orientationText(activeRule.mode);
 
     const capture: CalculationCapture = {
       id: createId('general-fundamental'),
@@ -477,14 +515,15 @@ export function GeneralFundamentalsWorkspace({
       destination,
       createdAt: new Date().toISOString(),
       summary: result.summary,
-      details: result.details,
+      details: [...result.details, ...formulas.map((item) => `Fórmula: ${item}`), `Orientação: ${orientation}`],
+      technicalNote: orientation,
     };
 
     onCaptureCalculation?.(capture);
 
-    if (destination === 'survey') setAddedMessage(`${activeRule.label} foi incluído no campo.`);
+    if (destination === 'survey') setAddedMessage(`${activeRule.label} foi incluído no atendimento.`);
     if (destination === 'budget') setAddedMessage(`${activeRule.label} foi incluído no orçamento.`);
-    if (destination === 'both') setAddedMessage(`${activeRule.label} foi incluído no campo e no orçamento.`);
+    if (destination === 'both') setAddedMessage(`${activeRule.label} foi incluído no atendimento e no orçamento.`);
   }
 
   function closeCalculator() {
@@ -636,10 +675,21 @@ export function GeneralFundamentalsWorkspace({
               </div>
             )}
 
+            {result.cards.length > 0 && (
+              <div className="general-formula-box">
+                <strong>Como este cálculo é feito</strong>
+                {methodLines(activeRule.mode).map((item) => <span key={item}>{item}</span>)}
+              </div>
+            )}
+
+            {result.cards.length > 0 && (
+              <p className="general-technical-note"><strong>Observação técnica</strong><span>{orientationText(activeRule.mode)}</span></p>
+            )}
+
             {addedMessage && <p className="fundamental-added-message">{addedMessage}</p>}
 
             <div className="fundamental-capture-actions">
-              <button type="button" onClick={() => includeResult('survey')}>Adicionar ao campo</button>
+              <button type="button" onClick={() => includeResult('survey')}>Adicionar ao atendimento</button>
               <button type="button" onClick={() => includeResult('budget')}>Adicionar ao orçamento</button>
               <button type="button" onClick={() => includeResult('both')}>Adicionar aos dois</button>
               <button className="secondary-action" type="button" onClick={closeCalculator}>Voltar</button>

@@ -8,7 +8,7 @@ Versão preliminar para revisão antes da publicação.
 
 ## 1. Sobre o OrçaOS
 
-O OrçaOS é um aplicativo para profissionais técnicos criarem cálculos, levantamentos, orçamentos, relatórios e ordens de serviço.
+O OrçaOS é um aplicativo para profissionais técnicos organizarem atendimentos, levantamentos, cálculos, orçamentos, propostas e relatórios. Quando um orçamento é aprovado, o atendimento pode evoluir para execução autorizada e ordem de serviço.
 
 A proposta inicial do app é funcionar com prioridade local-first, mantendo os dados principais no próprio dispositivo do usuário sempre que possível.
 
@@ -25,7 +25,7 @@ Dependendo do uso, o usuário pode inserir no aplicativo:
 - itens de levantamento;
 - itens de orçamento;
 - relatórios;
-- observações de ordens de serviço;
+- observações de atendimento;
 - valores comerciais;
 - informações usadas para gerar propostas.
 
@@ -97,7 +97,7 @@ Esta política poderá ser atualizada conforme o OrçaOS evoluir, especialmente 
 
 ## 11. Contato
 
-Responsável: Mateus Rossi
+Responsável: Profissional Técnico
 
 E-mail de suporte: definir antes da publicação na Play Store.
 

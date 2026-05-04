@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.1.0-rc.1",
   "type": "module",
-  "description": "OrçaOS - plataforma profissional para cálculos, orçamentos, relatórios e ordens de serviço.",
+  "description": "OrçaOS - assistente de atendimento técnico para levantamentos, cálculos, orçamentos e relatórios.",
   "engines": {
     "node": ">=22.12.0"
   },
@@ -39,9 +39,10 @@
     "orcamentos",
     "eletricista",
     "calculadoras",
-    "ordem-de-servico",
+    "atendimento-tecnico",
+    "levantamento-tecnico",
     "relatorios"
   ],
-  "author": "Mateus Rossi",
+  "author": "OrçaOS",
   "license": "UNLICENSED"
 }

@@ -105,6 +105,38 @@
   grid-column: 1 / -1;
 }
 
+.client-form-section {
+  display: grid;
+  margin-top: 4px;
+}
+
+.client-form-section:first-child {
+  margin-top: 0;
+}
+
+.client-form-section-head {
+  display: grid;
+  gap: 3px;
+  border-top: 1px solid rgba(148, 214, 218, 0.12);
+  padding-top: 14px;
+}
+
+.client-form-section:first-child .client-form-section-head {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.client-form-section-head strong {
+  color: var(--orca-text, #f8fafc);
+  font-size: 1rem;
+  line-height: 1.25;
+}
+
+.client-form-section-head small {
+  color: var(--orca-muted, #a7b3ad);
+  line-height: 1.35;
+}
+
 .client-os-list {
   display: grid;
   gap: 12px;
@@ -119,6 +151,160 @@
   min-width: 0;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
+}
+
+.client-guided-step-card {
+  display: grid;
+  gap: 5px;
+  border: 1px solid rgba(0, 184, 194, 0.24);
+  border-radius: 18px;
+  padding: 14px;
+  background: rgba(0, 184, 194, 0.065);
+}
+
+.client-guided-step-card span {
+  color: var(--orca-teal, #00b8c2);
+  font-size: 0.74rem;
+  font-weight: 950;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.client-guided-step-card strong {
+  color: var(--orca-text, #f8fafc);
+  font-size: 1.04rem;
+  line-height: 1.25;
+}
+
+.client-guided-step-card small {
+  color: var(--orca-muted, #a7b3ad);
+  line-height: 1.4;
+}
+
+.client-os-form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.client-os-indicator-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.client-os-indicator-card {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+  border: 1px solid rgba(148, 214, 218, 0.12);
+  border-radius: 18px;
+  padding: 14px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.022), rgba(255, 255, 255, 0.006)),
+    rgba(5, 12, 11, 0.36);
+}
+
+.client-os-indicator-card header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: start;
+}
+
+.client-os-indicator-card header div {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.client-os-indicator-card header span {
+  color: var(--orca-teal, #00b8c2);
+  font-size: 0.72rem;
+  font-weight: 950;
+  letter-spacing: 0.075em;
+  text-transform: uppercase;
+}
+
+.client-os-indicator-card header strong {
+  color: var(--orca-text, #f8fafc);
+  line-height: 1.2;
+}
+
+.client-os-indicator-list {
+  display: grid;
+  gap: 8px;
+}
+
+.client-os-indicator-row {
+  display: grid;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+  border: 1px solid rgba(148, 214, 218, 0.11);
+  border-radius: 14px;
+  padding: 11px 12px;
+  color: inherit;
+  background: rgba(3, 9, 8, 0.42);
+  text-align: left;
+}
+
+.client-os-indicator-row > button {
+  display: grid;
+  gap: 4px;
+  width: 100%;
+  border: 0;
+  padding: 0;
+  color: inherit;
+  background: transparent;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.client-os-quick-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.client-os-quick-actions button {
+  min-height: 34px;
+  border: 1px solid rgba(0, 184, 194, 0.22);
+  border-radius: 999px;
+  padding: 0 11px;
+  color: var(--orca-teal, #00b8c2);
+  background: rgba(0, 184, 194, 0.055);
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.client-os-indicator-row.active {
+  border-color: rgba(0, 184, 194, 0.34);
+  background: rgba(0, 184, 194, 0.075);
+}
+
+.client-os-indicator-row strong,
+.client-os-indicator-row small {
+  display: block;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.client-os-indicator-row strong {
+  color: var(--orca-text, #f8fafc);
+  line-height: 1.25;
+}
+
+.client-os-indicator-row small {
+  color: var(--orca-muted, #a7b3ad);
+  line-height: 1.35;
+}
+
+.client-os-empty.compact {
+  padding: 12px;
 }
 
 .client-picker-block {
@@ -240,7 +426,7 @@
 .client-os-actions {
   display: grid;
   gap: 8px;
-  min-width: 150px;
+  min-width: 190px;
 }
 
 .client-os-actions select {
@@ -258,6 +444,8 @@
   .active-os-panel,
   .client-os-grid,
   .client-os-card,
+  .client-os-indicator-grid,
+  .client-os-indicator-card header,
   .client-picker-results,
   .client-os-metrics-grid {
     grid-template-columns: 1fr;
@@ -280,6 +468,7 @@
 
   .client-os-actions .inline-action,
   .client-os-actions .danger-action,
+  .client-os-form-actions .inline-action,
   .active-os-panel .inline-action {
     width: 100%;
   }

@@ -49,7 +49,7 @@ Ferramenta técnica para calcular, levantar serviços, orçar e gerar relatório
 Opção 3:
 
 ```txt
-Seu apoio em campo para cálculos técnicos, orçamentos, OS e relatórios.
+Seu apoio em campo para atendimento técnico, orçamento e relatório.
 ```
 
 ---
@@ -59,9 +59,9 @@ Seu apoio em campo para cálculos técnicos, orçamentos, OS e relatórios.
 ```txt
 O OrçaOS é um aplicativo criado para ajudar profissionais técnicos no dia a dia em campo.
 
-Com ele, você pode realizar cálculos técnicos, registrar levantamentos, montar orçamentos, organizar clientes e ordens de serviço, além de preparar informações para relatórios e propostas.
+Com ele, você pode realizar cálculos técnicos, registrar levantamentos, montar orçamentos, organizar clientes e preparar informações para relatórios e propostas. Quando o cliente aprova o orçamento, o atendimento pode evoluir para execução autorizada e ordem de serviço.
 
-A primeira versão do OrçaOS traz módulos úteis para áreas como elétrica, hidráulica, pintura, construção civil, conversores técnicos e orçamento técnico.
+O OrçaOS traz módulos úteis para áreas como elétrica, hidráulica, pintura, construção civil, conversores técnicos e orçamento técnico.
 
 Os cálculos foram pensados para uso real no celular: poucos campos obrigatórios, campos avançados quando necessário, resultado direto, unidades claras e explicação de como o cálculo é feito.
 
@@ -120,6 +120,8 @@ Autônomos técnicos
 ```txt
 orçamento
 ordem de serviço
+atendimento técnico
+levantamento técnico
 cálculos elétricos
 calculadora técnica
 eletricista
@@ -138,7 +140,7 @@ prestador de serviço
 2. Tela Cálculos com taxonomia
 3. Fundamentos elétricos com fórmula
 4. Orçamento técnico com markup/margem
-5. Levantamento ou OS
+5. Levantamento guiado
 6. Orçamento/proposta
 7. Relatório técnico
 

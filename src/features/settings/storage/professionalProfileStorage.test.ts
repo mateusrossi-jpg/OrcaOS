@@ -34,7 +34,7 @@ describe('professional profile storage', () => {
 
     saveProfessionalProfile({
       ...profile,
-      professionalName: 'Mateus Rossi',
+      professionalName: 'Profissional Técnico',
       businessName: 'OrçaOS Serviços',
       address: 'Rua Teste, 123',
       city: 'São Paulo',
@@ -46,7 +46,7 @@ describe('professional profile storage', () => {
 
     expect(loaded.professionalId).toBe(profile.professionalId);
     expect(loaded.companyId).toBe(profile.companyId);
-    expect(loaded.professionalName).toBe('Mateus Rossi');
+    expect(loaded.professionalName).toBe('Profissional Técnico');
     expect(loaded.businessName).toBe('OrçaOS Serviços');
     expect(loaded.address).toBe('Rua Teste, 123');
     expect(loaded.city).toBe('São Paulo');

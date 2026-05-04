@@ -105,7 +105,7 @@ export function CalculationTaxonomyOverview({ modules, onOpenModule }: Props) {
   return (
     <section className="app-screen calculations-overview-screen taxonomy-overview-screen">
       <header className="screen-header">
-        <span className="orca-kicker">Taxonomia V1 aprovada</span>
+        <span className="orca-kicker">Taxonomia aprovada</span>
         <h1>Cálculos</h1>
         <p>Organização final para publicação: Essenciais, Profissões, Especialidades, Orçamento e gestão, e Conversores técnicos.</p>
       </header>

@@ -39,7 +39,7 @@ function safeParseProfiles(value: string | null): SupplierProfile[] {
 
 export function loadSupplierProfiles(): SupplierProfile[] {
   if (typeof window === 'undefined') return [];
-  return safeParseProfiles(window.localStorage.getItem(STORAGE_KEY));
+  return safeParseProfiles(window.localStorage.getItem(STORAGE_KEY)).sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
 }
 
 export function saveSupplierProfiles(profiles: SupplierProfile[]): void {

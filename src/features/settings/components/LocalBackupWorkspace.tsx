@@ -121,7 +121,7 @@ export function LocalBackupWorkspace() {
           <article className="local-backup-card">
             <div className="local-card-heading">
               <strong>Exportar backup</strong>
-              <small>Gera um JSON com clientes, OS, cálculos, catálogo, fornecedores, compras, estoque, perfil profissional e configurações salvas localmente.</small>
+              <small>Gera um JSON com clientes, atendimentos, orçamentos, cálculos, catálogo, fornecedores, compras, estoque, perfil profissional e configurações salvas localmente.</small>
             </div>
             <div className="local-backup-summary-grid">
               {currentDataSummary.map((item) => <span key={item.label}>{item.label}: <strong>{item.count}</strong></span>)}

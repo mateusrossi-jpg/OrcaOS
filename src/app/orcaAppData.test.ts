@@ -32,15 +32,20 @@ describe('OrçaOS app data integrity', () => {
     expect(ids).toEqual([
       'home',
       'clients',
-      'survey',
-      'calculations',
-      'reports',
       'budgets',
       'catalog',
-      'settings',
+      'financial',
+      'calculations',
+      'purchaseList',
+      'reports',
+      'survey',
       'store',
+      'settings',
+      'beta',
+      'more',
     ]);
     expect(navItems.every((item) => item.label && item.description && item.section)).toBe(true);
+    expect(navItems.filter((item) => item.primary).map((item) => item.id)).toEqual(['home', 'clients', 'budgets', 'catalog', 'financial']);
   });
 
   it('keeps every calculation sector connected to existing modules', () => {

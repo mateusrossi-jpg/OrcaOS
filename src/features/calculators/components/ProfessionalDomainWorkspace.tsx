@@ -357,7 +357,7 @@ export function ProfessionalDomainWorkspace({ selectedModule, modeFilter, userPl
             {computed.formula.length > 0 && <div className="general-formula-box"><strong>{activeRule.module === 'diagnosticoTecnico' ? 'Como este assistente decide' : 'Como este cálculo é feito'}</strong>{computed.formula.map((item) => <span key={item}>{item}</span>)}</div>}
             {computed.orientation && <p className="general-helper-text">{computed.orientation}</p>}
             {addedMessage && <p className="general-added-message">{addedMessage}</p>}
-            <div className="general-capture-actions"><button type="button" onClick={() => includeResult('survey')}>Adicionar ao campo</button><button type="button" onClick={() => includeResult('budget')}>Adicionar ao orçamento</button><button type="button" onClick={() => includeResult('both')}>Adicionar aos dois</button><button className="secondary-action" type="button" onClick={closeRule}>Voltar</button></div>
+            <div className="general-capture-actions"><button type="button" onClick={() => includeResult('survey')}>Adicionar ao atendimento</button><button type="button" onClick={() => includeResult('budget')}>Adicionar ao orçamento</button><button type="button" onClick={() => includeResult('both')}>Adicionar aos dois</button><button className="secondary-action" type="button" onClick={closeRule}>Voltar</button></div>
             <small className="general-technical-note">{activeRule.module === 'diagnosticoTecnico' ? 'Assistente orientativo. Complete com fotos, medições e observações reais antes de enviar ao cliente.' : 'Cálculo preliminar e orientativo. Validar medições, condições reais e critérios técnicos antes de executar ou contratar.'}</small>
           </section>
         </div>

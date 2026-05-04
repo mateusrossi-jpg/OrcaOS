@@ -157,6 +157,16 @@ describe('electrical calculations', () => {
     expect(roundTechnical(current)).toBe(10);
   });
 
+  it('calculates three-phase current from apparent power', () => {
+    const current = calculateCurrentFromApparentPower({
+      apparentPowerVa: 10000,
+      voltageVolts: 380,
+      phase: 'three-phase',
+    });
+
+    expect(roundTechnical(current)).toBe(15.19);
+  });
+
   it('calculates energy consumption and estimated cost', () => {
     const result = calculateEnergyConsumption({
       powerWatts: 1000,
@@ -167,6 +177,21 @@ describe('electrical calculations', () => {
 
     expect(roundTechnical(result.kwh)).toBe(60);
     expect(roundTechnical(result.estimatedCost ?? 0)).toBe(57);
+  });
+
+  it('calculates energy consumption without forcing a tariff', () => {
+    const result = calculateEnergyConsumption({
+      powerWatts: 1500,
+      hoursPerDay: 3,
+      days: 10,
+    });
+
+    expect(roundTechnical(result.kwh)).toBe(45);
+    expect(result.estimatedCost).toBeUndefined();
+  });
+
+  it('requires current or voltage to calculate power by resistance', () => {
+    expect(() => calculatePowerByResistance({ resistanceOhms: 22 })).toThrow('Informe corrente ou tensão');
   });
 
   it('calculates simplified voltage drop', () => {

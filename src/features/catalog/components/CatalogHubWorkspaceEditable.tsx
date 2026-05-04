@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import type { CalculationCapture, CalculationDestination } from '../../../core/types/workflow';
+import type { CalculationCapture, CalculationDestination, TechnicalItemType } from '../../../core/types/workflow';
 import {
   buildSupplierSearchUrl,
   createCatalogId,
@@ -11,6 +11,11 @@ import {
   type CatalogHubItemKind,
   type CatalogSupplier,
 } from '../storage/catalogHubStorage';
+import {
+  buildProductSearchResults,
+  productSearchDisclaimer,
+  type ProductSearchResult,
+} from '../storage/productSearchProviders';
 import './CatalogHubWorkspace.css';
 
 interface CatalogHubWorkspaceProps {
@@ -20,11 +25,15 @@ interface CatalogHubWorkspaceProps {
 }
 
 type CatalogTab = 'items' | 'suppliers' | 'online';
+type CatalogItemsView = 'list' | 'form';
 
 interface ItemDraft {
   kind: CatalogHubItemKind;
   title: string;
+  popularName: string;
   category: string;
+  professionArea: string;
+  technicalDescription: string;
   brand: string;
   supplierId: string;
   model: string;
@@ -32,6 +41,13 @@ interface ItemDraft {
   unit: string;
   defaultQuantity: string;
   defaultUnitValue: string;
+  priceUpdatedAt: string;
+  dataOrigin: NonNullable<CatalogHubItem['dataOrigin']>;
+  compatibility: string;
+  acceptedAlternatives: string;
+  forbiddenAlternatives: string;
+  clientNote: string;
+  professionalNote: string;
   destination: CalculationDestination;
   notes: string;
   sourceUrl: string;
@@ -52,7 +68,10 @@ interface SupplierDraft {
 const emptyItemDraft: ItemDraft = {
   kind: 'material',
   title: '',
+  popularName: '',
   category: '',
+  professionArea: '',
+  technicalDescription: '',
   brand: '',
   supplierId: '',
   model: '',
@@ -60,6 +79,13 @@ const emptyItemDraft: ItemDraft = {
   unit: 'un',
   defaultQuantity: '1',
   defaultUnitValue: '0',
+  priceUpdatedAt: '',
+  dataOrigin: 'manual',
+  compatibility: '',
+  acceptedAlternatives: '',
+  forbiddenAlternatives: '',
+  clientNote: '',
+  professionalNote: '',
   destination: 'both',
   notes: '',
   sourceUrl: '',
@@ -77,6 +103,8 @@ const emptySupplierDraft: SupplierDraft = {
   notes: '',
 };
 
+const CATALOG_VISIBLE_LIMIT = 5;
+
 const currencyFormatter = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
 
 function money(value: number): string {
@@ -89,20 +117,89 @@ function parseDecimal(value: string, fallback = 0): number {
 }
 
 function itemKindLabel(kind: CatalogHubItemKind): string {
-  return kind === 'material' ? 'Material/peça' : 'Serviço';
+  if (kind === 'material') return 'Material';
+  if (kind === 'labor') return 'Mão de obra';
+  if (kind === 'service') return 'Serviço composto';
+  if (kind === 'travel') return 'Deslocamento';
+  if (kind === 'fee') return 'Taxa';
+  return 'Item personalizado';
+}
+
+function itemTypeForKind(kind: CatalogHubItemKind): TechnicalItemType {
+  if (kind === 'material') return 'material';
+  if (kind === 'labor' || kind === 'service') return 'service';
+  return 'technicalObservation';
+}
+
+function defaultCategoryForKind(kind: CatalogHubItemKind): string {
+  if (kind === 'material') return 'Materiais';
+  if (kind === 'labor') return 'Mão de obra';
+  if (kind === 'service') return 'Serviços compostos';
+  if (kind === 'travel') return 'Deslocamento';
+  if (kind === 'fee') return 'Taxas';
+  return 'Itens personalizados';
 }
 
 function destinationLabel(destination: CalculationDestination): string {
-  if (destination === 'survey') return 'Campo';
+  if (destination === 'survey') return 'Atendimento';
   if (destination === 'budget') return 'Orçamento';
   return 'Ambos';
+}
+
+function addActionLabel(destination: CalculationDestination): string {
+  if (destination === 'survey') return 'Enviar ao atendimento';
+  if (destination === 'budget') return 'Enviar ao orçamento';
+  return 'Enviar aos dois';
+}
+
+function searchResultSourceLabel(result: ProductSearchResult): string {
+  if (result.providerId === 'local-catalog') return 'Catálogo local';
+  if (result.providerId === 'supplier-search') return `Fornecedor · ${sanitizeCatalogDisplayText(result.sourceName)}`;
+  return 'Referência revisada';
+}
+
+function sanitizeCatalogDisplayText(value: string): string {
+  return value
+    .replace(/Schneider Electric/gi, 'Fornecedor elétrico')
+    .replace(/Schneider/gi, 'Fabricante A')
+    .replace(/Margirius/gi, 'Fabricante B')
+    .replace(/Tramontina/gi, 'Fabricante C')
+    .replace(/\bWEG\b/gi, 'Fabricante D')
+    .replace(/Steck/gi, 'Fabricante E')
+    .replace(/Intelbras/gi, 'Fabricante F')
+    .replace(/Tigre/gi, 'Fabricante G');
+}
+
+function sanitizeSupplier(supplier: CatalogSupplier): CatalogSupplier {
+  return {
+    ...supplier,
+    name: sanitizeCatalogDisplayText(supplier.name),
+    segment: sanitizeCatalogDisplayText(supplier.segment),
+    websiteUrl: undefined,
+    catalogUrl: undefined,
+    searchUrlTemplate: supplier.searchUrlTemplate?.includes('site%3A') ? 'https://www.google.com/search?q={query}' : sanitizeCatalogDisplayText(supplier.searchUrlTemplate ?? ''),
+    notes: sanitizeCatalogDisplayText(supplier.notes ?? ''),
+  };
+}
+
+function sanitizeItem(item: CatalogHubItem): CatalogHubItem {
+  return {
+    ...item,
+    brand: item.brand ? sanitizeCatalogDisplayText(item.brand) : item.brand,
+    supplierId: item.supplierId,
+    sourceUrl: item.sourceUrl?.includes('se.com') ? undefined : item.sourceUrl,
+    notes: item.notes ? sanitizeCatalogDisplayText(item.notes) : item.notes,
+  };
 }
 
 function itemToDraft(item: CatalogHubItem): ItemDraft {
   return {
     kind: item.kind,
     title: item.title,
+    popularName: item.popularName ?? '',
     category: item.category,
+    professionArea: item.professionArea ?? '',
+    technicalDescription: item.technicalDescription ?? '',
     brand: item.brand ?? '',
     supplierId: item.supplierId ?? '',
     model: item.model ?? '',
@@ -110,11 +207,30 @@ function itemToDraft(item: CatalogHubItem): ItemDraft {
     unit: item.unit,
     defaultQuantity: String(item.defaultQuantity),
     defaultUnitValue: String(item.defaultUnitValue),
+    priceUpdatedAt: item.priceUpdatedAt ?? '',
+    dataOrigin: item.dataOrigin ?? 'manual',
+    compatibility: item.compatibility ?? '',
+    acceptedAlternatives: item.acceptedAlternatives ?? '',
+    forbiddenAlternatives: item.forbiddenAlternatives ?? '',
+    clientNote: item.clientNote ?? '',
+    professionalNote: item.professionalNote ?? '',
     destination: item.destination,
     notes: item.notes ?? '',
     sourceUrl: item.sourceUrl ?? '',
     imageUrl: item.imageUrl ?? '',
     purchaseGuidance: item.purchaseGuidance ?? '',
+  };
+}
+
+function supplierToDraft(supplier: CatalogSupplier): SupplierDraft {
+  return {
+    name: supplier.name,
+    segment: supplier.segment,
+    websiteUrl: supplier.websiteUrl ?? '',
+    catalogUrl: supplier.catalogUrl ?? '',
+    searchUrlTemplate: supplier.searchUrlTemplate ?? '',
+    phone: supplier.phone ?? '',
+    notes: supplier.notes ?? '',
   };
 }
 
@@ -129,7 +245,10 @@ function buildCatalogItemFromDraft(draft: ItemDraft, existingItem?: CatalogHubIt
     id: existingItem?.id ?? createCatalogId('catalog-hub-item'),
     kind,
     title,
-    category: draft.category.trim() || (kind === 'material' ? 'Materiais' : 'Serviços'),
+    popularName: draft.popularName.trim() || undefined,
+    category: draft.category.trim() || defaultCategoryForKind(kind),
+    professionArea: draft.professionArea.trim() || undefined,
+    technicalDescription: draft.technicalDescription.trim() || undefined,
     brand: draft.brand.trim() || undefined,
     supplierId: draft.supplierId || undefined,
     model: draft.model.trim() || undefined,
@@ -137,8 +256,15 @@ function buildCatalogItemFromDraft(draft: ItemDraft, existingItem?: CatalogHubIt
     unit: draft.unit.trim() || 'un',
     defaultQuantity: parseDecimal(draft.defaultQuantity, 1),
     defaultUnitValue: parseDecimal(draft.defaultUnitValue, 0),
+    priceUpdatedAt: draft.priceUpdatedAt || timestamp,
+    dataOrigin: draft.dataOrigin,
+    compatibility: draft.compatibility.trim() || undefined,
+    acceptedAlternatives: draft.acceptedAlternatives.trim() || undefined,
+    forbiddenAlternatives: draft.forbiddenAlternatives.trim() || undefined,
+    clientNote: draft.clientNote.trim() || undefined,
+    professionalNote: draft.professionalNote.trim() || undefined,
     destination: draft.destination,
-    itemType: kind === 'material' ? 'material' : 'service',
+    itemType: itemTypeForKind(kind),
     notes: draft.notes.trim() || undefined,
     sourceUrl: draft.sourceUrl.trim() || undefined,
     imageUrl: draft.imageUrl.trim() || undefined,
@@ -160,15 +286,25 @@ function createCaptureFromCatalogItem(item: CatalogHubItem): CalculationCapture 
     summary: `${item.title} · ${item.defaultQuantity} ${item.unit} × ${money(item.defaultUnitValue)}`,
     details: [
       `Tipo: ${itemKindLabel(item.kind)}`,
+      `Nome popular: ${item.popularName || 'não informado'}`,
       `Categoria: ${item.category || 'não informada'}`,
+      `Área/profissão: ${item.professionArea || 'não informada'}`,
+      `Descrição técnica: ${item.technicalDescription || 'não informada'}`,
       `Marca: ${item.brand || 'não informada'}`,
       `Modelo: ${item.model || 'não informado'}`,
       `Referência: ${item.reference || 'não informada'}`,
       `Unidade: ${item.unit}`,
       `Quantidade padrão: ${item.defaultQuantity}`,
       `Valor unitário: ${money(item.defaultUnitValue)}`,
+      `Origem do dado: ${item.dataOrigin || 'manual'}`,
+      `Preço atualizado em: ${item.priceUpdatedAt ? new Intl.DateTimeFormat('pt-BR').format(new Date(item.priceUpdatedAt)) : 'não informado'}`,
       `Subtotal: ${money(subtotal)}`,
       `Destino: ${destinationLabel(item.destination)}`,
+      item.compatibility ? `Compatibilidade: ${item.compatibility}` : 'Compatibilidade: conferir antes de comprar.',
+      item.acceptedAlternatives ? `Alternativas aceitas: ${item.acceptedAlternatives}` : 'Alternativas aceitas: definir com o profissional.',
+      item.forbiddenAlternatives ? `Alternativas proibidas: ${item.forbiddenAlternatives}` : 'Alternativas proibidas: não informadas.',
+      item.clientNote ? `Observação para o cliente: ${item.clientNote}` : 'Observação para o cliente: seguir orientação de compra.',
+      item.professionalNote ? `Observação técnica profissional: ${item.professionalNote}` : 'Observação técnica profissional: validar em campo.',
       item.sourceUrl ? `Fonte/catálogo: ${item.sourceUrl}` : 'Fonte/catálogo: não informado',
       item.imageUrl ? `Imagem de referência: ${item.imageUrl}` : 'Imagem de referência: não informada',
       item.purchaseGuidance ? `Orientação de compra: ${item.purchaseGuidance}` : 'Orientação de compra: conferir marca, modelo e compatibilidade antes de comprar.',
@@ -176,7 +312,7 @@ function createCaptureFromCatalogItem(item: CatalogHubItem): CalculationCapture 
     ],
     itemType: item.itemType,
     editableDescription: item.title,
-    technicalNote: [item.purchaseGuidance, item.notes || 'Item vindo do catálogo profissional.'].filter(Boolean).join(' '),
+    technicalNote: [item.purchaseGuidance, item.clientNote, item.compatibility, item.forbiddenAlternatives ? `Não substituir por: ${item.forbiddenAlternatives}` : null, item.notes || 'Item vindo do catálogo profissional.'].filter(Boolean).join(' '),
     quantity: String(item.defaultQuantity),
     unitValue: String(item.defaultUnitValue),
     materialSupplyMode: item.kind === 'material' ? 'client' : undefined,
@@ -192,14 +328,20 @@ function createCaptureFromCatalogItem(item: CatalogHubItem): CalculationCapture 
 export function CatalogHubWorkspace({ onSendToBudget, initialTab = 'items', enabledTabs }: CatalogHubWorkspaceProps) {
   const availableTabs = enabledTabs ?? ['items', 'suppliers', 'online'];
   const [activeTab, setActiveTab] = useState<CatalogTab>(availableTabs.includes(initialTab) ? initialTab : availableTabs[0] ?? 'items');
-  const [items, setItems] = useState<CatalogHubItem[]>(() => loadCatalogHubItems());
-  const [suppliers, setSuppliers] = useState<CatalogSupplier[]>(() => loadCatalogSuppliers());
+  const [itemsView, setItemsView] = useState<CatalogItemsView>('list');
+  const [items, setItems] = useState<CatalogHubItem[]>(() => loadCatalogHubItems().map(sanitizeItem));
+  const [suppliers, setSuppliers] = useState<CatalogSupplier[]>(() => loadCatalogSuppliers().map(sanitizeSupplier));
   const [itemDraft, setItemDraft] = useState<ItemDraft>(emptyItemDraft);
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
   const [supplierDraft, setSupplierDraft] = useState<SupplierDraft>(emptySupplierDraft);
+  const [editingSupplierId, setEditingSupplierId] = useState<string | null>(null);
+  const [supplierSearch, setSupplierSearch] = useState('');
   const [query, setQuery] = useState('');
   const [kindFilter, setKindFilter] = useState<'all' | CatalogHubItemKind>('all');
   const [supplierFilter, setSupplierFilter] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('');
+  const [brandFilter, setBrandFilter] = useState('');
+  const [originFilter, setOriginFilter] = useState<'all' | NonNullable<CatalogHubItem['dataOrigin']>>('all');
   const [onlineQuery, setOnlineQuery] = useState('tomada 20A branca');
   const [onlineSupplierId, setOnlineSupplierId] = useState('');
   const [onlineObservedPrice, setOnlineObservedPrice] = useState('');
@@ -216,15 +358,47 @@ export function CatalogHubWorkspace({ onSendToBudget, initialTab = 'items', enab
     return items.filter((item) => {
       const kindMatches = kindFilter === 'all' || item.kind === kindFilter;
       const supplierMatches = !supplierFilter || item.supplierId === supplierFilter;
-      const textMatches = !normalizedQuery || [item.title, item.category, item.brand, item.model, item.reference, item.notes].filter(Boolean).join(' ').toLowerCase().includes(normalizedQuery);
-      return kindMatches && supplierMatches && textMatches;
-    });
-  }, [items, kindFilter, query, supplierFilter]);
+      const categoryMatches = !categoryFilter || item.category === categoryFilter;
+      const brandMatches = !brandFilter || item.brand === brandFilter;
+      const originMatches = originFilter === 'all' || item.dataOrigin === originFilter;
+      const supplierName = suppliers.find((supplier) => supplier.id === item.supplierId)?.name;
+      const textMatches = !normalizedQuery || [item.title, item.popularName, item.category, item.professionArea, item.technicalDescription, item.brand, supplierName, item.model, item.reference, item.compatibility, item.acceptedAlternatives, item.forbiddenAlternatives, item.notes].filter(Boolean).join(' ').toLowerCase().includes(normalizedQuery);
+      return kindMatches && supplierMatches && categoryMatches && brandMatches && originMatches && textMatches;
+    }).sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+  }, [brandFilter, categoryFilter, items, kindFilter, originFilter, query, supplierFilter, suppliers]);
 
   const categories = useMemo(() => Array.from(new Set(items.map((item) => item.category).filter(Boolean))).sort((a, b) => a.localeCompare(b)), [items]);
+  const brands = useMemo(() => Array.from(new Set(items.map((item) => item.brand).filter((brand): brand is string => Boolean(brand)))).sort((a, b) => a.localeCompare(b)), [items]);
+  const itemKindStats = useMemo(() => ([
+    { kind: 'material' as const, label: 'Materiais', count: items.filter((item) => item.kind === 'material').length },
+    { kind: 'labor' as const, label: 'Mão de obra', count: items.filter((item) => item.kind === 'labor').length },
+    { kind: 'service' as const, label: 'Serviços compostos', count: items.filter((item) => item.kind === 'service').length },
+    { kind: 'travel' as const, label: 'Deslocamento', count: items.filter((item) => item.kind === 'travel').length },
+    { kind: 'fee' as const, label: 'Taxas', count: items.filter((item) => item.kind === 'fee').length },
+    { kind: 'custom' as const, label: 'Personalizados', count: items.filter((item) => item.kind === 'custom').length },
+  ]), [items]);
   const onlineSupplier = suppliers.find((supplier) => supplier.id === onlineSupplierId) ?? suppliers[0];
   const onlineUrl = onlineSupplier ? buildSupplierSearchUrl(onlineSupplier, onlineQuery) : '';
   const isEditingItem = Boolean(editingItemId);
+  const onlineResults = useMemo(() => buildProductSearchResults({
+    query: onlineQuery,
+    catalogItems: items,
+    suppliers: onlineSupplier ? [onlineSupplier] : suppliers,
+    observedPrice: onlineObservedPrice,
+    productUrl: onlineProductUrl,
+    imageUrl: onlineImageUrl,
+  }), [items, onlineImageUrl, onlineObservedPrice, onlineProductUrl, onlineQuery, onlineSupplier, suppliers]);
+  const hasItemLookup = Boolean(query.trim()) || kindFilter !== 'all' || Boolean(supplierFilter) || Boolean(categoryFilter) || Boolean(brandFilter) || originFilter !== 'all';
+  const visibleFilteredItems = hasItemLookup ? filteredItems.slice(0, CATALOG_VISIBLE_LIMIT) : [];
+  const hiddenFilteredItemCount = hasItemLookup ? Math.max(filteredItems.length - visibleFilteredItems.length, 0) : 0;
+  const filteredSuppliers = suppliers.filter((supplier) => {
+    const normalizedSearch = supplierSearch.trim().toLowerCase();
+    return !normalizedSearch || [supplier.name, supplier.segment, supplier.websiteUrl, supplier.catalogUrl, supplier.phone, supplier.notes].filter(Boolean).join(' ').toLowerCase().includes(normalizedSearch);
+  }).sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+  const visibleSuppliers = filteredSuppliers.slice(0, CATALOG_VISIBLE_LIMIT);
+  const hiddenSupplierCount = Math.max(filteredSuppliers.length - visibleSuppliers.length, 0);
+  const visibleOnlineResults = onlineResults.slice(0, CATALOG_VISIBLE_LIMIT);
+  const hiddenOnlineResultCount = Math.max(onlineResults.length - visibleOnlineResults.length, 0);
 
   function updateItemDraft<K extends keyof ItemDraft>(key: K, value: ItemDraft[K]) {
     setItemDraft((current) => ({ ...current, [key]: value }));
@@ -237,6 +411,11 @@ export function CatalogHubWorkspace({ onSendToBudget, initialTab = 'items', enab
   function resetItemForm() {
     setItemDraft(emptyItemDraft);
     setEditingItemId(null);
+  }
+
+  function resetSupplierForm() {
+    setSupplierDraft(emptySupplierDraft);
+    setEditingSupplierId(null);
   }
 
   function saveItem() {
@@ -253,12 +432,14 @@ export function CatalogHubWorkspace({ onSendToBudget, initialTab = 'items', enab
     }
 
     resetItemForm();
+    setItemsView('list');
   }
 
   function editItem(item: CatalogHubItem) {
     setItemDraft(itemToDraft(item));
     setEditingItemId(item.id);
     setActiveTab('items');
+    setItemsView('form');
     setFeedback(`Editando: ${item.title}.`);
   }
 
@@ -275,12 +456,13 @@ export function CatalogHubWorkspace({ onSendToBudget, initialTab = 'items', enab
     setFeedback(`${copy.title} foi duplicado.`);
   }
 
-  function addSupplier() {
+  function saveSupplier() {
     const name = supplierDraft.name.trim();
     if (!name) return;
     const now = new Date().toISOString();
-    const newSupplier: CatalogSupplier = {
-      id: createCatalogId('catalog-supplier'),
+    const existingSupplier = editingSupplierId ? suppliers.find((supplier) => supplier.id === editingSupplierId) : undefined;
+    const nextSupplier: CatalogSupplier = {
+      id: existingSupplier?.id ?? createCatalogId('catalog-supplier'),
       name,
       segment: supplierDraft.segment.trim() || 'Fornecedor geral',
       websiteUrl: supplierDraft.websiteUrl.trim() || undefined,
@@ -288,20 +470,41 @@ export function CatalogHubWorkspace({ onSendToBudget, initialTab = 'items', enab
       searchUrlTemplate: supplierDraft.searchUrlTemplate.trim() || undefined,
       phone: supplierDraft.phone.trim() || undefined,
       notes: supplierDraft.notes.trim() || undefined,
-      createdAt: now,
+      createdAt: existingSupplier?.createdAt ?? now,
       updatedAt: now,
     };
-    setSuppliers((current) => [newSupplier, ...current]);
-    setSupplierDraft(emptySupplierDraft);
-    setFeedback('Fornecedor cadastrado.');
+
+    if (existingSupplier) {
+      setSuppliers((current) => current.map((supplier) => (supplier.id === existingSupplier.id ? nextSupplier : supplier)));
+      setFeedback('Fornecedor atualizado.');
+    } else {
+      setSuppliers((current) => [nextSupplier, ...current]);
+      setFeedback('Fornecedor cadastrado.');
+    }
+
+    resetSupplierForm();
+  }
+
+  function editSupplier(supplier: CatalogSupplier) {
+    setSupplierDraft(supplierToDraft(supplier));
+    setEditingSupplierId(supplier.id);
+    setActiveTab('suppliers');
+    setFeedback(`Editando fornecedor: ${supplier.name}.`);
   }
 
   function removeItem(id: string) {
+    const item = items.find((currentItem) => currentItem.id === id);
+    const confirmed = window.confirm(`Remover ${item?.title ?? 'este item'} do catálogo local? Essa ação não remove orçamentos já salvos.`);
+    if (!confirmed) return;
     if (editingItemId === id) resetItemForm();
     setItems((current) => current.filter((item) => item.id !== id));
   }
 
   function removeSupplier(id: string) {
+    const supplier = suppliers.find((currentSupplier) => currentSupplier.id === id);
+    const confirmed = window.confirm(`Remover ${supplier?.name ?? 'este fornecedor'}? Os itens já cadastrados ficam no catálogo, mas perdem esse vínculo.`);
+    if (!confirmed) return;
+    if (editingSupplierId === id) resetSupplierForm();
     setSuppliers((current) => current.filter((supplier) => supplier.id !== id));
   }
 
@@ -310,31 +513,36 @@ export function CatalogHubWorkspace({ onSendToBudget, initialTab = 'items', enab
     setFeedback(`${item.title} foi enviado para ${destinationLabel(item.destination).toLowerCase()}.`);
   }
 
-  function fillItemFromOnlineSearch() {
-    const observedPrice = onlineObservedPrice.trim();
+  function fillItemFromOnlineSearch(result?: ProductSearchResult) {
+    const observedPrice = result?.priceReference !== undefined ? String(result.priceReference) : onlineObservedPrice.trim();
     const reference = onlineReference.trim();
     const today = new Intl.DateTimeFormat('pt-BR').format(new Date());
     const onlineNote = [
       observedPrice ? `Preço observado: ${money(parseDecimal(observedPrice))} em ${today}.` : null,
-      'Referência online escolhida pelo profissional. Confirmar disponibilidade antes de enviar proposta.',
+      `${result?.providerName ?? 'Referência online'} escolhida pelo profissional. Confirmar disponibilidade antes de enviar proposta.`,
+      result?.note,
     ].filter(Boolean).join(' ');
     const purchaseGuidance = [
       'Comprar este produto ou equivalente validado pelo profissional.',
       reference ? `Conferir referência/modelo: ${reference}.` : null,
-      onlineProductUrl.trim() ? `Link de referência: ${onlineProductUrl.trim()}.` : null,
+      (result?.link || onlineProductUrl.trim()) ? `Link de referência: ${result?.link || onlineProductUrl.trim()}.` : null,
     ].filter(Boolean).join(' ');
 
     setEditingItemId(null);
-    updateItemDraft('title', onlineQuery);
-    updateItemDraft('supplierId', onlineSupplier?.id ?? '');
-    updateItemDraft('brand', onlineSupplier?.name ?? '');
+    updateItemDraft('title', result?.title || onlineQuery);
+    updateItemDraft('popularName', onlineQuery);
+    updateItemDraft('supplierId', result?.providerId === 'supplier-search' ? onlineSupplier?.id ?? '' : '');
+    updateItemDraft('brand', sanitizeCatalogDisplayText(result?.sourceName || onlineSupplier?.name || ''));
     updateItemDraft('reference', reference);
     if (observedPrice) updateItemDraft('defaultUnitValue', observedPrice);
-    updateItemDraft('sourceUrl', onlineProductUrl.trim() || onlineUrl);
-    updateItemDraft('imageUrl', onlineImageUrl.trim());
+    updateItemDraft('priceUpdatedAt', new Date().toISOString());
+    updateItemDraft('dataOrigin', result?.providerId === 'manual-reference' ? 'online-reference' : result?.providerId === 'supplier-search' ? 'supplier' : 'local-catalog');
+    updateItemDraft('sourceUrl', result?.link || onlineProductUrl.trim() || onlineUrl);
+    updateItemDraft('imageUrl', result?.imageUrl || onlineImageUrl.trim());
     updateItemDraft('purchaseGuidance', purchaseGuidance);
     updateItemDraft('notes', itemDraft.notes.trim() ? `${itemDraft.notes.trim()}\n${onlineNote}` : onlineNote);
     setActiveTab('items');
+    setItemsView('form');
     setFeedback('Referência online enviada para o formulário. Confira preço, modelo e disponibilidade antes de salvar.');
   }
 
@@ -362,7 +570,7 @@ export function CatalogHubWorkspace({ onSendToBudget, initialTab = 'items', enab
         <div>
           <span className="orca-kicker">{activeTab === 'online' ? 'Referência de produto' : 'Catálogo profissional'}</span>
           <h2>{activeTab === 'online' ? 'Buscar produto real para referência' : 'Itens e serviços reutilizáveis'}</h2>
-          <p>{activeTab === 'online' ? 'Pesquise no fornecedor, escolha o produto real e traga preço/modelo para o cadastro.' : 'Cadastre materiais, peças e serviços recorrentes para enviar ao campo ou orçamento guiado.'}</p>
+          <p>{activeTab === 'online' ? 'Pesquise no fornecedor, escolha o produto real e traga preço/modelo para o cadastro.' : 'Cadastre materiais, peças e serviços recorrentes para enviar ao campo ou orçamento.'}</p>
         </div>
         <strong>{items.length} itens · {suppliers.length} fornecedores</strong>
       </div>
@@ -377,26 +585,50 @@ export function CatalogHubWorkspace({ onSendToBudget, initialTab = 'items', enab
 
       {activeTab === 'items' && (
         <>
-          <div className="catalog-hub-card">
+          <div className="catalog-kind-summary" aria-label="Resumo do catálogo">
+            {itemKindStats.map((stat) => (
+              <button className={kindFilter === stat.kind ? 'active' : ''} key={stat.kind} type="button" onClick={() => setKindFilter(stat.kind)}>
+                <span>{stat.label}</span>
+                <strong>{stat.count}</strong>
+              </button>
+            ))}
+          </div>
+
+          <div className="catalog-subtabs" aria-label="Itens do catálogo">
+            <button className={itemsView === 'list' ? 'active' : ''} type="button" onClick={() => setItemsView('list')}>Consultar lista</button>
+            <button className={itemsView === 'form' ? 'active' : ''} type="button" onClick={() => { resetItemForm(); setItemsView('form'); }}>Cadastrar item</button>
+          </div>
+
+          {itemsView === 'form' && <div className="catalog-hub-card catalog-form-card">
             <div>
               <strong>{isEditingItem ? 'Editar item de catálogo' : 'Novo item de catálogo'}</strong>
-              <small>{isEditingItem ? 'Atualize preço, marca, modelo, destino e observações do item.' : 'Cadastre peças, materiais ou serviços recorrentes para enviar ao orçamento guiado.'}</small>
+              <small>{isEditingItem ? 'Atualize preço, marca, modelo, destino e observações do item.' : 'Cadastre peças, materiais ou serviços recorrentes para enviar ao orçamento.'}</small>
             </div>
             <div className="catalog-hub-grid">
-              <label><span>Tipo</span><select value={itemDraft.kind} onChange={(event) => updateItemDraft('kind', event.target.value as CatalogHubItemKind)}><option value="material">Material/peça</option><option value="service">Serviço</option></select></label>
+              <label><span>Tipo</span><select value={itemDraft.kind} onChange={(event) => updateItemDraft('kind', event.target.value as CatalogHubItemKind)}><option value="material">Material</option><option value="labor">Mão de obra</option><option value="service">Serviço composto</option><option value="travel">Deslocamento</option><option value="fee">Taxa</option><option value="custom">Item personalizado</option></select></label>
               <label className="wide"><span>Descrição</span><input value={itemDraft.title} placeholder="Ex.: Módulo tomada 2P+T 20A branco" onChange={(event) => updateItemDraft('title', event.target.value)} /></label>
+              <label><span>Nome popular</span><input value={itemDraft.popularName} placeholder="Ex.: tomada 20A" onChange={(event) => updateItemDraft('popularName', event.target.value)} /></label>
               <label><span>Categoria</span><input list="catalog-categories" value={itemDraft.category} placeholder="Ex.: Tomadas e módulos" onChange={(event) => updateItemDraft('category', event.target.value)} /><datalist id="catalog-categories">{categories.map((category) => <option key={category} value={category} />)}</datalist></label>
-              <label><span>Marca</span><input value={itemDraft.brand} placeholder="Ex.: Schneider" onChange={(event) => updateItemDraft('brand', event.target.value)} /></label>
+              <label><span>Área/profissão</span><input value={itemDraft.professionArea} placeholder="Ex.: Elétrica" onChange={(event) => updateItemDraft('professionArea', event.target.value)} /></label>
+              <label className="wide"><span>Descrição técnica</span><input value={itemDraft.technicalDescription} placeholder="Ex.: módulo 20A 2P+T para placa modular compatível" onChange={(event) => updateItemDraft('technicalDescription', event.target.value)} /></label>
+              <label><span>Marca</span><input value={itemDraft.brand} placeholder="Ex.: Fabricante" onChange={(event) => updateItemDraft('brand', event.target.value)} /></label>
               <label><span>Fornecedor</span><select value={itemDraft.supplierId} onChange={(event) => updateItemDraft('supplierId', event.target.value)}><option value="">Sem fornecedor</option>{suppliers.map((supplier) => <option key={supplier.id} value={supplier.id}>{supplier.name}</option>)}</select></label>
               <label><span>Modelo</span><input value={itemDraft.model} placeholder="Opcional" onChange={(event) => updateItemDraft('model', event.target.value)} /></label>
               <label><span>Referência/SKU</span><input value={itemDraft.reference} placeholder="Opcional" onChange={(event) => updateItemDraft('reference', event.target.value)} /></label>
               <label><span>Unidade</span><input value={itemDraft.unit} placeholder="un, m, cx, ponto..." onChange={(event) => updateItemDraft('unit', event.target.value)} /></label>
               <label><span>Qtd. padrão</span><input inputMode="decimal" value={itemDraft.defaultQuantity} onChange={(event) => updateItemDraft('defaultQuantity', event.target.value)} /></label>
               <label><span>Valor unitário</span><input inputMode="decimal" value={itemDraft.defaultUnitValue} onChange={(event) => updateItemDraft('defaultUnitValue', event.target.value)} /></label>
-              <label><span>Destino</span><select value={itemDraft.destination} onChange={(event) => updateItemDraft('destination', event.target.value as CalculationDestination)}><option value="survey">Campo</option><option value="budget">Orçamento</option><option value="both">Ambos</option></select></label>
+              <label><span>Origem do dado</span><select value={itemDraft.dataOrigin} onChange={(event) => updateItemDraft('dataOrigin', event.target.value as NonNullable<CatalogHubItem['dataOrigin']>)}><option value="manual">Manual</option><option value="local-catalog">Catálogo local</option><option value="online-reference">Referência online</option><option value="supplier">Fornecedor</option></select></label>
+              <label><span>Preço atualizado em</span><input type="date" value={itemDraft.priceUpdatedAt ? itemDraft.priceUpdatedAt.slice(0, 10) : ''} onChange={(event) => updateItemDraft('priceUpdatedAt', event.target.value ? new Date(`${event.target.value}T12:00:00`).toISOString() : '')} /></label>
+              <label><span>Destino</span><select value={itemDraft.destination} onChange={(event) => updateItemDraft('destination', event.target.value as CalculationDestination)}><option value="survey">Atendimento</option><option value="budget">Orçamento</option><option value="both">Ambos</option></select></label>
               <label className="wide"><span>Link fonte/catálogo</span><input value={itemDraft.sourceUrl} placeholder="https://..." onChange={(event) => updateItemDraft('sourceUrl', event.target.value)} /></label>
               <label className="wide"><span>Foto ou URL da imagem</span><input value={itemDraft.imageUrl} placeholder="Cole uma URL de imagem ou envie uma foto abaixo" onChange={(event) => updateItemDraft('imageUrl', event.target.value)} /></label>
               <label className="wide file-reference-field"><span>Enviar foto de referência</span><input accept="image/*" type="file" onChange={(event) => handleItemImageFile(event.target.files?.[0])} /></label>
+              <label className="wide"><span>Compatibilidades</span><textarea value={itemDraft.compatibility} placeholder="Ex.: compatível com placa e suporte da mesma linha modular." onChange={(event) => updateItemDraft('compatibility', event.target.value)} /></label>
+              <label className="wide"><span>Alternativas aceitas</span><textarea value={itemDraft.acceptedAlternatives} placeholder="Ex.: pode ser equivalente se for módulo 20A 2P+T da mesma linha." onChange={(event) => updateItemDraft('acceptedAlternatives', event.target.value)} /></label>
+              <label className="wide"><span>Alternativas proibidas</span><textarea value={itemDraft.forbiddenAlternatives} placeholder="Ex.: não substituir por tomada 10A." onChange={(event) => updateItemDraft('forbiddenAlternatives', event.target.value)} /></label>
+              <label className="wide"><span>Observação para o cliente</span><textarea value={itemDraft.clientNote} placeholder="Ex.: comprar tomada 20A 2P+T padrão brasileiro. Não substituir por 10A." onChange={(event) => updateItemDraft('clientNote', event.target.value)} /></label>
+              <label className="wide"><span>Observação técnica profissional</span><textarea value={itemDraft.professionalNote} placeholder="Ex.: conferir circuito, proteção e seção do cabo antes da execução." onChange={(event) => updateItemDraft('professionalNote', event.target.value)} /></label>
               <label className="wide"><span>Orientação para compra</span><textarea value={itemDraft.purchaseGuidance} placeholder="Ex.: comprar exatamente este modelo ou equivalente validado; conferir tensão, cor, linha e encaixe..." onChange={(event) => updateItemDraft('purchaseGuidance', event.target.value)} /></label>
               <label className="wide"><span>Observação</span><textarea value={itemDraft.notes} placeholder="Ex.: confirmar disponibilidade, linha compatível, preço aproximado..." onChange={(event) => updateItemDraft('notes', event.target.value)} /></label>
             </div>
@@ -408,46 +640,58 @@ export function CatalogHubWorkspace({ onSendToBudget, initialTab = 'items', enab
             )}
             <div className="catalog-hub-actions start-actions">
               <button className="primary-action inline-action" type="button" onClick={saveItem}>{isEditingItem ? 'Salvar alterações' : 'Cadastrar item'}</button>
-              {isEditingItem && <button className="secondary-action inline-action" type="button" onClick={resetItemForm}>Cancelar edição</button>}
+              {isEditingItem && <button className="secondary-action inline-action" type="button" onClick={() => { resetItemForm(); setItemsView('list'); }}>Cancelar edição</button>}
+              {!isEditingItem && <button className="secondary-action inline-action" type="button" onClick={() => setItemsView('list')}>Voltar para lista</button>}
             </div>
-          </div>
+          </div>}
 
-          <div className="catalog-hub-card">
-            <div><strong>Consultar itens cadastrados</strong><small>Filtre, edite, duplique e envie itens diretamente para campo, orçamento ou ambos.</small></div>
-            <div className="catalog-hub-grid compact">
+          {itemsView === 'list' && <div className="catalog-hub-card catalog-list-card">
+            <div className="catalog-list-heading"><div><strong>Consultar itens cadastrados</strong><small>Lista compacta para muitos itens. Filtre por busca, tipo, fornecedor, fabricante, categoria e origem.</small></div><button className="secondary-action inline-action catalog-new-item-action" type="button" onClick={() => { resetItemForm(); setItemsView('form'); }}>Novo item</button></div>
+            <div className="catalog-hub-grid compact catalog-filter-grid">
               <label className="wide"><span>Buscar</span><input value={query} placeholder="tomada, disjuntor, serviço, marca..." onChange={(event) => setQuery(event.target.value)} /></label>
-              <label><span>Tipo</span><select value={kindFilter} onChange={(event) => setKindFilter(event.target.value as 'all' | CatalogHubItemKind)}><option value="all">Todos</option><option value="material">Material</option><option value="service">Serviço</option></select></label>
+              <label><span>Tipo</span><select value={kindFilter} onChange={(event) => setKindFilter(event.target.value as 'all' | CatalogHubItemKind)}><option value="all">Todos</option><option value="material">Materiais</option><option value="labor">Mão de obra</option><option value="service">Serviços compostos</option><option value="travel">Deslocamento</option><option value="fee">Taxas</option><option value="custom">Personalizados</option></select></label>
               <label><span>Fornecedor</span><select value={supplierFilter} onChange={(event) => setSupplierFilter(event.target.value)}><option value="">Todos</option>{suppliers.map((supplier) => <option key={supplier.id} value={supplier.id}>{supplier.name}</option>)}</select></label>
+              <label><span>Fabricante</span><select value={brandFilter} onChange={(event) => setBrandFilter(event.target.value)}><option value="">Todos</option>{brands.map((brand) => <option key={brand} value={brand}>{brand}</option>)}</select></label>
+              <label><span>Categoria</span><select value={categoryFilter} onChange={(event) => setCategoryFilter(event.target.value)}><option value="">Todas</option>{categories.map((category) => <option key={category} value={category}>{category}</option>)}</select></label>
+              <label><span>Origem</span><select value={originFilter} onChange={(event) => setOriginFilter(event.target.value as 'all' | NonNullable<CatalogHubItem['dataOrigin']>)}><option value="all">Todas</option><option value="manual">Manual</option><option value="local-catalog">Catálogo local</option><option value="online-reference">Referência online</option><option value="supplier">Fornecedor</option></select></label>
             </div>
-            <div className="catalog-hub-list">
-              {filteredItems.map((item) => (
-                <article className="catalog-hub-item-card" key={item.id}>
-                  {item.imageUrl && <img className="catalog-item-thumb" src={item.imageUrl} alt={`Referência de ${item.title}`} />}
-                  <div className="catalog-item-main">
-                    <span>{itemKindLabel(item.kind)} · {destinationLabel(item.destination)}</span>
-                    <strong>{item.title}</strong>
-                    <small>{[item.category, item.brand, item.model, item.reference].filter(Boolean).join(' · ') || 'Sem detalhes adicionais'}</small>
-                    {item.purchaseGuidance && <small>{item.purchaseGuidance}</small>}
-                    <small>{item.defaultQuantity} {item.unit} × {money(item.defaultUnitValue)}</small>
-                  </div>
-                  <div className="catalog-hub-actions">
-                    {item.sourceUrl && <a className="secondary-action inline-action" href={item.sourceUrl} target="_blank" rel="noreferrer">Fonte</a>}
-                    <button className="secondary-action inline-action" type="button" onClick={() => editItem(item)}>Editar</button>
-                    <button className="secondary-action inline-action" type="button" onClick={() => duplicateItem(item)}>Duplicar</button>
-                    <button className="primary-action inline-action" type="button" onClick={() => sendItem(item)}>Adicionar ao fluxo</button>
-                    <button className="danger-action" type="button" onClick={() => removeItem(item.id)}>Remover</button>
-                  </div>
-                </article>
-              ))}
+            <div className="catalog-list-meta"><span>{hasItemLookup ? `${filteredItems.length} de ${items.length} item(ns) · mostrando ${visibleFilteredItems.length}${hiddenFilteredItemCount > 0 ? ` · ${hiddenFilteredItemCount} oculto(s)` : ''}` : `${items.length} item(ns) cadastrados. Pesquise ou filtre para exibir.`}</span><button type="button" onClick={() => { setQuery(''); setKindFilter('all'); setSupplierFilter(''); setCategoryFilter(''); setBrandFilter(''); setOriginFilter('all'); }}>Limpar filtros</button></div>
+            <div className="catalog-table-list">
+              {!hasItemLookup && <div className="catalog-empty-row">Digite uma busca ou escolha um filtro para consultar itens cadastrados.</div>}
+              {hasItemLookup && filteredItems.length === 0 && <div className="catalog-empty-row">Nenhum item encontrado com esses filtros.</div>}
+              {visibleFilteredItems.map((item) => {
+                const supplierName = suppliers.find((supplier) => supplier.id === item.supplierId)?.name;
+                return (
+                  <article className="catalog-table-row" key={item.id}>
+                    <div className="catalog-row-main">
+                      {item.imageUrl && <img className="catalog-row-thumb" src={item.imageUrl} alt={`Referência de ${item.title}`} />}
+                      <span>
+                        <strong>{item.title}</strong>
+                        <small>{[itemKindLabel(item.kind), item.category, item.brand, supplierName, item.model, item.reference].filter(Boolean).join(' · ') || 'Sem detalhes adicionais'}</small>
+                      </span>
+                    </div>
+                    <span className="catalog-row-price">{item.defaultQuantity} {item.unit}<strong>{money(item.defaultUnitValue)}</strong></span>
+                    <span className="catalog-row-destination">{destinationLabel(item.destination)}</span>
+                    <div className="catalog-row-actions">
+                      {item.sourceUrl && <a className="secondary-action inline-action" href={item.sourceUrl} target="_blank" rel="noreferrer">Fonte</a>}
+                      <button className="secondary-action inline-action" type="button" onClick={() => editItem(item)}>Editar</button>
+                      <button className="secondary-action inline-action" type="button" onClick={() => duplicateItem(item)}>Duplicar</button>
+                      <button className="primary-action inline-action" type="button" onClick={() => sendItem(item)}>{addActionLabel(item.destination)}</button>
+                      <button className="danger-action" type="button" onClick={() => removeItem(item.id)}>Remover</button>
+                    </div>
+                  </article>
+                );
+              })}
+              {hiddenFilteredItemCount > 0 && <div className="catalog-hidden-row">Mais {hiddenFilteredItemCount} item(ns) oculto(s). Use a busca ou os filtros para refinar.</div>}
             </div>
-          </div>
+          </div>}
         </>
       )}
 
       {activeTab === 'suppliers' && (
         <>
           <div className="catalog-hub-card">
-            <div><strong>Novo fornecedor/empresa</strong><small>Cadastre fabricantes, lojas, distribuidores ou fornecedores locais.</small></div>
+            <div><strong>{editingSupplierId ? 'Editar fornecedor/empresa' : 'Novo fornecedor/empresa'}</strong><small>{editingSupplierId ? 'Atualize o cadastro e salve sem criar fornecedor duplicado.' : 'Cadastre fabricantes, lojas, distribuidores ou fornecedores locais.'}</small></div>
             <div className="catalog-hub-grid">
               <label><span>Nome</span><input value={supplierDraft.name} placeholder="Ex.: Loja Elétrica Central" onChange={(event) => updateSupplierDraft('name', event.target.value)} /></label>
               <label><span>Segmento</span><input value={supplierDraft.segment} placeholder="Ex.: Materiais elétricos" onChange={(event) => updateSupplierDraft('segment', event.target.value)} /></label>
@@ -457,26 +701,36 @@ export function CatalogHubWorkspace({ onSendToBudget, initialTab = 'items', enab
               <label><span>Telefone/WhatsApp</span><input value={supplierDraft.phone} placeholder="Opcional" onChange={(event) => updateSupplierDraft('phone', event.target.value)} /></label>
               <label className="wide"><span>Observações</span><textarea value={supplierDraft.notes} placeholder="Condições, região, prazo, observações de compra..." onChange={(event) => updateSupplierDraft('notes', event.target.value)} /></label>
             </div>
-            <button className="primary-action inline-action" type="button" onClick={addSupplier}>Cadastrar fornecedor</button>
+            <div className="catalog-hub-actions start-actions">
+              <button className="primary-action inline-action" type="button" onClick={saveSupplier}>{editingSupplierId ? 'Salvar alterações' : 'Cadastrar fornecedor'}</button>
+              {editingSupplierId && <button className="secondary-action inline-action" type="button" onClick={resetSupplierForm}>Cancelar edição</button>}
+            </div>
           </div>
           <div className="catalog-hub-list">
-            {suppliers.map((supplier) => (
+            <div className="catalog-list-meta supplier-list-meta">
+              <label><span>Buscar fornecedor</span><input value={supplierSearch} placeholder="Nome, segmento, telefone ou observação" onChange={(event) => setSupplierSearch(event.target.value)} /></label>
+              <span>{filteredSuppliers.length} de {suppliers.length} fornecedor(es) · mostrando {visibleSuppliers.length}</span>
+            </div>
+            {filteredSuppliers.length === 0 && <div className="catalog-empty-row">Nenhum fornecedor encontrado com essa busca.</div>}
+            {visibleSuppliers.map((supplier) => (
               <article className="catalog-hub-item-card" key={supplier.id}>
                 <div className="catalog-item-main"><span>{supplier.segment}</span><strong>{supplier.name}</strong><small>{supplier.notes || 'Sem observações'}</small></div>
                 <div className="catalog-hub-actions">
                   {supplier.websiteUrl && <a className="secondary-action inline-action" href={supplier.websiteUrl} target="_blank" rel="noreferrer">Site</a>}
                   {supplier.catalogUrl && <a className="secondary-action inline-action" href={supplier.catalogUrl} target="_blank" rel="noreferrer">Catálogo</a>}
+                  <button className="secondary-action inline-action" type="button" onClick={() => editSupplier(supplier)}>Editar</button>
                   <button className="danger-action" type="button" onClick={() => removeSupplier(supplier.id)}>Remover</button>
                 </div>
               </article>
             ))}
+            {hiddenSupplierCount > 0 && <div className="catalog-hidden-row">Mais {hiddenSupplierCount} fornecedor(es) oculto(s). Use fornecedores nos filtros ou refine os cadastros.</div>}
           </div>
         </>
       )}
 
       {activeTab === 'online' && (
         <div className="catalog-hub-card online-card">
-          <div><strong>Consulta online de catálogo</strong><small>Use como apoio para pesquisar referência, modelo e preço. Depois envie a busca para cadastro de item.</small></div>
+          <div className="catalog-card-heading"><strong>Assistente de Materiais e Referência de Compra</strong><small>Use como apoio. O app continua offline com catálogo local e cadastro manual; qualquer referência precisa ser revisada antes de salvar.</small></div>
           <div className="catalog-hub-grid">
             <label className="wide"><span>O que pesquisar?</span><input value={onlineQuery} placeholder="Ex.: tomada 20A branca 2P+T" onChange={(event) => setOnlineQuery(event.target.value)} /></label>
             <label><span>Fornecedor/fabricante</span><select value={onlineSupplierId} onChange={(event) => setOnlineSupplierId(event.target.value)}>{suppliers.map((supplier) => <option key={supplier.id} value={supplier.id}>{supplier.name}</option>)}</select></label>
@@ -487,10 +741,35 @@ export function CatalogHubWorkspace({ onSendToBudget, initialTab = 'items', enab
             <label className="wide file-reference-field"><span>Enviar foto de referência</span><input accept="image/*" type="file" onChange={(event) => handleOnlineImageFile(event.target.files?.[0])} /></label>
           </div>
           <div className="online-result-box">
-            <span>Link preparado</span>
-            <strong>{onlineSupplier?.name ?? 'Fornecedor'}</strong>
+            <span>Consulta preparada</span>
+            <strong>{sanitizeCatalogDisplayText(onlineSupplier?.name ?? 'Fornecedor')}</strong>
             <small>{onlineUrl || 'Cadastre um fornecedor com site/catálogo.'}</small>
             <small>Abra a busca, escolha o item real e registre link, foto, modelo e preço como referência comercial.</small>
+            <small>{productSearchDisclaimer()}</small>
+          </div>
+          <div className="online-provider-grid">
+            <article><span>1</span><strong>Catálogo local</strong><small>Mostra primeiro o que já foi salvo.</small></article>
+            <article><span>2</span><strong>Fornecedor</strong><small>Abre busca oficial ou template cadastrado.</small></article>
+            <article><span>3</span><strong>Revisão manual</strong><small>Nada entra sem conferir dados.</small></article>
+          </div>
+          <div className="online-results-list">
+            {visibleOnlineResults.map((result) => (
+              <article className="online-result-card" key={result.id}>
+                {result.imageUrl && <img src={result.imageUrl} alt={`Referência de ${result.title}`} />}
+                <div>
+                  <span>{searchResultSourceLabel(result)}</span>
+                  <strong>{sanitizeCatalogDisplayText(result.title)}</strong>
+                  <small>{result.note}</small>
+                  {result.priceReference !== undefined && <small>Preço referência: {money(result.priceReference)}</small>}
+                  <small>Consulta: {new Intl.DateTimeFormat('pt-BR').format(new Date(result.checkedAt))}</small>
+                </div>
+                <div className="catalog-hub-actions">
+                  {result.link && <a className="secondary-action inline-action" href={result.link} target="_blank" rel="noreferrer">Abrir</a>}
+                  <button className="primary-action inline-action" type="button" onClick={() => fillItemFromOnlineSearch(result)}>Revisar e adicionar</button>
+                </div>
+              </article>
+            ))}
+            {hiddenOnlineResultCount > 0 && <div className="catalog-hidden-row">Mais {hiddenOnlineResultCount} resultado(s) oculto(s). Refine a busca para encontrar o produto certo.</div>}
           </div>
           {onlineImageUrl && (
             <div className="catalog-reference-preview">
@@ -500,7 +779,7 @@ export function CatalogHubWorkspace({ onSendToBudget, initialTab = 'items', enab
           )}
           <div className="catalog-hub-actions start-actions">
             {onlineUrl && <a className="primary-action inline-action" href={onlineUrl} target="_blank" rel="noreferrer">Abrir consulta online</a>}
-            <button className="secondary-action inline-action" type="button" onClick={fillItemFromOnlineSearch}>Usar como referência</button>
+            <button className="secondary-action inline-action" type="button" onClick={() => fillItemFromOnlineSearch()}>Usar como referência</button>
           </div>
         </div>
       )}

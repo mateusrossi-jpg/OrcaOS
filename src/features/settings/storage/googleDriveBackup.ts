@@ -82,7 +82,7 @@ export function isGoogleDriveBackupConfigured(): boolean {
 
 export async function requestGoogleDriveAccessToken(): Promise<string> {
   const clientId = getGoogleClientId().trim();
-  if (!clientId) throw new Error('Configure VITE_GOOGLE_CLIENT_ID para ativar o backup no Google Drive.');
+  if (!clientId) throw new Error('Backup no Google Drive indisponível neste ambiente.');
 
   await loadGoogleIdentityScript();
   const oauth2 = window.google?.accounts?.oauth2;

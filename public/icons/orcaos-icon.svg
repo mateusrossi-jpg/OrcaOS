@@ -1,23 +1,52 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
-  <title id="title">OrçaOS</title>
-  <desc id="desc">Símbolo do OrçaOS com hexágono técnico e marca de conclusão em azul teal.</desc>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="1024"
+   height="1024"
+   viewBox="0 0 1024 1024"
+   role="img"
+   aria-label="OrçaOS flat vector icon"
+   version="1.1"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <linearGradient id="orcaos-bg" x1="70" x2="442" y1="58" y2="454" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#0b1719"/>
-      <stop offset="1" stop-color="#05090b"/>
+    <linearGradient
+       id="bg"
+       x1="160"
+       y1="96"
+       x2="860"
+       y2="930"
+       gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#20272d"/>
+      <stop offset="0.48" stop-color="#10181c"/>
+      <stop offset="1" stop-color="#080d10"/>
     </linearGradient>
-    <linearGradient id="orcaos-accent" x1="124" x2="408" y1="114" y2="398" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#13d5df"/>
-      <stop offset="0.55" stop-color="#00b8c2"/>
-      <stop offset="1" stop-color="#007985"/>
+    <linearGradient
+       id="teal"
+       x1="350"
+       y1="245"
+       x2="705"
+       y2="790"
+       gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#18fff4"/>
+      <stop offset="0.46" stop-color="#00d8d8"/>
+      <stop offset="1" stop-color="#009aa6"/>
     </linearGradient>
-    <filter id="orcaos-glow" x="-25%" y="-25%" width="150%" height="150%" color-interpolation-filters="sRGB">
-      <feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#00b8c2" flood-opacity="0.28"/>
-    </filter>
+    <linearGradient
+       xlink:href="#teal"
+       id="teal-shifted"
+       gradientUnits="userSpaceOnUse"
+       x1="350"
+       y1="245"
+       x2="705"
+       y2="790"
+       gradientTransform="translate(-5.5819488,-18.936079)" />
   </defs>
-  <rect width="512" height="512" rx="116" fill="url(#orcaos-bg)"/>
-  <path d="M256 72 401 156v168L256 440 111 324V156L256 72Z" fill="#081214" stroke="rgba(255,255,255,.08)" stroke-width="14"/>
-  <path d="M256 93 382 166v146L256 419 130 312V166L256 93Z" fill="none" stroke="url(#orcaos-accent)" stroke-width="30" stroke-linejoin="round" filter="url(#orcaos-glow)"/>
-  <path d="M171 264 230 323 350 199" fill="none" stroke="url(#orcaos-accent)" stroke-width="38" stroke-linecap="round" stroke-linejoin="round" filter="url(#orcaos-glow)"/>
-  <path d="M130 166 256 93 382 166" fill="none" stroke="#43f0f8" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" opacity=".28"/>
+  <rect x="112" y="112" width="800" height="800" rx="180" fill="url(#bg)" />
+  <path d="M 273.82,395.83 A 265,265 0 0 1 702.63,327.92" fill="none" stroke="url(#teal)" stroke-width="72" stroke-linecap="butt" stroke-linejoin="round" />
+  <path d="M 731.69,363.81 A 265,265 0 0 1 702.63,696.08" fill="none" stroke="url(#teal)" stroke-width="72" stroke-linecap="butt" stroke-linejoin="round" />
+  <path d="M 667.76,726.39 A 265,265 0 0 1 327.92,702.63" fill="none" stroke="url(#teal)" stroke-width="72" stroke-linecap="butt" stroke-linejoin="round" />
+  <path d="M 297.61 667.76 A 265.00 265.00 0 0 1 257.27 438.96" fill="none" stroke="url(#teal)" stroke-width="72" stroke-linecap="butt" stroke-linejoin="round" />
+  <rect x="223" y="484" width="54" height="24" rx="2" fill="url(#teal)" />
+  <rect x="223" y="536" width="54" height="24" rx="2" fill="url(#teal)" />
+  <path d="m 622.41805,373.06392 h -162 c -46,0 -74,29 -74,69 0,42 32,67 83,67 h 73 c 55,0 88,29 88,71 0,42 -32,71 -84,71 h -154" fill="none" stroke="url(#teal-shifted)" stroke-width="68" stroke-linecap="butt" stroke-linejoin="round" />
 </svg>

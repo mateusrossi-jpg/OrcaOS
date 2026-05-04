@@ -258,9 +258,34 @@
   line-height: 1.35;
 }
 
+.general-formula-box {
+  display: grid;
+  gap: 8px;
+  border: 1px solid rgba(0, 184, 194, 0.18);
+  border-radius: 17px;
+  padding: 13px;
+  color: var(--stable-muted, #a7b3ad);
+  background: rgba(0, 184, 194, 0.07);
+  font-size: 0.84rem;
+  line-height: 1.42;
+}
+
+.general-formula-box strong {
+  color: var(--stable-green, #00b8c2);
+  font-size: 0.74rem;
+  font-weight: 950;
+  letter-spacing: 0.065em;
+  text-transform: uppercase;
+}
+
+.general-formula-box span {
+  display: block;
+}
+
 .fundamental-error-message,
 .fundamental-added-message,
-.fundamental-note {
+.fundamental-note,
+.general-technical-note {
   margin: 0;
   border-radius: 15px;
   padding: 12px 13px;
@@ -278,9 +303,20 @@
   background: rgba(0, 184, 194, 0.10);
 }
 
-.fundamental-note {
+.fundamental-note,
+.general-technical-note {
   color: var(--stable-muted, #a7b3ad);
   background: rgba(255, 255, 255, 0.035);
+}
+
+.general-technical-note strong,
+.general-technical-note span {
+  display: block;
+}
+
+.general-technical-note strong {
+  margin-bottom: 4px;
+  color: var(--stable-text, #f8fafc);
 }
 
 .fundamental-capture-actions {

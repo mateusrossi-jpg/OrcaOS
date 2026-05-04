@@ -30,7 +30,7 @@ describe('business profile storage', () => {
       phone: '(11) 99999-0000',
       email: 'contato@orcaos.test',
       address: 'Rua Teste, 123',
-      responsibleName: 'Mateus Rossi',
+      responsibleName: 'Profissional Técnico',
       defaultValidity: '10 dias',
     });
 
@@ -38,7 +38,7 @@ describe('business profile storage', () => {
 
     expect(loaded.businessName).toBe('OrçaOS Serviços');
     expect(loaded.documentNumber).toBe('12.345.678/0001-90');
-    expect(loaded.responsibleName).toBe('Mateus Rossi');
+    expect(loaded.responsibleName).toBe('Profissional Técnico');
     expect(loaded.defaultValidity).toBe('10 dias');
   });
 

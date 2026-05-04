@@ -16,6 +16,7 @@ android/app/build/outputs/
 release/*.jks
 release/*.keystore
 .DS_Store
+.idea/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*

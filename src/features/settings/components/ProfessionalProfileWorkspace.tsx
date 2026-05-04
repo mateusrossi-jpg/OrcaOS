@@ -134,7 +134,7 @@ export function ProfessionalProfileWorkspace() {
         <div className="professional-profile-grid">
           <label>
             <span>Nome profissional</span>
-            <input value={profile.professionalName} placeholder="Ex.: Mateus Rossi" onChange={(event) => updateProfile('professionalName', event.target.value)} />
+            <input value={profile.professionalName} placeholder="Ex.: Profissional técnico" onChange={(event) => updateProfile('professionalName', event.target.value)} />
           </label>
           <label>
             <span>Nome comercial / empresa</span>

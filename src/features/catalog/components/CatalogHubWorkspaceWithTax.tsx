@@ -49,12 +49,15 @@ export function CatalogHubWorkspace({ onSendToBudget }: CatalogHubWorkspaceWithT
         </span>
       </div>
 
-      <div className="section-mode-tabs">
+      <div className="section-mode-tabs catalog-primary-tabs">
         <button className={activeSection === 'catalog' ? 'active' : ''} type="button" onClick={() => setActiveSection('catalog')}>Catálogo</button>
-        <button className={activeSection === 'online' ? 'active' : ''} type="button" onClick={() => setActiveSection('online')}>Busca online</button>
         <button className={activeSection === 'suppliers' ? 'active' : ''} type="button" onClick={() => setActiveSection('suppliers')}>Fornecedores</button>
-        <button className={activeSection === 'purchases' ? 'active' : ''} type="button" onClick={() => setActiveSection('purchases')}>Compras/estoque</button>
         <button className={activeSection === 'pricing' ? 'active' : ''} type="button" onClick={() => setActiveSection('pricing')}>Preço e margem</button>
+      </div>
+
+      <div className="catalog-secondary-tabs" aria-label="Recursos auxiliares do estoque">
+        <button className={activeSection === 'online' ? 'active' : ''} type="button" onClick={() => setActiveSection('online')}>Consulta online</button>
+        <button className={activeSection === 'purchases' ? 'active' : ''} type="button" onClick={() => setActiveSection('purchases')}>Compras/estoque</button>
       </div>
 
       {activeSection === 'catalog' && <CatalogHubWorkspaceLive enabledTabs={['items']} onSendToBudget={onSendToBudget} />}

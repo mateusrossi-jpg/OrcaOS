@@ -4,38 +4,37 @@ export interface BudgetTemplateOption {
   id: BudgetTemplateId;
   title: string;
   description: string;
+  value: string;
   plan: 'free' | 'pro';
 }
 
 export const budgetTemplateOptions: BudgetTemplateOption[] = [
   {
-    id: 'professional',
-    title: 'Profissional',
-    description: 'Modelo completo com cabeçalho da empresa, dados do cliente, tabela e condições comerciais.',
-    plan: 'free',
-  },
-  {
-    id: 'technical',
-    title: 'Técnico',
-    description: 'Modelo com visual mais técnico, bom para propostas com diagnóstico e justificativa.',
-    plan: 'free',
-  },
-  {
     id: 'simple',
-    title: 'Simples',
-    description: 'Modelo direto, limpo e rápido para pequenos serviços.',
+    title: 'Orçamento Simples',
+    description: 'Modelo grátis, limpo e funcional, sem marca d agua e sem capa.',
+    value: 'Cliente, data, descrição, itens, totais, observações e dados básicos.',
     plan: 'free',
   },
   {
-    id: 'premiumModern',
-    title: 'Premium moderno',
-    description: 'Modelo visual mais comercial, previsto para pacote de modelos pagos.',
+    id: 'professional',
+    title: 'Profissional Comercial',
+    description: 'Cabeçalho profissional, logo, dados completos e campo de aceite.',
+    value: 'Feito para parecer mais organizado e aumentar confiança na aprovação.',
     plan: 'pro',
   },
   {
-    id: 'premiumDetailed',
-    title: 'Premium detalhado',
-    description: 'Modelo avançado com seções comerciais e técnicas extras, previsto para venda futura.',
+    id: 'technical',
+    title: 'Técnico Detalhado',
+    description: 'Diagnóstico, ambientes, medições, cálculos, recomendações e totais por categoria.',
+    value: 'Indicado para serviços que precisam justificar tecnicamente o valor.',
+    plan: 'pro',
+  },
+  {
+    id: 'premiumModern',
+    title: 'Proposta Premium',
+    description: 'Capa, problema identificado, solução proposta, benefícios e próximos passos.',
+    value: 'Para vender melhor serviços maiores com uma proposta mais consultiva.',
     plan: 'pro',
   },
 ];

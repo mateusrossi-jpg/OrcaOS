@@ -43,6 +43,8 @@ const emptyDraft: SupplierProfileDraft = {
   purchaseNotes: '',
 };
 
+const SUPPLIER_PROFILE_VISIBLE_LIMIT = 5;
+
 function parseInteger(value: string): number | undefined {
   const parsed = Number.parseInt(value.trim(), 10);
   return Number.isFinite(parsed) ? parsed : undefined;
@@ -107,9 +109,13 @@ export function SupplierProfileWorkspace() {
 
   const filteredProfiles = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
-    if (!normalizedQuery) return profiles;
-    return profiles.filter((profile) => [profile.name, profile.document, profile.segment, profile.city, profile.state, profile.phone, profile.email, profile.purchaseNotes, profile.defaultTaxNotes].filter(Boolean).join(' ').toLowerCase().includes(normalizedQuery));
+    const source = normalizedQuery
+      ? profiles.filter((profile) => [profile.name, profile.document, profile.segment, profile.city, profile.state, profile.phone, profile.email, profile.purchaseNotes, profile.defaultTaxNotes].filter(Boolean).join(' ').toLowerCase().includes(normalizedQuery))
+      : profiles;
+    return [...source].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
   }, [profiles, query]);
+  const visibleProfiles = filteredProfiles.slice(0, SUPPLIER_PROFILE_VISIBLE_LIMIT);
+  const hiddenProfileCount = Math.max(filteredProfiles.length - visibleProfiles.length, 0);
 
   function updateDraft<K extends keyof SupplierProfileDraft>(key: K, value: SupplierProfileDraft[K]) {
     setDraft((current) => ({ ...current, [key]: value }));
@@ -209,7 +215,8 @@ export function SupplierProfileWorkspace() {
         </div>
         <label className="supplier-profile-search"><span>Buscar fornecedor</span><input value={query} placeholder="Nome, CNPJ, cidade, segmento..." onChange={(event) => setQuery(event.target.value)} /></label>
         <div className="supplier-profile-list">
-          {filteredProfiles.map((profile) => (
+          {filteredProfiles.length === 0 && <div className="supplier-profile-empty">Nenhum fornecedor encontrado com essa busca.</div>}
+          {visibleProfiles.map((profile) => (
             <article className="supplier-profile-item" key={profile.id}>
               <div>
                 <span>{profile.segment}</span>
@@ -226,6 +233,7 @@ export function SupplierProfileWorkspace() {
               </div>
             </article>
           ))}
+          {hiddenProfileCount > 0 && <div className="supplier-profile-empty">Mais {hiddenProfileCount} fornecedor(es) oculto(s). Use a busca para refinar.</div>}
         </div>
       </div>
 

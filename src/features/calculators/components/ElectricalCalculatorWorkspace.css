@@ -163,6 +163,57 @@
   background: var(--orca-surface, #101713);
 }
 
+.resistor-network-controls {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  border: 1px solid rgba(0, 184, 194, 0.22);
+  border-radius: 18px;
+  padding: 12px;
+  background: rgba(0, 184, 194, 0.06);
+}
+
+.resistor-network-controls > span {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.resistor-network-controls strong {
+  color: var(--orca-text, #f8fafc);
+}
+
+.resistor-network-controls small {
+  color: var(--orca-muted, #a7b3ad);
+  line-height: 1.35;
+}
+
+.resistor-network-controls > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.resistor-network-controls button {
+  min-height: 42px;
+  border: 1px solid rgba(0, 184, 194, 0.24);
+  border-radius: 14px;
+  padding: 0 12px;
+  color: var(--orca-green, #00b8c2);
+  background: rgba(0, 184, 194, 0.08);
+  font: inherit;
+  font-weight: 850;
+  cursor: pointer;
+}
+
+.resistor-network-controls button:disabled {
+  cursor: not-allowed;
+  opacity: 0.48;
+}
+
 .input-with-suffix small {
   flex: none;
   padding-right: 14px;
@@ -463,6 +514,18 @@
 }
 
 @media (max-width: 540px) {
+  .resistor-network-controls {
+    grid-template-columns: 1fr;
+  }
+
+  .resistor-network-controls > div {
+    justify-content: stretch;
+  }
+
+  .resistor-network-controls button {
+    flex: 1;
+  }
+
   .calculator-picker-card {
     grid-template-columns: minmax(0, 1fr) auto;
   }

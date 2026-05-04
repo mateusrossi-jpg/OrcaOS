@@ -1,7 +1,7 @@
 import type { WorkOrder } from '../../core/types/business';
 
 export function statusLabel(status: WorkOrder['status']): string {
-  const labels: Record<WorkOrder['status'], string> = { open: 'Aberta', scheduled: 'Agendada', 'in-progress': 'Em execução', done: 'Concluída', cancelled: 'Cancelada' };
+  const labels: Record<WorkOrder['status'], string> = { open: 'Em orçamento', scheduled: 'Agendada', 'in-progress': 'Execução autorizada', done: 'Concluída', cancelled: 'Cancelada' };
   return labels[status];
 }
 

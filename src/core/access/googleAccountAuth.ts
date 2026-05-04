@@ -74,7 +74,7 @@ export function isGoogleAccountLoginConfigured(): boolean {
 
 async function requestGoogleProfileAccessToken(): Promise<string> {
   const clientId = getGoogleClientId().trim();
-  if (!clientId) throw new Error('Configure VITE_GOOGLE_CLIENT_ID para ativar login Google.');
+  if (!clientId) throw new Error('Login Google indisponível neste ambiente.');
 
   await loadGoogleIdentityScript();
   const oauth2 = window.google?.accounts?.oauth2;

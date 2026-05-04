@@ -197,7 +197,7 @@ export function GuidedRoomManager() {
           {editingRoomId && <button className="secondary-action inline-action" type="button" onClick={cancelEditRoom}>Cancelar edição</button>}
         </div>
 
-        {!editingRoomId && <p className="guided-room-helper">Depois de adicionar, o cômodo fica selecionado para os próximos lançamentos do orçamento guiado.</p>}
+        {!editingRoomId && <p className="guided-room-helper">Depois de adicionar, o cômodo fica selecionado para os próximos lançamentos do orçamento.</p>}
       </div>
 
       <div className="guided-room-card guided-room-select-card">

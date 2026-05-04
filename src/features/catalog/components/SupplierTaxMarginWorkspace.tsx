@@ -71,6 +71,7 @@ const emptyDraft: PurchaseTaxDraft = {
 };
 
 const currencyFormatter = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+const TAX_RECORD_VISIBLE_LIMIT = 5;
 
 function money(value: number): string {
   return currencyFormatter.format(Number.isFinite(value) ? value : 0);
@@ -164,9 +165,13 @@ export function SupplierTaxMarginWorkspace() {
   const previewSummary = previewRecord ? calculatePurchaseTaxSummary(previewRecord) : null;
   const filteredRecords = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
-    if (!normalizedQuery) return records;
-    return records.filter((record) => [record.supplierName, record.productDescription, record.documentNumber, record.ncm, record.cfop, record.notes].filter(Boolean).join(' ').toLowerCase().includes(normalizedQuery));
+    const source = normalizedQuery
+      ? records.filter((record) => [record.supplierName, record.productDescription, record.documentNumber, record.ncm, record.cfop, record.notes].filter(Boolean).join(' ').toLowerCase().includes(normalizedQuery))
+      : records;
+    return [...source].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
   }, [query, records]);
+  const visibleRecords = filteredRecords.slice(0, TAX_RECORD_VISIBLE_LIMIT);
+  const hiddenRecordCount = Math.max(filteredRecords.length - visibleRecords.length, 0);
 
   function updateDraft<K extends keyof PurchaseTaxDraft>(key: K, value: PurchaseTaxDraft[K]) {
     setDraft((current) => ({ ...current, [key]: value }));
@@ -255,7 +260,7 @@ export function SupplierTaxMarginWorkspace() {
             <label><span>Imposto na venda %</span><input inputMode="decimal" value={draft.estimatedSaleTaxPercent} onChange={(event) => updateDraft('estimatedSaleTaxPercent', event.target.value)} /></label>
             <label><span>Taxa cartão %</span><input inputMode="decimal" value={draft.cardFeePercent} onChange={(event) => updateDraft('cardFeePercent', event.target.value)} /></label>
             <label><span>Reserva/risco %</span><input inputMode="decimal" value={draft.reservePercent} onChange={(event) => updateDraft('reservePercent', event.target.value)} /></label>
-            <label className="wide"><span>Observações fiscais/gerenciais</span><textarea value={draft.notes} placeholder="Ex.: compra para estoque, conferir ICMS/ST, produto usado em obra do cliente X..." onChange={(event) => updateDraft('notes', event.target.value)} /></label>
+            <label className="wide"><span>Observações fiscais/gerenciais</span><textarea value={draft.notes} placeholder="Ex.: compra para estoque, conferir ICMS/ST, produto usado em atendimento do cliente..." onChange={(event) => updateDraft('notes', event.target.value)} /></label>
           </div>
           <div className="supplier-tax-actions">
             <button className="primary-action inline-action" type="button" onClick={saveRecord}>{editingId ? 'Salvar alterações' : 'Salvar lançamento'}</button>
@@ -286,7 +291,8 @@ export function SupplierTaxMarginWorkspace() {
         <div><strong>Lançamentos salvos</strong><small>Use para comparar fornecedores, formar estoque e revisar margem.</small></div>
         <label className="supplier-tax-search"><span>Buscar</span><input value={query} placeholder="Fornecedor, produto, nota, NCM..." onChange={(event) => setQuery(event.target.value)} /></label>
         <div className="supplier-tax-list">
-          {filteredRecords.map((record) => {
+          {filteredRecords.length === 0 && <div className="supplier-tax-empty">Nenhum lançamento encontrado com essa busca.</div>}
+          {visibleRecords.map((record) => {
             const summary = calculatePurchaseTaxSummary(record);
             return (
               <article className="supplier-tax-record" key={record.id}>
@@ -304,6 +310,7 @@ export function SupplierTaxMarginWorkspace() {
               </article>
             );
           })}
+          {hiddenRecordCount > 0 && <div className="supplier-tax-empty">Mais {hiddenRecordCount} lançamento(s) oculto(s). Use a busca para refinar.</div>}
         </div>
       </div>
 

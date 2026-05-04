@@ -10,6 +10,7 @@ export interface AppShellNavItem<T extends string> {
   description: string;
   icon?: ReactNode;
   section?: string;
+  primary?: boolean;
 }
 
 interface AppShellProps<T extends string> {
@@ -24,10 +25,10 @@ interface AppShellProps<T extends string> {
 }
 
 function statusLabel(status?: WorkOrder['status']): string {
-  if (!status) return 'Sem OS ativa';
+  if (!status) return 'Sem atendimento ativo';
 
   const labels: Record<WorkOrder['status'], string> = {
-    open: 'Aberta',
+    open: 'Em orçamento',
     scheduled: 'Agendada',
     'in-progress': 'Em execução',
     done: 'Concluída',
@@ -35,6 +36,13 @@ function statusLabel(status?: WorkOrder['status']): string {
   };
 
   return labels[status];
+}
+
+function formatTopbarClock(date: Date): string {
+  return new Intl.DateTimeFormat('pt-BR', {
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(date);
 }
 
 export function AppShell<T extends string>({
@@ -48,6 +56,7 @@ export function AppShell<T extends string>({
   children,
 }: AppShellProps<T>) {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [clockText, setClockText] = useState(() => formatTopbarClock(new Date()));
 
   useEffect(() => {
     document.body.classList.toggle('orcaos-drawer-open', isDrawerOpen);
@@ -57,10 +66,24 @@ export function AppShell<T extends string>({
     };
   }, [isDrawerOpen]);
 
+  useEffect(() => {
+    const updateClock = () => setClockText(formatTopbarClock(new Date()));
+    updateClock();
+    const intervalId = window.setInterval(updateClock, 30_000);
+
+    return () => window.clearInterval(intervalId);
+  }, []);
+
   function navigate(tab: T) {
     onNavigate(tab);
     setIsDrawerOpen(false);
   }
+
+  const topbarContextLabel = activeWorkOrder ? 'Ativo' : 'Livre';
+  const topbarContextTitle = activeWorkOrder
+    ? `${activeWorkOrder.title} · ${activeClient?.name ?? 'Cliente não vinculado'} · ${statusLabel(activeWorkOrder.status)}`
+    : 'Nenhum atendimento ativo';
+  const bottomNavItems = navItems.filter((item) => item.primary);
 
   return (
     <main className="professional-app-shell">
@@ -78,14 +101,31 @@ export function AppShell<T extends string>({
           {subtitle && <small>{subtitle}</small>}
         </div>
 
-        <div className="topbar-status-pill">
-          <span>{activeWorkOrder ? 'OS ativa' : 'Sem OS'}</span>
+        <time className="topbar-clock" dateTime={new Date().toISOString()} aria-label={`Horário atual ${clockText}`}>
+          {clockText}
+        </time>
+
+        <div className={activeWorkOrder ? 'topbar-status-pill active' : 'topbar-status-pill'} title={topbarContextTitle} aria-label={topbarContextTitle}>
+          <span aria-hidden="true" />
+          <strong>{topbarContextLabel}</strong>
         </div>
       </header>
 
       <div className="professional-app-content">
         {children}
       </div>
+
+      <nav className="bottom-nav" aria-label="Navegação principal">
+        {bottomNavItems.map((item) => {
+          const active = activeTab === item.id;
+          return (
+            <button className={active ? 'active' : ''} key={item.id} type="button" onClick={() => navigate(item.id)}>
+              <span>{item.icon ?? item.label.slice(0, 2)}</span>
+              <strong>{item.label}</strong>
+            </button>
+          );
+        })}
+      </nav>
 
       {isDrawerOpen && <button className="drawer-backdrop" type="button" aria-label="Fechar menu" onClick={() => setIsDrawerOpen(false)} />}
 
@@ -94,14 +134,14 @@ export function AppShell<T extends string>({
           <img className="drawer-brand-mark" src={ORCAOS_LOGO_SRC} alt="" aria-hidden="true" />
           <div>
             <strong>OrçaOS</strong>
-            <small>ERP técnico leve para serviço de campo</small>
           </div>
+          <button type="button" aria-label="Fechar menu" onClick={() => setIsDrawerOpen(false)}>Fechar</button>
         </div>
 
-        <div className="drawer-work-card">
-          <span>{statusLabel(activeWorkOrder?.status)}</span>
-          <strong>{activeWorkOrder?.title ?? 'Nenhuma OS ativa'}</strong>
-          <small>{activeClient?.name ?? 'Crie ou ative uma OS em Clientes / OS'}</small>
+        <div className={activeWorkOrder ? 'drawer-status-strip active' : 'drawer-status-strip'}>
+          <span aria-hidden="true" />
+          <strong>{activeWorkOrder ? statusLabel(activeWorkOrder.status) : 'Sem atendimento'}</strong>
+          <small>{activeWorkOrder?.title ?? 'Nenhum atendimento ativo'}</small>
         </div>
 
         <nav className="drawer-nav" aria-label="Menu principal">

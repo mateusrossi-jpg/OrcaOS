@@ -16,22 +16,33 @@ Este guia prepara o OrçaOS para gerar APK debug e AAB release no futuro, sem ve
 Opção recomendada:
 
 1. Instale o Android Studio pelo site oficial ou pela loja de aplicativos da distribuição.
-2. Abra o Android Studio.
-3. Vá em `More Actions` -> `SDK Manager`.
-4. Instale:
+2. Instale um JDK 21 completo, não apenas o runtime. O build Android do Capacitor 8 usa `sourceCompatibility JavaVersion.VERSION_21` e precisa de `javac`.
+3. Abra o Android Studio.
+4. Vá em `More Actions` -> `SDK Manager`.
+5. Instale:
    - Android SDK Platform 36;
    - Android SDK Build-Tools;
    - Android SDK Platform-Tools;
    - Android SDK Command-line Tools.
 
-Depois configure variáveis no shell, ajustando o caminho se necessário:
+Depois configure variáveis no shell, ajustando os caminhos se necessário:
 
 ```bash
 export ANDROID_HOME="$HOME/Android/Sdk"
-export PATH="$ANDROID_HOME/platform-tools:$ANDROID_HOME/cmdline-tools/latest/bin:$PATH"
+export JAVA_HOME="/usr/lib/jvm/java-21-openjdk-amd64"
+export PATH="$JAVA_HOME/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/cmdline-tools/latest/bin:$PATH"
 ```
 
 Para persistir, coloque essas linhas no `~/.bashrc` ou `~/.zshrc`.
+
+Verificação rápida:
+
+```bash
+java -version
+javac -version
+```
+
+Ambos devem apontar para Java 21. Se `java` for 21 mas `javac` não existir, instale o pacote JDK completo antes de gerar APK/AAB.
 
 ## 2. Configurar SDK no projeto
 
@@ -44,7 +55,7 @@ cp android/local.properties.example android/local.properties
 Edite `android/local.properties`:
 
 ```properties
-sdk.dir=/home/mateus/Android/Sdk
+sdk.dir=/caminho/para/Android/Sdk
 ```
 
 Esse arquivo é local e não deve ir para o Git.

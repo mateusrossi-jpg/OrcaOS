@@ -234,9 +234,9 @@ export function PaintingHumanWorkspace({ onCaptureCalculation }: Props) {
     };
 
     onCaptureCalculation?.(capture);
-    if (destination === 'survey') setAddedMessage(`${activeRule.label} foi incluído no campo.`);
+    if (destination === 'survey') setAddedMessage(`${activeRule.label} foi incluído no atendimento.`);
     if (destination === 'budget') setAddedMessage(`${activeRule.label} foi incluído no orçamento.`);
-    if (destination === 'both') setAddedMessage(`${activeRule.label} foi incluído no campo e no orçamento.`);
+    if (destination === 'both') setAddedMessage(`${activeRule.label} foi incluído no atendimento e no orçamento.`);
   }
 
   function closeCalculator() {
@@ -258,7 +258,7 @@ export function PaintingHumanWorkspace({ onCaptureCalculation }: Props) {
     <div className="general-calculator-workspace">
       <div className="general-plan-banner">
         <div>
-          <strong>Pintura e acabamento V1</strong>
+          <strong>Pintura e acabamento</strong>
           <span>Fluxo separado para medir área, estimar tinta e montar orçamento inicial.</span>
         </div>
         <em>{rules.length} cálculos</em>
@@ -336,7 +336,7 @@ export function PaintingHumanWorkspace({ onCaptureCalculation }: Props) {
             {addedMessage && <p className="general-added-message">{addedMessage}</p>}
 
             <div className="general-capture-actions">
-              <button type="button" onClick={() => includeResult('survey')}>Adicionar ao campo</button>
+              <button type="button" onClick={() => includeResult('survey')}>Adicionar ao atendimento</button>
               <button type="button" onClick={() => includeResult('budget')}>Adicionar ao orçamento</button>
               <button type="button" onClick={() => includeResult('both')}>Adicionar aos dois</button>
               <button className="secondary-action" type="button" onClick={closeCalculator}>Voltar</button>

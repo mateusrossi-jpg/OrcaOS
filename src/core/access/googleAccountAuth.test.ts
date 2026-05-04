@@ -46,11 +46,11 @@ describe('google account auth', () => {
         },
       },
     });
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({ sub: '123', name: 'Mateus', email: 'mateus@example.com' })));
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({ sub: '123', name: 'Profissional', email: 'profissional@example.com' })));
 
     const profile = await requestGoogleAccountProfile();
 
-    expect(profile).toEqual({ sub: '123', name: 'Mateus', email: 'mateus@example.com' });
+    expect(profile).toEqual({ sub: '123', name: 'Profissional', email: 'profissional@example.com' });
   });
 
   it('fails clearly when Google profile has no account id', async () => {
@@ -75,7 +75,7 @@ describe('google account auth', () => {
         },
       },
     });
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({ email: 'mateus@example.com' })));
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({ email: 'profissional@example.com' })));
 
     await expect(requestGoogleAccountProfile()).rejects.toThrow('identificador');
   });

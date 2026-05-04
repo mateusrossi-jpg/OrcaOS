@@ -11,6 +11,7 @@ import { upsertExternalCatalogHubItem } from '../storage/catalogHubSync';
 import './SupplierTaxMarginWorkspace.css';
 
 const currencyFormatter = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+const PURCHASE_VISIBLE_LIMIT = 5;
 
 function money(value: number): string {
   return currencyFormatter.format(Number.isFinite(value) ? value : 0);
@@ -58,9 +59,13 @@ export function PurchaseToCatalogBridge() {
   const records = useMemo(() => loadPurchaseTaxRecords(), [refreshKey]);
   const filteredRecords = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
-    if (!normalizedQuery) return records;
-    return records.filter((record) => [record.supplierName, record.productDescription, record.documentNumber, record.ncm, record.cfop, record.notes].filter(Boolean).join(' ').toLowerCase().includes(normalizedQuery));
+    const source = normalizedQuery
+      ? records.filter((record) => [record.supplierName, record.productDescription, record.documentNumber, record.ncm, record.cfop, record.notes].filter(Boolean).join(' ').toLowerCase().includes(normalizedQuery))
+      : records;
+    return [...source].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
   }, [query, records]);
+  const visibleRecords = filteredRecords.slice(0, PURCHASE_VISIBLE_LIMIT);
+  const hiddenRecordCount = Math.max(filteredRecords.length - visibleRecords.length, 0);
 
   function createCatalogItem(record: PurchaseTaxRecord) {
     const { action } = upsertExternalCatalogHubItem(buildCatalogItemFromPurchase(record));
@@ -96,14 +101,14 @@ export function PurchaseToCatalogBridge() {
       <div className="supplier-tax-card">
         <div>
           <strong>Compras disponíveis</strong>
-          <small>Ao criar o item, ele aparece no Catálogo profissional e pode ser enviado ao orçamento guiado.</small>
+          <small>Ao criar o item, ele aparece no Catálogo profissional e pode ser enviado ao orçamento.</small>
         </div>
         <label className="supplier-tax-search">
           <span>Buscar compra</span>
           <input value={query} placeholder="Fornecedor, produto, nota, NCM..." onChange={(event) => setQuery(event.target.value)} />
         </label>
         <div className="supplier-tax-list">
-          {filteredRecords.length === 0 ? <small>Nenhuma compra encontrada. Salve uma compra acima para criar item de catálogo.</small> : filteredRecords.map((record) => {
+          {filteredRecords.length === 0 ? <small>Nenhuma compra encontrada. Salve uma compra acima para criar item de catálogo.</small> : visibleRecords.map((record) => {
             const summary = calculatePurchaseTaxSummary(record);
             return (
               <article className="supplier-tax-record" key={record.id}>
@@ -120,6 +125,7 @@ export function PurchaseToCatalogBridge() {
               </article>
             );
           })}
+          {hiddenRecordCount > 0 && <small>Mais {hiddenRecordCount} compra(s) oculta(s). Use a busca para refinar.</small>}
         </div>
       </div>
 

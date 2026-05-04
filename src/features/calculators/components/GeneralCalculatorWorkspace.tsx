@@ -149,6 +149,39 @@ function ResultCard({ label, value, helper }: ResultCardData) {
   );
 }
 
+function methodLines(mode: GeneralCalculatorMode): string[] {
+  const lines: Record<GeneralCalculatorMode, string[]> = {
+    'wall-area': ['Área bruta = largura × altura × quantidade de paredes', 'Área líquida = área bruta - descontos de portas/janelas'],
+    'floor-area': ['Área = largura × comprimento', 'Área para compra = área × (1 + perda ÷ 100)'],
+    'concrete-volume': ['Espessura em m = espessura em cm ÷ 100', 'Volume = largura × comprimento × espessura', 'Volume com perda = volume × (1 + perda ÷ 100)'],
+    'blocks-quantity': ['Área líquida = largura × altura - descontos', 'Área do bloco = largura do bloco × altura do bloco', 'Quantidade = área líquida ÷ área do bloco, com perda aplicada'],
+    'floor-tiles': ['Área do ambiente = largura × comprimento', 'Área da peça = largura × altura da peça', 'Peças = área ÷ área da peça, com perda', 'Caixas = peças ÷ peças por caixa, arredondado para cima'],
+    'paint-area': ['Área líquida = largura × altura × paredes - descontos', 'Área pintada = área líquida × demãos'],
+    'paint-liters': ['Litros = área líquida × demãos ÷ rendimento', 'Perda é aplicada sobre os litros calculados'],
+    'paint-budget': ['Material = litros estimados × preço por litro', 'Mão de obra = área líquida × valor por m²', 'Total = material + mão de obra'],
+    'volume-converter': ['Litros = m³ × 1000', 'm³ = litros ÷ 1000'],
+    'pressure-converter': ['1 bar ≈ 14,5038 psi', '1 bar ≈ 10,197 mca'],
+    'power-converter': ['1 CV ≈ 0,7355 kW', '1 HP ≈ 0,7457 kW'],
+    'btu-watts-converter': ['W = BTU/h × 0,293071', 'BTU/h = W ÷ 0,293071'],
+    'labor-budget': ['Subtotal = quantidade × valor unitário', 'Total = subtotal + deslocamento'],
+    'final-price': ['Base = material + mão de obra + deslocamento', 'Lucro = base × percentual de lucro', 'Impostos = base com lucro × percentual de impostos', 'Total = base + lucro + impostos - desconto'],
+  };
+  return lines[mode];
+}
+
+function orientationText(mode: GeneralCalculatorMode): string {
+  if (['wall-area', 'floor-area', 'concrete-volume', 'blocks-quantity', 'floor-tiles'].includes(mode)) {
+    return 'Estimativa para compra e orçamento. Confira medidas reais, recortes, nivelamento, perdas, junta, espessura e especificação do material antes de fechar.';
+  }
+  if (['paint-area', 'paint-liters', 'paint-budget'].includes(mode)) {
+    return 'Rendimento de tinta varia por superfície, cor, preparação, diluição e marca. Use como base e ajuste pela vistoria.';
+  }
+  if (['volume-converter', 'pressure-converter', 'power-converter', 'btu-watts-converter'].includes(mode)) {
+    return 'Conversão técnica aproximada para conferência. Em equipamento real, confira placa, catálogo e unidade usada pelo fabricante.';
+  }
+  return 'Estimativa comercial inicial. Impostos, taxa de cartão, risco, garantia, deslocamento e retrabalho podem mudar o lucro real.';
+}
+
 function NumberField({ label, value, suffix, min = 0, step = 0.01, onChange }: {
   label: string;
   value: string;
@@ -456,6 +489,8 @@ export function GeneralCalculatorWorkspace({ selectedModule, onCaptureCalculatio
 
   function includeResult(destination: CalculationDestination) {
     if (!activeRule || result.cards.length === 0 || result.error) return;
+    const formulas = methodLines(activeRule.mode);
+    const orientation = orientationText(activeRule.mode);
 
     const capture: CalculationCapture = {
       id: createId('general-calc'),
@@ -465,14 +500,15 @@ export function GeneralCalculatorWorkspace({ selectedModule, onCaptureCalculatio
       destination,
       createdAt: new Date().toISOString(),
       summary: result.summary,
-      details: result.details,
+      details: [...result.details, ...formulas.map((item) => `Fórmula: ${item}`), `Orientação: ${orientation}`],
+      technicalNote: orientation,
     };
 
     onCaptureCalculation?.(capture);
 
-    if (destination === 'survey') setAddedMessage(`${activeRule.label} foi incluído no campo.`);
+    if (destination === 'survey') setAddedMessage(`${activeRule.label} foi incluído no atendimento.`);
     if (destination === 'budget') setAddedMessage(`${activeRule.label} foi incluído no orçamento.`);
-    if (destination === 'both') setAddedMessage(`${activeRule.label} foi incluído no campo e no orçamento.`);
+    if (destination === 'both') setAddedMessage(`${activeRule.label} foi incluído no atendimento e no orçamento.`);
   }
 
   function closeCalculator() {
@@ -545,10 +581,21 @@ export function GeneralCalculatorWorkspace({ selectedModule, onCaptureCalculatio
               </div>
             )}
 
+            {result.cards.length > 0 && (
+              <div className="general-formula-box">
+                <strong>Como este cálculo é feito</strong>
+                {methodLines(activeRule.mode).map((item) => <span key={item}>{item}</span>)}
+              </div>
+            )}
+
+            {result.cards.length > 0 && (
+              <p className="general-technical-note"><strong>Observação técnica</strong><span>{orientationText(activeRule.mode)}</span></p>
+            )}
+
             {addedMessage && <p className="general-added-message">{addedMessage}</p>}
 
             <div className="general-capture-actions">
-              <button type="button" onClick={() => includeResult('survey')}>Adicionar ao campo</button>
+              <button type="button" onClick={() => includeResult('survey')}>Adicionar ao atendimento</button>
               <button type="button" onClick={() => includeResult('budget')}>Adicionar ao orçamento</button>
               <button type="button" onClick={() => includeResult('both')}>Adicionar aos dois</button>
               <button className="secondary-action" type="button" onClick={closeCalculator}>Voltar</button>

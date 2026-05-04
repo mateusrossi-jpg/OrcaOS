@@ -1,9 +1,16 @@
 export interface GuidedLaborTemplate {
   id: string;
   title: string;
+  description?: string;
   defaultUnitValue: number;
   unit: string;
   note: string;
+  suggestedMaterials?: string;
+  estimatedTime?: string;
+  marginPercent?: number;
+  minimumValue?: number;
+  category?: string;
+  professionModule?: string;
   visible: boolean;
   createdAt: string;
   updatedAt: string;
@@ -12,9 +19,16 @@ export interface GuidedLaborTemplate {
 
 export interface GuidedLaborTemplateInput {
   title: string;
+  description?: string;
   defaultUnitValue: number;
   unit: string;
   note: string;
+  suggestedMaterials?: string;
+  estimatedTime?: string;
+  marginPercent?: number;
+  minimumValue?: number;
+  category?: string;
+  professionModule?: string;
   visible?: boolean;
 }
 
@@ -41,6 +55,14 @@ function createGuidedLaborTemplateId(): string {
   return `labor-${Date.now()}-${Math.round(Math.random() * 1000)}`;
 }
 
+function optionalString(value: unknown): string | undefined {
+  return typeof value === 'string' && value.trim() ? value.trim() : undefined;
+}
+
+function optionalPositiveNumber(value: unknown): number | undefined {
+  return typeof value === 'number' && Number.isFinite(value) && value >= 0 ? value : undefined;
+}
+
 function normalizeTemplate(template: Partial<GuidedLaborTemplate>): GuidedLaborTemplate | null {
   if (typeof template.id !== 'string' || !template.id.trim()) return null;
   if (typeof template.title !== 'string' || !template.title.trim()) return null;
@@ -54,9 +76,16 @@ function normalizeTemplate(template: Partial<GuidedLaborTemplate>): GuidedLaborT
   return {
     id: template.id.trim(),
     title: template.title.trim(),
+    description: optionalString(template.description),
     defaultUnitValue: template.defaultUnitValue,
     unit: template.unit.trim(),
     note: template.note.trim(),
+    suggestedMaterials: optionalString(template.suggestedMaterials),
+    estimatedTime: optionalString(template.estimatedTime),
+    marginPercent: optionalPositiveNumber(template.marginPercent),
+    minimumValue: optionalPositiveNumber(template.minimumValue),
+    category: optionalString(template.category),
+    professionModule: optionalString(template.professionModule),
     visible: typeof template.visible === 'boolean' ? template.visible : true,
     createdAt,
     updatedAt,
@@ -70,7 +99,7 @@ function safeParseTemplates(value: string | null): GuidedLaborTemplate[] {
     const parsed: unknown = JSON.parse(value);
     if (!Array.isArray(parsed)) return starterGuidedLaborTemplates;
     const templates = parsed.map((item) => normalizeTemplate(item as Partial<GuidedLaborTemplate>)).filter((item): item is GuidedLaborTemplate => Boolean(item));
-    return templates.length > 0 ? templates : starterGuidedLaborTemplates;
+    return templates.length > 0 ? templates.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)) : starterGuidedLaborTemplates;
   } catch {
     return starterGuidedLaborTemplates;
   }
@@ -91,9 +120,16 @@ export function createGuidedLaborTemplate(input: GuidedLaborTemplateInput): Guid
   return {
     id: createGuidedLaborTemplateId(),
     title: input.title.trim(),
+    description: optionalString(input.description),
     defaultUnitValue: Math.max(0, input.defaultUnitValue),
     unit: input.unit.trim() || 'un.',
     note: input.note.trim(),
+    suggestedMaterials: optionalString(input.suggestedMaterials),
+    estimatedTime: optionalString(input.estimatedTime),
+    marginPercent: optionalPositiveNumber(input.marginPercent),
+    minimumValue: optionalPositiveNumber(input.minimumValue),
+    category: optionalString(input.category),
+    professionModule: optionalString(input.professionModule),
     visible: input.visible ?? true,
     createdAt: now,
     updatedAt: now,

@@ -69,6 +69,13 @@ const defaultValues: Record<string, string> = {
   resistorOneOhms: '100',
   resistorTwoOhms: '220',
   resistorThreeOhms: '330',
+  resistorFourOhms: '',
+  resistorFiveOhms: '',
+  resistorSixOhms: '',
+  resistorSevenOhms: '',
+  resistorEightOhms: '',
+  resistorNineOhms: '',
+  resistorTenOhms: '',
   hoursPerDay: '2',
   days: '30',
   tariff: '0.95',
@@ -97,6 +104,19 @@ const defaultValues: Record<string, string> = {
   cableCount: '3',
   conduitInternalDiameterMm: '16',
 };
+
+const resistorValueKeys = [
+  'resistorOneOhms',
+  'resistorTwoOhms',
+  'resistorThreeOhms',
+  'resistorFourOhms',
+  'resistorFiveOhms',
+  'resistorSixOhms',
+  'resistorSevenOhms',
+  'resistorEightOhms',
+  'resistorNineOhms',
+  'resistorTenOhms',
+];
 
 function parseCalculatorNumber(value: string): number {
   const normalizedValue = value.trim().replace(',', '.');
@@ -183,6 +203,52 @@ function ResultCard({ label, value, helper }: ResultCardData) {
   );
 }
 
+function methodLines(mode: CalculatorMode): string[] {
+  const lines: Record<CalculatorMode, string[]> = {
+    current: ['Corrente = potência ÷ tensão no circuito simples', 'Em trifásico, a relação considera √3, tensão e fator de potência.'],
+    power: ['Potência = tensão × corrente × fator de potência', 'Em trifásico, potência = √3 × tensão × corrente × fator de potência.'],
+    'ohms-law': ['Resistência = tensão ÷ corrente', 'Potência relacionada = tensão × corrente'],
+    'power-resistance': ['Potência por corrente = I² × R', 'Potência por tensão = V² ÷ R'],
+    'resistor-network': ['Série = soma direta dos resistores', 'Paralelo = 1 ÷ soma dos inversos das resistências'],
+    consumption: ['kWh = potência em W ÷ 1000 × horas por dia × dias', 'Custo = kWh × tarifa informada'],
+    'voltage-drop': ['Queda de tensão estimada pela corrente, distância, seção, tensão e material do cabo', 'Percentual = queda em volts ÷ tensão × 100'],
+    conversion: ['VA = W ÷ fator de potência', 'Corrente por VA usa potência aparente, tensão e tipo de circuito.'],
+    lighting: ['Fluxo necessário = área × iluminância desejada', 'Quantidade = fluxo necessário ÷ lúmens por luminária, arredondado para cima'],
+    'air-conditioning': ['Carga térmica inicial considera área, pessoas, equipamentos e fator de insolação/calor', 'Modelo comercial usa a capacidade imediatamente acima.'],
+    'conduit-fill': ['Área do cabo = π × (diâmetro externo ÷ 2)²', 'Ocupação = área total dos cabos ÷ área interna do eletroduto × 100'],
+    'circuit-recommendation': ['Corrente de projeto é calculada pela potência, tensão, fase e fator de potência', 'Disjuntor e cabo são sugestões comerciais iniciais a partir da corrente.'],
+    'cable-section-drop': ['Queda máxima em volts = tensão × percentual máximo ÷ 100', 'Seção estimada usa corrente, distância, queda máxima, fase e material.'],
+    'max-distance-drop': ['Distância máxima usa corrente, seção do cabo, tensão e queda máxima permitida', 'Resultado assume condutor de cobre no modelo simplificado.'],
+    'transformer-sizing': ['Potência aparente = carga em W ÷ fator de potência', 'Capacidade com margem = potência aparente × (1 + margem ÷ 100)'],
+    'awg-conversion': ['AWG para mm² usa tabela técnica cadastrada', 'mm² para AWG escolhe valor comercial próximo/superior.'],
+    'motor-current': ['Corrente do motor considera potência mecânica, tensão, rendimento, fator de potência e fase', 'O resultado é estimativa de regime, não corrente de partida.'],
+    'motor-speed': ['Rotação síncrona = 120 × frequência ÷ polos', 'Escorregamento = diferença entre rotação síncrona e medida.'],
+    'pulley-ratio': ['Relação = diâmetro da polia motora ÷ diâmetro da polia movida', 'RPM movido é estimado pela relação de polias.'],
+    'analog-4-20ma': ['Percentual = (entrada - 4 mA) ÷ 16 mA × 100', 'Valor de engenharia = mínimo + percentual × faixa de engenharia.'],
+    'analog-0-10v': ['Percentual = entrada ÷ 10 V × 100', 'Valor de engenharia = mínimo + percentual × faixa de engenharia.'],
+  };
+  return lines[mode];
+}
+
+function orientationText(mode: CalculatorMode): string {
+  if (['current', 'power', 'voltage-drop', 'cable-section-drop', 'max-distance-drop', 'circuit-recommendation', 'conduit-fill'].includes(mode)) {
+    return 'Use como apoio de dimensionamento. Norma, método de instalação, temperatura, agrupamento, distância real, queda admissível e proteção precisam ser validados antes da execução.';
+  }
+  if (['lighting', 'air-conditioning'].includes(mode)) {
+    return 'Use como estimativa inicial. Conforto, layout, pé-direito, insolação, equipamentos, refletância e catálogo do fabricante podem alterar a escolha final.';
+  }
+  if (['motor-current', 'motor-speed', 'pulley-ratio'].includes(mode)) {
+    return 'Use como triagem técnica. Confira placa do motor, regime, partida, rendimento, escorregamento real, proteção e catálogo do fabricante.';
+  }
+  if (['analog-4-20ma', 'analog-0-10v'].includes(mode)) {
+    return 'Use para conferência de sinal. Valide range configurado no instrumento, calibração, escala de engenharia e condição do sensor.';
+  }
+  if (mode === 'awg-conversion' || mode === 'conversion') {
+    return 'Conversão técnica de apoio. Confirme unidade, tabela, fator de potência e especificação do equipamento antes de aplicar no projeto.';
+  }
+  return 'Cálculo elétrico de apoio. Resultado não substitui medição, catálogo, norma aplicável e responsabilidade técnica no serviço real.';
+}
+
 function LockedCalculator({ mode, onUpgradeRequest }: { mode: CalculatorMode; onUpgradeRequest?: () => void }) {
   const rule = getCalculatorAccessRule(mode);
 
@@ -207,6 +273,7 @@ export function ElectricalCalculatorWorkspace({ userPlan = 'free', selectedModul
   const [addedMessage, setAddedMessage] = useState<string | null>(null);
   const [values, setValues] = useState<Record<string, string>>(defaultValues);
   const [phase, setPhase] = useState<CircuitPhase>('single-phase');
+  const [resistorFieldCount, setResistorFieldCount] = useState(4);
 
   const activeRule = activeCalculator ? getCalculatorAccessRule(activeCalculator) : null;
   const hasAccess = activeCalculator ? canUseCalculator(activeCalculator, userPlan) : false;
@@ -222,6 +289,33 @@ export function ElectricalCalculatorWorkspace({ userPlan = 'free', selectedModul
 
   function n(key: string): number {
     return parseCalculatorNumber(values[key] ?? '');
+  }
+
+  function resistorValues(): number[] {
+    const resistors = resistorValueKeys.slice(0, resistorFieldCount).reduce<number[]>((items, key, index) => {
+      const rawValue = values[key] ?? '';
+      if (!rawValue.trim()) return items;
+      const parsedValue = parseCalculatorNumber(rawValue);
+      if (!Number.isFinite(parsedValue) || parsedValue <= 0) {
+        throw new Error(`Informe um valor válido para o resistor ${index + 1}.`);
+      }
+      items.push(parsedValue);
+      return items;
+    }, []);
+
+    if (resistors.length < 2) {
+      throw new Error('Informe pelo menos dois resistores válidos.');
+    }
+
+    return resistors;
+  }
+
+  function addResistorField() {
+    setResistorFieldCount((current) => Math.min(resistorValueKeys.length, current + 1));
+  }
+
+  function removeResistorField() {
+    setResistorFieldCount((current) => Math.max(2, current - 1));
   }
 
   const result = useMemo<CalculatorResult>(() => {
@@ -263,10 +357,11 @@ export function ElectricalCalculatorWorkspace({ userPlan = 'free', selectedModul
       }
 
       if (activeCalculator === 'resistor-network') {
-        const resistors = [n('resistorOneOhms'), n('resistorTwoOhms'), n('resistorThreeOhms')];
+        const resistors = resistorValues();
         return { error: null, cards: [
-          { label: 'Equivalente em série', value: `${roundTechnical(calculateSeriesResistance({ resistorsOhms: resistors }))} Ω`, helper: 'Soma direta das resistências.' },
+          { label: 'Equivalente em série', value: `${roundTechnical(calculateSeriesResistance({ resistorsOhms: resistors }))} Ω`, helper: `${resistors.length} resistor(es): soma direta.` },
           { label: 'Equivalente em paralelo', value: `${roundTechnical(calculateParallelResistance({ resistorsOhms: resistors }))} Ω`, helper: 'Inverso da soma dos inversos.' },
+          { label: 'Resistores usados', value: `${resistors.length}`, helper: resistors.map((item) => `${roundTechnical(item)} Ω`).join(' · ') },
         ] };
       }
 
@@ -400,12 +495,14 @@ export function ElectricalCalculatorWorkspace({ userPlan = 'free', selectedModul
     } catch (error) {
       return { error: error instanceof Error ? error.message : 'Preencha os campos necessários para calcular.', cards: [] };
     }
-  }, [activeCalculator, hasAccess, phase, values]);
+  }, [activeCalculator, hasAccess, phase, values, resistorFieldCount]);
 
   function includeResult(destination: CalculationDestination) {
     if (!activeRule || result.cards.length === 0 || result.error) {
       return;
     }
+    const formulas = methodLines(activeRule.mode);
+    const orientation = orientationText(activeRule.mode);
 
     const capture: CalculationCapture = {
       id: createId('calc'),
@@ -415,17 +512,22 @@ export function ElectricalCalculatorWorkspace({ userPlan = 'free', selectedModul
       destination,
       createdAt: new Date().toISOString(),
       summary: result.cards[0] ? `${result.cards[0].label}: ${result.cards[0].value}` : activeRule.label,
-      details: result.cards.map((card) => `${card.label}: ${card.value}${card.helper ? ` — ${card.helper}` : ''}`),
+      details: [
+        ...result.cards.map((card) => `${card.label}: ${card.value}${card.helper ? ` - ${card.helper}` : ''}`),
+        ...formulas.map((item) => `Fórmula: ${item}`),
+        `Orientação: ${orientation}`,
+      ],
+      technicalNote: orientation,
     };
 
     onCaptureCalculation?.(capture);
 
     if (destination === 'survey') {
-      setAddedMessage(`${activeRule.label} foi incluído no campo técnico.`);
+      setAddedMessage(`${activeRule.label} foi incluído no atendimento.`);
     } else if (destination === 'budget') {
       setAddedMessage(`${activeRule.label} foi incluído no orçamento.`);
     } else {
-      setAddedMessage(`${activeRule.label} foi incluído no campo e no orçamento.`);
+      setAddedMessage(`${activeRule.label} foi incluído no atendimento e no orçamento.`);
     }
   }
 
@@ -487,7 +589,23 @@ export function ElectricalCalculatorWorkspace({ userPlan = 'free', selectedModul
                   {(activeCalculator === 'current' || activeCalculator === 'power' || activeCalculator === 'conversion' || activeCalculator === 'circuit-recommendation' || activeCalculator === 'motor-current' || activeCalculator === 'transformer-sizing') && <NumberField label="Fator de potência" value={values.powerFactor} min={0.01} step={0.01} onChange={(value) => setValue('powerFactor', value)} />}
                   {(activeCalculator === 'current' || activeCalculator === 'power' || activeCalculator === 'voltage-drop' || activeCalculator === 'conversion' || activeCalculator === 'circuit-recommendation' || activeCalculator === 'cable-section-drop' || activeCalculator === 'max-distance-drop' || activeCalculator === 'motor-current') && <PhaseSelector value={phase} onChange={setPhase} />}
                   {activeCalculator === 'power-resistance' && <NumberField label="Resistência" value={values.resistanceOhms} suffix="Ω" onChange={(value) => setValue('resistanceOhms', value)} />}
-                  {activeCalculator === 'resistor-network' && <><NumberField label="Resistor 1" value={values.resistorOneOhms} suffix="Ω" onChange={(value) => setValue('resistorOneOhms', value)} /><NumberField label="Resistor 2" value={values.resistorTwoOhms} suffix="Ω" onChange={(value) => setValue('resistorTwoOhms', value)} /><NumberField label="Resistor 3" value={values.resistorThreeOhms} suffix="Ω" onChange={(value) => setValue('resistorThreeOhms', value)} /></>}
+                  {activeCalculator === 'resistor-network' && (
+                    <>
+                      <div className="resistor-network-controls">
+                        <span>
+                          <strong>{resistorFieldCount} campo(s) de resistor</strong>
+                          <small>Adicione quantos resistores precisar. Campos vazios são ignorados.</small>
+                        </span>
+                        <div>
+                          <button type="button" onClick={addResistorField} disabled={resistorFieldCount >= resistorValueKeys.length}>Adicionar resistor</button>
+                          <button type="button" onClick={removeResistorField} disabled={resistorFieldCount <= 2}>Remover campo</button>
+                        </div>
+                      </div>
+                      {resistorValueKeys.slice(0, resistorFieldCount).map((key, index) => (
+                        <NumberField key={key} label={`Resistor ${index + 1}${index > 1 ? ' (opcional)' : ''}`} value={values[key] ?? ''} suffix="Ω" onChange={(value) => setValue(key, value)} />
+                      ))}
+                    </>
+                  )}
                   {activeCalculator === 'consumption' && <><NumberField label="Horas por dia" value={values.hoursPerDay} suffix="h" onChange={(value) => setValue('hoursPerDay', value)} /><NumberField label="Dias" value={values.days} suffix="dias" step={1} onChange={(value) => setValue('days', value)} /><NumberField label="Tarifa" value={values.tariff} suffix="R$/kWh" onChange={(value) => setValue('tariff', value)} /></>}
                   {activeCalculator === 'voltage-drop' && <><NumberField label="Distância" value={values.distanceMeters} suffix="m" onChange={(value) => setValue('distanceMeters', value)} /><NumberField label="Seção do cabo" value={values.sectionMm2} suffix="mm²" onChange={(value) => setValue('sectionMm2', value)} /></>}
                   {activeCalculator === 'cable-section-drop' && <><NumberField label="Distância" value={values.distanceMeters} suffix="m" onChange={(value) => setValue('distanceMeters', value)} /><NumberField label="Queda máxima" value={values.maxDropPercent} suffix="%" onChange={(value) => setValue('maxDropPercent', value)} /></>}
@@ -506,6 +624,15 @@ export function ElectricalCalculatorWorkspace({ userPlan = 'free', selectedModul
                 <div className="calculator-results overlay-results">
                   {result.error && <div className="error-box">{result.error}</div>}
                   {result.cards.map((card) => <ResultCard key={card.label} label={card.label} value={card.value} helper={card.helper} />)}
+                  {result.cards.length > 0 && !result.error && (
+                    <div className="general-formula-box">
+                      <strong>Como este cálculo é feito</strong>
+                      {methodLines(activeRule.mode).map((item) => <span key={item}>{item}</span>)}
+                    </div>
+                  )}
+                  {result.cards.length > 0 && !result.error && (
+                    <p className="general-technical-note"><strong>Observação técnica</strong><span>{orientationText(activeRule.mode)}</span></p>
+                  )}
                   <div className="technical-warning">Resultado para apoio técnico. Antes de executar instalação real, validar norma, método de instalação, agrupamento, temperatura, cabo, proteção e responsabilidade profissional.</div>
                 </div>
 
@@ -515,7 +642,7 @@ export function ElectricalCalculatorWorkspace({ userPlan = 'free', selectedModul
                     <p>Envie para campo técnico, orçamento comercial ou para os dois fluxos da OS.</p>
                     {addedMessage && <small>{addedMessage}</small>}
                     <div>
-                      <button className="primary-action-button" type="button" onClick={() => includeResult('survey')}>Adicionar ao campo</button>
+                      <button className="primary-action-button" type="button" onClick={() => includeResult('survey')}>Adicionar ao atendimento</button>
                       <button className="primary-action-button" type="button" onClick={() => includeResult('budget')}>Adicionar ao orçamento</button>
                       <button className="primary-action-button" type="button" onClick={() => includeResult('both')}>Adicionar aos dois</button>
                       <button className="secondary-action-button" type="button" onClick={closeCalculator}>Voltar ao menu anterior</button>

@@ -37,7 +37,7 @@ O usuário pode inserir dados como:
 - valores de orçamento;
 - cálculos técnicos;
 - relatórios;
-- observações de OS;
+- observações de atendimento;
 - itens de levantamento.
 
 Na proposta local-first, esses dados ficam no dispositivo do usuário, salvo quando ele decidir exportar, compartilhar ou enviar.
@@ -113,7 +113,7 @@ Antes de publicar, verificar:
 - se existe login;
 - se existe backup em nuvem;
 - se existe anúncio;
-- se existe pagamento/assinatura;
+- se existe pagamento, assinatura ou liberação Pro;
 - se existe coleta de erro/crash externa;
 - se existe permissão sensível no Android.
 
@@ -128,7 +128,7 @@ Para facilitar a primeira publicação:
 1. manter o app sem analytics e sem anúncios inicialmente;
 2. validar uso local-first;
 3. publicar com política clara;
-4. só depois adicionar monetização/assinatura com revisão adequada;
+4. só depois adicionar monetização, assinatura ou liberação Pro com revisão adequada;
 5. documentar cada nova coleta antes de publicar atualização.
 
 ---

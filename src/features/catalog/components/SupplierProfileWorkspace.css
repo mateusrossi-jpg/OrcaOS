@@ -93,6 +93,15 @@
   gap: 10px;
 }
 
+.supplier-profile-empty {
+  border: 1px dashed rgba(148, 214, 218, 0.16);
+  border-radius: 14px;
+  padding: 12px;
+  color: var(--orca-muted, #a7b3ad);
+  background: rgba(3, 9, 8, 0.26);
+  text-align: center;
+}
+
 .supplier-profile-item {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;

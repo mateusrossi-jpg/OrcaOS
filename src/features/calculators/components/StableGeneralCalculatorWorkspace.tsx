@@ -179,6 +179,23 @@ function moduleLabel(module: GeneralCalculatorModule): string {
   return 'Orçamento rápido';
 }
 
+function methodLines(mode: RuleMode): string[] {
+  if (['wall-area', 'paint-area', 'paint-liters', 'paint-budget', 'sealer', 'putty', 'paint-time', 'room-paint'].includes(mode)) return ['Área líquida = largura × altura × paredes - descontos', 'Quando houver demãos/rendimento, o cálculo multiplica pela quantidade de demãos e divide pelo rendimento informado.'];
+  if (['floor-area', 'tiles', 'subfloor', 'concrete-volume', 'blocks', 'mortar', 'baseboard', 'grout', 'roof'].includes(mode)) return ['Quantidade base vem das dimensões informadas', 'Perda percentual é aplicada ao final para estimar compra/orçamento.'];
+  if (['volume', 'pressure', 'power', 'btu', 'length', 'temperature', 'flow'].includes(mode)) return ['Conversão direta entre unidades usando fatores técnicos cadastrados.', 'Use como conferência de unidade, não como especificação de equipamento.'];
+  if (['labor', 'daily', 'hourly'].includes(mode)) return ['Total = quantidade/tempo × valor informado + deslocamento quando aplicável.'];
+  if (mode === 'final-price') return ['Base = material + mão de obra + deslocamento', 'Total = base + lucro + imposto - desconto'];
+  if (mode === 'installments') return ['Total com juros = total × (1 + juros ÷ 100)', 'Parcela = total com juros ÷ número de parcelas'];
+  return ['Sinal = total × percentual de entrada ÷ 100', 'Saldo = total - sinal'];
+}
+
+function orientationText(mode: RuleMode): string {
+  if (['wall-area', 'floor-area', 'concrete-volume', 'blocks', 'tiles', 'subfloor', 'mortar', 'baseboard', 'grout', 'roof'].includes(mode)) return 'Estimativa para obra. Confira medidas reais, recortes, perdas, junta, espessura, nivelamento e especificação do material antes de fechar.';
+  if (['paint-area', 'paint-liters', 'paint-budget', 'sealer', 'putty', 'paint-time', 'room-paint'].includes(mode)) return 'Estimativa de pintura. Rendimento varia por superfície, preparação, cor, diluição, demãos e marca do produto.';
+  if (['volume', 'pressure', 'power', 'btu', 'length', 'temperature', 'flow'].includes(mode)) return 'Conversão aproximada para conferência. Verifique unidade usada pelo fabricante, catálogo ou instrumento.';
+  return 'Estimativa comercial. Taxas, impostos, risco, garantia, deslocamento e produtividade real podem alterar o lucro final.';
+}
+
 function wallArea(n: (key: string, label: string) => number): number {
   return Math.max(n('width', 'largura') * n('height', 'altura') * n('walls', 'paredes') - n('discountArea', 'descontos'), 0);
 }
@@ -265,6 +282,8 @@ export function GeneralCalculatorWorkspace({ selectedModule, onCaptureCalculatio
 
   function includeResult(destination: CalculationDestination) {
     if (!activeRule || calculated.error || calculated.cards.length === 0) return;
+    const formulas = methodLines(activeRule.mode);
+    const orientation = orientationText(activeRule.mode);
     const capture: CalculationCapture = {
       id: createId('general-calc'),
       module: activeRule.module,
@@ -273,12 +292,13 @@ export function GeneralCalculatorWorkspace({ selectedModule, onCaptureCalculatio
       destination,
       createdAt: new Date().toISOString(),
       summary: calculated.summary,
-      details: calculated.details,
+      details: [...calculated.details, ...formulas.map((item) => `Fórmula: ${item}`), `Orientação: ${orientation}`],
+      technicalNote: orientation,
     };
     onCaptureCalculation?.(capture);
-    if (destination === 'survey') setAddedMessage(`${activeRule.label} foi incluído no campo.`);
+    if (destination === 'survey') setAddedMessage(`${activeRule.label} foi incluído no atendimento.`);
     if (destination === 'budget') setAddedMessage(`${activeRule.label} foi incluído no orçamento.`);
-    if (destination === 'both') setAddedMessage(`${activeRule.label} foi incluído no campo e no orçamento.`);
+    if (destination === 'both') setAddedMessage(`${activeRule.label} foi incluído no atendimento e no orçamento.`);
   }
 
   function closeCalculator() {
@@ -300,8 +320,10 @@ export function GeneralCalculatorWorkspace({ selectedModule, onCaptureCalculatio
             <form className="general-calculator-form" onSubmit={(event) => event.preventDefault()}>{activeRule.fields.map((field) => <NumberField key={field.key} field={field} value={values[field.key] ?? ''} onChange={(value) => setValue(field.key, value)} />)}</form>
             {calculated.error && <p className="general-error-message">{calculated.error}</p>}
             {calculated.cards.length > 0 && <div className="general-result-grid">{calculated.cards.map((item) => <ResultCard key={item.label} {...item} />)}</div>}
+            {calculated.cards.length > 0 && <div className="general-formula-box"><strong>Como este cálculo é feito</strong>{methodLines(activeRule.mode).map((item) => <span key={item}>{item}</span>)}</div>}
+            {calculated.cards.length > 0 && <p className="general-technical-note"><strong>Observação técnica</strong><span>{orientationText(activeRule.mode)}</span></p>}
             {addedMessage && <p className="general-added-message">{addedMessage}</p>}
-            <div className="general-capture-actions"><button type="button" onClick={() => includeResult('survey')}>Adicionar ao campo</button><button type="button" onClick={() => includeResult('budget')}>Adicionar ao orçamento</button><button type="button" onClick={() => includeResult('both')}>Adicionar aos dois</button><button className="secondary-action" type="button" onClick={closeCalculator}>Voltar</button></div>
+            <div className="general-capture-actions"><button type="button" onClick={() => includeResult('survey')}>Adicionar ao atendimento</button><button type="button" onClick={() => includeResult('budget')}>Adicionar ao orçamento</button><button type="button" onClick={() => includeResult('both')}>Adicionar aos dois</button><button className="secondary-action" type="button" onClick={closeCalculator}>Voltar</button></div>
             <small className="general-technical-note">Cálculo preliminar. Valide medidas, perdas, materiais e condições reais antes de fechar a proposta.</small>
           </section>
         </div>

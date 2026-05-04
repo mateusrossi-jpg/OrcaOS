@@ -83,11 +83,16 @@ function parseDecimal(value: string, fallback = 0): number {
 }
 
 function itemKindLabel(kind: CatalogHubItemKind): string {
-  return kind === 'material' ? 'Material/peça' : 'Serviço';
+  if (kind === 'material') return 'Material';
+  if (kind === 'labor') return 'Mão de obra';
+  if (kind === 'service') return 'Serviço composto';
+  if (kind === 'travel') return 'Deslocamento';
+  if (kind === 'fee') return 'Taxa';
+  return 'Item personalizado';
 }
 
 function destinationLabel(destination: CalculationDestination): string {
-  if (destination === 'survey') return 'Campo';
+  if (destination === 'survey') return 'Atendimento';
   if (destination === 'budget') return 'Orçamento';
   return 'Ambos';
 }
@@ -174,7 +179,7 @@ export function CatalogHubWorkspace({ onSendToBudget }: CatalogHubWorkspaceProps
       id: createCatalogId('catalog-hub-item'),
       kind,
       title,
-      category: itemDraft.category.trim() || (kind === 'material' ? 'Materiais' : 'Serviços'),
+      category: itemDraft.category.trim() || (kind === 'material' ? 'Materiais' : kind === 'labor' ? 'Mão de obra' : kind === 'service' ? 'Serviços compostos' : kind === 'travel' ? 'Deslocamento' : kind === 'fee' ? 'Taxas' : 'Itens personalizados'),
       brand: itemDraft.brand.trim() || undefined,
       supplierId: itemDraft.supplierId || undefined,
       model: itemDraft.model.trim() || undefined,
@@ -183,7 +188,7 @@ export function CatalogHubWorkspace({ onSendToBudget }: CatalogHubWorkspaceProps
       defaultQuantity: parseDecimal(itemDraft.defaultQuantity, 1),
       defaultUnitValue: parseDecimal(itemDraft.defaultUnitValue, 0),
       destination: itemDraft.destination,
-      itemType: kind === 'material' ? 'material' : 'service',
+      itemType: kind === 'material' ? 'material' : kind === 'labor' || kind === 'service' ? 'service' : 'technicalObservation',
       notes: itemDraft.notes.trim() || undefined,
       sourceUrl: itemDraft.sourceUrl.trim() || undefined,
       createdAt: now,
@@ -243,7 +248,7 @@ export function CatalogHubWorkspace({ onSendToBudget }: CatalogHubWorkspaceProps
         <div>
           <span className="orca-kicker">Cadastro profissional</span>
           <h2>Catálogo, serviços e fornecedores</h2>
-          <p>Cadastre materiais, serviços, fornecedores e use consultas online como apoio para montar orçamento guiado.</p>
+          <p>Cadastre materiais, serviços, fornecedores e use consultas online como apoio para montar orçamentos rápidos.</p>
         </div>
         <strong>{items.length} itens · {suppliers.length} fornecedores</strong>
       </div>
@@ -257,19 +262,19 @@ export function CatalogHubWorkspace({ onSendToBudget }: CatalogHubWorkspaceProps
       {activeTab === 'items' && (
         <>
           <div className="catalog-hub-card">
-            <div><strong>Novo item de catálogo</strong><small>Cadastre peças, materiais ou serviços recorrentes para enviar ao orçamento guiado.</small></div>
+            <div><strong>Novo item de catálogo</strong><small>Cadastre peças, materiais ou serviços recorrentes para enviar ao orçamento.</small></div>
             <div className="catalog-hub-grid">
-              <label><span>Tipo</span><select value={itemDraft.kind} onChange={(event) => updateItemDraft('kind', event.target.value as CatalogHubItemKind)}><option value="material">Material/peça</option><option value="service">Serviço</option></select></label>
+              <label><span>Tipo</span><select value={itemDraft.kind} onChange={(event) => updateItemDraft('kind', event.target.value as CatalogHubItemKind)}><option value="material">Material</option><option value="labor">Mão de obra</option><option value="service">Serviço composto</option><option value="travel">Deslocamento</option><option value="fee">Taxa</option><option value="custom">Item personalizado</option></select></label>
               <label className="wide"><span>Descrição</span><input value={itemDraft.title} placeholder="Ex.: Módulo tomada 2P+T 20A branco" onChange={(event) => updateItemDraft('title', event.target.value)} /></label>
               <label><span>Categoria</span><input list="catalog-categories" value={itemDraft.category} placeholder="Ex.: Tomadas e módulos" onChange={(event) => updateItemDraft('category', event.target.value)} /><datalist id="catalog-categories">{categories.map((category) => <option key={category} value={category} />)}</datalist></label>
-              <label><span>Marca</span><input value={itemDraft.brand} placeholder="Ex.: Schneider" onChange={(event) => updateItemDraft('brand', event.target.value)} /></label>
+              <label><span>Marca</span><input value={itemDraft.brand} placeholder="Ex.: Fabricante" onChange={(event) => updateItemDraft('brand', event.target.value)} /></label>
               <label><span>Fornecedor</span><select value={itemDraft.supplierId} onChange={(event) => updateItemDraft('supplierId', event.target.value)}><option value="">Sem fornecedor</option>{suppliers.map((supplier) => <option key={supplier.id} value={supplier.id}>{supplier.name}</option>)}</select></label>
               <label><span>Modelo</span><input value={itemDraft.model} placeholder="Opcional" onChange={(event) => updateItemDraft('model', event.target.value)} /></label>
               <label><span>Referência/SKU</span><input value={itemDraft.reference} placeholder="Opcional" onChange={(event) => updateItemDraft('reference', event.target.value)} /></label>
               <label><span>Unidade</span><input value={itemDraft.unit} placeholder="un, m, cx, ponto..." onChange={(event) => updateItemDraft('unit', event.target.value)} /></label>
               <label><span>Qtd. padrão</span><input inputMode="decimal" value={itemDraft.defaultQuantity} onChange={(event) => updateItemDraft('defaultQuantity', event.target.value)} /></label>
               <label><span>Valor unitário</span><input inputMode="decimal" value={itemDraft.defaultUnitValue} onChange={(event) => updateItemDraft('defaultUnitValue', event.target.value)} /></label>
-              <label><span>Destino</span><select value={itemDraft.destination} onChange={(event) => updateItemDraft('destination', event.target.value as CalculationDestination)}><option value="survey">Campo</option><option value="budget">Orçamento</option><option value="both">Ambos</option></select></label>
+              <label><span>Destino</span><select value={itemDraft.destination} onChange={(event) => updateItemDraft('destination', event.target.value as CalculationDestination)}><option value="survey">Atendimento</option><option value="budget">Orçamento</option><option value="both">Ambos</option></select></label>
               <label className="wide"><span>Link fonte/catálogo</span><input value={itemDraft.sourceUrl} placeholder="https://..." onChange={(event) => updateItemDraft('sourceUrl', event.target.value)} /></label>
               <label className="wide"><span>Observação</span><textarea value={itemDraft.notes} placeholder="Ex.: confirmar disponibilidade, linha compatível, preço aproximado..." onChange={(event) => updateItemDraft('notes', event.target.value)} /></label>
             </div>
@@ -280,7 +285,7 @@ export function CatalogHubWorkspace({ onSendToBudget }: CatalogHubWorkspaceProps
             <div><strong>Consultar itens cadastrados</strong><small>Filtre e envie itens diretamente para campo, orçamento ou ambos.</small></div>
             <div className="catalog-hub-grid compact">
               <label className="wide"><span>Buscar</span><input value={query} placeholder="tomada, disjuntor, serviço, marca..." onChange={(event) => setQuery(event.target.value)} /></label>
-              <label><span>Tipo</span><select value={kindFilter} onChange={(event) => setKindFilter(event.target.value as 'all' | CatalogHubItemKind)}><option value="all">Todos</option><option value="material">Material</option><option value="service">Serviço</option></select></label>
+              <label><span>Tipo</span><select value={kindFilter} onChange={(event) => setKindFilter(event.target.value as 'all' | CatalogHubItemKind)}><option value="all">Todos</option><option value="material">Materiais</option><option value="labor">Mão de obra</option><option value="service">Serviços compostos</option><option value="travel">Deslocamento</option><option value="fee">Taxas</option><option value="custom">Personalizados</option></select></label>
               <label><span>Fornecedor</span><select value={supplierFilter} onChange={(event) => setSupplierFilter(event.target.value)}><option value="">Todos</option>{suppliers.map((supplier) => <option key={supplier.id} value={supplier.id}>{supplier.name}</option>)}</select></label>
             </div>
             <div className="catalog-hub-list">

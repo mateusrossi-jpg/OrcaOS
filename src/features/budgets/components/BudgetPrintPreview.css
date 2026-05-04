@@ -84,8 +84,16 @@
   border-radius: 999px;
   padding: 8px 12px;
   color: #00a0ad;
-  background: #dcfce7;
+  background: #e0f7fa;
   font-weight: 900;
+}
+
+.print-logo {
+  display: block;
+  width: auto;
+  max-width: 150px;
+  max-height: 64px;
+  object-fit: contain;
 }
 
 .print-document h2 {
@@ -147,6 +155,60 @@
 .print-total-box,
 .print-footer {
   margin-top: 18px;
+}
+
+.print-cover-page {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 24px;
+  border-radius: 22px;
+  padding: 30px;
+  color: #f8fafc;
+  background: linear-gradient(135deg, #0f172a, #073b3f);
+}
+
+.print-cover-page span {
+  color: #67e8f9;
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.print-cover-page h1 {
+  margin: 0;
+  color: #ffffff;
+  font-size: clamp(1.8rem, 7vw, 3rem);
+  line-height: 1.05;
+}
+
+.print-cover-page p {
+  color: #d1fae5;
+}
+
+.print-cover-page strong {
+  color: #ffffff;
+  font-size: clamp(1.4rem, 6vw, 2.3rem);
+}
+
+.print-proposal-summary,
+.print-technical-section,
+.print-acceptance-box {
+  display: grid;
+  gap: 8px;
+}
+
+.print-category-totals {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.print-category-totals p {
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 10px;
+  background: #ffffff;
 }
 
 .print-table-wrap {
@@ -234,6 +296,10 @@
 
   .print-document {
     padding: 18px;
+  }
+
+  .print-category-totals {
+    grid-template-columns: 1fr;
   }
 
   .print-status-box {

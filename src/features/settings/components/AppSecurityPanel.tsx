@@ -58,7 +58,7 @@ export function AppSecurityPanel() {
         <div>
           <span className="orca-kicker">Segurança</span>
           <h2>Bloqueio de acesso</h2>
-          <p>Proteja o app neste dispositivo com um PIN antes de abrir dados de clientes, OS e orçamentos.</p>
+          <p>Proteja o app neste dispositivo com um PIN antes de abrir dados de clientes, atendimentos e orçamentos.</p>
         </div>
         <strong>{isEnabled ? 'Ativo' : 'Opcional'}</strong>
       </div>

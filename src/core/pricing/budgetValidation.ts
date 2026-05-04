@@ -38,6 +38,10 @@ export function validateBudgetForProposal(budget: Budget): BudgetValidationIssue
     issues.push({ code: 'budget-empty', message: 'Adicione itens para gerar uma proposta.', severity: 'error' });
   }
 
+  if (!budget.title.trim()) {
+    issues.push({ code: 'budget-title-missing', message: 'Defina um título claro para o orçamento.', severity: 'warning' });
+  }
+
   budget.items.forEach((item, index) => {
     const itemIssues = validateBudgetItem(item, index).map((issue) => {
       if (issue.code !== 'item-price-zero') return issue;
@@ -74,6 +78,18 @@ export function validateBudgetForProposal(budget: Budget): BudgetValidationIssue
 
   if (!budget.clientId && !budget.notes?.includes('client-confirmed')) {
     issues.push({ code: 'client-missing', message: 'Este orçamento não possui cliente informado.', severity: 'warning' });
+  }
+
+  if (!budget.paymentTerms?.trim()) {
+    issues.push({ code: 'payment-terms-missing', message: 'Informe as condições de pagamento ou aplique o padrão local.', severity: 'warning' });
+  }
+
+  if (!budget.validity?.trim()) {
+    issues.push({ code: 'validity-missing', message: 'Informe a validade da proposta para evitar preço aberto sem prazo.', severity: 'warning' });
+  }
+
+  if (!budget.guarantee?.trim()) {
+    issues.push({ code: 'guarantee-missing', message: 'Informe a garantia ou deixe claro que será combinada após aprovação.', severity: 'warning' });
   }
 
   if (budget.status === 'expired') {

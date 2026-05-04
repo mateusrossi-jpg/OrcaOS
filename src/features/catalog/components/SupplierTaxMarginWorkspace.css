@@ -1,6 +1,7 @@
 .supplier-tax-workspace {
   display: grid;
   gap: 18px;
+  min-width: 0;
 }
 
 .supplier-tax-header,
@@ -15,11 +16,38 @@
 }
 
 .supplier-tax-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
   gap: 16px;
-  padding: 22px;
+  padding: 18px 22px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.supplier-tax-header > div,
+.supplier-tax-card > div:first-child {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+}
+
+.supplier-tax-header h2 {
+  margin: 0;
+  line-height: 1.12;
+  overflow-wrap: anywhere;
+}
+
+.supplier-tax-header p {
+  margin: 0;
+  line-height: 1.35;
+}
+
+.supplier-tax-header > strong {
+  max-width: 170px;
+  text-align: right;
+  line-height: 1.2;
+  white-space: normal;
 }
 
 .supplier-tax-header h2,
@@ -49,18 +77,22 @@
   display: grid;
   gap: 16px;
   padding: 18px;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .supplier-tax-form-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
+  min-width: 0;
 }
 
 .supplier-tax-form-grid label,
 .supplier-tax-search {
   display: grid;
   gap: 7px;
+  min-width: 0;
   color: var(--orca-muted, #a7b3ad);
   font-size: 0.78rem;
   font-weight: 800;
@@ -74,6 +106,7 @@
 .supplier-tax-form-grid select,
 .supplier-tax-form-grid textarea,
 .supplier-tax-search input {
+  min-width: 0;
   width: 100%;
   border: 1px solid rgba(148, 214, 218, 0.13);
   border-radius: 15px;
@@ -128,6 +161,15 @@
   gap: 10px;
 }
 
+.supplier-tax-empty {
+  border: 1px dashed rgba(148, 214, 218, 0.16);
+  border-radius: 14px;
+  padding: 12px;
+  color: var(--orca-muted, #a7b3ad);
+  background: rgba(3, 9, 8, 0.26);
+  text-align: center;
+}
+
 .supplier-tax-record {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
@@ -137,6 +179,8 @@
   border: 1px solid var(--orca-border, rgba(148, 214, 218, 0.12));
   border-radius: 18px;
   background: var(--orca-surface, #101713);
+  min-width: 0;
+  overflow: hidden;
 }
 
 .supplier-tax-record > div:first-child {
@@ -161,6 +205,11 @@
   .supplier-tax-record {
     display: grid;
     grid-template-columns: 1fr;
+  }
+
+  .supplier-tax-header > strong {
+    max-width: none;
+    text-align: left;
   }
 
   .supplier-tax-actions.compact-actions {

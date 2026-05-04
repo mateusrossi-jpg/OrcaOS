@@ -16,14 +16,15 @@ Esta etapa fecha o fluxo comercial minimo para vender logo apos o lancamento, ma
 
 A allowlist `ORCAOS_PRO_USERS` continua disponivel apenas como fallback de beta quando Supabase ainda nao estiver configurado.
 
-## Politica Do Beta Fechado
+## Politica Comercial
 
-- O beta fechado usa venda manual assistida: Pix, link externo ou combinacao direta com o cliente.
-- Pagamento automatico e webhook ficam fora do beta inicial.
+- O Free continua funcional e sem marca d'agua agressiva.
+- A venda real usa checkout externo configuravel e verificacao server-side.
+- O app nao recebe chave secreta, nao processa cartao e nao libera Pro sozinho.
 - A verificacao Pro depende da conta/e-mail usado no app. O cliente deve cadastrar o mesmo e-mail liberado no backend ou vincular a conta Google correspondente.
 - `active` e `trial` liberam Pro.
 - `expired`, `inactive` e `past_due` mantem o usuario no Free e exibem mensagem clara na Loja / Pro.
-- Validacao server-side forte de identidade, recibos e historico financeiro entram antes de escala publica.
+- Cloud, busca online pesada, fiscal e multiusuario continuam fora da obrigacao da V1.
 
 ## Variaveis Do Frontend
 
@@ -31,9 +32,12 @@ A allowlist `ORCAOS_PRO_USERS` continua disponivel apenas como fallback de beta 
 VITE_GOOGLE_CLIENT_ID=seu_client_id_google
 VITE_ORCAOS_ENTITLEMENTS_ENDPOINT=/api/entitlements
 VITE_ORCAOS_ENTITLEMENTS_API_KEY=
+VITE_ORCAOS_PRO_CHECKOUT_URL=https://seu-checkout.com/orcaos-pro
+VITE_ORCAOS_PRO_MANAGE_URL=https://seu-portal.com/assinatura
 ```
 
 `VITE_ORCAOS_ENTITLEMENTS_API_KEY` e opcional e fica exposta no frontend. Use apenas como barreira simples no beta fechado, nao como segredo forte.
+`VITE_ORCAOS_PRO_CHECKOUT_URL` e `VITE_ORCAOS_PRO_MANAGE_URL` devem ser links publicos. Nunca coloque segredo, token privado ou service role em variaveis `VITE_`.
 
 ## Variaveis Do Endpoint
 
@@ -44,10 +48,12 @@ ORCAOS_PRO_USERS=cliente@email.com,google:123456789
 ORCAOS_SUPABASE_URL=https://seu-projeto.supabase.co
 ORCAOS_SUPABASE_SERVICE_ROLE_KEY=sua_service_role_key
 ORCAOS_ADMIN_API_KEY=uma_chave_admin_forte
+ORCAOS_WEBHOOK_API_KEY=uma_chave_webhook_forte
 ```
 
 `ORCAOS_PRO_USERS` aceita e-mails cadastrados, e-mails Google e IDs Google salvos como `google:<sub>`.
 `ORCAOS_SUPABASE_SERVICE_ROLE_KEY` e `ORCAOS_ADMIN_API_KEY` nunca devem usar prefixo `VITE_` e nunca devem ir para o frontend.
+`ORCAOS_WEBHOOK_API_KEY` tambem fica apenas no backend e deve ser enviado pelo provedor/automacao no header `Authorization: Bearer`.
 `ORCAOS_ALLOWED_ORIGIN` deve apontar para o dominio real em producao; nao deixe `*` em ambiente publico.
 
 ## Tabela De Assinaturas
@@ -88,7 +94,57 @@ Campos aceitos pelo app:
 - `email`: e-mail cadastrado ou e-mail Google;
 - `user_id`: opcional, recomendado como `google:<sub>` quando houver login Google.
 
-## Como Liberar Acesso Pago
+## Fluxo De Venda Real
+
+1. Usuario abre Loja / Pro.
+2. App abre `VITE_ORCAOS_PRO_CHECKOUT_URL` com parametros `email`, `userId` e `source=orcaos-app`.
+3. Cliente paga no provedor escolhido.
+4. Provedor ou automacao chama `POST /api/webhooks/subscription`.
+5. Webhook grava/atualiza `orcaos_subscriptions`.
+6. Usuario volta ao app e clica em `Verificar assinatura`.
+7. App chama `VITE_ORCAOS_ENTITLEMENTS_ENDPOINT` e libera Pro se a assinatura estiver ativa.
+
+### Webhook Generico
+
+Endpoint:
+
+```text
+POST /api/webhooks/subscription
+Authorization: Bearer $ORCAOS_WEBHOOK_API_KEY
+Content-Type: application/json
+```
+
+Payload minimo:
+
+```json
+{
+  "event": "payment.approved",
+  "email": "cliente@email.com",
+  "userId": "email:cliente@email.com",
+  "currentPeriodEnd": "2026-06-03T00:00:00.000Z",
+  "provider": "checkout",
+  "providerCustomerId": "cus_123"
+}
+```
+
+Eventos aceitos como Pro ativo:
+
+- `paid`
+- `approved`
+- `active`
+- `subscription.active`
+- `payment.approved`
+
+Eventos aceitos como pendencia/cancelamento:
+
+- `past_due`
+- `subscription.past_due`
+- `canceled`
+- `subscription.canceled`
+- `refunded`
+- `chargeback`
+
+## Como Liberar Acesso Pago Manualmente
 
 Opcao manual direta:
 
@@ -129,7 +185,7 @@ Esse endpoint deve ser usado apenas por voce, painel administrativo ou webhook c
 Integrar provedor de pagamento escrevendo na mesma tabela:
 
 - validacao server-side do token Google.
-- webhook do provedor escolhido atualizando `orcaos_subscriptions`;
+- adaptador especifico do provedor escolhido, se ele exigir assinatura HMAC ou formato proprio;
 - painel administrativo para ativar, suspender ou renovar assinatura;
 - historico de pagamentos/faturas.
 

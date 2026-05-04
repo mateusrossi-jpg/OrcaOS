@@ -35,6 +35,8 @@ interface FundamentalRule {
   label: string;
   description: string;
   icon: string;
+  example: string;
+  technicalNote: string;
 }
 
 interface ResultCardData {
@@ -53,14 +55,14 @@ interface CalcResult {
 }
 
 const rules: FundamentalRule[] = [
-  { mode: 'current-from-power', label: 'Corrente por potência', description: 'Informe potência e tensão para descobrir a corrente da carga.', icon: 'A' },
-  { mode: 'power-from-current', label: 'Potência por corrente', description: 'Informe tensão e corrente para descobrir a potência elétrica.', icon: 'W' },
-  { mode: 'voltage-from-power-current', label: 'Tensão por potência/corrente', description: 'Informe potência e corrente para descobrir a tensão aproximada.', icon: 'V' },
-  { mode: 'ohms-law', label: 'Lei de Ohm', description: 'Escolha se quer calcular resistência, corrente ou tensão.', icon: 'Ω' },
-  { mode: 'power-resistance', label: 'Potência em resistência', description: 'Calcule potência dissipada usando tensão ou corrente com resistência.', icon: 'P' },
-  { mode: 'apparent-power', label: 'Potência aparente / VA', description: 'Calcule VA ou corrente a partir de VA e tensão.', icon: 'VA' },
-  { mode: 'resistor-network', label: 'Resistores série/paralelo', description: 'Associe até três resistores para obter a resistência equivalente.', icon: 'R' },
-  { mode: 'consumption', label: 'Consumo em kWh', description: 'Estime consumo e custo de energia por período.', icon: 'kWh' },
+  { mode: 'current-from-power', label: 'Corrente por potência', description: 'Informe potência e tensão para descobrir a corrente da carga.', icon: 'A', example: 'Ex.: chuveiro/carga de 2200 W em 220 V resulta em aproximadamente 10 A.', technicalNote: 'Corrente calculada não define sozinha cabo ou disjuntor; método de instalação, distância, temperatura, agrupamento e norma aplicável precisam ser conferidos.' },
+  { mode: 'power-from-current', label: 'Potência por corrente', description: 'Informe tensão e corrente para descobrir a potência elétrica.', icon: 'W', example: 'Ex.: 10 A em 220 V com FP 1 resulta em aproximadamente 2200 W.', technicalNote: 'Para motores, fontes e cargas indutivas, o fator de potência e rendimento mudam a leitura prática.' },
+  { mode: 'voltage-from-power-current', label: 'Tensão por potência/corrente', description: 'Informe potência e corrente para descobrir a tensão aproximada.', icon: 'V', example: 'Ex.: 2200 W e 10 A indicam cerca de 220 V em carga resistiva.', technicalNote: 'Use como conferência rápida. A tensão real deve ser medida com instrumento adequado no ponto de uso.' },
+  { mode: 'ohms-law', label: 'Lei de Ohm', description: 'Escolha se quer calcular resistência, corrente ou tensão.', icon: 'Ω', example: 'Ex.: 220 V e 10 A indicam resistência aproximada de 22 Ω.', technicalNote: 'Lei de Ohm é direta para cargas resistivas; cargas eletrônicas, motores e variações térmicas podem fugir desse comportamento.' },
+  { mode: 'power-resistance', label: 'Potência em resistência', description: 'Calcule potência dissipada usando tensão ou corrente com resistência.', icon: 'P', example: 'Ex.: 220 V em 22 Ω dissipa aproximadamente 2200 W.', technicalNote: 'A potência dissipada vira calor. Escolha componente/carga com margem e respeite ventilação, temperatura e regime de operação.' },
+  { mode: 'apparent-power', label: 'Potência aparente / VA', description: 'Calcule VA ou corrente a partir de VA e tensão.', icon: 'VA', example: 'Ex.: 1800 W com FP 0,9 corresponde a aproximadamente 2000 VA.', technicalNote: 'VA ajuda em nobreaks e transformadores. Não substitui corrente de partida, regime de carga e especificação do fabricante.' },
+  { mode: 'resistor-network', label: 'Resistores série/paralelo', description: 'Monte uma associação com vários resistores e compare equivalente em série e em paralelo.', icon: 'R', example: 'Ex.: dois resistores de 100 Ω em paralelo resultam em 50 Ω.', technicalNote: 'Além da resistência equivalente, confira potência nominal dos resistores e tolerância dos componentes.' },
+  { mode: 'consumption', label: 'Consumo em kWh', description: 'Estime consumo e custo de energia por período.', icon: 'kWh', example: 'Ex.: 1000 W por 2 h/dia durante 30 dias consome 60 kWh.', technicalNote: 'Custo é estimativa. Tarifa, impostos, bandeira, demanda e perfil real de uso podem alterar o valor final.' },
 ];
 
 const defaultValues: Record<string, string> = {
@@ -73,10 +75,30 @@ const defaultValues: Record<string, string> = {
   resistorOneOhms: '100',
   resistorTwoOhms: '220',
   resistorThreeOhms: '330',
+  resistorFourOhms: '',
+  resistorFiveOhms: '',
+  resistorSixOhms: '',
+  resistorSevenOhms: '',
+  resistorEightOhms: '',
+  resistorNineOhms: '',
+  resistorTenOhms: '',
   hoursPerDay: '2',
   days: '30',
   tariff: '0.95',
 };
+
+const resistorValueKeys = [
+  'resistorOneOhms',
+  'resistorTwoOhms',
+  'resistorThreeOhms',
+  'resistorFourOhms',
+  'resistorFiveOhms',
+  'resistorSixOhms',
+  'resistorSevenOhms',
+  'resistorEightOhms',
+  'resistorNineOhms',
+  'resistorTenOhms',
+];
 
 function parseNumber(value: string): number {
   const normalizedValue = value.trim().replace(',', '.');
@@ -186,6 +208,7 @@ export function ElectricalFundamentalsHumanWorkspace({ onCaptureCalculation }: P
   const [ohmsTarget, setOhmsTarget] = useState<OhmsTarget>('resistance');
   const [powerResistanceTarget, setPowerResistanceTarget] = useState<PowerResistanceTarget>('voltage-resistance');
   const [apparentTarget, setApparentTarget] = useState<ApparentTarget>('va-from-watts');
+  const [resistorFieldCount, setResistorFieldCount] = useState(4);
   const [addedMessage, setAddedMessage] = useState<string | null>(null);
 
   const activeRule = activeMode ? rules.find((rule) => rule.mode === activeMode) : undefined;
@@ -219,12 +242,20 @@ export function ElectricalFundamentalsHumanWorkspace({ onCaptureCalculation }: P
   }
 
   function resistorValues(): number[] {
-    return ['resistorOneOhms', 'resistorTwoOhms', 'resistorThreeOhms'].reduce<number[]>((items, key, index) => {
+    return resistorValueKeys.slice(0, resistorFieldCount).reduce<number[]>((items, key, index) => {
       const rawValue = values[key] ?? '';
       if (!rawValue.trim()) return items;
       items.push(ensurePositive(parseNumber(rawValue), `resistor ${index + 1}`));
       return items;
     }, []);
+  }
+
+  function addResistorField() {
+    setResistorFieldCount((current) => Math.min(resistorValueKeys.length, current + 1));
+  }
+
+  function removeResistorField() {
+    setResistorFieldCount((current) => Math.max(2, current - 1));
   }
 
   const calculated = useMemo<CalcResult>(() => {
@@ -378,7 +409,7 @@ export function ElectricalFundamentalsHumanWorkspace({ onCaptureCalculation }: P
 
       if (activeRule.mode === 'resistor-network') {
         const resistors = resistorValues();
-        if (resistors.length === 0) throw new Error('Informe pelo menos um resistor válido.');
+        if (resistors.length < 2) throw new Error('Informe pelo menos dois resistores válidos.');
         const series = resistors.reduce((sum, item) => sum + item, 0);
         const parallel = 1 / resistors.reduce((sum, item) => sum + 1 / item, 0);
         return result(
@@ -387,9 +418,9 @@ export function ElectricalFundamentalsHumanWorkspace({ onCaptureCalculation }: P
             { label: 'Em série', value: `${round(series)} Ω`, helper: 'soma direta' },
             { label: 'Em paralelo', value: `${round(parallel)} Ω`, helper: 'inverso da soma dos inversos' },
           ],
-          [`Resistores: ${resistors.map((item) => `${round(item)} Ω`).join(', ')}`, `Série: ${round(series)} Ω`, `Paralelo: ${round(parallel)} Ω`],
+          [`Resistores usados (${resistors.length}): ${resistors.map((item) => `${round(item)} Ω`).join(', ')}`, `Série: ${round(series)} Ω`, `Paralelo: ${round(parallel)} Ω`],
           'Use para associação básica. Para potência dos resistores, use o cálculo de potência em resistência.',
-          ['Resistência em série = R1 + R2 + R3', 'Resistência em paralelo = 1 ÷ (1/R1 + 1/R2 + 1/R3)'],
+          [`Resistência em série = ${resistors.map((_, index) => `R${index + 1}`).join(' + ')}`, `Resistência em paralelo = 1 ÷ (${resistors.map((_, index) => `1/R${index + 1}`).join(' + ')})`],
         );
       }
 
@@ -412,7 +443,7 @@ export function ElectricalFundamentalsHumanWorkspace({ onCaptureCalculation }: P
     } catch (error) {
       return { error: error instanceof Error ? error.message : 'Preencha os campos necessários.', summary: '', details: [], cards: [], orientation: '', formula: [] };
     }
-  }, [activeRule, values, phase, showAdvanced, ohmsTarget, powerResistanceTarget, apparentTarget, currentUnit]);
+  }, [activeRule, values, phase, showAdvanced, ohmsTarget, powerResistanceTarget, apparentTarget, currentUnit, resistorFieldCount]);
 
   function includeResult(destination: CalculationDestination) {
     if (!activeRule || calculated.error || calculated.cards.length === 0) return;
@@ -425,11 +456,12 @@ export function ElectricalFundamentalsHumanWorkspace({ onCaptureCalculation }: P
       createdAt: new Date().toISOString(),
       summary: calculated.summary,
       details: [...calculated.details, ...calculated.formula.map((item) => `Fórmula: ${item}`), `Orientação: ${calculated.orientation}`],
+      technicalNote: `${activeRule.technicalNote} ${activeRule.example}`,
     };
     onCaptureCalculation?.(capture);
-    if (destination === 'survey') setAddedMessage(`${activeRule.label} foi incluído no campo.`);
+    if (destination === 'survey') setAddedMessage(`${activeRule.label} foi incluído no atendimento.`);
     if (destination === 'budget') setAddedMessage(`${activeRule.label} foi incluído no orçamento.`);
-    if (destination === 'both') setAddedMessage(`${activeRule.label} foi incluído no campo e no orçamento.`);
+    if (destination === 'both') setAddedMessage(`${activeRule.label} foi incluído no atendimento e no orçamento.`);
   }
 
   function closeCalculator() {
@@ -452,7 +484,7 @@ export function ElectricalFundamentalsHumanWorkspace({ onCaptureCalculation }: P
     <div className="human-fundamentals-workspace">
       <div className="human-fundamentals-banner">
         <div>
-          <strong>Fundamentos elétricos V1</strong>
+          <strong>Fundamentos elétricos</strong>
           <span>Cálculos reorganizados para uso humano em campo: poucos campos, resultado direto e ajustes avançados recolhidos.</span>
         </div>
         <em>{rules.length} cálculos livres</em>
@@ -464,6 +496,7 @@ export function ElectricalFundamentalsHumanWorkspace({ onCaptureCalculation }: P
             <span>
               <strong>{rule.label}</strong>
               <small>{rule.description}</small>
+              <small>{rule.example}</small>
             </span>
             <em>LIVRE</em>
           </button>
@@ -485,6 +518,11 @@ export function ElectricalFundamentalsHumanWorkspace({ onCaptureCalculation }: P
             </header>
 
             <form className="human-calculator-form" onSubmit={(event) => event.preventDefault()}>
+              <div className="human-example-note">
+                <strong>Exemplo de uso</strong>
+                <span>{activeRule.example}</span>
+              </div>
+
               {activeRule.mode === 'current-from-power' && (
                 <>
                   <NumberField label="Potência do equipamento" value={values.powerWatts} suffix="W" step={1} onChange={(value) => setValue('powerWatts', value)} />
@@ -560,9 +598,19 @@ export function ElectricalFundamentalsHumanWorkspace({ onCaptureCalculation }: P
 
               {activeRule.mode === 'resistor-network' && (
                 <>
-                  <NumberField label="Resistor 1" value={values.resistorOneOhms} suffix="Ω" onChange={(value) => setValue('resistorOneOhms', value)} />
-                  <NumberField label="Resistor 2" value={values.resistorTwoOhms} suffix="Ω" onChange={(value) => setValue('resistorTwoOhms', value)} />
-                  <NumberField label="Resistor 3 (opcional)" value={values.resistorThreeOhms} suffix="Ω" onChange={(value) => setValue('resistorThreeOhms', value)} />
+                  <div className="human-resistor-network-controls">
+                    <span>
+                      <strong>{resistorFieldCount} campo(s) de resistor</strong>
+                      <small>Preencha os resistores que entram na associação. Campos vazios são ignorados.</small>
+                    </span>
+                    <div>
+                      <button type="button" onClick={addResistorField} disabled={resistorFieldCount >= resistorValueKeys.length}>Adicionar resistor</button>
+                      <button type="button" onClick={removeResistorField} disabled={resistorFieldCount <= 2}>Remover campo</button>
+                    </div>
+                  </div>
+                  {resistorValueKeys.slice(0, resistorFieldCount).map((key, index) => (
+                    <NumberField key={key} label={`Resistor ${index + 1}${index > 1 ? ' (opcional)' : ''}`} value={values[key] ?? ''} suffix="Ω" onChange={(value) => setValue(key, value)} />
+                  ))}
                 </>
               )}
 
@@ -602,10 +650,11 @@ export function ElectricalFundamentalsHumanWorkspace({ onCaptureCalculation }: P
             {calculated.cards.length > 0 && <div className="human-result-grid">{calculated.cards.map((item) => <ResultCard key={item.label} {...item} />)}</div>}
             {calculated.formula.length > 0 && <div className="human-formula-box"><strong>Como este cálculo é feito</strong>{calculated.formula.map((item) => <span key={item}>{item}</span>)}</div>}
             {calculated.orientation && <p className="human-orientation">{calculated.orientation}</p>}
+            <p className="human-technical-warning"><strong>Aviso técnico</strong><span>{activeRule.technicalNote}</span></p>
             {addedMessage && <p className="human-added-message">{addedMessage}</p>}
 
             <div className="human-capture-actions">
-              <button type="button" onClick={() => includeResult('survey')}>Adicionar ao campo</button>
+              <button type="button" onClick={() => includeResult('survey')}>Adicionar ao atendimento</button>
               <button type="button" onClick={() => includeResult('budget')}>Adicionar ao orçamento</button>
               <button type="button" onClick={() => includeResult('both')}>Adicionar aos dois</button>
               <button className="secondary-action" type="button" onClick={closeCalculator}>Voltar</button>

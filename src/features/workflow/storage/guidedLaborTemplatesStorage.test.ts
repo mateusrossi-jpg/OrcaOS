@@ -26,9 +26,16 @@ describe('guided labor templates storage', () => {
   it('saves and loads custom templates with visibility state', () => {
     const template = createGuidedLaborTemplate({
       title: 'Instalação de quadro',
+      description: 'Instalação de quadro pequeno com organização básica.',
       defaultUnitValue: 240,
       unit: 'serviço',
       note: 'Valor base para quadro pequeno.',
+      suggestedMaterials: 'Quadro, barramentos, disjuntores e identificação.',
+      estimatedTime: '4 h',
+      marginPercent: 30,
+      minimumValue: 220,
+      category: 'Elétrica',
+      professionModule: 'Eletricista',
       visible: false,
     });
 
@@ -56,9 +63,16 @@ describe('guided labor templates storage', () => {
       {
         id: 'valid-legacy',
         title: 'Serviço legado',
+        description: undefined,
         defaultUnitValue: 80,
         unit: 'ponto',
         note: 'Sem visible salvo.',
+        suggestedMaterials: undefined,
+        estimatedTime: undefined,
+        marginPercent: undefined,
+        minimumValue: undefined,
+        category: undefined,
+        professionModule: undefined,
         visible: true,
         createdAt: '2026-01-01T00:00:00.000Z',
         updatedAt: '2026-01-01T00:00:00.000Z',

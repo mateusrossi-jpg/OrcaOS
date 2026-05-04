@@ -40,46 +40,46 @@ describe('account plan storage', () => {
   });
 
   it('creates a local account without changing the current plan', () => {
-    const account = signInLocalAccount('Mateus', 'mateus@example.com');
+    const account = signInLocalAccount('Profissional', 'profissional@example.com');
 
     expect(account.status).toBe('local');
-    expect(account.displayName).toBe('Mateus');
-    expect(account.email).toBe('mateus@example.com');
+    expect(account.displayName).toBe('Profissional');
+    expect(account.email).toBe('profissional@example.com');
     expect(account.plan).toBe('free');
   });
 
   it('registers an account with email', () => {
-    const account = signInEmailAccount('Mateus@Example.com', 'Mateus');
+    const account = signInEmailAccount('Profissional@Example.com', 'Profissional');
 
     expect(account.status).toBe('email');
-    expect(account.userId).toBe('email:mateus@example.com');
-    expect(account.email).toBe('mateus@example.com');
-    expect(account.displayName).toBe('Mateus');
+    expect(account.userId).toBe('email:profissional@example.com');
+    expect(account.email).toBe('profissional@example.com');
+    expect(account.displayName).toBe('Profissional');
   });
 
   it('rejects invalid email registration', () => {
-    expect(() => signInEmailAccount('mateus')).toThrow('e-mail válido');
+    expect(() => signInEmailAccount('email-invalido')).toThrow('e-mail válido');
   });
 
   it('stores a Google account without changing the current plan', () => {
-    const account = signInGoogleAccount({ sub: '123', name: 'Mateus Rossi', email: 'mateus@example.com' });
+    const account = signInGoogleAccount({ sub: '123', name: 'Profissional Técnico', email: 'profissional@example.com' });
 
     expect(account.status).toBe('google');
     expect(account.userId).toBe('google:123');
-    expect(account.displayName).toBe('Mateus Rossi');
-    expect(account.email).toBe('mateus@example.com');
+    expect(account.displayName).toBe('Profissional Técnico');
+    expect(account.email).toBe('profissional@example.com');
     expect(account.plan).toBe('free');
   });
 
   it('links Google identity to the registered email when they match', () => {
-    signInEmailAccount('mateus@example.com', 'Mateus');
+    signInEmailAccount('profissional@example.com', 'Profissional');
 
-    const account = signInGoogleAccount({ sub: '123', name: 'Mateus Google', email: 'mateus@example.com' });
+    const account = signInGoogleAccount({ sub: '123', name: 'Conta Google', email: 'profissional@example.com' });
 
     expect(account.status).toBe('google');
     expect(account.userId).toBe('google:123');
-    expect(account.email).toBe('mateus@example.com');
-    expect(account.displayName).toBe('Mateus Google');
+    expect(account.email).toBe('profissional@example.com');
+    expect(account.displayName).toBe('Conta Google');
   });
 
   it('can switch the local test plan to pro and back to free', () => {

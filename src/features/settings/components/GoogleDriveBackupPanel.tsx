@@ -116,15 +116,15 @@ export function GoogleDriveBackupPanel() {
         <div>
           <span className="orca-kicker">Google Drive</span>
           <h2>Backup privado no Drive</h2>
-          <p>Salve uma cópia manual dos dados do OrçaOS na pasta privada do app no Google Drive.</p>
+          <p>Conecte Google somente quando quiser salvar ou restaurar uma cópia privada dos dados do OrçaOS.</p>
         </div>
-        <strong>{accessToken ? 'Conectado' : 'Manual'}</strong>
+        <strong>{accessToken ? 'Google conectado' : isConfigured ? 'Pronto para conectar' : 'Indisponível'}</strong>
       </div>
 
       {!isConfigured && (
         <div className="local-backup-warning">
-          <strong>Configuração pendente</strong>
-          <p>Adicione `VITE_GOOGLE_CLIENT_ID` no ambiente do Vite para ativar o login com Google Drive.</p>
+          <strong>Drive indisponível neste ambiente</strong>
+          <p>O backup local continua disponível. O backup no Drive será liberado quando o acesso Google estiver configurado para este app.</p>
         </div>
       )}
 
@@ -132,7 +132,7 @@ export function GoogleDriveBackupPanel() {
         <article className="local-backup-card">
           <div className="local-card-heading">
             <strong>Salvar no Drive</strong>
-            <small>Cria ou atualiza o arquivo `orcaos-backup.json` dentro do appDataFolder do Google Drive.</small>
+            <small>Cria ou atualiza uma cópia privada do OrçaOS na área do app dentro do Google Drive.</small>
           </div>
           <div className="local-backup-actions">
             <button className="secondary-action inline-action" disabled={!isConfigured || isBusy} type="button" onClick={connectDrive}>Conectar Google</button>

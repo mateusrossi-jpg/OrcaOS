@@ -253,9 +253,9 @@ export function ConstructionHumanWorkspace({ onCaptureCalculation }: Props) {
     };
 
     onCaptureCalculation?.(capture);
-    if (destination === 'survey') setAddedMessage(`${activeRule.label} foi incluído no campo.`);
+    if (destination === 'survey') setAddedMessage(`${activeRule.label} foi incluído no atendimento.`);
     if (destination === 'budget') setAddedMessage(`${activeRule.label} foi incluído no orçamento.`);
-    if (destination === 'both') setAddedMessage(`${activeRule.label} foi incluído no campo e no orçamento.`);
+    if (destination === 'both') setAddedMessage(`${activeRule.label} foi incluído no atendimento e no orçamento.`);
   }
 
   function closeCalculator() {
@@ -277,7 +277,7 @@ export function ConstructionHumanWorkspace({ onCaptureCalculation }: Props) {
     <div className="general-calculator-workspace">
       <div className="general-plan-banner">
         <div>
-          <strong>Construção civil V1</strong>
+          <strong>Construção civil</strong>
           <span>Medições rápidas para área, concreto, blocos e revestimento com poucos campos obrigatórios.</span>
         </div>
         <em>{rules.length} cálculos</em>
@@ -374,7 +374,7 @@ export function ConstructionHumanWorkspace({ onCaptureCalculation }: Props) {
             {addedMessage && <p className="general-added-message">{addedMessage}</p>}
 
             <div className="general-capture-actions">
-              <button type="button" onClick={() => includeResult('survey')}>Adicionar ao campo</button>
+              <button type="button" onClick={() => includeResult('survey')}>Adicionar ao atendimento</button>
               <button type="button" onClick={() => includeResult('budget')}>Adicionar ao orçamento</button>
               <button type="button" onClick={() => includeResult('both')}>Adicionar aos dois</button>
               <button className="secondary-action" type="button" onClick={closeCalculator}>Voltar</button>

@@ -9,6 +9,9 @@ const validBudget: Budget = {
   discount: 10,
   clientId: 'client-1',
   notes: 'client-confirmed',
+  paymentTerms: 'Pix na aprovação.',
+  validity: '7 dias',
+  guarantee: 'Garantia conforme serviço executado.',
   items: [
     { id: 'item-1', description: 'Instalação de tomada', quantity: 2, unitPrice: 80, category: 'labor' },
   ],

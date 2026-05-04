@@ -50,8 +50,8 @@ function resolveEffectivePlan(plan: UserPlan, status: OrcaPlanStatus): UserPlan 
 
 export async function refreshPlanEntitlement(account = loadAccountState()): Promise<PlanEntitlementResult> {
   const endpoint = getEntitlementsEndpoint().trim();
-  if (!endpoint) throw new Error('Configure VITE_ORCAOS_ENTITLEMENTS_ENDPOINT para verificar assinatura.');
-  if (!account.userId) throw new Error('Entre com uma conta antes de verificar assinatura.');
+  if (!endpoint) throw new Error('Configure VITE_ORCAOS_ENTITLEMENTS_ENDPOINT para verificar a liberação Pro.');
+  if (!account.userId) throw new Error('Entre com uma conta antes de verificar a liberação Pro.');
 
   const headers: Record<string, string> = { 'Content-Type': 'application/json' };
   const apiKey = getEntitlementsApiKey().trim();
@@ -69,7 +69,7 @@ export async function refreshPlanEntitlement(account = loadAccountState()): Prom
 
   if (!response.ok) {
     const errorText = await response.text();
-    throw new Error(errorText || `Não foi possível verificar assinatura: ${response.status}`);
+    throw new Error(errorText || `Não foi possível verificar a liberação Pro: ${response.status}`);
   }
 
   const entitlement = await response.json() as PlanEntitlementResponse;

@@ -7,14 +7,14 @@ const technicalNotice = [
 ];
 
 const privacyNotice = [
-  'O OrcaOS funciona local-first: clientes, OS, orcamentos, catalogo e perfil ficam no armazenamento local do navegador/dispositivo.',
+  'O OrcaOS funciona local-first: clientes, atendimentos, orcamentos, catalogo e perfil ficam no armazenamento local do navegador/dispositivo.',
   'Backup e responsabilidade do usuario. O navegador pode limpar cache/armazenamento local; exporte backup regularmente.',
-  'Quando Google, Drive ou endpoint Pro estiverem configurados, dados de conta/assinatura podem ser processados para login, backup ou liberacao de acesso.',
+  'Quando Google, Drive ou endpoint Pro estiverem configurados, dados de conta e liberacao assistida podem ser processados para login, backup ou acesso beta.',
   'Base colaborativa de precos e catalogos reais sera futura e dependera de consentimento explicito.',
 ];
 
 const termsNotice = [
-  'Esta e uma versao beta e pode ter instabilidades, mudancas de fluxo e ajustes em recursos Pro.',
+  'Este beta fechado pode ter instabilidades, mudancas de fluxo e ajustes em recursos Pro.',
   'O uso profissional e de responsabilidade do usuario, que deve conferir calculos, documentos e propostas antes de enviar ao cliente.',
   'Recursos Pro podem mudar durante o beta fechado. Suporte e liberacao comercial podem ser manuais/assistidos.',
   'O usuario deve manter backup dos proprios dados.',

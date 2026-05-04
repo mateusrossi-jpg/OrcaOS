@@ -67,7 +67,7 @@ function safeParseRecords(value: string | null): PurchaseTaxRecord[] {
 
 export function loadPurchaseTaxRecords(): PurchaseTaxRecord[] {
   if (typeof window === 'undefined') return [];
-  return safeParseRecords(window.localStorage.getItem(STORAGE_KEY));
+  return safeParseRecords(window.localStorage.getItem(STORAGE_KEY)).sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
 }
 
 export function savePurchaseTaxRecords(records: PurchaseTaxRecord[]): void {

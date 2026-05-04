@@ -85,7 +85,7 @@ export function BudgetPrintPreview({
   executionDeadline,
   commercialNotes,
   technicalNotes,
-  templateId = 'professional',
+  templateId = 'simple',
   validationIssues = [],
 }: BudgetPrintPreviewProps) {
   const hasBlockingIssues = hasBlockingBudgetIssues(validationIssues);
@@ -94,12 +94,20 @@ export function BudgetPrintPreview({
     timeStyle: 'short',
   }).format(new Date());
 
-  const profileName = businessProfile?.businessName?.trim() || 'OrçaOS';
+  const isSimpleTemplate = templateId === 'simple';
+  const isTechnicalTemplate = templateId === 'technical' || templateId === 'premiumDetailed';
+  const isPremiumTemplate = templateId === 'premiumModern' || templateId === 'premiumDetailed';
+  const profileName = businessProfile?.businessName?.trim() || businessProfile?.responsibleName?.trim() || 'Profissional';
   const documentNumber = businessProfile?.documentNumber?.trim();
   const contactLine = [businessProfile?.phone, businessProfile?.email].filter(Boolean).join(' · ');
   const address = businessProfile?.address?.trim();
   const responsibleName = businessProfile?.responsibleName?.trim();
   const logoSource = businessProfile?.logoDataUrl?.trim() || businessProfile?.logoUrl?.trim();
+  const categoryTotals = {
+    labor: items.filter((item) => item.category === 'labor').reduce((sum, item) => sum + safeBudgetItemTotal(item), 0),
+    material: items.filter((item) => item.category === 'material').reduce((sum, item) => sum + safeBudgetItemTotal(item), 0),
+    other: items.filter((item) => item.category === 'other').reduce((sum, item) => sum + safeBudgetItemTotal(item), 0),
+  };
 
   return (
     <section className="print-preview-shell">
@@ -125,12 +133,20 @@ export function BudgetPrintPreview({
       )}
 
       <article className={`print-document print-template-${templateId}`} aria-label="Prévia impressa do orçamento">
+        {isPremiumTemplate && (
+          <section className="print-cover-page">
+            <span>Proposta premium</span>
+            <h1>{budgetTitle || 'Proposta técnica e comercial'}</h1>
+            <p>{clientName ? `Preparada para ${clientName}` : 'Preparada para o cliente'}</p>
+            <strong>{formatCurrency(total)}</strong>
+          </section>
+        )}
         <header className="print-document-top">
           <div className="print-company-block">
-            {logoSource ? <img className="print-logo" src={logoSource} alt={`Logo ${profileName}`} /> : <span className="print-brand">OrçaOS</span>}
+            {!isSimpleTemplate && logoSource ? <img className="print-logo" src={logoSource} alt={`Logo ${profileName}`} /> : <span className="print-brand">{isSimpleTemplate ? 'Orçamento' : 'OrçaOS'}</span>}
             <h2>{budgetTitle || 'Orçamento sem título'}</h2>
             <p>{profileName}</p>
-            {documentNumber && <p>{documentNumber}</p>}
+            {!isSimpleTemplate && documentNumber && <p>{documentNumber}</p>}
             {contactLine && <p>{contactLine}</p>}
             {address && <p>{address}</p>}
           </div>
@@ -146,6 +162,15 @@ export function BudgetPrintPreview({
           <span>Cliente</span>
           <strong>{clientName || 'Cliente não informado'}</strong>
         </section>
+
+        {isPremiumTemplate && (
+          <section className="print-client-box print-proposal-summary">
+            <span>Resumo da proposta</span>
+            <p>Problema identificado: necessidade registrada no atendimento/orçamento.</p>
+            <p>Solução proposta: execução dos serviços e fornecimento dos itens listados abaixo.</p>
+            <p>Benefícios: clareza no escopo, valores organizados e próximos passos documentados.</p>
+          </section>
+        )}
 
         <section className="print-table-wrap">
           <table className="print-table">
@@ -209,7 +234,26 @@ export function BudgetPrintPreview({
           </div>
         </section>
 
-        {templateId !== 'simple' && (
+        {isTechnicalTemplate && (
+          <section className="print-client-box print-technical-section">
+            <span>Detalhamento técnico</span>
+            <div className="print-category-totals">
+              <p>Mão de obra: <strong>{formatCurrency(categoryTotals.labor)}</strong></p>
+              <p>Materiais: <strong>{formatCurrency(categoryTotals.material)}</strong></p>
+              <p>Outros: <strong>{formatCurrency(categoryTotals.other)}</strong></p>
+            </div>
+            <p>Diagnóstico: {technicalNotes || 'Diagnóstico técnico a validar conforme visita, medições e condições reais do local.'}</p>
+            <p>Recomendações: confirmar medidas, disponibilidade de material e condições de execução antes do início.</p>
+            <p>Incluso: itens descritos no orçamento. Não incluso: serviços, materiais ou adequações não listados.</p>
+          </section>
+        )}
+
+        {isSimpleTemplate ? (
+          <section className="print-client-box">
+            <span>Observações</span>
+            {commercialNotes ? <p>{commercialNotes}</p> : <p>Valores sujeitos à confirmação conforme escopo final aprovado pelo cliente.</p>}
+          </section>
+        ) : (
           <section className="print-client-box">
             <span>Condições</span>
             {paymentTerms && <p>{paymentTerms}</p>}
@@ -218,6 +262,13 @@ export function BudgetPrintPreview({
             {executionDeadline && <p>Prazo de execução: {executionDeadline}</p>}
             {commercialNotes && <p>Observações comerciais: {commercialNotes}</p>}
             {technicalNotes && <p>Observações técnicas: {technicalNotes}</p>}
+          </section>
+        )}
+
+        {!isSimpleTemplate && (
+          <section className="print-client-box print-acceptance-box">
+            <span>Aceite</span>
+            <p>Ao aprovar esta proposta, o cliente autoriza a continuidade do atendimento para geração da OS e execução conforme escopo descrito.</p>
           </section>
         )}
 
