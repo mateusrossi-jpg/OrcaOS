@@ -5,6 +5,7 @@ import type { OrcaAccountState } from './accountPlanStorage';
 const account: OrcaAccountState = {
   status: 'email',
   userId: 'email:cliente@example.com',
+  installationId: 'install-test-device',
   displayName: 'Cliente',
   email: 'cliente@example.com',
   plan: 'free',
@@ -34,6 +35,7 @@ describe('commercial checkout', () => {
     expect(url.searchParams.get('plan')).toBe('pro');
     expect(url.searchParams.get('email')).toBe('cliente@example.com');
     expect(url.searchParams.get('userId')).toBe('email:cliente@example.com');
+    expect(url.searchParams.get('installationId')).toBe('install-test-device');
     expect(url.searchParams.get('source')).toBe('orcaos-app');
   });
 });

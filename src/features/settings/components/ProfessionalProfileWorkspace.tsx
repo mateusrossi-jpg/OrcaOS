@@ -148,7 +148,7 @@ export function ProfessionalProfileWorkspace() {
           </label>
           <label>
             <span>Nome comercial / empresa</span>
-            <input value={profile.businessName} placeholder="Ex.: Rossi Elétrica" onChange={(event) => updateProfile('businessName', event.target.value)} />
+            <input value={profile.businessName} placeholder="Ex.: Empresa técnica" onChange={(event) => updateProfile('businessName', event.target.value)} />
           </label>
           <label>
             <span>CPF/CNPJ</span>
@@ -168,7 +168,7 @@ export function ProfessionalProfileWorkspace() {
           </label>
           <label>
             <span>Cidade</span>
-            <input value={profile.city} placeholder="Ex.: São José do Rio Preto" onChange={(event) => updateProfile('city', event.target.value)} />
+            <input value={profile.city} placeholder="Ex.: Cidade" onChange={(event) => updateProfile('city', event.target.value)} />
           </label>
           <label>
             <span>UF</span>

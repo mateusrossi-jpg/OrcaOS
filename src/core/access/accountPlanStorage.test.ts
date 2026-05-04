@@ -34,6 +34,7 @@ describe('account plan storage', () => {
     const account = loadAccountState();
 
     expect(account.status).toBe('guest');
+    expect(account.installationId).toMatch(/^install-/);
     expect(account.plan).toBe('free');
     expect(account.planStatus).toBe('free');
     expect(resolveUserPlan()).toBe('free');
@@ -45,6 +46,7 @@ describe('account plan storage', () => {
     expect(account.status).toBe('local');
     expect(account.displayName).toBe('Profissional');
     expect(account.email).toBe('profissional@example.com');
+    expect(account.installationId).toMatch(/^install-/);
     expect(account.plan).toBe('free');
   });
 
@@ -55,6 +57,18 @@ describe('account plan storage', () => {
     expect(account.userId).toBe('email:profissional@example.com');
     expect(account.email).toBe('profissional@example.com');
     expect(account.displayName).toBe('Profissional');
+    expect(account.installationId).toMatch(/^install-/);
+  });
+
+  it('keeps the same installation id when linking email, Google and signing out', () => {
+    const guest = loadAccountState();
+    const emailAccount = signInEmailAccount('profissional@example.com', 'Profissional');
+    const googleAccount = signInGoogleAccount({ sub: '123', name: 'Conta Google', email: 'profissional@example.com' });
+    const signedOut = signOutLocalAccount();
+
+    expect(emailAccount.installationId).toBe(guest.installationId);
+    expect(googleAccount.installationId).toBe(guest.installationId);
+    expect(signedOut.installationId).toBe(guest.installationId);
   });
 
   it('rejects invalid email registration', () => {
