@@ -600,12 +600,8 @@ function CatalogScreen({ onAddMany }: { onAddMany: (items: CalculationCapture[])
 function MoreScreen({ goTo }: { goTo: (tab: AppTab) => void }) {
   return (
     <section className="app-screen more-screen">
-      <header className="screen-header"><span className="orca-kicker">Administração e apoio</span><h1>Mais recursos</h1><p>Ferramentas de apoio, configurações, beta e Pro ficam aqui. O uso diário agora aparece direto na navegação principal.</p></header>
+      <header className="screen-header"><span className="orca-kicker">Administração e apoio</span><h1>Mais recursos</h1><p>Configurações, beta, Pro e roteiro de evolução ficam aqui. Rotinas do dia a dia aparecem direto na navegação principal.</p></header>
       <div className="more-resource-grid">
-        <button type="button" onClick={() => goTo('catalog')}><strong>Estoque e catálogo</strong><small>Materiais, mão de obra, serviços compostos, fornecedores e preços locais.</small></button>
-        <button type="button" onClick={() => goTo('purchaseList')}><strong>Lista de compra do cliente</strong><small>Foto, nome exato, quantidade, link e observações de substituição.</small></button>
-        <button type="button" onClick={() => goTo('financial')}><strong>Financeiro simples</strong><small>Receita realizada, custos, taxas, imposto estimado e lucro líquido.</small></button>
-        <button type="button" onClick={() => goTo('reports')}><strong>Relatórios técnicos</strong><small>Documento simples para cliente com diagnóstico, cálculos e observações.</small></button>
         <button type="button" onClick={() => goTo('settings')}><strong>Backup e configurações</strong><small>Perfil profissional, segurança local, backup e preferências.</small></button>
         <button type="button" onClick={() => goTo('beta')}><strong>Beta e Play Store</strong><small>Checklist de teste fechado, fluxos críticos, responsividade e publicação.</small></button>
         <button type="button" onClick={() => goTo('store')}><strong>Loja / Pro</strong><small>Pacotes planejados para beta, sem bloquear o uso básico local.</small></button>
