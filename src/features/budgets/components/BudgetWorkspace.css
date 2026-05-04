@@ -521,6 +521,14 @@
   min-width: 0;
 }
 
+.budget-header-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+  min-width: 0;
+}
+
 .budget-section-header h3,
 .saved-budget-panel-header h3,
 .budget-editor-title h3,
@@ -1586,6 +1594,7 @@
   }
 
   .budget-section-header .inline-action,
+  .budget-header-actions,
   .saved-budget-panel-header .inline-action,
   .saved-budget-delete,
   .budget-actions button,
@@ -1593,6 +1602,10 @@
   .editable-budget-item-footer .danger-action,
   .service-template-controls .inline-action {
     width: 100%;
+  }
+
+  .budget-header-actions {
+    justify-content: stretch;
   }
 
   .editable-budget-item-footer {

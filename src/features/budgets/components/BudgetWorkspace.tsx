@@ -719,10 +719,7 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
     setSelectedBudgetItemId(null);
   }
 
-  function resetBudgetDraft() {
-    const confirmed = window.confirm('Criar um novo orçamento e limpar o rascunho atual? Orçamentos já salvos continuam na lista.');
-    if (!confirmed) return;
-    clearBudgetDraft();
+  function clearBudgetForm() {
     setActiveBudgetId(null);
     setBudgetStatus('draft');
     setClientName(activeClient?.name ?? '');
@@ -740,6 +737,13 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
     setDraft(emptyDraftItem);
     setLastSavedAt(null);
     setActiveSection('proposal');
+  }
+
+  function resetBudgetDraft() {
+    const confirmed = window.confirm('Criar um novo orçamento e limpar o rascunho atual? Orçamentos já salvos continuam na lista.');
+    if (!confirmed) return;
+    clearBudgetDraft();
+    clearBudgetForm();
   }
 
   function persistCurrentBudget(status: SavedBudgetStatus = budgetStatus): SavedBudgetRecord | null {
@@ -912,8 +916,21 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
   }
 
   function removeSavedBudget(recordId: string) {
+    const record = savedBudgets.find((budget) => budget.id === recordId);
+    const confirmed = window.confirm(`Excluir "${record?.title || 'este orçamento'}"? Esta ação remove o orçamento salvo deste navegador.`);
+    if (!confirmed) return;
+
     setSavedBudgets(deleteSavedBudget(recordId));
-    if (recordId === activeBudgetId) resetBudgetDraft();
+    if (recordId === activeBudgetId) {
+      clearBudgetDraft();
+      clearBudgetForm();
+    }
+    setShareFeedback('Orçamento excluído.');
+  }
+
+  function deleteActiveBudget() {
+    if (!activeBudgetId) return;
+    removeSavedBudget(activeBudgetId);
   }
 
   const canAddItem = draft.description.trim().length > 0 && draft.quantity > 0 && draft.unitPrice >= 0;
@@ -1011,7 +1028,10 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
               <h3>Dados da proposta</h3>
               <p>Defina cliente, condições comerciais, prazo, garantia e status do orçamento.</p>
             </div>
-            <button type="button" className="primary-action inline-action" onClick={saveCurrentBudget}>{activeBudgetId ? 'Atualizar orçamento' : 'Salvar orçamento'}</button>
+            <div className="budget-header-actions">
+              {activeBudgetId && <button type="button" className="danger-action inline-action" onClick={deleteActiveBudget}>Excluir orçamento</button>}
+              <button type="button" className="primary-action inline-action" onClick={saveCurrentBudget}>{activeBudgetId ? 'Atualizar orçamento' : 'Salvar orçamento'}</button>
+            </div>
           </div>
 
           {!activeClient && !activeWorkOrder && <div className="budget-guidance-card">Selecione um cliente ou atendimento para preencher automaticamente.</div>}
