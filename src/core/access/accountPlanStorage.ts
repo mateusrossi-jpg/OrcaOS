@@ -13,6 +13,7 @@ export interface GoogleAccountProfile {
 export interface OrcaAccountState {
   status: OrcaAccountStatus;
   userId: string | null;
+  installationId: string;
   displayName: string;
   email: string;
   plan: UserPlan;
@@ -26,6 +27,7 @@ export const ORCA_ACCOUNT_CHANGED_EVENT = 'orcaos:account-plan-changed';
 
 const STORAGE_KEY = 'orcaos:account-plan:v1';
 const LEGACY_PLAN_KEY = 'orcaos:user-plan';
+const INSTALLATION_ID_KEY = 'orcaos:installation-id:v1';
 
 function hasStorage(): boolean {
   return typeof window !== 'undefined' && typeof window.localStorage !== 'undefined';
@@ -35,9 +37,20 @@ function now(): string {
   return new Date().toISOString();
 }
 
-function createLocalUserId(): string {
-  if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) return crypto.randomUUID();
-  return `local-${Date.now()}-${Math.round(Math.random() * 1000)}`;
+function createStableId(prefix: string): string {
+  if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) return `${prefix}-${crypto.randomUUID()}`;
+  return `${prefix}-${Date.now()}-${Math.round(Math.random() * 1000000)}`;
+}
+
+function getOrCreateInstallationId(): string {
+  if (!hasStorage()) return createStableId('install');
+
+  const storedId = window.localStorage.getItem(INSTALLATION_ID_KEY);
+  if (storedId?.trim()) return storedId;
+
+  const installationId = createStableId('install');
+  window.localStorage.setItem(INSTALLATION_ID_KEY, installationId);
+  return installationId;
 }
 
 function normalizeEmail(email: string): string {
@@ -53,6 +66,7 @@ export function createGuestAccount(plan: UserPlan = 'free', planSource: OrcaPlan
   return {
     status: 'guest',
     userId: null,
+    installationId: getOrCreateInstallationId(),
     displayName: 'Visitante',
     email: '',
     plan,
@@ -74,6 +88,7 @@ function normalizeAccount(value: Partial<OrcaAccountState> | null): OrcaAccountS
   return {
     status: value.status === 'google' ? 'google' : value.status === 'email' ? 'email' : value.status === 'local' ? 'local' : 'guest',
     userId: value.userId ?? null,
+    installationId: value.installationId?.trim() || getOrCreateInstallationId(),
     displayName: value.displayName?.trim() || (value.status === 'google' ? 'Conta Google' : value.status === 'email' ? 'Conta por e-mail' : value.status === 'local' ? 'Profissional local' : 'Visitante'),
     email: value.email ? normalizeEmail(value.email) : '',
     plan,
@@ -101,7 +116,9 @@ export function loadAccountState(): OrcaAccountState {
 
 export function saveAccountState(account: OrcaAccountState): void {
   if (!hasStorage()) return;
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(account));
+  const installationId = account.installationId || getOrCreateInstallationId();
+  window.localStorage.setItem(INSTALLATION_ID_KEY, installationId);
+  window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...account, installationId }));
   window.localStorage.setItem(LEGACY_PLAN_KEY, account.plan);
   emitChanged();
 }
@@ -116,7 +133,8 @@ export function signInLocalAccount(displayName = 'Profissional local', email = '
   const next: OrcaAccountState = {
     ...current,
     status: 'local',
-    userId: current.userId ?? createLocalUserId(),
+    userId: current.userId ?? createStableId('local'),
+    installationId: current.installationId || getOrCreateInstallationId(),
     displayName: displayName.trim() || 'Profissional local',
     email: email.trim(),
     updatedAt: now(),
@@ -134,6 +152,7 @@ export function signInEmailAccount(email: string, displayName = ''): OrcaAccount
     ...current,
     status: 'email',
     userId: `email:${normalizedEmail}`,
+    installationId: current.installationId || getOrCreateInstallationId(),
     displayName: displayName.trim() || normalizedEmail,
     email: normalizedEmail,
     updatedAt: now(),
@@ -150,6 +169,7 @@ export function signInGoogleAccount(profile: GoogleAccountProfile): OrcaAccountS
     ...current,
     status: 'google',
     userId: `google:${profile.sub}`,
+    installationId: current.installationId || getOrCreateInstallationId(),
     displayName: profile.name?.trim() || (sameRegisteredEmail ? current.displayName : googleEmail) || 'Conta Google',
     email: googleEmail || current.email,
     updatedAt: now(),
@@ -159,7 +179,8 @@ export function signInGoogleAccount(profile: GoogleAccountProfile): OrcaAccountS
 }
 
 export function signOutLocalAccount(): OrcaAccountState {
-  const next = createGuestAccount('free', 'free');
+  const current = loadAccountState();
+  const next = { ...createGuestAccount('free', 'free'), installationId: current.installationId || getOrCreateInstallationId() };
   saveAccountState(next);
   return next;
 }

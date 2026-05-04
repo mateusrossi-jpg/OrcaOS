@@ -62,6 +62,7 @@ export async function refreshPlanEntitlement(account = loadAccountState()): Prom
     headers,
     body: JSON.stringify({
       userId: account.userId,
+      installationId: account.installationId,
       email: account.email,
       status: account.status,
     }),

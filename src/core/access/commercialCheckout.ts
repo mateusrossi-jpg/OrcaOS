@@ -12,6 +12,7 @@ function appendAccountParams(baseUrl: string, account: OrcaAccountState): string
   const url = new URL(baseUrl);
   if (account.email) url.searchParams.set('email', account.email);
   if (account.userId) url.searchParams.set('userId', account.userId);
+  if (account.installationId) url.searchParams.set('installationId', account.installationId);
   url.searchParams.set('source', 'orcaos-app');
   return url.toString();
 }
