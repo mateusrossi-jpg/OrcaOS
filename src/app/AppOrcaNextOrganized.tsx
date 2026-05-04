@@ -14,14 +14,14 @@ import { buildProCheckoutUrl, buildProManageUrl, isProCheckoutConfigured, isProM
 import { isGoogleAccountLoginConfigured, requestGoogleAccountProfile } from '../core/access/googleAccountAuth';
 import { isPlanEntitlementSyncConfigured, refreshPlanEntitlement } from '../core/access/planEntitlements';
 import { freePlanBenefits, futureProBacklog, proPlanBenefits, proV1Priorities } from '../core/access/planStrategy';
-import { isDevToolsEnabled } from '../core/runtime/devTools';
 import type { CalculatorModule, UserPlan } from '../core/access/featureAccess';
+import { isDevToolsEnabled } from '../core/runtime/devTools';
 import type { Client, WorkOrder } from '../core/types/business';
 import type { CalculationCapture } from '../core/types/workflow';
 import type { GeneralCalculatorModule } from '../features/calculators/components/GeneralCalculatorWorkspace';
 import type { FundamentalMode } from '../features/calculators/components/GeneralFundamentalsWorkspace';
-import { loadSavedBudgets, saveBudgetRecord, type SavedBudgetRecord } from '../features/budgets/storage/savedBudgetsStorage';
-import { loadActiveWorkOrderId, loadClients, loadWorkOrders, saveActiveWorkOrderId, saveClients, saveWorkOrders } from '../features/clients/storage/clientWorkOrderStorage';
+import { loadSavedBudgets, type SavedBudgetRecord } from '../features/budgets/storage/savedBudgetsStorage';
+import { loadActiveWorkOrderId, loadClients, loadWorkOrders, saveWorkOrders } from '../features/clients/storage/clientWorkOrderStorage';
 import { ActiveWorkContextCard } from './components/ActiveWorkContextCard';
 import { AppShell } from './components/AppShell';
 import { ModuleCard } from './components/ModuleCard';
@@ -180,7 +180,7 @@ const surveyFlowSteps: Array<{ id: SurveySection; label: string; title: string; 
   },
 ];
 
-function HomeScreen({ goTo, openModule, captures, clients, workOrders, savedBudgets, context, onStartNewAttendance, onSeedValidationData }: { goTo: (tab: AppTab) => void; openModule: (module: ModuleCardData) => void; captures: CalculationCapture[]; clients: Client[]; workOrders: WorkOrder[]; savedBudgets: SavedBudgetRecord[]; context: ActiveWorkContext; onStartNewAttendance: () => void; onSeedValidationData: () => void }) {
+function HomeScreen({ goTo, openModule, captures, clients, workOrders, savedBudgets, context, onStartNewAttendance }: { goTo: (tab: AppTab) => void; openModule: (module: ModuleCardData) => void; captures: CalculationCapture[]; clients: Client[]; workOrders: WorkOrder[]; savedBudgets: SavedBudgetRecord[]; context: ActiveWorkContext; onStartNewAttendance: () => void }) {
   const openWorkOrders = workOrders.filter((workOrder) => workOrder.status !== 'done' && workOrder.status !== 'cancelled').length;
   const pendingBudgets = savedBudgets.filter((budget) => budget.status === 'draft' || budget.status === 'sent').length;
   const approvedBudgets = savedBudgets.filter((budget) => budget.status === 'approved').length;
@@ -188,7 +188,6 @@ function HomeScreen({ goTo, openModule, captures, clients, workOrders, savedBudg
   const budgetItems = captures.filter((capture) => capture.destination === 'budget' || capture.destination === 'both').length;
   const recentItems = captures.slice(0, 3);
   const pricingModule = calculationModules.find((module) => module.id === 'orcamentoTecnico') ?? calculationModules[0];
-  const showValidationTools = isDevToolsEnabled();
   const currentStep = context.activeWorkOrder
     ? context.activeWorkOrder.status === 'open'
       ? 'Orçamento ou cálculo pendente'
@@ -241,22 +240,6 @@ function HomeScreen({ goTo, openModule, captures, clients, workOrders, savedBudg
           <small>{context.activeWorkOrder ? 'Retome orçamento, cálculo ou dados do cliente.' : 'Crie ou selecione um atendimento para continuar.'}</small>
         </button>
       </div>
-      {showValidationTools && <section className="orca-panel-card home-validation-panel">
-        <header>
-          <div>
-            <span className="orca-kicker">Teste prático</span>
-            <h2>Validar fluxo com dados reais locais</h2>
-            <p>Crie um cliente, atendimentos abertos, orçamento pendente, orçamento aprovado e itens técnicos para testar a Home, Atendimentos, Cálculos, Orçamentos, Relatórios e Financeiro.</p>
-          </div>
-          <button type="button" onClick={onSeedValidationData}>Criar cenário de teste</button>
-        </header>
-        <div className="home-validation-actions">
-          <button type="button" onClick={() => goTo('clients')}>Abrir atendimentos</button>
-          <button type="button" onClick={() => goTo('budgets')}>Abrir orçamentos</button>
-          <button type="button" onClick={() => goTo('reports')}>Abrir relatórios</button>
-          <button type="button" onClick={() => goTo('financial')}>Abrir financeiro</button>
-        </div>
-      </section>}
       <div className="home-management-kpis">
         <article><span>Atendimentos abertos</span><strong>{openWorkOrders}</strong><small>em orçamento ou execução</small></article>
         <article><span>Orçamentos pendentes</span><strong>{pendingBudgets}</strong><small>rascunhos ou enviados</small></article>
@@ -1050,150 +1033,10 @@ export function App() {
     });
   }
 
-  function seedValidationScenario() {
-    const now = new Date().toISOString();
-    const clientA: Client = {
-      id: 'validation-client-1',
-      name: 'Cliente de teste',
-      documentNumber: '000.000.000-00',
-      phone: '(11) 99999-0000',
-      email: 'cliente.teste@example.com',
-      address: 'Rua de Teste, 123 - Centro',
-      city: 'Cidade teste',
-      state: 'SP',
-      notes: 'Cliente criado para validação prática do fluxo OrçaOS.',
-      createdAt: now,
-      updatedAt: now,
-    };
-    const clientB: Client = {
-      id: 'validation-client-2',
-      name: 'Cliente recorrente',
-      phone: '(11) 98888-0000',
-      email: 'recorrente@example.com',
-      address: 'Avenida de Validação, 456',
-      notes: 'Segundo cliente para testar busca, histórico e cadastro.',
-      createdAt: now,
-      updatedAt: now,
-    };
-    const workOrderA: WorkOrder = {
-      id: 'validation-work-order-1',
-      clientId: clientA.id,
-      title: 'Instalação de tomadas no quarto',
-      description: 'Cliente quer adicionar 3 pontos e revisar tomada antiga.',
-      address: clientA.address,
-      priority: 'normal',
-      status: 'open',
-      scheduledDate: now,
-      createdAt: now,
-      updatedAt: now,
-    };
-    const workOrderB: WorkOrder = {
-      id: 'validation-work-order-2',
-      clientId: clientB.id,
-      title: 'Revisão de orçamento enviado',
-      description: 'Proposta enviada aguardando retorno do cliente.',
-      address: clientB.address,
-      priority: 'high',
-      status: 'scheduled',
-      scheduledDate: now,
-      createdAt: now,
-      updatedAt: now,
-    };
-    const nextClients = [clientA, clientB, ...clients.filter((client) => !client.id.startsWith('validation-client-'))];
-    const nextWorkOrders = [workOrderA, workOrderB, ...workOrders.filter((workOrder) => !workOrder.id.startsWith('validation-work-order-'))];
-    const validationCaptures: CalculationCapture[] = [
-      {
-        id: 'validation-capture-price-1',
-        module: 'orcamentoTecnico',
-        moduleLabel: 'Precificação',
-        calculatorLabel: 'Preço mínimo',
-        destination: 'both',
-        createdAt: now,
-        summary: 'Preço sugerido R$ 316,00 para instalação de tomadas.',
-        details: ['Mão de obra: R$ 245,00', 'Materiais: R$ 71,00', 'Deslocamento: R$ 0,00'],
-        workOrderId: workOrderA.id,
-        itemType: 'service',
-        editableDescription: 'Mão de obra para instalação de tomadas',
-        quantity: '1',
-        unitValue: '245',
-        shouldGenerateBudgetItem: true,
-        convertedToBudgetItem: false,
-        reportReady: true,
-      },
-      {
-        id: 'validation-capture-material-1',
-        module: 'orcamentoTecnico',
-        moduleLabel: 'Materiais',
-        calculatorLabel: 'Materiais do atendimento',
-        destination: 'budget',
-        createdAt: now,
-        summary: 'Materiais estimados para 3 pontos de tomada.',
-        details: ['3 módulos 20A', '3 placas 4x2', 'Cabos e acessórios'],
-        workOrderId: workOrderA.id,
-        itemType: 'material',
-        editableDescription: 'Materiais para instalação de tomadas',
-        quantity: '1',
-        unitValue: '71',
-        shouldGenerateBudgetItem: true,
-        convertedToBudgetItem: false,
-        reportReady: true,
-      },
-    ];
-
-    saveClients(nextClients);
-    saveWorkOrders(nextWorkOrders);
-    saveActiveWorkOrderId(workOrderA.id);
-    saveBudgetRecord({
-      id: 'validation-budget-draft',
-      clientName: clientA.name,
-      title: workOrderA.title,
-      status: 'draft',
-      discount: 0,
-      travelCost: 0,
-      additionalFees: 0,
-      paymentTerms: 'Pix na aprovação ou 50% na aprovação e 50% na entrega.',
-      validity: '7 dias',
-      guarantee: 'Garantia conforme serviço executado e materiais aplicados.',
-      executionDeadline: 'Prazo a combinar após aprovação.',
-      commercialNotes: 'Valores sujeitos à confirmação após vistoria e disponibilidade de materiais.',
-      technicalNotes: 'Validar infraestrutura existente antes da execução.',
-      templateId: 'simple',
-      items: [
-        { id: 'validation-budget-item-labor', description: 'Mão de obra para ponto de tomada simples', quantity: 3, unitPrice: 80, category: 'labor' },
-        { id: 'validation-budget-item-material', description: 'Materiais para tomadas 20A', quantity: 1, unitPrice: 71, category: 'material' },
-      ],
-    });
-    saveBudgetRecord({
-      id: 'validation-budget-approved',
-      clientName: clientB.name,
-      title: 'Manutenção preventiva aprovada',
-      status: 'approved',
-      discount: 20,
-      travelCost: 35,
-      additionalFees: 0,
-      paymentTerms: 'Pagamento via Pix na conclusão.',
-      validity: '10 dias',
-      guarantee: '90 dias para mão de obra.',
-      executionDeadline: '2 dias úteis após aprovação.',
-      commercialNotes: 'Orçamento aprovado para teste de conversão em OS.',
-      technicalNotes: 'Registrar execução e relatório após conclusão.',
-      templateId: 'simple',
-      items: [
-        { id: 'validation-approved-item-labor', description: 'Manutenção preventiva', quantity: 1, unitPrice: 420, category: 'labor' },
-        { id: 'validation-approved-item-material', description: 'Materiais e insumos', quantity: 1, unitPrice: 130, category: 'material' },
-      ],
-    });
-    setClients(nextClients);
-    setWorkOrders(nextWorkOrders);
-    setActiveWorkOrderId(workOrderA.id);
-    setCaptures((current) => [...validationCaptures, ...current.filter((capture) => !capture.id.startsWith('validation-capture-'))]);
-    setActiveTab('home');
-  }
-
   return (
     <AppShell activeTab={activeTab} title={getScreenTitle(activeTab, selectedModule)} subtitle={getScreenSubtitle(activeTab, selectedModule)} navItems={navItems} activeClient={activeClient} activeWorkOrder={activeWorkOrder} onNavigate={goTo}>
       <Suspense fallback={<LazyWorkspaceFallback />}>
-        {activeTab === 'home' && <HomeScreen goTo={goTo} openModule={openModule} captures={captures} clients={clients} workOrders={workOrders} savedBudgets={loadSavedBudgets()} context={context} onStartNewAttendance={() => openClientSection('newWorkOrder')} onSeedValidationData={seedValidationScenario} />}
+        {activeTab === 'home' && <HomeScreen goTo={goTo} openModule={openModule} captures={captures} clients={clients} workOrders={workOrders} savedBudgets={loadSavedBudgets()} context={context} onStartNewAttendance={() => openClientSection('newWorkOrder')} />}
         {activeTab === 'calculations' && <CalculationsScreen selectedModule={selectedModule} openModule={openModule} activeSector={activeSector} onSelectSector={setActiveSector} goTo={goTo} userPlan={activeUserPlan} onCaptureCalculation={addCalculationCapture} context={context} captures={captures} />}
         {activeTab === 'survey' && <SurveyScreen captures={captures} context={context} onRemove={removeCalculationCapture} onUpdate={updateCalculationCapture} onAddMany={addManyCalculationCaptures} goTo={goTo} />}
         {activeTab === 'budgets' && <BudgetsScreen captures={captures} context={context} userPlan={activeUserPlan} goTo={goTo} onRemove={removeCalculationCapture} onUpdate={updateCalculationCapture} onConvertApprovedBudgetToWorkOrder={convertActiveBudgetToWorkOrder} />}
