@@ -515,7 +515,9 @@ export function CatalogHubWorkspace({ onSendToBudget, initialTab = 'items', enab
 
   function fillItemFromOnlineSearch(result?: ProductSearchResult) {
     const observedPrice = result?.priceReference !== undefined ? String(result.priceReference) : onlineObservedPrice.trim();
-    const reference = onlineReference.trim();
+    const reference = onlineReference.trim() || result?.title || '';
+    const sourceUrl = result?.link || onlineProductUrl.trim() || onlineUrl;
+    const imageUrl = result?.imageUrl || onlineImageUrl.trim();
     const today = new Intl.DateTimeFormat('pt-BR').format(new Date());
     const onlineNote = [
       observedPrice ? `Preço observado: ${money(parseDecimal(observedPrice))} em ${today}.` : null,
@@ -525,9 +527,13 @@ export function CatalogHubWorkspace({ onSendToBudget, initialTab = 'items', enab
     const purchaseGuidance = [
       'Comprar este produto ou equivalente validado pelo profissional.',
       reference ? `Conferir referência/modelo: ${reference}.` : null,
-      (result?.link || onlineProductUrl.trim()) ? `Link de referência: ${result?.link || onlineProductUrl.trim()}.` : null,
+      sourceUrl ? `Link de referência: ${sourceUrl}.` : null,
     ].filter(Boolean).join(' ');
 
+    if (result?.title) setOnlineReference(result.title);
+    if (result?.link) setOnlineProductUrl(result.link);
+    if (result?.imageUrl) setOnlineImageUrl(result.imageUrl);
+    if (observedPrice) setOnlineObservedPrice(observedPrice);
     setEditingItemId(null);
     updateItemDraft('title', result?.title || onlineQuery);
     updateItemDraft('popularName', onlineQuery);
@@ -537,8 +543,8 @@ export function CatalogHubWorkspace({ onSendToBudget, initialTab = 'items', enab
     if (observedPrice) updateItemDraft('defaultUnitValue', observedPrice);
     updateItemDraft('priceUpdatedAt', new Date().toISOString());
     updateItemDraft('dataOrigin', result?.providerId === 'manual-reference' ? 'online-reference' : result?.providerId === 'supplier-search' ? 'supplier' : 'local-catalog');
-    updateItemDraft('sourceUrl', result?.link || onlineProductUrl.trim() || onlineUrl);
-    updateItemDraft('imageUrl', result?.imageUrl || onlineImageUrl.trim());
+    updateItemDraft('sourceUrl', sourceUrl);
+    updateItemDraft('imageUrl', imageUrl);
     updateItemDraft('purchaseGuidance', purchaseGuidance);
     updateItemDraft('notes', itemDraft.notes.trim() ? `${itemDraft.notes.trim()}\n${onlineNote}` : onlineNote);
     setActiveTab('items');

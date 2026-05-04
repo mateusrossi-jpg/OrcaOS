@@ -137,7 +137,7 @@ export function ProfessionalProfileWorkspace() {
             <small>Use uma imagem simples e horizontal sempre que possível. Ela aparece em orçamento e relatório.</small>
             <div className="professional-profile-actions">
               <label className="secondary-action inline-action file-action">Escolher logo<input accept="image/*" type="file" onChange={handleLogoFileChange} /></label>
-              <button className="danger-action" type="button" onClick={removeLogo}>Remover logo</button>
+              {(profile.logoDataUrl || profile.logoUrl) && <button className="danger-action" type="button" onClick={removeLogo}>Remover logo</button>}
             </div>
           </div>
         </div>
