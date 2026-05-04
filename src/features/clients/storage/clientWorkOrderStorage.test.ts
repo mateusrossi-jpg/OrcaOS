@@ -12,8 +12,8 @@ import {
 
 const client: Client = {
   id: 'client-1',
-  name: 'Cliente teste',
-  phone: '(11) 99999-0000',
+  name: 'Cliente exemplo',
+  phone: '',
 };
 
 const workOrder: WorkOrder = {

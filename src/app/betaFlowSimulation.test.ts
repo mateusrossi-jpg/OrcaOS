@@ -30,11 +30,11 @@ describe('beta practical flow simulation', () => {
   it('validates client, atendimento, approved budget, real profit and catalog lookup data', () => {
     const client: Client = {
       id: 'client-beta-1',
-      name: 'Cliente de teste',
-      documentNumber: '000.000.000-00',
-      phone: '(11) 99999-0000',
+      name: 'Cliente exemplo',
+      documentNumber: '',
+      phone: '',
       email: 'cliente@example.com',
-      address: 'Rua de Teste, 123 - Centro',
+      address: 'Endereço do cliente',
       city: 'Cidade',
       state: 'SP',
       createdAt: new Date().toISOString(),

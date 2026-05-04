@@ -27,9 +27,9 @@ describe('business profile storage', () => {
       ...defaultBusinessProfile,
       businessName: 'OrçaOS Serviços',
       documentNumber: '12.345.678/0001-90',
-      phone: '(11) 99999-0000',
+      phone: '',
       email: 'contato@orcaos.test',
-      address: 'Rua Teste, 123',
+      address: 'Endereço comercial',
       responsibleName: 'Profissional Técnico',
       defaultValidity: '10 dias',
     });
