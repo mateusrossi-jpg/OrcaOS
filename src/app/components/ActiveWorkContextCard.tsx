@@ -8,7 +8,7 @@ interface ActiveWorkContextCardProps {
 
 export function ActiveWorkContextCard({ activeClient, activeWorkOrder }: ActiveWorkContextCardProps) {
   if (!activeWorkOrder) {
-    return <aside className="active-work-context-card empty-context"><span className="app-icon tone-gray">AT</span><div><strong>Nenhum atendimento ativo</strong><small>Crie ou retome um atendimento para vincular cálculos, orçamento e relatório.</small></div></aside>;
+    return <aside className="active-work-context-card empty-context"><span className="app-icon tone-gray">AT</span><div><strong>Nenhum atendimento ativo</strong> <small>Crie ou retome um atendimento para vincular cálculos, orçamento e relatório.</small></div></aside>;
   }
 
   return (

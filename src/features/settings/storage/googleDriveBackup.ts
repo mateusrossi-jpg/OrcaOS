@@ -3,7 +3,7 @@ import { parseOrcaBackup, stringifyOrcaBackup, type OrcaLocalBackup } from './lo
 const GOOGLE_IDENTITY_SCRIPT_ID = 'orcaos-google-identity-script';
 const GOOGLE_IDENTITY_SCRIPT_SRC = 'https://accounts.google.com/gsi/client';
 const DRIVE_APPDATA_SCOPE = 'https://www.googleapis.com/auth/drive.appdata';
-const DRIVE_BACKUP_FILENAME = 'orcaos-backup.json';
+const DRIVE_BACKUP_FILENAME = 'aferix-backup.json';
 
 export interface GoogleDriveBackupMetadata {
   id: string;
@@ -175,7 +175,7 @@ export async function saveBackupToGoogleDrive(accessToken: string, backup: OrcaL
 
 export async function loadBackupFromGoogleDrive(accessToken: string): Promise<OrcaLocalBackup> {
   const backupFile = await findGoogleDriveBackup(accessToken);
-  if (!backupFile) throw new Error('Nenhum backup do OrçaOS encontrado no Google Drive.');
+  if (!backupFile) throw new Error('Nenhum backup do Aferix encontrado no Google Drive.');
 
   const response = await fetch(`https://www.googleapis.com/drive/v3/files/${backupFile.id}?alt=media`, {
     headers: { Authorization: `Bearer ${accessToken}` },

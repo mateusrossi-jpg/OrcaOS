@@ -72,7 +72,7 @@ export function buildClientProposalFromCaptures(input: {
   const subtotal = chargedItems.reduce((sum, item) => sum + (item.totalPrice ?? 0), 0);
   const title = input.activeWorkOrder?.title ? `Proposta - ${input.activeWorkOrder.title}` : 'Proposta de serviço';
   const clientName = input.activeClient?.name ?? 'Cliente não vinculado';
-  const professionalDisplayName = profile.businessName || profile.professionalName || 'Profissional OrçaOS';
+  const professionalDisplayName = profile.businessName || profile.professionalName || 'Profissional Aferix';
   const professionalContact = [profile.phone, profile.email].filter(Boolean).join(' · ');
 
   return createClientProposalDraft({
@@ -84,7 +84,7 @@ export function buildClientProposalFromCaptures(input: {
     clientName,
     professionalDisplayName,
     professionalContact,
-    summary: input.activeWorkOrder?.description || 'Proposta gerada a partir dos itens técnicos do orçamento no OrçaOS.',
+    summary: input.activeWorkOrder?.description || 'Proposta gerada a partir dos itens técnicos do orçamento no Aferix.',
     items: chargedItems,
     clientPurchaseMaterials,
     subtotal,

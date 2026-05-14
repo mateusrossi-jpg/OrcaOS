@@ -1,10 +1,10 @@
-# OrçaOS — Plano de expansão de cálculos V1
+# Aferix — Plano de expansão de cálculos V1
 
 Data: 2026-05-02
 
 ## Objetivo
 
-Expandir os cálculos do OrçaOS sem transformar o app em uma lista solta de fórmulas. Cada cálculo deve apoiar decisão técnica, levantamento, orçamento, relatório ou orientação ao cliente.
+Expandir os cálculos do Aferix sem transformar o app em uma lista solta de fórmulas. Cada cálculo deve apoiar decisão técnica, levantamento, orçamento, relatório ou orientação ao cliente.
 
 ## Auditoria dos módulos existentes
 
@@ -87,13 +87,13 @@ Expandir os cálculos do OrçaOS sem transformar o app em uma lista solta de fó
 - Consumo mensal de ar-condicionado. **Free**. Gera relatório/orçamento.
 - Circuito elétrico para ar-condicionado. **Pro**. Gera relatório/orçamento.
 
-### Motores e comandos
+### Custos fixos e comandos
 
 - Corrente nominal por kW/CV/HP. **Pro**. Gera relatório/orçamento.
 - Corrente de partida estimada. **Pro**. Gera relatório.
 - Relé térmico. **Pro**. Gera relatório/orçamento.
 - Contator. **Pro**. Gera relatório/orçamento.
-- Capacitor de motor monofásico. **Pro**. Gera relatório.
+- Capacitor de custo fixo monofásico. **Pro**. Gera relatório.
 - Relação de polias. **Pro**. Gera relatório.
 - Escorregamento. **Pro**. Gera relatório.
 - Torque. **Pro**. Gera relatório.
@@ -156,7 +156,7 @@ Expandir os cálculos do OrçaOS sem transformar o app em uma lista solta de fó
 ## Riscos técnicos
 
 - **Normas técnicas**: os cálculos são estimativas e não copiam textos normativos. Resultados precisam de validação profissional e normativa.
-- **Segurança elétrica**: cabo, disjuntor, DR, DPS, aterramento e motor exigem validação de campo.
+- **Segurança elétrica**: cabo, disjuntor, DR, DPS, aterramento e custo fixo exigem validação de campo.
 - **Rebobinagem**: mapa completo de bobinagem não foi implementado para evitar automação arriscada sem validação.
 - **Solar**: estimativas não substituem projeto fotovoltaico com dados locais, concessionária e normas.
 - **Orçamento**: cálculos comerciais não substituem análise tributária/contábil.
@@ -196,7 +196,7 @@ Assistentes de diagnóstico usam `itemType: diagnostic` e não geram item de or�
 
 - Instalações elétricas avançadas.
 - Refrigeração técnica.
-- Motores e comandos.
+- Custos fixos e comandos.
 - Transformadores.
 - Solar técnico.
 - Rebobinagem inicial.

@@ -1,4 +1,4 @@
-# OrçaOS — architecture guide for AI/Copilot
+# Aferix — architecture guide for AI/Copilot
 
 ## Stack
 

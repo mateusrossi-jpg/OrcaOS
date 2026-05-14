@@ -1,4 +1,4 @@
-# OrçaOS — implementation backlog for AI/Copilot
+# Aferix — implementation backlog for AI/Copilot
 
 This backlog is intentionally practical. Use it to pick the next small implementation steps.
 
@@ -259,7 +259,7 @@ Future additions:
 
 - electronics applied;
 - transformers;
-- motor rewinding;
+- cost allocation;
 - solar photovoltaic;
 - refrigeration advanced;
 - automation/PLC education.

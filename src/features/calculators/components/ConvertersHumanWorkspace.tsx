@@ -47,7 +47,7 @@ interface ConverterResult {
 const rules: ConverterRule[] = [
   { mode: 'volume', label: 'm³ ↔ litros', description: 'Informe um valor e escolha a unidade de origem.', icon: '≋' },
   { mode: 'pressure', label: 'bar / psi / mca', description: 'Converta pressão sem preencher unidades equivalentes ao mesmo tempo.', icon: '↕' },
-  { mode: 'power', label: 'CV / HP / kW', description: 'Converta potência de motores e equipamentos por uma unidade de entrada.', icon: '⚙' },
+  { mode: 'power', label: 'CV / HP / kW', description: 'Converta potência de equipamentos técnicos por uma unidade de entrada.', icon: '⚙' },
   { mode: 'thermal', label: 'BTU/h ↔ W', description: 'Converta potência térmica para refrigeração e climatização.', icon: '❄' },
 ];
 

@@ -1,10 +1,10 @@
-# OrçaOS — estratégia de plataforma modular
+# Aferix — estratégia de plataforma modular
 
-Este documento registra a decisão estratégica: o OrçaOS deve evoluir como **plataforma modular**, não como vários aplicativos isolados para cada função.
+Este documento registra a decisão estratégica: o Aferix deve evoluir como **plataforma modular**, não como vários aplicativos isolados para cada função.
 
 ## Decisão principal
 
-O OrçaOS deve ser uma plataforma profissional com núcleo comum e módulos por área.
+O Aferix deve ser uma plataforma profissional com núcleo comum e módulos por área.
 
 Evitar criar, neste momento, apps separados como:
 
@@ -36,7 +36,7 @@ Um app separado por função gera repetição de:
 
 Isso aumenta custo e risco de cada app ficar diferente, incompleto ou abandonado.
 
-Como plataforma, o OrçaOS consegue manter um único fluxo principal:
+Como plataforma, o Aferix consegue manter um único fluxo principal:
 
 ```text
 cliente → levantamento → cálculo → orçamento → relatório → OS → compra/estoque → gestão
@@ -76,11 +76,11 @@ A plataforma pode crescer por módulos:
 - refrigeração;
 - automação;
 - eletrônica;
-- motores;
+- custos fixos;
 - transformadores;
 - solar fotovoltaico;
 - manutenção preventiva;
-- baixa tensão/CFTV/rede.
+- custos fixos/CFTV/rede.
 
 Cada módulo pode ter:
 
@@ -96,11 +96,11 @@ Cada módulo pode ter:
 O app deve permitir uma experiência simples por perfil:
 
 ```text
-Sou eletricista
+Sou prestador de serviço
 Sou técnico de refrigeração
 Sou pintor
 Sou pedreiro/mestre de obras
-Sou instalador de baixa tensão
+Sou instalador de custos fixos
 Sou empresa multisserviços
 ```
 
@@ -150,12 +150,12 @@ Modelo recomendado:
 - marketplace de templates;
 - catálogos conectados;
 - módulos de terceiros;
-- OrçaOS Cliente;
+- Aferix Cliente;
 - área web.
 
-## OrçaOS Profissional primeiro
+## Aferix Profissional primeiro
 
-O primeiro produto deve ser o **OrçaOS Profissional**.
+O primeiro produto deve ser o **Aferix Profissional**.
 
 Prioridade:
 
@@ -166,9 +166,9 @@ Prioridade:
 5. estética profissional;
 6. publicação para validação real.
 
-## OrçaOS Cliente depois
+## Aferix Cliente depois
 
-O OrçaOS Cliente deve vir depois.
+O Aferix Cliente deve vir depois.
 
 Antes de criar app separado, começar com:
 
@@ -206,6 +206,6 @@ O cliente deve ver:
 
 ## Frase de posicionamento
 
-O OrçaOS não é apenas um app de cálculo.
+O Aferix não é apenas um app de cálculo.
 
-O OrçaOS é uma plataforma profissional para transformar levantamento técnico em orçamento, proposta, OS, relatório e gestão.
+O Aferix é uma plataforma profissional para transformar levantamento técnico em orçamento, proposta, OS, relatório e gestão.

@@ -1,8 +1,8 @@
-# OrçaOS — Fechamento das fases atuais
+# Aferix — Fechamento das fases atuais
 
 Data: 2026-05-02
 
-Este documento fecha o ciclo técnico atual do OrçaOS para validação no workspace.
+Este documento fecha o ciclo técnico atual do Aferix para validação no workspace.
 
 ## Fases fechadas nesta rodada
 
@@ -30,7 +30,7 @@ Status: fechado para V1.
   - hidráulica avançada;
   - conversores avançados;
   - refrigeração;
-  - motores;
+  - custos fixos;
   - transformadores;
   - solar;
   - diagnóstico técnico.
@@ -58,7 +58,7 @@ Cobertura adicionada:
 - hidráulica avançada: 8 assistentes;
 - conversores avançados: 10 conversores;
 - refrigeração/climatização;
-- motores/comandos;
+- custos fixos/comandos;
 - transformadores;
 - solar;
 - diagnóstico técnico;
@@ -84,7 +84,7 @@ Status: fechado.
 
 Status: fechado para MVP.
 
-- O motor core ganhou funções explícitas para margem alvo e markup.
+- O custo fixo core ganhou funções explícitas para margem alvo e markup.
 - O workspace de expansão passou a usar o core para queda de tensão, cabo e disjuntor.
 - Testes cobrem cenários de elétrica, eletroduto, financeiro, hidráulica, construção, pintura, parcelamento e conversores.
 

@@ -1,10 +1,10 @@
-# OrçaOS - Taxonomia de Produto V3
+# Aferix - Taxonomia de Produto V3
 
 Data: 2026-05-02
 
 ## Decisão
 
-O OrçaOS não deve se comportar como uma lista de fórmulas. A navegação deve refletir o uso real do profissional:
+O Aferix não deve se comportar como uma lista de fórmulas. A navegação deve refletir o uso real do profissional:
 
 - **Trabalho**: início, atendimentos e campo.
 - **Técnico**: cálculos objetivos, relatórios e assistentes de decisão.

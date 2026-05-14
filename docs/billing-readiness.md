@@ -1,4 +1,4 @@
-# OrçaOS Billing Readiness
+# Aferix Billing Readiness
 
 Este documento organiza o caminho de cobrança para depois do beta. O beta fechado continua sem cobrança automática; a liberação Pro pode ser assistida/local ou validada por backend quando o canal real estiver pronto.
 

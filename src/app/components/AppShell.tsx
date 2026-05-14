@@ -2,21 +2,48 @@ import { Fragment, useEffect, useState, type ReactNode } from 'react';
 import type { Client, WorkOrder } from '../../core/types/business';
 import './AppShell.css';
 
-const ORCAOS_LOGO_SRC = '/icons/orcaos-icon.svg';
+const AFERIX_ICON_URL = '/icons/aferix-icon.svg';
+
+export function AferixLogo({ className, collapsed }: { className?: string; collapsed?: boolean }) {
+  if (collapsed) {
+    return (
+      <div className={`aferix-brand-logo collapsed ${className || ''}`} aria-label="Aferix">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M7 17L17 7M17 7H10M17 7V14" stroke="#f59e0b" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      </div>
+    );
+  }
+
+  return (
+    <div className={`aferix-brand-logo ${className || ''}`} aria-label="Aferix">
+      <svg width="110" height="24" viewBox="0 0 110 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        {/* Typographic "AFERIX" - Clean & Modern */}
+        <path d="M2 20L8 4L14 20M4 15H12" stroke="#f8fafc" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M22 4H30M22 4V20M22 12H28" stroke="#f8fafc" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M38 4H46M38 4V20M38 20H46M38 12H45" stroke="#f8fafc" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M54 20V4H61C63.5 4 65.5 5.5 65.5 8C65.5 10.5 63.5 12 61 12H54M60 12L66 20" stroke="#f8fafc" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M74 4V20" stroke="#f8fafc" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
+        {/* Distinctive X with Integrated Upward Arrow (The "Premium" Finish) */}
+        <path d="M84 20L96 8" stroke="#f8fafc" strokeWidth="2" strokeLinecap="round"/>
+        <path d="M84 8L96 20" stroke="#f59e0b" strokeWidth="3" strokeLinecap="round"/>
+        <path d="M96 8V14M96 8H90" stroke="#f59e0b" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+    </div>
+  );
+}
 
 export interface AppShellNavItem<T extends string> {
   id: T;
   label: string;
   description: string;
-  icon?: ReactNode;
+  icon?: ReactNode | string;
   section?: string;
   primary?: boolean;
 }
 
 interface AppShellProps<T extends string> {
   activeTab: T;
-  title: string;
-  subtitle?: string;
   navItems: AppShellNavItem<T>[];
   activeClient: Client | null;
   activeWorkOrder: WorkOrder | null;
@@ -45,10 +72,39 @@ function formatTopbarClock(date: Date): string {
   }).format(date);
 }
 
+function AppNavIcon({ icon }: { icon?: ReactNode | string }) {
+  if (icon && typeof icon !== 'string') return <>{icon}</>;
+
+  const id = icon || 'more';
+  const commonProps = {
+    width: 18,
+    height: 18,
+    viewBox: '0 0 24 24',
+    fill: 'none',
+    stroke: 'currentColor',
+    strokeWidth: 1.5,
+    strokeLinecap: 'round' as const,
+    strokeLinejoin: 'round' as const,
+    'aria-hidden': true,
+  };
+
+  if (id === 'dashboard') return <svg {...commonProps}><path d="M3 3v18h18" /><path d="m7 15 3.5-4 3 3 4.5-7" /><path d="M17 7h3v3" /></svg>;
+  if (id === 'budget') return <svg {...commonProps}><path d="M9 3h6" /><path d="M10 3v3" /><path d="M14 3v3" /><path d="M6 5h12a2 2 0 0 1 2 2v13H4V7a2 2 0 0 1 2-2Z" /><path d="M8 11h8" /><path d="M8 15h6" /></svg>;
+  if (id === 'clients') return <svg {...commonProps}><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>;
+  if (id === 'finance') return <svg {...commonProps}><path d="M18 7V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14h18V9a2 2 0 0 0-2-2H7" /><path d="M16 13h2" /><path d="M8 12c0-1.1.9-2 2-2h2a2 2 0 1 1 0 4h-2a2 2 0 1 0 0 4h3" /><path d="M11 8v12" /></svg>;
+  if (id === 'catalog') return <svg {...commonProps}><path d="M10 6V5a2 2 0 0 1 2-2h0a2 2 0 0 1 2 2v1" /><path d="M3 7h18v13H3z" /><path d="M3 12h18" /><path d="M9 12v2h6v-2" /></svg>;
+  if (id === 'calculator') return <svg {...commonProps}><rect x="5" y="2" width="14" height="20" rx="2" /><path d="M8 6h8" /><path d="M12 10v8" /><path d="M15 12a2 2 0 0 0-2-2h-2a2 2 0 1 0 0 4h2a2 2 0 1 1 0 4h-3" /></svg>;
+  if (id === 'list') return <svg {...commonProps}><path d="M9 3h6" /><path d="M10 3v3" /><path d="M14 3v3" /><path d="M5 5h14v16H5z" /><path d="M8 11h8" /><path d="M8 15h8" /><path d="M8 19h5" /></svg>;
+  if (id === 'reports') return <svg {...commonProps}><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><path d="M14 2v6h6" /><path d="M8 13h8" /><path d="M8 17h5" /></svg>;
+  if (id === 'survey') return <svg {...commonProps}><path d="M4 5h6l2 2h8v12H4z" /><path d="M8 12h8" /><path d="M8 16h5" /></svg>;
+  if (id === 'store') return <svg {...commonProps}><rect x="3" y="5" width="18" height="14" rx="2" /><path d="M3 10h18" /><path d="M7 15h4" /></svg>;
+  if (id === 'beta') return <svg {...commonProps}><path d="M12 3 5 6v5c0 5 3.5 8 7 10 3.5-2 7-5 7-10V6l-7-3Z" /><path d="m9 12 2 2 4-5" /></svg>;
+  if (id === 'settings') return <svg {...commonProps}><path d="M4 6h16" /><path d="M4 12h16" /><path d="M4 18h16" /><path d="M8 4v4" /><path d="M15 10v4" /><path d="M11 16v4" /></svg>;
+  return <svg {...commonProps}><circle cx="12" cy="12" r="1" /><circle cx="19" cy="12" r="1" /><circle cx="5" cy="12" r="1" /></svg>;
+}
+
 export function AppShell<T extends string>({
   activeTab,
-  title,
-  subtitle,
   navItems,
   activeClient,
   activeWorkOrder,
@@ -56,6 +112,7 @@ export function AppShell<T extends string>({
   children,
 }: AppShellProps<T>) {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [clockText, setClockText] = useState(() => formatTopbarClock(new Date()));
 
   useEffect(() => {
@@ -83,10 +140,42 @@ export function AppShell<T extends string>({
   const topbarContextTitle = activeWorkOrder
     ? `${activeWorkOrder.title} · ${activeClient?.name ?? 'Cliente não vinculado'} · ${statusLabel(activeWorkOrder.status)}`
     : 'Nenhum atendimento ativo';
-  const bottomNavItems = navItems.filter((item) => item.primary);
 
   return (
-    <main className="professional-app-shell">
+    <main className={isSidebarCollapsed ? 'professional-app-shell sidebar-collapsed' : 'professional-app-shell'}>
+      <aside className="desktop-sidebar" aria-label="Navegação principal">
+        <div className="desktop-sidebar-brand">
+          <AferixLogo className="drawer-brand-mark-wrapper" collapsed={isSidebarCollapsed} />
+          {!isSidebarCollapsed && (
+            <button type="button" aria-label="Recolher menu" onClick={() => setIsSidebarCollapsed(true)}>
+              <AppNavIcon icon="more" />
+            </button>
+          )}
+          {isSidebarCollapsed && (
+            <button className="expand-trigger" type="button" aria-label="Expandir menu" onClick={() => setIsSidebarCollapsed(false)}>
+              <AppNavIcon icon="more" />
+            </button>
+          )}
+        </div>
+        <nav className="desktop-sidebar-nav">
+          {navItems.map((item, index) => {
+            const active = activeTab === item.id;
+            const showSection = item.section && item.section !== navItems[index - 1]?.section;
+            return (
+              <Fragment key={item.id}>
+                {showSection && <span className="drawer-nav-heading">{item.section}</span>}
+                <button className={active ? 'active' : ''} type="button" title={item.label} onClick={() => navigate(item.id)}>
+                  <span className="drawer-nav-icon"><AppNavIcon icon={item.icon} /></span>
+                  <span className="desktop-sidebar-label">
+                    <strong>{item.label}</strong>
+                    <small>{item.description}</small>
+                  </span>
+                </button>
+              </Fragment>
+            );
+          })}
+        </nav>
+      </aside>
       <header className="professional-topbar">
         <button className="topbar-menu-button" type="button" aria-label="Abrir menu" onClick={() => setIsDrawerOpen(true)}>
           <span />
@@ -94,48 +183,32 @@ export function AppShell<T extends string>({
           <span />
         </button>
 
-        <img className="topbar-brand-mark" src={ORCAOS_LOGO_SRC} alt="" aria-hidden="true" />
-
-        <div className="topbar-title-block">
-          <strong>{title}</strong>
-          {subtitle && <small>{subtitle}</small>}
+        <div className="topbar-branding-center">
+          <div className="topbar-logo-group">
+            <AferixLogo />
+            <time className="topbar-digital-clock" dateTime={new Date().toISOString()}>
+              {clockText}
+            </time>
+          </div>
         </div>
 
-        <time className="topbar-clock" dateTime={new Date().toISOString()} aria-label={`Horário atual ${clockText}`}>
-          {clockText}
-        </time>
-
-        <div className={activeWorkOrder ? 'topbar-status-pill active' : 'topbar-status-pill'} title={topbarContextTitle} aria-label={topbarContextTitle}>
-          <span aria-hidden="true" />
-          <strong>{topbarContextLabel}</strong>
-        </div>
+        {/* Status pill removed as requested - redundant with dashboard and side drawer */}
       </header>
 
       <div className="professional-app-content">
         {children}
       </div>
 
-      <nav className="bottom-nav" aria-label="Navegação principal">
-        {bottomNavItems.map((item) => {
-          const active = activeTab === item.id;
-          return (
-            <button className={active ? 'active' : ''} key={item.id} type="button" onClick={() => navigate(item.id)}>
-              <span>{item.icon ?? item.label.slice(0, 2)}</span>
-              <strong>{item.label}</strong>
-            </button>
-          );
-        })}
-      </nav>
-
       {isDrawerOpen && <button className="drawer-backdrop" type="button" aria-label="Fechar menu" onClick={() => setIsDrawerOpen(false)} />}
 
       <aside className={isDrawerOpen ? 'side-drawer open' : 'side-drawer'} aria-hidden={!isDrawerOpen}>
         <div className="drawer-brand-card">
-          <img className="drawer-brand-mark" src={ORCAOS_LOGO_SRC} alt="" aria-hidden="true" />
-          <div>
-            <strong>OrçaOS</strong>
-          </div>
-          <button type="button" aria-label="Fechar menu" onClick={() => setIsDrawerOpen(false)}>Fechar</button>
+          <button className="drawer-close-button" type="button" aria-label="Fechar menu" onClick={() => setIsDrawerOpen(false)}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M19 12H5M12 19l-7-7 7-7" />
+            </svg>
+          </button>
+          <AferixLogo />
         </div>
 
         <div className={activeWorkOrder ? 'drawer-status-strip active' : 'drawer-status-strip'}>
@@ -152,6 +225,7 @@ export function AppShell<T extends string>({
               <Fragment key={item.id}>
                 {showSection && <span className="drawer-nav-heading">{item.section}</span>}
                 <button className={active ? 'active' : ''} type="button" onClick={() => navigate(item.id)}>
+                  <span className="drawer-nav-icon"><AppNavIcon icon={item.icon} /></span>
                   <span>
                     <strong>{item.label}</strong>
                     <small>{item.description}</small>

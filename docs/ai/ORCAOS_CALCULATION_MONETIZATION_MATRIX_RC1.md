@@ -1,11 +1,11 @@
-# OrcaOS Calculation Monetization Matrix RC1
+# Aferix Calculation Monetization Matrix RC1
 
 Data: 2026-05-02
 Versao: 0.1.0-rc.1
 
 ## Objetivo
 
-Esta matriz organiza os calculos do OrcaOS para gerar valor comercial antes do ERP completo ficar pronto. A regra do RC1 e simples: o usuario precisa conseguir testar o produto de verdade no plano livre, mas os calculos que economizam tempo, reduzem erro comercial ou geram material direto para proposta/relatorio entram como Pro.
+Esta matriz organiza os calculos do Aferix para gerar valor comercial antes do ERP completo ficar pronto. A regra do RC1 e simples: o usuario precisa conseguir testar o produto de verdade no plano livre, mas os calculos que economizam tempo, reduzem erro comercial ou geram material direto para proposta/relatorio entram como Pro.
 
 ## Regra De Produto
 
@@ -31,7 +31,7 @@ Pro:
 - Divisao de circuitos.
 - Balanceamento de fases.
 - Aterramento simplificado.
-- Instalacoes, iluminacao, automacao, motores, transformadores, solar e rebobinagem.
+- Instalacoes, iluminacao, automacao, custos fixos, transformadores, solar e rebobinagem.
 
 ### Financeiro E Precos
 

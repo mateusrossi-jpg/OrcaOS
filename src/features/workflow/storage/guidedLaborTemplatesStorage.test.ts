@@ -35,7 +35,7 @@ describe('guided labor templates storage', () => {
       marginPercent: 30,
       minimumValue: 220,
       category: 'Elétrica',
-      professionModule: 'Eletricista',
+      professionModule: 'Técnico responsável',
       visible: false,
     });
 

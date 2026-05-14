@@ -107,7 +107,7 @@ export function createClientProposalDraft(input: Partial<ClientProposal> = {}): 
     clientName: input.clientName ?? 'Cliente',
     professionalDisplayName: input.professionalDisplayName ?? 'Profissional',
     professionalContact: input.professionalContact,
-    summary: input.summary ?? 'Proposta gerada pelo OrçaOS.',
+    summary: input.summary ?? 'Proposta gerada pelo Aferix.',
     items: input.items ?? [],
     clientPurchaseMaterials: input.clientPurchaseMaterials ?? [],
     subtotal: input.subtotal ?? 0,

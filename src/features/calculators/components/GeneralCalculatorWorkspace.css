@@ -8,9 +8,10 @@
 .general-picker-card,
 .general-overlay-panel,
 .general-result-card {
-  border: 1px solid var(--stable-border, rgba(255, 255, 255, 0.1));
-  background: var(--stable-surface, #101713);
-  color: var(--stable-text, #f8fafc);
+  border: 1px solid #222222;
+  border-radius: 4px;
+  background: #111111;
+  color: #f8fafc;
 }
 
 .general-plan-banner {
@@ -18,7 +19,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  border-radius: 20px;
+  border-radius: 4px;
   padding: 15px;
 }
 
@@ -41,15 +42,15 @@
 .general-plan-banner em,
 .general-picker-card em,
 .general-overlay-header em {
-  border: 1px solid var(--stable-border-2, rgba(0, 184, 194, 0.22));
-  border-radius: 999px;
-  padding: 7px 10px;
-  color: var(--stable-green, #00b8c2);
-  background: rgba(0, 184, 194, 0.08);
+  border: 1px solid #222222;
+  border-radius: 4px;
+  padding: 4px 8px;
+  color: var(--orca-primary);
+  background: #000000;
   font-size: 0.68rem;
   font-style: normal;
-  font-weight: 950;
-  letter-spacing: 0.055em;
+  font-weight: 700;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   white-space: nowrap;
 }
@@ -65,10 +66,12 @@
   align-items: center;
   gap: 12px;
   min-height: 88px;
-  border-radius: 20px;
+  border-radius: 4px;
   padding: 16px;
   text-align: left;
   font: inherit;
+  background: #111111;
+  border: 1px solid #222222;
 }
 
 .general-picker-card > .app-icon {
@@ -128,8 +131,10 @@
   width: min(100%, 760px);
   max-height: min(92dvh, 860px);
   overflow: auto;
-  border-radius: 26px;
+  border-radius: 4px;
   padding: 17px;
+  background: #000000;
+  border: 1px solid #222222;
 }
 
 .general-overlay-header {
@@ -142,10 +147,10 @@
 .general-overlay-header button {
   width: 42px;
   height: 42px;
-  border: 1px solid var(--stable-border, rgba(255,255,255,.1));
-  border-radius: 14px;
-  color: var(--stable-green, #00b8c2);
-  background: transparent;
+  border: 1px solid #222222;
+  border-radius: 4px;
+  color: #666666;
+  background: #111111;
   font: inherit;
   font-size: 1.7rem;
   line-height: 1;
@@ -203,13 +208,13 @@
   width: 100%;
   min-height: 52px;
   box-sizing: border-box;
-  border: 1px solid var(--stable-border, rgba(255,255,255,.1));
-  border-radius: 16px;
+  border: 1px solid #222222;
+  border-radius: 4px;
   padding: 0 46px 0 13px;
-  color: var(--stable-text, #f8fafc);
-  background: var(--stable-surface-2, #151f19);
+  color: #f8fafc;
+  background: #000000;
   font: inherit;
-  font-weight: 760;
+  font-weight: 400;
 }
 
 .general-form-field select {
@@ -234,21 +239,21 @@
   display: grid;
   grid-column: 1 / -1;
   gap: 10px;
-  border: 1px solid var(--stable-border, rgba(255,255,255,.1));
-  border-radius: 18px;
+  border: 1px solid #222222;
+  border-radius: 4px;
   padding: 11px;
-  background: rgba(255, 255, 255, 0.025);
+  background: #111111;
 }
 
 .general-advanced-block > button {
   min-height: 42px;
-  border: 1px solid var(--stable-border-2, rgba(0, 184, 194, 0.22));
-  border-radius: 14px;
-  color: var(--stable-green, #00b8c2);
-  background: rgba(0, 184, 194, 0.08);
+  border: 1px solid #222222;
+  border-radius: 4px;
+  color: #f8fafc;
+  background: #000000;
   font: inherit;
   font-size: 0.84rem;
-  font-weight: 850;
+  font-weight: 500;
 }
 
 .general-advanced-grid {
@@ -266,8 +271,10 @@
 .general-result-card {
   display: grid;
   gap: 7px;
-  border-radius: 18px;
+  border-radius: 4px;
   padding: 14px;
+  background: #000000;
+  border: 1px solid #222222;
 }
 
 .general-result-card span {
@@ -279,11 +286,13 @@
 }
 
 .general-result-card strong {
-  color: var(--stable-green, #00b8c2);
+  color: var(--orca-primary);
+  font-family: var(--orca-mono);
   font-size: clamp(1.18rem, 5vw, 1.7rem);
-  font-weight: 900;
+  font-weight: 400;
   line-height: 1.04;
   letter-spacing: -0.055em;
+  font-variant-numeric: tabular-nums;
 }
 
 .general-result-card small {
@@ -294,11 +303,11 @@
 .general-formula-box {
   display: grid;
   gap: 8px;
-  border: 1px solid rgba(0, 184, 194, 0.18);
-  border-radius: 17px;
+  border: 1px solid #222222;
+  border-radius: 4px;
   padding: 13px;
-  color: var(--stable-muted, #a7b3ad);
-  background: rgba(0, 184, 194, 0.07);
+  color: #666666;
+  background: #000000;
   font-size: 0.84rem;
   line-height: 1.42;
 }
@@ -320,7 +329,7 @@
 .general-helper-text,
 .general-technical-note {
   margin: 0;
-  border-radius: 15px;
+  border-radius: 4px;
   padding: 12px 13px;
   font-size: 0.86rem;
   line-height: 1.42;
@@ -350,13 +359,15 @@
 
 .general-capture-actions button {
   min-height: 46px;
-  border: 1px solid var(--stable-green-2, #00a0ad);
-  border-radius: 15px;
-  color: #041008;
-  background: var(--stable-green, #00b8c2);
+  border: 1px solid #2dd4bf;
+  border-radius: 4px;
+  color: #000000;
+  background: #2dd4bf;
   font: inherit;
   font-size: 0.82rem;
-  font-weight: 900;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .general-capture-actions button.secondary-action {
@@ -390,7 +401,7 @@
   .general-overlay-panel {
     width: 100%;
     max-height: 94dvh;
-    border-radius: 24px 24px 0 0;
+    border-radius: 4px 4px 0 0;
     padding: 15px;
   }
 

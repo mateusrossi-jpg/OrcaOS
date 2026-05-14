@@ -1,4 +1,4 @@
-# OrçaOS — Checklist de polimento MVP Play Store
+# Aferix — Checklist de polimento MVP Play Store
 
 Este checklist registra o ponto atual após a consolidação dos cálculos humanos e deve guiar a próxima fase antes de avançar para publicação.
 

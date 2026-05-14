@@ -22,13 +22,13 @@ describe('local backup storage', () => {
     vi.unstubAllGlobals();
   });
 
-  it('collects only OrçaOS localStorage keys', () => {
+  it('collects only Aferix localStorage keys', () => {
     window.localStorage.setItem('orcaos:clients:v1', '[{"id":"c1","name":"Cliente"}]');
     window.localStorage.setItem('other-app:key', 'ignore-me');
 
     const backup = collectOrcaLocalBackup();
 
-    expect(backup.app).toBe('OrçaOS');
+    expect(backup.app).toBe('Aferix');
     expect(backup.version).toBe(1);
     expect(backup.keys).toEqual({
       'orcaos:clients:v1': '[{"id":"c1","name":"Cliente"}]',
@@ -41,7 +41,7 @@ describe('local backup storage', () => {
     const parsed = parseOrcaBackup(serialized);
     const summary = summarizeOrcaBackup(parsed);
 
-    expect(parsed.app).toBe('OrçaOS');
+    expect(parsed.app).toBe('Aferix');
     expect(parsed.version).toBe(1);
     expect(summary.keyCount).toBe(0);
     expect(summary.estimatedSizeKb).toBeGreaterThanOrEqual(1);
@@ -49,7 +49,7 @@ describe('local backup storage', () => {
 
   it('summarizes business data groups from backup keys', () => {
     const backup = parseOrcaBackup(JSON.stringify({
-      app: 'OrçaOS',
+      app: 'Aferix',
       version: 1,
       exportedAt: '2026-05-02T00:00:00.000Z',
       keys: {
@@ -78,14 +78,14 @@ describe('local backup storage', () => {
   });
 
   it('rejects backups from other apps or unsupported versions', () => {
-    expect(() => parseOrcaBackup(JSON.stringify({ app: 'Outro', version: 1, keys: {} }))).toThrow('backup do OrçaOS');
-    expect(() => parseOrcaBackup(JSON.stringify({ app: 'OrçaOS', version: 2, keys: {} }))).toThrow('Versão de backup');
+    expect(() => parseOrcaBackup(JSON.stringify({ app: 'Outro', version: 1, keys: {} }))).toThrow('backup do Aferix');
+    expect(() => parseOrcaBackup(JSON.stringify({ app: 'Aferix', version: 2, keys: {} }))).toThrow('Versão de backup');
     expect(() => parseOrcaBackup('{invalid-json')).toThrow('JSON inválido');
   });
 
   it('ignores unsafe keys while parsing backups', () => {
     const parsed = parseOrcaBackup(JSON.stringify({
-      app: 'OrçaOS',
+      app: 'Aferix',
       version: 1,
       exportedAt: '2026-05-02T00:00:00.000Z',
       keys: {
@@ -103,7 +103,7 @@ describe('local backup storage', () => {
     window.localStorage.setItem('external:key', 'keep');
 
     const restoredMerge = restoreOrcaBackup({
-      app: 'OrçaOS',
+      app: 'Aferix',
       version: 1,
       exportedAt: '2026-05-02T00:00:00.000Z',
       source: 'localStorage',
@@ -115,7 +115,7 @@ describe('local backup storage', () => {
     expect(window.localStorage.getItem('orcaos:new:v1')).toBe('new');
 
     const restoredReplace = restoreOrcaBackup({
-      app: 'OrçaOS',
+      app: 'Aferix',
       version: 1,
       exportedAt: '2026-05-02T00:00:00.000Z',
       source: 'localStorage',
@@ -130,6 +130,18 @@ describe('local backup storage', () => {
   });
 
   it('creates date-based backup filenames', () => {
-    expect(createBackupFilename()).toMatch(/^orcaos-backup-\d{4}-\d{2}-\d{2}\.json$/);
+    expect(createBackupFilename()).toMatch(/^aferix-backup-\d{4}-\d{2}-\d{2}\.json$/);
+  });
+
+  it('accepts legacy app markers for existing local-first backups', () => {
+    const parsed = parseOrcaBackup(JSON.stringify({
+      app: 'Or\u00e7aOS',
+      version: 1,
+      exportedAt: '2026-05-02T00:00:00.000Z',
+      keys: { 'orcaos:clients:v1': 'legacy' },
+    }));
+
+    expect(parsed.app).toBe('Aferix');
+    expect(parsed.keys).toEqual({ 'orcaos:clients:v1': 'legacy' });
   });
 });

@@ -1,4 +1,4 @@
-# Copilot next tasks pack — OrçaOS
+# Copilot next tasks pack — Aferix
 
 Use these prompts one at a time. Do not run all tasks in one large change.
 
@@ -17,7 +17,7 @@ Always keep:
 
 - TypeScript clean;
 - app text in pt-BR;
-- product name as OrçaOS;
+- product name as Aferix;
 - mobile-first layout;
 - workflow connection between levantamento, orçamento and relatório.
 

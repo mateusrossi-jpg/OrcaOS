@@ -1,4 +1,4 @@
-# OrçaOS — Arquitetura de informação ERP V1
+# Aferix — Arquitetura de informação ERP V1
 
 Este documento registra a reorganização planejada após o teste prático da área de Levantamento/Orçamento guiado.
 
@@ -20,7 +20,7 @@ Durante o uso real no computador/celular, a área de Levantamento concentrou fun
 - cadastro fiscal;
 - possível estoque.
 
-Isso funciona para protótipo, mas pode ficar confuso para um app publicável e ainda mais confuso quando o OrçaOS evoluir para ERP.
+Isso funciona para protótipo, mas pode ficar confuso para um app publicável e ainda mais confuso quando o Aferix evoluir para ERP.
 
 ---
 

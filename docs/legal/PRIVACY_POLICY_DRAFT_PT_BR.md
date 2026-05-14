@@ -1,16 +1,14 @@
-# Política de Privacidade — OrçaOS
+# Política de Privacidade — Aferix
 
-Versão preliminar para revisão antes da publicação.
-
-Última atualização: 30 de abril de 2026
+**Última atualização:** 14 de maio de 2026
 
 ---
 
-## 1. Sobre o OrçaOS
+## 1. Sobre o Aferix
 
-O OrçaOS é um aplicativo para profissionais técnicos organizarem atendimentos, levantamentos, cálculos, orçamentos, propostas e relatórios. Quando um orçamento é aprovado, o atendimento pode evoluir para execução autorizada e ordem de serviço.
+O Aferix é um aplicativo para profissionais técnicos organizarem atendimentos, levantamentos, cálculos, orçamentos, propostas e relatórios. Quando um orçamento é aprovado, o atendimento pode evoluir para execução autorizada e ordem de serviço.
 
-A proposta inicial do app é funcionar com prioridade local-first, mantendo os dados principais no próprio dispositivo do usuário sempre que possível.
+A arquitetura do aplicativo foi construída sob o princípio **Local-First** (Primeiro Local). Isso significa que, por padrão, os seus dados não são enviados para nossos servidores.
 
 ---
 
@@ -29,80 +27,65 @@ Dependendo do uso, o usuário pode inserir no aplicativo:
 - valores comerciais;
 - informações usadas para gerar propostas.
 
-Esses dados são fornecidos diretamente pelo usuário para uso dentro do aplicativo.
+Esses dados são fornecidos voluntariamente pelo usuário para uso exclusivo dentro das funcionalidades do aplicativo.
 
 ---
 
 ## 3. Armazenamento local
 
-Na versão inicial, o OrçaOS prioriza o armazenamento local dos dados no dispositivo/navegador do usuário.
+O Aferix armazena as informações inseridas (como clientes, orçamentos, cálculos salvos e relatórios) **localmente no seu próprio dispositivo**. 
 
-Isso significa que informações como clientes, orçamentos, cálculos salvos e relatórios podem ficar armazenadas localmente para permitir uso prático do app.
-
-O usuário deve realizar backup quando a função estiver disponível ou quando exportar seus dados, pois perda, troca, formatação ou limpeza do dispositivo/navegador pode apagar informações locais.
+Nós não temos acesso, não lemos, não copiamos e não armazenamos esses dados em nossos bancos de dados (salvo se você aderir ativamente a um plano futuro que ofereça backup em nuvem explícito). A responsabilidade por manter o dispositivo seguro e realizar backups manuais é do usuário. A exclusão do aplicativo ou limpeza de dados do sistema resultará na exclusão permanente destas informações.
 
 ---
 
 ## 4. Compartilhamento de dados
 
-O OrçaOS não deve compartilhar automaticamente dados pessoais do usuário com terceiros na versão local-first.
+O Aferix **não compartilha, não vende e não transmite** automaticamente dados pessoais ou de uso com terceiros.
 
 Quando o usuário gerar uma proposta, relatório, PDF, mensagem de WhatsApp ou outro arquivo de envio, ele é responsável por decidir com quem irá compartilhar essas informações.
 
 ---
 
-## 5. Coleta automática
+## 5. Coleta automática e Analytics
 
-Na versão inicial local-first, o objetivo é reduzir coleta automática de dados.
+Para entender quais ferramentas são mais úteis e melhorar o aplicativo, o Aferix utiliza o Google Analytics for Firebase para coletar **dados de uso estritamente anônimos** (telemetria).
 
-Se futuramente forem adicionados recursos como login, sincronização em nuvem, analytics, anúncios, assinaturas ou backup online, esta política deverá ser atualizada antes da publicação desses recursos.
+**O que coletamos:** Apenas eventos genéricos de navegação (exemplo: "tela de orçamento acessada", "botão de PDF clicado").
+
+**O que NÃO coletamos:** O Analytics do Aferix foi configurado para **bloquear o rastreamento de anúncios (Ad Personalization)**. Não enviamos, não lemos e não coletamos nenhum dado financeiro, valores de orçamentos, nomes de clientes, descrições de serviços ou textos digitados por você.
 
 ---
 
 ## 6. Permissões do dispositivo
 
-O OrçaOS pode futuramente solicitar permissões apenas quando forem necessárias para funções específicas, como exportar arquivos, anexar imagens, gerar PDF ou compartilhar propostas.
+O Aferix solicitará permissões do sistema (como acesso a armazenamento local) apenas quando estritamente necessário para funções operacionais, como exportar arquivos PDF ou salvar backups no seu aparelho.
 
-Permissões desnecessárias devem ser evitadas.
-
----
-
-## 7. Segurança
-
-O usuário deve proteger o próprio dispositivo com senha, biometria ou outro método de segurança.
-
-Como a versão inicial prioriza armazenamento local, a segurança dos dados também depende da segurança do dispositivo usado.
+O aplicativo não acessa sua câmera, microfone, localização GPS ou lista de contatos.
 
 ---
 
-## 8. Retenção e exclusão
+## 7. Exclusão de Dados
 
-Dados armazenados localmente permanecem no dispositivo enquanto o usuário não apagar os registros, limpar os dados do navegador/app ou desinstalar o aplicativo.
-
-Quando funções de exportação, backup ou exclusão forem adicionadas, elas deverão ser descritas nesta política.
-
----
-
-## 9. Crianças e menores de idade
-
-O OrçaOS é voltado para uso profissional e não é direcionado a crianças.
+Como os dados residem no seu aparelho, você tem controle total sobre eles. Para excluir todos os seus dados e informações coletadas pelo Aferix, basta:
+1. Acessar as configurações do seu dispositivo móvel;
+2. Ir até a seção de Aplicativos;
+3. Selecionar o "Aferix" e tocar em "Limpar Dados" ou simplesmente desinstalar o aplicativo.
 
 ---
 
-## 10. Alterações nesta política
+## 8. Crianças e menores de idade
 
-Esta política poderá ser atualizada conforme o OrçaOS evoluir, especialmente se forem adicionados recursos de nuvem, login, anúncios, pagamentos, analytics ou integrações externas.
-
----
-
-## 11. Contato
-
-Responsável: Profissional Técnico
-
-E-mail de suporte: definir antes da publicação na Play Store.
+O Aferix é voltado para uso profissional e não é direcionado a crianças.
 
 ---
 
-## Observação para publicação
+## 9. Alterações nesta política
 
-Este documento é um rascunho técnico e deve ser revisado antes de ser usado como política oficial pública.
+Esta política poderá ser atualizada conforme o Aferix evoluir (por exemplo, na adição futura de backup em nuvem). Notificaremos os usuários sobre mudanças significativas através das notas de atualização do aplicativo.
+
+---
+
+## 10. Contato
+
+Para dúvidas ou solicitações sobre seus dados e privacidade, entre em contato através do e-mail: **suporte@aferix.com.br** *(atualize para o seu e-mail real de suporte)*.

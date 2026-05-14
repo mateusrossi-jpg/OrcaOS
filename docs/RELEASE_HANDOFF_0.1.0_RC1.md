@@ -1,4 +1,4 @@
-# OrçaOS - Handoff da versão 0.1.0-rc.1
+# Aferix - Handoff da versão 0.1.0-rc.1
 
 Este é o fechamento operacional da versão `0.1.0-rc.1` para beta interno/fechado.
 
@@ -48,12 +48,12 @@ android/app/build/outputs/bundle/release/app-release.aab
 - `npm run android:build:apk:debug`: passou.
 - `npm run android:build:aab`: passou.
 - APK conferido com `aapt`:
-  - package `br.com.orcaos.app`;
+  - package `br.com.aferix.app`;
   - `versionCode` 1;
   - `versionName` `0.1.0-rc.1`;
   - `minSdk` 24;
   - `targetSdk` 36;
-  - label `OrçaOS`.
+  - label `Aferix`.
 
 ## Documentos úteis
 

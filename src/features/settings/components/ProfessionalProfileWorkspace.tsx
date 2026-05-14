@@ -18,7 +18,7 @@ const professionalAreas = [
   'Refrigeração',
   'Automação',
   'Eletrônica',
-  'Motores e rebobinagem',
+  'Manutenção técnica',
   'Multisserviços',
   'Outro',
 ];
@@ -108,7 +108,7 @@ export function ProfessionalProfileWorkspace() {
       <div className="professional-profile-card id-card">
         <div className="professional-card-heading">
           <strong>IDs locais</strong>
-          <small>Esses IDs preparam o OrçaOS para login, licença, backup em nuvem e OrçaOS Cliente no futuro.</small>
+          <small>Esses IDs preparam o Aferix para login, licença, backup em nuvem e Aferix Cliente no futuro.</small>
         </div>
         <div className="professional-id-grid">
           <article>

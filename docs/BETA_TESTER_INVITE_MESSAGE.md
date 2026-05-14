@@ -1,11 +1,11 @@
-# OrçaOS - Mensagem para convidar testadores
+# Aferix - Mensagem para convidar testadores
 
 Use como base para WhatsApp, e-mail ou lista de testadores da Play Console.
 
 ## Mensagem curta
 
 ```text
-Oi! Estou abrindo o beta fechado do OrçaOS, um app para atendimento técnico em campo.
+Oi! Estou abrindo o beta fechado do Aferix, um app para atendimento técnico em campo.
 
 A ideia é testar o fluxo:
 Cliente -> Atendimento -> Levantamento -> Cálculos -> Orçamento -> Aprovação -> OS.
@@ -25,7 +25,7 @@ Obrigado por ajudar a validar antes de publicar para mais pessoas.
 ## Mensagem com instruções
 
 ```text
-Oi! Você está recebendo a versão beta fechada do OrçaOS.
+Oi! Você está recebendo a versão beta fechada do Aferix.
 
 O que testar primeiro:
 - abrir o app e conferir se a tela inicial mostra claramente o que fazer;

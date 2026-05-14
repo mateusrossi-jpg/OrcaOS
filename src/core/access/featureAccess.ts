@@ -171,17 +171,17 @@ export const calculatorAccessRules: CalculatorAccessRule[] = [
   },
   {
     mode: 'motor-current',
-    label: 'Corrente motor',
+    label: 'Custo por serviço',
     module: 'motors',
     plan: 'pro',
-    shortDescription: 'Corrente estimada de motor por potência mecânica, rendimento e fator de potência.',
+    shortDescription: 'Estimativa de custo direto por serviço com margem e reserva.',
   },
   {
     mode: 'motor-speed',
-    label: 'Rotação motor',
+    label: 'Custo fixo mensal',
     module: 'motors',
     plan: 'pro',
-    shortDescription: 'Rotação síncrona e escorregamento por frequência, polos e RPM medido.',
+    shortDescription: 'Rateio mensal de custos fixos por período, volume e meta de lucro.',
   },
   {
     mode: 'pulley-ratio',
@@ -223,7 +223,7 @@ export function canUsePlanFeature(requiredPlan: FeaturePlan, userPlan: UserPlan)
 
 export function proFeatureTitle(requiredPlan: FeaturePlan): string {
   if (requiredPlan === 'soon') return 'Recurso em breve';
-  if (requiredPlan === 'pro') return 'Recurso do OrçaOS Pro';
+  if (requiredPlan === 'pro') return 'Recurso do Aferix Pro';
   return 'Recurso livre';
 }
 

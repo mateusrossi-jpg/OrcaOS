@@ -1,8 +1,8 @@
-# OrçaOS - Identidade Visual Dark Profissional
+# Aferix - Identidade Visual Dark Profissional
 
 ## Direção
 
-A direção visual aprovada para o OrçaOS é dark profissional: técnico, moderno, confiável e direto para uso em campo.
+A direção visual aprovada para o Aferix é dark profissional: técnico, moderno, confiável e direto para uso em campo.
 
 O app deve parecer um sistema operacional do profissional técnico, não um ERP antigo de escritório e nem uma lista solta de calculadoras.
 
@@ -27,11 +27,12 @@ Inter deve continuar como referência tipográfica: legível, moderna e adequada
 
 Pesos:
 
-- Regular para texto comum.
-- Medium/SemiBold para labels e descrições importantes.
-- Bold para títulos, métricas e valores.
+- Regular (400) para corpo de texto comum, garantindo leitura limpa.
+- Medium (500) para labels, botões e descrições secundárias.
+- SemiBold (600) para métricas e valores. Abandonar o uso excessivo de Bold/Black que polui a visão.
+- Evitar saltos abruptos de tamanho: a clareza vem do contraste, do peso correto e do respiro (white space), não de fontes gigantescas.
 
-## Interface
+## Interface e UX Espacial
 
 Manter:
 
@@ -40,6 +41,7 @@ Manter:
 - cards técnicos limpos;
 - botões grandes para toque;
 - contraste alto;
+- respiro visual e agrupamentos lógicos de informação com paddings consistentes (ex: 16px ou 24px);
 - status claros;
 - documentos e PDFs em branco profissional.
 
@@ -49,6 +51,7 @@ Evitar:
 - blocos coloridos soltos fora da paleta azul técnica;
 - excesso de gradiente;
 - dashboard pesado;
+- fontes desproporcionais que quebram a hierarquia e o alinhamento da tela;
 - ícones decorativos sem função;
 - textos longos em cards pequenos.
 
@@ -70,7 +73,7 @@ Os módulos devem explicar valor prático:
 
 ## Critério Visual
 
-Ao abrir no celular, o OrçaOS deve transmitir:
+Ao abrir no celular, o Aferix deve transmitir:
 
 - profissionalismo;
 - confiança;

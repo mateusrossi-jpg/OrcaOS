@@ -1,13 +1,13 @@
-# OrçaOS
+# Aferix
 
-**OrçaOS** é um ERP técnico leve para prestadores de serviço, começando pelo atendimento real do profissional em campo: cliente, levantamento, cálculos, orçamento e relatório. O produto organiza atendimentos, propostas comerciais, documentos técnicos, catálogo e histórico local sem transformar a rotina do técnico em um sistema pesado.
+**Aferix** é um ERP financeiro local-first para prestadores de serviço, começando pelo atendimento real do profissional em campo: cliente, levantamento, cálculos, orçamento e relatório. O produto organiza atendimentos, propostas comerciais, documentos técnicos, catálogo e histórico local sem transformar a rotina do técnico em um sistema pesado.
 
-> Nome técnico do repositório: `OrcaOS`  
-> Nome comercial do produto: **OrçaOS**
+> Nome técnico do repositório: `Aferix`  
+> Nome comercial do produto: **Aferix**
 
 ## Visão do produto
 
-O OrçaOS deve ser mais do que um aplicativo de cálculos. Ele deve unir:
+O Aferix deve ser mais do que um aplicativo de cálculos. Ele deve unir:
 
 - calculadoras técnicas;
 - atendimento guiado com cliente, ambientes, serviços, materiais, medições e observações;
@@ -24,22 +24,21 @@ O OrçaOS deve ser mais do que um aplicativo de cálculos. Ele deve unir:
 
 ## Público inicial
 
-O foco inicial será em **eletricistas e profissionais de baixa tensão**, com abertura futura para:
+O foco inicial é em **prestadores de serviço e profissionais autônomos** que precisam transformar orçamento, custo e recebimento em decisão financeira rápida:
 
-- automação residencial;
-- ar-condicionado;
 - manutenção predial;
-- motores e bobinagem;
+- ar-condicionado;
 - hidráulica;
 - pintura;
 - pequenos prestadores de serviço;
-- técnicos autônomos e integradores.
+- técnicos autônomos e integradores;
+- negócios de serviço que precisam enxergar lucro real.
 
 ## Estratégia de evolução
 
 O projeto será dividido em fases:
 
-1. **MVP técnico**: calculadoras elétricas, layout profissional e base modular.
+1. **MVP financeiro**: orçamento, lucro real, layout profissional e base modular.
 2. **Orçamentos**: clientes, serviços, materiais, mão de obra e PDF.
 3. **Relatórios técnicos**: visita, diagnóstico, imagens e recomendações.
 4. **Execução aprovada**: conversão do orçamento em OS, status, histórico, retorno e manutenção preventiva.
@@ -48,7 +47,7 @@ O projeto será dividido em fases:
 ## Estrutura inicial
 
 ```text
-OrcaOS/
+Aferix/
 ├── docs/
 ├── src/
 │   ├── app/

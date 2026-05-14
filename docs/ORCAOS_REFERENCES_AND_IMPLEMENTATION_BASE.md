@@ -1,10 +1,10 @@
-# OrçaOS — Referências e Base de Implementação dos Módulos
+# Aferix — Referências e Base de Implementação dos Módulos
 
-Este documento organiza as referências técnicas que devem guiar a implementação dos módulos do OrçaOS.
+Este documento organiza as referências técnicas que devem guiar a implementação dos módulos do Aferix.
 
 ## Princípio geral
 
-O OrçaOS deve ser implementado como uma ferramenta de apoio técnico e comercial. Ele pode calcular, estimar, orientar e gerar levantamentos/orçamentos, mas não deve prometer substituir projeto técnico, ART/RRT, laudo, inspeção profissional ou validação normativa.
+O Aferix deve ser implementado como uma ferramenta de apoio técnico e comercial. Ele pode calcular, estimar, orientar e gerar levantamentos/orçamentos, mas não deve prometer substituir projeto técnico, ART/RRT, laudo, inspeção profissional ou validação normativa.
 
 ## Regras para implementação
 
@@ -21,7 +21,7 @@ O OrçaOS deve ser implementado como uma ferramenta de apoio técnico e comercia
 
 Referências principais:
 
-- ABNT NBR 5410 — Instalações elétricas de baixa tensão.
+- ABNT NBR 5410 — Instalações elétricas de custos fixos.
 - NR-10 — Segurança em instalações e serviços em eletricidade.
 - ABNT NBR 5419 — Proteção contra descargas atmosféricas.
 - Catálogos de cabos: Prysmian, Nexans, Sil, Corfio ou equivalentes.
@@ -41,7 +41,7 @@ Implementar primeiro:
 - AWG/mm²;
 - iluminação;
 - ar-condicionado;
-- motor;
+- custo fixo;
 - 4–20 mA e 0–10 V.
 
 ### Construção civil / obras
@@ -122,23 +122,23 @@ Implementar primeiro:
 - cabo/disjuntor dedicado;
 - consumo mensal.
 
-### Motores / comandos
+### Custos fixos / comandos
 
 Referências principais:
 
-- catálogos WEG para motores, contatores, relés térmicos e inversores.
+- catálogos WEG para custos fixos, contatores, relés térmicos e inversores.
 - catálogos Schneider, Siemens, ABB e equivalentes.
 - práticas de comando elétrico e dados de placa.
 
 Implementar primeiro:
 
-- corrente de motor;
+- custo por serviço;
 - CV/HP/kW;
 - rotação síncrona;
 - escorregamento;
 - torque básico;
 - relação de polias;
-- capacitor de motor monofásico;
+- capacitor de custo fixo monofásico;
 - proteção preliminar.
 
 ### Rebobinagem / transformadores
@@ -152,7 +152,7 @@ Referências principais:
 
 Implementar primeiro:
 
-- registro técnico do motor;
+- registro técnico do custo fixo;
 - número de ranhuras;
 - polos;
 - tensão de trabalho;
@@ -246,7 +246,7 @@ Implementar primeiro:
 3. pintura;
 4. orçamento;
 5. conversores;
-6. motores/automação básicos.
+6. custos fixos/automação básicos.
 
 ### Etapa 4 — expansão
 
@@ -262,7 +262,7 @@ Depois implementar:
 
 ## Observação importante
 
-O OrçaOS deve diferenciar visualmente:
+O Aferix deve diferenciar visualmente:
 
 - cálculo exato por fórmula;
 - estimativa simplificada;

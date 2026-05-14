@@ -1,4 +1,4 @@
-# OrçaOS — Rascunho de Segurança de Dados para Play Store
+# Aferix — Rascunho de Segurança de Dados para Play Store
 
 Versão preliminar para preenchimento e revisão antes da publicação.
 
@@ -8,7 +8,7 @@ Versão preliminar para preenchimento e revisão antes da publicação.
 
 ## 1. Objetivo
 
-Este documento ajuda a preparar as respostas do formulário de Segurança de Dados da Play Store para a versão inicial do OrçaOS.
+Este documento ajuda a preparar as respostas do formulário de Segurança de Dados da Play Store para a versão inicial do Aferix.
 
 A versão inicial planejada é local-first e deve evitar coleta automática de dados sempre que possível.
 
@@ -48,7 +48,6 @@ Na proposta local-first, esses dados ficam no dispositivo do usuário, salvo qua
 
 Para a versão inicial, a recomendação é não adicionar:
 
-- analytics;
 - anúncios;
 - login externo;
 - rastreamento;
@@ -56,13 +55,13 @@ Para a versão inicial, a recomendação é não adicionar:
 - sincronização em nuvem;
 - crash reporting externo sem revisão prévia.
 
-Se algum desses recursos for adicionado, este documento e a política de privacidade devem ser revisados.
+**Nota atualizada:** O Firebase Analytics foi adicionado com restrições rígidas (sem personalização de anúncios e sem coleta de PII - Personally Identifiable Information). O formulário da Play Store deve ser preenchido informando que dados de "Interações no App" e "Registros de falhas/Diagnósticos" são coletados anonimamente para fins de Análise (Analytics), sem vinculação à identidade do usuário.
 
 ---
 
 ## 5. Compartilhamento
 
-O app não deve compartilhar automaticamente dados com terceiros na versão local-first.
+O app não compartilha automaticamente dados pessoais com terceiros na versão local-first.
 
 O compartilhamento acontece apenas quando o usuário decide enviar uma proposta, relatório, mensagem, PDF ou arquivo para outra pessoa.
 
@@ -74,20 +73,14 @@ Estas respostas são um rascunho e devem ser conferidas no console da Play Store
 
 ### O app coleta ou compartilha dados do usuário?
 
-Resposta pretendida para MVP local-first:
-
-```txt
-O app não coleta nem compartilha dados automaticamente com terceiros.
-```
-
-Atenção: se houver analytics, crash reporting, anúncios, login, pagamento, nuvem ou SDK externo, a resposta pode mudar.
+Resposta para MVP com Telemetria Anônima: O app **coleta** dados de uso (Interações no app) para fins de Analytics, mas **não compartilha** dados com terceiros. A coleta não inclui informações pessoais ou confidenciais.
 
 ### Os dados são criptografados em trânsito?
 
 Para MVP sem envio automático:
 
 ```txt
-Não aplicável para dados mantidos localmente.
+Sim. Os eventos anônimos de telemetria enviados ao Firebase são transmitidos via conexão segura (HTTPS).
 ```
 
 Se houver envio por rede, API ou nuvem, será necessário usar HTTPS e declarar adequadamente.

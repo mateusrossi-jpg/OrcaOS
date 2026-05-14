@@ -6,6 +6,8 @@ export type SavedBudgetStatus = Budget['status'];
 
 export interface SavedBudgetRecord {
   id: string;
+  clientId?: string;
+  workOrderId?: string;
   clientName: string;
   title: string;
   status: SavedBudgetStatus;
@@ -20,12 +22,22 @@ export interface SavedBudgetRecord {
   technicalNotes: string;
   templateId?: string;
   items: BudgetItem[];
+  materialCost: number;
+  operationalCost: number;
+  taxRate: number;
+  total_servicos: number;
+  custo_materiais: number;
+  custos_operacionais: number;
+  aliquota_imposto: number;
+  lucro_liquido: number;
   createdAt: string;
   updatedAt: string;
 }
 
 export interface SaveBudgetRecordInput {
   id?: string | null;
+  clientId?: string;
+  workOrderId?: string;
   clientName: string;
   title: string;
   status: SavedBudgetStatus;
@@ -40,6 +52,14 @@ export interface SaveBudgetRecordInput {
   technicalNotes?: string;
   templateId?: string;
   items: BudgetItem[];
+  materialCost?: number;
+  operationalCost?: number;
+  taxRate?: number;
+  total_servicos?: number;
+  custo_materiais?: number;
+  custos_operacionais?: number;
+  aliquota_imposto?: number;
+  lucro_liquido?: number;
 }
 
 function createId(): string {
@@ -97,6 +117,14 @@ function isSavedBudgetRecord(value: unknown): value is SavedBudgetRecord {
     (typeof record.executionDeadline === 'string' || typeof record.executionDeadline === 'undefined') &&
     (typeof record.commercialNotes === 'string' || typeof record.commercialNotes === 'undefined') &&
     (typeof record.technicalNotes === 'string' || typeof record.technicalNotes === 'undefined') &&
+    (typeof record.materialCost === 'number' || typeof record.materialCost === 'undefined') &&
+    (typeof record.operationalCost === 'number' || typeof record.operationalCost === 'undefined') &&
+    (typeof record.taxRate === 'number' || typeof record.taxRate === 'undefined') &&
+    (typeof record.total_servicos === 'number' || typeof record.total_servicos === 'undefined') &&
+    (typeof record.custo_materiais === 'number' || typeof record.custo_materiais === 'undefined') &&
+    (typeof record.custos_operacionais === 'number' || typeof record.custos_operacionais === 'undefined') &&
+    (typeof record.aliquota_imposto === 'number' || typeof record.aliquota_imposto === 'undefined') &&
+    (typeof record.lucro_liquido === 'number' || typeof record.lucro_liquido === 'undefined') &&
     typeof record.createdAt === 'string' &&
     typeof record.updatedAt === 'string'
   );
@@ -130,6 +158,14 @@ export function loadSavedBudgets(): SavedBudgetRecord[] {
       executionDeadline: record.executionDeadline ?? '',
       commercialNotes: record.commercialNotes ?? '',
       technicalNotes: record.technicalNotes ?? '',
+      materialCost: record.materialCost ?? 0,
+      operationalCost: record.operationalCost ?? 0,
+      taxRate: record.taxRate ?? record.aliquota_imposto ?? 6,
+      total_servicos: record.total_servicos ?? 0,
+      custo_materiais: record.custo_materiais ?? record.materialCost ?? 0,
+      custos_operacionais: record.custos_operacionais ?? record.operationalCost ?? 0,
+      aliquota_imposto: record.aliquota_imposto ?? record.taxRate ?? 6,
+      lucro_liquido: record.lucro_liquido ?? 0,
     })).sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
   } catch {
     return [];
@@ -155,6 +191,8 @@ export function saveBudgetRecord(input: SaveBudgetRecordInput): SavedBudgetRecor
 
   const record: SavedBudgetRecord = {
     id: existingRecord?.id ?? input.id ?? createId(),
+    clientId: input.clientId ?? existingRecord?.clientId,
+    workOrderId: input.workOrderId ?? existingRecord?.workOrderId,
     clientName: input.clientName,
     title: input.title,
     status: input.status,
@@ -167,6 +205,14 @@ export function saveBudgetRecord(input: SaveBudgetRecordInput): SavedBudgetRecor
     executionDeadline: input.executionDeadline ?? '',
     commercialNotes: input.commercialNotes ?? '',
     technicalNotes: input.technicalNotes ?? '',
+    materialCost: input.materialCost ?? 0,
+    operationalCost: input.operationalCost ?? 0,
+    taxRate: input.taxRate ?? input.aliquota_imposto ?? 6,
+    total_servicos: input.total_servicos ?? 0,
+    custo_materiais: input.custo_materiais ?? input.materialCost ?? 0,
+    custos_operacionais: input.custos_operacionais ?? input.operationalCost ?? 0,
+    aliquota_imposto: input.aliquota_imposto ?? input.taxRate ?? 6,
+    lucro_liquido: input.lucro_liquido ?? 0,
     templateId: input.templateId,
     items: input.items,
     createdAt: existingRecord?.createdAt ?? now,

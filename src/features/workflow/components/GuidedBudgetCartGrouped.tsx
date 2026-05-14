@@ -69,7 +69,7 @@ const laborTemplates: LaborTemplate[] = [
   { id: 'interruptor', title: 'Instalação de interruptor', defaultUnitValue: 45, unit: 'ponto', note: 'Instalação/substituição de interruptor simples, paralelo ou intermediário.' },
   { id: 'disjuntor', title: 'Instalação de disjuntor/circuito no quadro', defaultUnitValue: 95, unit: 'circuito', note: 'Serviço no quadro, validar espaço, barramentos, DR/DPS e segurança.' },
   { id: 'canaleta', title: 'Instalação de canaleta aparente', defaultUnitValue: 18, unit: 'm', note: 'Instalação aparente por metro linear, sem considerar material.' },
-  { id: 'ponto-rede', title: 'Ponto de rede/baixa tensão', defaultUnitValue: 95, unit: 'ponto', note: 'Instalação de ponto de rede/baixa tensão, validar cabo, conector e teste.' },
+  { id: 'ponto-rede', title: 'Ponto de infraestrutura técnica', defaultUnitValue: 95, unit: 'ponto', note: 'Instalação de ponto de infraestrutura, validar cabo, conector e teste.' },
 ];
 
 const emptyManualPart = {

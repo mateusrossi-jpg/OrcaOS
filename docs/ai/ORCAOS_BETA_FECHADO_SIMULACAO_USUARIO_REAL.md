@@ -1,10 +1,10 @@
-# OrcaOS Beta Fechado - Simulacao De Usuario Real
+# Aferix Beta Fechado - Simulacao De Usuario Real
 
 Data: 2026-05-02
 
 ## Objetivo
 
-Validar o OrcaOS como se fosse usado por um tecnico real em celular e desktop, antes de chamar usuarios externos. O teste deve confirmar fluxo completo, persistencia local, proposta/PDF, relatorio, backup e mensagens de erro.
+Validar o Aferix como se fosse usado por um tecnico real em celular e desktop, antes de chamar usuarios externos. O teste deve confirmar fluxo completo, persistencia local, proposta/PDF, relatorio, backup e mensagens de erro.
 
 ## 1. Primeiro Acesso
 
@@ -101,7 +101,7 @@ Validar o OrcaOS como se fosse usado por um tecnico real em celular e desktop, a
 - Criar item com valor zero e tentar gerar proposta.
 - Aplicar desconto maior que subtotal.
 - Restaurar backup invalido.
-- Restaurar JSON que nao e do OrcaOS.
+- Restaurar JSON que nao e do Aferix.
 - Verificar Pro sem conta.
 - Verificar Pro com endpoint indisponivel.
 - Tentar acessar Pro no plano gratis.

@@ -69,7 +69,7 @@ export const storePackages: PlanPackage[] = [
     icon: 'CALC',
   },
   {
-    title: 'OrçaOS Pro',
+    title: 'Aferix Pro',
     description: 'Para parecer mais profissional, ganhar tempo no orçamento e entender lucro real com modelos, relatórios e financeiro gerencial.',
     price: 'Valor em validação',
     icon: 'PRO',

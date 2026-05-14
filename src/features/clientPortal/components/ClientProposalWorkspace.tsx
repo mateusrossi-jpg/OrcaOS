@@ -78,7 +78,7 @@ export function ClientProposalWorkspace({ technicalCaptures = [], activeClient =
     const proposal = createClientProposalDraft({
       professionalId: profile.professionalId,
       companyId: profile.companyId,
-      professionalDisplayName: profile.businessName || profile.professionalName || 'Profissional OrçaOS',
+      professionalDisplayName: profile.businessName || profile.professionalName || 'Profissional Aferix',
       professionalContact: [profile.phone, profile.email].filter(Boolean).join(' · '),
       title: 'Proposta exemplo para cliente',
       clientName: 'Cliente exemplo',
@@ -134,7 +134,7 @@ export function ClientProposalWorkspace({ technicalCaptures = [], activeClient =
     <section className="client-proposal-workspace">
       <div className="client-proposal-header">
         <div>
-          <span className="orca-kicker">OrçaOS Cliente</span>
+          <span className="orca-kicker">Aferix Cliente</span>
           <h2>Propostas públicas do cliente</h2>
           <p>Base inicial para gerar visão simplificada do cliente, com preço final, materiais que ele compra, status e aceite.</p>
         </div>

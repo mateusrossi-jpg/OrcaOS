@@ -1,6 +1,6 @@
-# OrçaOS — Plano mestre até publicação do MVP
+# Aferix — Plano mestre até publicação do MVP
 
-Este é o documento vigente para orientar o desenvolvimento do OrçaOS até a primeira versão publicável na Play Store.
+Este é o documento vigente para orientar o desenvolvimento do Aferix até a primeira versão publicável na Play Store.
 
 Ele consolida as decisões atuais e deve ser usado antes de qualquer expansão de módulo.
 
@@ -8,7 +8,7 @@ Ele consolida as decisões atuais e deve ser usado antes de qualquer expansão d
 
 ## 1. Visão atual do produto
 
-O OrçaOS é uma plataforma modular local-first para profissionais de campo.
+O Aferix é uma plataforma modular local-first para profissionais de campo.
 
 A versão inicial deve funcionar como um app profissional com:
 
@@ -70,7 +70,7 @@ Cálculos
 ```txt
 ├── Automação industrial e instrumentação
 ├── Eletrônica aplicada
-├── Motores, comandos e rebobinagem
+├── Custos fixos, comandos e rebobinagem
 ├── Transformadores
 └── Solar fotovoltaico
 ```

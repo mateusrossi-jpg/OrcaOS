@@ -26,7 +26,7 @@ function textResponse(value: string, ok = true, status = 200): Response {
 }
 
 const backup: OrcaLocalBackup = {
-  app: 'OrçaOS',
+  app: 'Aferix',
   version: 1,
   exportedAt: '2026-05-02T00:00:00.000Z',
   source: 'localStorage',
@@ -49,9 +49,9 @@ describe('google drive backup storage', () => {
     expect(isGoogleDriveBackupConfigured()).toBe(true);
   });
 
-  it('finds the latest OrçaOS backup metadata in appDataFolder', async () => {
+  it('finds the latest Aferix backup metadata in appDataFolder', async () => {
     const fetchMock = vi.fn().mockResolvedValue(jsonResponse({
-      files: [{ id: 'file-1', name: 'orcaos-backup.json', modifiedTime: '2026-05-02T00:00:00.000Z', size: '2048' }],
+      files: [{ id: 'file-1', name: 'aferix-backup.json', modifiedTime: '2026-05-02T00:00:00.000Z', size: '2048' }],
     }));
     vi.stubGlobal('fetch', fetchMock);
 
@@ -78,7 +78,7 @@ describe('google drive backup storage', () => {
 
   it('loads and parses an existing backup from Google Drive', async () => {
     const fetchMock = vi.fn()
-      .mockResolvedValueOnce(jsonResponse({ files: [{ id: 'file-1', name: 'orcaos-backup.json' }] }))
+      .mockResolvedValueOnce(jsonResponse({ files: [{ id: 'file-1', name: 'aferix-backup.json' }] }))
       .mockResolvedValueOnce(textResponse(JSON.stringify(backup)));
     vi.stubGlobal('fetch', fetchMock);
 
@@ -95,13 +95,13 @@ describe('google drive backup storage', () => {
   it('fails clearly when there is no backup to restore from Drive', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({ files: [] })));
 
-    await expect(loadBackupFromGoogleDrive('token')).rejects.toThrow('Nenhum backup do OrçaOS');
+    await expect(loadBackupFromGoogleDrive('token')).rejects.toThrow('Nenhum backup do Aferix');
   });
 
   it('creates a new Drive backup in appDataFolder', async () => {
     const fetchMock = vi.fn()
       .mockResolvedValueOnce(jsonResponse({ files: [] }))
-      .mockResolvedValueOnce(jsonResponse({ id: 'created', name: 'orcaos-backup.json' }));
+      .mockResolvedValueOnce(jsonResponse({ id: 'created', name: 'aferix-backup.json' }));
     vi.stubGlobal('fetch', fetchMock);
 
     const saved = await saveBackupToGoogleDrive('token', backup);
@@ -116,8 +116,8 @@ describe('google drive backup storage', () => {
 
   it('updates an existing Drive backup file', async () => {
     const fetchMock = vi.fn()
-      .mockResolvedValueOnce(jsonResponse({ files: [{ id: 'existing', name: 'orcaos-backup.json' }] }))
-      .mockResolvedValueOnce(jsonResponse({ id: 'existing', name: 'orcaos-backup.json' }));
+      .mockResolvedValueOnce(jsonResponse({ files: [{ id: 'existing', name: 'aferix-backup.json' }] }))
+      .mockResolvedValueOnce(jsonResponse({ id: 'existing', name: 'aferix-backup.json' }));
     vi.stubGlobal('fetch', fetchMock);
 
     await saveBackupToGoogleDrive('token', backup);

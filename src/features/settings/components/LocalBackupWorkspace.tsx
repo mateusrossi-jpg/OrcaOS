@@ -67,7 +67,7 @@ export function LocalBackupWorkspace({ includeLinkedSettings = true }: { include
     try {
       const parsed = importPreview ?? parseOrcaBackup(backupText);
       if (restoreMode === 'replace' && replaceConfirmation.trim() !== 'SUBSTITUIR') {
-        setFeedback('Isso substituirá os dados locais do OrçaOS neste navegador. Digite SUBSTITUIR para confirmar.');
+        setFeedback('Isso substituirá os dados locais do Aferix neste navegador. Digite SUBSTITUIR para confirmar.');
         return;
       }
       const restoredCount = restoreOrcaBackup(parsed, restoreMode);
@@ -115,7 +115,7 @@ export function LocalBackupWorkspace({ includeLinkedSettings = true }: { include
         <div className="local-backup-header">
           <div>
             <span className="orca-kicker">Backup local</span>
-            <h2>Exportar e restaurar dados do OrçaOS</h2>
+            <h2>Exportar e restaurar dados do Aferix</h2>
             <p>Salve uma cópia dos dados locais do app antes de trocar de navegador, limpar cache ou testar grandes mudanças.</p>
           </div>
           <strong>{summary.keyCount} grupo(s) · {summary.estimatedSizeKb} KB</strong>
@@ -140,7 +140,7 @@ export function LocalBackupWorkspace({ includeLinkedSettings = true }: { include
           <article className="local-backup-card">
             <div className="local-card-heading">
               <strong>Restaurar backup</strong>
-              <small>Importe um JSON do OrçaOS. Mesclar mantém dados atuais; substituir apaga dados locais do OrçaOS antes de restaurar.</small>
+              <small>Importe um JSON do Aferix. Mesclar mantém dados atuais; substituir apaga dados locais do Aferix antes de restaurar.</small>
             </div>
             <label className="local-backup-file">
               <span>Arquivo JSON</span>
@@ -150,14 +150,14 @@ export function LocalBackupWorkspace({ includeLinkedSettings = true }: { include
               <span>Modo de restauração</span>
               <select value={restoreMode} onChange={(event) => setRestoreMode(event.target.value as 'merge' | 'replace')}>
                 <option value="merge">Mesclar com dados atuais</option>
-                <option value="replace">Substituir dados locais do OrçaOS</option>
+                <option value="replace">Substituir dados locais do Aferix</option>
               </select>
             </label>
             {restoreMode === 'replace' && (
               <label className="local-backup-file">
                 <span>Confirmação para substituir</span>
                 <input value={replaceConfirmation} placeholder="Digite SUBSTITUIR" onChange={(event) => setReplaceConfirmation(event.target.value)} />
-                <small>Isso substituirá os dados locais do OrçaOS neste navegador.</small>
+                <small>Isso substituirá os dados locais do Aferix neste navegador.</small>
               </label>
             )}
             <div className="local-backup-actions">
@@ -170,7 +170,7 @@ export function LocalBackupWorkspace({ includeLinkedSettings = true }: { include
 
         <label className="local-backup-textarea">
           <span>Conteúdo do backup JSON</span>
-          <textarea value={backupText} placeholder="Cole aqui um backup JSON do OrçaOS ou gere um backup para visualizar." onChange={(event) => setBackupText(event.target.value)} />
+          <textarea value={backupText} placeholder="Cole aqui um backup JSON do Aferix ou gere um backup para visualizar." onChange={(event) => setBackupText(event.target.value)} />
         </label>
 
         {importPreview && (

@@ -1,4 +1,4 @@
-package br.com.orcaos.app;
+package br.com.aferix.app;
 
 import com.getcapacitor.BridgeActivity;
 

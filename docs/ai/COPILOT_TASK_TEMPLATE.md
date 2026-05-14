@@ -1,4 +1,4 @@
-# Template de tarefa para Copilot no OrçaOS
+# Template de tarefa para Copilot no Aferix
 
 Use este texto como base ao pedir uma mudança no GitHub/Codespaces.
 
@@ -14,7 +14,7 @@ Leia os documentos:
 
 ## Regras do projeto
 
-- O nome visível do produto é **OrçaOS**.
+- O nome visível do produto é **Aferix**.
 - Textos do app devem ficar em português do Brasil.
 - O app deve continuar compilando.
 - Prefira mudanças pequenas e testáveis.
@@ -35,7 +35,7 @@ Leia os documentos:
 
 ## Modelo de pedido
 
-Implementar a seguinte melhoria no OrçaOS:
+Implementar a seguinte melhoria no Aferix:
 
 > [descreva a tarefa aqui]
 

@@ -1,10 +1,10 @@
-# OrçaOS — release readiness plan
+# Aferix — release readiness plan
 
 This plan defines what the app needs before a first external test/public presentation.
 
 ## Release goal
 
-Prepare an early but coherent version of OrçaOS that demonstrates:
+Prepare an early but coherent version of Aferix that demonstrates:
 
 - useful professional calculations;
 - guided survey by environment;

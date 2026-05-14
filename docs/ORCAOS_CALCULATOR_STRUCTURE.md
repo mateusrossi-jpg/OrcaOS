@@ -1,6 +1,6 @@
-# OrçaOS — Estrutura Oficial dos Cálculos
+# Aferix — Estrutura Oficial dos Cálculos
 
-Este documento define a taxonomia correta do OrçaOS.
+Este documento define a taxonomia correta do Aferix.
 
 ## Princípio da taxonomia
 
@@ -10,7 +10,7 @@ Exemplo do erro a evitar:
 
 - Elétrica
 - Automação industrial
-- Motores
+- Custos fixos
 - Eletrônica
 - Transformadores
 - Rebobinagem
@@ -40,7 +40,7 @@ Elétrica, eletrotécnica e automação
 ├── Instalações elétricas
 ├── Iluminação
 ├── Quadros e proteção elétrica
-├── Motores elétricos
+├── Custos fixos
 ├── Comandos elétricos
 ├── Automação industrial
 ├── Eletrônica aplicada
@@ -209,9 +209,9 @@ Família ampla que agrupa os módulos relacionados a eletricidade, eletrotécnic
 - Módulos DIN.
 - Aterramento básico.
 
-### Motores elétricos
+### Custos fixos
 
-- Corrente de motor.
+- Corrente de custo fixo.
 - Rotação síncrona.
 - Escorregamento.
 - Polias.
@@ -227,7 +227,7 @@ Família ampla que agrupa os módulos relacionados a eletricidade, eletrotécnic
 - Corrente de bobinas.
 - Temporizadores.
 - Estrela-triângulo.
-- Comando de motor.
+- Comando de custo fixo.
 
 ### Automação industrial
 

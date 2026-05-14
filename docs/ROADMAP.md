@@ -1,16 +1,23 @@
-# Roadmap do OrçaOS
+# Roadmap do Aferix
 
-Este roadmap organiza a evolução do OrçaOS desde o MVP inicial até uma plataforma modular de gestão profissional.
+Este roadmap organiza a evolução do Aferix como ERP financeiro Local-First para prestadores de serviço e profissionais autônomos.
 
 ## Objetivo principal
 
-Criar um aplicativo profissional para eletricistas e técnicos, começando por ferramentas úteis de campo e evoluindo para orçamento, relatórios, ordens de serviço e gestão.
+Criar um aplicativo profissional para orçamento, lucro real, controle financeiro, relatórios, ordens de serviço e gestão comercial simples.
+
+## Próximo Foco Comercial
+
+- [ ] Ativar a **Licença Vitalícia** como oferta de fundadores.
+- [ ] Captar os primeiros 30 usuários fundadores.
+- [ ] Usar a entrada inicial de caixa para amortizar os contratos Safra: **Alvo 5791** e **Alvo 3823**.
+- [ ] Priorizar onboarding, pagamento e geração de PDF/controle de lucro como fluxo de conversão.
 
 ---
 
 ## Fase 0 — Fundação do repositório
 
-- [x] Criar repositório `OrcaOS`.
+- [x] Criar repositório inicial do produto.
 - [x] Criar documentação inicial.
 - [x] Separar visão, arquitetura, cálculos e modelo de negócio.
 - [x] Preparar estrutura modular.
@@ -19,22 +26,19 @@ Criar um aplicativo profissional para eletricistas e técnicos, começando por f
 
 ---
 
-## Fase 1 — MVP técnico para eletricistas
+## Fase 1 — MVP financeiro para prestadores
 
 Prioridade: gerar utilidade real desde a primeira versão.
 
-### Calculadoras iniciais
+### Ferramentas iniciais
 
-- [ ] Corrente por potência.
-- [ ] Potência por corrente.
-- [ ] Queda de tensão.
+- [x] Orçamento local-first.
+- [x] Cálculo de lucro líquido.
+- [x] Custos reais, impostos estimados e margem.
 - [ ] Consumo em kWh.
 - [ ] Conversão W / VA / A.
-- [ ] Dimensionamento preliminar de condutor.
-- [ ] Disjuntor recomendado.
-- [ ] Eletroduto por ocupação.
-- [ ] Iluminação por ambiente.
-- [ ] Carga para ar-condicionado.
+- [ ] Histórico financeiro por cliente.
+- [ ] Fluxo de caixa simples.
 
 ### Experiência do usuário
 
@@ -50,15 +54,16 @@ Prioridade: gerar utilidade real desde a primeira versão.
 
 ## Fase 2 — Orçamentos
 
-- [ ] Cadastro de clientes.
-- [ ] Cadastro de serviços.
-- [ ] Cadastro de materiais.
-- [ ] Tabela própria de preço por profissional.
-- [ ] Orçamento por item.
-- [ ] Desconto.
-- [ ] Observações.
-- [ ] Status: rascunho, enviado, aprovado, recusado.
-- [ ] Exportação para PDF.
+- [x] Cadastro de clientes.
+- [x] Cadastro de serviços.
+- [x] Cadastro de materiais.
+- [x] Tabela própria de preço por profissional.
+- [x] Orçamento por item.
+- [x] Desconto.
+- [x] Observações.
+- [x] Status: rascunho, enviado, aprovado, recusado.
+- [x] Exportação para PDF.
+- [x] Painel sticky de lucro real.
 
 ---
 
@@ -100,10 +105,7 @@ Prioridade: gerar utilidade real desde a primeira versão.
 
 ## Fase 6 — Plataforma modular
 
-- [ ] Módulo eletricista.
-- [ ] Módulo baixa tensão.
 - [ ] Módulo ar-condicionado.
-- [ ] Módulo motores/bobinagem.
 - [ ] Módulo hidráulica.
 - [ ] Módulo pintura.
 - [ ] Módulo manutenção predial.

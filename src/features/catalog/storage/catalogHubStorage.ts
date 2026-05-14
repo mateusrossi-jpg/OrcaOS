@@ -73,10 +73,10 @@ const starterSuppliers: CatalogSupplier[] = [
   },
   {
     id: 'supplier-motor-reference',
-    name: 'Fornecedor de motores',
-    segment: 'Motores, comandos, proteção e automação',
+    name: 'Fornecedor técnico',
+    segment: 'Manutenção, proteção e automação',
     searchUrlTemplate: 'https://www.google.com/search?q={query}',
-    notes: 'Exemplo editável para contator, relé térmico, disjuntor motor, motores e automação.',
+    notes: 'Exemplo editável para contator, relé térmico, disjuntor técnico, manutenção e automação.',
     createdAt: now(),
     updatedAt: now(),
   },

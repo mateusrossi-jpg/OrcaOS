@@ -143,7 +143,7 @@ export function BudgetPrintPreview({
         )}
         <header className="print-document-top">
           <div className="print-company-block">
-            {!isSimpleTemplate && logoSource ? <img className="print-logo" src={logoSource} alt={`Logo ${profileName}`} /> : <span className="print-brand">{isSimpleTemplate ? 'Orçamento' : 'OrçaOS'}</span>}
+            {!isSimpleTemplate && logoSource ? <img className="print-logo" src={logoSource} alt={`Logo ${profileName}`} /> : <span className="print-brand">{isSimpleTemplate ? 'Orçamento' : 'Aferix'}</span>}
             <h2>{budgetTitle || 'Orçamento sem título'}</h2>
             <p>{profileName}</p>
             {!isSimpleTemplate && documentNumber && <p>{documentNumber}</p>}
@@ -273,7 +273,7 @@ export function BudgetPrintPreview({
         )}
 
         <footer className="print-footer">
-          <p>{responsibleName ? `Responsável técnico/comercial: ${responsibleName}` : 'Orçamento gerado pelo OrçaOS.'}</p>
+          <p>{responsibleName ? `Responsável técnico/comercial: ${responsibleName}` : 'Orçamento gerado pelo Aferix.'}</p>
           <div className="signature-line">Assinatura / aceite do cliente</div>
         </footer>
       </article>

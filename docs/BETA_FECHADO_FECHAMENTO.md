@@ -1,4 +1,4 @@
-# OrçaOS - Fechamento do beta fechado
+# Aferix - Fechamento do beta fechado
 
 Este documento concentra o estado final para iniciar teste interno/fechado sem precisar procurar caminhos em vários arquivos.
 
@@ -8,8 +8,8 @@ Este documento concentra o estado final para iniciar teste interno/fechado sem p
 - Release candidate validado com `npm run rc:check`.
 - APK debug gerado para teste local em aparelho Android.
 - AAB release assinado gerado para Play Console.
-- Android via Capacitor com package `br.com.orcaos.app`.
-- Nome visível do app: `OrçaOS`.
+- Android via Capacitor com package `br.com.aferix.app`.
+- Nome visível do app: `Aferix`.
 - Versão atual: `0.1.0-rc.1`.
 - `versionCode`: `1`.
 - `minSdk`: `24`.
@@ -78,7 +78,7 @@ docs/ANDROID_REAL_DEVICE_TEST.md
 
 Preencher antes de publicar teste:
 
-- Nome do app: `OrçaOS`.
+- Nome do app: `Aferix`.
 - Categoria sugerida: Produtividade ou Ferramentas.
 - E-mail de suporte.
 - Política de privacidade revisada.

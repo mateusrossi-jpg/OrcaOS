@@ -14,10 +14,10 @@ gradle.taskGraph.whenReady { taskGraph ->
 }
 
 android {
-    namespace = "br.com.orcaos.app"
+    namespace = "br.com.aferix.app"
     compileSdk = rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "br.com.orcaos.app"
+        applicationId "br.com.aferix.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
@@ -74,6 +74,7 @@ try {
     def servicesJSON = file('google-services.json')
     if (servicesJSON.text) {
         apply plugin: 'com.google.gms.google-services'
+        apply plugin: 'com.google.firebase.crashlytics'
     }
 } catch(Exception e) {
     logger.info("google-services.json not found, google-services plugin not applied. Push Notifications won't work")

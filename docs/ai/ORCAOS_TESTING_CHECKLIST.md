@@ -1,4 +1,4 @@
-# OrçaOS — testing checklist for AI/Copilot
+# Aferix — testing checklist for AI/Copilot
 
 Use this checklist after changes.
 

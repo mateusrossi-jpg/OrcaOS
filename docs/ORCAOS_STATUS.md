@@ -1,8 +1,8 @@
-# OrçaOS — Status do Projeto
+# Aferix — Status do Projeto
 
 ## Visão do produto
 
-O OrçaOS é uma ferramenta mobile-first para profissionais de campo, iniciando por eletricistas e profissionais de baixa tensão, com evolução planejada para um ecossistema maior de cálculo, levantamento técnico, orçamento, OS, relatórios, manutenção preventiva e módulos por profissão.
+O Aferix é uma ferramenta mobile-first para profissionais de campo, iniciando por prestadores de serviços e profissionais de custos fixos, com evolução planejada para um ecossistema maior de cálculo, levantamento técnico, orçamento, OS, relatórios, manutenção preventiva e módulos por profissão.
 
 A estratégia definida é manter o núcleo de cálculos fundamentais livre e monetizar módulos profissionais mais avançados, sem transformar a versão gratuita em algo inutilizável.
 
@@ -101,7 +101,7 @@ Objetivo da próxima evolução:
 - Refrigeração
   - BTU/h e estimativa inicial de carga térmica.
 
-- Motores
+- Custos fixos
   - Corrente estimada;
   - Rotação síncrona e escorregamento;
   - Relação de polias.

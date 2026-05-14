@@ -1,12 +1,12 @@
-# OrçaOS — Direção visual V1
+# Aferix — Direção visual V1
 
-Este documento registra a decisão visual vigente para o MVP do OrçaOS.
+Este documento registra a decisão visual vigente para o MVP do Aferix.
 
 ---
 
 ## 1. Princípio
 
-O OrçaOS deve ter aparência profissional, limpa, responsiva e confiável, com pouca poluição visual.
+O Aferix deve ter aparência profissional, limpa, responsiva e confiável, com pouca poluição visual.
 
 A interface deve parecer uma ferramenta de trabalho de alto nível, apoiada em tipografia, hierarquia, espaçamento e clareza, não em excesso de elementos decorativos.
 
@@ -17,7 +17,7 @@ A interface deve parecer uma ferramenta de trabalho de alto nível, apoiada em t
 A primeira publicação do MVP deve seguir uma direção tipográfica e minimalista:
 
 ```txt
-ícone principal/marca do OrçaOS: sim
+ícone principal/marca do Aferix: sim
 favicon/app icon: sim
 splash/iconografia institucional: sim
 ícones secundários de navegação: não
@@ -33,7 +33,7 @@ A hipótese final para o MVP é que uma boa tipografia, bons agrupamentos, descr
 
 ### Permitido no MVP
 
-- marca/ícone principal do OrçaOS;
+- marca/ícone principal do Aferix;
 - favicon/app icon;
 - splash/iconografia institucional.
 
@@ -77,7 +77,7 @@ src/features/calculators/config/moduleIconMap.ts
 src/features/calculators/types/iconKeys.ts
 ```
 
-Se no futuro o OrçaOS voltar a usar ícones secundários, a implementação deve ser feita em uma fase própria, com pack autoral ou biblioteca definida, sem reintroduzir ícones nos cálculos internos.
+Se no futuro o Aferix voltar a usar ícones secundários, a implementação deve ser feita em uma fase própria, com pack autoral ou biblioteca definida, sem reintroduzir ícones nos cálculos internos.
 
 ---
 
@@ -89,6 +89,11 @@ A tipografia oficial do MVP usa stack segura, sem carregar fonte externa agora:
 Títulos: Manrope, Inter, system-ui
 Texto/campos: Inter, Manrope, system-ui
 Mono: SFMono/Consolas/Menlo
+
+### Escala Tipográfica Controlada (Clareza > Tamanho)
+- Métricas principais: máximo `text-3xl` ou `text-4xl` (evitar tamanhos colossais que quebram o layout mobile).
+- Labels/Badges: `text-xs` ou `text-sm` em uppercase com tracking leve (`tracking-wide`).
+- Corpo de texto: `text-base` com entrelinha adequada (`leading-relaxed`) para máxima legibilidade.
 ```
 
 Arquivo central:
@@ -106,7 +111,7 @@ Essa decisão evita peso extra de carregamento e mantém boa aparência se a fon
 ### Fase A — MVP tipográfico
 
 1. Remover ícones secundários da interface.
-2. Manter apenas ícone/marca principal do OrçaOS.
+2. Manter apenas ícone/marca principal do Aferix.
 3. Fortalecer tipografia, títulos e subtítulos.
 4. Melhorar espaçamentos e agrupamentos.
 5. Manter badges claros como LIVRE, PRO e EM BREVE.
@@ -128,7 +133,7 @@ Validar se:
 Após a primeira publicação ou teste real, escolher:
 
 ```txt
-Caminho 1: manter OrçaOS tipográfico e sem ícones secundários
+Caminho 1: manter Aferix tipográfico e sem ícones secundários
 Caminho 2: adicionar poucos ícones estratégicos com pack próprio
 ```
 

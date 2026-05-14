@@ -5,19 +5,19 @@ import type { AppTab, CalculationSectorGroup, ModuleCardData, ModulePlan } from 
 export const userPlan: UserPlan = 'free';
 
 export const navItems: Array<{ id: AppTab; label: string; description: string; icon: string; section?: string; primary?: boolean }> = [
-  { id: 'home', label: 'Início', description: 'Decida o próximo passo', icon: 'IN', section: 'Uso diário', primary: true },
-  { id: 'clients', label: 'Atendimentos', description: 'Clientes, visitas e serviços em orçamento', icon: 'AT', section: 'Uso diário', primary: true },
-  { id: 'budgets', label: 'Orçamentos', description: 'Propostas, envio, aprovação e OS', icon: 'ORC', section: 'Uso diário', primary: true },
-  { id: 'catalog', label: 'Estoque', description: 'Catálogo, peças, serviços e fornecedores', icon: 'EST', section: 'Uso diário', primary: true },
-  { id: 'financial', label: 'Financeiro', description: 'Recebimentos, custos e lucro real', icon: 'FIN', section: 'Uso diário', primary: true },
-  { id: 'calculations', label: 'Precificação', description: 'Margem, lucro, taxas e parcelamento', icon: 'R$', section: 'Ferramentas' },
-  { id: 'purchaseList', label: 'Lista de compra', description: 'Materiais para o cliente comprar', icon: 'LC', section: 'Ferramentas' },
-  { id: 'reports', label: 'Relatórios', description: 'Documento técnico e visão gerencial', icon: 'REL', section: 'Ferramentas' },
-  { id: 'survey', label: 'Itens técnicos', description: 'Base técnica para orçamento e relatório', icon: 'IT', section: 'Ferramentas' },
-  { id: 'store', label: 'Loja / Pro', description: 'Plano, recursos Pro e assinatura', icon: 'PRO', section: 'Administração' },
-  { id: 'settings', label: 'Configurações', description: 'Perfil, acesso, backup e preferências', icon: 'CFG', section: 'Administração' },
-  { id: 'beta', label: 'Beta', description: 'Checklist de teste fechado', icon: 'BETA', section: 'Administração' },
-  { id: 'more', label: 'Mais recursos', description: 'Atalhos para áreas avançadas', icon: 'MAIS', section: 'Administração' },
+  { id: 'home', label: 'Dashboard', description: 'KPIs, lucro e recebíveis', icon: 'dashboard', section: 'Gestão financeira', primary: true },
+  { id: 'budgets', label: 'Propostas', description: 'Orçamentos, envio e aprovação', icon: 'budget', section: 'Gestão financeira', primary: true },
+  { id: 'clients', label: 'Clientes', description: 'Cadastro, histórico e serviços', icon: 'clients', section: 'Gestão financeira', primary: true },
+  { id: 'financial', label: 'Financeiro', description: 'Receita, custos e lucro real', icon: 'finance', section: 'Gestão financeira', primary: true },
+  { id: 'catalog', label: 'Catálogo', description: 'Itens, serviços e fornecedores', icon: 'catalog', section: 'Operação', primary: true },
+  { id: 'calculations', label: 'Simulador', description: 'Margem, taxas e parcelamento', icon: 'calculator', section: 'Operação' },
+  { id: 'purchaseList', label: 'Compras', description: 'Materiais e itens de execução', icon: 'list', section: 'Operação' },
+  { id: 'reports', label: 'Relatórios', description: 'Documento comercial e gerencial', icon: 'reports', section: 'Operação' },
+  { id: 'survey', label: 'Base técnica', description: 'Itens de apoio para proposta', icon: 'survey', section: 'Operação' },
+  { id: 'store', label: 'Licença', description: 'Plano, recursos Pro e assinatura', icon: 'store', section: 'Sistema' },
+  { id: 'settings', label: 'Configurações', description: 'Perfil, acesso, backup e preferências', icon: 'settings', section: 'Sistema' },
+  { id: 'beta', label: 'Beta', description: 'Checklist de teste fechado', icon: 'beta', section: 'Sistema' },
+  { id: 'more', label: 'Mais recursos', description: 'Atalhos para áreas avançadas', icon: 'more', section: 'Sistema' },
 ];
 
 export const calculationModules: ModuleCardData[] = [

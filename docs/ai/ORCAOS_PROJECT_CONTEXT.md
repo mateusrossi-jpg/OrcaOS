@@ -1,8 +1,8 @@
-# OrçaOS — project context for AI/Copilot
+# Aferix — project context for AI/Copilot
 
 ## Vision
 
-OrçaOS is a professional app for technicians and service providers. The initial product is a mobile-first app for calculations, guided surveys, guided budgets, client management, service orders and reports. The long-term product can evolve into a broader ERP-like platform for different professional trades.
+Aferix is a professional app for technicians and service providers. The initial product is a mobile-first app for calculations, guided surveys, guided budgets, client management, service orders and reports. The long-term product can evolve into a broader ERP-like platform for different professional trades.
 
 The product should not be treated as a simple calculator. Calculators are only the first entry point. The main value is the connection between:
 
@@ -28,7 +28,7 @@ Possible monetization:
 
 ## Product name
 
-Use **OrçaOS** in user-facing product text. It comes from orçamento + OS. Technical package/file names may remain `orcaos` or `OrcaOS` when needed by tooling.
+Use **Aferix** in user-facing product text. It comes from orçamento + OS. Technical package/file names may remain `orcaos` or `Aferix` when needed by tooling.
 
 ## Target users
 
@@ -47,7 +47,7 @@ Future users:
 - civil construction workers;
 - refrigeration technicians;
 - industrial automation technicians;
-- motor/rewinding professionals;
+- custo fixo/rewinding professionals;
 - electronics technicians;
 - solar installers.
 

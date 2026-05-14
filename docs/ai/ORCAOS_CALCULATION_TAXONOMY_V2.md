@@ -1,4 +1,4 @@
-# OrçaOS — Taxonomia de cálculos V2
+# Aferix — Taxonomia de cálculos V2
 
 Data: 2026-05-02
 
@@ -29,7 +29,7 @@ Elétrica fica com um módulo principal para rotina predial e módulos específi
 Módulos específicos continuam separados quando representam uma rotina profissional própria:
 
 - **Climatização**.
-- **Motores e comandos**.
+- **Custos fixos e comandos**.
 - **Transformadores**.
 - **Solar fotovoltaico**.
 - **Rebobinagem**.
@@ -99,7 +99,7 @@ Esses itens devem gerar texto técnico e relatório, não item comercial automat
 - Dimensionamento elétrico dentro de elétrica predial.
 - Iluminação e sinais dentro de elétrica predial.
 - Climatização.
-- Motores e comandos.
+- Custos fixos e comandos.
 - Automação e sinais dentro de elétrica predial.
 - Transformadores.
 - Solar.

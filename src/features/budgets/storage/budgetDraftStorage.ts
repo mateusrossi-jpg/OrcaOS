@@ -15,6 +15,14 @@ export interface BudgetDraftStorageState {
   commercialNotes: string;
   technicalNotes: string;
   items: BudgetItem[];
+  materialCost: number;
+  operationalCost: number;
+  taxRate: number;
+  total_servicos: number;
+  custo_materiais: number;
+  custos_operacionais: number;
+  aliquota_imposto: number;
+  lucro_liquido: number;
   updatedAt: string;
 }
 
@@ -75,6 +83,14 @@ export function loadBudgetDraft(): BudgetDraftStorageState | null {
       commercialNotes: typeof parsed.commercialNotes === 'string' ? parsed.commercialNotes : '',
       technicalNotes: typeof parsed.technicalNotes === 'string' ? parsed.technicalNotes : '',
       items: parsed.items,
+      materialCost: typeof parsed.materialCost === 'number' && Number.isFinite(parsed.materialCost) ? parsed.materialCost : 0,
+      operationalCost: typeof parsed.operationalCost === 'number' && Number.isFinite(parsed.operationalCost) ? parsed.operationalCost : 0,
+      taxRate: typeof parsed.taxRate === 'number' && Number.isFinite(parsed.taxRate) ? parsed.taxRate : typeof parsed.aliquota_imposto === 'number' && Number.isFinite(parsed.aliquota_imposto) ? parsed.aliquota_imposto : 6,
+      total_servicos: typeof parsed.total_servicos === 'number' && Number.isFinite(parsed.total_servicos) ? parsed.total_servicos : 0,
+      custo_materiais: typeof parsed.custo_materiais === 'number' && Number.isFinite(parsed.custo_materiais) ? parsed.custo_materiais : typeof parsed.materialCost === 'number' && Number.isFinite(parsed.materialCost) ? parsed.materialCost : 0,
+      custos_operacionais: typeof parsed.custos_operacionais === 'number' && Number.isFinite(parsed.custos_operacionais) ? parsed.custos_operacionais : typeof parsed.operationalCost === 'number' && Number.isFinite(parsed.operationalCost) ? parsed.operationalCost : 0,
+      aliquota_imposto: typeof parsed.aliquota_imposto === 'number' && Number.isFinite(parsed.aliquota_imposto) ? parsed.aliquota_imposto : typeof parsed.taxRate === 'number' && Number.isFinite(parsed.taxRate) ? parsed.taxRate : 6,
+      lucro_liquido: typeof parsed.lucro_liquido === 'number' && Number.isFinite(parsed.lucro_liquido) ? parsed.lucro_liquido : 0,
       updatedAt: typeof parsed.updatedAt === 'string' ? parsed.updatedAt : new Date().toISOString(),
     };
   } catch {
@@ -100,6 +116,14 @@ export function saveBudgetDraft(state: BudgetDraftSaveInput): BudgetDraftStorage
     commercialNotes: state.commercialNotes ?? '',
     technicalNotes: state.technicalNotes ?? '',
     items: state.items,
+    materialCost: state.materialCost ?? 0,
+    operationalCost: state.operationalCost ?? 0,
+    taxRate: state.taxRate ?? state.aliquota_imposto ?? 6,
+    total_servicos: state.total_servicos ?? 0,
+    custo_materiais: state.custo_materiais ?? state.materialCost ?? 0,
+    custos_operacionais: state.custos_operacionais ?? state.operationalCost ?? 0,
+    aliquota_imposto: state.aliquota_imposto ?? state.taxRate ?? 6,
+    lucro_liquido: state.lucro_liquido ?? 0,
     updatedAt: new Date().toISOString(),
   };
 

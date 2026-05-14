@@ -58,7 +58,7 @@ const generalCalculatorRules: GeneralCalculatorRule[] = [
   { mode: 'paint-budget', module: 'pintura', label: 'Orçamento pintura', description: 'Material e mão de obra por m² para pintura.', icon: '▣' },
   { mode: 'volume-converter', module: 'conversores', label: 'm³ ↔ litros', description: 'Conversão rápida entre metros cúbicos e litros.', icon: '≋' },
   { mode: 'pressure-converter', module: 'conversores', label: 'bar / psi / mca', description: 'Conversão básica de pressão para hidráulica e bombas.', icon: '↕' },
-  { mode: 'power-converter', module: 'conversores', label: 'CV / HP / kW', description: 'Conversão de potência para motores e equipamentos.', icon: '⚙' },
+  { mode: 'power-converter', module: 'conversores', label: 'CV / HP / kW', description: 'Conversão de potência para equipamentos técnicos.', icon: '⚙' },
   { mode: 'btu-watts-converter', module: 'conversores', label: 'BTU/h ↔ W', description: 'Conversão para refrigeração e potência térmica.', icon: '❄' },
   { mode: 'labor-budget', module: 'orcamentoTecnico', label: 'Mão de obra', description: 'Preço por unidade, ponto, metro ou m².', icon: 'R$' },
   { mode: 'final-price', module: 'orcamentoTecnico', label: 'Preço final', description: 'Material, mão de obra, lucro, desconto e deslocamento.', icon: 'Σ' },
@@ -521,7 +521,7 @@ export function GeneralCalculatorWorkspace({ selectedModule, onCaptureCalculatio
       <div className="general-plan-banner">
         <div>
           <strong>{moduleLabel(selectedModule)}</strong>
-          <span>Calculadoras iniciais para ampliar o OrçaOS além da elétrica.</span>
+          <span>Calculadoras iniciais para ampliar o Aferix além da elétrica.</span>
         </div>
         <em>{availableCalculators.length} cálculos</em>
       </div>

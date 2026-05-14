@@ -1,4 +1,4 @@
-# OrcaOS RC1 Test Readiness Review
+# Aferix RC1 Test Readiness Review
 
 Data: 2026-05-02
 Versao: 0.1.0-rc.1

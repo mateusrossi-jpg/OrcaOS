@@ -16,7 +16,7 @@ describe('feature access gates', () => {
   });
 
   it('keeps upgrade copy consistent', () => {
-    expect(proFeatureTitle('pro')).toBe('Recurso do OrçaOS Pro');
+    expect(proFeatureTitle('pro')).toBe('Recurso do Aferix Pro');
     expect(proFeatureTitle('soon')).toBe('Recurso em breve');
   });
 });

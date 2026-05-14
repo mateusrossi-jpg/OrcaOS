@@ -1,6 +1,6 @@
-# OrçaOS — Taxonomia V1 dos cálculos
+# Aferix — Taxonomia V1 dos cálculos
 
-Este documento define a organização correta dos cálculos para a versão publicável do OrçaOS.
+Este documento define a organização correta dos cálculos para a versão publicável do Aferix.
 
 ## Objetivo
 
@@ -21,14 +21,14 @@ A tela de cálculos deve ser organizada assim:
 ```text
 1. Núcleo comum
 2. Elétrica e instalações
-3. Baixa tensão, redes e automação residencial
+3. Custos fixos, redes e automação residencial
 4. Hidráulica
 5. Construção civil
 6. Pintura e acabamento
 7. Refrigeração e climatização
 8. Automação industrial e instrumentação
 9. Eletrônica aplicada
-10. Motores, comandos e rebobinagem
+10. Custos fixos, comandos e rebobinagem
 11. Transformadores
 12. Solar fotovoltaico
 13. Orçamento, produtividade e gestão
@@ -99,7 +99,7 @@ Subgrupos:
 - circuito de iluminação;
 - chuveiro;
 - ar-condicionado;
-- motor monofásico simples;
+- custo fixo mensal;
 - carga total por ambiente;
 - carga total por quadro;
 - balanceamento básico de fases;
@@ -117,7 +117,7 @@ Subgrupos:
 - queda de tensão em fita LED;
 - divisão de fontes por trecho.
 
-## 3. Baixa tensão, redes e automação residencial
+## 3. Custos fixos, redes e automação residencial
 
 Para CFTV, rede, interfone, sensores, automação e infraestrutura.
 
@@ -335,15 +335,15 @@ Subgrupos:
 - bateria/autonomia;
 - consumo de circuito.
 
-## 10. Motores, comandos e rebobinagem
+## 10. Custos fixos, comandos e rebobinagem
 
-Módulo para motores elétricos, comandos e recuperação.
+Módulo para custos fixos elétricos, comandos e recuperação.
 
 Subgrupos:
 
-### 10.1 Motores
+### 10.1 Custos fixos
 
-- corrente de motor;
+- custo por serviço;
 - potência CV/kW;
 - escorregamento;
 - rotação síncrona;
@@ -355,7 +355,7 @@ Subgrupos:
 
 - contator por corrente;
 - relé térmico;
-- fusível/disjuntor motor;
+- reserva de custos fixos;
 - corrente de comando;
 - fonte de comando;
 - intertravamento básico.
@@ -376,7 +376,7 @@ Rebobinagem deve ter avisos fortes porque envolve prática técnica especializad
 
 ## 11. Transformadores
 
-Separado de motores, pois é outro domínio.
+Separado de custos fixos, pois é outro domínio.
 
 Subgrupos:
 
@@ -484,7 +484,7 @@ Hidráulica
 Construção civil
 Pintura
 Refrigeração
-Baixa tensão / redes
+Custos fixos / redes
 ```
 
 Dentro de Especialidades:
@@ -492,7 +492,7 @@ Dentro de Especialidades:
 ```text
 Automação industrial
 Eletrônica
-Motores e comandos
+Custos fixos e comandos
 Transformadores
 Solar
 ```

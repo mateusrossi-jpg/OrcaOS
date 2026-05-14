@@ -1,22 +1,22 @@
-# Modelo de negócio do OrçaOS
+# Modelo de negócio do Aferix
 
-O OrçaOS deve nascer com uma proposta comercial simples: ajudar profissionais a calcular, orçar, documentar e organizar serviços de forma prática.
+O Aferix deve nascer com uma proposta comercial simples: ajudar profissionais a calcular, orçar, documentar e organizar serviços de forma prática.
 
 ## Posicionamento
 
-O OrçaOS não é apenas uma calculadora. Ele deve ser apresentado como uma ferramenta de trabalho para o profissional técnico.
+O Aferix não é apenas uma calculadora. Ele deve ser apresentado como uma ferramenta de trabalho para o profissional técnico.
 
 Frase de posicionamento:
 
-> O canivete suíço digital para eletricistas e técnicos.
+> O canivete suíço digital para prestadores de serviços e técnicos.
 
 ---
 
 ## Público inicial
 
-- eletricistas autônomos;
+- prestadores de serviços autônomos;
 - ajudantes e iniciantes;
-- técnicos de baixa tensão;
+- técnicos de custos fixos;
 - estudantes de elétrica;
 - integradores de automação;
 - pequenos prestadores de serviço.

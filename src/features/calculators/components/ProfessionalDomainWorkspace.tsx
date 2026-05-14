@@ -190,7 +190,7 @@ function createId(prefix: string): string {
 
 function moduleLabel(module: CalculatorModule): string {
   if (module === 'refrigeration') return 'Climatização';
-  if (module === 'motors') return 'Motores e comandos';
+  if (module === 'motors') return 'Manutenção técnica';
   if (module === 'rewinding') return 'Rebobinagem';
   if (module === 'transformadores') return 'Transformadores';
   if (module === 'solar') return 'Solar fotovoltaico';
@@ -337,7 +337,7 @@ export function ProfessionalDomainWorkspace({ selectedModule, modeFilter, userPl
         <div className="general-calculator-overlay" role="dialog" aria-modal="true" aria-label={proFeatureTitle(lockedRule.plan)}>
           <div className="general-overlay-backdrop" onClick={() => setLockedRule(null)} />
           <section className="general-overlay-panel general-upgrade-panel">
-            <header className="general-overlay-header"><button type="button" onClick={() => setLockedRule(null)}>‹</button><div><span>{moduleLabel(lockedRule.module)}</span><h2>{proFeatureTitle(lockedRule.plan)}</h2><p>{lockedRule.label} faz parte dos recursos profissionais do OrçaOS.</p></div><em>{lockedRule.plan === 'soon' ? 'EM BREVE' : 'PRO'}</em></header>
+            <header className="general-overlay-header"><button type="button" onClick={() => setLockedRule(null)}>‹</button><div><span>{moduleLabel(lockedRule.module)}</span><h2>{proFeatureTitle(lockedRule.plan)}</h2><p>{lockedRule.label} faz parte dos recursos profissionais do Aferix.</p></div><em>{lockedRule.plan === 'soon' ? 'EM BREVE' : 'PRO'}</em></header>
             <div className="general-formula-box"><strong>O que este recurso destrava</strong><span>Resultado orientativo, explicação técnica e texto aproveitável no fluxo de campo, orçamento ou relatório.</span><span>Os recursos livres permanecem abertos para validar o app no dia a dia.</span></div>
             <div className="general-capture-actions"><button type="button" onClick={onUpgradeRequest} disabled={lockedRule.plan === 'soon'}>{lockedRule.plan === 'soon' ? 'Ainda não disponível' : 'Ver Loja / Pro'}</button><button className="secondary-action" type="button" onClick={() => setLockedRule(null)}>Continuar no gratuito</button></div>
           </section>

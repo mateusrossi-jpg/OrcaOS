@@ -59,7 +59,7 @@ function buildTaxonomy(modules: TaxonomyModuleCardData[]): TaxonomyGroup[] {
       subtitle: 'Áreas de serviço organizadas por uso real em campo.',
       modules: [
         ...existing(['instalacoes']),
-        createFutureModule('redes-seguranca-automacao', 'Redes, segurança e automação residencial', 'Infraestrutura, CFTV, automação residencial e baixa tensão.', '⌘', 'blue'),
+        createFutureModule('redes-seguranca-automacao', 'Redes, segurança e automação residencial', 'Infraestrutura, CFTV, automação residencial e infraestrutura técnica.', '⌘', 'blue'),
         ...existing(['hidraulica', 'construcaoCivil', 'medicoesObra', 'pintura', 'refrigeracao']),
       ],
     },
@@ -68,7 +68,7 @@ function buildTaxonomy(modules: TaxonomyModuleCardData[]): TaxonomyGroup[] {
       title: 'Especialidades',
       subtitle: 'Módulos técnicos avançados para uso profissional especializado.',
       modules: [
-        ...existing(['automacaoIndustrial', 'eletronica', 'motores', 'transformadores', 'solar', 'rebobinagem']),
+        ...existing(['automacaoIndustrial', 'eletronica', 'manutencao-tecnica', 'transformadores', 'solar', 'rebobinagem']),
       ],
     },
     {

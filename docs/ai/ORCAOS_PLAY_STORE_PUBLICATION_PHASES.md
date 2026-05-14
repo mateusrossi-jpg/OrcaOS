@@ -1,6 +1,6 @@
-# OrçaOS — fases de execução até publicação na Play Store
+# Aferix — fases de execução até publicação na Play Store
 
-Este documento organiza o trabalho em fases fechadas para levar o OrçaOS do estado atual até uma primeira publicação/teste na Google Play Store.
+Este documento organiza o trabalho em fases fechadas para levar o Aferix do estado atual até uma primeira publicação/teste na Google Play Store.
 
 ## Princípio de trabalho
 
@@ -44,7 +44,7 @@ Não entra no MVP inicial:
 - pagamentos internos;
 - marketplace;
 - catálogo online automático;
-- OrçaOS Cliente como app separado;
+- Aferix Cliente como app separado;
 - múltiplos usuários;
 - estoque completo com baixa automática avançada;
 - conformidade normativa automática total.
@@ -76,7 +76,7 @@ Critério de conclusão:
 
 - taxonomia implementada na tela;
 - usuário entende onde encontrar cada cálculo;
-- elétrico, hidráulico, pintura, construção civil, refrigeração, automação, eletrônica e motores não ficam misturados.
+- elétrico, hidráulico, pintura, construção civil, refrigeração, automação, eletrônica e custos fixos não ficam misturados.
 
 ## Fase 2 — Estabilização técnica
 
@@ -257,7 +257,7 @@ Possíveis melhorias pós-MVP:
 - backup em nuvem;
 - link público de proposta;
 - QR Code;
-- OrçaOS Cliente web/app;
+- Aferix Cliente web/app;
 - catálogo online;
 - estoque completo;
 - relatórios mais profissionais;

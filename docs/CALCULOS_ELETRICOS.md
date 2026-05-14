@@ -1,12 +1,12 @@
-# Cálculos elétricos do OrçaOS
+# Cálculos elétricos do Aferix
 
-Este documento registra os cálculos elétricos iniciais do OrçaOS. A ideia é manter as fórmulas, limites, observações e validações documentadas junto com o código.
+Este documento registra os cálculos elétricos iniciais do Aferix. A ideia é manter as fórmulas, limites, observações e validações documentadas junto com o código.
 
 ## Aviso importante
 
 Os cálculos iniciais são uma base de desenvolvimento. Antes de uso real como recomendação profissional, precisam ser validados com normas aplicáveis, tabelas técnicas, prática profissional e testes.
 
-No Brasil, instalações elétricas de baixa tensão devem observar a ABNT NBR 5410 e demais normas aplicáveis. O OrçaOS deve tratar seus resultados como apoio técnico, não como substituto da responsabilidade profissional.
+No Brasil, instalações elétricas de custos fixos devem observar a ABNT NBR 5410 e demais normas aplicáveis. O Aferix deve tratar seus resultados como apoio técnico, não como substituto da responsabilidade profissional.
 
 ---
 

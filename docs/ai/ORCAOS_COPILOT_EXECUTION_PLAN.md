@@ -1,4 +1,4 @@
-# OrçaOS — Copilot execution plan
+# Aferix — Copilot execution plan
 
 This file organizes the work so Copilot/Agent, ChatGPT, or a human developer can continue from the same direction.
 

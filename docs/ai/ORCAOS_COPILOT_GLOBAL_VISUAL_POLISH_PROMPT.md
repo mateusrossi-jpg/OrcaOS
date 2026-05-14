@@ -1,6 +1,6 @@
-# OrçaOS — Prompt Copilot: polimento visual global
+# Aferix — Prompt Copilot: polimento visual global
 
-Use este arquivo como instrução para o Copilot melhorar o visual global do OrçaOS sem refatoração pesada.
+Use este arquivo como instrução para o Copilot melhorar o visual global do Aferix sem refatoração pesada.
 
 ---
 
@@ -14,11 +14,11 @@ docs/ai/ORCAOS_MVP_PUBLICATION_MASTER_PLAN.md
 docs/ai/ORCAOS_MVP_POLISH_CHECKLIST.md
 ```
 
-Estamos na fase de polimento visual global do MVP do OrçaOS.
+Estamos na fase de polimento visual global do MVP do Aferix.
 
 Objetivo: melhorar o app inteiro com uma estética profissional, bonita, coerente e responsiva, mantendo a arquitetura atual e sem criar módulos novos.
 
-O OrçaOS deve parecer uma ferramenta técnica de alto nível para uso real em campo: limpo, confiável, moderno, organizado e bom de usar no celular.
+O Aferix deve parecer uma ferramenta técnica de alto nível para uso real em campo: limpo, confiável, moderno, organizado e bom de usar no celular.
 
 ---
 

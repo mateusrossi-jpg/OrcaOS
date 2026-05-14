@@ -1,10 +1,10 @@
-# OrçaOS — decisões vindas das anotações manuais
+# Aferix — decisões vindas das anotações manuais
 
-Este documento registra decisões estratégicas capturadas das anotações manuais do projeto para orientar o desenvolvimento do OrçaOS.
+Este documento registra decisões estratégicas capturadas das anotações manuais do projeto para orientar o desenvolvimento do Aferix.
 
 ## Direção principal
 
-O OrçaOS deve ser tratado como possível fonte de receita e produto comercial, não apenas como experimento.
+O Aferix deve ser tratado como possível fonte de receita e produto comercial, não apenas como experimento.
 
 Objetivo inicial:
 
@@ -57,7 +57,7 @@ Diretrizes:
 
 ## Cálculos com justificativa
 
-O OrçaOS deve evitar mostrar apenas um número final.
+O Aferix deve evitar mostrar apenas um número final.
 
 Cada cálculo deve evoluir para um modelo com:
 
@@ -93,8 +93,8 @@ Após cálculos relacionados, o app deve conseguir apresentar algo como:
 
 Ideia registrada para avaliação futura:
 
-- **OrçaOS Empresa**: versão completa para profissional, técnico, eletricista, prestador de serviço e gestão;
-- **OrçaOS Cliente**: versão mais simples para cliente final acompanhar orçamento, proposta, diagnóstico, status de OS e talvez aprovar serviços.
+- **Aferix Empresa**: versão completa para profissional, técnico, prestador de serviço, prestador de serviço e gestão;
+- **Aferix Cliente**: versão mais simples para cliente final acompanhar orçamento, proposta, diagnóstico, status de OS e talvez aprovar serviços.
 
 As duas versões poderiam conversar entre si no futuro.
 
@@ -106,7 +106,7 @@ Estratégia recomendada por enquanto:
 
 ## Regra de foco
 
-Não dispersar em muitos projetos antes do OrçaOS ter uma versão publicável e validada.
+Não dispersar em muitos projetos antes do Aferix ter uma versão publicável e validada.
 
 Prioridade de curto prazo:
 

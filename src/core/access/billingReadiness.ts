@@ -52,7 +52,7 @@ export function getBillingReadiness(): BillingReadiness {
       isExternalCheckoutReady,
       packageName: packageName(),
       proProductId: proProductId(),
-      googlePlayBridgeName: 'OrcaOSGooglePlayBilling',
+      googlePlayBridgeName: 'AferixGooglePlayBilling',
       entitlementEndpointConfigured,
       statusTitle: isGooglePlayReady ? 'Google Play preparado' : 'Google Play pendente',
       statusDescription: isGooglePlayReady
@@ -60,7 +60,7 @@ export function getBillingReadiness(): BillingReadiness {
         : 'Configure package name, produto Pro, bridge Android e endpoint antes de liberar cobrança real pela Play Store.',
       releaseChecklist: [
         'Criar assinatura/produto Pro no Google Play Console.',
-        'Conectar Play Billing ao bridge window.OrcaOSGooglePlayBilling.',
+        'Conectar Play Billing ao bridge nativo de billing.',
         'Enviar purchaseToken e productId para backend seguro.',
         'Validar compra no backend com Google Play Developer API.',
         'Restaurar compras pelo mesmo bridge quando o usuário trocar de aparelho.',
@@ -77,7 +77,7 @@ export function getBillingReadiness(): BillingReadiness {
       isExternalCheckoutReady,
       packageName: packageName(),
       proProductId: proProductId(),
-      googlePlayBridgeName: 'OrcaOSGooglePlayBilling',
+      googlePlayBridgeName: 'AferixGooglePlayBilling',
       entitlementEndpointConfigured,
       statusTitle: isExternalCheckoutReady ? 'Checkout externo preparado' : 'Checkout externo pendente',
       statusDescription: isExternalCheckoutReady
@@ -99,7 +99,7 @@ export function getBillingReadiness(): BillingReadiness {
     isExternalCheckoutReady,
     packageName: packageName(),
     proProductId: proProductId(),
-    googlePlayBridgeName: 'OrcaOSGooglePlayBilling',
+    googlePlayBridgeName: 'AferixGooglePlayBilling',
     entitlementEndpointConfigured,
     statusTitle: 'Beta sem cobrança real',
     statusDescription: 'A loja mostra a estratégia Pro, mas não deve prometer venda automática até o canal de pagamento ser ativado.',

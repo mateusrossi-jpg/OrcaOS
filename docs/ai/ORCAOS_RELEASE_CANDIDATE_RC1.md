@@ -1,11 +1,11 @@
-# OrcaOS Release Candidate RC1
+# Aferix Release Candidate RC1
 
 Data: 2026-05-02
 Versao: 0.1.0-rc.1
 
 ## Objetivo
 
-Este release candidate serve para validar se o OrcaOS esta pronto para um beta fechado com uso real controlado. O foco nao e adicionar novas funcoes, e sim confirmar confianca nos fluxos principais, nos calculos criticos, na persistencia local e na geracao de proposta/relatorio.
+Este release candidate serve para validar se o Aferix esta pronto para um beta fechado com uso real controlado. O foco nao e adicionar novas funcoes, e sim confirmar confianca nos fluxos principais, nos calculos criticos, na persistencia local e na geracao de proposta/relatorio.
 
 ## Escopo Do RC1
 

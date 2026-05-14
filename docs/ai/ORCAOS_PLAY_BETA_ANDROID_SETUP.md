@@ -1,11 +1,11 @@
-# OrçaOS - preparo Android e Beta Fechado Google Play
+# Aferix - preparo Android e Beta Fechado Google Play
 
 ## Estado atual
 
-O OrçaOS agora possui projeto Android via Capacitor.
+O Aferix agora possui projeto Android via Capacitor.
 
-- App ID: `br.com.orcaos.app`
-- Nome: `OrçaOS`
+- App ID: `br.com.aferix.app`
+- Nome: `Aferix`
 - Versão inicial Android: `0.1.0-rc.1`
 - Version code: `1`
 - Web build: `dist`
@@ -56,9 +56,9 @@ cp android/keystore.properties.example android/keystore.properties
 Depois preencha:
 
 ```properties
-storeFile=../release/orcaos-upload-key.jks
+storeFile=../release/aferix-upload-key.jks
 storePassword=senha-real
-keyAlias=orcaos-upload
+keyAlias=aferix-upload
 keyPassword=senha-real
 ```
 
@@ -77,7 +77,7 @@ Como ainda não há dispositivo Android físico, o fluxo recomendado é:
 
 ## Checklist Play Console
 
-- Nome do app: `OrçaOS`
+- Nome do app: `Aferix`
 - Categoria: produtividade/negócios/ferramentas profissionais
 - Política de privacidade publicada
 - Data safety preenchido

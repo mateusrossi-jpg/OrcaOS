@@ -5,11 +5,11 @@
   max-width: 100%;
   min-width: 0;
   overflow: hidden;
-  border: 1px solid rgba(0, 184, 194, 0.18);
-  border-radius: 28px;
+  border: 1px solid #27272a;
+  border-radius: 8px;
   padding: 18px;
-  background: rgba(7, 11, 9, 0.78);
-  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.24);
+  background: #161618;
+  box-shadow: none;
 }
 
 .print-preview-header {
@@ -62,9 +62,9 @@
   max-width: 100%;
   min-width: 0;
   overflow: hidden;
-  color: #111827;
-  background: #ffffff;
-  border-radius: 22px;
+  color: #f8fafc;
+  background: #0f0f11;
+  border-radius: 8px;
   padding: 28px;
 }
 
@@ -74,7 +74,7 @@
   justify-content: space-between;
   gap: 24px;
   min-width: 0;
-  border-bottom: 2px solid #e5e7eb;
+  border-bottom: 1px solid #27272a;
   padding-bottom: 20px;
 }
 
@@ -83,8 +83,8 @@
   width: fit-content;
   border-radius: 999px;
   padding: 8px 12px;
-  color: #00a0ad;
-  background: #e0f7fa;
+  color: #2dd4bf;
+  background: rgba(45, 212, 191, 0.12);
   font-weight: 900;
 }
 
@@ -105,7 +105,7 @@
 
 .print-document p {
   margin: 0;
-  color: #4b5563;
+  color: #a1a1aa;
   overflow-wrap: anywhere;
 }
 
@@ -113,10 +113,10 @@
 .print-client-box,
 .print-total-box {
   min-width: 0;
-  border: 1px solid #e5e7eb;
-  border-radius: 18px;
+  border: 1px solid #27272a;
+  border-radius: 8px;
   padding: 16px;
-  background: #f9fafb;
+  background: #161618;
 }
 
 .print-status-box {
@@ -127,7 +127,7 @@
 .print-client-box span,
 .print-total-box span {
   display: block;
-  color: #6b7280;
+  color: #a1a1aa;
   font-size: 0.82rem;
   font-weight: 800;
   text-transform: uppercase;
@@ -139,7 +139,7 @@
 .print-total-box strong {
   display: block;
   margin-top: 6px;
-  color: #111827;
+  color: #f8fafc;
   font-size: 1.15rem;
   overflow-wrap: anywhere;
 }
@@ -147,7 +147,7 @@
 .print-status-box small {
   display: block;
   margin-top: 8px;
-  color: #6b7280;
+  color: #a1a1aa;
 }
 
 .print-client-box,
@@ -161,14 +161,14 @@
   display: grid;
   gap: 10px;
   margin-bottom: 24px;
-  border-radius: 22px;
+  border-radius: 8px;
   padding: 30px;
   color: #f8fafc;
-  background: linear-gradient(135deg, #0f172a, #073b3f);
+  background: #161618;
 }
 
 .print-cover-page span {
-  color: #67e8f9;
+  color: #2dd4bf;
   font-size: 0.78rem;
   font-weight: 900;
   letter-spacing: 0.08em;
@@ -177,7 +177,7 @@
 
 .print-cover-page h1 {
   margin: 0;
-  color: #ffffff;
+  color: #f8fafc;
   font-size: clamp(1.8rem, 7vw, 3rem);
   line-height: 1.05;
 }
@@ -187,7 +187,7 @@
 }
 
 .print-cover-page strong {
-  color: #ffffff;
+  color: #f8fafc;
   font-size: clamp(1.4rem, 6vw, 2.3rem);
 }
 
@@ -205,10 +205,10 @@
 }
 
 .print-category-totals p {
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
+  border: 1px solid #27272a;
+  border-radius: 8px;
   padding: 10px;
-  background: #ffffff;
+  background: #161618;
 }
 
 .print-table-wrap {
@@ -227,15 +227,15 @@
 
 .print-table th,
 .print-table td {
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid #27272a;
   padding: 12px 10px;
   text-align: left;
   vertical-align: top;
 }
 
 .print-table th {
-  color: #374151;
-  background: #f3f4f6;
+  color: #a1a1aa;
+  background: #161618;
   font-size: 0.8rem;
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -265,7 +265,7 @@
 }
 
 .print-grand-total {
-  border-top: 2px solid #d1d5db;
+  border-top: 1px solid #27272a;
   padding-top: 12px;
 }
 
@@ -276,15 +276,15 @@
 .print-footer {
   display: grid;
   gap: 44px;
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid #27272a;
   padding-top: 18px;
 }
 
 .signature-line {
   width: min(360px, 100%);
-  border-top: 1px solid #111827;
+  border-top: 1px solid #27272a;
   padding-top: 8px;
-  color: #374151;
+  color: #a1a1aa;
   text-align: center;
 }
 
@@ -326,7 +326,7 @@
   }
 
   body {
-    background: #ffffff !important;
+    background: #0a0a0b !important;
   }
 
   body * {
@@ -344,8 +344,8 @@
     width: 100%;
     border-radius: 0;
     padding: 0;
-    color: #111827 !important;
-    background: #ffffff !important;
+    color: #f8fafc !important;
+    background: #0f0f11 !important;
     box-shadow: none !important;
   }
 

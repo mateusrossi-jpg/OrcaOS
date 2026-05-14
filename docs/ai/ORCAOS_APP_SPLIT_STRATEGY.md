@@ -1,21 +1,21 @@
-# OrçaOS — estratégia futura de dois aplicativos
+# Aferix — estratégia futura de dois aplicativos
 
-Este documento registra a decisão estratégica de preparar o OrçaOS para uma possível separação futura entre aplicativo profissional/empresa e aplicativo do cliente.
+Este documento registra a decisão estratégica de preparar o Aferix para uma possível separação futura entre aplicativo profissional/empresa e aplicativo do cliente.
 
 ## Ideia central
 
 Avaliar a possibilidade de produzir dois aplicativos conectados:
 
-1. **OrçaOS Empresa / OrçaOS Profissional**
-2. **OrçaOS Cliente**
+1. **Aferix Empresa / Aferix Profissional**
+2. **Aferix Cliente**
 
 A ideia não é obrigatoriamente criar dois apps agora. A decisão atual é preparar a arquitetura para que isso seja possível no futuro sem reescrever tudo.
 
-## OrçaOS Empresa / Profissional
+## Aferix Empresa / Profissional
 
 Versão completa, voltada para:
 
-- eletricistas;
+- prestadores de serviços;
 - técnicos autônomos;
 - empresas de prestação de serviço;
 - integradores;
@@ -42,7 +42,7 @@ Funcionalidades esperadas:
 
 Esta é a versão principal de trabalho do profissional.
 
-## OrçaOS Cliente
+## Aferix Cliente
 
 Versão mais simples, voltada para o cliente final.
 
@@ -65,8 +65,8 @@ A versão cliente deve ser muito mais simples, sem expor cálculos complexos, es
 No futuro, os dois apps podem se comunicar:
 
 ```text
-OrçaOS Empresa cria orçamento/OS/relatório
-→ envia para OrçaOS Cliente
+Aferix Empresa cria orçamento/OS/relatório
+→ envia para Aferix Cliente
 → cliente visualiza/aprova
 → profissional recebe retorno
 → OS muda de status
@@ -148,9 +148,9 @@ Mesmo que o app cliente fique para depois, o app atual deve já preparar:
 
 ## Decisão atual
 
-Manter o foco no **OrçaOS Empresa/Profissional** como produto inicial, porque ele gera mais valor imediato e pode virar fonte de receita.
+Manter o foco no **Aferix Empresa/Profissional** como produto inicial, porque ele gera mais valor imediato e pode virar fonte de receita.
 
-O **OrçaOS Cliente** fica como evolução estratégica futura, possivelmente começando como:
+O **Aferix Cliente** fica como evolução estratégica futura, possivelmente começando como:
 
 1. link público de proposta;
 2. PDF com QR Code;

@@ -1,10 +1,10 @@
-# OrçaOS — Plano de Execução do App
+# Aferix — Plano de Execução do App
 
-Este documento define a direção prática de construção do OrçaOS para evitar que o app cresça de forma bagunçada.
+Este documento define a direção prática de construção do Aferix para evitar que o app cresça de forma bagunçada.
 
 ## Objetivo do produto
 
-O OrçaOS nasce como uma ferramenta de bolso para profissionais técnicos, começando pelo eletricista e evoluindo para uma plataforma maior de cálculo, levantamento, orçamento, relatório e OS.
+O Aferix nasce como uma ferramenta de bolso para profissionais técnicos, começando pelo prestador de serviço e evoluindo para uma plataforma maior de cálculo, levantamento, orçamento, relatório e OS.
 
 A base inicial deve priorizar:
 
@@ -127,11 +127,11 @@ Módulo separado, sem misturar com instalações elétricas:
 - carga térmica inicial;
 - equipamentos e ambientes futuros.
 
-### 5. Motores
+### 5. Custos fixos
 
 Módulo profissional:
 
-- corrente de motor;
+- custo por serviço;
 - rotação síncrona;
 - escorregamento;
 - polias;
@@ -155,7 +155,7 @@ Módulo futuro:
 - fechamento;
 - sentido de rotação;
 - mapa de bobinagem;
-- dados de motor;
+- dados de custo fixo;
 - alertas de ligação incorreta.
 
 ### 8. Eletrônica

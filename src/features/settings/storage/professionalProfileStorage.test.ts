@@ -35,7 +35,7 @@ describe('professional profile storage', () => {
     saveProfessionalProfile({
       ...profile,
       professionalName: 'Profissional Técnico',
-      businessName: 'OrçaOS Serviços',
+      businessName: 'Aferix Serviços',
       address: 'Rua Teste, 123',
       city: 'São Paulo',
       state: 'SP',
@@ -47,7 +47,7 @@ describe('professional profile storage', () => {
     expect(loaded.professionalId).toBe(profile.professionalId);
     expect(loaded.companyId).toBe(profile.companyId);
     expect(loaded.professionalName).toBe('Profissional Técnico');
-    expect(loaded.businessName).toBe('OrçaOS Serviços');
+    expect(loaded.businessName).toBe('Aferix Serviços');
     expect(loaded.address).toBe('Rua Teste, 123');
     expect(loaded.city).toBe('São Paulo');
     expect(loaded.defaultGuarantee).toBe('90 dias');

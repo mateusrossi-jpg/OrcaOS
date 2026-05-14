@@ -1,6 +1,6 @@
-# Arquitetura inicial do OrçaOS
+# Arquitetura inicial do Aferix
 
-A arquitetura do OrçaOS deve permitir começar simples e crescer para uma plataforma profissional sem quebrar a base inicial.
+A arquitetura do Aferix deve permitir começar simples e crescer para uma plataforma profissional sem quebrar a base inicial.
 
 ## Princípio central
 
@@ -72,7 +72,7 @@ Exemplos:
 - bitolas de cabos;
 - disjuntores comerciais;
 - fatores de potência base;
-- serviços comuns de eletricista;
+- serviços comuns de prestador de serviço;
 - preços padrão sugeridos;
 - categorias profissionais.
 
@@ -112,7 +112,7 @@ O modo gratuito deve ser útil. O Pro deve ampliar capacidade, automação, expo
 
 ## Evolução para ERP
 
-O OrçaOS não deve perder a identidade de ferramenta técnica ao virar sistema maior. A evolução para ERP deve adicionar módulos, não substituir o núcleo.
+O Aferix não deve perder a identidade de ferramenta técnica ao virar sistema maior. A evolução para ERP deve adicionar módulos, não substituir o núcleo.
 
 Base futura:
 

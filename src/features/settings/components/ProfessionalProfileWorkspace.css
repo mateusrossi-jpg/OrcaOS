@@ -5,11 +5,9 @@
 
 .professional-profile-header,
 .professional-profile-card {
-  border: 1px solid var(--orca-border, rgba(148, 214, 218, 0.12));
-  border-radius: 24px;
-  background:
-    radial-gradient(circle at top right, rgba(0, 184, 194, 0.07), transparent 12rem),
-    linear-gradient(145deg, var(--orca-surface, #101713), var(--orca-surface-2, #151f19));
+  border: 1px solid #222222;
+  border-radius: 4px;
+  background: #111111;
   box-shadow: none;
 }
 
@@ -53,9 +51,9 @@
   width: 100%;
   min-width: 0;
   max-width: 100%;
-  border: 1px solid var(--orca-border, rgba(148, 214, 218, 0.12));
-  border-radius: 18px;
-  background: rgba(7, 11, 9, 0.28);
+  border: 1px solid #222222;
+  border-radius: 4px;
+  background: #000000;
   padding: 14px;
 }
 

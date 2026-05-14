@@ -136,7 +136,7 @@ function moduleName(module: CalculatorModule | undefined): string {
   if (module === 'installations') return 'Instalações elétricas';
   if (module === 'lighting') return 'Iluminação';
   if (module === 'refrigeration') return 'Refrigeração';
-  if (module === 'motors') return 'Motores';
+  if (module === 'motors') return 'Técnico';
   if (module === 'rewinding') return 'Rebobinagem';
   if (module === 'industrialAutomation') return 'Automação industrial';
   return 'Calculadoras';
@@ -256,7 +256,7 @@ function LockedCalculator({ mode, onUpgradeRequest }: { mode: CalculatorMode; on
     <div className="locked-calculator-card">
       <span className="lock-icon">PRO</span>
       <strong>{rule?.label ?? 'Cálculo Pro'}</strong>
-      <p>{rule?.shortDescription ?? 'Este cálculo faz parte dos recursos profissionais do OrçaOS.'}</p>
+      <p>{rule?.shortDescription ?? 'Este cálculo faz parte dos recursos profissionais do Aferix.'}</p>
       <small>Os cálculos fundamentais continuam livres. Este recurso entra no pacote Pro.</small>
       <button type="button" onClick={onUpgradeRequest}>Ver pacote Pro</button>
     </div>

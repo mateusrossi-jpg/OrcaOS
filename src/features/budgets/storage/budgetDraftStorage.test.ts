@@ -27,6 +27,14 @@ describe('budget draft storage', () => {
       executionDeadline: '2 dias úteis',
       commercialNotes: 'Material incluso.',
       technicalNotes: 'Validar quadro.',
+      materialCost: 120,
+      operationalCost: 40,
+      taxRate: 6,
+      total_servicos: 500,
+      custo_materiais: 120,
+      custos_operacionais: 40,
+      aliquota_imposto: 6,
+      lucro_liquido: 310,
       items: [
         {
           id: 'item-1',
@@ -49,6 +57,14 @@ describe('budget draft storage', () => {
     expect(loaded?.paymentTerms).toBe('50% entrada');
     expect(loaded?.guarantee).toBe('90 dias');
     expect(loaded?.items).toHaveLength(1);
+    expect(loaded?.materialCost).toBe(120);
+    expect(loaded?.operationalCost).toBe(40);
+    expect(loaded?.taxRate).toBe(6);
+    expect(loaded?.total_servicos).toBe(500);
+    expect(loaded?.custo_materiais).toBe(120);
+    expect(loaded?.custos_operacionais).toBe(40);
+    expect(loaded?.aliquota_imposto).toBe(6);
+    expect(loaded?.lucro_liquido).toBe(310);
   });
 
   it('clears a saved budget draft', () => {

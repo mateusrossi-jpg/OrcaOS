@@ -93,7 +93,7 @@ function getScreenTitle(activeTab: AppTab, selectedModule: ModuleCardData | null
   if (activeTab === 'beta') return 'Beta';
   if (activeTab === 'settings') return 'Configurações';
   if (activeTab === 'store') return 'Loja / Pro';
-  return navItems.find((item) => item.id === activeTab)?.label ?? 'OrçaOS';
+  return navItems.find((item) => item.id === activeTab)?.label ?? 'Aferix';
 }
 
 function getScreenSubtitle(activeTab: AppTab, selectedModule: ModuleCardData | null): string {
@@ -186,81 +186,70 @@ function HomeScreen({ goTo, openModule, captures, clients, workOrders, savedBudg
   const openWorkOrders = workOrders.filter((workOrder) => workOrder.status !== 'done' && workOrder.status !== 'cancelled').length;
   const pendingBudgets = savedBudgets.filter((budget) => budget.status === 'draft' || budget.status === 'sent').length;
   const approvedBudgets = savedBudgets.filter((budget) => budget.status === 'approved').length;
-  const monthlyBudgetTotal = savedBudgets.filter(isBudgetFromCurrentMonth).reduce((total, budget) => total + calculateSavedBudgetValue(budget), 0);
+  const currentMonthBudgets = savedBudgets.filter(isBudgetFromCurrentMonth);
+  const monthlyBudgetTotal = currentMonthBudgets.reduce((total, budget) => total + calculateSavedBudgetValue(budget), 0);
+  const accountsReceivable = currentMonthBudgets.filter((budget) => budget.status === 'sent' || budget.status === 'approved').reduce((total, budget) => total + calculateSavedBudgetValue(budget), 0);
+  const monthlyExpenses = currentMonthBudgets.reduce((total, budget) => {
+    const materialEstimate = budget.materialCost ?? budget.items.filter((item) => item.category === 'material').reduce((itemTotal, item) => itemTotal + item.quantity * item.unitPrice, 0);
+    return total + materialEstimate + (budget.operationalCost ?? 0) + budget.travelCost + budget.additionalFees;
+  }, 0);
+  const monthlyCashFlow = monthlyBudgetTotal - monthlyExpenses;
+  const monthlyNetProfit = Math.max(monthlyCashFlow, 0);
   const budgetItems = captures.filter((capture) => capture.destination === 'budget' || capture.destination === 'both').length;
   const recentItems = captures.slice(0, 3);
   const pricingModule = calculationModules.find((module) => module.id === 'orcamentoTecnico') ?? calculationModules[0];
-  const currentStep = context.activeWorkOrder
-    ? context.activeWorkOrder.status === 'open'
-      ? 'Orçamento ou cálculo pendente'
-      : context.activeWorkOrder.status === 'scheduled'
-        ? 'Execução agendada'
-        : context.activeWorkOrder.status === 'in-progress'
-          ? 'Execução autorizada'
-          : 'Histórico'
-    : 'Nenhum atendimento ativo';
-  const nextAction = context.activeWorkOrder
-    ? context.activeWorkOrder.status === 'open'
-      ? 'Abrir orçamento'
-      : context.activeWorkOrder.status === 'scheduled'
-        ? 'Abrir orçamento ou relatório'
-        : context.activeWorkOrder.status === 'in-progress'
-          ? 'Registrar execução e relatório'
-          : 'Criar novo atendimento'
-    : 'Criar orçamento rápido';
 
   return (
     <section className="app-screen orca-dashboard-screen">
-      <div className="orca-dashboard-hero operational-home-hero">
-        <div className="orca-dashboard-copy"><span className="orca-kicker">ERP técnico leve</span><h1>O que você quer fazer agora?</h1><p>Atendimento, orçamento, execução e recebimento em uma rotina simples.</p></div>
-        <div className="home-current-context">
-          <span>Atendimento atual</span>
-          <strong>{context.activeWorkOrder?.title ?? 'Nenhum atendimento ativo'}</strong>
-          <small>{context.activeClient?.name ?? 'Cliente não vinculado'} · {currentStep}</small>
-          <em>Próxima ação: {nextAction}</em>
-        </div>
+      <div className="home-action-toolbar">
+        <button type="button" className="ghost-action" onClick={onStartNewAttendance}>Novo atendimento</button>
+        <button type="button" className="ghost-action" onClick={() => goTo('budgets')}>Orçamento rápido</button>
+        <button type="button" className="ghost-action" onClick={() => openModule(pricingModule)}>Precificar</button>
       </div>
-      <div className="home-decision-grid" aria-label="Ações principais">
-        <button type="button" className="home-decision-card primary" onClick={onStartNewAttendance}>
-          <span>1</span>
-          <strong>Novo atendimento</strong>
-          <small>Cadastre ou selecione cliente e descreva o serviço.</small>
-        </button>
-        <button type="button" className="home-decision-card" onClick={() => goTo('budgets')}>
-          <span>2</span>
-          <strong>Orçamento rápido</strong>
-          <small>Monte a proposta quando os dados já estão prontos.</small>
-        </button>
-        <button type="button" className="home-decision-card" onClick={() => openModule(pricingModule)}>
-          <span>3</span>
-          <strong>Precificar</strong>
-          <small>Calcule margem, tempo, taxas, deslocamento e parcelamento.</small>
-        </button>
-        <button type="button" className="home-decision-card" onClick={() => goTo(context.activeWorkOrder ? 'budgets' : 'clients')}>
-          <span>4</span>
-          <strong>Continuar</strong>
-          <small>{context.activeWorkOrder ? 'Retome orçamento, cálculo ou dados do cliente.' : 'Crie ou selecione um atendimento para continuar.'}</small>
-        </button>
-      </div>
-      <div className="home-management-kpis">
-        <article><span>Atendimentos abertos</span><strong>{openWorkOrders}</strong><small>em orçamento ou execução</small></article>
-        <article><span>Orçamentos pendentes</span><strong>{pendingBudgets}</strong><small>rascunhos ou enviados</small></article>
-        <article><span>Clientes</span><strong>{clients.length}</strong><small>cadastro local</small></article>
-        <article><span>Orçado no mês</span><strong>{formatCompactCurrency(monthlyBudgetTotal)}</strong><small>propostas salvas</small></article>
-        <article><span>Aprovadas</span><strong>{approvedBudgets}</strong><small>propostas ganhas</small></article>
+
+      <div className="dashboard-finance-tiles" aria-label="Resumo financeiro do mês">
+        <article className="finance-tile net">
+          <span>Lucro líquido do mês</span>
+          <strong>{formatCompactCurrency(monthlyNetProfit)}</strong>
+        </article>
+        <article className="finance-tile revenue">
+          <span>Fluxo de caixa</span>
+          <strong>{formatCompactCurrency(monthlyCashFlow)}</strong>
+        </article>
+        <article className="finance-tile pending">
+          <span>Contas a receber</span>
+          <strong>{formatCompactCurrency(accountsReceivable)}</strong>
+        </article>
+        <article className="finance-tile expense">
+          <span>Despesas</span>
+          <strong>{formatCompactCurrency(monthlyExpenses)}</strong>
+        </article>
       </div>
       <section className="orca-panel-card home-command-panel">
-        <header><div><span className="orca-kicker">Gestão do dia</span><h2>Continue pelo ponto certo</h2><p>Abra a área certa sem procurar em menus secundários.</p></div><button type="button" onClick={() => goTo('budgets')}>Abrir orçamento</button></header>
-        <div className="home-command-grid">
-          <div className="home-action-list">
-            <button type="button" onClick={onStartNewAttendance}><strong>Novo atendimento</strong><small>Cliente, serviço e endereço.</small></button>
-            <button type="button" onClick={() => goTo('budgets')}><strong>Orçamentos</strong><small>{pendingBudgets} pendente(s), {budgetItems} item(ns) prontos.</small></button>
-            <button type="button" onClick={() => goTo('catalog')}><strong>Estoque e catálogo</strong><small>Peças, serviços, fornecedores e preços.</small></button>
-            <button type="button" onClick={() => goTo('financial')}><strong>Financeiro</strong><small>Recebimentos, custos e lucro real.</small></button>
-          </div>
-          <div className="home-recent-strip">
-            <strong>Atividade recente</strong>
-            <div className="orca-activity-list">{recentItems.length === 0 ? <article><div><strong>Comece pelo atendimento</strong><small>Crie um atendimento, use cálculos quando precisar e monte o orçamento.</small></div></article> : recentItems.map((capture) => <article key={capture.id}><div><strong>{capture.calculatorLabel}</strong><small>{capture.summary}</small></div><em>{capture.destination === 'both' ? 'Ambos' : capture.destination === 'budget' ? 'Orç.' : 'Atend.'}</em></article>)}</div>
+        <header><div><h2>Atendimentos em andamento</h2></div></header>
+        <div className="home-recent-strip">
+          <div className="continuous-list">
+            {workOrders.filter(w => w.status !== 'done' && w.status !== 'cancelled').length === 0 ? (
+              <div className="continuous-list-empty">Nenhum atendimento em aberto para hoje.</div>
+            ) : (
+              workOrders.filter(w => w.status !== 'done' && w.status !== 'cancelled').slice(0, 5).map(order => {
+                const orderClient = clients.find(c => c.id === order.clientId);
+                const orderBudget = savedBudgets.find(b => b.workOrderId === order.id);
+                const budgetValue = orderBudget ? orderBudget.items.reduce((acc, item) => acc + item.quantity * item.unitPrice, 0) : 0;
+                const createdAtDate = new Date(order.createdAt || Date.now());
+                const timeString = isNaN(createdAtDate.getTime()) ? '--:--' : createdAtDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                return (
+                  <article key={order.id} className="continuous-list-item">
+                    <span className="time-col">{timeString}</span>
+                    <div className="client-col">
+                      <strong>{orderClient?.name ?? 'Cliente Avulso'}</strong>
+                      <small>{order.title}</small>
+                    </div>
+                    <em className="value-col">{formatCompactCurrency(budgetValue)}</em>
+                  </article>
+                );
+              })
+            )}
           </div>
         </div>
       </section>
@@ -345,7 +334,7 @@ function CalculationsScreen({ selectedModule, openModule, activeSector, onSelect
         {module && isProfessionalDomainModule(module) && <ProfessionalDomainWorkspace selectedModule={module} userPlan={activeUserPlan} onUpgradeRequest={() => goTo('store')} onCaptureCalculation={onCaptureCalculation} />}
         {module && isGeneralCalculatorModule(module) && <GeneralCalculatorWorkspace selectedModule={module} onCaptureCalculation={onCaptureCalculation} />}
         {module && module !== 'fundamentosGerais' && module !== 'eletricaPredial' && module !== 'fundamentals' && module !== 'pintura' && module !== 'hidraulica' && module !== 'obras' && module !== 'conversores' && module !== 'diagnosticoTecnico' && module !== 'orcamentoTecnico' && !isExpansionModule(module) && !isProfessionalDomainModule(module) && !isGeneralCalculatorModule(module) && <ElectricalCalculatorWorkspace selectedModule={module} userPlan={activeUserPlan} onUpgradeRequest={() => goTo('store')} onCaptureCalculation={onCaptureCalculation} />}
-        {!module && <div className="empty-state-card"><strong>{activeModule.title} em breve</strong><p>Este módulo já está previsto na arquitetura do OrçaOS.</p></div>}
+        {!module && <div className="empty-state-card"><strong>{activeModule.title} em breve</strong><p>Este módulo já está previsto na arquitetura financeira do Aferix.</p></div>}
       </section>
     );
   }
@@ -357,7 +346,7 @@ function CalculationsScreen({ selectedModule, openModule, activeSector, onSelect
 
   return (
     <section className="app-screen calculations-overview-screen">
-      <header className="screen-header"><span className="orca-kicker">Precificação</span><h1>Cálculos</h1><p>Use cálculos comerciais para decidir quanto cobrar, simular margem, estimar tempo, deslocamento, materiais, taxas e parcelamento.</p></header>
+      <header className="screen-header"><h1>Cálculos</h1><p>Use cálculos comerciais para decidir quanto cobrar, simular margem, estimar tempo, deslocamento, materiais, taxas e parcelamento.</p></header>
       <ActiveWorkContextCard {...context} />
       <div className="calculation-context-card">
         <span>{context.activeWorkOrder ? 'Atendimento ativo detectado' : 'Modo avulso'}</span>
@@ -378,7 +367,7 @@ function CalculationsScreen({ selectedModule, openModule, activeSector, onSelect
       </div>
       <div className="module-list-heading">
         <strong>Finalidade principal</strong>
-        <small>O OrçaOS agora prioriza cálculos que ajudam a formar preço, negociar e entender lucro real.</small>
+        <small>O Aferix prioriza cálculos que ajudam a formar preço, negociar e entender lucro real.</small>
       </div>
       <div className="module-list-app">{sectorModules.map((module) => <ModuleCard key={module.id} module={module} compact onOpen={() => openModule(module)} />)}</div>
     </section>
@@ -452,7 +441,7 @@ function SurveyScreen({ captures, context, onRemove, onUpdate, onAddMany, goTo }
 
   return (
     <section className="app-screen">
-      <header className="screen-header"><span className="orca-kicker">Recurso avançado</span><h1>Itens técnicos</h1><p>Área opcional para organizar ambientes, serviços, materiais, medições e observações quando o atendimento exigir mais detalhe.</p></header>
+      <header className="screen-header"><h1>Itens técnicos</h1><p>Área opcional para organizar ambientes, serviços, materiais, medições e observações quando o atendimento exigir mais detalhe.</p></header>
       <ActiveWorkContextCard {...context} />
       <div className="guided-context-panel">
         <div>
@@ -565,8 +554,7 @@ function BudgetsScreen({ captures, context, userPlan: activeUserPlan, goTo, onRe
   const budgetCaptures = captures.filter((capture) => capture.destination === 'budget' || capture.destination === 'both');
   return (
     <section className="app-screen wide-screen">
-      <header className="screen-header"><span className="orca-kicker">Proposta comercial</span><h1>Orçamentos</h1><p>Monte orçamento manual rápido ou transforme cálculos, catálogo e itens técnicos em uma proposta clara para o cliente aprovar.</p></header>
-      <ActiveWorkContextCard {...context} />
+      <header className="screen-header central-label-only"><strong>ORÇAMENTO</strong></header>
       {budgetCaptures.length > 0 && (
         <details className="budget-technical-drawer">
           <summary>
@@ -582,7 +570,7 @@ function BudgetsScreen({ captures, context, userPlan: activeUserPlan, goTo, onRe
 }
 
 function CatalogScreen({ onAddMany }: { onAddMany: (items: CalculationCapture[]) => void }) {
-  return <section className="app-screen wide-screen"><header className="screen-header"><span className="orca-kicker">Estoque técnico leve</span><h1>Estoque e catálogo</h1><p>Padronize peças, serviços, fornecedores, compras e referências para orçar melhor sem virar um ERP pesado.</p></header><CatalogHubWorkspace onSendToBudget={onAddMany} /></section>;
+  return <section className="app-screen wide-screen"><header className="screen-header"><h1>Estoque e catálogo</h1><p>Padronize peças, serviços, fornecedores, compras e referências para orçar melhor sem virar um ERP pesado.</p></header><CatalogHubWorkspace onSendToBudget={onAddMany} /></section>;
 }
 
 function MoreScreen({ goTo }: { goTo: (tab: AppTab) => void }) {
@@ -609,7 +597,7 @@ function MoreScreen({ goTo }: { goTo: (tab: AppTab) => void }) {
 }
 
 function ReportsScreen({ captures, context }: { captures: CalculationCapture[]; context: { activeClient: Client | null; activeWorkOrder: WorkOrder | null } }) {
-  return <section className="app-screen wide-screen"><header className="screen-header"><span className="orca-kicker">Documento técnico</span><h1>Relatórios</h1><p>Transforme diagnósticos, fotos, observações e itens técnicos em um documento para o cliente.</p></header><ActiveWorkContextCard {...context} /><ReportWorkspace captures={captures} activeClient={context.activeClient} activeWorkOrder={context.activeWorkOrder} /></section>;
+  return <section className="app-screen wide-screen"><header className="screen-header"><h1>Relatórios</h1><p>Transforme diagnósticos, fotos, observações e itens técnicos em um documento para o cliente.</p></header><ActiveWorkContextCard {...context} /><ReportWorkspace captures={captures} activeClient={context.activeClient} activeWorkOrder={context.activeWorkOrder} /></section>;
 }
 
 function PurchaseListScreen({ captures, onUpdate }: { captures: CalculationCapture[]; onUpdate: (id: string, patch: Partial<CalculationCapture>) => void }) {
@@ -617,7 +605,7 @@ function PurchaseListScreen({ captures, onUpdate }: { captures: CalculationCaptu
 }
 
 function FinancialScreen() {
-  return <section className="app-screen wide-screen"><header className="screen-header"><span className="orca-kicker">Gerencial, não fiscal</span><h1>Financeiro</h1><p>Recebimentos, custos, taxas e lucro real em uma visão prática.</p></header><SimpleFinanceWorkspace /></section>;
+  return <section className="app-screen wide-screen"><header className="screen-header"><h1>Financeiro</h1><p>Recebimentos, custos, taxas e lucro real em uma visão prática.</p></header><SimpleFinanceWorkspace /></section>;
 }
 
 const betaFlowChecks = [
@@ -668,7 +656,7 @@ function BetaReadinessScreen() {
 }
 
 function ClientsScreen({ initialSection, sectionRequestKey, onContextChange, onOpenBudgets, onStartSurvey }: { initialSection?: 'dashboard' | 'newClient' | 'newWorkOrder' | 'clients' | 'workOrders'; sectionRequestKey?: number; onContextChange: (clients: Client[], workOrders: WorkOrder[], activeWorkOrderId: string | null) => void; onOpenBudgets: () => void; onStartSurvey: () => void }) {
-  return <section className="app-screen wide-screen"><header className="screen-header"><span className="orca-kicker">Cliente e atendimento</span><h1>Atendimentos</h1><p>Vincule um cliente agora ou continue sem cliente, levante dados e gere orçamento antes de converter em OS.</p></header><ClientWorkOrderWorkspace initialSection={initialSection} sectionRequestKey={sectionRequestKey} onContextChange={onContextChange} onOpenBudgets={onOpenBudgets} onStartSurvey={onStartSurvey} /></section>;
+  return <section className="app-screen wide-screen"><header className="screen-header"><h1>Atendimentos</h1><p>Vincule um cliente agora ou continue sem cliente, levante dados e gere orçamento antes de converter em OS.</p></header><ClientWorkOrderWorkspace initialSection={initialSection} sectionRequestKey={sectionRequestKey} onContextChange={onContextChange} onOpenBudgets={onOpenBudgets} onStartSurvey={onStartSurvey} /></section>;
 }
 
 function planStatusTitle(account: OrcaAccountState): string {
@@ -828,12 +816,12 @@ function StoreScreen({ account, onAccountChange }: { account: OrcaAccountState; 
           <button type="button" className="secondary-action" disabled={!billingReadiness.isGooglePlayReady || !account.userId || isGooglePlayBusy} onClick={restoreWithGooglePlay}>Restaurar compra</button>
         </div>
         {!account.userId && <p className="general-helper-text">Entre com e-mail ou Google antes de comprar/restaurar Pro.</p>}
-        {!googlePlaySetup.bridgeAvailable && <p className="general-helper-text">Bridge nativo pendente: implementar `window.OrcaOSGooglePlayBilling` no Android/Capacitor antes da venda real.</p>}
+        {!googlePlaySetup.bridgeAvailable && <p className="general-helper-text">Bridge nativo pendente no Android/Capacitor antes da venda real.</p>}
       </div>}
       <div className="settings-group account-settings-panel commercial-checkout-panel">
         <div className="settings-panel-title">
           <span className="orca-kicker">Assinatura</span>
-          <h2>{activeUserPlan === 'pro' ? 'Pro liberado' : 'Assinar OrçaOS Pro'}</h2>
+          <h2>{activeUserPlan === 'pro' ? 'Pro liberado' : 'Assinar Aferix Pro'}</h2>
           <p>{activeUserPlan === 'pro' ? 'Sua conta está com recursos Pro ativos neste dispositivo.' : 'Use o mesmo e-mail da conta para que o backend consiga liberar o Pro após o pagamento.'}</p>
         </div>
         <div className="general-capture-actions">

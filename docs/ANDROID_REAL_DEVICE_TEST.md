@@ -1,4 +1,4 @@
-# OrçaOS - Teste em Android real
+# Aferix - Teste em Android real
 
 Use este roteiro para validar o APK debug em um aparelho físico antes de chamar testadores externos.
 
@@ -34,13 +34,13 @@ adb install -r android/app/build/outputs/apk/debug/app-debug.apk
 Se precisar limpar dados antes do teste:
 
 ```bash
-adb shell pm clear br.com.orcaos.app
+adb shell pm clear br.com.aferix.app
 ```
 
 ## Abrir app
 
 ```bash
-adb shell monkey -p br.com.orcaos.app 1
+adb shell monkey -p br.com.aferix.app 1
 ```
 
 ## Capturar logs simples
@@ -88,6 +88,6 @@ Se houver travamento, salve o trecho com horário, tela e ação feita.
 ## Remover app
 
 ```bash
-adb uninstall br.com.orcaos.app
+adb uninstall br.com.aferix.app
 ```
 

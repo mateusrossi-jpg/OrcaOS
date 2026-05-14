@@ -35,6 +35,6 @@ describe('plan strategy', () => {
   });
 
   it('exposes Free, calculation entry package and Pro commercial packages', () => {
-    expect(storePackages.map((pack) => pack.title)).toEqual(['Free', 'Cálculos Pro vitalício', 'OrçaOS Pro']);
+    expect(storePackages.map((pack) => pack.title)).toEqual(['Free', 'Cálculos Pro vitalício', 'Aferix Pro']);
   });
 });

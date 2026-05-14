@@ -1,4 +1,4 @@
-# OrçaOS — Revisão dos fundamentos elétricos
+# Aferix — Revisão dos fundamentos elétricos
 
 Este documento registra a revisão dos cálculos elétricos fundamentais antes da reorganização da taxonomia e da publicação.
 

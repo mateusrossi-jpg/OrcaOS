@@ -1,6 +1,6 @@
-# OrçaOS — Índice dos documentos de IA
+# Aferix — Índice dos documentos de IA
 
-Este diretório guarda os documentos de estratégia, validação e prompts de trabalho usados para consolidar o OrçaOS até o MVP publicável.
+Este diretório guarda os documentos de estratégia, validação e prompts de trabalho usados para consolidar o Aferix até o MVP publicável.
 
 A partir desta fase, considere este `README.md` como o índice oficial. Nenhum documento importante foi removido; o objetivo é evitar confusão e deixar claro qual arquivo usar em cada etapa.
 

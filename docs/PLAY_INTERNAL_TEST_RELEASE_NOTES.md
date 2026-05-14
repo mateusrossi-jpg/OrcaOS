@@ -1,10 +1,10 @@
-# OrçaOS - Notas do teste interno
+# Aferix - Notas do teste interno
 
 Versão: `0.1.0-rc.1`
 
 ## Resumo para testadores
 
-Esta versão reorganiza o OrçaOS como um assistente de atendimento técnico, começando pelo fluxo real de campo:
+Esta versão reorganiza o Aferix como um assistente de atendimento técnico, começando pelo fluxo real de campo:
 
 ```text
 Cliente -> Atendimento -> Levantamento -> Cálculos -> Orçamento -> Aprovação -> OS -> Execução -> Histórico

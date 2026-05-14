@@ -1,13 +1,13 @@
 import './LegalCompliancePanel.css';
 
 const technicalNotice = [
-  'Os calculos do OrcaOS sao ferramentas de apoio para decisao tecnica, campo, orcamento e relatorio.',
+  'Os calculos do Aferix sao ferramentas de apoio para decisao tecnica, campo, orcamento e relatorio.',
   'O profissional responsavel deve validar resultados, normas aplicaveis e condicoes reais de campo antes da execucao.',
   'Normas tecnicas, fabricantes, concessionarias, projeto real e responsabilidade tecnica prevalecem sobre estimativas do app.',
 ];
 
 const privacyNotice = [
-  'O OrcaOS funciona local-first: clientes, atendimentos, orcamentos, catalogo e perfil ficam no armazenamento local do navegador/dispositivo.',
+  'O Aferix funciona local-first: clientes, atendimentos, orcamentos, catalogo e perfil ficam no armazenamento local do navegador/dispositivo.',
   'Backup e responsabilidade do usuario. O navegador pode limpar cache/armazenamento local; exporte backup regularmente.',
   'Quando Google, Drive ou endpoint Pro estiverem configurados, dados de conta e liberacao assistida podem ser processados para login, backup ou acesso beta.',
   'Base colaborativa de precos e catalogos reais sera futura e dependera de consentimento explicito.',

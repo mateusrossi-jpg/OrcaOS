@@ -1,11 +1,11 @@
-# OrcaOS Release Candidate RC2
+# Aferix Release Candidate RC2
 
 Data: 2026-05-02
 Versao base: 0.1.0-rc.1
 
 ## Objetivo Do RC2
 
-Consolidar o OrcaOS para teste interno final antes do beta fechado comercial controlado. O RC2 endurece producao, orcamento, perfil profissional, backup, Free/Pro, responsividade, testes, roteiro manual e comunicacao legal.
+Consolidar o Aferix para teste interno final antes do beta fechado comercial controlado. O RC2 endurece producao, orcamento, perfil profissional, backup, Free/Pro, responsividade, testes, roteiro manual e comunicacao legal.
 
 ## Mudancas Desde RC1
 

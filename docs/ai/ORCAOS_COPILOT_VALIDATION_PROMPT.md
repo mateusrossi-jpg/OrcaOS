@@ -1,18 +1,18 @@
-# OrçaOS — Prompt para validação com GitHub Copilot
+# Aferix — Prompt para validação com GitHub Copilot
 
-Use este arquivo como instrução direta para o Copilot validar o estado atual do OrçaOS antes de avançarmos para as próximas fases do MVP Play Store.
+Use este arquivo como instrução direta para o Copilot validar o estado atual do Aferix antes de avançarmos para as próximas fases do MVP Play Store.
 
 ---
 
 ## Prompt para o Copilot
 
-Vamos validar o OrçaOS para seguir para as próximas fases do MVP Play Store.
+Vamos validar o Aferix para seguir para as próximas fases do MVP Play Store.
 
 Repositório: `ORCAOS_REPOSITORY_URL`
 
 ### Contexto
 
-Estamos consolidando o OrçaOS como app modular local-first para publicação futura na Play Store. A fase atual foi focada em revisar cálculos existentes e melhorar UX humana em campo, sem expandir módulos novos.
+Estamos consolidando o Aferix como app modular local-first para publicação futura na Play Store. A fase atual foi focada em revisar cálculos existentes e melhorar UX humana em campo, sem expandir módulos novos.
 
 ### Implementações recentes
 
@@ -58,7 +58,7 @@ Dentro de **Especialidades**:
 ```txt
 ├── Automação industrial e instrumentação
 ├── Eletrônica aplicada
-├── Motores, comandos e rebobinagem
+├── Custos fixos, comandos e rebobinagem
 ├── Transformadores
 └── Solar fotovoltaico
 ```

@@ -1,14 +1,14 @@
-# OrçaOS - Direção ERP Técnico Leve
+# Aferix - Direção ERP Técnico Leve
 
 ## Definição
 
-OrçaOS é um ERP técnico leve para prestadores de serviço, começando por cálculos, campo, orçamento e relatórios.
+Aferix é um ERP técnico leve para prestadores de serviço, começando por cálculos, campo, orçamento e relatórios.
 
 O produto não deve parecer uma coleção de fórmulas. O valor principal é transformar atendimento técnico em fluxo organizado: cliente, OS, campo, cálculo, orçamento, relatório, aprovação, execução e histórico.
 
 ## Posicionamento
 
-O OrçaOS deve combinar três percepções:
+O Aferix deve combinar três percepções:
 
 - ERP técnico leve: organização, histórico, status, proposta e catálogo.
 - App de campo: rápido no celular, direto, útil durante visita e levantamento.

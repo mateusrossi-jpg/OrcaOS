@@ -1,5 +1,5 @@
 export interface OrcaLocalBackup {
-  app: 'OrçaOS';
+  app: string;
   version: 1;
   exportedAt: string;
   source: 'localStorage';
@@ -19,6 +19,7 @@ export interface OrcaBackupDataSummaryItem {
 }
 
 const ORCA_PREFIX = 'orcaos:';
+const LEGACY_APP_MARKER = 'Or\u00e7aOS';
 
 function parseJsonValue(value: string | undefined): unknown {
   if (!value) return null;
@@ -52,7 +53,7 @@ export function collectOrcaLocalBackup(): OrcaLocalBackup {
   }
 
   return {
-    app: 'OrçaOS',
+    app: 'Aferix',
     version: 1,
     exportedAt: new Date().toISOString(),
     source: 'localStorage',
@@ -101,12 +102,12 @@ export function parseOrcaBackup(value: string): OrcaLocalBackup {
   try {
     parsed = JSON.parse(value);
   } catch {
-    throw new Error('JSON inválido. Confira se o conteúdo colado é um backup completo do OrçaOS.');
+    throw new Error('JSON inválido. Confira se o conteúdo colado é um backup completo do Aferix.');
   }
   if (!parsed || typeof parsed !== 'object') throw new Error('Arquivo de backup inválido.');
 
   const backup = parsed as Partial<OrcaLocalBackup>;
-  if (backup.app !== 'OrçaOS') throw new Error('Este arquivo não parece ser um backup do OrçaOS.');
+  if (backup.app !== 'Aferix' && backup.app !== LEGACY_APP_MARKER) throw new Error('Este arquivo não parece ser um backup do Aferix.');
   if (backup.version !== 1) throw new Error('Versão de backup não suportada.');
   if (!backup.keys || typeof backup.keys !== 'object') throw new Error('Backup sem dados restauráveis.');
 
@@ -118,7 +119,7 @@ export function parseOrcaBackup(value: string): OrcaLocalBackup {
   });
 
   return {
-    app: 'OrçaOS',
+    app: 'Aferix',
     version: 1,
     exportedAt: backup.exportedAt || new Date().toISOString(),
     source: 'localStorage',
@@ -160,5 +161,5 @@ export function downloadBackupFile(filename: string, content: string): void {
 
 export function createBackupFilename(): string {
   const date = new Date().toISOString().slice(0, 10);
-  return `orcaos-backup-${date}.json`;
+  return `aferix-backup-${date}.json`;
 }

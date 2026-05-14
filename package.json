@@ -1,9 +1,9 @@
 {
-  "name": "orcaos",
+  "name": "aferix",
   "private": true,
   "version": "0.1.0-rc.1",
   "type": "module",
-  "description": "OrçaOS - assistente de atendimento técnico para levantamentos, cálculos, orçamentos e relatórios.",
+  "description": "Aferix - ERP financeiro local-first para propostas, custos, lucro real e relatórios.",
   "engines": {
     "node": ">=22.12.0"
   },
@@ -20,6 +20,8 @@
     "android:build:aab": "npm run build && cap sync android && cd android && ./gradlew bundleRelease"
   },
   "dependencies": {
+    "@react-pdf/renderer": "^4.5.1",
+    "@supabase/supabase-js": "^2.43.0",
     "@vitejs/plugin-react": "latest",
     "react": "latest",
     "react-dom": "latest",
@@ -35,14 +37,14 @@
     "vitest": "latest"
   },
   "keywords": [
-    "orcaos",
+    "aferix",
     "orcamentos",
-    "eletricista",
-    "calculadoras",
-    "atendimento-tecnico",
-    "levantamento-tecnico",
+    "erp-financeiro",
+    "local-first",
+    "gestao-financeira",
+    "lucro-real",
     "relatorios"
   ],
-  "author": "OrçaOS",
+  "author": "Aferix",
   "license": "UNLICENSED"
 }

@@ -95,7 +95,7 @@ export function ReportWorkspace({ captures, activeClient = null, activeWorkOrder
   const { reportItems, itemsWithImage, diagnostics } = getReportCaptureMetrics(captures);
   const businessProfile = loadBusinessProfile();
   const reportTemplateId = businessProfile.defaultReportTemplateId;
-  const profileName = businessProfile.businessName || businessProfile.responsibleName || 'OrçaOS';
+  const profileName = businessProfile.businessName || businessProfile.responsibleName || 'Aferix';
   const contactLine = [businessProfile.phone, businessProfile.email].filter(Boolean).join(' · ');
   const logoSource = businessProfile.logoDataUrl || businessProfile.logoUrl;
   const serviceItems = reportItems.filter((capture) => capture.itemType === 'service');
@@ -167,7 +167,7 @@ export function ReportWorkspace({ captures, activeClient = null, activeWorkOrder
       <article className={`report-document report-template-${reportTemplateId}`}>
         <header className="report-document-header">
           <div className="report-company-row">
-            {logoSource ? <img src={logoSource} alt={`Logo ${profileName}`} /> : <span>OrçaOS</span>}
+            {logoSource ? <img src={logoSource} alt={`Logo ${profileName}`} /> : <span>Aferix</span>}
             <div>
               <strong>{profileName}</strong>
               {businessProfile.documentNumber && <small>{businessProfile.documentNumber}</small>}

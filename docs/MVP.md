@@ -1,6 +1,6 @@
-# MVP do OrçaOS
+# MVP do Aferix
 
-O MVP do OrçaOS deve provar que o produto é útil para o eletricista no dia a dia.
+O MVP do Aferix deve provar que o produto é útil para o prestador de serviço no dia a dia.
 
 ## Meta da primeira versão
 

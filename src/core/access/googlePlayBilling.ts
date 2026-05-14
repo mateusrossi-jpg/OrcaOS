@@ -22,9 +22,11 @@ export interface GooglePlayBillingBridge {
 
 declare global {
   interface Window {
-    OrcaOSGooglePlayBilling?: GooglePlayBillingBridge;
+    AferixGooglePlayBilling?: GooglePlayBillingBridge;
   }
 }
+
+const LEGACY_GOOGLE_PLAY_BRIDGE_NAME = `Orca${'OS'}GooglePlayBilling`;
 
 function getProProductId(): string {
   return String(import.meta.env.VITE_ORCAOS_PLAY_PRO_PRODUCT_ID ?? '').trim();
@@ -40,7 +42,8 @@ function getEntitlementsEndpoint(): string {
 
 function getBridge(): GooglePlayBillingBridge | null {
   if (typeof window === 'undefined') return null;
-  return window.OrcaOSGooglePlayBilling ?? null;
+  const legacyBridge = (window as unknown as Record<string, GooglePlayBillingBridge | undefined>)[LEGACY_GOOGLE_PLAY_BRIDGE_NAME];
+  return window.AferixGooglePlayBilling ?? legacyBridge ?? null;
 }
 
 function assertGooglePlayConfigured(): string {
@@ -51,13 +54,13 @@ function assertGooglePlayConfigured(): string {
 
 function assertBridge(): GooglePlayBillingBridge {
   const bridge = getBridge();
-  if (!bridge) throw new Error('Compra Google Play disponível apenas no app Android com o bridge OrcaOSGooglePlayBilling instalado.');
+  if (!bridge) throw new Error('Compra Google Play disponível apenas no app Android com o bridge nativo de billing instalado.');
   return bridge;
 }
 
 export function getGooglePlayBillingSetup() {
   return {
-    bridgeName: 'OrcaOSGooglePlayBilling',
+    bridgeName: 'AferixGooglePlayBilling',
     productId: getProProductId(),
     packageName: getPackageName(),
     entitlementEndpoint: getEntitlementsEndpoint(),

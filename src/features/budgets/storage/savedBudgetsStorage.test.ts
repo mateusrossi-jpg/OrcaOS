@@ -20,6 +20,14 @@ describe('saved budgets storage', () => {
       title: 'Orçamento A',
       status: 'draft',
       discount: 0,
+      materialCost: 120,
+      operationalCost: 40,
+      taxRate: 6,
+      total_servicos: 500,
+      custo_materiais: 120,
+      custos_operacionais: 40,
+      aliquota_imposto: 6,
+      lucro_liquido: 310,
       items: [],
     });
 
@@ -28,6 +36,9 @@ describe('saved budgets storage', () => {
     expect(saved?.id).toBeDefined();
     expect(records).toHaveLength(1);
     expect(records[0].clientName).toBe('Cliente A');
+    expect(records[0].taxRate).toBe(6);
+    expect(records[0].total_servicos).toBe(500);
+    expect(records[0].lucro_liquido).toBe(310);
   });
 
   it('updates an existing budget record', () => {
@@ -75,6 +86,9 @@ describe('saved budgets storage', () => {
     expect(record.travelCost).toBe(0);
     expect(record.additionalFees).toBe(0);
     expect(record.paymentTerms).toBe('');
+    expect(record.taxRate).toBe(6);
+    expect(record.total_servicos).toBe(0);
+    expect(record.lucro_liquido).toBe(0);
   });
 
   it('supports expired and cancelled status', () => {

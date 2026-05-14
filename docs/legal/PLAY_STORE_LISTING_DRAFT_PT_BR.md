@@ -1,4 +1,4 @@
-# OrçaOS — Rascunho da ficha da Play Store
+# Aferix — Rascunho da ficha da Play Store
 
 Versão preliminar para revisão antes da publicação.
 
@@ -9,7 +9,7 @@ Versão preliminar para revisão antes da publicação.
 ## Nome do app
 
 ```txt
-OrçaOS
+Aferix
 ```
 
 ---
@@ -19,15 +19,15 @@ OrçaOS
 Opções:
 
 ```txt
-OrçaOS
-OrçaOS Técnico
-OrçaOS — Cálculos e Orçamentos
+Aferix
+Aferix Técnico
+Aferix — Cálculos e Orçamentos
 ```
 
 Recomendação inicial:
 
 ```txt
-OrçaOS
+Aferix
 ```
 
 ---
@@ -57,11 +57,11 @@ Seu apoio em campo para atendimento técnico, orçamento e relatório.
 ## Descrição completa — rascunho
 
 ```txt
-O OrçaOS é um aplicativo criado para ajudar profissionais técnicos no dia a dia em campo.
+O Aferix é um aplicativo criado para ajudar profissionais técnicos no dia a dia em campo.
 
 Com ele, você pode realizar cálculos técnicos, registrar levantamentos, montar orçamentos, organizar clientes e preparar informações para relatórios e propostas. Quando o cliente aprova o orçamento, o atendimento pode evoluir para execução autorizada e ordem de serviço.
 
-O OrçaOS traz módulos úteis para áreas como elétrica, hidráulica, pintura, construção civil, conversores técnicos e orçamento técnico.
+O Aferix traz módulos úteis para áreas como elétrica, hidráulica, pintura, construção civil, conversores técnicos e orçamento técnico.
 
 Os cálculos foram pensados para uso real no celular: poucos campos obrigatórios, campos avançados quando necessário, resultado direto, unidades claras e explicação de como o cálculo é feito.
 
@@ -77,7 +77,7 @@ Recursos principais:
 - apoio para relatórios e propostas;
 - foco em uso simples e profissional.
 
-O OrçaOS está em evolução contínua para se tornar uma plataforma modular para profissionais de serviços técnicos.
+O Aferix está em evolução contínua para se tornar uma plataforma modular para profissionais de serviços técnicos.
 ```
 
 ---
@@ -103,7 +103,7 @@ Produtividade
 ## Público-alvo inicial
 
 ```txt
-Eletricistas
+Prestadores de serviços
 Técnicos de manutenção
 Prestadores de serviço
 Profissionais de instalação
@@ -124,7 +124,7 @@ atendimento técnico
 levantamento técnico
 cálculos elétricos
 calculadora técnica
-eletricista
+prestador de serviço
 hidráulica
 pintura
 construção civil

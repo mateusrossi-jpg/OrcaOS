@@ -25,7 +25,7 @@ describe('business profile storage', () => {
   it('saves and loads proposal business identity', () => {
     saveBusinessProfile({
       ...defaultBusinessProfile,
-      businessName: 'OrçaOS Serviços',
+      businessName: 'Aferix Serviços',
       documentNumber: '12.345.678/0001-90',
       phone: '',
       email: 'contato@orcaos.test',
@@ -36,7 +36,7 @@ describe('business profile storage', () => {
 
     const loaded = loadBusinessProfile();
 
-    expect(loaded.businessName).toBe('OrçaOS Serviços');
+    expect(loaded.businessName).toBe('Aferix Serviços');
     expect(loaded.documentNumber).toBe('12.345.678/0001-90');
     expect(loaded.responsibleName).toBe('Profissional Técnico');
     expect(loaded.defaultValidity).toBe('10 dias');

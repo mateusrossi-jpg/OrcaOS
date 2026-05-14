@@ -1,12 +1,12 @@
-# OrçaOS - Android e Play Console
+# Aferix - Android e Play Console
 
-Este guia prepara o OrçaOS para gerar APK debug e AAB release no futuro, sem versionar chaves, senhas ou arquivos locais sensíveis.
+Este guia prepara o Aferix para gerar APK debug e AAB release no futuro, sem versionar chaves, senhas ou arquivos locais sensíveis.
 
 ## Estado do projeto
 
 - App Android via Capacitor: `android/`
-- Package/application ID: `br.com.orcaos.app`
-- Nome do app: `OrçaOS`
+- Package/application ID: `br.com.aferix.app`
+- Nome do app: `Aferix`
 - Web build: `dist/`
 - Comando release esperado: `cd android && ./gradlew bundleRelease`
 - Comando debug esperado: `cd android && ./gradlew assembleDebug`
@@ -83,11 +83,11 @@ Gere a upload key:
 ```bash
 keytool -genkeypair \
   -v \
-  -keystore release/orcaos-upload-key.jks \
+  -keystore release/aferix-upload-key.jks \
   -keyalg RSA \
   -keysize 2048 \
   -validity 10000 \
-  -alias orcaos-upload
+  -alias aferix-upload
 ```
 
 Guarde a senha em local seguro. Não coloque a senha nem o `.jks` no Git.
@@ -103,9 +103,9 @@ cp android/keystore.properties.example android/keystore.properties
 Preencha:
 
 ```properties
-storeFile=../release/orcaos-upload-key.jks
+storeFile=../release/aferix-upload-key.jks
 storePassword=SENHA_REAL
-keyAlias=orcaos-upload
+keyAlias=aferix-upload
 keyPassword=SENHA_REAL
 ```
 
@@ -194,7 +194,7 @@ Regra prática:
 ## 9. Enviar para teste interno no Play Console
 
 1. Acesse o Play Console.
-2. Crie o app `OrçaOS`.
+2. Crie o app `Aferix`.
 3. Preencha ficha da loja, categoria, e-mail de contato e política de privacidade.
 4. Preencha `Data safety`.
 5. Vá em `Testing` -> `Internal testing`.

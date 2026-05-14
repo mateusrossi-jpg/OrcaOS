@@ -75,6 +75,14 @@ export interface Budget {
   executionDeadline?: string;
   commercialNotes?: string;
   technicalNotes?: string;
+  materialCost?: number;
+  operationalCost?: number;
+  taxRate?: number;
+  total_servicos?: number;
+  custo_materiais?: number;
+  custos_operacionais?: number;
+  aliquota_imposto?: number;
+  lucro_liquido?: number;
   status: 'draft' | 'sent' | 'approved' | 'rejected' | 'expired' | 'cancelled';
   templateId?: BudgetTemplateId;
 }

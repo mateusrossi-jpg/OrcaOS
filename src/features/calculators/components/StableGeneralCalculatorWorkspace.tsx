@@ -308,7 +308,7 @@ export function GeneralCalculatorWorkspace({ selectedModule, onCaptureCalculatio
 
   return (
     <div className="general-calculator-workspace">
-      <div className="general-plan-banner"><div><strong>{moduleLabel(selectedModule)}</strong><span>Calculadoras estáveis para publicação inicial do OrçaOS.</span></div><em>{moduleRules.length} cálculos</em></div>
+      <div className="general-plan-banner"><div><strong>{moduleLabel(selectedModule)}</strong><span>Calculadoras estáveis para publicação inicial do Aferix.</span></div><em>{moduleRules.length} cálculos</em></div>
       <div className="general-picker-list">
         {moduleRules.map((rule) => <button className="general-picker-card" key={rule.mode} type="button" onClick={() => setActiveMode(rule.mode)}><span><strong>{rule.label}</strong><small>{rule.description}</small></span><em>{rule.plan === 'pro' ? 'PRO' : 'LIVRE'}</em></button>)}
       </div>

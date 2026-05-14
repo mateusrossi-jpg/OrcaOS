@@ -24,17 +24,17 @@ const implementedStandaloneModules: CalculatorModule[] = [
   'diagnosticoTecnico',
 ];
 
-describe('OrçaOS app data integrity', () => {
+describe('Aferix app data integrity', () => {
   it('keeps main navigation unique and grouped', () => {
     const ids = navItems.map((item) => item.id);
 
     expect(new Set(ids).size).toBe(ids.length);
     expect(ids).toEqual([
       'home',
-      'clients',
       'budgets',
-      'catalog',
+      'clients',
       'financial',
+      'catalog',
       'calculations',
       'purchaseList',
       'reports',
@@ -45,7 +45,7 @@ describe('OrçaOS app data integrity', () => {
       'more',
     ]);
     expect(navItems.every((item) => item.label && item.description && item.section)).toBe(true);
-    expect(navItems.filter((item) => item.primary).map((item) => item.id)).toEqual(['home', 'clients', 'budgets', 'catalog', 'financial']);
+    expect(navItems.filter((item) => item.primary).map((item) => item.id)).toEqual(['home', 'budgets', 'clients', 'financial', 'catalog']);
   });
 
   it('keeps every calculation sector connected to existing modules', () => {

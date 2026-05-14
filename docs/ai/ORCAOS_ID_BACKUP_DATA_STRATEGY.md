@@ -1,10 +1,10 @@
-# OrçaOS — identidade, dados confiáveis e backup
+# Aferix — identidade, dados confiáveis e backup
 
 Este documento registra a diretriz estratégica das anotações manuais sobre identificação de usuários, dados gerados pela plataforma e modelos de backup.
 
 ## Ideia central
 
-O OrçaOS deve evoluir como uma plataforma completa com módulos, onde profissionais e clientes possam gerar, consultar e validar dados de forma organizada.
+O Aferix deve evoluir como uma plataforma completa com módulos, onde profissionais e clientes possam gerar, consultar e validar dados de forma organizada.
 
 A plataforma deve permitir que:
 
@@ -101,7 +101,7 @@ Cada dado deve idealmente ter:
 
 ## Validação pelo cliente
 
-O OrçaOS Cliente pode futuramente permitir que o cliente confira:
+O Aferix Cliente pode futuramente permitir que o cliente confira:
 
 - levantamento feito pelo profissional;
 - lista de materiais;
@@ -125,7 +125,7 @@ O cliente não deve ver dados internos como:
 
 ## Normas e boas práticas
 
-O OrçaOS Cliente pode futuramente ajudar o cliente a entender se o serviço parece seguir boas práticas, sem substituir responsabilidade técnica.
+O Aferix Cliente pode futuramente ajudar o cliente a entender se o serviço parece seguir boas práticas, sem substituir responsabilidade técnica.
 
 A linguagem deve ser cuidadosa:
 
@@ -221,6 +221,6 @@ Continuar desenvolvendo local-first para velocidade e validação, mas preparar 
 - IDs individuais;
 - plataforma modular;
 - backup;
-- OrçaOS Cliente;
+- Aferix Cliente;
 - sincronização futura;
 - plano pago com recursos de nuvem.

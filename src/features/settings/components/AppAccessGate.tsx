@@ -71,13 +71,12 @@ export function AppAccessGate({ children }: AppAccessGateProps) {
 
   if (isStarting) {
     return (
-      <main className="app-startup-splash" aria-label="Abrindo OrçaOS">
+      <main className="app-startup-splash" aria-label="Abrindo Aferix">
         <div className="app-startup-mark" aria-hidden="true">
-          <img src="/icons/orcaos-icon.svg" alt="" />
+          <img src="/icons/aferix-icon.svg" alt="" />
         </div>
         <div className="app-startup-copy">
-          <strong>OrçaOS</strong>
-          <span>ERP técnico leve</span>
+          <strong>Aferix</strong>
         </div>
         <span className="app-startup-scan" aria-hidden="true" />
       </main>
@@ -90,9 +89,9 @@ export function AppAccessGate({ children }: AppAccessGateProps) {
     <main className="app-access-gate">
       <form className="app-access-card" onSubmit={unlockApp}>
         <div className="app-access-brand">
-          <img src="/icons/orcaos-icon.svg" alt="" />
+          <img src="/icons/aferix-icon.svg" alt="" />
           <div>
-            <span className="orca-kicker">OrçaOS protegido</span>
+            <span className="orca-kicker">Aferix protegido</span>
             <strong>Acesso local</strong>
           </div>
         </div>

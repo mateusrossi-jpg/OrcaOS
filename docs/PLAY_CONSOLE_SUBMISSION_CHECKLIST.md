@@ -1,11 +1,11 @@
-# OrçaOS - Checklist de envio na Play Console
+# Aferix - Checklist de envio na Play Console
 
 Use este checklist ao criar o app e enviar a versão `0.1.0-rc.1` para teste interno/fechado.
 
 ## App
 
-- Nome do app: `OrçaOS`
-- Package/application ID: `br.com.orcaos.app`
+- Nome do app: `Aferix`
+- Package/application ID: `br.com.aferix.app`
 - Tipo: App
 - Categoria sugerida: Produtividade ou Ferramentas
 - Distribuição inicial: Teste interno ou teste fechado
@@ -74,7 +74,7 @@ docs/BETA_TESTER_INVITE_MESSAGE.md
 Mensagem curta sugerida:
 
 ```text
-Olá! Esta é a versão beta fechada do OrçaOS.
+Olá! Esta é a versão beta fechada do Aferix.
 Teste principalmente: Home, atendimento guiado, levantamento, cálculos, orçamento, aprovação, relatório e backup.
 Se algo travar, ficar confuso ou parecer pouco útil em campo, me avise com o máximo de detalhe possível.
 ```

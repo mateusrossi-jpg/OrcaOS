@@ -1,6 +1,6 @@
-# OrçaOS — Critério de UX dos cálculos
+# Aferix — Critério de UX dos cálculos
 
-Este documento define como cada cálculo do OrçaOS deve ser construído para uso humano real, especialmente no celular e em campo.
+Este documento define como cada cálculo do Aferix deve ser construído para uso humano real, especialmente no celular e em campo.
 
 ## Princípio principal
 
@@ -227,7 +227,7 @@ valor escalar
 
 ## Valores padrão
 
-O OrçaOS pode preencher valores padrão úteis, mas deve deixar claro que são ajustáveis.
+O Aferix pode preencher valores padrão úteis, mas deve deixar claro que são ajustáveis.
 
 Exemplos:
 

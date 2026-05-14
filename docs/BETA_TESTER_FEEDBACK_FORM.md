@@ -1,4 +1,4 @@
-# OrçaOS - Formulário de feedback do beta
+# Aferix - Formulário de feedback do beta
 
 Use este roteiro com cada testador depois que ele instalar e usar a versão `0.1.0-rc.1`.
 

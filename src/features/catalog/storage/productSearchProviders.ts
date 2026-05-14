@@ -81,7 +81,7 @@ export function buildProductSearchResults({
         providerId: 'local-catalog',
         providerName: 'Catálogo local',
         title: item.title,
-        sourceName: item.brand || item.professionArea || item.category || 'Biblioteca OrçaOS',
+        sourceName: item.brand || item.professionArea || item.category || 'Biblioteca Aferix',
         priceReference: item.defaultUnitValue,
         link: item.sourceUrl,
         imageUrl: item.imageUrl,

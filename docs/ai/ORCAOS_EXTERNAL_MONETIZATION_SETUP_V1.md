@@ -1,4 +1,4 @@
-# OrcaOS External Monetization Setup V1
+# Aferix External Monetization Setup V1
 
 Data: 2026-05-02
 

@@ -74,7 +74,7 @@ export function GoogleDriveBackupPanel() {
 
   async function restoreDriveBackup() {
     if (restoreMode === 'replace' && replaceConfirmation.trim() !== 'SUBSTITUIR') {
-      setFeedback('Isso substituirá os dados locais do OrçaOS neste navegador. Digite SUBSTITUIR para confirmar.');
+      setFeedback('Isso substituirá os dados locais do Aferix neste navegador. Digite SUBSTITUIR para confirmar.');
       return;
     }
     setIsBusy(true);
@@ -102,7 +102,7 @@ export function GoogleDriveBackupPanel() {
       const token = await ensureToken();
       const backup = await findGoogleDriveBackup(token);
       setDriveBackup(backup);
-      setFeedback(backup ? `Backup encontrado: ${formatDriveDate(backup.modifiedTime)}.` : 'Nenhum backup do OrçaOS encontrado no Drive.');
+      setFeedback(backup ? `Backup encontrado: ${formatDriveDate(backup.modifiedTime)}.` : 'Nenhum backup do Aferix encontrado no Drive.');
     } catch (error) {
       setFeedback(error instanceof Error ? error.message : 'Não foi possível consultar o Google Drive.');
     } finally {
@@ -116,7 +116,7 @@ export function GoogleDriveBackupPanel() {
         <div>
           <span className="orca-kicker">Google Drive</span>
           <h2>Backup privado no Drive</h2>
-          <p>Conecte Google somente quando quiser salvar ou restaurar uma cópia privada dos dados do OrçaOS.</p>
+          <p>Conecte Google somente quando quiser salvar ou restaurar uma cópia privada dos dados do Aferix.</p>
         </div>
         <strong>{accessToken ? 'Google conectado' : isConfigured ? 'Pronto para conectar' : 'Indisponível'}</strong>
       </div>
@@ -132,7 +132,7 @@ export function GoogleDriveBackupPanel() {
         <article className="local-backup-card">
           <div className="local-card-heading">
             <strong>Salvar no Drive</strong>
-            <small>Cria ou atualiza uma cópia privada do OrçaOS na área do app dentro do Google Drive.</small>
+            <small>Cria ou atualiza uma cópia privada do Aferix na área do app dentro do Google Drive.</small>
           </div>
           <div className="local-backup-actions">
             <button className="secondary-action inline-action" disabled={!isConfigured || isBusy} type="button" onClick={connectDrive}>Conectar Google</button>
@@ -143,20 +143,20 @@ export function GoogleDriveBackupPanel() {
         <article className="local-backup-card">
           <div className="local-card-heading">
             <strong>Restaurar do Drive</strong>
-            <small>Mesclar mantém os dados atuais. Substituir apaga os dados locais do OrçaOS antes de restaurar.</small>
+            <small>Mesclar mantém os dados atuais. Substituir apaga os dados locais do Aferix antes de restaurar.</small>
           </div>
           <label className="local-backup-file">
             <span>Modo de restauração</span>
             <select value={restoreMode} onChange={(event) => setRestoreMode(event.target.value as 'merge' | 'replace')}>
               <option value="merge">Mesclar com dados atuais</option>
-              <option value="replace">Substituir dados locais do OrçaOS</option>
+              <option value="replace">Substituir dados locais do Aferix</option>
             </select>
           </label>
           {restoreMode === 'replace' && (
             <label className="local-backup-file">
               <span>Confirmação para substituir</span>
               <input value={replaceConfirmation} placeholder="Digite SUBSTITUIR" onChange={(event) => setReplaceConfirmation(event.target.value)} />
-              <small>Isso substituirá os dados locais do OrçaOS neste navegador.</small>
+              <small>Isso substituirá os dados locais do Aferix neste navegador.</small>
             </label>
           )}
           <div className="local-backup-actions">
