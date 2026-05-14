@@ -122,9 +122,9 @@
 }
 
 .catalog-kind-summary button.active {
-  border-color: rgba(0, 184, 194, 0.32);
+  border-color: rgba(245, 158, 11, 0.32);
   color: var(--orca-text, #f8fafc);
-  background: rgba(0, 184, 194, 0.08);
+  background: rgba(245, 158, 11, 0.08);
 }
 
 .catalog-kind-summary span {
@@ -137,7 +137,7 @@
 }
 
 .catalog-kind-summary strong {
-  color: var(--orca-teal, #00b8c2);
+  color: var(--orca-teal, #f59e0b);
   font-size: 1.25rem;
 }
 
@@ -411,7 +411,7 @@
 }
 
 .catalog-hub-item-card span {
-  color: var(--orca-teal, #00b8c2);
+  color: var(--orca-teal, #f59e0b);
   font-size: 0.72rem;
   font-weight: 900;
   text-transform: uppercase;
@@ -458,7 +458,7 @@
   gap: 14px;
   padding: 18px;
   background:
-    linear-gradient(180deg, rgba(0, 184, 194, 0.035), rgba(255, 255, 255, 0.006)),
+    linear-gradient(180deg, rgba(245, 158, 11, 0.035), rgba(255, 255, 255, 0.006)),
     rgba(8, 18, 16, 0.72);
 }
 
@@ -488,7 +488,7 @@
 }
 
 .online-result-box span {
-  color: var(--orca-teal, #00b8c2);
+  color: var(--orca-teal, #f59e0b);
   font-weight: 900;
   font-size: 0.75rem;
   text-transform: uppercase;
@@ -528,12 +528,12 @@
   height: 24px;
   border-radius: 999px;
   color: #031311;
-  background: var(--orca-teal, #00b8c2);
+  background: var(--orca-teal, #f59e0b);
 }
 
 .online-provider-grid span,
 .online-result-card span {
-  color: var(--orca-teal, #00b8c2);
+  color: var(--orca-teal, #f59e0b);
   font-size: 0.72rem;
   font-weight: 950;
 }

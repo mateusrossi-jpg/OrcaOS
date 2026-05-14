@@ -26,7 +26,7 @@ export const ProfitMarginForm: React.FC = () => {
               <label className="text-xs font-medium text-gray-400">Preço de Venda (R$)</label>
               <input 
                 type="text" 
-                className="w-full bg-[#000000] border border-[#27272A] rounded-md px-3 py-2 text-xs text-white font-mono focus:border-[#2DD4BF] outline-none transition-all"
+                className="w-full bg-[#000000] border border-[#27272A] rounded-md px-3 py-2 text-xs text-white font-mono focus:border-[#f59e0b] outline-none transition-all"
                 placeholder="0,00"
               />
             </div>
@@ -34,7 +34,7 @@ export const ProfitMarginForm: React.FC = () => {
               <label className="text-xs font-medium text-gray-400">Custo de Materiais (R$)</label>
               <input 
                 type="text" 
-                className="w-full bg-[#000000] border border-[#27272A] rounded-md px-3 py-2 text-xs text-white font-mono focus:border-[#2DD4BF] outline-none transition-all"
+                className="w-full bg-[#000000] border border-[#27272A] rounded-md px-3 py-2 text-xs text-white font-mono focus:border-[#f59e0b] outline-none transition-all"
                 placeholder="0,00"
               />
             </div>
@@ -49,11 +49,11 @@ export const ProfitMarginForm: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1">
               <label className="text-xs font-medium text-gray-400">Impostos (%)</label>
-              <input type="text" className="w-full bg-[#000000] border border-[#27272A] rounded-md px-3 py-2 text-xs text-white font-mono focus:border-[#2DD4BF] outline-none transition-all" defaultValue="6" />
+              <input type="text" className="w-full bg-[#000000] border border-[#27272A] rounded-md px-3 py-2 text-xs text-white font-mono focus:border-[#f59e0b] outline-none transition-all" defaultValue="6" />
             </div>
             <div className="space-y-1">
               <label className="text-xs font-medium text-gray-400">Comissões/Taxas (%)</label>
-              <input type="text" className="w-full bg-[#000000] border border-[#27272A] rounded-md px-3 py-2 text-xs text-white font-mono focus:border-[#2DD4BF] outline-none transition-all" placeholder="0" />
+              <input type="text" className="w-full bg-[#000000] border border-[#27272A] rounded-md px-3 py-2 text-xs text-white font-mono focus:border-[#f59e0b] outline-none transition-all" placeholder="0" />
             </div>
           </div>
         </div>
@@ -80,7 +80,7 @@ export const ProfitMarginForm: React.FC = () => {
             </div>
           </div>
 
-          <button className="w-full bg-[#2DD4BF] hover:bg-[#26bba8] text-[#0A0A0B] font-bold py-3 rounded text-xs uppercase tracking-widest transition-colors">
+          <button className="w-full bg-[#f59e0b] hover:bg-[#26bba8] text-[#0A0A0B] font-bold py-3 rounded text-xs uppercase tracking-widest transition-colors">
             Adicionar ao Orçamento
           </button>
         </div>

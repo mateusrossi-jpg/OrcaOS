@@ -72,24 +72,24 @@ export function ClientPurchaseListWorkspace({ captures, onUpdate }: ClientPurcha
       <div className="client-purchase-summary">
         <article><span>Itens</span><strong>{purchaseItems.length}</strong><small>materiais para o cliente comprar</small></article>
         <article><span>Total referência</span><strong>{money(totalReference)}</strong><small>não entra no valor cobrado</small></article>
-        <article><span>Uso offline</span><strong>Manual</strong><small>funciona com catálogo local e itens digitados</small></article>
+        <article><span>Modo local</span><strong>Funciona offline</strong><small>catálogo local e itens digitados</small></article>
       </div>
 
       <div className="client-purchase-panel">
         <header>
           <div>
             <h2>Lista de compra do cliente</h2>
-            <p>Revise nome, quantidade, preço e observação antes de enviar. Nada entra direto sem conferência.</p>
+            <p>Revise os itens antes de enviar.</p>
           </div>
           <button className="primary-action inline-action" type="button" disabled={purchaseItems.length === 0} onClick={copyList}>Copiar lista</button>
         </header>
 
-        <div className="client-purchase-warning">Preço e disponibilidade podem mudar. Confirme na loja antes da compra.</div>
+        <div className="client-purchase-warning">Preço e disponibilidade sujeitos a variação.</div>
         <label className="client-purchase-search"><span>Buscar material</span><input value={query} placeholder="Nome, observação ou referência" onChange={(event) => setQuery(event.target.value)} /></label>
 
         <div className="client-purchase-list">
           {purchaseItems.length === 0 ? (
-            <div className="client-purchase-empty">Nenhum material marcado como “Cliente compra” ainda. Use o catálogo ou orçamento para adicionar materiais à lista.</div>
+            <div className="client-purchase-empty">Nenhum material marcado como compra do cliente.</div>
           ) : !query.trim() ? (
             <div className="client-purchase-empty">{purchaseItems.length} material(is) na lista. Pesquise para exibir e editar.</div>
           ) : filteredPurchaseItems.length === 0 ? (

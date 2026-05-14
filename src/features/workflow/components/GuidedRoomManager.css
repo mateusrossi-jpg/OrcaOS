@@ -73,10 +73,10 @@
 
 .guided-room-helper {
   margin: 0;
-  border: 1px solid rgba(0, 184, 194, 0.16);
+  border: 1px solid rgba(245, 158, 11, 0.16);
   border-radius: 16px;
   padding: 11px 12px;
-  background: rgba(0, 184, 194, 0.055);
+  background: rgba(245, 158, 11, 0.055);
 }
 
 .guided-room-grid {
@@ -163,14 +163,14 @@
 }
 
 .guided-room-option.active {
-  border-color: var(--orca-border-strong, rgba(0, 184, 194, 0.34));
+  border-color: var(--orca-border-strong, rgba(245, 158, 11, 0.34));
   background:
-    radial-gradient(circle at top right, rgba(0, 184, 194, 0.15), transparent 9rem),
+    radial-gradient(circle at top right, rgba(245, 158, 11, 0.15), transparent 9rem),
     var(--stable-surface-2, #151f19);
 }
 
 .guided-room-option span {
-  color: var(--stable-green, #00b8c2);
+  color: var(--stable-green, #f59e0b);
   font-size: 0.7rem;
   font-weight: 950;
   text-transform: uppercase;
@@ -205,7 +205,7 @@
 }
 
 .guided-room-selected span {
-  color: var(--stable-green, #00b8c2);
+  color: var(--stable-green, #f59e0b);
   font-size: 0.72rem;
   font-weight: 950;
   text-transform: uppercase;

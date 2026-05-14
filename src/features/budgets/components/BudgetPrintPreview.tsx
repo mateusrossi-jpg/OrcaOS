@@ -27,6 +27,8 @@ interface BudgetPrintPreviewProps {
   validationIssues?: BudgetValidationIssue[];
 }
 
+const AFERIX_LOGO_LIGHT_URL = '/icons/aferix-logo-light.svg';
+
 const currencyFormatter = new Intl.NumberFormat('pt-BR', {
   style: 'currency',
   currency: 'BRL',
@@ -102,7 +104,7 @@ export function BudgetPrintPreview({
   const contactLine = [businessProfile?.phone, businessProfile?.email].filter(Boolean).join(' · ');
   const address = businessProfile?.address?.trim();
   const responsibleName = businessProfile?.responsibleName?.trim();
-  const logoSource = businessProfile?.logoDataUrl?.trim() || businessProfile?.logoUrl?.trim();
+  const logoSource = businessProfile?.logoDataUrl?.trim() || businessProfile?.logoUrl?.trim() || AFERIX_LOGO_LIGHT_URL;
   const categoryTotals = {
     labor: items.filter((item) => item.category === 'labor').reduce((sum, item) => sum + safeBudgetItemTotal(item), 0),
     material: items.filter((item) => item.category === 'material').reduce((sum, item) => sum + safeBudgetItemTotal(item), 0),
@@ -143,7 +145,7 @@ export function BudgetPrintPreview({
         )}
         <header className="print-document-top">
           <div className="print-company-block">
-            {!isSimpleTemplate && logoSource ? <img className="print-logo" src={logoSource} alt={`Logo ${profileName}`} /> : <span className="print-brand">{isSimpleTemplate ? 'Orçamento' : 'Aferix'}</span>}
+            {!isSimpleTemplate ? <img className="print-logo" src={logoSource} alt={`Logo ${profileName}`} /> : <span className="print-brand">Orçamento</span>}
             <h2>{budgetTitle || 'Orçamento sem título'}</h2>
             <p>{profileName}</p>
             {!isSimpleTemplate && documentNumber && <p>{documentNumber}</p>}

@@ -188,31 +188,29 @@ export function SimpleFinanceWorkspace() {
 
   return (
     <section className="simple-finance-workspace">
-      <div className="finance-kpi-grid">
-        <article><span>Receita prevista</span><strong>{money(monthSummary.forecast)}</strong></article>
-        <article><span>Receita realizada</span><strong>{money(monthSummary.realized)}</strong></article>
-        <article><span>Custos diretos</span><strong>{money(monthSummary.directCosts)}</strong></article>
-        <article><span>Lucro líquido estimado</span><strong>{money(monthSummary.net)}</strong></article>
+      <div className="dashboard-finance-tiles">
+        <article className="finance-tile"><span>Receita prevista</span><strong>{money(monthSummary.forecast)}</strong></article>
+        <article className="finance-tile"><span>Receita realizada</span><strong>{money(monthSummary.realized)}</strong></article>
+        <article className="finance-tile"><span>Custos diretos</span><strong>{money(monthSummary.directCosts)}</strong></article>
+        <article className="finance-tile"><span>Lucro líquido</span><strong>{money(monthSummary.net)}</strong></article>
       </div>
 
-      <div className="finance-panel finance-command-panel">
-        <div className="finance-panel-header">
+      <div className="orca-panel-card">
+        <header>
           <div>
-            <h2>Lançamentos financeiros</h2>
-            <p>Veja receitas e custos primeiro. Abra o formulário apenas para criar ou editar um lançamento.</p>
+            <h2>Gestão Financeira</h2>
           </div>
-          <button className="primary-action inline-action" type="button" onClick={() => { setDraft(emptyDraft); setShowEntryForm(true); }}>Novo lançamento</button>
-        </div>
+          <button className="ghost-action" type="button" onClick={() => { setDraft(emptyDraft); setShowEntryForm(true); }}>Novo lançamento</button>
+        </header>
       </div>
 
-      {showEntryForm && <div className="finance-panel finance-entry-panel">
-        <div className="finance-panel-header">
+      {showEntryForm && <div className="orca-panel-card finance-entry-panel">
+        <header>
           <div>
-            <h2>{draft.id ? 'Editar lançamento financeiro' : 'Novo lançamento financeiro'}</h2>
-            <p>Controle gerencial simples. Não substitui nota fiscal, contador ou cálculo fiscal oficial.</p>
+            <h2>{draft.id ? 'Editar Lançamento' : 'Novo Lançamento'}</h2>
           </div>
-          <button className="secondary-action inline-action" type="button" onClick={() => { setDraft(emptyDraft); setShowEntryForm(false); }}>Fechar</button>
-        </div>
+          <button className="ghost-action" type="button" onClick={() => { setDraft(emptyDraft); setShowEntryForm(false); }}>Fechar</button>
+        </header>
 
         <div className="finance-entry-layout">
           <div className="finance-entry-main">
@@ -226,59 +224,55 @@ export function SimpleFinanceWorkspace() {
               </label>
             )}
 
-            <div className="finance-form-grid">
-              <label className="finance-field wide"><span>Serviço</span><input value={draft.title} placeholder="Ex.: Instalação de tomadas no quarto" onChange={(event) => updateDraft('title', event.target.value)} /></label>
-              <label className="finance-field"><span>Cliente</span><input value={draft.clientName} placeholder="Opcional" onChange={(event) => updateDraft('clientName', event.target.value)} /></label>
-              <label className="finance-field"><span>Status financeiro</span><select value={draft.status} onChange={(event) => updateDraft('status', event.target.value as SimpleFinanceRecord['status'])}><option value="forecast">Receita prevista</option><option value="realized">Receita realizada</option></select></label>
-              <label className="finance-field"><span>Valor recebido</span><input inputMode="decimal" value={draft.receivedAmount} onChange={(event) => updateDraft('receivedAmount', event.target.value)} /></label>
-              <label className="finance-field"><span>Material</span><input inputMode="decimal" value={draft.materialCost} onChange={(event) => updateDraft('materialCost', event.target.value)} /></label>
-              <label className="finance-field"><span>Deslocamento</span><input inputMode="decimal" value={draft.travelCost} onChange={(event) => updateDraft('travelCost', event.target.value)} /></label>
-              <label className="finance-field"><span>Outros custos</span><input inputMode="decimal" value={draft.otherCosts} onChange={(event) => updateDraft('otherCosts', event.target.value)} /></label>
-              <label className="finance-field"><span>Taxa cartão %</span><input inputMode="decimal" value={draft.cardFeePercent} onChange={(event) => updateDraft('cardFeePercent', event.target.value)} /></label>
-              <label className="finance-field action-field"><span>Taxa cartão R$</span><input inputMode="decimal" value={draft.cardFee} onChange={(event) => updateDraft('cardFee', event.target.value)} /><button type="button" onClick={() => applyPercent('card')}>Calcular</button></label>
-              <label className="finance-field"><span>Imposto estimado %</span><input inputMode="decimal" value={draft.estimatedTaxPercent} onChange={(event) => updateDraft('estimatedTaxPercent', event.target.value)} /></label>
-              <label className="finance-field action-field"><span>Imposto estimado R$</span><input inputMode="decimal" value={draft.estimatedTax} onChange={(event) => updateDraft('estimatedTax', event.target.value)} /><button type="button" onClick={() => applyPercent('tax')}>Calcular</button></label>
+            <div className="professional-profile-grid" style={{ padding: '1rem' }}>
+              <label className="budget-field wide"><span>Serviço</span><input value={draft.title} onChange={(event) => updateDraft('title', event.target.value)} /></label>
+              <label className="budget-field"><span>Cliente</span><input value={draft.clientName} onChange={(event) => updateDraft('clientName', event.target.value)} /></label>
+              <label className="budget-field"><span>Status</span><select value={draft.status} onChange={(event) => updateDraft('status', event.target.value as SimpleFinanceRecord['status'])}><option value="forecast">Previsto</option><option value="realized">Recebido</option></select></label>
+              <label className="budget-field"><span>Recebido</span><input inputMode="decimal" value={draft.receivedAmount} onChange={(event) => updateDraft('receivedAmount', event.target.value)} /></label>
+              <label className="budget-field"><span>Material</span><input inputMode="decimal" value={draft.materialCost} onChange={(event) => updateDraft('materialCost', event.target.value)} /></label>
+              <label className="budget-field"><span>Deslocamento</span><input inputMode="decimal" value={draft.travelCost} onChange={(event) => updateDraft('travelCost', event.target.value)} /></label>
+              <label className="budget-field"><span>Outros</span><input inputMode="decimal" value={draft.otherCosts} onChange={(event) => updateDraft('otherCosts', event.target.value)} /></label>
             </div>
 
-            <button className="primary-action inline-action finance-save-button" type="button" onClick={saveRecord}>{draft.id ? 'Atualizar lançamento' : 'Salvar lançamento'}</button>
+            <div style={{ padding: '0 1.5rem 1.5rem' }}>
+              <button className="ghost-action" type="button" onClick={saveRecord}>{draft.id ? 'Atualizar' : 'Salvar'}</button>
+            </div>
           </div>
 
-          <aside className="finance-live-summary" aria-label="Resumo do lançamento">
-            <div className="finance-result-grid">
-              <article><span>Lucro bruto</span><strong>{money(result.grossProfit)}</strong><small>recebido - custos diretos</small></article>
-              <article><span>Lucro líquido</span><strong>{money(result.netProfit)}</strong><small>bruto - cartão - imposto</small></article>
-              <article><span>Margem líquida</span><strong>{result.netMarginPercent.toFixed(1)}%</strong><small>sobre valor recebido</small></article>
-            </div>
-            <div className="finance-warning-card">
-              <strong>{draft.status === 'forecast' ? 'Receita prevista' : 'Receita realizada'}</strong>
-              <small>{draft.status === 'forecast' ? 'Use para orçamento aprovado ainda não recebido. Quando o cliente pagar, marque como receita realizada.' : 'Use para serviço pago/executado e acompanhe lucro real estimado.'}</small>
-              <small>Controle gerencial local, não fiscal oficial.</small>
+          <aside className="finance-live-summary" style={{ padding: '1rem', background: '#111', borderLeft: '1px solid #222' }}>
+            <div className="dashboard-finance-tiles" style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1rem' }}>
+              <article className="finance-tile"><span>Lucro Líquido</span><strong>{money(result.netProfit)}</strong></article>
+              <article className="finance-tile"><span>Margem</span><strong>{result.netMarginPercent.toFixed(1)}%</strong></article>
             </div>
           </aside>
         </div>
       </div>}
 
-      <div className="finance-panel">
-        <div className="finance-panel-header"><div><h2>Histórico financeiro</h2><p>Lançamentos locais para o profissional acompanhar quanto realmente ganhou.</p></div></div>
+      <div className="orca-panel-card">
+        <header>
+          <div>
+            <h2>Histórico</h2>
+          </div>
+        </header>
         <label className="finance-field finance-search-field"><span>Buscar lançamento</span><input value={recordSearch} placeholder="Serviço, cliente, status ou valor" onChange={(event) => setRecordSearch(event.target.value)} /></label>
-        <div className="finance-record-list">
-          {records.length === 0 ? <div className="finance-empty">Nenhum lançamento financeiro ainda.</div> : !recordSearch.trim() ? <div className="finance-empty">{records.length} lançamento(s) salvo(s). Pesquise para exibir.</div> : visibleRecords.length === 0 ? <div className="finance-empty">Nenhum lançamento encontrado com essa busca.</div> : visibleRecords.map((record) => {
+        <div className="continuous-list">
+          {records.length === 0 ? <div className="continuous-list-empty">Nenhum lançamento registrado.</div> : !recordSearch.trim() ? <div className="continuous-list-empty">Pesquise para listar os registros.</div> : visibleRecords.length === 0 ? <div className="continuous-list-empty">Nenhum resultado.</div> : visibleRecords.map((record) => {
             const profit = calculateServiceProfit(record);
             return (
-              <article className="finance-record-card" key={record.id}>
-                <button type="button" onClick={() => editRecord(record)}>
+              <article className="continuous-list-item" key={record.id}>
+                <div className="client-col">
                   <strong>{record.title}</strong>
-                  <small>{record.clientName || 'Cliente não informado'} · {record.status === 'forecast' ? 'Previsto' : 'Recebido'} {money(record.receivedAmount)}</small>
-                  <span>Lucro líquido {money(profit.netProfit)} · margem {profit.netMarginPercent.toFixed(1)}%</span>
-                </button>
+                  <small>{record.clientName || 'Cliente final'} · {record.status === 'forecast' ? 'Previsto' : 'Recebido'}</small>
+                </div>
+                <div className="value-col">{money(profit.netProfit)}</div>
                 <div className="finance-record-actions">
-                  <button className="secondary-action inline-action" type="button" onClick={() => editRecord(record)}>Editar</button>
-                  <button className="danger-action" type="button" onClick={() => removeRecord(record.id)}>Remover</button>
+                  <button className="ghost-action" style={{ minHeight: '32px', fontSize: '0.7rem' }} type="button" onClick={() => editRecord(record)}>Editar</button>
+                  <button className="ghost-action" style={{ minHeight: '32px', fontSize: '0.7rem', color: '#ef4444' }} type="button" onClick={() => removeRecord(record.id)}>Remover</button>
                 </div>
               </article>
             );
           })}
-          {hiddenRecordCount > 0 && <div className="finance-empty compact">Mais {hiddenRecordCount} lançamento(s) oculto(s). Use a busca para refinar.</div>}
+          {hiddenRecordCount > 0 && <div className="continuous-list-empty">+{hiddenRecordCount} registros.</div>}
         </div>
       </div>
     </section>

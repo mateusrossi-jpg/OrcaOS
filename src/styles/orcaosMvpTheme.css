@@ -1,29 +1,32 @@
 :root {
   --orca-bg: #000000;
-  --orca-surface: #111111;
-  --orca-surface-2: #111111;
-  --orca-surface-3: #1a1a1a;
-  --orca-surface-hover: #161616;
-  --orca-border: #222222;
-  --orca-border-strong: #333333;
+  --orca-surface: #0a0a0a;
+  --orca-surface-2: #0f0f11;
+  --orca-surface-3: #161616;
+  --orca-surface-hover: #1a1a1a;
+  --orca-border: #1a1a1a;
+  --orca-border-strong: #27272a;
   --orca-text: #f8fafc;
   --orca-text-primary: #f8fafc;
-  --orca-muted: #666666;
-  --orca-text-secondary: #666666;
-  --orca-primary: #2dd4bf;
-  --orca-primary-strong: #2dd4bf;
-  --orca-primary-soft: rgba(45, 212, 191, 0.12);
-  --orca-teal: #2dd4bf;
-  --orca-cyan: #2dd4bf;
-  --orca-green: #10b981;
+  --orca-muted: #71717a;
+  --orca-text-secondary: #71717a;
+  --orca-primary: #f59e0b;
+  --orca-primary-strong: #fbbf24;
+  --orca-primary-soft: rgba(245, 158, 11, 0.1);
+  --orca-teal: #f59e0b;
+  --orca-cyan: #f59e0b;
+  --orca-green: #f59e0b;
   --orca-success: #10b981;
   --orca-danger: #ef4444;
   --orca-warning: #f59e0b;
   --orca-amber: #f59e0b;
+  --orca-accent: #f59e0b;
   --orca-red: #ef4444;
   --orca-radius: 4px;
   --orca-mono: "JetBrains Mono", "SFMono-Regular", Consolas, "Liberation Mono", monospace;
   --orca-shadow: none;
+  --orca-premium-gradient: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+  --orca-premium-divider: linear-gradient(90deg, transparent 0%, rgba(245, 158, 11, 0.08) 20%, rgba(245, 158, 11, 0.25) 80%, transparent 100%);
 }
 
 body {
@@ -65,10 +68,10 @@ button {
   padding: 4px 12px;
   background: #111111;
   color: #f8fafc;
-  font-family: var(--orca-mono);
+  font-family: inherit;
   font-size: 0.75rem;
   font-weight: 500;
-  text-transform: uppercase;
+  text-transform: none;
   letter-spacing: 0.04em;
   cursor: pointer;
   transition: all 120ms ease;
@@ -89,13 +92,13 @@ button:active {
 .budget-quick-actions button,
 .pdf-download-btn,
 button.primary {
-  border: 1px solid #2dd4bf !important;
+  border: 1px solid var(--orca-primary) !important;
   border-radius: 4px !important;
   color: #000000 !important;
-  background: #2dd4bf !important;
+  background: var(--orca-primary) !important;
   box-shadow: none !important;
   font-weight: 600 !important;
-  text-transform: uppercase;
+  text-transform: none;
   letter-spacing: 0.05em;
   font-size: 0.75rem !important;
   padding: 8px 16px !important;
@@ -155,6 +158,7 @@ button.danger {
   .home-current-context,
   .budget-context-panel,
   .catalog-hub-card,
+  .catalog-hub-card.premium-teaser,
   .catalog-hub-header,
   .client-os-panel,
   .client-os-card
@@ -173,8 +177,8 @@ button.danger {
 }
 
 .app-screen :where(input:focus, select:focus, textarea:focus) {
-  border-color: rgba(45, 212, 191, 0.48) !important;
-  box-shadow: 0 0 0 1px rgba(45, 212, 191, 0.18) !important;
+  border-color: rgba(245, 158, 11, 0.52) !important;
+  box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.18) !important;
 }
 
 
@@ -230,9 +234,9 @@ button.danger {
   border-radius: 2px !important;
   background: transparent !important;
   color: #666666 !important;
-  font-family: var(--orca-mono) !important;
+  font-family: inherit !important;
   font-size: 0.7rem !important;
-  text-transform: uppercase !important;
+  text-transform: none !important;
   letter-spacing: 0.06em !important;
   font-weight: 600 !important;
   padding: 0 8px !important;
@@ -250,7 +254,7 @@ button.danger {
 .catalog-secondary-tabs button.active {
   background: #111111 !important;
   border-color: #333333 !important;
-  color: #2DD4BF !important;
+  color: var(--orca-primary) !important;
 }
 
 .section-mode-tabs button:hover,
@@ -260,4 +264,66 @@ button.danger {
 .settings-section-tabs button:hover {
   color: #f8fafc !important;
   background: rgba(255, 255, 255, 0.03) !important;
+}
+
+/* Premium Visual Identity Refinements */
+.premium-accent {
+  color: var(--orca-accent) !important;
+}
+
+.premium-gradient-text {
+  background: var(--orca-premium-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 700;
+}
+
+.premium-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 6px;
+  background: var(--orca-premium-gradient);
+  color: #000;
+  border-radius: 2px;
+  font-size: 0.65rem;
+  font-weight: 800;
+  text-transform: none;
+  letter-spacing: 0.05em;
+}
+
+.premium-border-top {
+  position: relative;
+}
+
+.premium-border-top::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--orca-premium-gradient);
+  opacity: 0.8;
+}
+
+.premium-divider {
+  height: 1px;
+  width: 100%;
+  background: var(--orca-premium-divider);
+  margin: 12px 0;
+}
+
+.highlight-value-premium {
+  border-left: 2px solid var(--orca-accent) !important;
+  padding-left: 8px !important;
+}
+
+.opportunity-alert {
+  background: rgba(245, 158, 11, 0.05) !important;
+  border: 1px solid rgba(245, 158, 11, 0.2) !important;
+}
+
+.profit-highlight {
+  color: var(--orca-accent) !important;
+  font-weight: 700;
 }

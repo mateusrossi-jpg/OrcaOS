@@ -118,7 +118,7 @@
 }
 
 .supplier-profile-item span {
-  color: var(--orca-teal, #00b8c2);
+  color: var(--orca-teal, #f59e0b);
   font-size: 0.72rem;
   font-weight: 900;
   text-transform: uppercase;

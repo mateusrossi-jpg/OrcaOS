@@ -1109,7 +1109,7 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
       )}
 
       <div className="budget-save-status">
-        <span>Salvo automaticamente</span>
+        <span>Auto save</span>
         <strong>{formatSavedAt(lastSavedAt)}</strong>
       </div>
 
@@ -1117,22 +1117,21 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
 
       <div className="budget-workspace-stepper">
         {[
-          { id: 'context' as const, label: '01. PROJETO', helper: 'Cliente e Título' },
-          { id: 'items' as const, label: '02. ESCOPO', helper: 'Serviços e Materiais' },
-          { id: 'costs' as const, label: '03. CUSTOS', helper: 'Inteligência de Lucro' },
-          { id: 'commercial' as const, label: '04. COMERCIAL', helper: 'Condições e Prazos' },
-          { id: 'preview' as const, label: '05. PROPOSTA', helper: 'Gerar PDF e Enviar' },
+          { id: 'context' as const, label: 'Projeto' },
+          { id: 'items' as const, label: 'Escopo' },
+          { id: 'costs' as const, label: 'Custos' },
+          { id: 'commercial' as const, label: 'Comercial' },
+          { id: 'preview' as const, label: 'Proposta' },
         ].map((step) => (
           <button key={step.id} className={activeSection === step.id ? 'active' : ''} type="button" onClick={() => setActiveSection(step.id)}>
             <span>{step.label}</span>
-            <small>{step.helper}</small>
           </button>
         ))}
       </div>
 
       <div className="budget-secondary-links">
-        <button className={activeSection === 'catalog' ? 'active' : ''} type="button" onClick={() => setActiveSection('catalog')}>CATÁLOGO E MODELOS</button>
-        <button className={activeSection === 'history' ? 'active' : ''} type="button" onClick={() => setActiveSection('history')}>HISTÓRICO DE SALVOS</button>
+        <button className={activeSection === 'catalog' ? 'active' : ''} type="button" onClick={() => setActiveSection('catalog')}>Catálogo</button>
+        <button className={activeSection === 'history' ? 'active' : ''} type="button" onClick={() => setActiveSection('history')}>Histórico</button>
       </div>
 
 
@@ -1142,7 +1141,7 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
           <div className="budget-section-header">
             <div>
               <h3>Identificação do Projeto</h3>
-              <p>Defina o cliente, o título da proposta e o status comercial atual.</p>
+              <p>Cliente, título e status.</p>
             </div>
             <div className="budget-header-actions">
               <button type="button" className="primary-action inline-action" onClick={saveCurrentBudget}>{activeBudgetId ? 'Atualizar orçamento' : 'Salvar orçamento'}</button>
@@ -1168,7 +1167,7 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
       {activeSection === 'history' && (
         <section className="budget-section-panel">
           <div className="saved-budget-panel inline-saved-panel">
-            <div className="saved-budget-panel-header"><div><h3>Histórico de Orçamentos</h3><p>Gerencie orçamentos salvos localmente neste navegador.</p></div></div>
+            <div className="saved-budget-panel-header"><div><h3>Histórico de Orçamentos</h3><p>Orçamentos salvos neste dispositivo.</p></div></div>
             <div className="budget-list-search-bar">
               <label className="budget-field"><span>Buscar no histórico</span><input value={savedBudgetSearch} placeholder="Cliente, título, status ou valor" onChange={(event) => setSavedBudgetSearch(event.target.value)} /></label>
             </div>
@@ -1218,7 +1217,7 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
           <div className="budget-section-header">
             <div>
               <h3>Inteligência de Lucro</h3>
-              <p>Informe seus custos reais para que o Aferix calcule o lucro líquido real deste projeto.</p>
+              <p>Informe custos para calcular lucro real.</p>
             </div>
           </div>
 
@@ -1233,7 +1232,7 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
                 <div><span>Total cobrado</span><strong>{formatCurrency(summary.total)}</strong></div>
                 <div><span>Impostos estimados</span><strong>{formatCurrency(summary.estimatedTaxes)}</strong></div>
                 <div><span>Custos Totais</span><strong>{formatCurrency(summary.totalCosts)}</strong></div>
-                <div className="highlight"><span>Lucro Líquido Real</span><strong>{formatCurrency(summary.netProfit)}</strong></div>
+                <div className="highlight"><span>Lucro Líquido Real</span><strong className="premium-accent">{formatCurrency(summary.netProfit)}</strong></div>
               </div>
             </div>
           </div>
@@ -1249,7 +1248,7 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
           <div className="budget-section-header">
             <div>
               <h3>Fechamento Comercial</h3>
-              <p>Defina as condições de pagamento, prazos e notas que o cliente verá na proposta.</p>
+              <p>Pagamento, prazos e observações.</p>
             </div>
             <div className="budget-default-actions">
               <button type="button" className="secondary-action inline-action" onClick={applyBusinessDefaultsToProposal}>Aplicar padrões locais</button>
@@ -1281,7 +1280,7 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
           <div className="budget-section-header">
             <div>
               <h3>Itens do orçamento</h3>
-              <p>Adicione, edite, duplique ou remova serviços e materiais da proposta.</p>
+              <p>Serviços e materiais da proposta.</p>
             </div>
             {pendingTechnicalCaptures.length > 0 && <button type="button" className="primary-action inline-action" onClick={importAllTechnicalCaptures}>Importar itens ({pendingTechnicalCaptures.length})</button>}
           </div>
@@ -1292,13 +1291,13 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
             <div><small>Custos operacionais</small><strong>{formatCurrency(summary.operationalCost)}</strong></div>
             <div><small>Impostos</small><strong>{formatCurrency(summary.estimatedTaxes)}</strong></div>
             <div><small>Custos totais</small><strong>{formatCurrency(summary.totalCosts)}</strong></div>
-            <div className={summary.netProfit >= 0 ? 'highlight-profit positive' : 'highlight-profit negative'}><small>Resultado líquido</small><strong>{formatCurrency(summary.netProfit)}</strong><em>{summary.profitMargin.toFixed(1)}% margem</em></div>
+            <div className={summary.netProfit >= 0 ? 'highlight-profit positive' : 'highlight-profit negative'}><small>Resultado líquido</small><strong className="premium-accent">{formatCurrency(summary.netProfit)}</strong><em>{summary.profitMargin.toFixed(1)}% margem</em></div>
             <label className="budget-margin-threshold">
               <small>Alerta de margem mínima (%)</small>
               <input type="number" inputMode="decimal" min="0" max="100" step="1" value={marginAlertThreshold} onFocus={handleNumericInputFocus} onChange={(event) => setMarginAlertThreshold(Math.min(parseInputAmount(event.target.value), 100))} />
             </label>
             {summary.total > 0 && summary.profitMargin < marginAlertThreshold && (
-              <div className="budget-margin-alert" role="alert">
+              <div className="budget-margin-alert opportunity-alert" role="alert">
                 <strong>Margem abaixo de {marginAlertThreshold.toFixed(0)}%</strong>
                 <small>Revise preço, custos ou impostos antes de enviar a proposta.</small>
               </div>
@@ -1436,7 +1435,6 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
               </div>
             </div>
           </div>
-        </section>
       )}
 
 
@@ -1447,9 +1445,9 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
           <div className="budget-simple-flow-card">
             <strong>Fluxo comercial simples</strong>
             <div>
-              <span className={budgetStatus === 'draft' ? 'active' : ''}>1. Rascunho</span>
-              <span className={budgetStatus === 'sent' ? 'active' : ''}>2. Enviado</span>
-              <span className={budgetStatus === 'approved' ? 'active' : ''}>3. Aprovado</span>
+              <span className={budgetStatus === 'draft' ? 'active' : ''}>Rascunho</span>
+              <span className={budgetStatus === 'sent' ? 'active' : ''}>Enviado</span>
+              <span className={budgetStatus === 'approved' ? 'active' : ''}>Aprovado</span>
             </div>
             <small>Aprovar só confirma aceite comercial. A OS é criada em uma ação separada e aparece apenas depois da aprovação.</small>
           </div>

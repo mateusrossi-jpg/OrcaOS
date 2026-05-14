@@ -101,7 +101,7 @@
 .technical-capture-editor-details > summary {
   width: fit-content;
   cursor: pointer;
-  color: #00b8c2;
+  color: #f59e0b;
   font-size: 0.84rem;
   font-weight: 900;
 }
@@ -127,12 +127,12 @@
 }
 
 .client-purchase-section > header {
-  border-color: rgba(0, 184, 194, 0.36);
-  box-shadow: 0 18px 40px rgba(0, 184, 194, 0.06);
+  border-color: rgba(245, 158, 11, 0.36);
+  box-shadow: 0 18px 40px rgba(245, 158, 11, 0.06);
 }
 
 .client-purchase-card {
-  border-color: rgba(0, 184, 194, 0.34) !important;
+  border-color: rgba(245, 158, 11, 0.34) !important;
 }
 
 .material-supply-field small {
@@ -161,15 +161,15 @@
 }
 
 .technical-budget-toggle label.enabled {
-  border-color: rgba(0, 184, 194, 0.34);
+  border-color: rgba(245, 158, 11, 0.34);
   color: #f8fafc;
-  background: rgba(0, 184, 194, 0.09);
+  background: rgba(245, 158, 11, 0.09);
 }
 
 .technical-budget-toggle input {
   width: 16px;
   height: 16px;
-  accent-color: #00b8c2;
+  accent-color: #f59e0b;
   flex: none;
 }
 

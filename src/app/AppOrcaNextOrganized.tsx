@@ -98,15 +98,15 @@ function getScreenTitle(activeTab: AppTab, selectedModule: ModuleCardData | null
 
 function getScreenSubtitle(activeTab: AppTab, selectedModule: ModuleCardData | null): string {
   if (activeTab === 'calculations' && selectedModule) return selectedModule.description;
-  if (activeTab === 'survey') return 'Recurso avançado';
-  if (activeTab === 'catalog') return 'Catálogo, peças, serviços e fornecedores';
-  if (activeTab === 'purchaseList') return 'Materiais para o cliente comprar';
-  if (activeTab === 'reports') return 'Documentos técnicos para cliente';
-  if (activeTab === 'financial') return 'Lucro real estimado';
-  if (activeTab === 'beta') return 'Checklist de teste fechado';
-  if (activeTab === 'settings') return 'Perfil, backup e preferências';
-  if (activeTab === 'store') return 'Plano, acesso e recursos pagos';
-  return navItems.find((item) => item.id === activeTab)?.description ?? 'Ferramenta profissional de campo';
+  if (activeTab === 'survey') return 'Registro opcional';
+  if (activeTab === 'catalog') return 'Itens e serviços';
+  if (activeTab === 'purchaseList') return 'Lista de compra';
+  if (activeTab === 'reports') return 'Prévia do documento';
+  if (activeTab === 'financial') return 'Receitas e custos';
+  if (activeTab === 'beta') return 'Validação final';
+  if (activeTab === 'settings') return 'Perfil e backup';
+  if (activeTab === 'store') return 'Planos e acesso';
+  return navItems.find((item) => item.id === activeTab)?.description ?? 'Gestão de campo';
 }
 
 function getSectorForModule(moduleId: string): CalculationSectorId {
@@ -147,38 +147,38 @@ const surveyFlowSteps: Array<{ id: SurveySection; label: string; title: string; 
   {
     id: 'context',
     label: 'Ambientes',
-    title: '1. Ambientes',
-    text: 'Comece pelo local do serviço. O ambiente selecionado orienta os próximos serviços, peças e observações.',
+    title: 'Ambientes',
+    text: 'Organize o local do serviço.',
   },
   {
     id: 'labor',
     label: 'Serviços',
-    title: '2. Serviços',
-    text: 'Lance mão de obra, quantidade e valor previsto para montar a base técnica do orçamento.',
+    title: 'Serviços',
+    text: 'Liste mão de obra e quantidades.',
   },
   {
     id: 'materials',
     label: 'Materiais',
-    title: '3. Materiais',
-    text: 'Defina quem compra os materiais e envie peças para proposta, lista do cliente ou revisão.',
+    title: 'Materiais',
+    text: 'Separe itens da proposta e da compra do cliente.',
   },
   {
     id: 'measurements',
     label: 'Medições',
-    title: '4. Medições',
-    text: 'Registre medidas, quantidades, distâncias, potência observada ou qualquer dado de campo que precise entrar no relatório.',
+    title: 'Medições',
+    text: 'Registre dados de campo importantes.',
   },
   {
     id: 'notes',
     label: 'Observações',
-    title: '5. Observações',
-    text: 'Registre diagnóstico, recomendações, riscos e informações que precisam aparecer no relatório.',
+    title: 'Observações',
+    text: 'Guarde recomendações e restrições.',
   },
   {
     id: 'review',
     label: 'Revisão',
-    title: '6. Revisão',
-    text: 'Confira tudo que foi salvo antes de avançar para orçamento ou relatório.',
+    title: 'Revisão',
+    text: 'Confira antes de avançar.',
   },
 ];
 
@@ -206,11 +206,12 @@ function HomeScreen({ goTo, openModule, captures, clients, workOrders, savedBudg
         <button type="button" className="ghost-action" onClick={() => goTo('budgets')}>Orçamento rápido</button>
         <button type="button" className="ghost-action" onClick={() => openModule(pricingModule)}>Precificar</button>
       </div>
+      <ActiveWorkContextCard {...context} />
 
       <div className="dashboard-finance-tiles" aria-label="Resumo financeiro do mês">
         <article className="finance-tile net">
           <span>Lucro líquido do mês</span>
-          <strong>{formatCompactCurrency(monthlyNetProfit)}</strong>
+          <strong className="premium-accent">{formatCompactCurrency(monthlyNetProfit)}</strong>
         </article>
         <article className="finance-tile revenue">
           <span>Fluxo de caixa</span>
@@ -314,7 +315,6 @@ function CalculationsScreen({ selectedModule, openModule, activeSector, onSelect
       <section className="app-screen">
         {selectedModule && <button className="back-button" type="button" onClick={() => openModule(defaultPricingModule)}>‹ Voltar para {selectedSector?.title ?? 'cálculos'}</button>}
         <header className="module-detail-header"><div><em className={`module-plan-pill ${activeModule.plan}`}>{planLabel(activeModule.plan)}</em><h1>{activeModule.title}</h1><p>{activeModule.description}</p><small>{activeModule.count}</small></div></header>
-        <ActiveWorkContextCard {...context} />
         <div className="calculation-context-card">
           <span>{context.activeWorkOrder ? 'Cálculo vinculado' : 'Cálculo avulso'}</span>
           <strong>{calculationContextText}</strong>
@@ -347,7 +347,6 @@ function CalculationsScreen({ selectedModule, openModule, activeSector, onSelect
   return (
     <section className="app-screen calculations-overview-screen">
       <header className="screen-header"><h1>Cálculos</h1><p>Use cálculos comerciais para decidir quanto cobrar, simular margem, estimar tempo, deslocamento, materiais, taxas e parcelamento.</p></header>
-      <ActiveWorkContextCard {...context} />
       <div className="calculation-context-card">
         <span>{context.activeWorkOrder ? 'Atendimento ativo detectado' : 'Modo avulso'}</span>
         <strong>{calculationContextText}</strong>
@@ -389,7 +388,7 @@ function SurveyScreen({ captures, context, onRemove, onUpdate, onAddMany, goTo }
   const activeStep = surveyFlowSteps[activeStepIndex] ?? surveyFlowSteps[0];
   const previousStep = surveyFlowSteps[activeStepIndex - 1];
   const nextStep = surveyFlowSteps[activeStepIndex + 1];
-  const stepRecommendation = nextStep ? `Próxima ação recomendada: avançar para ${nextStep.label}.` : 'Próxima ação recomendada: gerar orçamento ou salvar os itens técnicos.';
+  const hasActiveAttendance = Boolean(context.activeWorkOrder);
 
   function advanceSurvey() {
     if (nextStep) {
@@ -441,31 +440,16 @@ function SurveyScreen({ captures, context, onRemove, onUpdate, onAddMany, goTo }
 
   return (
     <section className="app-screen">
-      <header className="screen-header"><h1>Itens técnicos</h1><p>Área opcional para organizar ambientes, serviços, materiais, medições e observações quando o atendimento exigir mais detalhe.</p></header>
-      <ActiveWorkContextCard {...context} />
-      <div className="guided-context-panel">
-        <div>
-          <span>Cliente</span>
-          <strong>{context.activeClient?.name ?? 'Cliente não vinculado'}</strong>
+      <header className="screen-header"><h1>Base técnica</h1></header>
+      {hasActiveAttendance ? <ActiveWorkContextCard {...context} /> : (
+        <div className="survey-empty-state survey-quiet-empty">
+          <strong>Nenhum atendimento ativo</strong>
+          <p>Inicie ou selecione um atendimento para vincular dados técnicos.</p>
         </div>
-        <div>
-          <span>Atendimento</span>
-          <strong>{context.activeWorkOrder?.title ?? 'Sem atendimento ativo'}</strong>
-        </div>
-        <div>
-          <span>Etapa atual</span>
-          <strong>{activeStep.label}</strong>
-        </div>
-        <div>
-          <span>Próxima ação</span>
-          <strong>{nextStep?.label ?? 'Orçamento'}</strong>
-        </div>
-      </div>
-      <div className="survey-intro-card"><span><strong>{context.activeWorkOrder ? 'Itens vinculados ao atendimento' : 'Itens técnicos sem cliente'}</strong><small>{stepRecommendation} Os dados podem alimentar orçamento, relatório, histórico do cliente e futura OS se o orçamento for aprovado.</small></span></div>
+      )}
       <div className="survey-step-guide" aria-label="Etapas dos itens técnicos">
-        {surveyFlowSteps.map((step, index) => (
-          <button className={activeSection === step.id ? 'active' : index < activeStepIndex ? 'completed' : ''} key={step.id} type="button" onClick={() => setActiveSection(step.id)}>
-            <span>{index + 1}</span>
+        {surveyFlowSteps.map((step) => (
+          <button className={activeSection === step.id ? 'active' : ''} key={step.id} type="button" onClick={() => setActiveSection(step.id)}>
             <strong>{step.label}</strong>
           </button>
         ))}
@@ -554,7 +538,8 @@ function BudgetsScreen({ captures, context, userPlan: activeUserPlan, goTo, onRe
   const budgetCaptures = captures.filter((capture) => capture.destination === 'budget' || capture.destination === 'both');
   return (
     <section className="app-screen wide-screen">
-      <header className="screen-header central-label-only"><strong>ORÇAMENTO</strong></header>
+      <header className="screen-header"><h1>Propostas</h1></header>
+      <ActiveWorkContextCard {...context} />
       {budgetCaptures.length > 0 && (
         <details className="budget-technical-drawer">
           <summary>
@@ -569,21 +554,22 @@ function BudgetsScreen({ captures, context, userPlan: activeUserPlan, goTo, onRe
   );
 }
 
-function CatalogScreen({ onAddMany }: { onAddMany: (items: CalculationCapture[]) => void }) {
-  return <section className="app-screen wide-screen"><header className="screen-header"><h1>Estoque e catálogo</h1><p>Padronize peças, serviços, fornecedores, compras e referências para orçar melhor sem virar um ERP pesado.</p></header><CatalogHubWorkspace onSendToBudget={onAddMany} /></section>;
+function CatalogScreen({ onAddMany, context }: { onAddMany: (items: CalculationCapture[]) => void; context: ActiveWorkContext }) {
+  return <section className="app-screen wide-screen"><header className="screen-header"><h1>Estoque e catálogo</h1><p>Catálogo local para apoiar proposta e compra.</p></header><ActiveWorkContextCard {...context} /><CatalogHubWorkspace onSendToBudget={onAddMany} /></section>;
 }
 
 function MoreScreen({ goTo }: { goTo: (tab: AppTab) => void }) {
   return (
     <section className="app-screen more-screen">
-      <header className="screen-header"><span className="orca-kicker">Administração e apoio</span><h1>Mais recursos</h1><p>Configurações, beta, Pro e roteiro de evolução ficam aqui. Rotinas do dia a dia aparecem direto na navegação principal.</p></header>
+      <header className="screen-header"><h1>Mais recursos</h1></header>
       <div className="more-resource-grid">
-        <button type="button" onClick={() => goTo('settings')}><strong>Backup e configurações</strong><small>Perfil profissional, segurança local, backup e preferências.</small></button>
-        <button type="button" onClick={() => goTo('beta')}><strong>Beta e Play Store</strong><small>Checklist de teste fechado, fluxos críticos, responsividade e publicação.</small></button>
-        <button type="button" onClick={() => goTo('store')}><strong>Loja / Pro</strong><small>Pacotes planejados para beta, sem bloquear o uso básico local.</small></button>
+        <article className="resource-action-card"><strong>Backup e segurança</strong><small>Proteja seus dados e acesso local.</small><button type="button" onClick={() => goTo('settings')}>Abrir</button></article>
+        <article className="resource-action-card"><strong>Perfil profissional</strong><small>Atualize dados usados em proposta e relatório.</small><button type="button" onClick={() => goTo('settings')}>Abrir</button></article>
+        <article className="resource-action-card"><strong>Beta e publicação</strong><small>Checklist final antes de liberar build.</small><button type="button" onClick={() => goTo('beta')}>Abrir</button></article>
+        <article className="resource-action-card"><strong>Licença e planos</strong><small>Compare Free, Pro e recursos planejados.</small><button type="button" onClick={() => goTo('store')}>Abrir</button></article>
       </div>
       <details className="orca-panel-card roadmap-panel">
-        <summary><span><span className="orca-kicker">Evolução planejada</span><strong>ERP técnico leve, sem virar ERP pesado</strong></span><em>Abrir</em></summary>
+        <summary><span><strong>Evolução planejada</strong></span><em>Abrir</em></summary>
         <div className="roadmap-list">
           <article><strong>Fase 1</strong><small>Atendimento, cálculo, orçamento e relatório simples.</small></article>
           <article><strong>Fase 2</strong><small>Financeiro gerencial com receitas, custos e lucro real.</small></article>
@@ -597,15 +583,15 @@ function MoreScreen({ goTo }: { goTo: (tab: AppTab) => void }) {
 }
 
 function ReportsScreen({ captures, context }: { captures: CalculationCapture[]; context: { activeClient: Client | null; activeWorkOrder: WorkOrder | null } }) {
-  return <section className="app-screen wide-screen"><header className="screen-header"><h1>Relatórios</h1><p>Transforme diagnósticos, fotos, observações e itens técnicos em um documento para o cliente.</p></header><ActiveWorkContextCard {...context} /><ReportWorkspace captures={captures} activeClient={context.activeClient} activeWorkOrder={context.activeWorkOrder} /></section>;
+  return <section className="app-screen wide-screen"><header className="screen-header"><h1>Relatórios</h1></header><ActiveWorkContextCard {...context} /><ReportWorkspace captures={captures} activeClient={context.activeClient} activeWorkOrder={context.activeWorkOrder} /></section>;
 }
 
-function PurchaseListScreen({ captures, onUpdate }: { captures: CalculationCapture[]; onUpdate: (id: string, patch: Partial<CalculationCapture>) => void }) {
-  return <section className="app-screen wide-screen"><header className="screen-header"><span className="orca-kicker">Referência de compra</span><h1>Lista de compra do cliente</h1><p>Revise materiais que o cliente deve comprar, com quantidade, foto, link e orientação de equivalente.</p></header><ClientPurchaseListWorkspace captures={captures} onUpdate={onUpdate} /></section>;
+function PurchaseListScreen({ captures, onUpdate, context }: { captures: CalculationCapture[]; onUpdate: (id: string, patch: Partial<CalculationCapture>) => void; context: ActiveWorkContext }) {
+  return <section className="app-screen wide-screen"><header className="screen-header"><h1>Lista de compra do cliente</h1><p>Materiais que o cliente compra.</p></header><ActiveWorkContextCard {...context} /><ClientPurchaseListWorkspace captures={captures} onUpdate={onUpdate} /></section>;
 }
 
-function FinancialScreen() {
-  return <section className="app-screen wide-screen"><header className="screen-header"><h1>Financeiro</h1><p>Recebimentos, custos, taxas e lucro real em uma visão prática.</p></header><SimpleFinanceWorkspace /></section>;
+function FinancialScreen({ context }: { context: ActiveWorkContext }) {
+  return <section className="app-screen wide-screen"><header className="screen-header"><h1>Financeiro</h1><p>Receitas, custos e lucro real.</p></header><ActiveWorkContextCard {...context} /><SimpleFinanceWorkspace /></section>;
 }
 
 const betaFlowChecks = [
@@ -633,22 +619,28 @@ const betaStoreChecks = [
 function BetaReadinessScreen() {
   return (
     <section className="app-screen wide-screen beta-readiness-screen">
-      <header className="screen-header"><span className="orca-kicker">Pré-publicação</span><h1>Beta e Play Store</h1><p>Checklist operacional para preparar testadores, validar fluxo real e evitar publicar uma experiência confusa.</p></header>
+      <header className="screen-header"><h1>Beta</h1><p>Validação fechada antes da publicação.</p></header>
       <section className="beta-status-hero">
-        <article><span>Status</span><strong>Beta fechado</strong><small>Foco em clareza de atendimento, orçamento, cálculos e responsividade.</small></article>
-        <article><span>Escopo atual</span><strong>ERP técnico leve</strong><small>Atendimento, cálculo, orçamento, relatório simples e financeiro gerencial.</small></article>
-        <article><span>Fase futura</span><strong>Fiscal oficial</strong><small>NFS-e, NF-e, SEFAZ, certificado digital e contabilidade ficam para uma etapa posterior.</small></article>
+        <article><span>Status</span><strong>Beta fechado</strong><small>Fluxos principais em validação.</small></article>
+        <article><span>Escopo</span><strong>Produto financeiro</strong><small>Atendimento, proposta, relatório e lucro.</small></article>
+        <article><span>Próximo</span><strong>Publicação</strong><small>Build Android após checklist.</small></article>
       </section>
       <section className="orca-panel-card beta-check-panel">
-        <header><div><span className="orca-kicker">Roteiro de teste</span><h2>Fluxos que o testador precisa conseguir completar</h2></div></header>
+        <header><div><h2>Fluxos de teste</h2></div></header>
         <div className="beta-check-grid">
-          {betaFlowChecks.map((item, index) => <article key={item.title}><span>{String(index + 1).padStart(2, '0')}</span><strong>{item.title}</strong><small>{item.text}</small></article>)}
+          {betaFlowChecks.map((item) => <article key={item.title}><strong>{item.title}</strong><small>{item.text}</small></article>)}
         </div>
       </section>
       <section className="orca-panel-card beta-release-panel">
-        <header><div><span className="orca-kicker">Publicação</span><h2>Antes de enviar nova build para teste fechado</h2></div></header>
+        <header><div><h2>Publicação</h2></div></header>
         <div className="beta-release-list">
-          {betaStoreChecks.map((item) => <article key={item}><span>OK</span><small>{item}</small></article>)}
+          {betaStoreChecks.map((item) => <article key={item}><span /> <small>{item}</small></article>)}
+        </div>
+      </section>
+      <section className="orca-panel-card beta-future-panel">
+        <header><div><h2>Pendências futuras</h2></div></header>
+        <div className="beta-future-list">
+          {futureProBacklog.slice(0, 4).map((benefit) => <article key={benefit.title}><strong>{benefit.title}</strong><small>{benefit.description}</small></article>)}
         </div>
       </section>
     </section>
@@ -764,31 +756,27 @@ function StoreScreen({ account, onAccountChange }: { account: OrcaAccountState; 
   }
 
   return (
-    <section className="app-screen wide-screen">
-      <header className="screen-header"><span className="orca-kicker">Venda Pro</span><h1>Loja / Pro</h1><p>O Free continua útil. O Pro libera apresentação profissional, produtividade e controle de lucro por assinatura verificável.</p></header>
-      <section className="store-beta-panel">
-        <article>
-          <span>Free</span>
-          <strong>Grátis útil</strong>
-          <small>Uso real básico, offline, sem marca d agua agressiva e sem bloquear orçamento simples.</small>
-        </article>
-        <article>
-          <span>Pro</span>
-          <strong>Profissional e rápido</strong>
-          <small>PDFs melhores, modelos, relatórios e lucro real para vender melhor e economizar tempo.</small>
-        </article>
-        <article>
-          <span>Venda real</span>
-          <strong>{billingReadiness.channelLabel}</strong>
-          <small>{billingReadiness.statusDescription}</small>
-        </article>
+    <section className="app-screen wide-screen store-screen">
+      <header className="screen-header"><h1>Licença</h1><p>Free para começar. Pro para vender com mais margem e apresentação.</p></header>
+      <section className="store-summary-grid">
+        <article><span>Free</span><strong>Grátis</strong><small>Básico</small></article>
+        <article className="featured"><span>Pro</span><strong>Em validação</strong><small>Profissional</small></article>
+        <article className="featured"><span>Pacote vitalício</span><strong>R$ 29,90 sugerido</strong><small>Recursos planejados</small></article>
+      </section>
+      <section className="orca-panel-card store-comparison-card">
+        <header><div><h2>Comparativo de planos</h2></div></header>
+        <div className="store-comparison-table">
+          <div className="row head"><span>Plano</span><span>Posicionamento</span><span>Status</span></div>
+          <div className="row"><strong>Free</strong><span>Básico</span><span>Disponível</span></div>
+          <div className="row featured"><strong>Pro</strong><span>Profissional</span><span>Em validação</span></div>
+          <div className="row"><strong>Vitalício</strong><span>Recursos planejados</span><span>R$ 29,90 sugerido</span></div>
+        </div>
       </section>
       <div className="settings-group account-settings-panel billing-readiness-panel">
         <div className="settings-panel-title">
           <span className="orca-kicker">Pagamentos</span>
           <h2>{billingReadiness.statusTitle}</h2>
-          <p>O app já separa Free/Pro e valida assinatura por backend. Para venda oficial, a compra precisa chegar ao endpoint de entitlement sem expor chave sensível no front-end.</p>
-        </div>
+          </div>
         <div className="billing-readiness-grid">
           <article><span>Canal</span><strong>{billingReadiness.channelLabel}</strong><small>{billingReadiness.channel === 'beta-assisted' ? 'Sem cobrança automática no beta.' : 'Canal configurável por ambiente.'}</small></article>
           <article><span>Endpoint Pro</span><strong>{billingReadiness.entitlementEndpointConfigured ? 'Configurado' : 'Pendente'}</strong><small>Responsável por liberar, expirar ou bloquear Pro.</small></article>
@@ -804,8 +792,7 @@ function StoreScreen({ account, onAccountChange }: { account: OrcaAccountState; 
         <div className="settings-panel-title">
           <span className="orca-kicker">Google Play</span>
           <h2>Compra pela conta Google</h2>
-          <p>Esta tela já chama o bridge nativo, valida o purchaseToken no backend e restaura compras. No navegador, fica aguardando o app Android.</p>
-        </div>
+          </div>
         <div className="billing-readiness-grid">
           <article><span>Produto</span><strong>{googlePlaySetup.productId || 'Pendente'}</strong><small>Assinatura/produto Pro no Play Console.</small></article>
           <article><span>Pacote</span><strong>{googlePlaySetup.packageName || 'Pendente'}</strong><small>Deve bater com o app publicado.</small></article>
@@ -818,71 +805,54 @@ function StoreScreen({ account, onAccountChange }: { account: OrcaAccountState; 
         {!account.userId && <p className="general-helper-text">Entre com e-mail ou Google antes de comprar/restaurar Pro.</p>}
         {!googlePlaySetup.bridgeAvailable && <p className="general-helper-text">Bridge nativo pendente no Android/Capacitor antes da venda real.</p>}
       </div>}
-      <div className="settings-group account-settings-panel commercial-checkout-panel">
-        <div className="settings-panel-title">
-          <span className="orca-kicker">Assinatura</span>
-          <h2>{activeUserPlan === 'pro' ? 'Pro liberado' : 'Assinar Aferix Pro'}</h2>
-          <p>{activeUserPlan === 'pro' ? 'Sua conta está com recursos Pro ativos neste dispositivo.' : 'Use o mesmo e-mail da conta para que o backend consiga liberar o Pro após o pagamento.'}</p>
+      <div className="orca-panel-card">
+        <header>
+          <div>
+            <span className="orca-kicker">Assinatura</span>
+            <h2>{activeUserPlan === 'pro' ? 'Aferix Pro Ativo' : 'Plano Aferix Pro'}</h2>
+          </div>
+        </header>
+        <div className="dashboard-finance-tiles" style={{ padding: '1rem' }}>
+          <article className="finance-tile"><span>Status</span><strong>{planStatusTitle(account)}</strong></article>
+          <article className="finance-tile"><span>ID</span><strong>{account.installationId.slice(0, 8)}</strong></article>
         </div>
-        <div className="general-capture-actions">
-          <button type="button" disabled={!checkoutConfigured || activeUserPlan === 'pro'} onClick={openCheckout}>Assinar Pro</button>
-          <button type="button" className="secondary-action" disabled={!manageConfigured || activeUserPlan !== 'pro'} onClick={openSubscriptionPortal}>Gerenciar assinatura</button>
-          <button type="button" className="secondary-action" disabled={!canCheckPlan || isCheckingPlan} onClick={checkSubscription}>{isCheckingPlan ? 'Verificando...' : 'Verificar assinatura'}</button>
+        <div className="local-backup-actions" style={{ padding: '0 1.5rem 1.5rem', display: 'flex', gap: '0.5rem' }}>
+          <button className="ghost-action" type="button" onClick={openCheckout} disabled={activeUserPlan === 'pro'}>Assinar Pro</button>
+          <button className="ghost-action" type="button" onClick={checkSubscription}>Verificar</button>
         </div>
-        {!checkoutConfigured && <p className="general-helper-text">Configure VITE_ORCAOS_PRO_CHECKOUT_URL com o link público do checkout para vender pelo app.</p>}
-        {!isPlanEntitlementSyncConfigured() && <p className="general-helper-text">Configure VITE_ORCAOS_ENTITLEMENTS_ENDPOINT para liberar Pro automaticamente após pagamento.</p>}
-        {isPlanEntitlementSyncConfigured() && !account.userId && <p className="general-helper-text">Cadastre e-mail ou entre com Google antes de assinar/verificar Pro.</p>}
-      </div>
-      <div className="settings-group account-settings-panel">
-        <div className="settings-panel-title">
-          <span className="orca-kicker">Plano atual</span>
-          <h2>{planStatusTitle(account)}</h2>
-          <p>{planStatusDescription(account, planSourceLabel)}</p>
-        </div>
-        {devToolsEnabled && <div className="dev-tools-badge">Modo desenvolvimento ativo</div>}
-        {account.planExpiresAt && <article className="settings-row"><span><strong>Validade</strong><small>{new Date(account.planExpiresAt).toLocaleDateString('pt-BR')}</small></span></article>}
-        <div className="general-capture-actions">
-          <button type="button" disabled={!canCheckPlan || isCheckingPlan} onClick={checkSubscription}>{isCheckingPlan ? 'Verificando...' : 'Verificar assinatura'}</button>
-          {devToolsEnabled && <button className="secondary-action" type="button" onClick={() => onAccountChange(setLocalUserPlan('pro'))}>Ativar Pro de teste</button>}
-          {devToolsEnabled && <button className="secondary-action" type="button" onClick={() => onAccountChange(setLocalUserPlan('free'))}>Voltar ao grátis</button>}
-        </div>
-        {!isPlanEntitlementSyncConfigured() && <p className="general-helper-text">Endpoint Pro não configurado. Sem endpoint, o app não consegue liberar assinatura automaticamente.</p>}
-        {isPlanEntitlementSyncConfigured() && !account.userId && <p className="general-helper-text">Entre com uma conta antes de verificar a liberação Pro.</p>}
-        <p className="general-helper-text">A verificação depende da conta/e-mail cadastrado. Chaves sensíveis ficam somente no backend/API.</p>
-        {feedback && <p className="general-added-message">{feedback}</p>}
       </div>
       <div className="settings-group account-settings-panel">
         <div className="settings-panel-title">
           <span className="orca-kicker">Estratégia Free / Pro</span>
           <h2>Grátis para usar, Pro para profissionalizar</h2>
-          <p>O grátis resolve o básico de campo. O Pro monetiza apresentação, velocidade e visão de lucro.</p>
         </div>
         {storePackages.map((pack) => <article className="store-card" key={pack.title}><span><strong>{pack.title}</strong><small>{pack.description}</small><b>{pack.price}</b></span><em className="store-card-status">Planejado</em></article>)}
       </div>
-      <div className="settings-group account-settings-panel">
-        <div className="settings-panel-title">
-          <span className="orca-kicker">Comparativo</span>
-          <h2>O que cada plano entrega</h2>
-          <p>O Free deve ser usável de verdade. O Pro deve ser sentido no documento, na velocidade e no lucro.</p>
+      <div className="orca-panel-card">
+        <header>
+          <div>
+            <h2>Comparativo de Planos</h2>
+          </div>
+        </header>
+        <div className="dashboard-finance-tiles" style={{ padding: '1rem' }}>
+          <article className="finance-tile"><span>Free</span><strong>Básico</strong></article>
+          <article className="finance-tile" style={{ borderLeft: '3px solid #f59e0b' }}><span>Pro</span><strong>Profissional</strong></article>
         </div>
-        <div className="plan-comparison-grid">
-          <article className="plan-comparison-card">
-            <span>Free</span>
-            <strong>Uso básico real</strong>
-            <ul>{freePlanBenefits.map((benefit) => <li key={benefit.title}><b>{benefit.title}</b><small>{benefit.description}</small></li>)}</ul>
-          </article>
-          <article className="plan-comparison-card pro">
-            <span>Pro</span>
-            <strong>Venda melhor e controle lucro</strong>
-            <ul>{proPlanBenefits.map((benefit) => <li key={benefit.title}><b>{benefit.title}</b><small>{benefit.description}</small></li>)}</ul>
-          </article>
+        <div className="continuous-list">
+          {proPlanBenefits.map((benefit) => (
+            <article className="continuous-list-item" key={benefit.title}>
+              <div className="client-col">
+                <strong>{benefit.title}</strong>
+                <small>{benefit.description}</small>
+              </div>
+            </article>
+          ))}
         </div>
       </div>
       <div className="settings-group account-settings-panel">
         <div className="settings-panel-title">
           <span className="orca-kicker">Prioridade V1 Pro</span>
           <h2>O que vem primeiro</h2>
-          <p>A V1 Pro foca no que o técnico percebe no orçamento e no resultado financeiro.</p>
         </div>
         <div className="plan-priority-grid">
           {proV1Priorities.map((benefit, index) => <article key={benefit.title}><span>{index + 1}</span><strong>{benefit.title}</strong><small>{benefit.description}</small></article>)}
@@ -896,7 +866,7 @@ function StoreScreen({ account, onAccountChange }: { account: OrcaAccountState; 
 }
 
 function SettingsScreen({ account, onAccountChange }: { account: OrcaAccountState; onAccountChange: (account: OrcaAccountState) => void }) {
-  const [settingsSection, setSettingsSection] = useState<'account' | 'company' | 'backup' | 'security' | 'legal'>('account');
+  const [settingsSection, setSettingsSection] = useState<'profile' | 'security' | 'backup' | 'preferences' | 'about'>('profile');
   const [feedback, setFeedback] = useState<string | null>(null);
   const [isSigningIn, setIsSigningIn] = useState(false);
   const [emailDraft, setEmailDraft] = useState(account.email);
@@ -933,9 +903,8 @@ function SettingsScreen({ account, onAccountChange }: { account: OrcaAccountStat
   return (
     <section className="app-screen wide-screen">
       <header className="screen-header">
-        <span className="orca-kicker">Preferências</span>
         <h1>Configurações</h1>
-        <p>Uso básico sem login obrigatório. Conta, Pro, segurança local e backup ficam aqui para não atrapalhar o atendimento.</p>
+        <p>Conta, perfil, backup e segurança.</p>
       </header>
 
       <section className="settings-readiness-grid">
@@ -945,17 +914,17 @@ function SettingsScreen({ account, onAccountChange }: { account: OrcaAccountStat
       </section>
 
       <nav className="settings-section-tabs" aria-label="Seções de configurações">
-        <button className={settingsSection === 'account' ? 'active' : ''} type="button" onClick={() => setSettingsSection('account')}>Conta</button>
-        <button className={settingsSection === 'company' ? 'active' : ''} type="button" onClick={() => setSettingsSection('company')}>Empresa</button>
-        <button className={settingsSection === 'backup' ? 'active' : ''} type="button" onClick={() => setSettingsSection('backup')}>Backup</button>
-        <button className={settingsSection === 'security' ? 'active' : ''} type="button" onClick={() => setSettingsSection('security')}>Segurança</button>
-        <button className={settingsSection === 'legal' ? 'active' : ''} type="button" onClick={() => setSettingsSection('legal')}>Legal</button>
+        <button className={settingsSection === 'profile' ? 'active' : ''} type="button" onClick={() => setSettingsSection('profile')}>Perfil profissional</button>
+        <button className={settingsSection === 'security' ? 'active' : ''} type="button" onClick={() => setSettingsSection('security')}>Segurança e acesso</button>
+        <button className={settingsSection === 'backup' ? 'active' : ''} type="button" onClick={() => setSettingsSection('backup')}>Backup local</button>
+        <button className={settingsSection === 'preferences' ? 'active' : ''} type="button" onClick={() => setSettingsSection('preferences')}>Preferências do app</button>
+        <button className={settingsSection === 'about' ? 'active' : ''} type="button" onClick={() => setSettingsSection('about')}>Sobre o Aferix</button>
       </nav>
 
-      {settingsSection === 'account' && <div className="settings-group account-settings-panel">
+      {settingsSection === 'profile' && <div className="settings-group account-settings-panel">
         <div className="settings-panel-title">
-          <span className="orca-kicker">Conta</span>
-          <h2>Acesso opcional</h2>
+          <span className="orca-kicker">Perfil profissional</span>
+          <h2>Identidade e acesso</h2>
           <p>Use um e-mail principal quando quiser vincular cadastro, Google, liberação Pro assistida e backup no Drive. Para atendimento local, não precisa entrar.</p>
         </div>
 
@@ -991,15 +960,19 @@ function SettingsScreen({ account, onAccountChange }: { account: OrcaAccountStat
         </section>
       </div>}
 
-      {settingsSection === 'company' && <ProfessionalProfileWorkspace />}
+      {settingsSection === 'security' && <AppSecurityPanel />}
       {settingsSection === 'backup' && (
         <>
-          <GoogleDriveBackupPanel />
           <LocalBackupWorkspace includeLinkedSettings={false} />
+          <GoogleDriveBackupPanel />
         </>
       )}
-      {settingsSection === 'security' && <AppSecurityPanel />}
-      {settingsSection === 'legal' && <LegalCompliancePanel />}
+      {settingsSection === 'preferences' && (
+        <>
+          <ProfessionalProfileWorkspace />
+        </>
+      )}
+      {settingsSection === 'about' && <LegalCompliancePanel />}
     </section>
   );
 }
@@ -1086,17 +1059,17 @@ export function App() {
   }
 
   return (
-    <AppShell activeTab={activeTab} title={getScreenTitle(activeTab, selectedModule)} subtitle={getScreenSubtitle(activeTab, selectedModule)} navItems={navItems} activeClient={activeClient} activeWorkOrder={activeWorkOrder} onNavigate={goTo}>
+    <AppShell activeTab={activeTab} navItems={navItems} activeClient={activeClient} activeWorkOrder={activeWorkOrder} onNavigate={goTo}>
       <Suspense fallback={<LazyWorkspaceFallback />}>
         {activeTab === 'home' && <HomeScreen goTo={goTo} openModule={openModule} captures={captures} clients={clients} workOrders={workOrders} savedBudgets={loadSavedBudgets()} context={context} onStartNewAttendance={() => openClientSection('newWorkOrder')} />}
         {activeTab === 'calculations' && <CalculationsScreen selectedModule={selectedModule} openModule={openModule} activeSector={activeSector} onSelectSector={setActiveSector} goTo={goTo} userPlan={activeUserPlan} onCaptureCalculation={addCalculationCapture} context={context} captures={captures} />}
         {activeTab === 'survey' && <SurveyScreen captures={captures} context={context} onRemove={removeCalculationCapture} onUpdate={updateCalculationCapture} onAddMany={addManyCalculationCaptures} goTo={goTo} />}
         {activeTab === 'budgets' && <BudgetsScreen captures={captures} context={context} userPlan={activeUserPlan} goTo={goTo} onRemove={removeCalculationCapture} onUpdate={updateCalculationCapture} onConvertApprovedBudgetToWorkOrder={convertActiveBudgetToWorkOrder} />}
         {activeTab === 'more' && <MoreScreen goTo={goTo} />}
-        {activeTab === 'catalog' && <CatalogScreen onAddMany={addManyCalculationCaptures} />}
-        {activeTab === 'purchaseList' && <PurchaseListScreen captures={captures} onUpdate={updateCalculationCapture} />}
+        {activeTab === 'catalog' && <CatalogScreen onAddMany={addManyCalculationCaptures} context={context} />}
+        {activeTab === 'purchaseList' && <PurchaseListScreen captures={captures} onUpdate={updateCalculationCapture} context={context} />}
         {activeTab === 'reports' && <ReportsScreen captures={captures} context={context} />}
-        {activeTab === 'financial' && <FinancialScreen />}
+        {activeTab === 'financial' && <FinancialScreen context={context} />}
         {activeTab === 'beta' && <BetaReadinessScreen />}
         {activeTab === 'clients' && <ClientsScreen initialSection={clientInitialSection} sectionRequestKey={clientSectionRequestKey} onOpenBudgets={() => goTo('budgets')} onStartSurvey={() => goTo('survey')} onContextChange={(nextClients, nextWorkOrders, nextActiveWorkOrderId) => { setClients(nextClients); setWorkOrders(nextWorkOrders); setActiveWorkOrderId(nextActiveWorkOrderId); }} />}
         {activeTab === 'store' && <StoreScreen account={account} onAccountChange={setAccount} />}

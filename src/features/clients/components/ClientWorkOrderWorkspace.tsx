@@ -439,115 +439,94 @@ export function ClientWorkOrderWorkspace({ initialSection = 'dashboard', section
 
   return (
     <div className="client-os-workspace refined-client-os">
-      <section className="active-os-panel client-os-hero-panel">
-        <div>
-          <span className="orca-kicker">Contexto ativo</span>
-          <h2>Atendimento atual</h2>
-          {activeWorkOrder ? (
-            <p>
-              <strong>{activeWorkOrder.title}</strong>
-              <span>{activeClient?.name ?? 'Cliente não vinculado'} · {statusLabel(activeWorkOrder.status)} · Prioridade {priorityLabel(activeWorkOrder.priority)}</span>
-            </p>
-          ) : (
-            <p>Nenhum atendimento ativo. Cadastre ou selecione um atendimento para usar como contexto do serviço atual.</p>
-          )}
-        </div>
-        {activeWorkOrder ? (
-          <button className="secondary-action inline-action" type="button" onClick={() => setActiveWorkOrderId(null)}>Limpar atendimento ativo</button>
-        ) : (
-          <button className="primary-action inline-action" type="button" onClick={() => setActiveSection('newWorkOrder')}>Novo atendimento</button>
-        )}
-      </section>
+      <header className="screen-header">
+        <h1>Clientes e Atendimentos</h1>
+      </header>
 
-      <div className="client-os-metrics-grid">
-        <article><span>Clientes:</span><strong>{clients.length}</strong></article>
-        <article><span>Atendimentos abertos:</span><strong>{openWorkOrders}</strong></article>
-        <article><span>Concluídas:</span><strong>{doneWorkOrders}</strong></article>
+      <div className="orca-panel-card">
+        <header>
+          <div>
+            <span className="orca-kicker">Contexto ativo</span>
+            <h2>{activeWorkOrder ? activeWorkOrder.title : 'Nenhum atendimento ativo'}</h2>
+            <p>{activeWorkOrder ? `${activeClient?.name ?? 'Cliente não vinculado'} · ${statusLabel(activeWorkOrder.status)}` : 'Selecione um atendimento para usar como contexto.'}</p>
+          </div>
+          {activeWorkOrder ? (
+            <button className="ghost-action" type="button" onClick={() => setActiveWorkOrderId(null)}>Limpar Contexto</button>
+          ) : (
+            <button className="ghost-action" type="button" onClick={() => setActiveSection('newWorkOrder')}>Novo Atendimento</button>
+          )}
+        </header>
       </div>
 
-      <div className="client-os-section-tabs">
-        <button className={activeSection === 'dashboard' ? 'active' : ''} type="button" onClick={() => setActiveSection('dashboard')}>Painel</button>
-        <button className={activeSection === 'newClient' ? 'active' : ''} type="button" onClick={() => setActiveSection('newClient')}>Novo cliente</button>
-        <button className={activeSection === 'newWorkOrder' ? 'active' : ''} type="button" onClick={() => setActiveSection('newWorkOrder')}>Novo atendimento</button>
-        <button className={activeSection === 'clients' ? 'active' : ''} type="button" onClick={() => setActiveSection('clients')}>Clientes</button>
-        <button className={activeSection === 'workOrders' ? 'active' : ''} type="button" onClick={() => setActiveSection('workOrders')}>Atendimentos</button>
+      <div className="dashboard-finance-tiles" style={{ marginBottom: '1.5rem' }}>
+        <article className="finance-tile"><span>Clientes</span><strong>{clients.length}</strong></article>
+        <article className="finance-tile"><span>Abertos</span><strong>{openWorkOrders}</strong></article>
+        <article className="finance-tile"><span>Concluídos</span><strong>{doneWorkOrders}</strong></article>
+      </div>
+
+      <div className="home-action-toolbar">
+        <button className={`ghost-action ${activeSection === 'dashboard' ? 'active' : ''}`} type="button" onClick={() => setActiveSection('dashboard')}>Painel</button>
+        <button className={`ghost-action ${activeSection === 'newClient' ? 'active' : ''}`} type="button" onClick={() => setActiveSection('newClient')}>+ Cliente</button>
+        <button className={`ghost-action ${activeSection === 'newWorkOrder' ? 'active' : ''}`} type="button" onClick={() => setActiveSection('newWorkOrder')}>+ Atendimento</button>
+        <button className={`ghost-action ${activeSection === 'clients' ? 'active' : ''}`} type="button" onClick={() => setActiveSection('clients')}>Clientes</button>
+        <button className={`ghost-action ${activeSection === 'workOrders' ? 'active' : ''}`} type="button" onClick={() => setActiveSection('workOrders')}>Histórico</button>
       </div>
 
       {activeSection === 'dashboard' && (
-        <section className="client-os-panel client-os-dashboard-panel">
-          <div className="client-os-panel-header">
-            <div>
-              <span className="orca-kicker">Gestão do atendimento</span>
-              <h2>Próximas ações</h2>
-              <p>Acompanhe atendimentos em aberto, visitas agendadas e orçamentos que ainda precisam de envio ou aprovação.</p>
+        <div className="client-os-indicator-grid">
+          <div className="orca-panel-card">
+            <header>
+              <div>
+                <h2>Próximos Atendimentos</h2>
+              </div>
+              <button className="ghost-action" type="button" onClick={() => setActiveSection('workOrders')}>Ver Todos</button>
+            </header>
+            <div className="continuous-list">
+              {nextWorkOrders.length === 0 ? <div className="continuous-list-empty">Nenhum atendimento agendado.</div> : nextWorkOrders.map((workOrder) => {
+                const client = workOrder.clientId ? clients.find((item) => item.id === workOrder.clientId) : null;
+                const isActive = workOrder.id === activeWorkOrderId;
+                return (
+                  <article className={`continuous-list-item ${isActive ? 'active' : ''}`} key={workOrder.id} onClick={() => setActiveWorkOrderId(workOrder.id)} style={{ cursor: 'pointer' }}>
+                    <div className="client-col">
+                      <strong>{workOrder.title}</strong>
+                      <small>{client?.name ?? 'S/ Cliente'} · {statusLabel(workOrder.status)}</small>
+                    </div>
+                    <div className="value-col" style={{ fontSize: '0.7rem' }}>{formatDateTime(workOrder.scheduledDate)}</div>
+                  </article>
+                );
+              })}
             </div>
           </div>
 
-          <div className="client-os-indicator-grid">
-            <section className="client-os-indicator-card">
-              <header>
-                <div>
-                  <span>Atendimentos</span>
-                  <strong>Próximos atendimentos</strong>
-                </div>
-                <button className="secondary-action inline-action" type="button" onClick={() => setActiveSection('workOrders')}>Ver todos</button>
-              </header>
-              <div className="client-os-indicator-list">
-                {nextWorkOrders.length === 0 ? <div className="client-os-empty compact">Nenhum atendimento aberto ou agendado.</div> : nextWorkOrders.map((workOrder) => {
-                  const client = workOrder.clientId ? clients.find((item) => item.id === workOrder.clientId) : null;
-                  const isActive = workOrder.id === activeWorkOrderId;
-
-                  return (
-                    <article className={isActive ? 'client-os-indicator-row active' : 'client-os-indicator-row'} key={workOrder.id}>
-                      <button type="button" onClick={() => setActiveWorkOrderId(workOrder.id)}>
-                        <strong>{workOrder.title}</strong>
-                        <small>{client?.name ?? 'Cliente não vinculado'} · {statusLabel(workOrder.status)} · {formatDateTime(workOrder.scheduledDate)}</small>
-                      </button>
-                      <div className="client-os-quick-actions">
-                        <button type="button" onClick={() => openWorkOrderForEdit(workOrder)}>Editar</button>
-                        <button type="button" onClick={onOpenBudgets}>Orçamento</button>
-                      </div>
-                    </article>
-                  );
-                })}
+          <div className="orca-panel-card">
+            <header>
+              <div>
+                <h2>Orçamentos Pendentes</h2>
               </div>
-            </section>
-
-            <section className="client-os-indicator-card">
-              <header>
-                <div>
-                  <span>Orçamentos</span>
-                  <strong>Pendentes de decisão</strong>
-                </div>
-                <button className="secondary-action inline-action" type="button" onClick={onOpenBudgets}>Abrir orçamentos</button>
-              </header>
-              <div className="client-os-indicator-list">
-                {pendingBudgetList.length === 0 ? <div className="client-os-empty compact">Nenhum orçamento pendente salvo.</div> : pendingBudgetList.map((budget) => (
-                  <article className="client-os-indicator-row" key={budget.id}>
-                    <strong>{budget.title || 'Orçamento sem título'}</strong>
-                    <small>{budget.clientName || 'Cliente não informado'} · {budgetStatusLabel(budget.status)} · {formatDateTime(budget.updatedAt)}</small>
-                  </article>
-                ))}
-              </div>
-            </section>
+              <button className="ghost-action" type="button" onClick={onOpenBudgets}>Ver Todos</button>
+            </header>
+            <div className="continuous-list">
+              {pendingBudgetList.length === 0 ? <div className="continuous-list-empty">Nenhum orçamento pendente.</div> : pendingBudgetList.map((budget) => (
+                <article className="continuous-list-item" key={budget.id}>
+                  <div className="client-col">
+                    <strong>{budget.title || 'S/ Título'}</strong>
+                    <small>{budget.clientName || 'S/ Cliente'} · {budgetStatusLabel(budget.status)}</small>
+                  </div>
+                  <div className="value-col" style={{ fontSize: '0.7rem' }}>{formatDateTime(budget.updatedAt)}</div>
+                </article>
+              ))}
+            </div>
           </div>
-        </section>
+        </div>
       )}
 
       {activeSection === 'newClient' && (
-        <section className="client-os-panel">
-          <div className="client-os-panel-header">
+        <div className="orca-panel-card">
+          <header>
             <div>
-              <h2>{editingClientId ? 'Editar cliente' : 'Cadastrar cliente'}</h2>
-              <p>{editingClientId ? 'Revise os dados salvos e confirme a atualização do cadastro.' : 'Você pode vincular um cliente agora ou continuar sem cliente e preencher depois.'}</p>
+              <h2>{editingClientId ? 'Editar Cliente' : 'Novo Cliente'}</h2>
             </div>
-          </div>
-
-          <div className="client-guided-step-card">
-            <span>Cliente</span>
-            <strong>Cadastro completo, preenchimento opcional</strong>
-            <small>Use só o que tiver no momento. Nome, documento, contato, endereço e dados fiscais ajudam em orçamento, relatório, faturamento gerencial e histórico.</small>
-          </div>
+          </header>
 
           <div className="client-os-grid">
             <div className="client-form-section client-os-wide">
@@ -582,30 +561,23 @@ export function ClientWorkOrderWorkspace({ initialSection = 'dashboard', section
           </div>
 
           <div className="client-os-form-actions">
-            <button className="primary-action inline-action" type="button" onClick={addClient}>{editingClientId ? 'Salvar alterações' : 'Continuar para atendimento'}</button>
+            <button className="ghost-action" type="button" onClick={addClient}>{editingClientId ? 'Salvar' : 'Continuar'}</button>
             {editingClientId ? (
-              <button className="secondary-action inline-action" type="button" onClick={cancelClientEdit}>Cancelar edição</button>
+              <button className="ghost-action" type="button" onClick={cancelClientEdit}>Cancelar</button>
             ) : (
-              <button className="secondary-action inline-action" type="button" onClick={() => { setWorkOrderDraft((current) => ({ ...current, clientId: '' })); setActiveSection('newWorkOrder'); }}>Continuar sem cliente</button>
+              <button className="ghost-action" type="button" onClick={() => { setWorkOrderDraft((current) => ({ ...current, clientId: '' })); setActiveSection('newWorkOrder'); }}>Pular</button>
             )}
           </div>
-        </section>
+        </div>
       )}
 
       {activeSection === 'newWorkOrder' && (
-        <section className="client-os-panel">
-          <div className="client-os-panel-header">
+        <div className="orca-panel-card">
+          <header>
             <div>
-              <h2>{editingWorkOrderId ? 'Editar atendimento' : 'Novo atendimento'}</h2>
-              <p>{editingWorkOrderId ? 'Revise os dados e salve as alterações do atendimento ativo.' : 'Você pode vincular um cliente agora ou continuar sem cliente e preencher depois.'}</p>
+              <h2>{editingWorkOrderId ? 'Editar Atendimento' : 'Novo Atendimento'}</h2>
             </div>
-          </div>
-
-          <div className="client-guided-step-card">
-            <span>Atendimento</span>
-            <strong>Descreva o serviço em orçamento antes da OS</strong>
-            <small>Depois de iniciar, você pode ir direto para orçamento, usar cálculos avulsos ou registrar observações quando precisar.</small>
-          </div>
+          </header>
 
           <div className="client-os-grid">
             <div className="client-os-wide client-picker-block">
@@ -637,92 +609,74 @@ export function ClientWorkOrderWorkspace({ initialSection = 'dashboard', section
           </div>
 
           <div className="client-os-form-actions">
-            <button className="primary-action inline-action" type="button" disabled={!workOrderDraft.title.trim()} onClick={addWorkOrder}>{editingWorkOrderId ? 'Salvar alterações' : 'Criar atendimento'}</button>
-            {editingWorkOrderId && <button className="secondary-action inline-action" type="button" onClick={() => { setEditingWorkOrderId(null); setWorkOrderDraft(emptyWorkOrderDraft); setActiveSection('workOrders'); }}>Cancelar edição</button>}
+            <button className="ghost-action" type="button" disabled={!workOrderDraft.title.trim()} onClick={addWorkOrder}>{editingWorkOrderId ? 'Salvar' : 'Criar'}</button>
+            {editingWorkOrderId && <button className="ghost-action" type="button" onClick={() => { setEditingWorkOrderId(null); setWorkOrderDraft(emptyWorkOrderDraft); setActiveSection('workOrders'); }}>Cancelar</button>}
           </div>
-        </section>
+        </div>
       )}
 
       {activeSection === 'clients' && (
-        <section className="client-os-panel">
-          <div className="client-os-panel-header">
+        <div className="orca-panel-card">
+          <header>
             <div>
-              <h2>Clientes salvos</h2>
-              <p>{clients.length} cliente(s) cadastrados neste navegador.</p>
+              <h2>Base de Clientes</h2>
             </div>
-            <button className="primary-action inline-action" type="button" onClick={() => setActiveSection('newClient')}>Novo cliente</button>
-          </div>
-          <label className="budget-field client-os-wide client-os-search-field">
-            <span>Buscar cliente</span>
-            <input value={clientSearch} placeholder="Nome, WhatsApp ou endereço" onChange={(event) => setClientSearch(event.target.value)} />
-          </label>
-          <div className="client-os-list">
-            {clients.length === 0 ? <div className="client-os-empty">Nenhum cliente cadastrado ainda.</div> : !clientSearch.trim() ? <div className="client-os-empty">{clients.length} cliente(s) cadastrado(s). Pesquise para exibir.</div> : filteredClients.length === 0 ? <div className="client-os-empty">Nenhum cliente encontrado para essa busca.</div> : visibleClients.map((client) => (
-              <article className="client-os-card" key={client.id}>
-                <div>
+            <button className="ghost-action" type="button" onClick={() => setActiveSection('newClient')}>+ Novo Cliente</button>
+          </header>
+          <div className="continuous-list">
+            <div className="continuous-list-item" style={{ padding: '0.5rem' }}>
+              <input value={clientSearch} placeholder="Buscar por nome, telefone ou endereço..." onChange={(event) => setClientSearch(event.target.value)} style={{ width: '100%', background: 'transparent', border: 'none', color: '#fff', outline: 'none' }} />
+            </div>
+            {clients.length === 0 ? <div className="continuous-list-empty">Nenhum cliente cadastrado.</div> : filteredClients.length === 0 && clientSearch.trim() ? <div className="continuous-list-empty">Nenhum resultado para "{clientSearch}".</div> : visibleClients.map((client) => (
+              <article className="continuous-list-item" key={client.id}>
+                <div className="client-col">
                   <strong>{client.name}</strong>
-                  <small>{[client.documentNumber, client.phone, client.email].filter(Boolean).join(' · ') || 'Sem contato/documento'}</small>
+                  <small>{[client.phone, client.email].filter(Boolean).join(' · ') || 'Sem contato'}</small>
                   <small>{client.address || 'Sem endereço'}</small>
-                  <small>{[client.stateRegistration ? `IE: ${client.stateRegistration}` : '', client.creditLimit ? `Crédito: ${client.creditLimit}` : ''].filter(Boolean).join(' · ') || 'Dados fiscais/comerciais não informados'}</small>
                 </div>
-                <div className="client-os-actions">
-                  <button className="secondary-action inline-action" type="button" onClick={() => openClientForEdit(client)}>Editar</button>
-                  <button className="secondary-action inline-action" type="button" onClick={() => { setWorkOrderDraft((current) => ({ ...current, clientId: client.id, address: client.address ?? current.address })); setActiveSection('newWorkOrder'); }}>Atendimento</button>
-                  <button className="danger-action" type="button" onClick={() => removeClient(client.id)}>Remover</button>
+                <div className="catalog-row-actions">
+                  <button className="ghost-action" style={{ minHeight: '32px', fontSize: '0.7rem' }} type="button" onClick={() => openClientForEdit(client)}>Editar</button>
+                  <button className="ghost-action" style={{ minHeight: '32px', fontSize: '0.7rem' }} type="button" onClick={() => { setWorkOrderDraft((current) => ({ ...current, clientId: client.id, address: client.address ?? current.address })); setActiveSection('newWorkOrder'); }}>OS</button>
                 </div>
               </article>
             ))}
-            {hiddenClientCount > 0 && <div className="client-os-empty compact">Mais {hiddenClientCount} cliente(s) oculto(s). Use a busca para refinar.</div>}
+            {hiddenClientCount > 0 && <div className="continuous-list-empty">+{hiddenClientCount} clientes.</div>}
           </div>
-        </section>
+        </div>
       )}
 
       {activeSection === 'workOrders' && (
-        <section className="client-os-panel">
-          <div className="client-os-panel-header">
+        <div className="orca-panel-card">
+          <header>
             <div>
-              <h2>Atendimentos</h2>
-              <p>{workOrders.length} atendimento(s) cadastrado(s). Escolha um para ser o contexto ativo.</p>
+              <h2>Histórico de Atendimentos</h2>
             </div>
-            <button className="primary-action inline-action" type="button" onClick={() => setActiveSection('newWorkOrder')}>Novo atendimento</button>
-          </div>
-          <label className="budget-field client-os-wide client-os-search-field">
-            <span>Buscar atendimento</span>
-            <input value={workOrderSearch} placeholder="Título, cliente ou endereço" onChange={(event) => setWorkOrderSearch(event.target.value)} />
-          </label>
-          <div className="client-os-list">
-            {sortedWorkOrders.length === 0 ? <div className="client-os-empty">Nenhum atendimento cadastrado ainda.</div> : !workOrderSearch.trim() ? <div className="client-os-empty">{sortedWorkOrders.length} atendimento(s) cadastrado(s). Pesquise para exibir.</div> : filteredWorkOrders.length === 0 ? <div className="client-os-empty">Nenhum atendimento encontrado para essa busca.</div> : visibleWorkOrders.map((workOrder) => {
+            <button className="ghost-action" type="button" onClick={() => setActiveSection('newWorkOrder')}>+ Novo Atendimento</button>
+          </header>
+          <div className="continuous-list">
+            <div className="continuous-list-item" style={{ padding: '0.5rem' }}>
+              <input value={workOrderSearch} placeholder="Buscar por título, cliente ou status..." onChange={(event) => setWorkOrderSearch(event.target.value)} style={{ width: '100%', background: 'transparent', border: 'none', color: '#fff', outline: 'none' }} />
+            </div>
+            {workOrders.length === 0 ? <div className="continuous-list-empty">Nenhum atendimento registrado.</div> : filteredWorkOrders.length === 0 && workOrderSearch.trim() ? <div className="continuous-list-empty">Nenhum resultado para "{workOrderSearch}".</div> : visibleWorkOrders.map((workOrder) => {
               const client = workOrder.clientId ? clients.find((item) => item.id === workOrder.clientId) : null;
               const isActive = workOrder.id === activeWorkOrderId;
-
               return (
-                <article className={isActive ? 'client-os-card active' : 'client-os-card'} key={workOrder.id}>
-                  <div>
+                <article className={`continuous-list-item ${isActive ? 'active' : ''}`} key={workOrder.id}>
+                  <div className="client-col">
                     <strong>{workOrder.title}</strong>
-                    <small>{client?.name ?? 'Cliente não vinculado'} · {statusLabel(workOrder.status)} · Prioridade {priorityLabel(workOrder.priority)}</small>
-                    <small>{workOrder.address || client?.address || 'Sem endereço'} · {formatDateTime(workOrder.scheduledDate)}</small>
-                    {workOrder.description && <small>{workOrder.description}</small>}
+                    <small>{client?.name ?? 'S/ Cliente'} · {statusLabel(workOrder.status)} · {priorityLabel(workOrder.priority)}</small>
+                    <small>{formatDateTime(workOrder.scheduledDate)}</small>
                   </div>
-                  <div className="client-os-actions">
-                    <button className="secondary-action inline-action" type="button" onClick={() => setActiveWorkOrderId(workOrder.id)}>{isActive ? 'Em uso' : 'Usar agora'}</button>
-                    <button className="secondary-action inline-action" type="button" onClick={() => openWorkOrderForEdit(workOrder)}>Editar</button>
-                    <button className="secondary-action inline-action" type="button" onClick={onOpenBudgets}>Orçamento</button>
-                    <select value={workOrder.status} onChange={(event) => updateWorkOrderStatus(workOrder.id, event.target.value as WorkOrder['status'])}>
-                      <option value="open">Em orçamento</option>
-                      <option value="scheduled">Agendada</option>
-                      <option value="in-progress">Execução autorizada</option>
-                      <option value="done">Concluída</option>
-                      <option value="cancelled">Cancelada</option>
-                    </select>
-                    {workOrder.status !== 'done' && <button className="primary-action inline-action" type="button" onClick={() => updateWorkOrderStatus(workOrder.id, 'done')}>Concluir</button>}
-                    <button className="danger-action" type="button" onClick={() => removeWorkOrder(workOrder.id)}>Remover</button>
+                  <div className="catalog-row-actions">
+                    <button className="ghost-action" style={{ minHeight: '32px', fontSize: '0.7rem' }} type="button" onClick={() => setActiveWorkOrderId(workOrder.id)}>{isActive ? 'Ativo' : 'Ativar'}</button>
+                    <button className="ghost-action" style={{ minHeight: '32px', fontSize: '0.7rem' }} type="button" onClick={() => openWorkOrderForEdit(workOrder)}>Editar</button>
                   </div>
                 </article>
               );
             })}
-            {hiddenWorkOrderCount > 0 && <div className="client-os-empty compact">Mais {hiddenWorkOrderCount} atendimento(s) oculto(s). Use a busca para refinar.</div>}
+            {hiddenWorkOrderCount > 0 && <div className="continuous-list-empty">+{hiddenWorkOrderCount} atendimentos.</div>}
           </div>
-        </section>
+        </div>
       )}
     </div>
   );

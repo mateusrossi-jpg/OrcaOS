@@ -5,7 +5,6 @@ import { loadBusinessProfile } from '../../budgets/storage/businessProfileStorag
 import { loadSavedBudgets } from '../../budgets/storage/savedBudgetsStorage';
 import { calculateBudgetTotal } from '../../../core/pricing/budget';
 import type { Budget } from '../../../core/types/business';
-import { ProfessionalIdentityCard } from '../../settings/components/ProfessionalIdentityCard';
 import './ReportWorkspace.css';
 
 interface ReportWorkspaceProps {
@@ -86,10 +85,12 @@ function money(value: number): string {
 }
 
 function reportTemplateLabel(templateId: ReportTemplateId): string {
-  if (templateId === 'technicalDetailed') return 'Relatório técnico detalhado';
+  if (templateId === 'technicalDetailed') return 'Relatório detalhado';
   if (templateId === 'managerial') return 'Relatório gerencial';
-  return 'Relatório técnico simples';
+  return 'Relatório comercial';
 }
+
+const AFERIX_LOGO_LIGHT_URL = '/icons/aferix-logo-light.svg';
 
 export function ReportWorkspace({ captures, activeClient = null, activeWorkOrder = null }: ReportWorkspaceProps) {
   const { reportItems, itemsWithImage, diagnostics } = getReportCaptureMetrics(captures);
@@ -97,19 +98,16 @@ export function ReportWorkspace({ captures, activeClient = null, activeWorkOrder
   const reportTemplateId = businessProfile.defaultReportTemplateId;
   const profileName = businessProfile.businessName || businessProfile.responsibleName || 'Aferix';
   const contactLine = [businessProfile.phone, businessProfile.email].filter(Boolean).join(' · ');
-  const logoSource = businessProfile.logoDataUrl || businessProfile.logoUrl;
+  const logoSource = businessProfile.logoDataUrl || businessProfile.logoUrl || AFERIX_LOGO_LIGHT_URL;
   const serviceItems = reportItems.filter((capture) => capture.itemType === 'service');
   const materialItems = reportItems.filter((capture) => capture.itemType === 'material');
   const clientPurchaseItems = reportItems.filter(isClientPurchaseMaterial);
   const notesAndRecommendations = reportItems.filter((capture) => capture.technicalNote?.trim());
   const savedBudgets = loadSavedBudgets();
   const approvedBudgets = savedBudgets.filter((budget) => budget.status === 'approved');
-  const sentBudgets = savedBudgets.filter((budget) => budget.status === 'sent');
   const totalApproved = approvedBudgets.reduce((sum, budget) => sum + budgetRecordTotal(budget), 0);
   const averageTicket = approvedBudgets.length > 0 ? totalApproved / approvedBudgets.length : 0;
   const approvalRate = savedBudgets.length > 0 ? (approvedBudgets.length / savedBudgets.length) * 100 : 0;
-  const mostUsedMaterial = materialItems[0]?.editableDescription || materialItems[0]?.summary || 'Sem material recorrente ainda';
-  const mostSoldService = serviceItems[0]?.editableDescription || serviceItems[0]?.summary || 'Sem serviço recorrente ainda';
   const readyChecks = [
     { label: 'Cliente vinculado', ready: Boolean(activeClient) },
     { label: 'Atendimento identificado', ready: Boolean(activeWorkOrder?.title) },
@@ -118,56 +116,51 @@ export function ReportWorkspace({ captures, activeClient = null, activeWorkOrder
   ];
 
   return (
-    <div className="report-workspace">
-      <ProfessionalIdentityCard contextLabel="Identidade do relatório" />
-
-      <section className="report-summary-panel no-print">
-        <div>
-          <span className="orca-kicker">Prévia do documento</span>
-          <h2>Relatório técnico</h2>
-          <p>Revise os itens técnicos, confirme o cliente/atendimento ativo e só então imprima ou salve em PDF.</p>
-        </div>
-        <span className="report-template-chip">Modelo: {reportTemplateLabel(reportTemplateId)}</span>
-        <button className="primary-action inline-action" type="button" onClick={printReport} disabled={reportItems.length === 0}>
-          Imprimir / salvar PDF
-        </button>
-      </section>
-
-      <section className="report-readiness-panel no-print" aria-label="Checklist do relatório">
-        {readyChecks.map((check) => (
-          <article className={check.ready ? 'ready' : ''} key={check.label}>
-            <span>{check.ready ? 'OK' : 'Pendente'}</span>
-            <strong>{check.label}</strong>
-          </article>
-        ))}
-      </section>
-
-      <div className="report-metrics-grid no-print">
-        <article><span>Itens no relatório</span><strong>{reportItems.length}</strong></article>
-        <article><span>Com imagem</span><strong>{itemsWithImage}</strong></article>
-        <article><span>Diagnósticos</span><strong>{diagnostics}</strong></article>
-        <article><span>Compra do cliente</span><strong>{clientPurchaseItems.length}</strong></article>
+    <>
+      <div className="orca-panel-card report-command-panel no-print">
+        <header>
+          <div>
+            <h2>Prévia do documento</h2>
+            <p>{reportTemplateLabel(reportTemplateId)}</p>
+          </div>
+          <button className="ghost-action" type="button" onClick={printReport} disabled={reportItems.length === 0}>
+            Imprimir / PDF
+          </button>
+        </header>
       </div>
 
-      <section className="report-business-panel no-print">
-        <div>
-          <span className="orca-kicker">Visão do profissional</span>
-          <h2>Relatório gerencial leve</h2>
-          <p>Sinais locais para entender aprovação, ticket médio e itens recorrentes sem transformar a área em fiscal oficial.</p>
+      <div className="dashboard-finance-tiles no-print" style={{ margin: '1rem 0' }}>
+        {readyChecks.map((check) => (
+          <article className="finance-tile" key={check.label} style={{ borderLeft: check.ready ? '3px solid #f59e0b' : '3px solid #444' }}>
+            <span style={{ fontSize: '0.65rem' }}>{check.label}</span>
+            <strong>{check.ready ? 'Pronto' : 'Pendente'}</strong>
+          </article>
+        ))}
+      </div>
+
+      <div className="dashboard-finance-tiles no-print" style={{ margin: '1rem 0' }}>
+        <article className="finance-tile"><span>Itens</span><strong>{reportItems.length}</strong></article>
+        <article className="finance-tile"><span>Imagens</span><strong>{itemsWithImage}</strong></article>
+        <article className="finance-tile"><span>Diagnósticos</span><strong>{diagnostics}</strong></article>
+      </div>
+
+      <div className="orca-panel-card no-print">
+        <header>
+          <div>
+            <h2>Visão Gerencial</h2>
+          </div>
+        </header>
+        <div className="dashboard-finance-tiles" style={{ padding: '1rem' }}>
+          <article className="finance-tile"><span>Aprovado</span><strong>{money(totalApproved)}</strong></article>
+          <article className="finance-tile"><span>Ticket</span><strong>{money(averageTicket)}</strong></article>
+          <article className="finance-tile"><span>Conversão</span><strong>{approvalRate.toFixed(0)}%</strong></article>
         </div>
-        <div className="report-business-grid">
-          <article><span>Faturamento aprovado</span><strong>{money(totalApproved)}</strong><small>{approvedBudgets.length} orçamento(s) aprovado(s)</small></article>
-          <article><span>Ticket médio</span><strong>{money(averageTicket)}</strong><small>média dos aprovados salvos</small></article>
-          <article><span>Taxa de aprovação</span><strong>{approvalRate.toFixed(0)}%</strong><small>{sentBudgets.length} enviado(s), {approvedBudgets.length} aprovado(s)</small></article>
-          <article><span>Serviço recorrente</span><strong>{mostSoldService}</strong><small>baseado nos itens atuais</small></article>
-          <article><span>Material recorrente</span><strong>{mostUsedMaterial}</strong><small>baseado nos itens atuais</small></article>
-        </div>
-      </section>
+      </div>
 
       <article className={`report-document report-template-${reportTemplateId}`}>
         <header className="report-document-header">
           <div className="report-company-row">
-            {logoSource ? <img src={logoSource} alt={`Logo ${profileName}`} /> : <span>Aferix</span>}
+            <img src={logoSource} alt={`Logo ${profileName}`} />
             <div>
               <strong>{profileName}</strong>
               {businessProfile.documentNumber && <small>{businessProfile.documentNumber}</small>}
@@ -175,8 +168,8 @@ export function ReportWorkspace({ captures, activeClient = null, activeWorkOrder
               {businessProfile.address && <small>{businessProfile.address}</small>}
             </div>
           </div>
-          <h1>{activeWorkOrder?.title || 'Relatório técnico de visita'}</h1>
-          <p>{activeWorkOrder?.description || 'Documento preliminar gerado a partir dos registros técnicos do atendimento.'}</p>
+          <h1>{activeWorkOrder?.title || 'Relatório de atendimento'}</h1>
+          <p>{activeWorkOrder?.description || 'Prévia comercial para envio ao cliente.'}</p>
           <small>Emitido em {formatDateTime(new Date().toISOString())}</small>
         </header>
 
@@ -215,19 +208,18 @@ export function ReportWorkspace({ captures, activeClient = null, activeWorkOrder
 
         {reportItems.length === 0 ? (
           <section className="report-empty-state">
-            <strong>Nenhum item técnico para relatório ainda.</strong>
-            <p>Adicione itens técnicos ao atendimento ou envie diagnósticos e observações dos cálculos.</p>
+            <strong>Nenhum item para relatório</strong>
+            <p>Adicione serviços, observações ou materiais antes de gerar o documento.</p>
           </section>
         ) : (
           <section className="report-item-list">
-            {reportItems.map((capture, index) => (
+            {reportItems.map((capture) => (
               <article className="report-item-card" key={capture.id}>
-                <div className="report-item-index">{String(index + 1).padStart(2, '0')}</div>
                 <div className="report-item-content">
                   <header>
                     <span>{itemTypeLabel(capture.itemType)}</span>
                     <h2>{capture.editableDescription || capture.summary}</h2>
-                    <small>{capture.moduleLabel} · {capture.calculatorLabel} · {formatDateTime(capture.createdAt)}</small>
+                    <small>{capture.calculatorLabel} · {formatDateTime(capture.createdAt)}</small>
                   </header>
 
                   {capture.imageDataUrl && (
@@ -250,10 +242,10 @@ export function ReportWorkspace({ captures, activeClient = null, activeWorkOrder
         )}
 
         <footer className="report-document-footer">
-          <p>Este relatório é uma base técnica preliminar e deve ser validado pelo profissional responsável antes de entrega final ao cliente.</p>
+          <p>Documento preparado para envio comercial ao cliente.</p>
           <div className="signature-line">Responsável técnico / aceite</div>
         </footer>
       </article>
-    </div>
+    </>
   );
 }

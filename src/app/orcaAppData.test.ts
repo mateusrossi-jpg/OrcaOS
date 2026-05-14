@@ -82,8 +82,8 @@ describe('Aferix app data integrity', () => {
   });
 
   it('keeps plan labels concise for badges', () => {
-    expect(planLabel('free')).toBe('LIVRE');
-    expect(planLabel('pro')).toBe('PRO');
-    expect(planLabel('soon')).toBe('EM BREVE');
+    expect(planLabel('free')).toBe('Livre');
+    expect(planLabel('pro')).toBe('Pro');
+    expect(planLabel('soon')).toBe('Em breve');
   });
 });

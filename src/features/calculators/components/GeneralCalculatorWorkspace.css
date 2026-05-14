@@ -104,7 +104,7 @@
 }
 
 .general-picker-card:hover {
-  border-color: var(--stable-border-2, rgba(0, 184, 194, 0.22));
+  border-color: var(--stable-border-2, rgba(245, 158, 11, 0.22));
 }
 
 .general-calculator-overlay {
@@ -157,7 +157,7 @@
 }
 
 .general-overlay-header span {
-  color: var(--stable-green, #00b8c2);
+  color: var(--stable-green, #f59e0b);
   font-size: 0.72rem;
   font-weight: 950;
   letter-spacing: 0.075em;
@@ -313,7 +313,7 @@
 }
 
 .general-formula-box strong {
-  color: var(--stable-green, #00b8c2);
+  color: var(--stable-green, #f59e0b);
   font-size: 0.74rem;
   font-weight: 950;
   letter-spacing: 0.065em;
@@ -341,8 +341,8 @@
 }
 
 .general-added-message {
-  color: var(--stable-green, #00b8c2);
-  background: rgba(0, 184, 194, 0.10);
+  color: var(--stable-green, #f59e0b);
+  background: rgba(245, 158, 11, 0.10);
 }
 
 .general-helper-text,
@@ -359,10 +359,10 @@
 
 .general-capture-actions button {
   min-height: 46px;
-  border: 1px solid #2dd4bf;
+  border: 1px solid #f59e0b;
   border-radius: 4px;
   color: #000000;
-  background: #2dd4bf;
+  background: #f59e0b;
   font: inherit;
   font-size: 0.82rem;
   font-weight: 600;
@@ -371,7 +371,7 @@
 }
 
 .general-capture-actions button.secondary-action {
-  color: var(--stable-green, #00b8c2);
+  color: var(--stable-green, #f59e0b);
   background: transparent;
 }
 

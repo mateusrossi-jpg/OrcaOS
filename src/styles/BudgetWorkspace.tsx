@@ -42,7 +42,7 @@ export function BudgetWorkspace({ children, subtotal, taxes, netProfit }: Budget
           <span className="text-[#10B981] font-bold text-xl">R$ {netProfit.toFixed(2)}</span>
         </div>
 
-        <button className="w-full bg-[#2DD4BF] hover:bg-[#0F766E] active:bg-[#115E59] text-[#071312] font-semibold py-3 px-4 rounded-lg transition-colors">
+        <button className="w-full bg-[#f59e0b] hover:bg-[#0F766E] active:bg-[#115E59] text-[#071312] font-semibold py-3 px-4 rounded-lg transition-colors">
           Salvar & Gerar PDF
         </button>
       </div>

@@ -42,22 +42,16 @@ export function CatalogHubWorkspace({ onSendToBudget }: CatalogHubWorkspaceWithT
 
   return (
     <section className="catalog-hub-organized">
-      <div className="survey-intro-card">
-        <span>
-          <strong>{activeCopy.title}</strong>
-          <small>{activeCopy.text}</small>
-        </span>
-      </div>
+      <header className="screen-header">
+        <h1>Catálogo e Estoque</h1>
+      </header>
 
-      <div className="section-mode-tabs catalog-primary-tabs">
-        <button className={activeSection === 'catalog' ? 'active' : ''} type="button" onClick={() => setActiveSection('catalog')}>Catálogo</button>
-        <button className={activeSection === 'suppliers' ? 'active' : ''} type="button" onClick={() => setActiveSection('suppliers')}>Fornecedores</button>
-        <button className={activeSection === 'pricing' ? 'active' : ''} type="button" onClick={() => setActiveSection('pricing')}>Preço e margem</button>
-      </div>
-
-      <div className="catalog-secondary-tabs" aria-label="Recursos auxiliares do estoque">
-        <button className={activeSection === 'online' ? 'active' : ''} type="button" onClick={() => setActiveSection('online')}>Consulta online</button>
-        <button className={activeSection === 'purchases' ? 'active' : ''} type="button" onClick={() => setActiveSection('purchases')}>Compras/estoque</button>
+      <div className="home-action-toolbar">
+        <button className={`ghost-action ${activeSection === 'catalog' ? 'active' : ''}`} type="button" onClick={() => setActiveSection('catalog')}>Itens</button>
+        <button className={`ghost-action ${activeSection === 'suppliers' ? 'active' : ''}`} type="button" onClick={() => setActiveSection('suppliers')}>Fornecedores</button>
+        <button className={`ghost-action ${activeSection === 'pricing' ? 'active' : ''}`} type="button" onClick={() => setActiveSection('pricing')}>Margem</button>
+        <button className={`ghost-action ${activeSection === 'online' ? 'active' : ''}`} type="button" onClick={() => setActiveSection('online')}>Busca Online</button>
+        <button className={`ghost-action ${activeSection === 'purchases' ? 'active' : ''}`} type="button" onClick={() => setActiveSection('purchases')}>Estoque</button>
       </div>
 
       {activeSection === 'catalog' && <CatalogHubWorkspaceLive enabledTabs={['items']} onSendToBudget={onSendToBudget} />}

@@ -573,44 +573,44 @@ export function CatalogHubWorkspace({ onSendToBudget, initialTab = 'items', enab
 
   return (
     <section className="catalog-hub-workspace">
-      <div className="catalog-hub-header">
-        <div>
-          <span className="orca-kicker">{activeTab === 'online' ? 'Referência de produto' : 'Catálogo profissional'}</span>
-          <h2>{activeTab === 'online' ? 'Buscar produto real para referência' : 'Itens e serviços reutilizáveis'}</h2>
-          <p>{activeTab === 'online' ? 'Pesquise no fornecedor, escolha o produto real e traga preço/modelo para o cadastro.' : 'Cadastre materiais, peças e serviços recorrentes para enviar ao campo ou orçamento.'}</p>
-        </div>
-        <strong>{items.length} itens · {suppliers.length} fornecedores</strong>
+      <div className="orca-panel-card">
+        <header>
+          <div>
+            <h2>{activeTab === 'online' ? 'Consulta Online' : 'Catálogo Profissional'}</h2>
+          </div>
+        </header>
       </div>
 
       {availableTabs.length > 1 && (
-        <div className="section-mode-tabs">
-          {availableTabs.includes('items') && <button className={activeTab === 'items' ? 'active' : ''} type="button" onClick={() => setActiveTab('items')}>Itens e serviços</button>}
-          {availableTabs.includes('suppliers') && <button className={activeTab === 'suppliers' ? 'active' : ''} type="button" onClick={() => setActiveTab('suppliers')}>Fornecedores</button>}
-          {availableTabs.includes('online') && <button className={activeTab === 'online' ? 'active' : ''} type="button" onClick={() => setActiveTab('online')}>Consulta online</button>}
+        <div className="home-action-toolbar">
+          {availableTabs.includes('items') && <button className={`ghost-action ${activeTab === 'items' ? 'active' : ''}`} type="button" onClick={() => setActiveTab('items')}>Itens</button>}
+          {availableTabs.includes('suppliers') && <button className={`ghost-action ${activeTab === 'suppliers' ? 'active' : ''}`} type="button" onClick={() => setActiveTab('suppliers')}>Fornecedores</button>}
+          {availableTabs.includes('online') && <button className={`ghost-action ${activeTab === 'online' ? 'active' : ''}`} type="button" onClick={() => setActiveTab('online')}>Online</button>}
         </div>
       )}
 
       {activeTab === 'items' && (
         <>
-          <div className="catalog-kind-summary" aria-label="Resumo do catálogo">
+          <div className="dashboard-finance-tiles" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))' }}>
             {itemKindStats.map((stat) => (
-              <button className={kindFilter === stat.kind ? 'active' : ''} key={stat.kind} type="button" onClick={() => setKindFilter(stat.kind)}>
-                <span>{stat.label}</span>
-                <strong>{stat.count}</strong>
+              <button className={`finance-tile ${kindFilter === stat.kind ? 'active' : ''}`} key={stat.kind} type="button" onClick={() => setKindFilter(stat.kind)} style={{ cursor: 'pointer', textAlign: 'left', border: kindFilter === stat.kind ? '1px solid #f59e0b' : '1px solid #222' }}>
+                <span style={{ fontSize: '0.65rem' }}>{stat.label}</span>
+                <strong style={{ fontSize: '1.2rem' }}>{stat.count}</strong>
               </button>
             ))}
           </div>
 
-          <div className="catalog-subtabs" aria-label="Itens do catálogo">
-            <button className={itemsView === 'list' ? 'active' : ''} type="button" onClick={() => setItemsView('list')}>Consultar lista</button>
-            <button className={itemsView === 'form' ? 'active' : ''} type="button" onClick={() => { resetItemForm(); setItemsView('form'); }}>Cadastrar item</button>
+          <div className="home-action-toolbar">
+            <button className={`ghost-action ${itemsView === 'list' ? 'active' : ''}`} type="button" onClick={() => setItemsView('list')}>Lista</button>
+            <button className={`ghost-action ${itemsView === 'form' ? 'active' : ''}`} type="button" onClick={() => { resetItemForm(); setItemsView('form'); }}>Novo Item</button>
           </div>
 
-          {itemsView === 'form' && <div className="catalog-hub-card catalog-form-card">
-            <div>
-              <strong>{isEditingItem ? 'Editar item de catálogo' : 'Novo item de catálogo'}</strong>
-              <small>{isEditingItem ? 'Atualize preço, marca, modelo, destino e observações do item.' : 'Cadastre peças, materiais ou serviços recorrentes para enviar ao orçamento.'}</small>
-            </div>
+          {itemsView === 'form' && <div className="orca-panel-card catalog-form-card">
+            <header>
+              <div>
+                <h2>{isEditingItem ? 'Editar Item' : 'Novo Item'}</h2>
+              </div>
+            </header>
             <div className="catalog-hub-grid">
               <label><span>Tipo</span><select value={itemDraft.kind} onChange={(event) => updateItemDraft('kind', event.target.value as CatalogHubItemKind)}><option value="material">Material</option><option value="labor">Mão de obra</option><option value="service">Serviço composto</option><option value="travel">Deslocamento</option><option value="fee">Taxa</option><option value="custom">Item personalizado</option></select></label>
               <label className="wide"><span>Descrição</span><input value={itemDraft.title} placeholder="Ex.: Módulo tomada 2P+T 20A branco" onChange={(event) => updateItemDraft('title', event.target.value)} /></label>
@@ -652,8 +652,12 @@ export function CatalogHubWorkspace({ onSendToBudget, initialTab = 'items', enab
             </div>
           </div>}
 
-          {itemsView === 'list' && <div className="catalog-hub-card catalog-list-card">
-            <div className="catalog-list-heading"><div><strong>Consultar itens cadastrados</strong><small>Lista compacta para muitos itens. Filtre por busca, tipo, fornecedor, fabricante, categoria e origem.</small></div><button className="secondary-action inline-action catalog-new-item-action" type="button" onClick={() => { resetItemForm(); setItemsView('form'); }}>Novo item</button></div>
+          {itemsView === 'list' && <div className="orca-panel-card catalog-list-card">
+            <header>
+              <div>
+                <h2>Itens do Catálogo</h2>
+              </div>
+            </header>
             <div className="catalog-hub-grid compact catalog-filter-grid">
               <label className="wide"><span>Buscar</span><input value={query} placeholder="tomada, disjuntor, serviço, marca..." onChange={(event) => setQuery(event.target.value)} /></label>
               <label><span>Tipo</span><select value={kindFilter} onChange={(event) => setKindFilter(event.target.value as 'all' | CatalogHubItemKind)}><option value="all">Todos</option><option value="material">Materiais</option><option value="labor">Mão de obra</option><option value="service">Serviços compostos</option><option value="travel">Deslocamento</option><option value="fee">Taxas</option><option value="custom">Personalizados</option></select></label>
@@ -663,33 +667,26 @@ export function CatalogHubWorkspace({ onSendToBudget, initialTab = 'items', enab
               <label><span>Origem</span><select value={originFilter} onChange={(event) => setOriginFilter(event.target.value as 'all' | NonNullable<CatalogHubItem['dataOrigin']>)}><option value="all">Todas</option><option value="manual">Manual</option><option value="local-catalog">Catálogo local</option><option value="online-reference">Referência online</option><option value="supplier">Fornecedor</option></select></label>
             </div>
             <div className="catalog-list-meta"><span>{hasItemLookup ? `${filteredItems.length} de ${items.length} item(ns) · mostrando ${visibleFilteredItems.length}${hiddenFilteredItemCount > 0 ? ` · ${hiddenFilteredItemCount} oculto(s)` : ''}` : `${items.length} item(ns) cadastrados. Pesquise ou filtre para exibir.`}</span><button type="button" onClick={() => { setQuery(''); setKindFilter('all'); setSupplierFilter(''); setCategoryFilter(''); setBrandFilter(''); setOriginFilter('all'); }}>Limpar filtros</button></div>
-            <div className="catalog-table-list">
-              {!hasItemLookup && <div className="catalog-empty-row">Digite uma busca ou escolha um filtro para consultar itens cadastrados.</div>}
-              {hasItemLookup && filteredItems.length === 0 && <div className="catalog-empty-row">Nenhum item encontrado com esses filtros.</div>}
+            <div className="continuous-list">
+              {!hasItemLookup && <div className="continuous-list-empty">Pesquise para listar os itens.</div>}
+              {hasItemLookup && filteredItems.length === 0 && <div className="continuous-list-empty">Nenhum item encontrado.</div>}
               {visibleFilteredItems.map((item) => {
                 const supplierName = suppliers.find((supplier) => supplier.id === item.supplierId)?.name;
                 return (
-                  <article className="catalog-table-row" key={item.id}>
-                    <div className="catalog-row-main">
-                      {item.imageUrl && <img className="catalog-row-thumb" src={item.imageUrl} alt={`Referência de ${item.title}`} />}
-                      <span>
-                        <strong>{item.title}</strong>
-                        <small>{[itemKindLabel(item.kind), item.category, item.brand, supplierName, item.model, item.reference].filter(Boolean).join(' · ') || 'Sem detalhes adicionais'}</small>
-                      </span>
+                  <article className="continuous-list-item" key={item.id}>
+                    <div className="client-col">
+                      <strong>{item.title}</strong>
+                      <small>{[itemKindLabel(item.kind), item.brand, supplierName].filter(Boolean).join(' · ')}</small>
                     </div>
-                    <span className="catalog-row-price">{item.defaultQuantity} {item.unit}<strong>{money(item.defaultUnitValue)}</strong></span>
-                    <span className="catalog-row-destination">{destinationLabel(item.destination)}</span>
+                    <div className="value-col">{money(item.defaultUnitValue)}</div>
                     <div className="catalog-row-actions">
-                      {item.sourceUrl && <a className="secondary-action inline-action" href={item.sourceUrl} target="_blank" rel="noreferrer">Fonte</a>}
-                      <button className="secondary-action inline-action" type="button" onClick={() => editItem(item)}>Editar</button>
-                      <button className="secondary-action inline-action" type="button" onClick={() => duplicateItem(item)}>Duplicar</button>
-                      <button className="primary-action inline-action" type="button" onClick={() => sendItem(item)}>{addActionLabel(item.destination)}</button>
-                      <button className="danger-action" type="button" onClick={() => removeItem(item.id)}>Remover</button>
+                      <button className="ghost-action" style={{ minHeight: '32px', fontSize: '0.7rem' }} type="button" onClick={() => editItem(item)}>Editar</button>
+                      <button className="ghost-action" style={{ minHeight: '32px', fontSize: '0.7rem' }} type="button" onClick={() => sendItem(item)}>Enviar</button>
                     </div>
                   </article>
                 );
               })}
-              {hiddenFilteredItemCount > 0 && <div className="catalog-hidden-row">Mais {hiddenFilteredItemCount} item(ns) oculto(s). Use a busca ou os filtros para refinar.</div>}
+              {hiddenFilteredItemCount > 0 && <div className="continuous-list-empty">+{hiddenFilteredItemCount} itens.</div>}
             </div>
           </div>}
         </>
@@ -697,8 +694,12 @@ export function CatalogHubWorkspace({ onSendToBudget, initialTab = 'items', enab
 
       {activeTab === 'suppliers' && (
         <>
-          <div className="catalog-hub-card">
-            <div><strong>{editingSupplierId ? 'Editar fornecedor/empresa' : 'Novo fornecedor/empresa'}</strong><small>{editingSupplierId ? 'Atualize o cadastro e salve sem criar fornecedor duplicado.' : 'Cadastre fabricantes, lojas, distribuidores ou fornecedores locais.'}</small></div>
+          <div className="orca-panel-card">
+            <header>
+              <div>
+                <h2>{editingSupplierId ? 'Editar Fornecedor' : 'Novo Fornecedor'}</h2>
+              </div>
+            </header>
             <div className="catalog-hub-grid">
               <label><span>Nome</span><input value={supplierDraft.name} placeholder="Ex.: Fornecedor principal" onChange={(event) => updateSupplierDraft('name', event.target.value)} /></label>
               <label><span>Segmento</span><input value={supplierDraft.segment} placeholder="Ex.: Materiais elétricos" onChange={(event) => updateSupplierDraft('segment', event.target.value)} /></label>
@@ -713,31 +714,32 @@ export function CatalogHubWorkspace({ onSendToBudget, initialTab = 'items', enab
               {editingSupplierId && <button className="secondary-action inline-action" type="button" onClick={resetSupplierForm}>Cancelar edição</button>}
             </div>
           </div>
-          <div className="catalog-hub-list">
-            <div className="catalog-list-meta supplier-list-meta">
-              <label><span>Buscar fornecedor</span><input value={supplierSearch} placeholder="Nome, segmento, telefone ou observação" onChange={(event) => setSupplierSearch(event.target.value)} /></label>
-              <span>{supplierSearch.trim() ? `${filteredSuppliers.length} de ${suppliers.length} fornecedor(es) · mostrando ${visibleSuppliers.length}` : `${suppliers.length} fornecedor(es) cadastrado(s). Pesquise para exibir.`}</span>
-            </div>
-            {!supplierSearch.trim() ? <div className="catalog-empty-row">Digite uma busca para consultar fornecedores.</div> : filteredSuppliers.length === 0 && <div className="catalog-empty-row">Nenhum fornecedor encontrado com essa busca.</div>}
+            <div className="continuous-list">
+              {!supplierSearch.trim() ? <div className="continuous-list-empty">Pesquise para listar fornecedores.</div> : filteredSuppliers.length === 0 && <div className="continuous-list-empty">Nenhum fornecedor encontrado.</div>}
             {visibleSuppliers.map((supplier) => (
-              <article className="catalog-hub-item-card" key={supplier.id}>
-                <div className="catalog-item-main"><span>{supplier.segment}</span><strong>{supplier.name}</strong><small>{supplier.notes || 'Sem observações'}</small></div>
+              <article className="continuous-list-item" key={supplier.id}>
+                <div className="client-col">
+                  <strong>{supplier.name}</strong>
+                  <small>{supplier.segment} · {supplier.phone || 'Sem contato'}</small>
+                </div>
                 <div className="catalog-hub-actions">
-                  {supplier.websiteUrl && <a className="secondary-action inline-action" href={supplier.websiteUrl} target="_blank" rel="noreferrer">Site</a>}
-                  {supplier.catalogUrl && <a className="secondary-action inline-action" href={supplier.catalogUrl} target="_blank" rel="noreferrer">Catálogo</a>}
-                  <button className="secondary-action inline-action" type="button" onClick={() => editSupplier(supplier)}>Editar</button>
-                  <button className="danger-action" type="button" onClick={() => removeSupplier(supplier.id)}>Remover</button>
+                  <button className="ghost-action" style={{ minHeight: '32px', fontSize: '0.7rem' }} type="button" onClick={() => editSupplier(supplier)}>Editar</button>
+                  <button className="ghost-action" style={{ minHeight: '32px', fontSize: '0.7rem', color: '#ef4444' }} type="button" onClick={() => removeSupplier(supplier.id)}>Remover</button>
                 </div>
               </article>
             ))}
-            {hiddenSupplierCount > 0 && <div className="catalog-hidden-row">Mais {hiddenSupplierCount} fornecedor(es) oculto(s). Use fornecedores nos filtros ou refine os cadastros.</div>}
+            {hiddenSupplierCount > 0 && <div className="continuous-list-empty">+{hiddenSupplierCount} fornecedores.</div>}
           </div>
         </>
       )}
 
       {activeTab === 'online' && (
-        <div className="catalog-hub-card online-card">
-          <div className="catalog-card-heading"><strong>Assistente de Materiais e Referência de Compra</strong><small>Use como apoio. O app continua offline com catálogo local e cadastro manual; qualquer referência precisa ser revisada antes de salvar.</small></div>
+        <div className="orca-panel-card online-card">
+          <header>
+            <div>
+              <h2>Assistente de Busca</h2>
+            </div>
+          </header>
           <div className="catalog-hub-grid">
             <label className="wide"><span>O que pesquisar?</span><input value={onlineQuery} placeholder="Ex.: tomada 20A branca 2P+T" onChange={(event) => setOnlineQuery(event.target.value)} /></label>
             <label><span>Fornecedor/fabricante</span><select value={onlineSupplierId} onChange={(event) => setOnlineSupplierId(event.target.value)}>{suppliers.map((supplier) => <option key={supplier.id} value={supplier.id}>{supplier.name}</option>)}</select></label>

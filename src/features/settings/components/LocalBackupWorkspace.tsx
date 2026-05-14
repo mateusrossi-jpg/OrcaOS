@@ -105,94 +105,98 @@ export function LocalBackupWorkspace({ includeLinkedSettings = true }: { include
     <>
       {includeLinkedSettings && (
         <>
-          <ProfessionalProfileWorkspace />
           <AppSecurityPanel />
           <GoogleDriveBackupPanel />
         </>
       )}
 
-      <section className="local-backup-workspace">
-        <div className="local-backup-header">
+      <div className="orca-panel-card">
+        <header>
           <div>
-            <span className="orca-kicker">Backup local</span>
-            <h2>Exportar e restaurar dados do Aferix</h2>
-            <p>Salve uma cópia dos dados locais do app antes de trocar de navegador, limpar cache ou testar grandes mudanças.</p>
+            <span className="orca-kicker">Segurança</span>
+            <h2>Exportar e Restaurar</h2>
+            <p>Salve uma cópia local dos seus dados antes de trocar de dispositivo.</p>
           </div>
-          <strong>{summary.keyCount} grupo(s) · {summary.estimatedSizeKb} KB</strong>
-        </div>
+        </header>
+      </div>
 
-        <div className="local-backup-grid">
-          <article className="local-backup-card">
-            <div className="local-card-heading">
-              <strong>Exportar backup</strong>
-              <small>Gera um JSON com clientes, atendimentos, orçamentos, cálculos, catálogo, fornecedores, compras, estoque, perfil profissional e configurações salvas localmente.</small>
-            </div>
-            <div className="local-backup-summary-grid">
-              {currentDataSummary.map((item) => <span key={item.label}>{item.label}: <strong>{item.count}</strong></span>)}
-            </div>
-            <div className="local-backup-actions">
-              <button className="primary-action inline-action" type="button" onClick={downloadBackup}>Baixar JSON</button>
-              <button className="secondary-action inline-action" type="button" onClick={copyBackup}>Copiar backup</button>
-              <button className="secondary-action inline-action" type="button" onClick={refreshBackupText}>Gerar na caixa</button>
-            </div>
-          </article>
-
-          <article className="local-backup-card">
-            <div className="local-card-heading">
-              <strong>Restaurar backup</strong>
-              <small>Importe um JSON do Aferix. Mesclar mantém dados atuais; substituir apaga dados locais do Aferix antes de restaurar.</small>
-            </div>
-            <label className="local-backup-file">
-              <span>Arquivo JSON</span>
-              <input type="file" accept="application/json,.json" onChange={(event) => handleFileImport(event.target.files?.[0] ?? null)} />
-            </label>
-            <label className="local-backup-file">
-              <span>Modo de restauração</span>
-              <select value={restoreMode} onChange={(event) => setRestoreMode(event.target.value as 'merge' | 'replace')}>
-                <option value="merge">Mesclar com dados atuais</option>
-                <option value="replace">Substituir dados locais do Aferix</option>
-              </select>
-            </label>
-            {restoreMode === 'replace' && (
-              <label className="local-backup-file">
-                <span>Confirmação para substituir</span>
-                <input value={replaceConfirmation} placeholder="Digite SUBSTITUIR" onChange={(event) => setReplaceConfirmation(event.target.value)} />
-                <small>Isso substituirá os dados locais do Aferix neste navegador.</small>
-              </label>
-            )}
-            <div className="local-backup-actions">
-              <button className="secondary-action inline-action" type="button" onClick={previewImport}>Verificar backup</button>
-              <button className="primary-action inline-action" type="button" onClick={restoreImport}>Restaurar</button>
-              {canReload && <button className="secondary-action inline-action" type="button" onClick={reloadAppNow}>Recarregar app agora</button>}
-            </div>
-          </article>
-        </div>
-
-        <label className="local-backup-textarea">
-          <span>Conteúdo do backup JSON</span>
-          <textarea value={backupText} placeholder="Cole aqui um backup JSON do Aferix ou gere um backup para visualizar." onChange={(event) => setBackupText(event.target.value)} />
-        </label>
-
-        {importPreview && (
-          <div className="local-backup-preview">
-            <strong>Prévia do backup</strong>
-            <small>Exportado em: {new Date(importPreview.exportedAt).toLocaleString('pt-BR')} · {Object.keys(importPreview.keys).length} grupo(s)</small>
-            <div className="local-backup-summary-grid">
-              {importDataSummary.map((item) => <span key={item.label}>{item.label}: <strong>{item.count}</strong></span>)}
-            </div>
-            <ul>
-              {Object.keys(importPreview.keys).slice(0, 12).map((key) => <li key={key}>{key}</li>)}
-            </ul>
+      <div className="orca-panel-card">
+        <header>
+          <div>
+            <h2>Exportar Dados</h2>
           </div>
-        )}
-
-        <div className="local-backup-warning">
-          <strong>Atenção</strong>
-          <p>Dados locais podem ser perdidos se o navegador limpar cache. Exporte backup regularmente. Fotos grandes e arquivos externos podem precisar de estratégia própria no futuro.</p>
+        </header>
+        <div className="dashboard-finance-tiles" style={{ padding: '1rem' }}>
+          {currentDataSummary.slice(0, 3).map((item) => (
+            <article className="finance-tile" key={item.label}>
+              <span>{item.label}</span>
+              <strong>{item.count}</strong>
+            </article>
+          ))}
         </div>
+        <div className="local-backup-actions" style={{ padding: '0 1.5rem 1.5rem' }}>
+          <button className="ghost-action" type="button" onClick={downloadBackup}>Download JSON</button>
+          <button className="ghost-action" type="button" onClick={copyBackup}>Copiar</button>
+        </div>
+      </div>
 
-        {feedback && <div className="guided-cart-feedback">{feedback}</div>}
-      </section>
+      <div className="orca-panel-card">
+        <header>
+          <div>
+            <h2>Restaurar Dados</h2>
+          </div>
+        </header>
+        <div className="professional-profile-grid" style={{ padding: '1.5rem' }}>
+          <label className="budget-field wide">
+            <span>Arquivo JSON</span>
+            <input type="file" accept="application/json,.json" onChange={(event) => handleFileImport(event.target.files?.[0] ?? null)} />
+          </label>
+          <label className="budget-field wide">
+            <span>Modo</span>
+            <select value={restoreMode} onChange={(event) => setRestoreMode(event.target.value as 'merge' | 'replace')}>
+              <option value="merge">Mesclar dados</option>
+              <option value="replace">Substituir tudo</option>
+            </select>
+          </label>
+        </div>
+        <div className="local-backup-actions" style={{ padding: '0 1.5rem 1.5rem' }}>
+          <button className="ghost-action" type="button" onClick={restoreImport}>Restaurar</button>
+          {canReload && <button className="ghost-action" type="button" onClick={reloadAppNow}>Recarregar App</button>}
+        </div>
+      </div>
+      <div className="orca-panel-card">
+        <header>
+          <div>
+            <h2>Ferramentas Avançadas</h2>
+          </div>
+        </header>
+        <div style={{ padding: '1.5rem' }}>
+          <label className="local-backup-textarea">
+            <span>Conteúdo do backup JSON</span>
+            <textarea value={backupText} placeholder="Cole aqui um backup JSON do Aferix ou gere um backup para visualizar." onChange={(event) => setBackupText(event.target.value)} />
+          </label>
+
+          {importPreview && (
+            <div className="local-backup-preview">
+              <strong>Prévia do backup</strong>
+              <small>Exportado em: {new Date(importPreview.exportedAt).toLocaleString('pt-BR')} · {Object.keys(importPreview.keys).length} grupo(s)</small>
+              <div className="local-backup-summary-grid">
+                {importDataSummary.map((item) => <span key={item.label}>{item.label}: <strong>{item.count}</strong></span>)}
+              </div>
+              <ul>
+                {Object.keys(importPreview.keys).slice(0, 12).map((key) => <li key={key}>{key}</li>)}
+              </ul>
+            </div>
+          )}
+
+          <div className="local-backup-warning">
+            <strong>Atenção</strong>
+            <p>Dados locais podem ser perdidos se o navegador limpar cache. Exporte backup regularmente.</p>
+          </div>
+
+          {feedback && <div className="guided-cart-feedback">{feedback}</div>}
+        </div>
+      </div>
     </>
   );
 }

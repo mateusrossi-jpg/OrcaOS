@@ -95,145 +95,81 @@ export function ProfessionalProfileWorkspace() {
   }
 
   return (
-    <section className="professional-profile-workspace">
-      <div className="professional-profile-header">
-        <div>
-          <span className="orca-kicker">Dados empresariais</span>
-          <h2>Identidade da empresa</h2>
-          <p>Centralize logo, dados comerciais e padrões de documentos usados em orçamentos, relatórios, OS, backup e futura sincronização.</p>
-        </div>
-        <strong>{profile.mainArea || 'Área não definida'}</strong>
+    <div className="professional-profile-workspace" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+      <div className="orca-panel-card">
+        <header>
+          <div>
+            <span className="orca-kicker">Empresa</span>
+            <h2>Perfil Profissional</h2>
+          </div>
+        </header>
       </div>
 
-      <div className="professional-profile-card id-card">
-        <div className="professional-card-heading">
-          <strong>IDs locais</strong>
-          <small>Esses IDs preparam o Aferix para login, licença, backup em nuvem e Aferix Cliente no futuro.</small>
-        </div>
-        <div className="professional-id-grid">
-          <article>
-            <span>ID profissional</span>
+      <div className="orca-panel-card">
+        <header>
+          <div>
+            <h2>IDs de Identificação</h2>
+          </div>
+        </header>
+        <div className="dashboard-finance-tiles" style={{ padding: '1.5rem' }}>
+          <article className="finance-tile">
+            <span>Profissional</span>
             <code>{profile.professionalId}</code>
           </article>
-          <article>
-            <span>ID empresa</span>
+          <article className="finance-tile">
+            <span>Empresa</span>
             <code>{profile.companyId}</code>
           </article>
         </div>
-        <button className="secondary-action inline-action" type="button" onClick={regenerateIds}>Gerar novos IDs locais</button>
+        <div style={{ padding: '0 1.5rem 1.5rem' }}>
+          <button className="ghost-action" type="button" onClick={regenerateIds}>Renovar Identificadores</button>
+        </div>
       </div>
 
-      <div className="professional-profile-card">
-        <div className="professional-card-heading">
-          <strong>Dados da empresa e profissional</strong>
-          <small>Este é o ponto único para editar identidade, logo e informações que aparecem nos documentos.</small>
-        </div>
-        <div className="professional-logo-editor">
+      <div className="orca-panel-card">
+        <header>
+          <div>
+            <h2>Dados Comerciais</h2>
+          </div>
+        </header>
+        <div className="professional-logo-editor" style={{ padding: '1.5rem', borderBottom: '1px solid #222' }}>
           <div className="professional-logo-preview">
-            {profile.logoDataUrl || profile.logoUrl ? <img src={profile.logoDataUrl || profile.logoUrl} alt="Logo profissional" /> : <span>Sem logo</span>}
+            {profile.logoDataUrl || profile.logoUrl ? <img src={profile.logoDataUrl || profile.logoUrl} alt="Logo" /> : <div style={{ width: '80px', height: '40px', background: '#222', borderRadius: '4px', display: 'grid', placeItems: 'center', fontSize: '0.6rem', color: '#666' }}>SEM LOGO</div>}
           </div>
           <div className="professional-logo-copy">
-            <strong>Logo dos documentos</strong>
-            <small>Use uma imagem simples e horizontal sempre que possível. Ela aparece em orçamento e relatório.</small>
-            <div className="professional-profile-actions">
-              <label className="secondary-action inline-action file-action">Escolher logo<input accept="image/*" type="file" onChange={handleLogoFileChange} /></label>
-              {(profile.logoDataUrl || profile.logoUrl) && <button className="danger-action" type="button" onClick={removeLogo}>Remover logo</button>}
+            <div className="professional-profile-actions" style={{ marginTop: '0.5rem' }}>
+              <label className="ghost-action file-action">Upload Logo<input accept="image/*" type="file" onChange={handleLogoFileChange} style={{ display: 'none' }} /></label>
+              {(profile.logoDataUrl || profile.logoUrl) && <button className="ghost-action" type="button" onClick={removeLogo} style={{ color: '#ef4444' }}>Remover</button>}
             </div>
           </div>
         </div>
-        <div className="professional-profile-grid">
-          <label>
-            <span>Nome profissional</span>
-            <input value={profile.professionalName} placeholder="Ex.: Profissional técnico" onChange={(event) => updateProfile('professionalName', event.target.value)} />
-          </label>
-          <label>
-            <span>Nome comercial / empresa</span>
-            <input value={profile.businessName} placeholder="Ex.: Empresa técnica" onChange={(event) => updateProfile('businessName', event.target.value)} />
-          </label>
-          <label>
-            <span>CPF/CNPJ</span>
-            <input value={profile.document} placeholder="Opcional" onChange={(event) => updateProfile('document', event.target.value)} />
-          </label>
-          <label>
-            <span>Telefone/WhatsApp</span>
-            <input value={profile.phone} placeholder="Opcional" onChange={(event) => updateProfile('phone', event.target.value)} />
-          </label>
-          <label>
-            <span>E-mail</span>
-            <input value={profile.email} placeholder="Opcional" onChange={(event) => updateProfile('email', event.target.value)} />
-          </label>
-          <label className="wide">
-            <span>Endereço</span>
-            <input value={profile.address} placeholder="Rua, número, bairro" onChange={(event) => updateProfile('address', event.target.value)} />
-          </label>
-          <label>
-            <span>Cidade</span>
-            <input value={profile.city} placeholder="Ex.: Cidade" onChange={(event) => updateProfile('city', event.target.value)} />
-          </label>
-          <label>
-            <span>UF</span>
-            <input value={profile.state} placeholder="SP" maxLength={2} onChange={(event) => updateProfile('state', event.target.value.toUpperCase())} />
-          </label>
-          <label>
-            <span>Área principal</span>
-            <select value={profile.mainArea} onChange={(event) => updateProfile('mainArea', event.target.value)}>
-              {professionalAreas.map((area) => <option key={area} value={area}>{area}</option>)}
-            </select>
-          </label>
-          <label className="wide">
-            <span>Logo por URL opcional</span>
-            <input value={profile.logoUrl} placeholder="https://.../logo.png" onChange={(event) => updateProfile('logoUrl', event.target.value)} />
-          </label>
+        <div className="professional-profile-grid" style={{ padding: '1.5rem' }}>
+          <label className="budget-field"><span>Nome Profissional</span><input value={profile.professionalName} onChange={(event) => updateProfile('professionalName', event.target.value)} /></label>
+          <label className="budget-field"><span>Nome Empresa</span><input value={profile.businessName} onChange={(event) => updateProfile('businessName', event.target.value)} /></label>
+          <label className="budget-field"><span>Documento</span><input value={profile.document} onChange={(event) => updateProfile('document', event.target.value)} /></label>
+          <label className="budget-field"><span>WhatsApp</span><input value={profile.phone} onChange={(event) => updateProfile('phone', event.target.value)} /></label>
+          <label className="budget-field wide"><span>Endereço Completo</span><input value={profile.address} onChange={(event) => updateProfile('address', event.target.value)} /></label>
         </div>
       </div>
 
-      <div className="professional-profile-card">
-        <div className="professional-card-heading">
-          <strong>Padrões dos documentos</strong>
-          <small>Orçamentos novos usam estes textos como ponto de partida. Você ainda pode editar cada proposta.</small>
-        </div>
-        <div className="professional-profile-grid">
-          <label>
-            <span>Validade padrão</span>
-            <input value={profile.defaultValidity} placeholder="Ex.: 7 dias" onChange={(event) => updateProfile('defaultValidity', event.target.value)} />
-          </label>
-          <label>
-            <span>Garantia padrão</span>
-            <input value={profile.defaultGuarantee} placeholder="Ex.: 90 dias para mão de obra" onChange={(event) => updateProfile('defaultGuarantee', event.target.value)} />
-          </label>
-          <label>
-            <span>Prazo padrão</span>
-            <input value={profile.defaultExecutionDeadline} placeholder="Ex.: 3 dias úteis após aprovação" onChange={(event) => updateProfile('defaultExecutionDeadline', event.target.value)} />
-          </label>
-          <label>
-            <span>Modelo padrão de orçamento/PDF</span>
-            <select value={profile.defaultBudgetTemplateId} onChange={(event) => updateProfile('defaultBudgetTemplateId', event.target.value as BudgetTemplateId)}>
-              {budgetTemplateOptions.map((template) => <option key={template.id} value={template.id}>{template.plan === 'pro' ? 'Pro - ' : 'Free - '}{template.title}</option>)}
-            </select>
-          </label>
-          <label>
-            <span>Modelo padrão de relatório</span>
-            <select value={profile.defaultReportTemplateId} onChange={(event) => updateProfile('defaultReportTemplateId', event.target.value as ReportTemplateId)}>
-              {reportTemplateOptions.map((template) => <option key={template.id} value={template.id}>{template.plan === 'pro' ? 'Pro - ' : 'Free - '}{template.title}</option>)}
-            </select>
-          </label>
-          <label className="wide">
-            <span>Condições padrão de pagamento</span>
-            <textarea value={profile.defaultPaymentTerms} placeholder="Ex.: 50% na aprovação e 50% na entrega" onChange={(event) => updateProfile('defaultPaymentTerms', event.target.value)} />
-          </label>
-          <div className="professional-template-hint wide">
-            <strong>Modelos Pro ficam preparados para liberação comercial.</strong>
-            <small>Durante o beta, o modelo simples continua seguro para todos. Ao ativar Pro, estes padrões passam a controlar a apresentação dos documentos.</small>
+      <div className="orca-panel-card">
+        <header>
+          <div>
+            <h2>Padrões de Propostas</h2>
           </div>
-          <label className="wide">
-            <span>Observações comerciais</span>
-            <textarea value={profile.commercialNotes} placeholder="Ex.: atende residencial e comercial, preferência por obras de alto padrão, condições padrão de orçamento..." onChange={(event) => updateProfile('commercialNotes', event.target.value)} />
-          </label>
+        </header>
+        <div className="professional-profile-grid" style={{ padding: '1.5rem' }}>
+          <label className="budget-field"><span>Validade</span><input value={profile.defaultValidity} onChange={(event) => updateProfile('defaultValidity', event.target.value)} /></label>
+          <label className="budget-field"><span>Garantia</span><input value={profile.defaultGuarantee} onChange={(event) => updateProfile('defaultGuarantee', event.target.value)} /></label>
+          <label className="budget-field wide"><span>Condições de Pagamento</span><textarea value={profile.defaultPaymentTerms} onChange={(event) => updateProfile('defaultPaymentTerms', event.target.value)} /></label>
+          <label className="budget-field wide"><span>Observações</span><textarea value={profile.commercialNotes} onChange={(event) => updateProfile('commercialNotes', event.target.value)} /></label>
         </div>
-        <button className="primary-action inline-action" type="button" onClick={saveProfile}>Salvar dados empresariais</button>
+        <div style={{ padding: '0 1.5rem 1.5rem' }}>
+          <button className="ghost-action" type="button" onClick={saveProfile}>Salvar Alterações</button>
+        </div>
       </div>
 
       {feedback && <div className="guided-cart-feedback">{feedback}</div>}
-    </section>
+    </div>
   );
 }

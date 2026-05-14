@@ -5,19 +5,19 @@ import type { AppTab, CalculationSectorGroup, ModuleCardData, ModulePlan } from 
 export const userPlan: UserPlan = 'free';
 
 export const navItems: Array<{ id: AppTab; label: string; description: string; icon: string; section?: string; primary?: boolean }> = [
-  { id: 'home', label: 'Dashboard', description: 'KPIs, lucro e recebíveis', icon: 'dashboard', section: 'Gestão financeira', primary: true },
-  { id: 'budgets', label: 'Propostas', description: 'Orçamentos, envio e aprovação', icon: 'budget', section: 'Gestão financeira', primary: true },
-  { id: 'clients', label: 'Clientes', description: 'Cadastro, histórico e serviços', icon: 'clients', section: 'Gestão financeira', primary: true },
-  { id: 'financial', label: 'Financeiro', description: 'Receita, custos e lucro real', icon: 'finance', section: 'Gestão financeira', primary: true },
-  { id: 'catalog', label: 'Catálogo', description: 'Itens, serviços e fornecedores', icon: 'catalog', section: 'Operação', primary: true },
-  { id: 'calculations', label: 'Simulador', description: 'Margem, taxas e parcelamento', icon: 'calculator', section: 'Operação' },
-  { id: 'purchaseList', label: 'Compras', description: 'Materiais e itens de execução', icon: 'list', section: 'Operação' },
-  { id: 'reports', label: 'Relatórios', description: 'Documento comercial e gerencial', icon: 'reports', section: 'Operação' },
-  { id: 'survey', label: 'Base técnica', description: 'Itens de apoio para proposta', icon: 'survey', section: 'Operação' },
-  { id: 'store', label: 'Licença', description: 'Plano, recursos Pro e assinatura', icon: 'store', section: 'Sistema' },
-  { id: 'settings', label: 'Configurações', description: 'Perfil, acesso, backup e preferências', icon: 'settings', section: 'Sistema' },
-  { id: 'beta', label: 'Beta', description: 'Checklist de teste fechado', icon: 'beta', section: 'Sistema' },
-  { id: 'more', label: 'Mais recursos', description: 'Atalhos para áreas avançadas', icon: 'more', section: 'Sistema' },
+  { id: 'home', label: 'Dashboard', description: 'Resumo financeiro', icon: 'dashboard', section: 'Gestão financeira', primary: true },
+  { id: 'budgets', label: 'Propostas', description: 'Fluxo comercial', icon: 'budget', section: 'Gestão financeira', primary: true },
+  { id: 'clients', label: 'Clientes', description: 'Atendimentos', icon: 'clients', section: 'Gestão financeira', primary: true },
+  { id: 'financial', label: 'Financeiro', description: 'Receitas e custos', icon: 'finance', section: 'Gestão financeira', primary: true },
+  { id: 'catalog', label: 'Catálogo', description: 'Itens e serviços', icon: 'catalog', section: 'Operação', primary: true },
+  { id: 'calculations', label: 'Simulador', description: 'Preço e margem', icon: 'calculator', section: 'Operação' },
+  { id: 'purchaseList', label: 'Compras', description: 'Lista do cliente', icon: 'list', section: 'Operação' },
+  { id: 'reports', label: 'Relatórios', description: 'Prévia do documento', icon: 'reports', section: 'Operação' },
+  { id: 'survey', label: 'Base técnica', description: 'Registro opcional', icon: 'survey', section: 'Operação' },
+  { id: 'store', label: 'Licença', description: 'Planos e acesso', icon: 'store', section: 'Sistema' },
+  { id: 'settings', label: 'Configurações', description: 'Perfil e backup', icon: 'settings', section: 'Sistema' },
+  { id: 'beta', label: 'Beta', description: 'Validação final', icon: 'beta', section: 'Sistema' },
+  { id: 'more', label: 'Mais recursos', description: 'Acesso rápido', icon: 'more', section: 'Sistema' },
 ];
 
 export const calculationModules: ModuleCardData[] = [
@@ -35,7 +35,7 @@ export const calculationSectorGroups: CalculationSectorGroup[] = [
 ];
 
 export function planLabel(plan: ModulePlan): string {
-  if (plan === 'free') return 'LIVRE';
-  if (plan === 'pro') return 'PRO';
-  return 'EM BREVE';
+  if (plan === 'free') return 'Livre';
+  if (plan === 'pro') return 'Pro';
+  return 'Em breve';
 }
