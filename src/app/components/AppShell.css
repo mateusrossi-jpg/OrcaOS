@@ -4,12 +4,12 @@
   --orca-surface-soft: #111111;
   --orca-surface-elevated: #1a1a1a;
   --orca-border: #222222;
-  --orca-border-strong: rgba(45, 212, 191, 0.42);
+  --orca-border-strong: rgba(245, 158, 11, 0.45);
   --orca-text: var(--stable-text, #f8fafc);
   --orca-muted: #a1a1aa;
-  --orca-primary: #2dd4bf;
-  --orca-primary-strong: #2dd4bf;
-  --orca-primary-soft: rgba(45, 212, 191, 0.12);
+  --orca-primary: #f59e0b;
+  --orca-primary-strong: #fbbf24;
+  --orca-primary-soft: rgba(245, 158, 11, 0.12);
   --orca-shadow: none;
 }
 
@@ -90,7 +90,7 @@ body,
   font-size: 0.68rem;
   font-weight: 950;
   letter-spacing: 0.12em;
-  text-transform: uppercase;
+  text-transform: none;
 }
 
 .desktop-sidebar-brand button {
@@ -222,8 +222,19 @@ body,
   border-bottom: 1px solid var(--orca-border);
   padding: calc(6px + env(safe-area-inset-top)) max(24px, env(safe-area-inset-right)) 6px max(24px, env(safe-area-inset-left));
   background: #000000;
-  backdrop-filter: none;
+  backdrop-filter: blur(8px);
   overflow: hidden;
+}
+
+.professional-topbar::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--orca-premium-gradient);
+  opacity: 0.8;
 }
 
 .professional-topbar > * {
@@ -262,6 +273,18 @@ body,
   display: block;
 }
 
+.aferix-wordmark-img {
+  display: block;
+  width: 138px;
+  height: auto;
+}
+
+.aferix-mark-img {
+  display: block;
+  width: 22px;
+  height: 22px;
+}
+
 .topbar-branding-center {
   position: absolute;
   left: 50%;
@@ -276,7 +299,8 @@ body,
 .topbar-logo-group {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
+  max-width: min(46vw, 220px);
 }
 
 .topbar-digital-clock {
@@ -304,7 +328,7 @@ body,
   background: #111111;
   font-size: 0.76rem;
   font-weight: 700;
-  text-transform: uppercase;
+  text-transform: none;
   letter-spacing: 0.05em;
   white-space: nowrap;
 }
@@ -327,16 +351,20 @@ body,
 }
 
 .topbar-status-pill.active {
-  border-color: #2dd4bf;
-  color: #2dd4bf;
-  background: rgba(45, 212, 191, 0.1);
+  border-color: var(--orca-primary);
+  color: var(--orca-primary);
+  background: rgba(245, 158, 11, 0.08);
 }
 
 .topbar-status-pill.active span {
-  background: #2dd4bf;
+  background: var(--orca-primary);
 }
 
 @media (max-width: 760px) {
+  .aferix-wordmark-img {
+    width: 122px;
+  }
+
   .topbar-branding-center {
     gap: 8px;
   }
@@ -460,9 +488,9 @@ body,
 }
 
 .drawer-close-button:hover {
-  border-color: #2dd4bf;
-  color: #2dd4bf;
-  background: rgba(45, 212, 191, 0.05);
+  border-color: var(--orca-primary);
+  color: var(--orca-primary);
+  background: rgba(245, 158, 11, 0.06);
 }
 
 .drawer-brand-card strong,
@@ -509,7 +537,7 @@ body,
   color: var(--orca-primary);
   font-size: 0.72rem;
   font-weight: 950;
-  text-transform: uppercase;
+  text-transform: none;
   letter-spacing: 0.03em;
   white-space: nowrap;
 }
@@ -522,13 +550,13 @@ body,
 }
 
 .drawer-status-strip.active {
-  border-color: rgba(0, 184, 194, 0.24);
-  background: rgba(0, 184, 194, 0.055);
+  border-color: rgba(245, 158, 11, 0.28);
+  background: rgba(245, 158, 11, 0.06);
 }
 
 .drawer-status-strip.active > span {
   background: var(--orca-primary);
-  box-shadow: 0 0 0 3px rgba(0, 184, 194, 0.12);
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.12);
 }
 
 .drawer-nav {
@@ -545,7 +573,7 @@ body,
   font-size: 0.7rem;
   font-weight: 700;
   letter-spacing: 0.15em;
-  text-transform: uppercase;
+  text-transform: none;
 }
 
 .drawer-nav-heading:first-child {
@@ -573,7 +601,7 @@ body,
 
 .drawer-nav button.active {
   border-color: var(--orca-border-strong);
-  background: rgba(0, 184, 194, 0.065);
+  background: rgba(245, 158, 11, 0.065);
 }
 
 .drawer-nav button > span {
@@ -607,7 +635,7 @@ body,
 }
 
 .drawer-nav button.active strong {
-  color: #b8f7fb;
+  color: #fbbf24;
 }
 
 /* .bottom-nav removed */

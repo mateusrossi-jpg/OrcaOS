@@ -1,0 +1,16 @@
+<svg width="900" height="240" viewBox="0 0 900 240" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Aferix logo light</title>
+  <desc id="desc">AFERIX wordmark for light backgrounds, with a premium gold ascending X arrow.</desc>
+  <defs>
+    <linearGradient id="gold" x1="640" y1="170" x2="795" y2="55" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#B78035"/>
+      <stop offset="0.45" stop-color="#CBA05C"/>
+      <stop offset="1" stop-color="#E0B965"/>
+    </linearGradient>
+  </defs>
+  <g id="aferix-wordmark-light">
+    <text x="38" y="154" fill="#252A2D" font-family="Inter, Manrope, Sora, Arial, sans-serif" font-size="104" font-weight="800" letter-spacing="8">AFERI</text>
+    <path d="M646 75 L675 75 L742 162 L713 162 Z" fill="#252A2D" opacity="0.94"/>
+    <path d="M660 162 L708 102 L690 102 L789 55 L772 154 L756 130 L729 162 Z" fill="url(#gold)"/>
+  </g>
+</svg>

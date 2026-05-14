@@ -1,0 +1,623 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="542.83777"
+   height="91.802704"
+   viewBox="0 0 542.83777 91.802704"
+   fill="none"
+   role="img"
+   aria-labelledby="title desc"
+   version="1.1"
+   id="svg377"
+   sodipodi:docname="aferix-logo-dark-panel.svg"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   inkscape:export-filename="aferix-logo-dark-panel.svg"
+   inkscape:export-xdpi="300"
+   inkscape:export-ydpi="300"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview379"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     showgrid="false"
+     inkscape:zoom="1.1238095"
+     inkscape:cx="567.71186"
+     inkscape:cy="306.1017"
+     inkscape:window-width="1374"
+     inkscape:window-height="831"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="g1239" />
+  <title
+     id="title">Aferix dark panel logo</title>
+  <desc
+     id="desc">AFERIX wordmark on a dark premium panel.</desc>
+  <defs
+     id="defs365">
+    <linearGradient
+       id="linearGradient747"
+       x1="760"
+       y1="285"
+       x2="925"
+       y2="130"
+       gradientUnits="userSpaceOnUse">
+      <stop
+         stop-color="#B78035"
+         id="stop741" />
+      <stop
+         offset="0.69198108"
+         stop-color="#CBA05C"
+         id="stop743" />
+      <stop
+         offset="1"
+         stop-color="#E0B965"
+         id="stop745" />
+    </linearGradient>
+    <linearGradient
+       id="gold"
+       x1="760"
+       y1="285"
+       x2="925"
+       y2="130"
+       gradientUnits="userSpaceOnUse">
+      <stop
+         stop-color="#B78035"
+         id="stop357" />
+      <stop
+         offset="0.45"
+         stop-color="#CBA05C"
+         id="stop359" />
+      <stop
+         offset="1"
+         stop-color="#E0B965"
+         id="stop361" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient747"
+       id="linearGradient641"
+       gradientUnits="userSpaceOnUse"
+       x1="760"
+       y1="285"
+       x2="925"
+       y2="130"
+       gradientTransform="matrix(0.32604696,0,0,0.6574246,185.54269,51.276106)" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#gold"
+       id="linearGradient643"
+       gradientUnits="userSpaceOnUse"
+       x1="760"
+       y1="285"
+       x2="925"
+       y2="130"
+       gradientTransform="matrix(0.79399265,0,0,0.79399265,-162.43352,24.865901)" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#gold"
+       id="linearGradient976"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.79399265,0,0,0.79399265,-162.43352,24.865901)"
+       x1="760"
+       y1="285"
+       x2="925"
+       y2="130" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient747"
+       id="linearGradient5777"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.32604696,0,0,0.6574246,185.54269,51.276106)"
+       x1="760"
+       y1="285"
+       x2="925"
+       y2="130" />
+  </defs>
+  <g
+     transform="translate(-3.2871227,-84.415347)"
+     id="g375">
+    <g
+       id="g935">
+      <g
+         id="g1239">
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use893"
+           id="use899" />
+        <text
+           x="0"
+           y="176"
+           fill="#f4f1e7"
+           font-family="Inter, Manrope, Sora, Arial, sans-serif"
+           font-size="132px"
+           font-weight="800"
+           letter-spacing="10"
+           id="text369">AFERI</text>
+        <path
+           d="m 448.94082,84.41535 h 28.58374 l 66.69538,91.30915 H 515.6362 Z"
+           fill="url(#gold)"
+           id="path371"
+           style="fill:url(#linearGradient643);stroke-width:0.793993" />
+        <path
+           d="m 441.50052,176.21805 72.6509,-74.2152 -21.76888,-17.454917 53.68857,0.281075 0.0538,59.596762 -17.66701,-26.69602 -57.95017,58.45702 z"
+           fill="url(#gold)"
+           id="path373"
+           style="fill:url(#linearGradient641);stroke-width:0.462981"
+           sodipodi:nodetypes="cccccccc" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#text369"
+           id="use893" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#path371"
+           id="use895" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#path373"
+           id="use897" />
+        <path
+           d="m 448.94082,84.41535 h 28.58374 l 66.69538,91.30915 H 515.6362 Z"
+           fill="url(#gold)"
+           id="use917"
+           style="fill:url(#linearGradient976);stroke-width:0.793993" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use895"
+           id="use901" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use897"
+           id="use903" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use907"
+           id="use913"
+           inkscape:label="use913" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use899"
+           id="use905" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use901"
+           id="use907" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use903"
+           id="use909" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use905"
+           id="use911" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use911"
+           id="use915" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use899"
+           id="use983" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#text369"
+           id="use985" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#path371"
+           id="use987" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#path373"
+           id="use989" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use893"
+           id="use991" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use895"
+           id="use993" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use897"
+           id="use995" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use917"
+           id="use997" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use901"
+           id="use999" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use903"
+           id="use1001" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use913"
+           id="use1003" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use905"
+           id="use1005" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use907"
+           id="use1007" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use909"
+           id="use1009" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use911"
+           id="use1011" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use915"
+           id="use1013" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use983"
+           id="use1015" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use985"
+           id="use1017" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use987"
+           id="use1019" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use989"
+           id="use1021" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use991"
+           id="use1023" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use993"
+           id="use1025" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use995"
+           id="use1027" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use997"
+           id="use1029" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use999"
+           id="use1031" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use1001"
+           id="use1033" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use1003"
+           id="use1035" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use1005"
+           id="use1037" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use1007"
+           id="use1039" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use1009"
+           id="use1041" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use1011"
+           id="use1043" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use1013"
+           id="use1045" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use1015"
+           id="use1047" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use1017"
+           id="use1049" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use1019"
+           id="use1051" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use1021"
+           id="use1053" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use1023"
+           id="use1055" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use1025"
+           id="use1057" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use1027"
+           id="use1059" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use1029"
+           id="use1061" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use1031"
+           id="use1063" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use1033"
+           id="use1065" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use1035"
+           id="use1067" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use1037"
+           id="use1069" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use1039"
+           id="use1071" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use1041"
+           id="use1073" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use1043"
+           id="use1075" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use1045"
+           id="use1077" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use1047"
+           id="use1079" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use1049"
+           id="use1081" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use1051"
+           id="use1083" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use1053"
+           id="use1085" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use1055"
+           id="use1087" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use1057"
+           id="use1089" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use1059"
+           id="use1091" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use1061"
+           id="use1093" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use1063"
+           id="use1095" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use1065"
+           id="use1097" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use1067"
+           id="use1099" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use1069"
+           id="use1101" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use1071"
+           id="use1103" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use1073"
+           id="use1105" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use1075"
+           id="use1107" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use1077"
+           id="use1109" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use1079"
+           id="use1111" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use1081"
+           id="use1113" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use1083"
+           id="use1115" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use1085"
+           id="use1117" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use1087"
+           id="use1119" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use1089"
+           id="use1121" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use1091"
+           id="use1123" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use1093"
+           id="use1125" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use1095"
+           id="use1127" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use1097"
+           id="use1129" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use1099"
+           id="use1131" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use1101"
+           id="use1133" />
+        <path
+           d="m 448.94082,84.41535 h 28.58374 l 66.69538,91.30915 H 515.6362 Z"
+           fill="url(#gold)"
+           id="use1135"
+           style="fill:#f4f1e7;fill-opacity:1;stroke:none;stroke-width:0.793993" />
+        <path
+           d="m 441.50052,176.21805 67.91548,-70.174 -17.03346,-21.496117 53.68857,0.281075 0.0538,59.596762 -19.50178,-25.22562 -56.1154,56.98662 z"
+           fill="url(#gold)"
+           id="use1137"
+           style="fill:url(#linearGradient5777);stroke-width:0.462981"
+           sodipodi:nodetypes="cccccccc" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use1107"
+           id="use1139" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#use1109"
+           id="use1141"
+           style="fill:#000000;stroke:none" />
+      </g>
+    </g>
+  </g>
+</svg>

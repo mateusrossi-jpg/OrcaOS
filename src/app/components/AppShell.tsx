@@ -8,27 +8,14 @@ export function AferixLogo({ className, collapsed }: { className?: string; colla
   if (collapsed) {
     return (
       <div className={`aferix-brand-logo collapsed ${className || ''}`} aria-label="Aferix">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M7 17L17 7M17 7H10M17 7V14" stroke="#f59e0b" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
+        <img className="aferix-mark-img" src={AFERIX_ICON_URL} alt="Aferix" />
       </div>
     );
   }
 
   return (
     <div className={`aferix-brand-logo ${className || ''}`} aria-label="Aferix">
-      <svg width="110" height="24" viewBox="0 0 110 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        {/* Typographic "AFERIX" - Clean & Modern */}
-        <path d="M2 20L8 4L14 20M4 15H12" stroke="#f8fafc" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M22 4H30M22 4V20M22 12H28" stroke="#f8fafc" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M38 4H46M38 4V20M38 20H46M38 12H45" stroke="#f8fafc" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M54 20V4H61C63.5 4 65.5 5.5 65.5 8C65.5 10.5 63.5 12 61 12H54M60 12L66 20" stroke="#f8fafc" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M74 4V20" stroke="#f8fafc" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
-        {/* Distinctive X with Integrated Upward Arrow (The "Premium" Finish) */}
-        <path d="M84 20L96 8" stroke="#f8fafc" strokeWidth="2" strokeLinecap="round"/>
-        <path d="M84 8L96 20" stroke="#f59e0b" strokeWidth="3" strokeLinecap="round"/>
-        <path d="M96 8V14M96 8H90" stroke="#f59e0b" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
-      </svg>
+      <img className="aferix-wordmark-img" src="/icons/aferix-logo-dark-panel.svg" alt="Aferix" />
     </div>
   );
 }
