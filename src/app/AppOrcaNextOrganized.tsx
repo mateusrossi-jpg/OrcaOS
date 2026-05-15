@@ -10,7 +10,7 @@ import { loadSavedBudgets } from '../features/budgets/storage/savedBudgetsStorag
 import { loadActiveWorkOrderId, loadClients, loadWorkOrders, saveWorkOrders } from '../features/clients/storage/clientWorkOrderStorage';
 import { AppShell } from './components/AppShell';
 import { navItems, userPlan } from './orcaAppData';
-import type { AppTab, ModuleCardData } from './orcaAppTypes';
+import type { AppTab, CalculationSectorId, ModuleCardData } from './orcaAppTypes';
 import { loadStoredCaptures, saveStoredCaptures } from './storage/calculationCapturesStorage';
 import { cleanupRuntimeValidationData } from './storage/runtimeValidationCleanup';
 import { HomeScreen } from './screens/HomeScreen';
@@ -18,11 +18,9 @@ import { CalculationsScreen } from './screens/CalculationsScreen';
 import { SurveyScreen } from './screens/SurveyScreen';
 import { BudgetsScreen } from './screens/BudgetsScreen';
 import { CatalogScreen } from './screens/CatalogScreen';
-import { MoreScreen } from './screens/MoreScreen';
 import { ReportsScreen } from './screens/ReportsScreen';
 import { PurchaseListScreen } from './screens/PurchaseListScreen';
 import { FinancialScreen } from './screens/FinancialScreen';
-import { BetaReadinessScreen } from './screens/BetaReadinessScreen';
 import { ClientsScreen } from './screens/ClientsScreen';
 import { StoreScreen } from './screens/StoreScreen';
 import { SettingsScreen } from './screens/SettingsScreen';
@@ -127,12 +125,10 @@ export function App() {
         {activeTab === 'calculations' && <CalculationsScreen selectedModule={selectedModule} openModule={openModule} activeSector={activeSector as CalculationSectorId} onSelectSector={setActiveSector as (sector: CalculationSectorId) => void} goTo={goTo} userPlan={activeUserPlan} onCaptureCalculation={addCalculationCapture} context={context} captures={captures} />}
         {activeTab === 'survey' && <SurveyScreen captures={captures} context={context} onRemove={removeCalculationCapture} onUpdate={updateCalculationCapture} onAddMany={addManyCalculationCaptures} goTo={goTo} />}
         {activeTab === 'budgets' && <BudgetsScreen captures={captures} context={context} userPlan={activeUserPlan} goTo={goTo} onRemove={removeCalculationCapture} onUpdate={updateCalculationCapture} onConvertApprovedBudgetToWorkOrder={convertActiveBudgetToWorkOrder} />}
-        {activeTab === 'more' && <MoreScreen goTo={goTo} />}
         {activeTab === 'catalog' && <CatalogScreen onAddMany={addManyCalculationCaptures} context={context} />}
         {activeTab === 'purchaseList' && <PurchaseListScreen captures={captures} onUpdate={updateCalculationCapture} context={context} />}
         {activeTab === 'reports' && <ReportsScreen captures={captures} context={context} />}
         {activeTab === 'financial' && <FinancialScreen context={context} />}
-        {activeTab === 'beta' && <BetaReadinessScreen />}
         {activeTab === 'clients' && <ClientsScreen initialSection={clientInitialSection} sectionRequestKey={clientSectionRequestKey} onOpenBudgets={() => goTo('budgets')} onStartSurvey={() => goTo('survey')} onContextChange={(nextClients, nextWorkOrders, nextActiveWorkOrderId) => { setClients(nextClients); setWorkOrders(nextWorkOrders); setActiveWorkOrderId(nextActiveWorkOrderId); }} />}
         {activeTab === 'store' && <StoreScreen account={account} onAccountChange={setAccount} />}
         {activeTab === 'settings' && <SettingsScreen account={account} onAccountChange={setAccount} />}

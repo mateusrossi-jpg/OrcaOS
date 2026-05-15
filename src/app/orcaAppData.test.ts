@@ -41,8 +41,6 @@ describe('Aferix app data integrity', () => {
       'survey',
       'store',
       'settings',
-      'beta',
-      'more',
     ]);
     expect(navItems.every((item) => item.label && item.description && item.section)).toBe(true);
     expect(navItems.filter((item) => item.primary).map((item) => item.id)).toEqual(['home', 'budgets', 'clients', 'financial', 'catalog']);

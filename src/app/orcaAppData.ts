@@ -16,8 +16,6 @@ export const navItems: Array<{ id: AppTab; label: string; description: string; i
   { id: 'survey', label: 'Base técnica', description: 'Registro opcional', icon: 'survey', section: 'Operação' },
   { id: 'store', label: 'Licença', description: 'Planos e acesso', icon: 'store', section: 'Sistema' },
   { id: 'settings', label: 'Configurações', description: 'Perfil e backup', icon: 'settings', section: 'Sistema' },
-  { id: 'beta', label: 'Beta', description: 'Validação final', icon: 'beta', section: 'Sistema' },
-  { id: 'more', label: 'Mais recursos', description: 'Acesso rápido', icon: 'more', section: 'Sistema' },
 ];
 
 export const calculationModules: ModuleCardData[] = [

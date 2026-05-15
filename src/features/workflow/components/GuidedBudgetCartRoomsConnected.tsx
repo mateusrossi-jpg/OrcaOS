@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { handleNumericInputFocus } from '../../../core/ui/numericInputFocus';
 import { catalogPartBrands, catalogPartCategories, searchCatalogParts, type CatalogPart } from '../../../data/parts/catalogParts';
 import {
@@ -12,11 +12,21 @@ import { loadGuidedRooms } from '../storage/guidedRoomsStorage';
 import './GuidedBudgetCart.css';
 import './GuidedBudgetCartGrouped.css';
 import { kitBrands, kitTemplates } from '../data/kitTemplates';
-import { formatCurrency, createId, parseDecimal, guidedLineKey, mergeLineInto, partNote, makeCapture, lineTotal } from '../utils/guidedBudgetUtils';
+import { formatCurrency, createId, parseDecimal, guidedLineKey, mergeLineInto, partNote, makeCapture, lineTotal, kindLabel } from '../utils/guidedBudgetUtils';
 import type { CalculationDestination, TechnicalItemType } from '../../../core/types/workflow';
 import type { GuidedCartMode, GuidedLine, KitId, GuidedBudgetCartProps } from '../types/guidedBudget';
 import { GuidedBudgetCartHeader } from './guidedBudget/GuidedBudgetCartHeader';
-import { GuidedBudgetEnvironmentManager } from './guidedBudget/GuidedBudgetEnvironmentManager';
+
+const emptyManualPart = {
+  title: '',
+  brand: '',
+  model: '',
+  quantity: '1',
+  unitValue: '',
+  destination: 'both' as CalculationDestination,
+  note: '',
+};
+
 export function GuidedBudgetCart({ onSendToBudget, mode = 'all' }: GuidedBudgetCartProps) {
   const [savedRoomsRefreshKey, setSavedRoomsRefreshKey] = useState(0);
   const savedRoomNames = useMemo(() => loadGuidedRooms().map((room) => room.name), [savedRoomsRefreshKey]);
@@ -37,7 +47,6 @@ export function GuidedBudgetCart({ onSendToBudget, mode = 'all' }: GuidedBudgetC
   const [selectedKitId, setSelectedKitId] = useState<KitId>('double-outlet-4x2');
   const [kitQuantity, setKitQuantity] = useState('4');
   const [kitBrand, setKitBrand] = useState('Fabricante B');
-// ...existing code...
   const [kitDestination, setKitDestination] = useState<CalculationDestination>('both');
 
   const showManual = mode === 'manual' || mode === 'all';
@@ -46,14 +55,58 @@ export function GuidedBudgetCart({ onSendToBudget, mode = 'all' }: GuidedBudgetC
   const activeEnvironment = customEnvironment.trim() || environment || savedRoomNames[0] || 'Sem ambiente';
   const selectedKit = kitTemplates.find((kit) => kit.id === selectedKitId) ?? kitTemplates[0];
   const visibleLaborTemplates = laborTemplates.filter((template) => template.visible);
-  const hasLaborLookup = laborManagerQuery.trim().length > 0;
-  const filteredLaborTemplates = laborTemplates.filter((template) => {
+  
+  const filteredLaborTemplates = useMemo(() => {
     const query = laborManagerQuery.trim().toLowerCase();
-    if (!query) return false;
-    return [template.title, template.unit, template.note].join(' ').toLowerCase().includes(query);
-  });
+    if (!query) return laborTemplates;
+    return laborTemplates.filter((template) => 
+      [template.title, template.unit, template.note].join(' ').toLowerCase().includes(query)
+    );
+  }, [laborTemplates, laborManagerQuery]);
+
+  const hasLaborLookup = laborManagerQuery.trim().length > 0;
   const hasPartLookup = partQuery.trim().length > 0 || partBrand !== '' || partCategory !== '';
   const partResults = useMemo(() => (hasPartLookup ? searchCatalogParts(partQuery, partBrand, partCategory) : []), [hasPartLookup, partBrand, partCategory, partQuery]);
+
+  const environmentGroups = useMemo(() => {
+    const groups: Record<string, {
+      name: string;
+      lines: GuidedLine[];
+      itemCount: number;
+      totalQuantity: number;
+      subtotal: number;
+      materialSubtotal: number;
+      serviceSubtotal: number;
+    }> = {};
+
+    lines.forEach((line) => {
+      const env = line.environment || 'Sem ambiente';
+      if (!groups[env]) {
+        groups[env] = {
+          name: env,
+          lines: [],
+          itemCount: 0,
+          totalQuantity: 0,
+          subtotal: 0,
+          materialSubtotal: 0,
+          serviceSubtotal: 0,
+        };
+      }
+      groups[env].lines.push(line);
+      groups[env].itemCount += 1;
+      groups[env].totalQuantity += line.quantity;
+      const total = lineTotal(line);
+      groups[env].subtotal += total;
+      if (line.itemType === 'material') {
+        groups[env].materialSubtotal += total;
+      } else {
+        groups[env].serviceSubtotal += total;
+      }
+    });
+
+    return Object.values(groups);
+  }, [lines]);
+
   const totalValue = environmentGroups.reduce((sum, group) => sum + group.subtotal, 0);
   const totalQuantity = environmentGroups.reduce((sum, group) => sum + group.totalQuantity, 0);
 
