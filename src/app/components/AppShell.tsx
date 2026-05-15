@@ -103,10 +103,10 @@ export function AppShell<T extends string>({
   const [clockText, setClockText] = useState(() => formatTopbarClock(new Date()));
 
   useEffect(() => {
-    document.body.classList.toggle('orcaos-drawer-open', isDrawerOpen);
+    document.body.classList.toggle('aferix-drawer-open', isDrawerOpen);
 
     return () => {
-      document.body.classList.remove('orcaos-drawer-open');
+      document.body.classList.remove('aferix-drawer-open');
     };
   }, [isDrawerOpen]);
 

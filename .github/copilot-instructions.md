@@ -1,12 +1,12 @@
-# Copilot instructions — OrçaOS
+# Copilot instructions — Aferix
 
 Use these instructions whenever working on this repository.
 
 ## Product identity
 
-The product is **OrçaOS** — with cedilha. Do not rename it to OrcaOS in user-facing labels unless it is a technical file/package name that cannot use special characters.
+The product is **Aferix** — with cedilha. Do not rename it to Aferix in user-facing labels unless it is a technical file/package name that cannot use special characters.
 
-OrçaOS is intended to be a professional mobile-first platform for technicians and service providers. It starts as a practical calculator and guided quotation app, but must be architected to evolve into a broader business/ERP-style platform for:
+Aferix is intended to be a professional mobile-first platform for technicians and service providers. It starts as a practical calculator and guided quotation app, but must be architected to evolve into a broader business/ERP-style platform for:
 
 - technical calculations;
 - guided surveys / levantamento;

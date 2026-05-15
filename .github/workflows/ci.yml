@@ -1,4 +1,4 @@
-name: OrçaOS CI
+name: Aferix CI
 
 on:
   push:

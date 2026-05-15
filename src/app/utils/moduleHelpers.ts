@@ -4,15 +4,15 @@ import { calculationSectorGroups } from '../orcaAppData';
 import type { CalculationSectorId } from '../orcaAppTypes';
 
 export function isGeneralCalculatorModule(module: CalculatorModule): module is GeneralCalculatorModule {
-  return false;
+  return module === 'orcamentoTecnico';
 }
 
 export function isProfessionalDomainModule(module: CalculatorModule): boolean {
-  return module === 'refrigeration' || module === 'motors' || module === 'rewinding' || module === 'transformadores' || module === 'solar';
+  return false;
 }
 
 export function isExpansionModule(module: CalculatorModule): boolean {
-  return module === 'eletricaResidencial' || module === 'financeiroAvancado' || module === 'construcaoAvancada' || module === 'hidraulicaAvancada' || module === 'conversoresAvancados';
+  return module === 'financeiroAvancado';
 }
 
 export function getSectorForModule(moduleId: string): CalculationSectorId {

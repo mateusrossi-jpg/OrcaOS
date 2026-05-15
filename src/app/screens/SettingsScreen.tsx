@@ -127,7 +127,25 @@ export function SettingsScreen({ account, onAccountChange }: SettingsScreenProps
           <ProfessionalProfileWorkspace />
         </>
       )}
-      {settingsSection === 'about' && <LegalCompliancePanel />}
+      {settingsSection === 'about' && (
+        <>
+          <LegalCompliancePanel />
+          <div className="settings-group account-settings-panel">
+            <div className="settings-panel-title">
+              <span className="orca-kicker">Evolução planejada</span>
+              <h2>Roteiro do produto</h2>
+              <p>O Aferix está em desenvolvimento ativo. Confira as fases previstas:</p>
+            </div>
+            <div className="plan-priority-grid">
+              <article><span>1</span><strong>Fase 1: Essencial</strong><small>Atendimento, cálculo, orçamento e relatório simples.</small></article>
+              <article><span>2</span><strong>Fase 2: Financeiro</strong><small>Financeiro gerencial com receitas, custos e lucro real.</small></article>
+              <article><span>3</span><strong>Fase 3: Operacional</strong><small>Catálogo, serviços, materiais, estoque leve e lista de compra.</small></article>
+              <article><span>4</span><strong>Fase 4: Documentação</strong><small>Relatórios técnicos e comerciais avançados.</small></article>
+              <article><span>5</span><strong>Fase 5: Ecossistema</strong><small>Web, nuvem, multiusuário, fiscal e integrações.</small></article>
+            </div>
+          </div>
+        </>
+      )}
     </section>
   );
 }

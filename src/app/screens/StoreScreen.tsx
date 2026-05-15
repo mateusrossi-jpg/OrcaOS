@@ -98,12 +98,16 @@ export function StoreScreen({ account, onAccountChange }: StoreScreenProps) {
         <article className="featured"><span>Pacote vitalício</span><strong>R$ 29,90 sugerido</strong><small>Recursos planejados</small></article>
       </section>
       <section className="orca-panel-card store-comparison-card">
-        <header><div><h2>Comparativo de planos</h2></div></header>
-        <div className="store-comparison-table">
-          <div className="row head"><span>Plano</span><span>Posicionamento</span><span>Status</span></div>
-          <div className="row"><strong>Free</strong><span>Básico</span><span>Disponível</span></div>
-          <div className="row featured"><strong>Pro</strong><span>Profissional</span><span>Em validação</span></div>
-          <div className="row"><strong>Vitalício</strong><span>Recursos planejados</span><span>R$ 29,90 sugerido</span></div>
+        <header><div><h2>Vantagens do Aferix Pro</h2></div></header>
+        <div className="continuous-list">
+          {proPlanBenefits.map((benefit) => (
+            <article className="continuous-list-item" key={benefit.title}>
+              <div className="client-col">
+                <strong>{benefit.title}</strong>
+                <small>{benefit.description}</small>
+              </div>
+            </article>
+          ))}
         </div>
       </section>
       <div className="settings-group account-settings-panel billing-readiness-panel">
