@@ -2,53 +2,34 @@ import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
 import {
   loadAccountState,
   ORCA_ACCOUNT_CHANGED_EVENT,
-  setLocalUserPlan,
-  signInEmailAccount,
-  signInGoogleAccount,
-  signInLocalAccount,
-  signOutLocalAccount,
   type OrcaAccountState,
 } from '../core/access/accountPlanStorage';
 import { getBillingReadiness } from '../core/access/billingReadiness';
-import { buildProCheckoutUrl, buildProManageUrl, isProCheckoutConfigured, isProManageConfigured } from '../core/access/commercialCheckout';
-import { isGoogleAccountLoginConfigured, requestGoogleAccountProfile } from '../core/access/googleAccountAuth';
-import { getGooglePlayBillingSetup, purchaseGooglePlayPro, restoreGooglePlayPurchases, syncGooglePlayPurchaseEntitlement } from '../core/access/googlePlayBilling';
 import { isPlanEntitlementSyncConfigured, refreshPlanEntitlement } from '../core/access/planEntitlements';
-import { freePlanBenefits, futureProBacklog, proPlanBenefits, proV1Priorities } from '../core/access/planStrategy';
-import type { CalculatorModule, UserPlan } from '../core/access/featureAccess';
-import { isDevToolsEnabled } from '../core/runtime/devTools';
+import type { UserPlan } from '../core/access/featureAccess';
 import type { Client, WorkOrder } from '../core/types/business';
 import type { CalculationCapture } from '../core/types/workflow';
-import type { GeneralCalculatorModule } from '../features/calculators/components/GeneralCalculatorWorkspace';
-import type { FundamentalMode } from '../features/calculators/components/GeneralFundamentalsWorkspace';
-import { loadSavedBudgets, type SavedBudgetRecord } from '../features/budgets/storage/savedBudgetsStorage';
+import { loadSavedBudgets } from '../features/budgets/storage/savedBudgetsStorage';
 import { loadActiveWorkOrderId, loadClients, loadWorkOrders, saveWorkOrders } from '../features/clients/storage/clientWorkOrderStorage';
-import { ActiveWorkContextCard } from './components/ActiveWorkContextCard';
 import { AppShell } from './components/AppShell';
-import { ModuleCard } from './components/ModuleCard';
-import { calculationModules, calculationSectorGroups, navItems, planLabel, storePackages, userPlan } from './orcaAppData';
-import type { ActiveWorkContext, AppTab, CalculationSectorId, ModuleCardData, SurveySection } from './orcaAppTypes';
+import { calculationModules, navItems, userPlan } from './orcaAppData';
+import type { AppTab, CalculationSectorId, ModuleCardData } from './orcaAppTypes';
 import { loadStoredCaptures, saveStoredCaptures } from './storage/calculationCapturesStorage';
 import { cleanupRuntimeValidationData } from './storage/runtimeValidationCleanup';
-import { LegalCompliancePanel } from '../features/settings/components/LegalCompliancePanel';
 import { HomeScreen } from './screens/HomeScreen';
 import { CalculationsScreen } from './screens/CalculationsScreen';
+import { SurveyScreen } from './screens/SurveyScreen';
+import { BudgetsScreen } from './screens/BudgetsScreen';
+import { CatalogScreen } from './screens/CatalogScreen';
+import { MoreScreen } from './screens/MoreScreen';
+import { ReportsScreen } from './screens/ReportsScreen';
+import { PurchaseListScreen } from './screens/PurchaseListScreen';
+import { FinancialScreen } from './screens/FinancialScreen';
+import { BetaReadinessScreen } from './screens/BetaReadinessScreen';
+import { ClientsScreen } from './screens/ClientsScreen';
+import { StoreScreen } from './screens/StoreScreen';
+import { SettingsScreen } from './screens/SettingsScreen';
 import { getSectorForModule } from './utils/moduleHelpers';
-
-const BudgetWorkspaceClientBridge = lazy(() => import('../features/budgets/components/BudgetWorkspaceClientBridge').then((module) => ({ default: module.BudgetWorkspaceClientBridge })));
-const CatalogHubWorkspace = lazy(() => import('../features/catalog/components/CatalogHubWorkspaceWithTax').then((module) => ({ default: module.CatalogHubWorkspace })));
-const ClientWorkOrderWorkspace = lazy(() => import('../features/clients/components/ClientWorkOrderWorkspace').then((module) => ({ default: module.ClientWorkOrderWorkspace })));
-const SimpleFinanceWorkspace = lazy(() => import('../features/finance/components/SimpleFinanceWorkspace').then((module) => ({ default: module.SimpleFinanceWorkspace })));
-const ReportWorkspace = lazy(() => import('../features/reports/components/ReportWorkspace').then((module) => ({ default: module.ReportWorkspace })));
-const AppSecurityPanel = lazy(() => import('../features/settings/components/AppSecurityPanel').then((module) => ({ default: module.AppSecurityPanel })));
-const GoogleDriveBackupPanel = lazy(() => import('../features/settings/components/GoogleDriveBackupPanel').then((module) => ({ default: module.GoogleDriveBackupPanel })));
-const LocalBackupWorkspace = lazy(() => import('../features/settings/components/LocalBackupWorkspace').then((module) => ({ default: module.LocalBackupWorkspace })));
-const ProfessionalProfileWorkspace = lazy(() => import('../features/settings/components/ProfessionalProfileWorkspace').then((module) => ({ default: module.ProfessionalProfileWorkspace })));
-const GuidedBudgetCartRoomAutoBridge = lazy(() => import('../features/workflow/components/GuidedBudgetCartRoomAutoBridge').then((module) => ({ default: module.GuidedBudgetCartRoomAutoBridge })));
-const GuidedRoomManager = lazy(() => import('../features/workflow/components/GuidedRoomManager').then((module) => ({ default: module.GuidedRoomManager })));
-const MaterialSupplyModeBridge = lazy(() => import('../features/workflow/components/MaterialSupplyModeBridge').then((module) => ({ default: module.MaterialSupplyModeBridge })));
-const ClientPurchaseListWorkspace = lazy(() => import('../features/workflow/components/ClientPurchaseListWorkspace').then((module) => ({ default: module.ClientPurchaseListWorkspace })));
-const TechnicalCaptureList = lazy(() => import('../features/workflow/components/TechnicalCaptureList').then((module) => ({ default: module.TechnicalCaptureList })));
 
 function LazyWorkspaceFallback() {
   return (
@@ -61,43 +42,6 @@ function LazyWorkspaceFallback() {
   );
 }
 
-function isGeneralCalculatorModule(module: CalculatorModule): module is GeneralCalculatorModule {
-  return false;
-}
-
-function isProfessionalDomainModule(module: CalculatorModule): boolean {
-  return module === 'refrigeration' || module === 'motors' || module === 'rewinding' || module === 'transformadores' || module === 'solar';
-}
-
-function isExpansionModule(module: CalculatorModule): boolean {
-  return module === 'eletricaResidencial' || module === 'financeiroAvancado' || module === 'construcaoAvancada' || module === 'hidraulicaAvancada' || module === 'conversoresAvancados';
-}
-
-function getScreenTitle(activeTab: AppTab, selectedModule: ModuleCardData | null): string {
-  if (activeTab === 'calculations' && selectedModule) return selectedModule.title;
-  if (activeTab === 'survey') return 'Itens técnicos';
-  if (activeTab === 'catalog') return 'Estoque';
-  if (activeTab === 'purchaseList') return 'Lista de compra';
-  if (activeTab === 'reports') return 'Relatórios';
-  if (activeTab === 'financial') return 'Financeiro';
-  if (activeTab === 'beta') return 'Beta';
-  if (activeTab === 'settings') return 'Configurações';
-  if (activeTab === 'store') return 'Loja / Pro';
-  return navItems.find((item) => item.id === activeTab)?.label ?? 'Aferix';
-}
-
-function getScreenSubtitle(activeTab: AppTab, selectedModule: ModuleCardData | null): string {
-  if (activeTab === 'calculations' && selectedModule) return selectedModule.description;
-  if (activeTab === 'survey') return 'Registro opcional';
-  if (activeTab === 'catalog') return 'Itens e serviços';
-  if (activeTab === 'purchaseList') return 'Lista de compra';
-  if (activeTab === 'reports') return 'Prévia do documento';
-  if (activeTab === 'financial') return 'Receitas e custos';
-  if (activeTab === 'beta') return 'Validação final';
-  if (activeTab === 'settings') return 'Perfil e backup';
-  if (activeTab === 'store') return 'Planos e acesso';
-  return navItems.find((item) => item.id === activeTab)?.description ?? 'Gestão de campo';
-}
 
 function getSectorForModule(moduleId: string): CalculationSectorId {
   return calculationSectorGroups.find((group) => group.moduleIds.includes(moduleId))?.id ?? 'financial';
