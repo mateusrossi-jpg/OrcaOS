@@ -201,7 +201,7 @@
 }
 
 .human-example-note strong {
-  color: var(--orca-amber);
+  color: var(--aferix-primary);
   font-size: 0.74rem;
   font-weight: 950;
   letter-spacing: 0.065em;
@@ -430,7 +430,7 @@
 }
 
 .human-technical-warning strong {
-  color: var(--orca-amber);
+  color: var(--aferix-primary);
   font-size: 0.74rem;
   font-weight: 950;
   letter-spacing: 0.065em;

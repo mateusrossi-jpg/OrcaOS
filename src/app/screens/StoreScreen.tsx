@@ -97,20 +97,7 @@ export function StoreScreen({ account, onAccountChange }: StoreScreenProps) {
         <article className="featured"><span>Pro</span><strong>Em validação</strong><small>Profissional</small></article>
         <article className="featured"><span>Pacote vitalício</span><strong>R$ 29,90 sugerido</strong><small>Recursos planejados</small></article>
       </section>
-      <section className="aferix-panel-card store-comparison-card">
-        <header><div><h2>Vantagens do Aferix Pro</h2></div></header>
-        <div className="continuous-list">
-          {proPlanBenefits.map((benefit) => (
-            <article className="continuous-list-item" key={benefit.title}>
-              <div className="client-col">
-                <strong>{benefit.title}</strong>
-                <small>{benefit.description}</small>
-              </div>
-            </article>
-          ))}
-        </div>
-      </section>
-      <div className="settings-group account-settings-panel billing-readiness-panel">
+      {devToolsEnabled && <div className="settings-group account-settings-panel billing-readiness-panel">
         <div className="settings-panel-title">
           <span className="orca-kicker">Pagamentos</span>
           <h2>{billingReadiness.statusTitle}</h2>
@@ -125,8 +112,8 @@ export function StoreScreen({ account, onAccountChange }: StoreScreenProps) {
         <div className="billing-release-list">
           {billingReadiness.releaseChecklist.map((item) => <span key={item}>{item}</span>)}
         </div>
-      </div>
-      {googlePlayMode && <div className="settings-group account-settings-panel commercial-checkout-panel">
+      </div>}
+      {devToolsEnabled && googlePlayMode && <div className="settings-group account-settings-panel commercial-checkout-panel">
         <div className="settings-panel-title">
           <span className="orca-kicker">Google Play</span>
           <h2>Compra pela conta Google</h2>

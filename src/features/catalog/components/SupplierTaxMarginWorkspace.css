@@ -52,7 +52,7 @@
 .supplier-tax-card strong,
 .supplier-tax-note strong,
 .supplier-tax-record strong {
-  color: var(--orca-text, #f8fafc);
+  color: var(--aferix-text, #f8fafc);
 }
 
 .supplier-tax-header p,
@@ -60,7 +60,7 @@
 .supplier-tax-card small,
 .supplier-tax-note p,
 .supplier-tax-record small {
-  color: var(--orca-muted, #a7b3ad);
+  color: var(--aferix-muted, #a7b3ad);
 }
 
 .supplier-tax-grid-layout {
@@ -91,7 +91,7 @@
   display: grid;
   gap: 7px;
   min-width: 0;
-  color: var(--orca-muted, #a7b3ad);
+  color: var(--aferix-muted, #a7b3ad);
   font-size: 0.78rem;
   font-weight: 800;
 }
@@ -109,7 +109,7 @@
   border: 1px solid #222222;
   border-radius: 4px;
   background: #000000;
-  color: var(--orca-text, #f8fafc);
+  color: var(--aferix-text, #f8fafc);
   padding: 12px 13px;
   font: inherit;
   outline: none;
@@ -136,7 +136,7 @@
 
 .supplier-tax-result-grid span,
 .supplier-tax-record span {
-  color: var(--orca-teal, #f59e0b);
+  color: var(--aferix-primary, #f59e0b);
   font-size: 0.72rem;
   font-weight: 900;
   text-transform: uppercase;
@@ -163,7 +163,7 @@
   border: 1px dashed rgba(148, 214, 218, 0.16);
   border-radius: 14px;
   padding: 12px;
-  color: var(--orca-muted, #a7b3ad);
+  color: var(--aferix-muted, #a7b3ad);
   background: rgba(3, 9, 8, 0.26);
   text-align: center;
 }

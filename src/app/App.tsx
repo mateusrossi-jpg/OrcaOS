@@ -10,7 +10,7 @@ import { loadSavedBudgets } from '../features/budgets/storage/savedBudgetsStorag
 import { loadActiveWorkOrderId, loadClients, loadWorkOrders, saveWorkOrders } from '../features/clients/storage/clientWorkOrderStorage';
 import { AppShell } from './components/AppShell';
 import { navItems, userPlan } from './appData';
-import type { AppTab, CalculationSectorId, ModuleCardData } from './appTypes';
+import type { AppTab, ModuleCardData } from './appTypes';
 import { loadStoredCaptures, saveStoredCaptures } from './storage/calculationCapturesStorage';
 import { cleanupRuntimeValidationData } from './storage/runtimeValidationCleanup';
 import { HomeScreen } from './screens/HomeScreen';
@@ -24,23 +24,10 @@ import { FinancialScreen } from './screens/FinancialScreen';
 import { ClientsScreen } from './screens/ClientsScreen';
 import { StoreScreen } from './screens/StoreScreen';
 import { SettingsScreen } from './screens/SettingsScreen';
-import { getSectorForModule } from './utils/moduleHelpers';
-
-function LazyWorkspaceFallback() {
-  return (
-    <section className="app-screen">
-      <div className="empty-state-card">
-        <strong>Carregando área de trabalho</strong>
-        <p>Preparando os recursos desta tela.</p>
-      </div>
-    </section>
-  );
-}
 
 export function App() {
   const [activeTab, setActiveTab] = useState<AppTab>('home');
   const [selectedModule, setSelectedModule] = useState<ModuleCardData | null>(null);
-  const [activeSector, setActiveSector] = useState<string>('financial');
   const [clientInitialSection, setClientInitialSection] = useState<'dashboard' | 'newClient' | 'newWorkOrder' | 'clients' | 'workOrders'>('dashboard');
   const [clientSectionRequestKey, setClientSectionRequestKey] = useState(0);
   const [captures, setCaptures] = useState<CalculationCapture[]>(() => {
@@ -101,7 +88,6 @@ export function App() {
 
   function openModule(module: ModuleCardData | null) {
     setSelectedModule(module);
-    if (module) setActiveSector(getSectorForModule(module.id));
     setActiveTab('calculations');
   }
 
@@ -120,9 +106,9 @@ export function App() {
 
   return (
     <AppShell activeTab={activeTab} navItems={navItems} activeClient={activeClient} activeWorkOrder={activeWorkOrder} onNavigate={goTo}>
-      <Suspense fallback={<LazyWorkspaceFallback />}>
+      <Suspense fallback={null}>
         {activeTab === 'home' && <HomeScreen goTo={goTo} openModule={openModule} captures={captures} clients={clients} workOrders={workOrders} savedBudgets={loadSavedBudgets()} context={context} onStartNewAttendance={() => openClientSection('newWorkOrder')} />}
-        {activeTab === 'calculations' && <CalculationsScreen selectedModule={selectedModule} openModule={openModule} activeSector={activeSector as CalculationSectorId} onSelectSector={setActiveSector as (sector: CalculationSectorId) => void} goTo={goTo} userPlan={activeUserPlan} onCaptureCalculation={addCalculationCapture} context={context} captures={captures} />}
+        {activeTab === 'calculations' && <CalculationsScreen selectedModule={selectedModule} openModule={openModule} activeSector="financial" onSelectSector={() => {}} goTo={goTo} userPlan={activeUserPlan} onCaptureCalculation={addCalculationCapture} context={context} captures={captures} />}
         {activeTab === 'survey' && <SurveyScreen captures={captures} context={context} onRemove={removeCalculationCapture} onUpdate={updateCalculationCapture} onAddMany={addManyCalculationCaptures} goTo={goTo} />}
         {activeTab === 'budgets' && <BudgetsScreen captures={captures} context={context} userPlan={activeUserPlan} goTo={goTo} onRemove={removeCalculationCapture} onUpdate={updateCalculationCapture} onConvertApprovedBudgetToWorkOrder={convertActiveBudgetToWorkOrder} />}
         {activeTab === 'catalog' && <CatalogScreen onAddMany={addManyCalculationCaptures} context={context} />}

@@ -163,7 +163,7 @@
 }
 
 .guided-room-option.active {
-  border-color: var(--orca-border-strong, rgba(245, 158, 11, 0.34));
+  border-color: var(--aferix-border-strong, rgba(245, 158, 11, 0.34));
   background:
     radial-gradient(circle at top right, rgba(245, 158, 11, 0.15), transparent 9rem),
     var(--stable-surface-2, #151f19);
