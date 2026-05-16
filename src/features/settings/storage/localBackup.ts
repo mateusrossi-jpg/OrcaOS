@@ -19,6 +19,7 @@ export interface OrcaBackupDataSummaryItem {
 }
 
 const ORCA_PREFIX = 'orcaos:';
+const AFERIX_PREFIX = 'aferix:';
 const LEGACY_APP_MARKER = 'Or\u00e7aOS';
 
 function parseJsonValue(value: string | undefined): unknown {
@@ -45,7 +46,7 @@ export function collectOrcaLocalBackup(): OrcaLocalBackup {
   if (typeof window !== 'undefined') {
     for (let index = 0; index < window.localStorage.length; index += 1) {
       const key = window.localStorage.key(index);
-      if (key?.startsWith(ORCA_PREFIX)) {
+      if (key?.startsWith(ORCA_PREFIX) || key?.startsWith(AFERIX_PREFIX)) {
         const value = window.localStorage.getItem(key);
         if (value !== null) keys[key] = value;
       }
@@ -113,7 +114,7 @@ export function parseOrcaBackup(value: string): OrcaLocalBackup {
 
   const safeKeys: Record<string, string> = {};
   Object.entries(backup.keys).forEach(([key, itemValue]) => {
-    if (key.startsWith(ORCA_PREFIX) && typeof itemValue === 'string') {
+    if ((key.startsWith(ORCA_PREFIX) || key.startsWith(AFERIX_PREFIX)) && typeof itemValue === 'string') {
       safeKeys[key] = itemValue;
     }
   });
@@ -134,13 +135,13 @@ export function restoreOrcaBackup(backup: OrcaLocalBackup, mode: 'merge' | 'repl
     const keysToRemove: string[] = [];
     for (let index = 0; index < window.localStorage.length; index += 1) {
       const key = window.localStorage.key(index);
-      if (key?.startsWith(ORCA_PREFIX)) keysToRemove.push(key);
+      if (key?.startsWith(ORCA_PREFIX) || key?.startsWith(AFERIX_PREFIX)) keysToRemove.push(key);
     }
     keysToRemove.forEach((key) => window.localStorage.removeItem(key));
   }
 
   Object.entries(backup.keys).forEach(([key, value]) => {
-    if (key.startsWith(ORCA_PREFIX)) window.localStorage.setItem(key, value);
+    if (key.startsWith(ORCA_PREFIX) || key.startsWith(AFERIX_PREFIX)) window.localStorage.setItem(key, value);
   });
 
   return Object.keys(backup.keys).length;
