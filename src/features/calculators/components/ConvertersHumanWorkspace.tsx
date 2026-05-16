@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { createId } from '../../../app/utils/idHelpers';
 import {
   convertPower,
   convertPressure,
@@ -72,11 +73,6 @@ function round(value: number, decimals = 2): number {
   if (!Number.isFinite(value)) return 0;
   const factor = 10 ** decimals;
   return Math.round(value * factor) / factor;
-}
-
-function createId(prefix: string): string {
-  if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) return crypto.randomUUID();
-  return `${prefix}-${Date.now()}-${Math.round(Math.random() * 1000)}`;
 }
 
 function emptyResult(): ConverterResult {

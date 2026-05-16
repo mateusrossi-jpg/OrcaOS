@@ -117,7 +117,7 @@ export function ReportWorkspace({ captures, activeClient = null, activeWorkOrder
 
   return (
     <>
-      <div className="orca-panel-card report-command-panel no-print">
+      <div className="aferix-panel-card report-command-panel no-print">
         <header>
           <div>
             <h2>Prévia do documento</h2>
@@ -144,7 +144,7 @@ export function ReportWorkspace({ captures, activeClient = null, activeWorkOrder
         <article className="finance-tile"><span>Diagnósticos</span><strong>{diagnostics}</strong></article>
       </div>
 
-      <div className="orca-panel-card no-print">
+      <div className="aferix-panel-card no-print">
         <header>
           <div>
             <h2>Visão Gerencial</h2>

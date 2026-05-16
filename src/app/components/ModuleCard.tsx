@@ -1,5 +1,5 @@
-import { planLabel } from '../orcaAppData';
-import type { ModuleCardData } from '../orcaAppTypes';
+import { planLabel } from '../appData';
+import type { ModuleCardData } from '../appTypes';
 
 interface ModuleCardProps {
   module: ModuleCardData;

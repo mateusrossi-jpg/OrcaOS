@@ -1,4 +1,4 @@
-import { loadAccountState, saveAccountState, type OrcaAccountState, type OrcaPlanSource, type OrcaPlanStatus } from './accountPlanStorage';
+import { loadAccountState, saveAccountState, type AferixAccountState, type OrcaPlanSource, type OrcaPlanStatus } from './accountPlanStorage';
 import type { UserPlan } from './featureAccess';
 
 export interface PlanEntitlementResponse {
@@ -9,7 +9,7 @@ export interface PlanEntitlementResponse {
 }
 
 export interface PlanEntitlementResult {
-  account: OrcaAccountState;
+  account: AferixAccountState;
   status: OrcaPlanStatus;
   expiresAt: string | null;
 }
@@ -48,12 +48,12 @@ function resolveEffectivePlan(plan: UserPlan, status: OrcaPlanStatus): UserPlan 
   return plan === 'pro' && (status === 'active' || status === 'trial') ? 'pro' : 'free';
 }
 
-export function applyPlanEntitlementResponse(account: OrcaAccountState, entitlement: PlanEntitlementResponse): PlanEntitlementResult {
+export function applyPlanEntitlementResponse(account: AferixAccountState, entitlement: PlanEntitlementResponse): PlanEntitlementResult {
   const requestedPlan = normalizePlan(entitlement.plan);
   const status = normalizeStatus(entitlement.status, requestedPlan);
   const plan = resolveEffectivePlan(requestedPlan, status);
   const expiresAt = entitlement.expiresAt ?? null;
-  const nextAccount: OrcaAccountState = {
+  const nextAccount: AferixAccountState = {
     ...account,
     plan,
     planSource: normalizePlanSource(entitlement.planSource, plan),

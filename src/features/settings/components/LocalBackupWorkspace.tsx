@@ -110,7 +110,7 @@ export function LocalBackupWorkspace({ includeLinkedSettings = true }: { include
         </>
       )}
 
-      <div className="orca-panel-card">
+      <div className="aferix-panel-card">
         <header>
           <div>
             <span className="orca-kicker">Segurança</span>
@@ -120,7 +120,7 @@ export function LocalBackupWorkspace({ includeLinkedSettings = true }: { include
         </header>
       </div>
 
-      <div className="orca-panel-card">
+      <div className="aferix-panel-card">
         <header>
           <div>
             <h2>Exportar Dados</h2>
@@ -140,7 +140,7 @@ export function LocalBackupWorkspace({ includeLinkedSettings = true }: { include
         </div>
       </div>
 
-      <div className="orca-panel-card">
+      <div className="aferix-panel-card">
         <header>
           <div>
             <h2>Restaurar Dados</h2>
@@ -164,7 +164,7 @@ export function LocalBackupWorkspace({ includeLinkedSettings = true }: { include
           {canReload && <button className="ghost-action" type="button" onClick={reloadAppNow}>Recarregar App</button>}
         </div>
       </div>
-      <div className="orca-panel-card">
+      <div className="aferix-panel-card">
         <header>
           <div>
             <h2>Ferramentas Avançadas</h2>

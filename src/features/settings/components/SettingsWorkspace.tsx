@@ -8,7 +8,7 @@ export function SettingsWorkspace() {
         <h1>Configurações e Perfil</h1>
       </header>
 
-      <div className="orca-panel-card">
+      <div className="aferix-panel-card">
         <header>
           <div>
             <h2>Assinatura e Conta</h2>

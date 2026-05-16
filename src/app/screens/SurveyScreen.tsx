@@ -1,7 +1,7 @@
 import { useState, lazy } from 'react';
 import type { CalculationCapture } from '../../core/types/workflow';
 import type { Client, WorkOrder } from '../../core/types/business';
-import type { AppTab, SurveySection } from '../orcaAppTypes';
+import type { AppTab, SurveySection } from '../appTypes';
 import { ActiveWorkContextCard } from '../components/ActiveWorkContextCard';
 import { createAppId } from '../utils/idHelpers';
 import { statusLabel, priorityLabel } from '../utils/workOrderLabels';

@@ -1,3 +1,4 @@
+import { createId } from '../../../app/utils/idHelpers';
 import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
 import type { UserPlan } from '../../../core/access/featureAccess';
 import { FREE_PLAN_LIMITS } from '../../../core/access/planStrategy';
@@ -191,10 +192,6 @@ function renderBudgetIssues(issues: BudgetValidationIssue[]) {
 
 function joinTextLines(lines: Array<string | false | null | undefined>): string {
   return lines.filter((line): line is string => Boolean(line && line.trim())).join('\n');
-}
-
-function createId(prefix: string): string {
-  return typeof crypto !== 'undefined' && 'randomUUID' in crypto ? crypto.randomUUID() : `${prefix}-${Date.now()}`;
 }
 
 function createBudgetItem(draft: DraftBudgetItem): BudgetItem {

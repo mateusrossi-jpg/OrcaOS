@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { buildProCheckoutUrl, isProCheckoutConfigured } from './commercialCheckout';
-import type { OrcaAccountState } from './accountPlanStorage';
+import type { AferixAccountState } from './accountPlanStorage';
 
-const account: OrcaAccountState = {
+const account: AferixAccountState = {
   status: 'email',
   userId: 'email:cliente@example.com',
   installationId: 'install-test-device',

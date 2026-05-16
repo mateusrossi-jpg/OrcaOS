@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import type { CalculationCapture, CalculationDestination } from '../../../core/types/workflow';
 import { handleNumericInputFocus } from '../../../core/ui/numericInputFocus';
+import { formatCurrency } from '../../../core/format/currency';
 import './GeneralCalculatorWorkspace.css';
 
 export type GeneralCalculatorModule = 'obras' | 'pintura' | 'conversores' | 'orcamentoTecnico';
@@ -118,10 +119,6 @@ function round(value: number, decimals = 2): number {
   if (!Number.isFinite(value)) return 0;
   const factor = 10 ** decimals;
   return Math.round(value * factor) / factor;
-}
-
-function money(value: number): string {
-  return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number.isFinite(value) ? value : 0);
 }
 
 function createId(prefix: string): string {
@@ -374,12 +371,12 @@ export function GeneralCalculatorWorkspace({ selectedModule, onCaptureCalculatio
         return {
           error: null,
           cards: [
-            { label: 'Material', value: money(material), helper: `${round(liters)} L estimados` },
-            { label: 'Mão de obra', value: money(labor), helper: `${round(area)} m²` },
-            { label: 'Total', value: money(total), helper: 'estimativa inicial' },
+            { label: 'Material', value: formatCurrency(material), helper: `${round(liters)} L estimados` },
+            { label: 'Mão de obra', value: formatCurrency(labor), helper: `${round(area)} m²` },
+            { label: 'Total', value: formatCurrency(total), helper: 'estimativa inicial' },
           ],
-          summary: `Orçamento de pintura: ${money(total)}`,
-          details: [`Área: ${round(area)} m²`, `Material: ${money(material)}`, `Mão de obra: ${money(labor)}`, `Total: ${money(total)}`],
+          summary: `Orçamento de pintura: ${formatCurrency(total)}`,
+          details: [`Área: ${round(area)} m²`, `Material: ${formatCurrency(material)}`, `Mão de obra: ${formatCurrency(labor)}`, `Total: ${formatCurrency(total)}`],
         };
       }
 
@@ -452,12 +449,12 @@ export function GeneralCalculatorWorkspace({ selectedModule, onCaptureCalculatio
         return {
           error: null,
           cards: [
-            { label: 'Subtotal', value: money(subtotal), helper: `${round(quantity)} × ${money(unitPrice)}` },
-            { label: 'Deslocamento', value: money(travel), helper: 'custo adicional' },
-            { label: 'Total', value: money(total), helper: 'mão de obra estimada' },
+            { label: 'Subtotal', value: formatCurrency(subtotal), helper: `${round(quantity)} × ${formatCurrency(unitPrice)}` },
+            { label: 'Deslocamento', value: formatCurrency(travel), helper: 'custo adicional' },
+            { label: 'Total', value: formatCurrency(total), helper: 'mão de obra estimada' },
           ],
-          summary: `Mão de obra estimada: ${money(total)}`,
-          details: [`Quantidade: ${round(quantity)}`, `Valor unitário: ${money(unitPrice)}`, `Deslocamento: ${money(travel)}`, `Total: ${money(total)}`],
+          summary: `Mão de obra estimada: ${formatCurrency(total)}`,
+          details: [`Quantidade: ${round(quantity)}`, `Valor unitário: ${formatCurrency(unitPrice)}`, `Deslocamento: ${formatCurrency(travel)}`, `Total: ${formatCurrency(total)}`],
         };
       }
 
@@ -475,12 +472,12 @@ export function GeneralCalculatorWorkspace({ selectedModule, onCaptureCalculatio
       return {
         error: null,
         cards: [
-          { label: 'Base', value: money(base), helper: 'material + mão de obra + deslocamento' },
-          { label: 'Lucro/impostos', value: money(profit + tax), helper: `${round(profitPercent)}% lucro · ${round(taxPercent)}% impostos` },
-          { label: 'Preço final', value: money(total), helper: discount > 0 ? `desconto ${money(discount)}` : 'sem desconto' },
+          { label: 'Base', value: formatCurrency(base), helper: 'material + mão de obra + deslocamento' },
+          { label: 'Lucro/impostos', value: formatCurrency(profit + tax), helper: `${round(profitPercent)}% lucro · ${round(taxPercent)}% impostos` },
+          { label: 'Preço final', value: formatCurrency(total), helper: discount > 0 ? `desconto ${formatCurrency(discount)}` : 'sem desconto' },
         ],
-        summary: `Preço final estimado: ${money(total)}`,
-        details: [`Base: ${money(base)}`, `Lucro: ${money(profit)}`, `Impostos: ${money(tax)}`, `Desconto: ${money(discount)}`, `Total: ${money(total)}`],
+        summary: `Preço final estimado: ${formatCurrency(total)}`,
+        details: [`Base: ${formatCurrency(base)}`, `Lucro: ${formatCurrency(profit)}`, `Impostos: ${formatCurrency(tax)}`, `Desconto: ${formatCurrency(discount)}`, `Total: ${formatCurrency(total)}`],
       };
     } catch (error) {
       return { error: error instanceof Error ? error.message : 'Preencha os campos necessários.', cards: [], summary: '', details: [] };

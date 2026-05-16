@@ -5,6 +5,7 @@ import {
   calculateVoltageFromCurrentResistance,
   convertCurrentToAmps,
 } from '../../../core/calculations/electrical';
+import { formatCurrency } from '../../../core/format/currency';
 import { formatKilowattsFromWatts } from '../../../core/format/technicalValues';
 import type { CurrentInputUnit } from '../../../core/types/electrical';
 import type { CalculationCapture, CalculationDestination } from '../../../core/types/workflow';
@@ -124,10 +125,6 @@ function round(value: number, decimals = 2): number {
   if (!Number.isFinite(value)) return 0;
   const factor = 10 ** decimals;
   return Math.round(value * factor) / factor;
-}
-
-function money(value: number): string {
-  return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number.isFinite(value) ? value : 0);
 }
 
 function createId(prefix: string): string {
@@ -434,9 +431,9 @@ export function ElectricalFundamentalsHumanWorkspace({ onCaptureCalculation }: P
         `Consumo: ${round(kwh)} kWh`,
         [
           { label: 'Consumo', value: `${round(kwh)} kWh`, helper: `${round(hours)} h/dia por ${round(days)} dia(s)` },
-          { label: 'Custo estimado', value: money(cost), helper: `tarifa ${money(tariff)}/kWh` },
+          { label: 'Custo estimado', value: formatCurrency(cost), helper: `tarifa ${formatCurrency(tariff)}/kWh` },
         ],
-        [`Potência: ${round(power)} W`, `Horas por dia: ${round(hours)} h`, `Dias: ${round(days)}`, `Consumo: ${round(kwh)} kWh`, `Custo: ${money(cost)}`],
+        [`Potência: ${round(power)} W`, `Horas por dia: ${round(hours)} h`, `Dias: ${round(days)}`, `Consumo: ${round(kwh)} kWh`, `Custo: ${formatCurrency(cost)}`],
         'Use como estimativa de consumo. O valor final depende da tarifa, impostos, bandeira e perfil real de uso.',
         ['Consumo em kWh = potência em W × horas por dia × dias ÷ 1000', 'Custo estimado = consumo em kWh × tarifa'],
       );

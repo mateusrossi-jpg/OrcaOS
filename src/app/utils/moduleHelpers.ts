@@ -1,7 +1,7 @@
 import type { CalculatorModule } from '../../core/access/featureAccess';
 import type { GeneralCalculatorModule } from '../../features/calculators/components/GeneralCalculatorWorkspace';
-import { calculationSectorGroups } from '../orcaAppData';
-import type { CalculationSectorId } from '../orcaAppTypes';
+import { calculationSectorGroups } from '../appData';
+import type { CalculationSectorId } from '../appTypes';
 
 export function isGeneralCalculatorModule(module: CalculatorModule): module is GeneralCalculatorModule {
   return module === 'orcamentoTecnico';

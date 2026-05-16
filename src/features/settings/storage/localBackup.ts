@@ -82,7 +82,7 @@ export function summarizeOrcaBackupData(backup: OrcaLocalBackup): OrcaBackupData
   const surveyCount = countArrayValue(keys['orcaos:calculation-captures:v1']) + countArrayValue(keys['orcaos:guided-rooms:v1']) + countArrayValue(keys['orcaos:guided-labor-templates:v1']);
   const settingsCount = countPresentValue(keys['orcaos:access-lock:v1']) + countPresentValue(keys['orcaos:purchase-tax-records:v1']);
   const profileCount = countPresentValue(keys['orcaos:business-profile:v1']) + countPresentValue(keys['orcaos:professional-profile:v1']);
-  const accountCount = countPresentValue(keys['orcaos:account-plan:v1']) + countPresentValue(keys['orcaos:user-plan']);
+  const accountCount = countPresentValue(keys['aferix:account-plan:v1']) + countPresentValue(keys['orcaos:user-plan']);
 
   return [
     { label: 'Clientes', count: countArrayValue(keys['orcaos:clients:v1']) },

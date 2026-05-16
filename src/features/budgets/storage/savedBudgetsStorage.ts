@@ -1,3 +1,4 @@
+import { createId } from '../../../app/utils/idHelpers';
 import type { Budget, BudgetItem } from '../../../core/types/business';
 
 const STORAGE_KEY = 'orcaos:saved-budgets:v1';
@@ -60,10 +61,6 @@ export interface SaveBudgetRecordInput {
   custos_operacionais?: number;
   aliquota_imposto?: number;
   lucro_liquido?: number;
-}
-
-function createId(): string {
-  return typeof crypto !== 'undefined' && 'randomUUID' in crypto ? crypto.randomUUID() : `budget-${Date.now()}`;
 }
 
 function isBrowserStorageAvailable(): boolean {
@@ -190,7 +187,7 @@ export function saveBudgetRecord(input: SaveBudgetRecordInput): SavedBudgetRecor
   const now = new Date().toISOString();
 
   const record: SavedBudgetRecord = {
-    id: existingRecord?.id ?? input.id ?? createId(),
+    id: existingRecord?.id ?? input.id ?? createId('budget'),
     clientId: input.clientId ?? existingRecord?.clientId,
     workOrderId: input.workOrderId ?? existingRecord?.workOrderId,
     clientName: input.clientName,

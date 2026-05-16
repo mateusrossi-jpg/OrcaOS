@@ -1,4 +1,4 @@
-import type { OrcaAccountState } from './accountPlanStorage';
+import type { AferixAccountState } from './accountPlanStorage';
 import { applyPlanEntitlementResponse, type PlanEntitlementResult, type PlanEntitlementResponse } from './planEntitlements';
 
 export type GooglePlayPurchaseState = 'purchased' | 'pending' | 'canceled' | 'failed' | 'restored';
@@ -91,7 +91,7 @@ export async function restoreGooglePlayPurchases(): Promise<GooglePlayPurchase[]
     .map((purchase) => ({ ...purchase, platform: 'google-play', packageName: purchase.packageName || getPackageName(), state: purchase.state ?? 'restored' }));
 }
 
-export async function syncGooglePlayPurchaseEntitlement(account: OrcaAccountState, purchase: GooglePlayPurchase, action: 'purchase' | 'restore' = 'purchase'): Promise<PlanEntitlementResult> {
+export async function syncGooglePlayPurchaseEntitlement(account: AferixAccountState, purchase: GooglePlayPurchase, action: 'purchase' | 'restore' = 'purchase'): Promise<PlanEntitlementResult> {
   const endpoint = getEntitlementsEndpoint();
   if (!endpoint) throw new Error('Configure VITE_ORCAOS_ENTITLEMENTS_ENDPOINT para validar compras Google Play no backend.');
   if (!account.userId) throw new Error('Entre com Google ou e-mail antes de validar a compra Pro.');

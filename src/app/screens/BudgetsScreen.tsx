@@ -2,7 +2,7 @@ import { lazy } from 'react';
 import type { CalculationCapture } from '../../core/types/workflow';
 import type { Client, WorkOrder } from '../../core/types/business';
 import type { UserPlan } from '../../core/access/featureAccess';
-import type { AppTab } from '../orcaAppTypes';
+import type { AppTab } from '../appTypes';
 import { ActiveWorkContextCard } from '../components/ActiveWorkContextCard';
 
 const BudgetWorkspaceClientBridge = lazy(() => import('../../features/budgets/components/BudgetWorkspaceClientBridge').then((module) => ({ default: module.BudgetWorkspaceClientBridge })));

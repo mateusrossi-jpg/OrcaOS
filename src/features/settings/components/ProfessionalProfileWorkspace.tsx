@@ -96,7 +96,7 @@ export function ProfessionalProfileWorkspace() {
 
   return (
     <div className="professional-profile-workspace" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-      <div className="orca-panel-card">
+      <div className="aferix-panel-card">
         <header>
           <div>
             <span className="orca-kicker">Empresa</span>
@@ -105,7 +105,7 @@ export function ProfessionalProfileWorkspace() {
         </header>
       </div>
 
-      <div className="orca-panel-card">
+      <div className="aferix-panel-card">
         <header>
           <div>
             <h2>IDs de Identificação</h2>
@@ -126,7 +126,7 @@ export function ProfessionalProfileWorkspace() {
         </div>
       </div>
 
-      <div className="orca-panel-card">
+      <div className="aferix-panel-card">
         <header>
           <div>
             <h2>Dados Comerciais</h2>
@@ -152,7 +152,7 @@ export function ProfessionalProfileWorkspace() {
         </div>
       </div>
 
-      <div className="orca-panel-card">
+      <div className="aferix-panel-card">
         <header>
           <div>
             <h2>Padrões de Propostas</h2>

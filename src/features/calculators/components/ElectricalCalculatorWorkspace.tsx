@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { createId } from '../../../app/utils/idHelpers';
 import {
   calculateAirConditioningSizing,
   calculateApparentPower,
@@ -121,14 +122,6 @@ const resistorValueKeys = [
 function parseCalculatorNumber(value: string): number {
   const normalizedValue = value.trim().replace(',', '.');
   return normalizedValue ? Number(normalizedValue) : Number.NaN;
-}
-
-function createId(prefix: string): string {
-  if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
-    return crypto.randomUUID();
-  }
-
-  return `${prefix}-${Date.now()}-${Math.round(Math.random() * 1000)}`;
 }
 
 function moduleName(module: CalculatorModule | undefined): string {

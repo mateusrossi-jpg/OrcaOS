@@ -1,6 +1,6 @@
 import { lazy } from 'react';
 import type { CalculationCapture } from '../../core/types/workflow';
-import type { ActiveWorkContext } from '../orcaAppTypes';
+import type { ActiveWorkContext } from '../appTypes';
 import { ActiveWorkContextCard } from '../components/ActiveWorkContextCard';
 
 const ClientPurchaseListWorkspace = lazy(() => import('../../features/workflow/components/ClientPurchaseListWorkspace').then((module) => ({ default: module.ClientPurchaseListWorkspace })));

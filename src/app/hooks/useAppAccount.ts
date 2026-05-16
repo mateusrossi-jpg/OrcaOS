@@ -1,21 +1,21 @@
 import { useState, useEffect } from 'react';
 import {
   loadAccountState,
-  ORCA_ACCOUNT_CHANGED_EVENT,
-  type OrcaAccountState,
+  AFERIX_ACCOUNT_CHANGED_EVENT,
+  type AferixAccountState,
 } from '../../core/access/accountPlanStorage';
-import { userPlan as defaultUserPlan } from '../orcaAppData';
+import { userPlan as defaultUserPlan } from '../appData';
 
 export function useAppAccount() {
-  const [account, setAccount] = useState<OrcaAccountState>(() => loadAccountState());
+  const [account, setAccount] = useState<AferixAccountState>(() => loadAccountState());
 
   useEffect(() => {
     function syncAccount() {
       setAccount(loadAccountState());
     }
 
-    window.addEventListener(ORCA_ACCOUNT_CHANGED_EVENT, syncAccount);
-    return () => window.removeEventListener(ORCA_ACCOUNT_CHANGED_EVENT, syncAccount);
+    window.addEventListener(AFERIX_ACCOUNT_CHANGED_EVENT, syncAccount);
+    return () => window.removeEventListener(AFERIX_ACCOUNT_CHANGED_EVENT, syncAccount);
   }, []);
 
   const activeUserPlan = account.plan ?? defaultUserPlan;

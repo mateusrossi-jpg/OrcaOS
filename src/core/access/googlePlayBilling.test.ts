@@ -1,9 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createMemoryStorage } from '../../test/createMemoryStorage';
-import type { OrcaAccountState } from './accountPlanStorage';
+import type { AferixAccountState } from './accountPlanStorage';
 import { getGooglePlayBillingSetup, purchaseGooglePlayPro, restoreGooglePlayPurchases, syncGooglePlayPurchaseEntitlement } from './googlePlayBilling';
 
-const account: OrcaAccountState = {
+const account: AferixAccountState = {
   status: 'google',
   userId: 'google:123',
   installationId: 'install-test',

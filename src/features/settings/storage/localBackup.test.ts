@@ -61,7 +61,7 @@ describe('local backup storage', () => {
         'orcaos:calculation-captures:v1': JSON.stringify([{ id: 'cap1' }]),
         'orcaos:business-profile:v1': '{}',
         'orcaos:professional-profile:v1': '{}',
-        'orcaos:account-plan:v1': '{}',
+        'aferix:account-plan:v1': '{}',
       },
     }));
 
