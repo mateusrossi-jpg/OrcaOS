@@ -1,7 +1,7 @@
 import type { CalculatorModule } from '../core/access/featureAccess';
 import type { Client, WorkOrder } from '../core/types/business';
 
-export type AppTab = 'home' | 'clients' | 'calculations' | 'budgets' | 'more' | 'survey' | 'catalog' | 'purchaseList' | 'reports' | 'financial' | 'beta' | 'store' | 'settings';
+export type AppTab = 'home' | 'clients' | 'calculations' | 'budgets' | 'survey' | 'catalog' | 'purchaseList' | 'reports' | 'financial' | 'store' | 'settings';
 export type ModuleTone = 'blue' | 'gray' | 'green' | 'orange' | 'muted';
 export type ModulePlan = 'free' | 'pro' | 'soon';
 export type SurveySection = 'context' | 'labor' | 'materials' | 'measurements' | 'notes' | 'review';

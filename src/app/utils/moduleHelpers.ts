@@ -1,7 +1,16 @@
 import type { CalculatorModule } from '../../core/access/featureAccess';
 import type { GeneralCalculatorModule } from '../../features/calculators/components/GeneralCalculatorWorkspace';
-import { calculationSectorGroups } from '../appData';
-import type { CalculationSectorId } from '../appTypes';
+import type { CalculationSectorId, CalculationSectorGroup } from '../appTypes';
+
+const calculationSectorGroups: CalculationSectorGroup[] = [
+  {
+    id: 'financial',
+    title: 'Precificação',
+    description: 'Cálculos voltados a preço, financeiro, margem/lucro, tempo, deslocamento, materiais, impostos/taxas e parcelamento/juros.',
+    icon: 'R$',
+    moduleIds: ['orcamentoTecnico'],
+  },
+];
 
 export function isGeneralCalculatorModule(module: CalculatorModule): module is GeneralCalculatorModule {
   return module === 'orcamentoTecnico';

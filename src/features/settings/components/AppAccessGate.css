@@ -59,7 +59,7 @@
 }
 
 .app-startup-copy span {
-  color: var(--orca-muted, #a7b3ad);
+  color: var(--aferix-muted, #a7b3ad);
   font-size: 0.82rem;
   font-weight: 800;
 }
@@ -120,7 +120,7 @@
 }
 
 .app-access-brand strong {
-  color: var(--orca-text, #f8fafc);
+  color: var(--aferix-text, #f8fafc);
   font-size: 1rem;
 }
 
@@ -131,14 +131,14 @@
 
 .app-access-card p,
 .app-access-card small {
-  color: var(--orca-muted, #a7b3ad);
+  color: var(--aferix-muted, #a7b3ad);
   line-height: 1.55;
 }
 
 .app-access-card label {
   display: grid;
   gap: 7px;
-  color: var(--orca-muted, #a7b3ad);
+  color: var(--aferix-muted, #a7b3ad);
   font-size: 0.82rem;
   font-weight: 850;
 }
@@ -149,7 +149,7 @@
   border: 1px solid #222222;
   border-radius: 4px;
   background: #000000;
-  color: var(--orca-text, #f8fafc);
+  color: var(--aferix-text, #f8fafc);
   font: inherit;
   font-size: 1.15rem;
   font-weight: 900;

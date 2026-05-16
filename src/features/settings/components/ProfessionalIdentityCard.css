@@ -32,7 +32,7 @@
 
 .professional-identity-main small,
 .professional-identity-card p {
-  color: var(--orca-muted, #a7b3ad);
+  color: var(--aferix-muted, #a7b3ad);
 }
 
 .professional-identity-details {

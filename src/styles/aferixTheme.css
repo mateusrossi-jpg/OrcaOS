@@ -25,33 +25,33 @@
 
   /* Legacy OrcaOS Variables (Deprecated - do not use for new development) */
   --orca-bg: var(--aferix-bg);
-  --orca-surface: var(--aferix-surface);
-  --orca-surface-2: var(--aferix-surface-2);
-  --orca-surface-3: var(--aferix-surface-3);
-  --orca-surface-hover: var(--aferix-surface-hover);
-  --orca-border: var(--aferix-border);
-  --orca-border-strong: var(--aferix-border-strong);
-  --orca-text: var(--aferix-text);
-  --orca-text-primary: var(--aferix-text-primary);
-  --orca-muted: var(--aferix-muted);
-  --orca-text-secondary: var(--aferix-text-secondary);
-  --orca-primary: var(--aferix-primary);
-  --orca-primary-strong: var(--aferix-primary-strong);
-  --orca-primary-soft: var(--aferix-primary-soft);
-  --orca-teal: var(--aferix-primary);
-  --orca-cyan: var(--aferix-primary);
-  --orca-green: var(--aferix-primary);
-  --orca-success: var(--aferix-success);
-  --orca-danger: var(--aferix-danger);
-  --orca-warning: var(--aferix-warning);
-  --orca-amber: var(--aferix-primary);
-  --orca-accent: var(--aferix-accent);
-  --orca-red: var(--aferix-danger);
-  --orca-radius: var(--aferix-radius);
-  --orca-mono: var(--aferix-mono);
+  --aferix-surface: var(--aferix-surface);
+  --aferix-surface-2: var(--aferix-surface-2);
+  --aferix-surface-3: var(--aferix-surface-3);
+  --aferix-surface-hover: var(--aferix-surface-hover);
+  --aferix-border: var(--aferix-border);
+  --aferix-border-strong: var(--aferix-border-strong);
+  --aferix-text: var(--aferix-text);
+  --aferix-text-primary: var(--aferix-text-primary);
+  --aferix-muted: var(--aferix-muted);
+  --aferix-text-secondary: var(--aferix-text-secondary);
+  --aferix-primary: var(--aferix-primary);
+  --aferix-primary-strong: var(--aferix-primary-strong);
+  --aferix-primary-soft: var(--aferix-primary-soft);
+  --aferix-primary: var(--aferix-primary);
+  --aferix-primary: var(--aferix-primary);
+  --aferix-primary: var(--aferix-primary);
+  --aferix-success: var(--aferix-success);
+  --aferix-danger: var(--aferix-danger);
+  --aferix-warning: var(--aferix-warning);
+  --aferix-primary: var(--aferix-primary);
+  --aferix-accent: var(--aferix-accent);
+  --aferix-danger: var(--aferix-danger);
+  --aferix-radius: var(--aferix-radius);
+  --aferix-mono: var(--aferix-mono);
   --orca-shadow: none;
-  --orca-premium-gradient: var(--aferix-premium-gradient);
-  --orca-premium-divider: var(--aferix-premium-divider);
+  --aferix-premium-gradient: var(--aferix-premium-gradient);
+  --aferix-premium-divider: var(--aferix-premium-divider);
 }
 
 body {

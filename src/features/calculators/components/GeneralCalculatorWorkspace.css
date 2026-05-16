@@ -45,7 +45,7 @@
   border: 1px solid #222222;
   border-radius: 4px;
   padding: 4px 8px;
-  color: var(--orca-primary);
+  color: var(--aferix-primary);
   background: #000000;
   font-size: 0.68rem;
   font-style: normal;
@@ -286,8 +286,8 @@
 }
 
 .general-result-card strong {
-  color: var(--orca-primary);
-  font-family: var(--orca-mono);
+  color: var(--aferix-primary);
+  font-family: var(--aferix-mono);
   font-size: clamp(1.18rem, 5vw, 1.7rem);
   font-weight: 400;
   line-height: 1.04;

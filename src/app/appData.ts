@@ -22,16 +22,6 @@ export const calculationModules: ModuleCardData[] = [
   { id: 'orcamentoTecnico', title: 'Precificação e financeiro', purpose: 'Quanto cobrar e quanto sobra', description: 'Preço, margem, lucro, tempo de trabalho, deslocamento, materiais, impostos/taxas e parcelamento/juros.', icon: 'R$', tone: 'orange', count: 'Preço + financeiro', available: true, plan: 'free', calculatorModule: 'orcamentoTecnico' },
 ];
 
-export const calculationSectorGroups: CalculationSectorGroup[] = [
-  {
-    id: 'financial',
-    title: 'Precificação',
-    description: 'Cálculos voltados a preço, financeiro, margem/lucro, tempo, deslocamento, materiais, impostos/taxas e parcelamento/juros.',
-    icon: 'R$',
-    moduleIds: ['orcamentoTecnico'],
-  },
-];
-
 export function planLabel(plan: ModulePlan): string {
   if (plan === 'free') return 'Livre';
   if (plan === 'pro') return 'Pro';

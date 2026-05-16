@@ -9,13 +9,13 @@
 
 .legal-compliance-header h2 {
   margin: 4px 0 0;
-  color: var(--orca-text, #f8fafc);
+  color: var(--aferix-text, #f8fafc);
   font-size: 1.28rem;
 }
 
 .legal-compliance-header p {
   margin: 6px 0 0;
-  color: var(--orca-muted, #a7b3ad);
+  color: var(--aferix-muted, #a7b3ad);
   line-height: 1.45;
 }
 
@@ -36,7 +36,7 @@
 }
 
 .legal-compliance-grid strong {
-  color: var(--orca-text, #f8fafc);
+  color: var(--aferix-text, #f8fafc);
 }
 
 .legal-compliance-grid ul {
@@ -47,7 +47,7 @@
 }
 
 .legal-compliance-grid li {
-  color: var(--orca-muted, #a7b3ad);
+  color: var(--aferix-muted, #a7b3ad);
   line-height: 1.45;
 }
 

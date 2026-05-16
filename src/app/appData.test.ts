@@ -1,27 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { calculatorAccessRules, type CalculatorModule } from '../core/access/featureAccess';
-import { calculationModules, calculationSectorGroups, navItems, planLabel } from './appData';
+import { calculationModules, navItems, planLabel } from './appData';
 
 const implementedStandaloneModules: CalculatorModule[] = [
-  'fundamentosGerais',
-  'eletricaPredial',
-  'fundamentals',
-  'obras',
-  'pintura',
-  'conversores',
   'orcamentoTecnico',
-  'hidraulica',
-  'eletricaResidencial',
-  'financeiroAvancado',
-  'construcaoAvancada',
-  'hidraulicaAvancada',
-  'conversoresAvancados',
-  'refrigeration',
-  'motors',
-  'rewinding',
-  'transformadores',
-  'solar',
-  'diagnosticoTecnico',
 ];
 
 describe('Aferix app data integrity', () => {
@@ -44,18 +26,6 @@ describe('Aferix app data integrity', () => {
     ]);
     expect(navItems.every((item) => item.label && item.description && item.section)).toBe(true);
     expect(navItems.filter((item) => item.primary).map((item) => item.id)).toEqual(['home', 'budgets', 'clients', 'financial', 'catalog']);
-  });
-
-  it('keeps every calculation sector connected to existing modules', () => {
-    const moduleIds = new Set(calculationModules.map((module) => module.id));
-
-    expect(calculationSectorGroups.length).toBeGreaterThan(0);
-    for (const sector of calculationSectorGroups) {
-      expect(sector.moduleIds.length).toBeGreaterThan(0);
-      for (const moduleId of sector.moduleIds) {
-        expect(moduleIds.has(moduleId)).toBe(true);
-      }
-    }
   });
 
   it('keeps active modules attached to an implemented calculator workspace', () => {

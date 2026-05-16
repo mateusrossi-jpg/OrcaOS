@@ -35,7 +35,7 @@
 }
 
 .client-purchase-summary strong {
-  color: var(--orca-text, #f8fafc);
+  color: var(--aferix-text, #f8fafc);
   font-size: 1.22rem;
 }
 
@@ -85,7 +85,7 @@
   border: 1px solid #222222;
   border-radius: 4px;
   padding: 0 12px;
-  color: var(--orca-text, #f8fafc);
+  color: var(--aferix-text, #f8fafc);
   background: #111111;
   font: inherit;
 }
@@ -126,12 +126,12 @@
 }
 
 .client-purchase-main strong {
-  color: var(--orca-text, #f8fafc);
+  color: var(--aferix-text, #f8fafc);
 }
 
 .client-purchase-main a {
   width: fit-content;
-  color: var(--orca-accent, #f59e0b);
+  color: var(--aferix-accent, #f59e0b);
   font-weight: 700;
 }
 
@@ -155,7 +155,7 @@
   border: 1px solid #222222;
   border-radius: 4px;
   padding: 10px 12px;
-  color: var(--orca-text, #f8fafc);
+  color: var(--aferix-text, #f8fafc);
   background: #0a0a0a;
   font: inherit;
   font-weight: 600;
