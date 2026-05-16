@@ -185,46 +185,32 @@ export function StoreScreen({ account, onAccountChange }: StoreScreenProps) {
           <button className="ghost-action" type="button" onClick={checkSubscription}>Verificar</button>
         </div>
       </div>
-      <div className="settings-group account-settings-panel">
-        <div className="settings-panel-title">
-          <span className="orca-kicker">Estratégia Free / Pro</span>
-          <h2>Grátis para usar, Pro para profissionalizar</h2>
-        </div>
-        {storePackages.map((pack) => <article className="store-card" key={pack.title}><span><strong>{pack.title}</strong><small>{pack.description}</small><b>{pack.price}</b></span><em className="store-card-status">Planejado</em></article>)}
-      </div>
-      <div className="aferix-panel-card">
-        <header>
-          <div>
-            <h2>Comparativo de Planos</h2>
+      <details className="aferix-panel-card store-detail-section">
+        <summary>Estratégia e comparativo</summary>
+        <div className="store-detail-content">
+          <div className="metric-grid compact-metric-grid">
+            <MetricCard label="Free" value="Básico" />
+            <MetricCard label="Pro" value="Profissional" tone="brand" />
           </div>
-        </header>
-        <div className="metric-grid compact-metric-grid">
-          <MetricCard label="Free" value="Básico" />
-          <MetricCard label="Pro" value="Profissional" tone="brand" />
-        </div>
-        <div className="continuous-list">
-          {proPlanBenefits.map((benefit) => (
-            <article className="continuous-list-item" key={benefit.title}>
-              <div className="client-col">
-                <strong>{benefit.title}</strong>
-                <small>{benefit.description}</small>
-              </div>
+          {storePackages.map((pack) => (
+            <article className="store-card" key={pack.title}>
+              <span><strong>{pack.title}</strong><small>{pack.description}</small><b>{pack.price}</b></span>
+              <em className="store-card-status">Planejado</em>
             </article>
           ))}
         </div>
-      </div>
-      <div className="settings-group account-settings-panel">
-        <div className="settings-panel-title">
-          <span className="orca-kicker">Prioridade V1 Pro</span>
-          <h2>O que vem primeiro</h2>
+      </details>
+      <details className="aferix-panel-card store-detail-section">
+        <summary>Prioridade V1 Pro e backlog</summary>
+        <div className="store-detail-content">
+          <div className="plan-priority-grid">
+            {proV1Priorities.map((benefit, index) => <article key={benefit.title}><span>{index + 1}</span><strong>{benefit.title}</strong><small>{benefit.description}</small></article>)}
+          </div>
+          <div className="plan-future-list">
+            {futureProBacklog.map((benefit) => <span key={benefit.title}><strong>{benefit.title}</strong><small>{benefit.description}</small></span>)}
+          </div>
         </div>
-        <div className="plan-priority-grid">
-          {proV1Priorities.map((benefit, index) => <article key={benefit.title}><span>{index + 1}</span><strong>{benefit.title}</strong><small>{benefit.description}</small></article>)}
-        </div>
-        <div className="plan-future-list">
-          {futureProBacklog.map((benefit) => <span key={benefit.title}><strong>{benefit.title}</strong><small>{benefit.description}</small></span>)}
-        </div>
-      </div>
+      </details>
     </PageShell>
   );
 }

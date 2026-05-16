@@ -3,6 +3,7 @@ import type { UserPlan } from '../../core/access/featureAccess';
 import type { CalculationCapture } from '../../core/types/workflow';
 import type { FundamentalMode } from '../../features/calculators/components/GeneralFundamentalsWorkspace';
 import { ModuleCard } from '../components/ModuleCard';
+import { AferixTabs } from '../components/ui';
 import { calculationModules, calculationSectorGroups, planLabel } from '../appData';
 import type { ActiveWorkContext, AppTab, CalculationSectorId, ModuleCardData } from '../appTypes';
 import { getSectorForModule, isExpansionModule, isGeneralCalculatorModule, isProfessionalDomainModule } from '../utils/moduleHelpers';
@@ -78,9 +79,19 @@ export function CalculationsScreen({
     ? captures.filter((capture) => capture.workOrderId === context.activeWorkOrder?.id).length
     : 0;
   
-  const calculationContextText = context.activeWorkOrder
-    ? `Resultados adicionados serão vinculados ao atendimento "${context.activeWorkOrder.title}".`
-    : 'Sem atendimento ativo: os cálculos funcionam como consulta avulsa e podem ser usados sem cliente.';
+  const calculationContext = context.activeWorkOrder
+    ? {
+        label: 'Cálculo vinculado',
+        title: context.activeWorkOrder.title,
+        description: 'Resultados adicionados serão vinculados ao atendimento ativo.',
+        helper: 'Depois do resultado, escolha adicionar ao atendimento, ao orçamento ou usar apenas como consulta.',
+      }
+    : {
+        label: 'Cálculo avulso',
+        title: 'Sem atendimento ativo',
+        description: 'Os cálculos funcionam como consulta avulsa e podem ser usados sem cliente.',
+        helper: 'Depois do resultado, escolha adicionar ao atendimento, ao orçamento ou usar apenas como consulta.',
+      };
   
   const defaultPricingModule = calculationModules.find((module) => module.id === 'orcamentoTecnico') ?? calculationModules[0] ?? null;
   const activeModule = selectedModule ?? defaultPricingModule;
@@ -94,9 +105,10 @@ export function CalculationsScreen({
         {selectedModule && <button className="back-button" type="button" onClick={() => openModule(defaultPricingModule)}>‹ Voltar para {selectedSector?.title ?? 'cálculos'}</button>}
         <header className="module-detail-header"><div><em className={`module-plan-pill ${activeModule.plan}`}>{planLabel(activeModule.plan)}</em><h1>{activeModule.title}</h1><p>{activeModule.description}</p><small>{activeModule.count}</small></div></header>
         <div className="calculation-context-card">
-          <span>{context.activeWorkOrder ? 'Cálculo vinculado' : 'Cálculo avulso'}</span>
-          <strong>{calculationContextText}</strong>
-          <small>Depois do resultado, escolha adicionar ao atendimento, ao orçamento ou usar apenas como consulta.</small>
+          <span>{calculationContext.label}</span>
+          <strong>{calculationContext.title}</strong>
+          <p>{calculationContext.description}</p>
+          <small>{calculationContext.helper}</small>
         </div>
         {moduleGuidance[activeModule.id] && <div className="survey-intro-card"><span><strong>{moduleGuidance[activeModule.id].title}</strong><small>{moduleGuidance[activeModule.id].text}</small></span></div>}
         {module === 'fundamentosGerais' && fundamentalConfig && <GeneralFundamentalsWorkspace {...fundamentalConfig} onCaptureCalculation={onCaptureCalculation} />}
@@ -127,17 +139,16 @@ export function CalculationsScreen({
       <header className="screen-header"><h1>Cálculos</h1><p>Use cálculos comerciais para decidir quanto cobrar, simular margem, estimar tempo, deslocamento, materiais, taxas e parcelamento.</p></header>
       <div className="calculation-context-card">
         <span>{context.activeWorkOrder ? 'Atendimento ativo detectado' : 'Modo avulso'}</span>
-        <strong>{calculationContextText}</strong>
-        <small>{context.activeWorkOrder ? `${linkedCalculationCount} resultado(s) ya ligados a este atendimento.` : 'Quando existir atendimento ativo, o app oferece vínculo com atendimento e orçamento.'}</small>
+        <strong>{calculationContext.title}</strong>
+        <p>{calculationContext.description}</p>
+        <small>{context.activeWorkOrder ? `${linkedCalculationCount} resultado(s) já ligados a este atendimento.` : 'Quando existir atendimento ativo, o app oferece vínculo com atendimento e orçamento.'}</small>
       </div>
       {calculationSectorGroups.length > 1 && (
-        <div className="section-mode-tabs calculation-profession-tabs">
-          {calculationSectorGroups.map((group) => (
-            <button className={activeSector === group.id ? 'active' : ''} key={group.id} type="button" onClick={() => onSelectSector(group.id)}>
-              {group.title}
-            </button>
-          ))}
-        </div>
+        <AferixTabs
+          activeId={activeSector}
+          items={calculationSectorGroups.map((group) => ({ id: group.id, label: group.title }))}
+          onChange={onSelectSector}
+        />
       )}
       <div className="survey-intro-card">
         <span><strong>{selectedSector.title}</strong><small>{selectedSector.description}</small></span>

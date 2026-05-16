@@ -9,6 +9,7 @@ import {
   saveSimpleFinanceRecord,
   type SimpleFinanceRecord,
 } from '../storage/simpleFinanceStorage';
+import { MetricCard, MoneyValue } from '../../../app/components/ui';
 import './SimpleFinanceWorkspace.css';
 
 interface FinanceDraft {
@@ -189,10 +190,10 @@ export function SimpleFinanceWorkspace() {
   return (
     <section className="simple-finance-workspace">
       <div className="dashboard-finance-tiles">
-        <article className="finance-tile"><span>Receita prevista</span><strong>{money(monthSummary.forecast)}</strong></article>
-        <article className="finance-tile"><span>Receita realizada</span><strong>{money(monthSummary.realized)}</strong></article>
-        <article className="finance-tile"><span>Custos diretos</span><strong>{money(monthSummary.directCosts)}</strong></article>
-        <article className="finance-tile"><span>Lucro líquido</span><strong>{money(monthSummary.net)}</strong></article>
+        <MetricCard label="Receita prevista" value={<MoneyValue value={monthSummary.forecast} />} />
+        <MetricCard label="Receita realizada" value={<MoneyValue value={monthSummary.realized} tone="success" />} tone="success" />
+        <MetricCard label="Custos diretos" value={<MoneyValue value={monthSummary.directCosts} tone="danger" />} tone="danger" />
+        <MetricCard label="Lucro líquido" value={<MoneyValue value={monthSummary.net} tone={monthSummary.net >= 0 ? 'success' : 'danger'} />} tone={monthSummary.net >= 0 ? 'success' : 'danger'} />
       </div>
 
       <div className="aferix-panel-card">
@@ -241,8 +242,8 @@ export function SimpleFinanceWorkspace() {
 
           <aside className="finance-live-summary">
             <div className="dashboard-finance-tiles finance-live-grid">
-              <article className="finance-tile"><span>Lucro Líquido</span><strong>{money(result.netProfit)}</strong></article>
-              <article className="finance-tile"><span>Margem</span><strong>{result.netMarginPercent.toFixed(1)}%</strong></article>
+              <MetricCard label="Lucro líquido" value={<MoneyValue value={result.netProfit} tone={result.netProfit >= 0 ? 'success' : 'danger'} />} tone={result.netProfit >= 0 ? 'success' : 'danger'} />
+              <MetricCard label="Margem" value={`${result.netMarginPercent.toFixed(1)}%`} tone={result.netMarginPercent >= 0 ? 'success' : 'danger'} />
             </div>
           </aside>
         </div>

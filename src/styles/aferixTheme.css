@@ -553,6 +553,17 @@ svg {
   gap: 12px !important;
 }
 
+.active-work-context-content {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.active-work-context-content strong,
+.active-work-context-content small {
+  display: block;
+}
+
 .active-work-context-card strong,
 .info-card strong,
 .notice-box strong {
@@ -832,6 +843,137 @@ button.secondary {
   font-size: 12px !important;
 }
 
+.calculation-context-card p {
+  margin: 0;
+  color: var(--aferix-text-muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.context-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid var(--aferix-border);
+  border-radius: var(--aferix-radius-md);
+  background: linear-gradient(180deg, var(--aferix-surface-raised), var(--aferix-surface));
+}
+
+.context-banner-icon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid rgba(245, 164, 0, 0.28);
+  border-radius: var(--aferix-radius-sm);
+  color: var(--aferix-brand);
+  background: rgba(245, 164, 0, 0.1);
+}
+
+.context-banner-content {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.context-banner-content strong,
+.context-banner-content small {
+  display: block;
+}
+
+.context-banner-content strong {
+  color: var(--aferix-text);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.context-banner-content small {
+  color: var(--aferix-text-muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.context-banner-action {
+  margin-left: auto;
+  flex: none;
+}
+
+.aferix-tabs {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+  padding: 0 0 8px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  border-bottom: 1px solid var(--aferix-border);
+  scrollbar-width: thin;
+}
+
+.aferix-tabs button {
+  flex: 0 0 auto;
+  min-height: 40px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  padding: 0 12px;
+  color: var(--aferix-text-muted);
+  background: transparent;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.aferix-tabs button.active,
+.aferix-tabs button[aria-selected='true'] {
+  color: var(--aferix-brand);
+  border-color: var(--aferix-brand);
+}
+
+.aferix-tabs-pill {
+  gap: 6px;
+  padding: 4px;
+  border: 1px solid var(--aferix-border);
+  border-radius: var(--aferix-radius-md);
+  background: var(--aferix-bg-soft);
+}
+
+.aferix-tabs-pill button {
+  min-height: 36px;
+  border: 1px solid transparent;
+  border-radius: var(--aferix-radius-sm);
+}
+
+.aferix-tabs-pill button.active,
+.aferix-tabs-pill button[aria-selected='true'] {
+  border-color: var(--aferix-border-strong);
+  background: var(--aferix-surface-active);
+}
+
+.store-detail-section {
+  display: grid;
+  gap: 14px;
+}
+
+.store-detail-section summary {
+  color: var(--aferix-text);
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.store-detail-content {
+  display: grid;
+  gap: 12px;
+  margin-top: 14px;
+}
+
 .plan-card-grid {
   display: grid !important;
   grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
@@ -1086,5 +1228,15 @@ button.secondary {
   .client-os-form-actions {
     display: grid !important;
     grid-template-columns: 1fr !important;
+  }
+
+  .context-banner {
+    align-items: flex-start;
+    padding: 14px;
+  }
+
+  .context-banner-action {
+    width: 100%;
+    margin-left: 0;
   }
 }

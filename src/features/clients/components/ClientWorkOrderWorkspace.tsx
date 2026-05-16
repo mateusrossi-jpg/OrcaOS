@@ -9,6 +9,7 @@ import {
   saveWorkOrders,
 } from '../storage/clientWorkOrderStorage';
 import { loadSavedBudgets } from '../../budgets/storage/savedBudgetsStorage';
+import { ContextBanner, MetricCard } from '../../../app/components/ui';
 import './ClientWorkOrderWorkspace.css';
 
 type ClientOsSection = 'dashboard' | 'newClient' | 'newWorkOrder' | 'clients' | 'workOrders';
@@ -443,25 +444,18 @@ export function ClientWorkOrderWorkspace({ initialSection = 'dashboard', section
         <h1>Clientes e Atendimentos</h1>
       </header>
 
-      <div className="aferix-panel-card">
-        <header>
-          <div>
-            <span className="orca-kicker">Contexto ativo</span>
-            <h2>{activeWorkOrder ? activeWorkOrder.title : 'Nenhum atendimento ativo'}</h2>
-            <p>{activeWorkOrder ? `${activeClient?.name ?? 'Cliente não vinculado'} · ${statusLabel(activeWorkOrder.status)}` : 'Selecione um atendimento para usar como contexto.'}</p>
-          </div>
-          {activeWorkOrder ? (
-            <button className="ghost-action" type="button" onClick={() => setActiveWorkOrderId(null)}>Limpar Contexto</button>
-          ) : (
-            <button className="ghost-action" type="button" onClick={() => setActiveSection('newWorkOrder')}>Novo Atendimento</button>
-          )}
-        </header>
-      </div>
+      <ContextBanner
+        icon="AT"
+        title={activeWorkOrder ? activeWorkOrder.title : 'Nenhum atendimento ativo'}
+        description={activeWorkOrder ? `${activeClient?.name ?? 'Cliente não vinculado'} · ${statusLabel(activeWorkOrder.status)}` : 'Selecione um atendimento para usar como contexto.'}
+        actionLabel={activeWorkOrder ? 'Limpar contexto' : 'Novo atendimento'}
+        onAction={activeWorkOrder ? () => setActiveWorkOrderId(null) : () => setActiveSection('newWorkOrder')}
+      />
 
       <div className="dashboard-finance-tiles" style={{ marginBottom: '1.5rem' }}>
-        <article className="finance-tile"><span>Clientes</span><strong>{clients.length}</strong></article>
-        <article className="finance-tile"><span>Abertos</span><strong>{openWorkOrders}</strong></article>
-        <article className="finance-tile"><span>Concluídos</span><strong>{doneWorkOrders}</strong></article>
+        <MetricCard label="Clientes" value={clients.length} />
+        <MetricCard label="Abertos" value={openWorkOrders} tone={openWorkOrders > 0 ? 'brand' : 'default'} />
+        <MetricCard label="Concluídos" value={doneWorkOrders} />
       </div>
 
       <div className="home-action-toolbar">
