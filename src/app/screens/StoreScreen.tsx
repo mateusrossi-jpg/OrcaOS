@@ -7,6 +7,7 @@ import { isPlanEntitlementSyncConfigured, refreshPlanEntitlement } from '../../c
 import { proPlanBenefits, proV1Priorities, futureProBacklog } from '../../core/access/planStrategy';
 import { isDevToolsEnabled } from '../../core/runtime/devTools';
 import { storePackages } from '../appData';
+import { MetricCard, PageHeader, PageShell, PlanCard, SectionHeader } from '../components/designSystem';
 import { planStatusTitle, planStatusDescription } from '../utils/planHelpers';
 
 interface StoreScreenProps {
@@ -90,15 +91,40 @@ export function StoreScreen({ account, onAccountChange }: StoreScreenProps) {
   }
 
   return (
-    <section className="app-screen wide-screen store-screen">
-      <header className="screen-header"><h1>Licença</h1><p>Free para começar. Pro para vender com mais margem e apresentação.</p></header>
-      <section className="store-summary-grid">
-        <article><span>Free</span><strong>Grátis</strong><small>Básico</small></article>
-        <article className="featured"><span>Pro</span><strong>Em validação</strong><small>Profissional</small></article>
-        <article className="featured"><span>Pacote vitalício</span><strong>R$ 29,90 sugerido</strong><small>Recursos planejados</small></article>
+    <PageShell className="wide-screen store-screen">
+      <PageHeader title="Licença" description="Escolha o plano ideal para o seu negócio." />
+      <section className="plan-card-grid" aria-label="Planos Aferix">
+        <PlanCard
+          badge="FREE"
+          title="Grátis"
+          subtitle="Básico"
+          price="R$ 0/mês"
+          description="Para testar o fluxo local-first sem cobrança."
+          benefits={['13 cálculos livres', 'Acesso aos cálculos avulsos', 'Relatórios básicos', 'Suporte limitado']}
+          action={<button className="secondary-action inline-action" type="button" disabled>Plano atual</button>}
+        />
+        <PlanCard
+          badge="PRO"
+          title="Em validação"
+          subtitle="Profissional"
+          price="R$ 29,90/mês"
+          description="Para vender com margem, histórico e apresentação."
+          benefits={['17 cálculos Pro', 'Todos os cálculos', 'Relatórios completos', 'Suporte prioritário']}
+          action={<button className="primary-action inline-action" type="button" disabled={activeUserPlan === 'pro'} onClick={openCheckout}>Quero este plano</button>}
+          featured
+        />
+        <PlanCard
+          badge="VITALÍCIO"
+          title="Vitalício"
+          subtitle="Acesso vitalício"
+          price="R$ 29,90"
+          description="Oferta planejada para fundadores."
+          benefits={['Tudo do plano Pro', 'Sem mensalidades', 'Atualizações futuras', 'Suporte vitalício']}
+          action={<button className="primary-action inline-action" type="button" disabled>Quero este plano</button>}
+        />
       </section>
       <section className="aferix-panel-card store-comparison-card">
-        <header><div><h2>Vantagens do Aferix Pro</h2></div></header>
+        <SectionHeader title="Vantagens do Aferix Pro" />
         <div className="continuous-list">
           {proPlanBenefits.map((benefit) => (
             <article className="continuous-list-item" key={benefit.title}>
@@ -150,11 +176,11 @@ export function StoreScreen({ account, onAccountChange }: StoreScreenProps) {
             <h2>{activeUserPlan === 'pro' ? 'Aferix Pro Ativo' : 'Plano Aferix Pro'}</h2>
           </div>
         </header>
-        <div className="dashboard-finance-tiles" style={{ padding: '1rem' }}>
-          <article className="finance-tile"><span>Status</span><strong>{planStatusTitle(account)}</strong></article>
-          <article className="finance-tile"><span>ID</span><strong>{account.installationId.slice(0, 8)}</strong></article>
+        <div className="metric-grid compact-metric-grid">
+          <MetricCard label="Status" value={planStatusTitle(account)} />
+          <MetricCard label="ID" value={account.installationId.slice(0, 8)} />
         </div>
-        <div className="local-backup-actions" style={{ padding: '0 1.5rem 1.5rem', display: 'flex', gap: '0.5rem' }}>
+        <div className="local-backup-actions store-account-actions">
           <button className="ghost-action" type="button" onClick={openCheckout} disabled={activeUserPlan === 'pro'}>Assinar Pro</button>
           <button className="ghost-action" type="button" onClick={checkSubscription}>Verificar</button>
         </div>
@@ -172,9 +198,9 @@ export function StoreScreen({ account, onAccountChange }: StoreScreenProps) {
             <h2>Comparativo de Planos</h2>
           </div>
         </header>
-        <div className="dashboard-finance-tiles" style={{ padding: '1rem' }}>
-          <article className="finance-tile"><span>Free</span><strong>Básico</strong></article>
-          <article className="finance-tile" style={{ borderLeft: '3px solid #f59e0b' }}><span>Pro</span><strong>Profissional</strong></article>
+        <div className="metric-grid compact-metric-grid">
+          <MetricCard label="Free" value="Básico" />
+          <MetricCard label="Pro" value="Profissional" tone="brand" />
         </div>
         <div className="continuous-list">
           {proPlanBenefits.map((benefit) => (
@@ -199,6 +225,6 @@ export function StoreScreen({ account, onAccountChange }: StoreScreenProps) {
           {futureProBacklog.map((benefit) => <span key={benefit.title}><strong>{benefit.title}</strong><small>{benefit.description}</small></span>)}
         </div>
       </div>
-    </section>
+    </PageShell>
   );
 }

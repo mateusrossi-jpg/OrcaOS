@@ -414,3 +414,115 @@
     justify-self: start;
   }
 }
+
+.general-plan-banner,
+.general-picker-card,
+.general-overlay-panel,
+.general-result-card,
+.calculator-monetization-panel {
+  border-color: var(--aferix-border) !important;
+  border-radius: var(--aferix-radius-md) !important;
+  background: linear-gradient(180deg, var(--aferix-surface-raised), var(--aferix-surface)) !important;
+  color: var(--aferix-text) !important;
+}
+
+.calculator-monetization-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 16px;
+  align-items: center;
+  padding: 18px;
+}
+
+.calculator-monetization-panel span,
+.general-overlay-header span,
+.general-form-field span {
+  display: block !important;
+  color: var(--aferix-brand) !important;
+}
+
+.calculator-monetization-panel strong,
+.general-plan-banner strong,
+.general-picker-card strong,
+.general-overlay-header h2 {
+  display: block !important;
+  color: var(--aferix-text) !important;
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0 !important;
+}
+
+.calculator-monetization-panel small,
+.general-plan-banner span,
+.general-picker-card small,
+.general-overlay-header p {
+  display: block !important;
+  margin-top: 6px !important;
+  color: var(--aferix-text-muted) !important;
+  font-size: 13px !important;
+}
+
+.calculator-monetization-stats {
+  display: flex;
+  gap: 10px;
+}
+
+.calculator-monetization-stats article {
+  display: grid;
+  gap: 2px;
+  min-width: 72px;
+  padding: 10px 12px;
+  border: 1px solid var(--aferix-border);
+  border-radius: var(--aferix-radius-sm);
+  background: var(--aferix-bg-soft);
+}
+
+.calculator-monetization-stats b {
+  color: var(--aferix-text);
+  font-size: 22px;
+  line-height: 1;
+}
+
+.calculator-monetization-stats small {
+  color: var(--aferix-text-muted);
+  font-size: 12px;
+}
+
+.general-overlay-panel {
+  background: var(--aferix-bg) !important;
+}
+
+.general-form-field input,
+.general-form-field select {
+  min-height: 46px !important;
+  border-color: var(--aferix-border) !important;
+  border-radius: var(--aferix-radius-sm) !important;
+  color: var(--aferix-text) !important;
+  background: var(--aferix-bg-soft) !important;
+}
+
+.general-capture-actions button {
+  min-height: 44px !important;
+  border-radius: var(--aferix-radius-sm) !important;
+  color: #111214 !important;
+  background: var(--aferix-brand) !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+}
+
+.general-capture-actions button.secondary-action {
+  color: var(--aferix-text) !important;
+  background: var(--aferix-bg-soft) !important;
+}
+
+@media (max-width: 720px) {
+  .calculator-monetization-panel,
+  .calculator-monetization-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .calculator-monetization-stats {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

@@ -1,29 +1,44 @@
 :root {
-  /* Aferix Brand Identity */
-  --aferix-bg: #000000;
-  --aferix-surface: #0a0a0a;
-  --aferix-surface-2: #0f0f11;
-  --aferix-surface-3: #161616;
-  --aferix-surface-hover: #1a1a1a;
-  --aferix-border: #1a1a1a;
-  --aferix-border-strong: #27272a;
-  --aferix-text: #f8fafc;
-  --aferix-text-primary: #f8fafc;
-  --aferix-muted: #71717a;
-  --aferix-text-secondary: #71717a;
-  --aferix-primary: #f59e0b;
-  --aferix-primary-strong: #fbbf24;
-  --aferix-primary-soft: rgba(245, 158, 11, 0.1);
-  --aferix-success: #10b981;
+  --aferix-bg: #050607;
+  --aferix-bg-soft: #090b0f;
+  --aferix-surface: #101114;
+  --aferix-surface-raised: #15171c;
+  --aferix-surface-active: #1b1d23;
+  --aferix-surface-2: var(--aferix-surface-raised);
+  --aferix-surface-3: var(--aferix-surface-active);
+  --aferix-surface-hover: #202228;
+  --aferix-border: #24262d;
+  --aferix-border-strong: #343741;
+  --aferix-text: #f5f1e8;
+  --aferix-text-primary: #f5f1e8;
+  --aferix-text-muted: #a6a6af;
+  --aferix-text-soft: #73737d;
+  --aferix-muted: var(--aferix-text-muted);
+  --aferix-text-secondary: var(--aferix-text-muted);
+  --aferix-brand: #f5a400;
+  --aferix-brand-soft: #8a5d08;
+  --aferix-brand-hover: #ffb21a;
+  --aferix-primary: var(--aferix-brand);
+  --aferix-primary-strong: var(--aferix-brand-hover);
+  --aferix-primary-soft: rgba(245, 164, 0, 0.11);
+  --aferix-success: #22c55e;
   --aferix-danger: #ef4444;
   --aferix-warning: #f59e0b;
-  --aferix-accent: #f59e0b;
-  --aferix-radius: 6px;
+  --aferix-accent: var(--aferix-brand);
+  --aferix-radius-sm: 8px;
+  --aferix-radius-md: 12px;
+  --aferix-radius-lg: 16px;
+  --aferix-radius: var(--aferix-radius-md);
+  --aferix-page-mobile-x: 16px;
+  --aferix-page-desktop-x: 24px;
+  --aferix-card-padding-mobile: 16px;
+  --aferix-card-padding-desktop: 20px;
+  --aferix-font: "Geist", "Outfit", "Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --aferix-mono: "JetBrains Mono", "SFMono-Regular", Consolas, "Liberation Mono", monospace;
-  --aferix-premium-gradient: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
-  --aferix-premium-divider: linear-gradient(90deg, transparent 0%, rgba(245, 158, 11, 0.08) 20%, rgba(245, 158, 11, 0.25) 80%, transparent 100%);
-  --aferix-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --aferix-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --aferix-premium-gradient: linear-gradient(135deg, #f5a400 0%, #ffb21a 100%);
+  --aferix-premium-divider: linear-gradient(90deg, transparent 0%, rgba(245, 164, 0, 0.08) 20%, rgba(245, 164, 0, 0.28) 80%, transparent 100%);
+  --aferix-shadow-sm: 0 10px 24px rgba(0, 0, 0, 0.18);
+  --aferix-shadow: 0 18px 54px rgba(0, 0, 0, 0.32);
 
   /* Legacy OrcaOS Variables (Deprecated - do not use for new development) */
   --orca-bg: var(--aferix-bg);
@@ -59,14 +74,14 @@
 body {
   background-color: var(--aferix-bg);
   color: var(--aferix-text-primary);
-  font-family: 'Inter', 'Roboto', system-ui, sans-serif;
+  font-family: var(--aferix-font);
   font-size: 14px;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
 }
 
 h1, h2, h3, h4 {
-  letter-spacing: -0.025em;
+  letter-spacing: 0;
   font-weight: 700;
   margin-bottom: 0.5rem;
   line-height: 1.2;
@@ -74,7 +89,7 @@ h1, h2, h3, h4 {
 
 p {
   margin-bottom: 1rem;
-  color: #a1a1aa;
+  color: var(--aferix-text-muted);
 }
 
 @media (max-width: 768px) {
@@ -361,4 +376,715 @@ button.danger {
 .profit-highlight {
   color: var(--aferix-accent) !important;
   font-weight: 700;
+}
+
+/* Aferix 2026 dark premium system */
+html,
+body,
+#root {
+  background: var(--aferix-bg) !important;
+  color: var(--aferix-text) !important;
+  font-family: var(--aferix-font) !important;
+}
+
+img,
+svg {
+  max-width: 100%;
+}
+
+.professional-app-shell {
+  background:
+    radial-gradient(circle at top left, rgba(245, 164, 0, 0.06), transparent 32rem),
+    var(--aferix-bg) !important;
+}
+
+.desktop-sidebar,
+.professional-topbar,
+.side-drawer {
+  background: rgba(5, 6, 7, 0.94) !important;
+  border-color: var(--aferix-border) !important;
+}
+
+.desktop-sidebar-brand,
+.drawer-brand-card,
+.drawer-status-strip {
+  border-color: var(--aferix-border) !important;
+  background: var(--aferix-bg-soft) !important;
+  border-radius: var(--aferix-radius-md) !important;
+}
+
+.desktop-sidebar-nav button,
+.drawer-nav button {
+  border-radius: var(--aferix-radius-sm) !important;
+  color: var(--aferix-text-muted) !important;
+}
+
+.desktop-sidebar-nav button:hover,
+.desktop-sidebar-nav button.active,
+.drawer-nav button:hover,
+.drawer-nav button.active,
+.ghost-action.active {
+  color: var(--aferix-text) !important;
+  background: var(--aferix-surface-active) !important;
+  border-color: var(--aferix-border-strong) !important;
+}
+
+.drawer-nav-icon,
+.desktop-sidebar-nav button.active .drawer-nav-icon,
+.drawer-nav button.active .drawer-nav-icon {
+  color: var(--aferix-brand) !important;
+}
+
+.professional-app-content {
+  background: transparent !important;
+  padding: var(--aferix-page-desktop-x) !important;
+}
+
+.professional-app-content > .app-screen,
+.professional-app-content > .app-screen.wide-screen,
+.professional-app-content > .app-screen.aferix-dashboard-screen {
+  max-width: 1180px !important;
+  gap: 16px !important;
+}
+
+.page-header,
+.screen-header {
+  display: flex !important;
+  align-items: flex-end !important;
+  justify-content: space-between !important;
+  gap: 16px !important;
+  margin: 0 0 4px !important;
+}
+
+.page-header h1,
+.screen-header h1 {
+  margin: 0 !important;
+  color: var(--aferix-text) !important;
+  font-size: 24px !important;
+  font-weight: 700 !important;
+  line-height: 1.15 !important;
+  letter-spacing: 0 !important;
+}
+
+.page-header p,
+.screen-header p {
+  margin: 6px 0 0 !important;
+  color: var(--aferix-text-muted) !important;
+  font-size: 14px !important;
+  line-height: 1.45 !important;
+}
+
+.section-header,
+.aferix-panel-card > header,
+.client-purchase-panel header,
+.report-command-panel header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  margin: 0 0 14px !important;
+}
+
+.section-header h2,
+.aferix-panel-card h2,
+.client-purchase-panel h2 {
+  margin: 0 !important;
+  color: var(--aferix-text) !important;
+  font-size: 18px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0 !important;
+}
+
+.orca-kicker,
+.drawer-nav-heading,
+.section-title-row h2 {
+  color: var(--aferix-text-soft) !important;
+  font-family: var(--aferix-font) !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+}
+
+.aferix-panel-card,
+.info-card,
+.notice-box,
+.active-work-context-card,
+.calculation-context-card,
+.survey-intro-card,
+.survey-empty-state,
+.survey-measurement-panel,
+.survey-review-panel,
+.budget-technical-drawer,
+.client-purchase-panel,
+.client-purchase-empty,
+.client-purchase-card,
+.report-command-panel,
+.report-document,
+.settings-row,
+.account-email-card,
+.account-settings-panel,
+.store-card,
+.resource-action-card {
+  border: 1px solid var(--aferix-border) !important;
+  border-radius: var(--aferix-radius-md) !important;
+  background: linear-gradient(180deg, var(--aferix-surface-raised), var(--aferix-surface)) !important;
+  box-shadow: var(--aferix-shadow-sm) !important;
+}
+
+.aferix-panel-card,
+.active-work-context-card,
+.calculation-context-card,
+.survey-intro-card,
+.survey-measurement-panel,
+.survey-review-panel,
+.budget-technical-drawer,
+.client-purchase-panel,
+.report-command-panel,
+.account-email-card,
+.account-settings-panel {
+  padding: var(--aferix-card-padding-desktop) !important;
+}
+
+.active-work-context-card {
+  display: grid !important;
+  grid-template-columns: auto minmax(0, 1fr) !important;
+  align-items: center !important;
+  gap: 12px !important;
+}
+
+.active-work-context-card strong,
+.info-card strong,
+.notice-box strong {
+  display: block !important;
+  color: var(--aferix-text) !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  line-height: 1.25 !important;
+}
+
+.active-work-context-card small,
+.info-card small,
+.notice-box p {
+  display: block !important;
+  margin: 4px 0 0 !important;
+  color: var(--aferix-text-muted) !important;
+  font-size: 12px !important;
+  line-height: 1.45 !important;
+}
+
+.app-icon,
+.tone-blue,
+.tone-orange,
+.tone-green,
+.tone-gray {
+  color: var(--aferix-brand) !important;
+  border-color: rgba(245, 164, 0, 0.28) !important;
+  background: rgba(245, 164, 0, 0.1) !important;
+}
+
+.metric-grid,
+.dashboard-finance-tiles,
+.finance-kpi-grid,
+.finance-result-grid,
+.store-summary-grid,
+.client-purchase-summary,
+.settings-readiness-grid,
+.billing-readiness-grid,
+.plan-priority-grid,
+.survey-review-counts {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)) !important;
+  gap: 12px !important;
+}
+
+.dashboard-metric-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+}
+
+.compact-metric-grid {
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)) !important;
+  padding: 0 !important;
+}
+
+.metric-card,
+.finance-tile,
+.client-purchase-summary article,
+.store-summary-grid article,
+.settings-readiness-grid article,
+.billing-readiness-grid article,
+.plan-priority-grid article,
+.survey-review-counts article {
+  display: grid !important;
+  align-content: start !important;
+  gap: 8px !important;
+  min-height: 112px !important;
+  min-width: 0 !important;
+  padding: 16px !important;
+  border: 1px solid var(--aferix-border) !important;
+  border-radius: var(--aferix-radius-md) !important;
+  background: linear-gradient(180deg, var(--aferix-surface-raised), var(--aferix-surface)) !important;
+  box-shadow: none !important;
+}
+
+.metric-card > span,
+.finance-tile > span,
+.client-purchase-summary span,
+.store-summary-grid span,
+.settings-readiness-grid span,
+.billing-readiness-grid span,
+.plan-priority-grid span,
+.survey-review-counts span {
+  color: var(--aferix-text-muted) !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.04em !important;
+  line-height: 1.3 !important;
+  text-transform: uppercase !important;
+}
+
+.metric-card > strong,
+.finance-tile > strong,
+.client-purchase-summary strong,
+.store-summary-grid strong,
+.settings-readiness-grid strong,
+.billing-readiness-grid strong,
+.plan-priority-grid strong,
+.survey-review-counts strong {
+  color: var(--aferix-text) !important;
+  font-family: var(--aferix-font) !important;
+  font-size: clamp(24px, 3vw, 30px) !important;
+  font-weight: 700 !important;
+  line-height: 1.05 !important;
+  letter-spacing: 0 !important;
+  font-variant-numeric: tabular-nums !important;
+}
+
+.metric-card small,
+.finance-tile small,
+.client-purchase-summary small,
+.store-summary-grid small,
+.settings-readiness-grid small,
+.billing-readiness-grid small,
+.plan-priority-grid small {
+  color: var(--aferix-text-soft) !important;
+  font-size: 12px !important;
+  line-height: 1.35 !important;
+}
+
+.metric-card.tone-brand,
+.metric-card.tone-success,
+.finance-tile.net,
+.store-summary-grid article.featured {
+  border-color: rgba(245, 164, 0, 0.5) !important;
+}
+
+.money-value {
+  font-variant-numeric: tabular-nums !important;
+  white-space: nowrap !important;
+}
+
+.money-value.tone-success,
+.metric-card.tone-success strong,
+.value-col {
+  color: var(--aferix-success) !important;
+}
+
+.money-value.tone-danger,
+.metric-card.tone-danger strong {
+  color: var(--aferix-danger) !important;
+}
+
+.premium-accent,
+.metric-card.tone-brand strong,
+.drawer-nav button.active strong {
+  color: var(--aferix-brand) !important;
+}
+
+.home-action-toolbar,
+.compact-actions,
+.general-capture-actions,
+.settings-actions-row,
+.local-backup-actions,
+.survey-step-actions,
+.survey-review-next-actions,
+.client-os-form-actions {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 10px !important;
+  padding: 0 !important;
+}
+
+.primary-action,
+.primary-action.inline-action,
+button.primary {
+  min-height: 44px !important;
+  border-radius: var(--aferix-radius-sm) !important;
+  color: #111214 !important;
+  background: var(--aferix-brand) !important;
+  box-shadow: none !important;
+}
+
+.ghost-action,
+.secondary-action,
+.secondary-action.inline-action,
+button.secondary {
+  min-height: 44px !important;
+  border: 1px solid var(--aferix-border) !important;
+  border-radius: var(--aferix-radius-sm) !important;
+  color: var(--aferix-text) !important;
+  background: var(--aferix-bg-soft) !important;
+  box-shadow: none !important;
+}
+
+.primary-action:hover,
+.ghost-action:hover,
+.secondary-action:hover {
+  transform: translateY(-1px) !important;
+}
+
+.section-mode-tabs,
+.client-os-section-tabs,
+.budget-workspace-tabs,
+.catalog-subtabs,
+.settings-section-tabs,
+.calculation-profession-tabs,
+.catalog-primary-tabs,
+.catalog-secondary-tabs,
+.survey-step-guide {
+  display: flex !important;
+  gap: 8px !important;
+  width: 100% !important;
+  padding: 0 0 8px !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  border: 0 !important;
+  border-bottom: 1px solid var(--aferix-border) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  scrollbar-width: thin !important;
+}
+
+.section-mode-tabs button,
+.client-os-section-tabs button,
+.budget-workspace-tabs button,
+.catalog-subtabs button,
+.settings-section-tabs button,
+.calculation-profession-tabs button,
+.catalog-primary-tabs button,
+.catalog-secondary-tabs button,
+.survey-step-guide button {
+  flex: 0 0 auto !important;
+  min-height: 40px !important;
+  border: 0 !important;
+  border-bottom: 2px solid transparent !important;
+  border-radius: 0 !important;
+  padding: 0 12px !important;
+  color: var(--aferix-text-muted) !important;
+  background: transparent !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0 !important;
+  white-space: nowrap !important;
+}
+
+.section-mode-tabs button.active,
+.client-os-section-tabs button.active,
+.budget-workspace-tabs button.active,
+.catalog-subtabs button.active,
+.settings-section-tabs button.active,
+.calculation-profession-tabs button.active,
+.catalog-primary-tabs button.active,
+.catalog-secondary-tabs button.active,
+.survey-step-guide button.active {
+  color: var(--aferix-brand) !important;
+  background: transparent !important;
+  border-color: var(--aferix-brand) !important;
+}
+
+.calculation-context-card {
+  display: grid !important;
+  gap: 6px !important;
+}
+
+.calculation-context-card span,
+.plan-card-badge {
+  width: fit-content !important;
+  border: 1px solid rgba(245, 164, 0, 0.28) !important;
+  border-radius: 6px !important;
+  padding: 3px 7px !important;
+  color: var(--aferix-brand) !important;
+  background: rgba(245, 164, 0, 0.09) !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.06em !important;
+  text-transform: uppercase !important;
+}
+
+.calculation-context-card strong {
+  color: var(--aferix-text) !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+}
+
+.calculation-context-card small {
+  color: var(--aferix-text-muted) !important;
+  font-size: 12px !important;
+}
+
+.plan-card-grid {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 12px !important;
+}
+
+.plan-card {
+  display: grid !important;
+  gap: 14px !important;
+  min-width: 0 !important;
+  padding: 18px !important;
+  border: 1px solid var(--aferix-border) !important;
+  border-radius: var(--aferix-radius-md) !important;
+  background: linear-gradient(180deg, var(--aferix-surface-raised), var(--aferix-surface)) !important;
+}
+
+.plan-card.featured {
+  border-color: rgba(245, 164, 0, 0.62) !important;
+}
+
+.plan-card-heading h2,
+.plan-card-heading p,
+.plan-card-price,
+.plan-card-description {
+  margin: 0 !important;
+}
+
+.plan-card-heading h2 {
+  color: var(--aferix-text) !important;
+  font-size: 18px !important;
+  font-weight: 700 !important;
+}
+
+.plan-card-heading p,
+.plan-card-description {
+  color: var(--aferix-text-muted) !important;
+  font-size: 13px !important;
+  line-height: 1.4 !important;
+}
+
+.plan-card-price {
+  color: var(--aferix-text) !important;
+  font-size: 26px !important;
+  font-weight: 700 !important;
+  line-height: 1.1 !important;
+}
+
+.plan-card ul {
+  display: grid !important;
+  gap: 8px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  list-style: none !important;
+}
+
+.plan-card li {
+  color: var(--aferix-text-muted) !important;
+  font-size: 13px !important;
+  line-height: 1.35 !important;
+  overflow-wrap: normal !important;
+  word-break: normal !important;
+}
+
+.plan-card li::before {
+  content: "";
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  margin-right: 8px;
+  border-radius: 1px;
+  background: var(--aferix-brand);
+  vertical-align: middle;
+}
+
+.store-account-actions {
+  padding-top: 14px !important;
+}
+
+.store-comparison-card .continuous-list-item {
+  grid-template-columns: minmax(0, 1fr) !important;
+}
+
+.store-comparison-card .client-col {
+  max-width: 620px !important;
+}
+
+.account-email-card > div:first-child {
+  display: grid !important;
+  gap: 6px !important;
+}
+
+.account-email-card > div:first-child strong,
+.account-email-card > div:first-child small {
+  display: block !important;
+}
+
+.guided-room-header,
+.guided-room-card,
+.guided-room-option,
+.guided-room-selected,
+.guided-manual-block-card,
+.guided-cart-panel,
+.guided-service-card,
+.guided-cart-summary {
+  border-color: var(--aferix-border) !important;
+  border-radius: var(--aferix-radius-md) !important;
+  background: linear-gradient(180deg, var(--aferix-surface-raised), var(--aferix-surface)) !important;
+  color: var(--aferix-text) !important;
+  box-shadow: none !important;
+}
+
+.guided-room-header h2,
+.guided-room-card strong,
+.guided-room-selected strong,
+.guided-manual-block-card strong,
+.guided-service-card strong,
+.guided-cart-summary strong {
+  color: var(--aferix-text) !important;
+  letter-spacing: 0 !important;
+}
+
+.guided-room-header p,
+.guided-room-header strong,
+.guided-room-card small,
+.guided-room-selected small,
+.guided-room-helper,
+.guided-room-empty,
+.guided-manual-block-card small,
+.guided-service-card small,
+.guided-cart-summary small {
+  color: var(--aferix-text-muted) !important;
+}
+
+.guided-room-grid input,
+.guided-room-grid select,
+.guided-room-grid textarea,
+.guided-room-search input,
+.guided-room-search select,
+.guided-manual-grid input,
+.guided-manual-grid select,
+.guided-manual-grid textarea,
+.guided-typed-quantity input {
+  border-color: var(--aferix-border) !important;
+  border-radius: var(--aferix-radius-sm) !important;
+  background: var(--aferix-bg-soft) !important;
+  color: var(--aferix-text) !important;
+}
+
+.guided-room-option.active {
+  border-color: rgba(245, 164, 0, 0.45) !important;
+  background: var(--aferix-surface-active) !important;
+}
+
+.compact-empty-state {
+  min-height: 160px !important;
+  padding: 24px !important;
+}
+
+.compact-empty-state strong {
+  font-size: 16px !important;
+}
+
+.compact-empty-state p {
+  font-size: 13px !important;
+}
+
+.client-purchase-warning {
+  border: 1px solid rgba(245, 164, 0, 0.24) !important;
+  border-radius: var(--aferix-radius-sm) !important;
+  padding: 12px !important;
+  color: var(--aferix-text-muted) !important;
+  background: rgba(245, 164, 0, 0.08) !important;
+}
+
+.app-screen :where(input, select, textarea) {
+  border-color: var(--aferix-border) !important;
+  border-radius: var(--aferix-radius-sm) !important;
+  color: var(--aferix-text) !important;
+  background: var(--aferix-bg-soft) !important;
+}
+
+.app-screen :where(input:focus, select:focus, textarea:focus) {
+  border-color: var(--aferix-brand) !important;
+  box-shadow: 0 0 0 2px rgba(245, 164, 0, 0.16) !important;
+}
+
+@media (max-width: 980px) {
+  .dashboard-metric-grid,
+  .plan-card-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 767px) {
+  .professional-app-content {
+    padding: 16px var(--aferix-page-mobile-x) calc(18px + env(safe-area-inset-bottom)) !important;
+  }
+
+  .page-header,
+  .screen-header {
+    align-items: flex-start !important;
+    flex-direction: column !important;
+  }
+
+  .page-header h1,
+  .screen-header h1 {
+    font-size: 22px !important;
+  }
+
+  .aferix-panel-card,
+  .active-work-context-card,
+  .calculation-context-card,
+  .survey-intro-card,
+  .survey-measurement-panel,
+  .survey-review-panel,
+  .budget-technical-drawer,
+  .client-purchase-panel,
+  .report-command-panel,
+  .account-email-card,
+  .account-settings-panel {
+    padding: var(--aferix-card-padding-mobile) !important;
+  }
+
+  .dashboard-metric-grid,
+  .plan-card-grid,
+  .metric-grid,
+  .dashboard-finance-tiles,
+  .finance-kpi-grid,
+  .finance-result-grid,
+  .client-purchase-summary {
+    grid-template-columns: 1fr !important;
+  }
+
+  .metric-card,
+  .finance-tile,
+  .client-purchase-summary article {
+    min-height: 96px !important;
+  }
+
+  .metric-card > strong,
+  .finance-tile > strong {
+    font-size: 26px !important;
+  }
+
+  .home-action-toolbar,
+  .compact-actions,
+  .general-capture-actions,
+  .settings-actions-row,
+  .local-backup-actions,
+  .survey-step-actions,
+  .survey-review-next-actions,
+  .client-os-form-actions {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+  }
 }

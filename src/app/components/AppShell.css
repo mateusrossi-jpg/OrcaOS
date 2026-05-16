@@ -40,14 +40,46 @@ body,
   min-width: 0;
   border-right: 1px solid var(--aferix-border);
   padding: 20px 12px;
-  background: #000000;
+  background: var(--aferix-bg);
   overflow: hidden;
+}
+
+.aferix-brand-logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: min(100%, 220px);
+  max-width: 220px;
+  height: 56px;
+  max-height: 72px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.aferix-brand-logo img {
+  display: block;
+  width: auto;
+  max-width: 100%;
+  height: auto;
+  max-height: 56px;
+  object-fit: contain;
+}
+
+.aferix-brand-logo.collapsed {
+  width: 42px;
+  height: 42px;
+  justify-content: center;
+}
+
+.aferix-brand-logo.collapsed img {
+  max-width: 34px;
+  max-height: 34px;
 }
 
 .desktop-sidebar-brand {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  gap: 12px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
   align-items: center;
   min-height: 56px;
   padding: 10px;
@@ -305,8 +337,16 @@ body,
 }
 
 @media (max-width: 760px) {
-  .aferix-wordmark-img {
-    width: 122px;
+.aferix-brand-logo {
+    width: 128px;
+    max-width: 128px;
+    height: 44px;
+    max-height: 48px;
+    justify-content: center;
+  }
+
+  .aferix-brand-logo img {
+    max-height: 40px;
   }
 
   .topbar-branding-center {
@@ -320,6 +360,10 @@ body,
     width: 72px;
     max-width: 72px;
   }
+}
+
+.desktop-sidebar .aferix-brand-logo {
+  max-width: 190px;
 }
 
 .topbar-status-pill span {
@@ -586,7 +630,8 @@ body,
 
 @media (min-width: 768px) {
   .topbar-menu-button,
-  .topbar-brand-mark {
+  .topbar-brand-mark,
+  .topbar-branding-center {
     display: none;
   }
 }
@@ -608,6 +653,11 @@ body,
 
   .professional-app-content {
     padding: 18px 16px calc(18px + env(safe-area-inset-bottom));
+  }
+
+  .professional-topbar {
+    min-height: 58px;
+    padding: env(safe-area-inset-top) 16px 0;
   }
 }
 

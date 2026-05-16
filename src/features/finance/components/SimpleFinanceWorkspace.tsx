@@ -224,7 +224,7 @@ export function SimpleFinanceWorkspace() {
               </label>
             )}
 
-            <div className="professional-profile-grid" style={{ padding: '1rem' }}>
+            <div className="professional-profile-grid finance-form-grid">
               <label className="budget-field wide"><span>Serviço</span><input value={draft.title} onChange={(event) => updateDraft('title', event.target.value)} /></label>
               <label className="budget-field"><span>Cliente</span><input value={draft.clientName} onChange={(event) => updateDraft('clientName', event.target.value)} /></label>
               <label className="budget-field"><span>Status</span><select value={draft.status} onChange={(event) => updateDraft('status', event.target.value as SimpleFinanceRecord['status'])}><option value="forecast">Previsto</option><option value="realized">Recebido</option></select></label>
@@ -234,13 +234,13 @@ export function SimpleFinanceWorkspace() {
               <label className="budget-field"><span>Outros</span><input inputMode="decimal" value={draft.otherCosts} onChange={(event) => updateDraft('otherCosts', event.target.value)} /></label>
             </div>
 
-            <div style={{ padding: '0 1.5rem 1.5rem' }}>
+            <div className="finance-entry-actions">
               <button className="ghost-action" type="button" onClick={saveRecord}>{draft.id ? 'Atualizar' : 'Salvar'}</button>
             </div>
           </div>
 
-          <aside className="finance-live-summary" style={{ padding: '1rem', background: '#111', borderLeft: '1px solid #222' }}>
-            <div className="dashboard-finance-tiles" style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1rem' }}>
+          <aside className="finance-live-summary">
+            <div className="dashboard-finance-tiles finance-live-grid">
               <article className="finance-tile"><span>Lucro Líquido</span><strong>{money(result.netProfit)}</strong></article>
               <article className="finance-tile"><span>Margem</span><strong>{result.netMarginPercent.toFixed(1)}%</strong></article>
             </div>
@@ -266,8 +266,8 @@ export function SimpleFinanceWorkspace() {
                 </div>
                 <div className="value-col">{money(profit.netProfit)}</div>
                 <div className="finance-record-actions">
-                  <button className="ghost-action" style={{ minHeight: '32px', fontSize: '0.7rem' }} type="button" onClick={() => editRecord(record)}>Editar</button>
-                  <button className="ghost-action" style={{ minHeight: '32px', fontSize: '0.7rem', color: '#ef4444' }} type="button" onClick={() => removeRecord(record.id)}>Remover</button>
+                  <button className="ghost-action compact-row-action" type="button" onClick={() => editRecord(record)}>Editar</button>
+                  <button className="ghost-action compact-row-action danger-row-action" type="button" onClick={() => removeRecord(record.id)}>Remover</button>
                 </div>
               </article>
             );

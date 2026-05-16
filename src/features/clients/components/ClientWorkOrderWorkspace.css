@@ -1,21 +1,21 @@
 .refined-client-os {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
-  padding: 1rem;
+  gap: 16px;
+  padding: 0;
 }
 
 .client-os-indicator-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1.5rem;
+  gap: 12px;
 }
 
 .client-os-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 1.25rem;
-  padding: 1.5rem;
+  gap: 14px;
+  padding: 16px 0 0;
 }
 
 .client-os-wide {
@@ -24,9 +24,9 @@
 
 .client-os-form-actions {
   display: flex;
-  gap: 1rem;
-  padding: 1.5rem;
-  border-top: 1px solid #222;
+  gap: 10px;
+  padding: 16px 0 0;
+  border-top: 1px solid var(--aferix-border);
 }
 
 .client-picker-results {
@@ -37,11 +37,11 @@
 }
 
 .client-picker-results button {
-  background: #111;
-  border: 1px solid #222;
-  color: #fff;
+  background: var(--aferix-bg-soft);
+  border: 1px solid var(--aferix-border);
+  color: var(--aferix-text);
   padding: 0.75rem;
-  border-radius: 4px;
+  border-radius: var(--aferix-radius-sm);
   text-align: left;
   cursor: pointer;
   display: flex;
@@ -52,8 +52,8 @@
 
 .client-picker-results button:hover,
 .client-picker-results button.active {
-  border-color: #f59e0b;
-  background: #1a1a1a;
+  border-color: var(--aferix-brand);
+  background: var(--aferix-surface-active);
 }
 
 .client-picker-results button strong {
@@ -62,12 +62,12 @@
 
 .client-picker-results button small {
   font-size: 0.75rem;
-  color: #666;
+  color: var(--aferix-text-muted);
 }
 
 .client-form-section {
   padding-top: 1rem;
-  border-top: 1px solid #222;
+  border-top: 1px solid var(--aferix-border);
   margin-top: 1rem;
 }
 
@@ -80,13 +80,13 @@
 
 .client-form-section-head strong {
   font-size: 0.8rem;
-  color: #f59e0b;
+  color: var(--aferix-brand);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
 
 .client-form-section-head small {
-  color: #666;
+  color: var(--aferix-text-muted);
   font-size: 0.75rem;
 }
 

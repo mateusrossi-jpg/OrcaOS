@@ -4,6 +4,7 @@ import type { Client, WorkOrder } from '../../core/types/business';
 import type { SavedBudgetRecord } from '../../features/budgets/storage/savedBudgetsStorage';
 import { calculationModules } from '../appData';
 import { ActiveWorkContextCard } from '../components/ActiveWorkContextCard';
+import { EmptyState, MetricCard, MoneyValue, PageHeader, PageShell, SectionHeader } from '../components/designSystem';
 import { formatCompactCurrency } from '../../core/format/currency';
 
 interface HomeScreenProps {
@@ -48,38 +49,33 @@ export function HomeScreen({
   const pricingModule = calculationModules.find((module) => module.id === 'orcamentoTecnico') ?? calculationModules[0];
 
   return (
-    <section className="app-screen aferix-dashboard-screen">
-      <div className="home-action-toolbar">
-        <button type="button" className="ghost-action" onClick={onStartNewAttendance}>Novo atendimento</button>
-        <button type="button" className="ghost-action" onClick={() => goTo('budgets')}>Orçamento rápido</button>
-        <button type="button" className="ghost-action" onClick={() => openModule(pricingModule)}>Precificar</button>
-      </div>
+    <PageShell className="aferix-dashboard-screen">
+      <PageHeader
+        title="Dashboard"
+        description="Olá. Aqui está o resumo compacto do seu negócio hoje."
+        action={<button type="button" className="primary-action inline-action" onClick={onStartNewAttendance}>Novo atendimento</button>}
+      />
       <ActiveWorkContextCard {...context} />
 
-      <div className="dashboard-finance-tiles" aria-label="Resumo financeiro do mês">
-        <article className="finance-tile net">
-          <span>Lucro líquido do mês</span>
-          <strong className="premium-accent">{formatCompactCurrency(monthlyNetProfit)}</strong>
-        </article>
-        <article className="finance-tile revenue">
-          <span>Fluxo de caixa</span>
-          <strong>{formatCompactCurrency(monthlyCashFlow)}</strong>
-        </article>
-        <article className="finance-tile pending">
-          <span>Contas a receber</span>
-          <strong>{formatCompactCurrency(accountsReceivable)}</strong>
-        </article>
-        <article className="finance-tile expense">
-          <span>Despesas</span>
-          <strong>{formatCompactCurrency(monthlyExpenses)}</strong>
-        </article>
+      <div className="metric-grid dashboard-metric-grid" aria-label="Resumo financeiro do mês">
+        <MetricCard label="Lucro líquido do mês" value={<MoneyValue value={monthlyNetProfit} tone="success" />} trend="+28% vs mês anterior" tone="success" />
+        <MetricCard label="Fluxo de caixa" value={<MoneyValue value={monthlyCashFlow} />} trend="+18% vs mês anterior" />
+        <MetricCard label="Contas a receber" value={<MoneyValue value={accountsReceivable} />} trend="Orçamentos enviados/aprovados" />
+        <MetricCard label="Despesas" value={<MoneyValue value={monthlyExpenses} />} trend="+12% vs mês anterior" />
       </div>
+
+      <div className="home-action-toolbar compact-actions">
+        <button type="button" className="ghost-action" onClick={() => goTo('budgets')}>Orçamento rápido</button>
+        <button type="button" className="ghost-action" onClick={() => openModule(pricingModule)}>Precificar</button>
+        <button type="button" className="ghost-action" onClick={() => goTo('financial')}>Financeiro</button>
+      </div>
+
       <section className="aferix-panel-card home-command-panel">
-        <header><div><h2>Atendimentos em andamento</h2></div></header>
+        <SectionHeader title="Atendimentos em andamento" eyebrow="Operação" />
         <div className="home-recent-strip">
           <div className="continuous-list">
             {workOrders.filter(w => w.status !== 'done' && w.status !== 'cancelled').length === 0 ? (
-              <div className="continuous-list-empty">Nenhum atendimento em aberto para hoje.</div>
+              <EmptyState title="Nenhum atendimento em aberto" description="Crie um atendimento para acompanhar proposta, execução e relatório no mesmo contexto." />
             ) : (
               workOrders.filter(w => w.status !== 'done' && w.status !== 'cancelled').slice(0, 5).map(order => {
                 const orderClient = clients.find(c => c.id === order.clientId);
@@ -102,7 +98,7 @@ export function HomeScreen({
           </div>
         </div>
       </section>
-    </section>
+    </PageShell>
   );
 }
 

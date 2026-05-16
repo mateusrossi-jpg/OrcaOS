@@ -2088,3 +2088,94 @@ textarea {
     grid-template-columns: 1fr;
   }
 }
+
+/* Dark premium compatibility layer */
+.budget-save-status,
+.budget-header-card,
+.saved-budget-panel,
+.budget-editor,
+.budget-summary,
+.budget-section-panel,
+.budget-guidance-card,
+.budget-quick-mode-card,
+.budget-guided-map,
+.budget-flow-status-card,
+.budget-convert-os-card,
+.budget-item-edit-panel,
+.budget-item-manager,
+.budget-list-search-bar,
+.service-template-panel,
+.service-template-card,
+.budget-sticky-summary,
+.budget-review-item-list article {
+  border-color: var(--aferix-border) !important;
+  border-radius: var(--aferix-radius-md) !important;
+  background: linear-gradient(180deg, var(--aferix-surface-raised), var(--aferix-surface)) !important;
+  color: var(--aferix-text) !important;
+}
+
+.budget-workspace-tabs,
+.budget-workspace-stepper {
+  display: flex !important;
+  gap: 8px !important;
+  padding: 0 0 8px !important;
+  overflow-x: auto !important;
+  border: 0 !important;
+  border-bottom: 1px solid var(--aferix-border) !important;
+  background: transparent !important;
+}
+
+.budget-workspace-tabs button,
+.budget-workspace-stepper button {
+  flex: 0 0 auto !important;
+  min-height: 40px !important;
+  border: 0 !important;
+  border-bottom: 2px solid transparent !important;
+  border-radius: 0 !important;
+  color: var(--aferix-text-muted) !important;
+  background: transparent !important;
+  font-size: 13px !important;
+  letter-spacing: 0 !important;
+  white-space: nowrap !important;
+}
+
+.budget-workspace-tabs button.active,
+.budget-workspace-stepper button.active {
+  color: var(--aferix-brand) !important;
+  border-color: var(--aferix-brand) !important;
+  background: transparent !important;
+}
+
+.budget-quick-actions button,
+.budget-actions button,
+.budget-header-actions button {
+  min-height: 44px !important;
+  border-radius: var(--aferix-radius-sm) !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+}
+
+.budget-field textarea,
+.budget-field input,
+.budget-field select,
+.budget-list-search-bar input,
+.budget-list-search-bar select {
+  border-color: var(--aferix-border) !important;
+  border-radius: var(--aferix-radius-sm) !important;
+  background: var(--aferix-bg-soft) !important;
+  color: var(--aferix-text) !important;
+}
+
+.budget-summary-strip strong,
+.budget-review-grid strong,
+.budget-item-table-row em,
+.editable-budget-item-footer strong,
+.costs-summary-grid strong {
+  color: var(--aferix-text) !important;
+}
+
+.costs-summary-grid .highlight strong,
+.budget-save-status strong,
+.budget-quick-mode-card span {
+  color: var(--aferix-brand) !important;
+}
