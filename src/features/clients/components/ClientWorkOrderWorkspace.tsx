@@ -443,7 +443,7 @@ export function ClientWorkOrderWorkspace({ initialSection = 'dashboard', section
         <h1>Clientes e Atendimentos</h1>
       </header>
 
-      <div className="orca-panel-card">
+      <div className="aferix-panel-card">
         <header>
           <div>
             <span className="orca-kicker">Contexto ativo</span>
@@ -474,7 +474,7 @@ export function ClientWorkOrderWorkspace({ initialSection = 'dashboard', section
 
       {activeSection === 'dashboard' && (
         <div className="client-os-indicator-grid">
-          <div className="orca-panel-card">
+          <div className="aferix-panel-card">
             <header>
               <div>
                 <h2>Próximos Atendimentos</h2>
@@ -498,7 +498,7 @@ export function ClientWorkOrderWorkspace({ initialSection = 'dashboard', section
             </div>
           </div>
 
-          <div className="orca-panel-card">
+          <div className="aferix-panel-card">
             <header>
               <div>
                 <h2>Orçamentos Pendentes</h2>
@@ -521,7 +521,7 @@ export function ClientWorkOrderWorkspace({ initialSection = 'dashboard', section
       )}
 
       {activeSection === 'newClient' && (
-        <div className="orca-panel-card">
+        <div className="aferix-panel-card">
           <header>
             <div>
               <h2>{editingClientId ? 'Editar Cliente' : 'Novo Cliente'}</h2>
@@ -572,7 +572,7 @@ export function ClientWorkOrderWorkspace({ initialSection = 'dashboard', section
       )}
 
       {activeSection === 'newWorkOrder' && (
-        <div className="orca-panel-card">
+        <div className="aferix-panel-card">
           <header>
             <div>
               <h2>{editingWorkOrderId ? 'Editar Atendimento' : 'Novo Atendimento'}</h2>
@@ -616,7 +616,7 @@ export function ClientWorkOrderWorkspace({ initialSection = 'dashboard', section
       )}
 
       {activeSection === 'clients' && (
-        <div className="orca-panel-card">
+        <div className="aferix-panel-card">
           <header>
             <div>
               <h2>Base de Clientes</h2>
@@ -646,7 +646,7 @@ export function ClientWorkOrderWorkspace({ initialSection = 'dashboard', section
       )}
 
       {activeSection === 'workOrders' && (
-        <div className="orca-panel-card">
+        <div className="aferix-panel-card">
           <header>
             <div>
               <h2>Histórico de Atendimentos</h2>

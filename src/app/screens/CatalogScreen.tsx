@@ -1,6 +1,6 @@
 import { lazy } from 'react';
 import type { CalculationCapture } from '../../core/types/workflow';
-import type { ActiveWorkContext } from '../orcaAppTypes';
+import type { ActiveWorkContext } from '../appTypes';
 import { ActiveWorkContextCard } from '../components/ActiveWorkContextCard';
 
 const CatalogHubWorkspace = lazy(() => import('../../features/catalog/components/CatalogHubWorkspaceWithTax').then((module) => ({ default: module.CatalogHubWorkspace })));

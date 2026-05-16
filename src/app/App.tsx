@@ -1,16 +1,16 @@
 import { Suspense, useEffect, useMemo, useState } from 'react';
 import {
   loadAccountState,
-  ORCA_ACCOUNT_CHANGED_EVENT,
-  type OrcaAccountState,
+  AFERIX_ACCOUNT_CHANGED_EVENT,
+  type AferixAccountState,
 } from '../core/access/accountPlanStorage';
 import type { Client, WorkOrder } from '../core/types/business';
 import type { CalculationCapture } from '../core/types/workflow';
 import { loadSavedBudgets } from '../features/budgets/storage/savedBudgetsStorage';
 import { loadActiveWorkOrderId, loadClients, loadWorkOrders, saveWorkOrders } from '../features/clients/storage/clientWorkOrderStorage';
 import { AppShell } from './components/AppShell';
-import { navItems, userPlan } from './orcaAppData';
-import type { AppTab, CalculationSectorId, ModuleCardData } from './orcaAppTypes';
+import { navItems, userPlan } from './appData';
+import type { AppTab, CalculationSectorId, ModuleCardData } from './appTypes';
 import { loadStoredCaptures, saveStoredCaptures } from './storage/calculationCapturesStorage';
 import { cleanupRuntimeValidationData } from './storage/runtimeValidationCleanup';
 import { HomeScreen } from './screens/HomeScreen';
@@ -50,7 +50,7 @@ export function App() {
   const [clients, setClients] = useState<Client[]>(() => loadClients());
   const [workOrders, setWorkOrders] = useState<WorkOrder[]>(() => loadWorkOrders());
   const [activeWorkOrderId, setActiveWorkOrderId] = useState<string | null>(() => loadActiveWorkOrderId());
-  const [account, setAccount] = useState<OrcaAccountState>(() => loadAccountState());
+  const [account, setAccount] = useState<AferixAccountState>(() => loadAccountState());
   const activeUserPlan = account.plan ?? userPlan;
 
   useEffect(() => { saveStoredCaptures(captures); }, [captures]);
@@ -59,8 +59,8 @@ export function App() {
       setAccount(loadAccountState());
     }
 
-    window.addEventListener(ORCA_ACCOUNT_CHANGED_EVENT, syncAccount);
-    return () => window.removeEventListener(ORCA_ACCOUNT_CHANGED_EVENT, syncAccount);
+    window.addEventListener(AFERIX_ACCOUNT_CHANGED_EVENT, syncAccount);
+    return () => window.removeEventListener(AFERIX_ACCOUNT_CHANGED_EVENT, syncAccount);
   }, []);
 
   const activeWorkOrder = useMemo(() => workOrders.find((workOrder) => workOrder.id === activeWorkOrderId) ?? null, [activeWorkOrderId, workOrders]);

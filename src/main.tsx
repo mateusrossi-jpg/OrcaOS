@@ -1,9 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { App } from './app/AppOrcaNextOrganized';
+import { App } from './app/App';
 import { AppAccessGate } from './features/settings/components/AppAccessGate';
 import './styles/global.css';
-import './styles/orcaosMvpTheme.css';
+import './styles/aferixTheme.css';
 
 const rootElement = document.getElementById('root');
 

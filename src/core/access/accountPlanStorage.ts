@@ -10,7 +10,7 @@ export interface GoogleAccountProfile {
   email?: string;
 }
 
-export interface OrcaAccountState {
+export interface AferixAccountState {
   status: OrcaAccountStatus;
   userId: string | null;
   installationId: string;
@@ -23,9 +23,9 @@ export interface OrcaAccountState {
   updatedAt: string;
 }
 
-export const ORCA_ACCOUNT_CHANGED_EVENT = 'orcaos:account-plan-changed';
+export const AFERIX_ACCOUNT_CHANGED_EVENT = 'orcaos:account-plan-changed';
 
-const STORAGE_KEY = 'orcaos:account-plan:v1';
+const STORAGE_KEY = 'aferix:account-plan:v1';
 const LEGACY_PLAN_KEY = 'orcaos:user-plan';
 const INSTALLATION_ID_KEY = 'orcaos:installation-id:v1';
 
@@ -59,10 +59,10 @@ function normalizeEmail(email: string): string {
 
 function emitChanged(): void {
   if (typeof window === 'undefined') return;
-  window.dispatchEvent(new CustomEvent(ORCA_ACCOUNT_CHANGED_EVENT));
+  window.dispatchEvent(new CustomEvent(AFERIX_ACCOUNT_CHANGED_EVENT));
 }
 
-export function createGuestAccount(plan: UserPlan = 'free', planSource: OrcaPlanSource = plan === 'pro' ? 'local-test' : 'free'): OrcaAccountState {
+export function createGuestAccount(plan: UserPlan = 'free', planSource: OrcaPlanSource = plan === 'pro' ? 'local-test' : 'free'): AferixAccountState {
   return {
     status: 'guest',
     userId: null,
@@ -82,7 +82,7 @@ function normalizePlanStatus(value: unknown, plan: UserPlan): OrcaPlanStatus {
   return plan === 'pro' ? 'active' : 'free';
 }
 
-function normalizeAccount(value: Partial<OrcaAccountState> | null): OrcaAccountState | null {
+function normalizeAccount(value: Partial<AferixAccountState> | null): AferixAccountState | null {
   if (!value) return null;
   const plan: UserPlan = value.plan === 'pro' ? 'pro' : 'free';
   return {
@@ -99,12 +99,12 @@ function normalizeAccount(value: Partial<OrcaAccountState> | null): OrcaAccountS
   };
 }
 
-export function loadAccountState(): OrcaAccountState {
+export function loadAccountState(): AferixAccountState {
   if (!hasStorage()) return createGuestAccount();
 
   try {
     const stored = window.localStorage.getItem(STORAGE_KEY);
-    const parsed = stored ? normalizeAccount(JSON.parse(stored) as Partial<OrcaAccountState>) : null;
+    const parsed = stored ? normalizeAccount(JSON.parse(stored) as Partial<AferixAccountState>) : null;
     if (parsed) return parsed;
   } catch {
     window.localStorage.removeItem(STORAGE_KEY);
@@ -114,7 +114,7 @@ export function loadAccountState(): OrcaAccountState {
   return createGuestAccount(legacyPlan === 'pro' ? 'pro' : 'free');
 }
 
-export function saveAccountState(account: OrcaAccountState): void {
+export function saveAccountState(account: AferixAccountState): void {
   if (!hasStorage()) return;
   const installationId = account.installationId || getOrCreateInstallationId();
   window.localStorage.setItem(INSTALLATION_ID_KEY, installationId);
@@ -128,9 +128,9 @@ export function resolveUserPlan(defaultPlan: UserPlan = 'free'): UserPlan {
   return account.plan ?? defaultPlan;
 }
 
-export function signInLocalAccount(displayName = 'Profissional local', email = ''): OrcaAccountState {
+export function signInLocalAccount(displayName = 'Profissional local', email = ''): AferixAccountState {
   const current = loadAccountState();
-  const next: OrcaAccountState = {
+  const next: AferixAccountState = {
     ...current,
     status: 'local',
     userId: current.userId ?? createStableId('local'),
@@ -143,12 +143,12 @@ export function signInLocalAccount(displayName = 'Profissional local', email = '
   return next;
 }
 
-export function signInEmailAccount(email: string, displayName = ''): OrcaAccountState {
+export function signInEmailAccount(email: string, displayName = ''): AferixAccountState {
   const normalizedEmail = normalizeEmail(email);
   if (!normalizedEmail || !normalizedEmail.includes('@')) throw new Error('Informe um e-mail válido para cadastrar a conta.');
 
   const current = loadAccountState();
-  const next: OrcaAccountState = {
+  const next: AferixAccountState = {
     ...current,
     status: 'email',
     userId: `email:${normalizedEmail}`,
@@ -161,11 +161,11 @@ export function signInEmailAccount(email: string, displayName = ''): OrcaAccount
   return next;
 }
 
-export function signInGoogleAccount(profile: GoogleAccountProfile): OrcaAccountState {
+export function signInGoogleAccount(profile: GoogleAccountProfile): AferixAccountState {
   const current = loadAccountState();
   const googleEmail = profile.email ? normalizeEmail(profile.email) : '';
   const sameRegisteredEmail = Boolean(current.email && googleEmail && current.email === googleEmail);
-  const next: OrcaAccountState = {
+  const next: AferixAccountState = {
     ...current,
     status: 'google',
     userId: `google:${profile.sub}`,
@@ -178,16 +178,16 @@ export function signInGoogleAccount(profile: GoogleAccountProfile): OrcaAccountS
   return next;
 }
 
-export function signOutLocalAccount(): OrcaAccountState {
+export function signOutLocalAccount(): AferixAccountState {
   const current = loadAccountState();
   const next = { ...createGuestAccount('free', 'free'), installationId: current.installationId || getOrCreateInstallationId() };
   saveAccountState(next);
   return next;
 }
 
-export function setLocalUserPlan(plan: UserPlan): OrcaAccountState {
+export function setLocalUserPlan(plan: UserPlan): AferixAccountState {
   const current = loadAccountState();
-  const next: OrcaAccountState = {
+  const next: AferixAccountState = {
     ...current,
     plan,
     planSource: plan === 'pro' ? 'local-test' : 'free',

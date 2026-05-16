@@ -4,6 +4,7 @@ import {
   calculatePaintingBudget,
   calculateRoomPaintingArea,
 } from '../../../core/calculations/trade';
+import { formatCurrency } from '../../../core/format/currency';
 import type { CalculationCapture, CalculationDestination } from '../../../core/types/workflow';
 import { handleNumericInputFocus } from '../../../core/ui/numericInputFocus';
 import './GeneralCalculatorWorkspace.css';

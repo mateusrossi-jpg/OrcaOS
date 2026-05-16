@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { calculatorAccessRules, type CalculatorModule } from '../core/access/featureAccess';
-import { calculationModules, calculationSectorGroups, navItems, planLabel } from './orcaAppData';
+import { calculationModules, calculationSectorGroups, navItems, planLabel } from './appData';
 
 const implementedStandaloneModules: CalculatorModule[] = [
   'fundamentosGerais',

@@ -1,5 +1,5 @@
 import { useState, lazy } from 'react';
-import type { OrcaAccountState } from '../../core/access/accountPlanStorage';
+import type { AferixAccountState } from '../../core/access/accountPlanStorage';
 import {
   signInEmailAccount,
   signInGoogleAccount,
@@ -16,8 +16,8 @@ const ProfessionalProfileWorkspace = lazy(() => import('../../features/settings/
 const LegalCompliancePanel = lazy(() => import('../../features/settings/components/LegalCompliancePanel').then((module) => ({ default: module.LegalCompliancePanel })));
 
 interface SettingsScreenProps {
-  account: OrcaAccountState;
-  onAccountChange: (account: OrcaAccountState) => void;
+  account: AferixAccountState;
+  onAccountChange: (account: AferixAccountState) => void;
 }
 
 export function SettingsScreen({ account, onAccountChange }: SettingsScreenProps) {

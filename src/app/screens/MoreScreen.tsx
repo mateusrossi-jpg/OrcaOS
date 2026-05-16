@@ -1,4 +1,4 @@
-import type { AppTab } from '../orcaAppTypes';
+import type { AppTab } from '../appTypes';
 
 interface MoreScreenProps {
   goTo: (tab: AppTab) => void;
@@ -14,7 +14,7 @@ export function MoreScreen({ goTo }: MoreScreenProps) {
         <article className="resource-action-card"><strong>Beta e publicação</strong><small>Checklist final antes de liberar build.</small><button type="button" onClick={() => goTo('beta')}>Abrir</button></article>
         <article className="resource-action-card"><strong>Licença e planos</strong><small>Compare Free, Pro e recursos planejados.</small><button type="button" onClick={() => goTo('store')}>Abrir</button></article>
       </div>
-      <details className="orca-panel-card roadmap-panel">
+      <details className="aferix-panel-card roadmap-panel">
         <summary><span><strong>Evolução planejada</strong></span><em>Abrir</em></summary>
         <div className="roadmap-list">
           <article><strong>Fase 1</strong><small>Atendimento, cálculo, orçamento e relatório simples.</small></article>

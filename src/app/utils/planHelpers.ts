@@ -1,6 +1,6 @@
-import type { OrcaAccountState } from '../../core/access/accountPlanStorage';
+import type { AferixAccountState } from '../../core/access/accountPlanStorage';
 
-export function planStatusTitle(account: OrcaAccountState): string {
+export function planStatusTitle(account: AferixAccountState): string {
   if (account.plan === 'pro' && account.planStatus === 'trial') return 'Pro em teste';
   if (account.plan === 'pro') return 'Pro ativo';
   if (account.planStatus === 'expired') return 'Liberação expirada';
@@ -9,7 +9,7 @@ export function planStatusTitle(account: OrcaAccountState): string {
   return 'Plano grátis';
 }
 
-export function planStatusDescription(account: OrcaAccountState, planSourceLabel: string): string {
+export function planStatusDescription(account: AferixAccountState, planSourceLabel: string): string {
   if (account.plan === 'pro' && account.planStatus === 'trial') return `Teste Pro liberado por ${planSourceLabel}.`;
   if (account.plan === 'pro') return `Recursos Pro liberados por ${planSourceLabel}.`;
   if (account.planStatus === 'expired') return 'A liberação Pro foi encontrada, mas expirou. Recursos Pro permanecem bloqueados.';

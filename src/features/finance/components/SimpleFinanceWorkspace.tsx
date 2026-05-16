@@ -195,7 +195,7 @@ export function SimpleFinanceWorkspace() {
         <article className="finance-tile"><span>Lucro líquido</span><strong>{money(monthSummary.net)}</strong></article>
       </div>
 
-      <div className="orca-panel-card">
+      <div className="aferix-panel-card">
         <header>
           <div>
             <h2>Gestão Financeira</h2>
@@ -204,7 +204,7 @@ export function SimpleFinanceWorkspace() {
         </header>
       </div>
 
-      {showEntryForm && <div className="orca-panel-card finance-entry-panel">
+      {showEntryForm && <div className="aferix-panel-card finance-entry-panel">
         <header>
           <div>
             <h2>{draft.id ? 'Editar Lançamento' : 'Novo Lançamento'}</h2>
@@ -248,7 +248,7 @@ export function SimpleFinanceWorkspace() {
         </div>
       </div>}
 
-      <div className="orca-panel-card">
+      <div className="aferix-panel-card">
         <header>
           <div>
             <h2>Histórico</h2>

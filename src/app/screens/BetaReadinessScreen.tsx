@@ -31,19 +31,19 @@ export function BetaReadinessScreen() {
         <article><span>Escopo</span><strong>Produto financeiro</strong><small>Atendimento, proposta, relatório e lucro.</small></article>
         <article><span>Próximo</span><strong>Publicação</strong><small>Build Android após checklist.</small></article>
       </section>
-      <section className="orca-panel-card beta-check-panel">
+      <section className="aferix-panel-card beta-check-panel">
         <header><div><h2>Fluxos de teste</h2></div></header>
         <div className="beta-check-grid">
           {betaFlowChecks.map((item) => <article key={item.title}><strong>{item.title}</strong><small>{item.text}</small></article>)}
         </div>
       </section>
-      <section className="orca-panel-card beta-release-panel">
+      <section className="aferix-panel-card beta-release-panel">
         <header><div><h2>Publicação</h2></div></header>
         <div className="beta-release-list">
           {betaStoreChecks.map((item) => <article key={item}><span /> <small>{item}</small></article>)}
         </div>
       </section>
-      <section className="orca-panel-card beta-future-panel">
+      <section className="aferix-panel-card beta-future-panel">
         <header><div><h2>Pendências futuras</h2></div></header>
         <div className="beta-future-list">
           {futureProBacklog.slice(0, 4).map((benefit) => <article key={benefit.title}><strong>{benefit.title}</strong><small>{benefit.description}</small></article>)}

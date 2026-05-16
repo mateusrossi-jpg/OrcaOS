@@ -1,6 +1,6 @@
 import type { UserPlan } from '../core/access/featureAccess';
 export { storePackages } from '../core/access/planStrategy';
-import type { AppTab, CalculationSectorGroup, ModuleCardData, ModulePlan } from './orcaAppTypes';
+import type { AppTab, CalculationSectorGroup, ModuleCardData, ModulePlan } from './appTypes';
 
 export const userPlan: UserPlan = 'free';
 

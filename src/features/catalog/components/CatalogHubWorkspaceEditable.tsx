@@ -573,7 +573,7 @@ export function CatalogHubWorkspace({ onSendToBudget, initialTab = 'items', enab
 
   return (
     <section className="catalog-hub-workspace">
-      <div className="orca-panel-card">
+      <div className="aferix-panel-card">
         <header>
           <div>
             <h2>{activeTab === 'online' ? 'Consulta Online' : 'Catálogo Profissional'}</h2>
@@ -605,7 +605,7 @@ export function CatalogHubWorkspace({ onSendToBudget, initialTab = 'items', enab
             <button className={`ghost-action ${itemsView === 'form' ? 'active' : ''}`} type="button" onClick={() => { resetItemForm(); setItemsView('form'); }}>Novo Item</button>
           </div>
 
-          {itemsView === 'form' && <div className="orca-panel-card catalog-form-card">
+          {itemsView === 'form' && <div className="aferix-panel-card catalog-form-card">
             <header>
               <div>
                 <h2>{isEditingItem ? 'Editar Item' : 'Novo Item'}</h2>
@@ -652,7 +652,7 @@ export function CatalogHubWorkspace({ onSendToBudget, initialTab = 'items', enab
             </div>
           </div>}
 
-          {itemsView === 'list' && <div className="orca-panel-card catalog-list-card">
+          {itemsView === 'list' && <div className="aferix-panel-card catalog-list-card">
             <header>
               <div>
                 <h2>Itens do Catálogo</h2>
@@ -694,7 +694,7 @@ export function CatalogHubWorkspace({ onSendToBudget, initialTab = 'items', enab
 
       {activeTab === 'suppliers' && (
         <>
-          <div className="orca-panel-card">
+          <div className="aferix-panel-card">
             <header>
               <div>
                 <h2>{editingSupplierId ? 'Editar Fornecedor' : 'Novo Fornecedor'}</h2>
@@ -734,7 +734,7 @@ export function CatalogHubWorkspace({ onSendToBudget, initialTab = 'items', enab
       )}
 
       {activeTab === 'online' && (
-        <div className="orca-panel-card online-card">
+        <div className="aferix-panel-card online-card">
           <header>
             <div>
               <h2>Assistente de Busca</h2>

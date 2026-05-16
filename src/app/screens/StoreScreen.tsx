@@ -1,17 +1,17 @@
 import { useState } from 'react';
-import type { OrcaAccountState } from '../../core/access/accountPlanStorage';
+import type { AferixAccountState } from '../../core/access/accountPlanStorage';
 import { getBillingReadiness } from '../../core/access/billingReadiness';
 import { buildProCheckoutUrl, buildProManageUrl, isProCheckoutConfigured, isProManageConfigured } from '../../core/access/commercialCheckout';
 import { getGooglePlayBillingSetup, purchaseGooglePlayPro, restoreGooglePlayPurchases, syncGooglePlayPurchaseEntitlement } from '../../core/access/googlePlayBilling';
 import { isPlanEntitlementSyncConfigured, refreshPlanEntitlement } from '../../core/access/planEntitlements';
 import { proPlanBenefits, proV1Priorities, futureProBacklog } from '../../core/access/planStrategy';
 import { isDevToolsEnabled } from '../../core/runtime/devTools';
-import { storePackages } from '../orcaAppData';
+import { storePackages } from '../appData';
 import { planStatusTitle, planStatusDescription } from '../utils/planHelpers';
 
 interface StoreScreenProps {
-  account: OrcaAccountState;
-  onAccountChange: (account: OrcaAccountState) => void;
+  account: AferixAccountState;
+  onAccountChange: (account: AferixAccountState) => void;
 }
 
 export function StoreScreen({ account, onAccountChange }: StoreScreenProps) {
@@ -97,7 +97,7 @@ export function StoreScreen({ account, onAccountChange }: StoreScreenProps) {
         <article className="featured"><span>Pro</span><strong>Em validação</strong><small>Profissional</small></article>
         <article className="featured"><span>Pacote vitalício</span><strong>R$ 29,90 sugerido</strong><small>Recursos planejados</small></article>
       </section>
-      <section className="orca-panel-card store-comparison-card">
+      <section className="aferix-panel-card store-comparison-card">
         <header><div><h2>Vantagens do Aferix Pro</h2></div></header>
         <div className="continuous-list">
           {proPlanBenefits.map((benefit) => (
@@ -143,7 +143,7 @@ export function StoreScreen({ account, onAccountChange }: StoreScreenProps) {
         {!account.userId && <p className="general-helper-text">Entre com e-mail ou Google antes de comprar/restaurar Pro.</p>}
         {!googlePlaySetup.bridgeAvailable && <p className="general-helper-text">Bridge nativo pendente no Android/Capacitor antes da venda real.</p>}
       </div>}
-      <div className="orca-panel-card">
+      <div className="aferix-panel-card">
         <header>
           <div>
             <span className="orca-kicker">Assinatura</span>
@@ -166,7 +166,7 @@ export function StoreScreen({ account, onAccountChange }: StoreScreenProps) {
         </div>
         {storePackages.map((pack) => <article className="store-card" key={pack.title}><span><strong>{pack.title}</strong><small>{pack.description}</small><b>{pack.price}</b></span><em className="store-card-status">Planejado</em></article>)}
       </div>
-      <div className="orca-panel-card">
+      <div className="aferix-panel-card">
         <header>
           <div>
             <h2>Comparativo de Planos</h2>

@@ -3,8 +3,8 @@ import type { UserPlan } from '../../core/access/featureAccess';
 import type { CalculationCapture } from '../../core/types/workflow';
 import type { FundamentalMode } from '../../features/calculators/components/GeneralFundamentalsWorkspace';
 import { ModuleCard } from '../components/ModuleCard';
-import { calculationModules, calculationSectorGroups, planLabel } from '../orcaAppData';
-import type { ActiveWorkContext, AppTab, CalculationSectorId, ModuleCardData } from '../orcaAppTypes';
+import { calculationModules, calculationSectorGroups, planLabel } from '../appData';
+import type { ActiveWorkContext, AppTab, CalculationSectorId, ModuleCardData } from '../appTypes';
 import { getSectorForModule, isExpansionModule, isGeneralCalculatorModule, isProfessionalDomainModule } from '../utils/moduleHelpers';
 
 const ElectricalCalculatorWorkspace = lazy(() => import('../../features/calculators/components/ElectricalCalculatorWorkspace').then((module) => ({ default: module.ElectricalCalculatorWorkspace })));

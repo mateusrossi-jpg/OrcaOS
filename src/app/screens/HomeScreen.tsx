@@ -1,9 +1,10 @@
-import type { AppTab, ModuleCardData, ActiveWorkContext } from '../orcaAppTypes';
+import type { AppTab, ModuleCardData, ActiveWorkContext } from '../appTypes';
 import type { CalculationCapture } from '../../core/types/workflow';
 import type { Client, WorkOrder } from '../../core/types/business';
 import type { SavedBudgetRecord } from '../../features/budgets/storage/savedBudgetsStorage';
-import { calculationModules } from '../orcaAppData';
+import { calculationModules } from '../appData';
 import { ActiveWorkContextCard } from '../components/ActiveWorkContextCard';
+import { formatCompactCurrency } from '../../core/format/currency';
 
 interface HomeScreenProps {
   goTo: (tab: AppTab) => void;
@@ -47,7 +48,7 @@ export function HomeScreen({
   const pricingModule = calculationModules.find((module) => module.id === 'orcamentoTecnico') ?? calculationModules[0];
 
   return (
-    <section className="app-screen orca-dashboard-screen">
+    <section className="app-screen aferix-dashboard-screen">
       <div className="home-action-toolbar">
         <button type="button" className="ghost-action" onClick={onStartNewAttendance}>Novo atendimento</button>
         <button type="button" className="ghost-action" onClick={() => goTo('budgets')}>Orçamento rápido</button>
@@ -73,7 +74,7 @@ export function HomeScreen({
           <strong>{formatCompactCurrency(monthlyExpenses)}</strong>
         </article>
       </div>
-      <section className="orca-panel-card home-command-panel">
+      <section className="aferix-panel-card home-command-panel">
         <header><div><h2>Atendimentos em andamento</h2></div></header>
         <div className="home-recent-strip">
           <div className="continuous-list">
@@ -114,13 +115,4 @@ function isBudgetFromCurrentMonth(budget: SavedBudgetRecord): boolean {
   const referenceDate = new Date(budget.updatedAt);
   const now = new Date();
   return referenceDate.getFullYear() === now.getFullYear() && referenceDate.getMonth() === now.getMonth();
-}
-
-function formatCompactCurrency(value: number): string {
-  return new Intl.NumberFormat('pt-BR', {
-    style: 'currency',
-    currency: 'BRL',
-    notation: Math.abs(value) >= 10000 ? 'compact' : 'standard',
-    maximumFractionDigits: Math.abs(value) >= 10000 ? 1 : 0,
-  }).format(Number.isFinite(value) ? value : 0);
 }

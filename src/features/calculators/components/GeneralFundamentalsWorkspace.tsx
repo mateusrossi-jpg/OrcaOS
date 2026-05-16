@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import type { CalculationCapture, CalculationDestination } from '../../../core/types/workflow';
 import { handleNumericInputFocus } from '../../../core/ui/numericInputFocus';
+import { formatCurrency } from '../../../core/format/currency';
 import './GeneralFundamentalsWorkspace.css';
 
 export type FundamentalMode =
@@ -119,10 +120,6 @@ function round(value: number, decimals = 2): number {
   if (!Number.isFinite(value)) return 0;
   const factor = 10 ** decimals;
   return Math.round(value * factor) / factor;
-}
-
-function money(value: number): string {
-  return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number.isFinite(value) ? value : 0);
 }
 
 function createId(prefix: string): string {
@@ -325,12 +322,12 @@ export function GeneralFundamentalsWorkspace({
         return {
           error: null,
           cards: [
-            { label: 'Lucro', value: money(profit), helper: 'venda - custo' },
+            { label: 'Lucro', value: formatCurrency(profit), helper: 'venda - custo' },
             { label: 'Margem', value: `${round(margin)}%`, helper: 'lucro sobre venda' },
             { label: 'Markup real', value: `${round(markup)}%`, helper: 'lucro sobre custo' },
           ],
           summary: `Margem de lucro: ${round(margin)}%`,
-          details: [`Custo: ${money(cost)}`, `Venda: ${money(salePrice)}`, `Lucro: ${money(profit)}`, `Margem: ${round(margin)}%`, `Markup: ${round(markup)}%`],
+          details: [`Custo: ${formatCurrency(cost)}`, `Venda: ${formatCurrency(salePrice)}`, `Lucro: ${formatCurrency(profit)}`, `Margem: ${round(margin)}%`, `Markup: ${round(markup)}%`],
         };
       }
 
@@ -343,11 +340,11 @@ export function GeneralFundamentalsWorkspace({
         return {
           error: null,
           cards: [
-            { label: 'Preço de venda', value: money(salePrice), helper: `${round(margin)}% de margem desejada` },
-            { label: 'Lucro', value: money(profit), helper: 'preço - custo' },
+            { label: 'Preço de venda', value: formatCurrency(salePrice), helper: `${round(margin)}% de margem desejada` },
+            { label: 'Lucro', value: formatCurrency(profit), helper: 'preço - custo' },
           ],
-          summary: `Preço sugerido por markup: ${money(salePrice)}`,
-          details: [`Custo: ${money(cost)}`, `Margem desejada: ${round(margin)}%`, `Preço de venda: ${money(salePrice)}`, `Lucro: ${money(profit)}`],
+          summary: `Preço sugerido por markup: ${formatCurrency(salePrice)}`,
+          details: [`Custo: ${formatCurrency(cost)}`, `Margem desejada: ${round(margin)}%`, `Preço de venda: ${formatCurrency(salePrice)}`, `Lucro: ${formatCurrency(profit)}`],
         };
       }
 
@@ -443,11 +440,11 @@ export function GeneralFundamentalsWorkspace({
         return {
           error: null,
           cards: [
-            { label: 'Custo por m²', value: money(unitCost), helper: `${money(totalCost)} ÷ ${round(area)} m²` },
-            { label: 'Total pelo unitário', value: money(totalFromUnit), helper: `${round(area)} m² × ${money(n('unitCost', 'custo por m²'))}` },
+            { label: 'Custo por m²', value: formatCurrency(unitCost), helper: `${formatCurrency(totalCost)} ÷ ${round(area)} m²` },
+            { label: 'Total pelo unitário', value: formatCurrency(totalFromUnit), helper: `${round(area)} m² × ${formatCurrency(n('unitCost', 'custo por m²'))}` },
           ],
-          summary: `Custo por m²: ${money(unitCost)}`,
-          details: [`Área: ${round(area)} m²`, `Custo total informado: ${money(totalCost)}`, `Custo por m² calculado: ${money(unitCost)}`, `Total pelo custo unitário: ${money(totalFromUnit)}`],
+          summary: `Custo por m²: ${formatCurrency(unitCost)}`,
+          details: [`Área: ${round(area)} m²`, `Custo total informado: ${formatCurrency(totalCost)}`, `Custo por m² calculado: ${formatCurrency(unitCost)}`, `Total pelo custo unitário: ${formatCurrency(totalFromUnit)}`],
         };
       }
 
@@ -459,11 +456,11 @@ export function GeneralFundamentalsWorkspace({
         return {
           error: null,
           cards: [
-            { label: 'Custo unitário', value: money(unitCost), helper: `${money(totalCost)} ÷ ${round(quantity)} un.` },
-            { label: 'Total pelo unitário', value: money(totalFromUnit), helper: `${round(quantity)} × ${money(n('unitCost', 'valor unitário'))}` },
+            { label: 'Custo unitário', value: formatCurrency(unitCost), helper: `${formatCurrency(totalCost)} ÷ ${round(quantity)} un.` },
+            { label: 'Total pelo unitário', value: formatCurrency(totalFromUnit), helper: `${round(quantity)} × ${formatCurrency(n('unitCost', 'valor unitário'))}` },
           ],
-          summary: `Custo unitário: ${money(unitCost)}`,
-          details: [`Quantidade: ${round(quantity)}`, `Custo total: ${money(totalCost)}`, `Custo unitário calculado: ${money(unitCost)}`, `Total pelo unitário: ${money(totalFromUnit)}`],
+          summary: `Custo unitário: ${formatCurrency(unitCost)}`,
+          details: [`Quantidade: ${round(quantity)}`, `Custo total: ${formatCurrency(totalCost)}`, `Custo unitário calculado: ${formatCurrency(unitCost)}`, `Total pelo unitário: ${formatCurrency(totalFromUnit)}`],
         };
       }
 
@@ -475,11 +472,11 @@ export function GeneralFundamentalsWorkspace({
         return {
           error: null,
           cards: [
-            { label: 'Custo por metro', value: money(meterCost), helper: `${money(totalCost)} ÷ ${round(meters)} m` },
-            { label: 'Total pelo metro', value: money(totalFromMeter), helper: `${round(meters)} m × ${money(n('meterCost', 'valor por metro'))}` },
+            { label: 'Custo por metro', value: formatCurrency(meterCost), helper: `${formatCurrency(totalCost)} ÷ ${round(meters)} m` },
+            { label: 'Total pelo metro', value: formatCurrency(totalFromMeter), helper: `${round(meters)} m × ${formatCurrency(n('meterCost', 'valor por metro'))}` },
           ],
-          summary: `Custo por metro: ${money(meterCost)}`,
-          details: [`Metros: ${round(meters)} m`, `Custo total: ${money(totalCost)}`, `Custo por metro calculado: ${money(meterCost)}`, `Total pelo valor/m: ${money(totalFromMeter)}`],
+          summary: `Custo por metro: ${formatCurrency(meterCost)}`,
+          details: [`Metros: ${round(meters)} m`, `Custo total: ${formatCurrency(totalCost)}`, `Custo por metro calculado: ${formatCurrency(meterCost)}`, `Total pelo valor/m: ${formatCurrency(totalFromMeter)}`],
         };
       }
 

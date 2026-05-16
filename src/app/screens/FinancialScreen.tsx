@@ -1,5 +1,5 @@
 import { lazy } from 'react';
-import type { ActiveWorkContext } from '../orcaAppTypes';
+import type { ActiveWorkContext } from '../appTypes';
 import { ActiveWorkContextCard } from '../components/ActiveWorkContextCard';
 
 const SimpleFinanceWorkspace = lazy(() => import('../../features/finance/components/SimpleFinanceWorkspace').then((module) => ({ default: module.SimpleFinanceWorkspace })));
