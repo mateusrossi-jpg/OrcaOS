@@ -259,6 +259,31 @@ if (catalogEditableTSX.includes('home-action-toolbar') && catalogEditableTSX.inc
   logWarn('Catálogo ainda usa Novo Item em toolbar interna; mantido por segurança após padronização visual recente');
 }
 
+// 8.5c. Release Candidate guardrails
+logStep('Release Candidate guardrails');
+const rcChecklist = readFile('docs/RELEASE_CANDIDATE_CHECKLIST.md');
+const legalComplianceCSS = readFile('src/features/settings/components/LegalCompliancePanel.css');
+const professionalIdentityCSS = readFile('src/features/settings/components/ProfessionalIdentityCard.css');
+const budgetPrintPreviewCSS = readFile('src/features/budgets/components/BudgetPrintPreview.css');
+
+if (rcChecklist.includes('# Aferix — Release Candidate Checklist') && rcChecklist.includes('## Checklist manual') && rcChecklist.includes('## Pendências não bloqueantes')) {
+  logSuccess('Checklist de Release Candidate documentado');
+} else {
+  logError('docs/RELEASE_CANDIDATE_CHECKLIST.md ausente ou incompleto');
+}
+
+[
+  ['LegalCompliancePanel.css', legalComplianceCSS],
+  ['ProfessionalIdentityCard.css', professionalIdentityCSS],
+  ['BudgetPrintPreview.css', budgetPrintPreviewCSS],
+].forEach(([fileName, content]) => {
+  if (!content.includes('var(--orca-') && !content.includes('#000000') && !content.includes('#111111') && !content.includes('#222222') && !content.includes('border-radius: 4px')) {
+    logSuccess(`${fileName} alinhado aos tokens Aferix`);
+  } else {
+    logWarn(`${fileName} ainda possui token/fallback visual legado para revisar`);
+  }
+});
+
 // 8.5. Branding, Logo e Intro
 logStep('Branding, Logo e Intro');
 const appTSX = readFile('src/app/App.tsx');

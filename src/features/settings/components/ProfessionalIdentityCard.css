@@ -1,9 +1,9 @@
 .professional-identity-card {
   display: grid;
   gap: 14px;
-  border: 1px solid #222222;
-  border-radius: 4px;
-  background: #111111;
+  border: 1px solid var(--aferix-border);
+  border-radius: var(--aferix-radius-md);
+  background: var(--aferix-surface);
   box-shadow: none;
   padding: 16px;
 }
@@ -25,14 +25,14 @@
 }
 
 .professional-identity-main strong {
-  color: #f8fafc;
+  color: var(--aferix-text);
   font-size: 1.02rem;
   overflow-wrap: anywhere;
 }
 
 .professional-identity-main small,
 .professional-identity-card p {
-  color: var(--orca-muted, #a7b3ad);
+  color: var(--aferix-text-muted);
 }
 
 .professional-identity-details {
@@ -42,10 +42,10 @@
 }
 
 .professional-identity-details span {
-  border: 1px solid #222222;
-  border-radius: 4px;
-  background: #000000;
-  color: #666666;
+  border: 1px solid var(--aferix-border);
+  border-radius: var(--aferix-radius-sm);
+  background: var(--aferix-bg-soft);
+  color: var(--aferix-text-soft);
   padding: 7px 10px;
   font-size: 0.75rem;
   font-weight: 800;
