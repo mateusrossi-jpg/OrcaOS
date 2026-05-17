@@ -1,3 +1,35 @@
+.professional-profile-workspace {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.professional-profile-section {
+  background: var(--aferix-surface, #111);
+  border: 1px solid #222;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.professional-profile-header-card {
+  background: var(--aferix-primary, #f59e0b);
+  color: #000;
+  padding: 0.75rem 1.5rem;
+}
+
+.professional-profile-header-card h2 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.professional-profile-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  padding: 1.5rem;
+}
+
 .professional-logo-editor {
   display: flex;
   align-items: center;
@@ -9,7 +41,7 @@
 .professional-logo-preview {
   width: 100px;
   height: 60px;
-  background: #111;
+  background: #000;
   border: 1px solid #222;
   border-radius: 4px;
   display: grid;
@@ -23,42 +55,6 @@
   object-fit: contain;
 }
 
-/* Grid for profile fields */
-.professional-profile-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
-  padding: 1.5rem;
-}
-
-/* Actions container for logo upload / remove */
-.professional-profile-actions {
-  display: flex;
-  gap: 0.5rem;
-  margin-top: 0.5rem;
-}
-
-/* File input hidden */
-.file-action input {
-  display: none;
-}
-
-/* Cursor for file action label */
-.file-action {
-  cursor: pointer;
-}
-
-/* Finance tiles container */
-.dashboard-finance-tiles {
-  padding: 1.5rem;
-}
-
-/* Container for action buttons (e.g., Regenerate IDs, Save) */
-.action-button-container {
-  padding: 0 1.5rem 1.5rem;
-}
-
-/* Placeholder when no logo */
 .logo-placeholder {
   width: 80px;
   height: 40px;
@@ -68,9 +64,70 @@
   place-items: center;
   font-size: 0.6rem;
   color: #666;
+  text-align: center;
 }
 
-/* Danger style for remove button */
+.professional-logo-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.professional-profile-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.file-action {
+  cursor: pointer;
+}
+
+.file-action input {
+  display: none;
+}
+
 .danger-action {
   color: #ef4444;
+}
+
+.professional-profile-id-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+  padding: 1.5rem;
+}
+
+.professional-profile-id-card {
+  background: var(--aferix-surface, #111);
+  border: 1px solid #222;
+  border-radius: 4px;
+  padding: 0.75rem;
+  text-align: center;
+}
+
+.professional-profile-id-card span {
+  display: block;
+  font-size: 0.9rem;
+  color: #aaa;
+  margin-bottom: 0.25rem;
+}
+
+.professional-profile-id-card code {
+  font-family: monospace;
+  color: var(--aferix-primary, #f59e0b);
+}
+
+.professional-profile-save-row {
+  padding: 0 1.5rem 1.5rem;
+  display: flex;
+  justify-content: flex-start;
+}
+
+@media (max-width: 760px) {
+  .professional-logo-editor {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }

@@ -71,7 +71,6 @@ export function ProfessionalProfileWorkspace() {
   function handleLogoFileChange(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     if (!file) return;
-
     const reader = new FileReader();
     reader.onload = () => {
       if (typeof reader.result === 'string') {
@@ -96,41 +95,40 @@ export function ProfessionalProfileWorkspace() {
 
   return (
     <div className="professional-profile-workspace">
-      <div className="aferix-panel-card">
-        <header>
-          <div>
-            <span className="orca-kicker">Empresa</span>
-            <h2>Perfil Profissional</h2>
-          </div>
+      {/* Perfil Profissional */}
+      <section className="professional-profile-section">
+        <header className="professional-profile-header-card">
+          <h2>Perfil Profissional</h2>
         </header>
-      </div>
+        <div className="professional-profile-grid">
+          <label className="budget-field"><span>Nome Profissional</span><input value={profile.professionalName} onChange={e => updateProfile('professionalName', e.target.value)} /></label>
+          <label className="budget-field"><span>Nome Empresa</span><input value={profile.businessName} onChange={e => updateProfile('businessName', e.target.value)} /></label>
+          <label className="budget-field"><span>Documento</span><input value={profile.document} onChange={e => updateProfile('document', e.target.value)} /></label>
+          <label className="budget-field"><span>WhatsApp</span><input value={profile.phone} onChange={e => updateProfile('phone', e.target.value)} /></label>
+          <label className="budget-field wide"><span>Endereço Completo</span><input value={profile.address} onChange={e => updateProfile('address', e.target.value)} /></label>
+        </div>
+      </section>
 
-      <div className="aferix-panel-card">
-        <header>
-          <div>
-            <h2>IDs de Identificação</h2>
-          </div>
+      {/* Padrões de Propostas */}
+      <section className="professional-profile-section">
+        <header className="professional-profile-header-card">
+          <h2>Padrões de Propostas</h2>
         </header>
-        <div className="dashboard-finance-tiles">
-          <article className="finance-tile">
-            <span>Profissional</span>
-            <code>{profile.professionalId}</code>
-          </article>
-          <article className="finance-tile">
-            <span>Empresa</span>
-            <code>{profile.companyId}</code>
-          </article>
+        <div className="professional-profile-grid">
+          <label className="budget-field"><span>Validade</span><input value={profile.defaultValidity} onChange={e => updateProfile('defaultValidity', e.target.value)} /></label>
+          <label className="budget-field"><span>Garantia</span><input value={profile.defaultGuarantee} onChange={e => updateProfile('defaultGuarantee', e.target.value)} /></label>
+          <label className="budget-field wide"><span>Condições de Pagamento</span><textarea value={profile.defaultPaymentTerms} onChange={e => updateProfile('defaultPaymentTerms', e.target.value)} /></label>
+          <label className="budget-field wide"><span>Observações</span><textarea value={profile.commercialNotes} onChange={e => updateProfile('commercialNotes', e.target.value)} /></label>
         </div>
-        <div className="action-button-container">
-          <button className="ghost-action" type="button" onClick={regenerateIds}>Renovar Identificadores</button>
+        <div className="professional-profile-save-row">
+          <button className="primary-action" type="button" onClick={saveProfile}>Salvar Alterações</button>
         </div>
-      </div>
+      </section>
 
-      <div className="aferix-panel-card">
-        <header>
-          <div>
-            <h2>Dados Comerciais</h2>
-          </div>
+      {/* Configurações Adicionais */}
+      <section className="professional-profile-section">
+        <header className="professional-profile-header-card">
+          <h2>Configurações Adicionais</h2>
         </header>
         <div className="professional-logo-editor">
           <div className="professional-logo-preview">
@@ -143,31 +141,14 @@ export function ProfessionalProfileWorkspace() {
             </div>
           </div>
         </div>
-        <div className="professional-profile-grid">
-          <label className="budget-field"><span>Nome Profissional</span><input value={profile.professionalName} onChange={(event) => updateProfile('professionalName', event.target.value)} /></label>
-          <label className="budget-field"><span>Nome Empresa</span><input value={profile.businessName} onChange={(event) => updateProfile('businessName', event.target.value)} /></label>
-          <label className="budget-field"><span>Documento</span><input value={profile.document} onChange={(event) => updateProfile('document', event.target.value)} /></label>
-          <label className="budget-field"><span>WhatsApp</span><input value={profile.phone} onChange={(event) => updateProfile('phone', event.target.value)} /></label>
-          <label className="budget-field wide"><span>Endereço Completo</span><input value={profile.address} onChange={(event) => updateProfile('address', event.target.value)} /></label>
+        <div className="professional-profile-id-grid">
+          <div className="professional-profile-id-card"><span>Profissional</span><code>{profile.professionalId}</code></div>
+          <div className="professional-profile-id-card"><span>Empresa</span><code>{profile.companyId}</code></div>
         </div>
-      </div>
-
-      <div className="aferix-panel-card">
-        <header>
-          <div>
-            <h2>Padrões de Propostas</h2>
-          </div>
-        </header>
-        <div className="professional-profile-grid">
-          <label className="budget-field"><span>Validade</span><input value={profile.defaultValidity} onChange={(event) => updateProfile('defaultValidity', event.target.value)} /></label>
-          <label className="budget-field"><span>Garantia</span><input value={profile.defaultGuarantee} onChange={(event) => updateProfile('defaultGuarantee', event.target.value)} /></label>
-          <label className="budget-field wide"><span>Condições de Pagamento</span><textarea value={profile.defaultPaymentTerms} onChange={(event) => updateProfile('defaultPaymentTerms', event.target.value)} /></label>
-          <label className="budget-field wide"><span>Observações</span><textarea value={profile.commercialNotes} onChange={(event) => updateProfile('commercialNotes', event.target.value)} /></label>
+        <div className="professional-profile-save-row">
+          <button className="ghost-action" type="button" onClick={regenerateIds}>Renovar Identificadores</button>
         </div>
-        <div className="action-button-container">
-          <button className="ghost-action" type="button" onClick={saveProfile}>Salvar Alterações</button>
-        </div>
-      </div>
+      </section>
 
       {feedback && <div className="guided-cart-feedback">{feedback}</div>}
     </div>
