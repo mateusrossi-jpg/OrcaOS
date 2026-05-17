@@ -99,8 +99,8 @@ export function AppShell<T extends string>({
   children,
 }: AppShellProps<T>) {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [clockText, setClockText] = useState(() => formatTopbarClock(new Date()));
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
 
   useEffect(() => {
     document.body.classList.toggle('aferix-drawer-open', isDrawerOpen);
@@ -118,31 +118,174 @@ export function AppShell<T extends string>({
     return () => window.clearInterval(intervalId);
   }, []);
 
+  useEffect(() => {
+    if (!openDropdown) return;
+    const handleOutsideClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (!target.closest('.top-nav-menu-container')) {
+        setOpenDropdown(null);
+      }
+    };
+    document.addEventListener('click', handleOutsideClick);
+    return () => document.removeEventListener('click', handleOutsideClick);
+  }, [openDropdown]);
+
+  useEffect(() => {
+    if (!openDropdown) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setOpenDropdown(null);
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [openDropdown]);
+
   function navigate(tab: T) {
     onNavigate(tab);
     setIsDrawerOpen(false);
+    setOpenDropdown(null);
   }
 
-  const topbarContextLabel = activeWorkOrder ? 'Ativo' : 'Livre';
-  const topbarContextTitle = activeWorkOrder
-    ? `${activeWorkOrder.title} · ${activeClient?.name ?? 'Cliente não vinculado'} · ${statusLabel(activeWorkOrder.status)}`
-    : 'Nenhum atendimento ativo';
+  const toggleDropdown = (menuKey: string) => {
+    setOpenDropdown(prev => prev === menuKey ? null : menuKey);
+  };
+
+  const gestaoItems = navItems.filter(item => item.section === 'Gestão financeira');
+  const operacaoItems = navItems.filter(item => item.section === 'Operação');
+  const sistemaItems = navItems.filter(item => item.section === 'Sistema');
 
   return (
-    <main className={isSidebarCollapsed ? 'professional-app-shell sidebar-collapsed' : 'professional-app-shell'}>
+    <main className="professional-app-shell">
+      {/* Desktop Top Navigation Bar */}
+      <header className="app-top-nav" aria-label="Navegação superior">
+        <div className="app-top-nav-left">
+          <AferixLogo />
+        </div>
+        
+        <nav className="app-top-nav-center" aria-label="Menu principal desktop">
+          {/* Gestão */}
+          <div
+            className="top-nav-menu-container"
+            onMouseEnter={() => setOpenDropdown('gestao')}
+            onMouseLeave={() => setOpenDropdown(null)}
+          >
+            <button
+              className={`top-nav-menu-button ${openDropdown === 'gestao' ? 'active' : ''} ${
+                gestaoItems.some(i => activeTab === i.id) ? 'tab-active' : ''
+              }`}
+              type="button"
+              aria-expanded={openDropdown === 'gestao'}
+              aria-haspopup="menu"
+              onClick={() => toggleDropdown('gestao')}
+            >
+              Gestão <span className="dropdown-arrow">▾</span>
+            </button>
+            {openDropdown === 'gestao' && (
+              <div className="top-nav-dropdown" role="menu">
+                {gestaoItems.map(item => {
+                  const active = activeTab === item.id;
+                  return (
+                    <button
+                      key={item.id}
+                      className={active ? 'active' : ''}
+                      type="button"
+                      role="menuitem"
+                      onClick={() => navigate(item.id)}
+                    >
+                      {item.label}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* Operação */}
+          <div
+            className="top-nav-menu-container"
+            onMouseEnter={() => setOpenDropdown('operacao')}
+            onMouseLeave={() => setOpenDropdown(null)}
+          >
+            <button
+              className={`top-nav-menu-button ${openDropdown === 'operacao' ? 'active' : ''} ${
+                operacaoItems.some(i => activeTab === i.id) ? 'tab-active' : ''
+              }`}
+              type="button"
+              aria-expanded={openDropdown === 'operacao'}
+              aria-haspopup="menu"
+              onClick={() => toggleDropdown('operacao')}
+            >
+              Operação <span className="dropdown-arrow">▾</span>
+            </button>
+            {openDropdown === 'operacao' && (
+              <div className="top-nav-dropdown" role="menu">
+                {operacaoItems.map(item => {
+                  const active = activeTab === item.id;
+                  return (
+                    <button
+                      key={item.id}
+                      className={active ? 'active' : ''}
+                      type="button"
+                      role="menuitem"
+                      onClick={() => navigate(item.id)}
+                    >
+                      {item.label}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* Sistema */}
+          <div
+            className="top-nav-menu-container"
+            onMouseEnter={() => setOpenDropdown('sistema')}
+            onMouseLeave={() => setOpenDropdown(null)}
+          >
+            <button
+              className={`top-nav-menu-button ${openDropdown === 'sistema' ? 'active' : ''} ${
+                sistemaItems.some(i => activeTab === i.id) ? 'tab-active' : ''
+              }`}
+              type="button"
+              aria-expanded={openDropdown === 'sistema'}
+              aria-haspopup="menu"
+              onClick={() => toggleDropdown('sistema')}
+            >
+              Sistema <span className="dropdown-arrow">▾</span>
+            </button>
+            {openDropdown === 'sistema' && (
+              <div className="top-nav-dropdown" role="menu">
+                {sistemaItems.map(item => {
+                  const active = activeTab === item.id;
+                  return (
+                    <button
+                      key={item.id}
+                      className={active ? 'active' : ''}
+                      type="button"
+                      role="menuitem"
+                      onClick={() => navigate(item.id)}
+                    >
+                      {item.label}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </nav>
+
+        <div className="app-top-nav-right">
+          <time className="top-nav-digital-clock" dateTime={new Date().toISOString()}>
+            {clockText}
+          </time>
+        </div>
+      </header>
+
       <aside className="desktop-sidebar" aria-label="Navegação principal">
         <div className="desktop-sidebar-brand">
-          <AferixLogo className="drawer-brand-mark-wrapper" collapsed={isSidebarCollapsed} />
-          {!isSidebarCollapsed && (
-            <button type="button" aria-label="Recolher menu" onClick={() => setIsSidebarCollapsed(true)}>
-              <AppNavIcon icon="more" />
-            </button>
-          )}
-          {isSidebarCollapsed && (
-            <button className="expand-trigger" type="button" aria-label="Expandir menu" onClick={() => setIsSidebarCollapsed(false)}>
-              <AppNavIcon icon="more" />
-            </button>
-          )}
+          <AferixLogo className="drawer-brand-mark-wrapper" />
         </div>
         <nav className="desktop-sidebar-nav">
           {navItems.map((item, index) => {
@@ -207,10 +350,8 @@ export function AppShell<T extends string>({
               <Fragment key={item.id}>
                 {showSection && <span className="drawer-nav-heading">{item.section}</span>}
                 <button className={active ? 'active' : ''} type="button" onClick={() => navigate(item.id)}>
-                  <span className="drawer-nav-icon"><AppNavIcon icon={item.icon} /></span>
                   <span>
                     <strong>{item.label}</strong>
-                    <small>{item.description}</small>
                   </span>
                 </button>
               </Fragment>

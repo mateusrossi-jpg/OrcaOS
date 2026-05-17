@@ -434,31 +434,100 @@ export function ExpansionCalculatorsWorkspace({ selectedModule, userPlan = 'free
 
   return (
     <div className="general-calculator-workspace">
-      <div className="general-plan-banner"><div><strong>{moduleLabel(selectedModule)}</strong><span>Ferramentas práticas com poucos campos, resultado claro e orientação para campo, orçamento ou relatório.</span></div><em>{moduleRules.length} ferramentas</em></div>
-      <div className="general-picker-list">{moduleRules.map((rule) => <button className="general-picker-card" key={rule.mode} type="button" onClick={() => openRule(rule)}><span><strong>{rule.label}</strong><small>{rule.description}</small></span><em>{rule.plan === 'pro' ? 'PRO' : 'LIVRE'}</em></button>)}</div>
+      {!activeMode ? (
+        <>
+          <div className="general-plan-banner">
+            <div>
+              <strong>{moduleLabel(selectedModule)}</strong>
+              <span>Ferramentas práticas com poucos campos, resultado claro e orientação para campo, orçamento ou relatório.</span>
+            </div>
+            <em>{moduleRules.length} ferramentas</em>
+          </div>
+          <div className="general-picker-list">
+            {moduleRules.map((rule) => (
+              <button className="general-picker-card" key={rule.mode} type="button" onClick={() => openRule(rule)}>
+                <span>
+                  <strong>{rule.label}</strong>
+                  <small>{rule.description}</small>
+                </span>
+                <em>{rule.plan === 'pro' ? 'PRO' : 'LIVRE'}</em>
+              </button>
+            ))}
+          </div>
+        </>
+      ) : (
+        activeRule && (
+          <div className="general-calculator-detail-container">
+            <header className="general-calculator-detail-header">
+              <button type="button" className="general-calculator-detail-back" onClick={() => setActiveMode(null)}>‹</button>
+              <div className="general-calculator-detail-title">
+                <span>{moduleLabel(activeRule.module)}</span>
+                <h2>{activeRule.label}</h2>
+                <p>{activeRule.description}</p>
+              </div>
+              <em>{activeRule.plan === 'pro' ? 'PRO' : 'LIVRE'}</em>
+            </header>
+            <form className="general-calculator-form" onSubmit={(event) => event.preventDefault()}>
+              {activeRule.fields.map((field) => (
+                <NumberField key={field.key} field={field} value={values[field.key] ?? ''} onChange={(value) => setValues((current) => ({ ...current, [field.key]: value }))} />
+              ))}
+              {activeRule.options?.map((option) => (
+                <SelectField key={option.key} option={option} value={options[option.key] ?? option.options[0]?.value ?? ''} onChange={(value) => setOptions((current) => ({ ...current, [option.key]: value }))} />
+              ))}
+            </form>
+            {computed.error && <p className="general-error-message">{computed.error}</p>}
+            {computed.cards.length > 0 && (
+              <div className="general-result-grid">
+                {computed.cards.map((item) => (
+                  <article className="general-result-card" key={item.label}>
+                    <span>{item.label}</span>
+                    <strong>{item.value}</strong>
+                    {item.helper && <small>{item.helper}</small>}
+                  </article>
+                ))}
+              </div>
+            )}
+            {computed.formula.length > 0 && (
+              <div className="general-formula-box">
+                <strong>{activeRule.mode === 'dr-dps-checklist' ? 'Como este checklist decide' : 'Como este cálculo é feito'}</strong>
+                {computed.formula.map((item) => <span key={item}>{item}</span>)}
+              </div>
+            )}
+            {computed.orientation && <p className="general-helper-text">{computed.orientation}</p>}
+            {addedMessage && <p className="general-added-message">{addedMessage}</p>}
+            <div className="general-capture-actions">
+              <button type="button" onClick={() => includeResult('survey')}>Adicionar ao atendimento</button>
+              <button type="button" onClick={() => includeResult('budget')}>Adicionar ao orçamento</button>
+              <button type="button" onClick={() => includeResult('both')}>Adicionar aos dois</button>
+              <button className="secondary-action" type="button" onClick={() => setActiveMode(null)}>Voltar</button>
+            </div>
+            <small className="general-technical-note">{activeRule.mode === 'dr-dps-checklist' ? 'Checklist orientativo. Validar quadro, aterramento, esquema elétrico e normas aplicáveis antes de executar.' : 'Cálculo preliminar. Validar condições reais, normas aplicáveis, fabricante e medições antes de executar.'}</small>
+          </div>
+        )
+      )}
+
       {lockedRule && (
         <div className="general-calculator-overlay" role="dialog" aria-modal="true" aria-label={proFeatureTitle(lockedRule.plan)}>
           <div className="general-overlay-backdrop" onClick={() => setLockedRule(null)} />
           <section className="general-overlay-panel general-upgrade-panel">
-            <header className="general-overlay-header"><button type="button" onClick={() => setLockedRule(null)}>‹</button><div><span>{moduleLabel(lockedRule.module)}</span><h2>{proFeatureTitle(lockedRule.plan)}</h2><p>{lockedRule.label} faz parte dos cálculos profissionais do Aferix.</p></div><em>PRO</em></header>
-            <div className="general-formula-box"><strong>Por que este cálculo é Pro</strong><span>Ajuda a precificar melhor, simular taxas, proteger margem e reduzir prejuízo no orçamento real.</span><span>Os cálculos livres continuam disponíveis para testar o fluxo principal antes de liberar o pacote vitalício ou assinatura Pro.</span></div>
-            <div className="general-capture-actions"><button type="button" onClick={onUpgradeRequest}>Liberar cálculos Pro</button><button className="secondary-action" type="button" onClick={() => setLockedRule(null)}>Continuar no gratuito</button></div>
-          </section>
-        </div>
-      )}
-      {activeRule && (
-        <div className="general-calculator-overlay" role="dialog" aria-modal="true" aria-label={activeRule.label}>
-          <div className="general-overlay-backdrop" onClick={() => setActiveMode(null)} />
-          <section className="general-overlay-panel">
-            <header className="general-overlay-header"><button type="button" onClick={() => setActiveMode(null)}>‹</button><div><span>{moduleLabel(activeRule.module)}</span><h2>{activeRule.label}</h2><p>{activeRule.description}</p></div><em>{activeRule.plan === 'pro' ? 'PRO' : 'LIVRE'}</em></header>
-            <form className="general-calculator-form" onSubmit={(event) => event.preventDefault()}>{activeRule.fields.map((field) => <NumberField key={field.key} field={field} value={values[field.key] ?? ''} onChange={(value) => setValues((current) => ({ ...current, [field.key]: value }))} />)}{activeRule.options?.map((option) => <SelectField key={option.key} option={option} value={options[option.key] ?? option.options[0]?.value ?? ''} onChange={(value) => setOptions((current) => ({ ...current, [option.key]: value }))} />)}</form>
-            {computed.error && <p className="general-error-message">{computed.error}</p>}
-            {computed.cards.length > 0 && <div className="general-result-grid">{computed.cards.map((item) => <article className="general-result-card" key={item.label}><span>{item.label}</span><strong>{item.value}</strong>{item.helper && <small>{item.helper}</small>}</article>)}</div>}
-            {computed.formula.length > 0 && <div className="general-formula-box"><strong>{activeRule.mode === 'dr-dps-checklist' ? 'Como este checklist decide' : 'Como este cálculo é feito'}</strong>{computed.formula.map((item) => <span key={item}>{item}</span>)}</div>}
-            {computed.orientation && <p className="general-helper-text">{computed.orientation}</p>}
-            {addedMessage && <p className="general-added-message">{addedMessage}</p>}
-            <div className="general-capture-actions"><button type="button" onClick={() => includeResult('survey')}>Adicionar ao atendimento</button><button type="button" onClick={() => includeResult('budget')}>Adicionar ao orçamento</button><button type="button" onClick={() => includeResult('both')}>Adicionar aos dois</button><button className="secondary-action" type="button" onClick={() => setActiveMode(null)}>Voltar</button></div>
-            <small className="general-technical-note">{activeRule.mode === 'dr-dps-checklist' ? 'Checklist orientativo. Validar quadro, aterramento, esquema elétrico e normas aplicáveis antes de executar.' : 'Cálculo preliminar. Validar condições reais, normas aplicáveis, fabricante e medições antes de executar.'}</small>
+            <header className="general-overlay-header">
+              <button type="button" onClick={() => setLockedRule(null)}>‹</button>
+              <div>
+                <span>{moduleLabel(lockedRule.module)}</span>
+                <h2>{proFeatureTitle(lockedRule.plan)}</h2>
+                <p>{lockedRule.label} faz parte dos cálculos profissionais do Aferix.</p>
+              </div>
+              <em>PRO</em>
+            </header>
+            <div className="general-formula-box">
+              <strong>Por que este cálculo é Pro</strong>
+              <span>Ajuda a precificar melhor, simular taxas, proteger margem e reduzir prejuízo no orçamento real.</span>
+              <span>Os cálculos livres continuam disponíveis para testar o fluxo principal antes de liberar o pacote vitalício ou assinatura Pro.</span>
+            </div>
+            <div className="general-capture-actions">
+              <button type="button" onClick={onUpgradeRequest}>Liberar cálculos Pro</button>
+              <button className="secondary-action" type="button" onClick={() => setLockedRule(null)}>Continuar no gratuito</button>
+            </div>
           </section>
         </div>
       )}

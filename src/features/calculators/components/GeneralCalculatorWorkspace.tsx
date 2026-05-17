@@ -515,33 +515,36 @@ export function GeneralCalculatorWorkspace({ selectedModule, onCaptureCalculatio
 
   return (
     <div className="general-calculator-workspace">
-      <div className="general-plan-banner">
-        <div>
-          <strong>{moduleLabel(selectedModule)}</strong>
-          <span>Calculadoras iniciais para ampliar o Aferix além da elétrica.</span>
-        </div>
-        <em>{availableCalculators.length} cálculos</em>
-      </div>
+      {!activeCalculator ? (
+        <>
+          <div className="general-plan-banner">
+            <div>
+              <strong>{moduleLabel(selectedModule)}</strong>
+              <span>Calculadoras iniciais para ampliar o Aferix além da elétrica.</span>
+            </div>
+            <em>{availableCalculators.length} cálculos</em>
+          </div>
 
-      <div className="general-picker-list">
-        {availableCalculators.map((calculator) => (
-          <button className="general-picker-card" key={calculator.mode} type="button" onClick={() => setActiveCalculator(calculator.mode)}>
-            <span>
-              <strong>{calculator.label}</strong>
-              <small>{calculator.description}</small>
-            </span>
-            <em>LIVRE</em>
-          </button>
-        ))}
-      </div>
-
-      {activeCalculator && activeRule && (
-        <div className="general-calculator-overlay" role="dialog" aria-modal="true" aria-label={activeRule.label}>
-          <div className="general-overlay-backdrop" onClick={closeCalculator} />
-          <section className="general-overlay-panel">
-            <header className="general-overlay-header">
-              <button type="button" onClick={closeCalculator}>‹</button>
-              <div>
+          <div className="general-picker-list">
+            {availableCalculators.map((calculator) => (
+              <button className="general-picker-card" key={calculator.mode} type="button" onClick={() => setActiveCalculator(calculator.mode)}>
+                <span>
+                  <strong>{calculator.label}</strong>
+                  <small>{calculator.description}</small>
+                </span>
+                <em>LIVRE</em>
+              </button>
+            ))}
+          </div>
+        </>
+      ) : (
+        activeRule && (
+          <div className="general-calculator-detail-container">
+            <header className="general-calculator-detail-header">
+              <button type="button" className="general-calculator-detail-back" onClick={closeCalculator} aria-label="Voltar para simulador">
+                ‹
+              </button>
+              <div className="general-calculator-detail-title">
                 <span>{moduleLabel(activeRule.module)}</span>
                 <h2>{activeRule.label}</h2>
                 <p>{activeRule.description}</p>
@@ -599,8 +602,8 @@ export function GeneralCalculatorWorkspace({ selectedModule, onCaptureCalculatio
             </div>
 
             <small className="general-technical-note">Cálculo preliminar para orçamento e campo. Valide medidas, perdas, materiais e condições reais da obra antes de fechar a proposta.</small>
-          </section>
-        </div>
+          </div>
+        )
       )}
     </div>
   );

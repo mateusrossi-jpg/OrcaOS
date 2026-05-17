@@ -530,33 +530,36 @@ export function GeneralFundamentalsWorkspace({
 
   return (
     <div className="fundamental-workspace">
-      <div className="fundamental-plan-banner">
-        <div>
-          <strong>{title}</strong>
-          <span>{description}</span>
-        </div>
-        <em>{visibleRules.length} grátis</em>
-      </div>
+      {!activeCalculator ? (
+        <>
+          <div className="fundamental-plan-banner">
+            <div>
+              <strong>{title}</strong>
+              <span>{description}</span>
+            </div>
+            <em>{visibleRules.length} grátis</em>
+          </div>
 
-      <div className="fundamental-picker-list">
-        {visibleRules.map((calculator) => (
-          <button className="fundamental-picker-card" key={calculator.mode} type="button" onClick={() => setActiveCalculator(calculator.mode)}>
-            <span>
-              <strong>{calculator.label}</strong>
-              <small>{calculator.description}</small>
-            </span>
-            <em>LIVRE</em>
-          </button>
-        ))}
-      </div>
-
-      {activeCalculator && activeRule && (
-        <div className="fundamental-overlay" role="dialog" aria-modal="true" aria-label={activeRule.label}>
-          <div className="fundamental-overlay-backdrop" onClick={closeCalculator} />
-          <section className="fundamental-overlay-panel">
-            <header className="fundamental-overlay-header">
-              <button type="button" onClick={closeCalculator}>‹</button>
-              <div>
+          <div className="fundamental-picker-list">
+            {visibleRules.map((calculator) => (
+              <button className="fundamental-picker-card" key={calculator.mode} type="button" onClick={() => setActiveCalculator(calculator.mode)}>
+                <span>
+                  <strong>{calculator.label}</strong>
+                  <small>{calculator.description}</small>
+                </span>
+                <em>LIVRE</em>
+              </button>
+            ))}
+          </div>
+        </>
+      ) : (
+        activeRule && (
+          <div className="fundamental-detail-container">
+            <header className="fundamental-detail-header">
+              <button type="button" className="fundamental-detail-back" onClick={closeCalculator} aria-label="Voltar para simulador">
+                ‹
+              </button>
+              <div className="fundamental-detail-title">
                 <span>{title}</span>
                 <h2>{activeRule.label}</h2>
                 <p>{activeRule.description}</p>
@@ -693,8 +696,8 @@ export function GeneralFundamentalsWorkspace({
             </div>
 
             <small className="fundamental-note">{note}</small>
-          </section>
-        </div>
+          </div>
+        )
       )}
     </div>
   );

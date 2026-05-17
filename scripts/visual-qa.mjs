@@ -199,6 +199,15 @@ if (appShellTSX.includes('aferix-wordmark-premium.svg')) {
 logStep('Drawer / Overlay Premium');
 const appShellCSS = readFile('src/app/components/AppShell.css');
 
+// 8.9. Drawer Brand Clean Check
+logStep('Drawer Brand Clean Check');
+// Ensure .drawer-brand-card does not have border, background, border-radius
+if (appShellCSS.includes('background: none !important') && appShellCSS.includes('border: 0 !important')) {
+  logSuccess('Drawer brand card is clean and transparent');
+} else {
+  logError('Drawer brand card is missing the required transparency rules');
+}
+
 if (appShellCSS.includes('.drawer-backdrop') && appShellCSS.includes('backdrop-filter')) {
   logSuccess('Encontrou regras de overlay translúcido e filtro de desfoque (blur)');
 } else {

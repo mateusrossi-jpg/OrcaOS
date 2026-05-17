@@ -405,8 +405,6 @@ svg {
   border-color: var(--aferix-border) !important;
 }
 
-.desktop-sidebar-brand,
-.drawer-brand-card,
 .drawer-status-strip {
   border-color: var(--aferix-border) !important;
   background: var(--aferix-bg-soft) !important;
