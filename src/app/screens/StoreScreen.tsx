@@ -181,7 +181,6 @@ export function StoreScreen({ account, onAccountChange }: StoreScreenProps) {
           <MetricCard label="ID" value={account.installationId.slice(0, 8)} />
         </div>
         <div className="local-backup-actions store-account-actions">
-          <button className="ghost-action" type="button" onClick={openCheckout} disabled={activeUserPlan === 'pro'}>Assinar Pro</button>
           <button className="ghost-action" type="button" onClick={checkSubscription}>Verificar</button>
         </div>
       </div>

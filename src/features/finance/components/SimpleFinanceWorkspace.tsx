@@ -196,15 +196,6 @@ export function SimpleFinanceWorkspace() {
         <MetricCard label="Lucro líquido" value={<MoneyValue value={monthSummary.net} tone={monthSummary.net >= 0 ? 'success' : 'danger'} />} tone={monthSummary.net >= 0 ? 'success' : 'danger'} />
       </div>
 
-      <div className="aferix-panel-card">
-        <header>
-          <div>
-            <h2>Gestão Financeira</h2>
-          </div>
-          <button className="ghost-action" type="button" onClick={() => { setDraft(emptyDraft); setShowEntryForm(true); }}>Novo lançamento</button>
-        </header>
-      </div>
-
       {showEntryForm && <div className="aferix-panel-card finance-entry-panel">
         <header>
           <div>
@@ -253,7 +244,9 @@ export function SimpleFinanceWorkspace() {
         <header>
           <div>
             <h2>Histórico</h2>
+            <p>Lançamentos financeiros registrados neste dispositivo.</p>
           </div>
+          <button className="ghost-action" type="button" onClick={() => { setDraft(emptyDraft); setShowEntryForm(true); }}>Novo lançamento</button>
         </header>
         <label className="finance-field finance-search-field"><span>Buscar lançamento</span><input value={recordSearch} placeholder="Serviço, cliente, status ou valor" onChange={(event) => setRecordSearch(event.target.value)} /></label>
         <div className="continuous-list">

@@ -87,9 +87,14 @@ if (reportTSX.includes('aferix-wordmark-document.svg')) {
 // 5. Propostas / Orçamento
 logStep('Propostas / Orçamento (BudgetWorkspace.css)');
 const budgetCSS = readFile('src/features/budgets/components/BudgetWorkspace.css');
+const budgetTSX = readFile('src/features/budgets/components/BudgetWorkspace.tsx');
 ['.budget-workspace', 'overflow-x: hidden', '.budget-workspace-tabs', '.budget-workspace-stepper', 'overflow-x: auto', '.budget-workspace-tabs button.active', '.budget-sticky-summary', '.highlight-profit', '@media (max-width: 760px)'].forEach(rule => {
   if (budgetCSS.includes(rule)) logSuccess(`Regra de orçamento encontrada: ${rule}`);
   else logError(`Faltando regra de orçamento: ${rule}`);
+});
+['Projeto', 'Escopo', 'Custos', 'Comercial', 'Proposta'].forEach(step => {
+  if (budgetTSX.includes(`label: '${step}'`)) logSuccess(`Fluxo de Propostas preservado: ${step}`);
+  else logError(`Fluxo de Propostas sem etapa esperada: ${step}`);
 });
 ['var(--orca-text', 'var(--orca-muted', 'var(--orca-accent', 'var(--orca-primary'].forEach(rule => {
   if (!budgetCSS.includes(rule)) logSuccess(`Livre de variável orca legada: ${rule}`);
@@ -110,6 +115,25 @@ const storeTSX = readFile('src/app/screens/StoreScreen.tsx');
   if (!storeTSX.includes(token)) logSuccess(`Livre de texto colado antigo: ${token}`);
   else logError(`Encontrou texto colado antigo: ${token}`);
 });
+if (!storeTSX.includes('>Assinar Pro<')) {
+  logSuccess('Licença sem CTA duplicado de assinatura fora do card do plano');
+} else {
+  logWarn('Revisar redundância: Assinar Pro também aparece fora do card do plano');
+}
+
+// 6b. Financeiro / ação principal
+logStep('Financeiro / ação principal');
+const financeTSX = readFile('src/features/finance/components/SimpleFinanceWorkspace.tsx');
+if (financeTSX.includes('Novo lançamento')) {
+  logSuccess('Financeiro mantém CTA para Novo lançamento');
+} else {
+  logError('Financeiro perdeu o CTA de Novo lançamento');
+}
+if (!financeTSX.includes('<h2>Gestão Financeira</h2>')) {
+  logSuccess('Financeiro livre de card intermediário que só duplicava ação');
+} else {
+  logWarn('Revisar redundância: card Gestão Financeira pode competir com o Histórico');
+}
 
 // 7. Simulador / Precificação
 logStep('Simulador / Precificação (CalculationsScreen.tsx)');
