@@ -166,10 +166,7 @@
   color: #4b5563 !important;
 }
 
-.report-document h1,
-.report-document h2,
-.report-document h3,
-.report-document strong {
+.report-document :where(h1, h2, h3, strong) {
   color: #111827 !important;
 }
 
