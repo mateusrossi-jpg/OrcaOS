@@ -1,0 +1,139 @@
+.aferix-intro {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #050607;
+  color: #f8fafc;
+  padding: 24px;
+  overflow: hidden;
+  transition: opacity 0.4s ease-out, visibility 0.4s ease-out;
+  opacity: 1;
+  visibility: visible;
+}
+
+.aferix-intro.fading {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.aferix-intro-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 480px;
+  height: 480px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(245, 164, 0, 0.08) 0%, rgba(245, 164, 0, 0) 70%);
+  pointer-events: none;
+  filter: blur(40px);
+}
+
+.aferix-intro-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 440px;
+  text-align: center;
+  animation: introFadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.aferix-intro-logo {
+  width: 140px;
+  height: auto;
+  margin-bottom: 32px;
+  animation: introLogoPulse 3s ease-in-out infinite;
+}
+
+.aferix-intro-phrase {
+  font-family: 'Outfit', 'Inter', 'Sora', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.4;
+  color: #f8fafc;
+  margin: 0 0 12px 0;
+  letter-spacing: -0.02em;
+}
+
+.aferix-intro-sub {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.6;
+  color: #a7b3ad;
+  margin: 0 0 32px 0;
+}
+
+.aferix-intro-loader {
+  width: 180px;
+  height: 3px;
+  background-color: rgba(255, 255, 255, 0.06);
+  border-radius: 9px;
+  overflow: hidden;
+  position: relative;
+}
+
+.aferix-intro-loader-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(90deg, #d97706, #f59e0b, #fbbf24);
+  border-radius: 9px;
+  transform: translateX(-100%);
+  animation: introLoaderProgress 1.9s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+}
+
+@keyframes introFadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes introLogoPulse {
+  0%, 100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 0px rgba(245, 164, 0, 0));
+  }
+  50% {
+    transform: scale(1.02);
+    filter: drop-shadow(0 0 12px rgba(245, 164, 0, 0.12));
+  }
+}
+
+@keyframes introLoaderProgress {
+  to {
+    transform: translateX(0);
+  }
+}
+
+@media (max-width: 480px) {
+  .aferix-intro-logo {
+    width: 120px;
+  }
+  .aferix-intro-phrase {
+    font-size: 18px;
+  }
+  .aferix-intro-sub {
+    font-size: 12px;
+  }
+  .aferix-intro-glow {
+    width: 320px;
+    height: 320px;
+  }
+}

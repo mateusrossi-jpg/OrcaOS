@@ -51,8 +51,8 @@ export function HomeScreen({
   return (
     <PageShell className="aferix-dashboard-screen">
       <PageHeader
-        title="Dashboard"
-        description="Olá. Aqui está o resumo compacto do seu negócio hoje."
+        title="Controle seu lucro com clareza"
+        description="Monte propostas, acompanhe custos e gere relatórios profissionais sem perder o controle do seu dinheiro."
         action={<button type="button" className="primary-action inline-action" onClick={onStartNewAttendance}>Novo atendimento</button>}
       />
       <ActiveWorkContextCard {...context} />

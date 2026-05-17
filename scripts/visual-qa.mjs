@@ -145,6 +145,29 @@ if (!themeCSS.match(/\.context-banner-action[^}]*margin-top:\s*-\d+/)) {
   logError('Erro crítico: botão do contexto ativo usando margin-top negativo!');
 }
 
+// 8.5. Branding, Logo e Intro
+logStep('Branding, Logo e Intro');
+const appTSX = readFile('src/app/App.tsx');
+if (appTSX.includes('AferixIntro')) {
+  logSuccess('Encontrou componente AferixIntro importado e renderizado no App.tsx');
+} else {
+  logError('Componente AferixIntro ausente no App.tsx');
+}
+
+const appShellTSX = readFile('src/app/components/AppShell.tsx');
+if (appShellTSX.includes('aferix-wordmark-premium.svg') && appShellTSX.includes('aferix-mark-premium.svg')) {
+  logSuccess('Encontrou os novos SVGs de branding premium mapeados no AppShell.tsx');
+} else {
+  logError('AppShell.tsx ainda utiliza marcas/imagens legadas do Aferix');
+}
+
+const introTSX = readFile('src/app/components/AferixIntro.tsx');
+if (introTSX.includes('Gestão financeira para autônomos') && introTSX.includes('aferix-splash-mark.svg')) {
+  logSuccess('Estrutura e copy da Intro validadas no AferixIntro.tsx');
+} else {
+  logError('AferixIntro.tsx não contém as frases de posicionamento financeiro premium ou logo correto');
+}
+
 // 9. Design Tokens
 logStep('Design Tokens (aferixTheme.css)');
 ['--aferix-bg', '--aferix-surface', '--aferix-surface-2', '--aferix-border', '--aferix-text', '--aferix-text-secondary', '--aferix-primary', '--aferix-danger'].forEach(token => {

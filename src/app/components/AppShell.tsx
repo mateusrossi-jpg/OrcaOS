@@ -2,7 +2,7 @@ import { Fragment, useEffect, useState, type ReactNode } from 'react';
 import type { Client, WorkOrder } from '../../core/types/business';
 import './AppShell.css';
 
-const AFERIX_ICON_URL = '/icons/aferix-icon.svg';
+const AFERIX_ICON_URL = '/icons/aferix-mark-premium.svg';
 
 export function AferixLogo({ className, collapsed }: { className?: string; collapsed?: boolean }) {
   if (collapsed) {
@@ -15,7 +15,7 @@ export function AferixLogo({ className, collapsed }: { className?: string; colla
 
   return (
     <div className={`aferix-brand-logo ${className || ''}`} aria-label="Aferix">
-      <img className="aferix-wordmark-img" src="/icons/aferix-logo-dark-panel.svg" alt="Aferix" />
+      <img className="aferix-wordmark-img" src="/icons/aferix-wordmark-premium.svg" alt="Aferix" />
     </div>
   );
 }

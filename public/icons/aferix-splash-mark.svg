@@ -1,0 +1,32 @@
+<svg width="240" height="200" viewBox="0 0 240 200" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Aferix Stacked Premium</title>
+  <desc id="desc">Stacked premium logo for the loading and onboarding screens of the Aferix app.</desc>
+  <defs>
+    <linearGradient id="gold-premium" x1="102" y1="76" x2="158" y2="18" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#b45309"/>
+      <stop offset="0.4" stop-color="#f5a623"/>
+      <stop offset="0.8" stop-color="#f59e0b"/>
+      <stop offset="1" stop-color="#fbbf24"/>
+    </linearGradient>
+    <linearGradient id="gold-premium-small" x1="164" y1="144" x2="198" y2="106" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#b45309"/>
+      <stop offset="0.4" stop-color="#f5a623"/>
+      <stop offset="0.8" stop-color="#f59e0b"/>
+      <stop offset="1" stop-color="#fbbf24"/>
+    </linearGradient>
+  </defs>
+  <g id="aferix-stacked">
+    <!-- Big centered symbol -->
+    <!-- Left-to-right leg of the X -->
+    <path d="M98 30 L112 30 L142 76 L128 76 Z" fill="#f8fafc" />
+    <!-- Rising financial arrow leg of the X -->
+    <path d="M102 76 L128 43 L116 43 L158 18 L152 61 L143 50 L130 76 Z" fill="url(#gold-premium)" />
+
+    <!-- Wordmark below -->
+    <text x="42" y="140" fill="#f8fafc" font-family="'Outfit', 'Inter', 'Sora', sans-serif" font-size="36" font-weight="900" letter-spacing="3">AFERI</text>
+    <!-- Left-to-right leg of small X -->
+    <path d="M160 114 L170 114 L192 144 L182 144 Z" fill="#f8fafc" />
+    <!-- Rising arrow leg of small X -->
+    <path d="M164 144 L180 123 L172 123 L198 106 L194 133 L188 126 L180 144 Z" fill="url(#gold-premium-small)" />
+  </g>
+</svg>
