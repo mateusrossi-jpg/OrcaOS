@@ -120,14 +120,14 @@ export function AppShell<T extends string>({
 
   useEffect(() => {
     if (!openDropdown) return;
-    const handleOutsideClick = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-      if (!target.closest('.top-nav-menu-container')) {
+    const handleOutsidePointerDown = (event: PointerEvent) => {
+      const target = event.target as HTMLElement | null;
+      if (!target?.closest('.top-nav-menu-container')) {
         setOpenDropdown(null);
       }
     };
-    document.addEventListener('click', handleOutsideClick);
-    return () => document.removeEventListener('click', handleOutsideClick);
+    document.addEventListener('pointerdown', handleOutsidePointerDown);
+    return () => document.removeEventListener('pointerdown', handleOutsidePointerDown);
   }, [openDropdown]);
 
   useEffect(() => {
@@ -165,11 +165,7 @@ export function AppShell<T extends string>({
         
         <nav className="app-top-nav-center" aria-label="Menu principal desktop">
           {/* Gestão */}
-          <div
-            className="top-nav-menu-container"
-            onMouseEnter={() => setOpenDropdown('gestao')}
-            onMouseLeave={() => setOpenDropdown(null)}
-          >
+          <div className="top-nav-menu-container">
             <button
               className={`top-nav-menu-button ${openDropdown === 'gestao' ? 'active' : ''} ${
                 gestaoItems.some(i => activeTab === i.id) ? 'tab-active' : ''
@@ -178,6 +174,12 @@ export function AppShell<T extends string>({
               aria-expanded={openDropdown === 'gestao'}
               aria-haspopup="menu"
               onClick={() => toggleDropdown('gestao')}
+              onKeyDown={(e) => {
+                if (e.key === 'ArrowDown') {
+                  e.preventDefault();
+                  setOpenDropdown('gestao');
+                }
+              }}
             >
               Gestão <span className="dropdown-arrow">▾</span>
             </button>
@@ -202,11 +204,7 @@ export function AppShell<T extends string>({
           </div>
 
           {/* Operação */}
-          <div
-            className="top-nav-menu-container"
-            onMouseEnter={() => setOpenDropdown('operacao')}
-            onMouseLeave={() => setOpenDropdown(null)}
-          >
+          <div className="top-nav-menu-container">
             <button
               className={`top-nav-menu-button ${openDropdown === 'operacao' ? 'active' : ''} ${
                 operacaoItems.some(i => activeTab === i.id) ? 'tab-active' : ''
@@ -215,6 +213,12 @@ export function AppShell<T extends string>({
               aria-expanded={openDropdown === 'operacao'}
               aria-haspopup="menu"
               onClick={() => toggleDropdown('operacao')}
+              onKeyDown={(e) => {
+                if (e.key === 'ArrowDown') {
+                  e.preventDefault();
+                  setOpenDropdown('operacao');
+                }
+              }}
             >
               Operação <span className="dropdown-arrow">▾</span>
             </button>
@@ -239,11 +243,7 @@ export function AppShell<T extends string>({
           </div>
 
           {/* Sistema */}
-          <div
-            className="top-nav-menu-container"
-            onMouseEnter={() => setOpenDropdown('sistema')}
-            onMouseLeave={() => setOpenDropdown(null)}
-          >
+          <div className="top-nav-menu-container">
             <button
               className={`top-nav-menu-button ${openDropdown === 'sistema' ? 'active' : ''} ${
                 sistemaItems.some(i => activeTab === i.id) ? 'tab-active' : ''
@@ -252,6 +252,12 @@ export function AppShell<T extends string>({
               aria-expanded={openDropdown === 'sistema'}
               aria-haspopup="menu"
               onClick={() => toggleDropdown('sistema')}
+              onKeyDown={(e) => {
+                if (e.key === 'ArrowDown') {
+                  e.preventDefault();
+                  setOpenDropdown('sistema');
+                }
+              }}
             >
               Sistema <span className="dropdown-arrow">▾</span>
             </button>

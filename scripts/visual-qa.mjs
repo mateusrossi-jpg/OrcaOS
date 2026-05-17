@@ -195,6 +195,27 @@ if (appShellTSX.includes('aferix-wordmark-premium.svg')) {
   logError('AppShell.tsx deve utilizar a logo completa no header');
 }
 
+// 8.6.b. Navegação superior desktop / Dropdowns estáveis
+logStep('Dropdowns Desktop Estáveis e Acessíveis');
+if (!appShellTSX.includes('onMouseLeave') && !appShellTSX.includes('onMouseEnter')) {
+  logSuccess('AppShell.tsx livre de listeners de hover (onMouseEnter/onMouseLeave) nos dropdowns');
+} else {
+  logError('Erro: AppShell.tsx ainda utiliza hover instável (onMouseEnter/onMouseLeave) nos dropdowns');
+}
+
+if (appShellTSX.includes('pointerdown') && appShellTSX.includes('closest(\'.top-nav-menu-container\')')) {
+  logSuccess('AppShell.tsx utiliza pointerdown com closest para fechamento seguro fora do menu');
+} else {
+  logError('Erro: AppShell.tsx não implementa pointerdown/closest para fechamento externo');
+}
+
+if (appShellTSX.includes('ArrowDown') && appShellTSX.includes('onKeyDown')) {
+  logSuccess('AppShell.tsx implementa acessibilidade básica com tecla ArrowDown nos botões');
+} else {
+  logError('Erro: AppShell.tsx sem suporte a atalho de teclado ArrowDown para acessibilidade');
+}
+
+
 // 8.7. Drawer / Overlay Premium
 logStep('Drawer / Overlay Premium');
 const appShellCSS = readFile('src/app/components/AppShell.css');
