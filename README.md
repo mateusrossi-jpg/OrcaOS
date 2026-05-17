@@ -1,6 +1,6 @@
 # Aferix
 
-**Aferix** é um ERP financeiro local-first para prestadores de serviço, focado na clareza do lucro real: cliente, levantamento, precificação, orçamento e fluxo de caixa. O produto organiza atendimentos e propostas comerciais sem transformar a rotina do autônomo em um sistema complexo.
+**Aferix** é um ERP financeiro local-first para autônomos e pequenos prestadores de serviço. O foco do produto é ajudar o profissional a controlar atendimentos, orçamentos, entradas, saídas, custos, lucro real e pendências financeiras de forma simples, rápida e utilizável no dia a dia.
 
 ## Visão do produto
 
@@ -15,7 +15,14 @@ O Aferix é centrado na saúde financeira do pequeno prestador de serviço:
 
 ## Público-alvo
 
-O foco são **profissionais autônomos e pequenos prestadores de serviço** (manutenção, instalação, reformas, consultoria técnica) que precisam saber exatamente quanto estão ganhando em cada serviço.
+O foco inicial são profissionais autônomos e pequenos prestadores de serviço que precisam controlar melhor o dinheiro do próprio trabalho:
+
+- eletricistas;
+- instaladores;
+- técnicos de manutenção;
+- prestadores de serviço residencial e comercial;
+- profissionais de pequenas reformas;
+- autônomos que trabalham por orçamento, visita, execução e recebimento.
 
 ## Estrutura do Projeto
 
@@ -31,7 +38,7 @@ Aferix/
 
 ## Desenvolvimento
 
-Baseado em React + TypeScript + Vite.
+Base usando React + TypeScript + Vite.
 
 ```bash
 npm install
@@ -44,3 +51,7 @@ npm run dev
 - **Privacidade**: Dados armazenados localmente por padrão.
 - **Profissionalismo**: Propostas e relatórios que geram confiança no cliente.
 - **Estabilidade**: Foco em um fluxo operacional robusto e sem redundâncias.
+
+## Aviso de escopo
+
+O Aferix deve ser tratado como um produto financeiro para gestão de serviços autônomos. Qualquer funcionalidade que aumente complexidade sem melhorar diretamente controle financeiro, orçamento, atendimento ou lucro real deve ser adiada.
