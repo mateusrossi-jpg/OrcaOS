@@ -61,37 +61,50 @@ export function AppShell({ children, activeTab, navItems, onNavigate, activeClie
             <img src={AFERIX_ICON_URL} alt="Aferix" className="app-logo" />
             <div className="brand-text-stack">
               <span className="brand-name">AFERIX</span>
-              <span className="brand-tagline">FINANCEIRO</span>
+              <span className="brand-tagline">Gestão financeira para serviços</span>
             </div>
           </div>
         </header>
 
         <nav className="sidebar-nav">
-          {Object.entries(sections).map(([sectionName, items]) => (
-            <div key={sectionName} className="nav-section">
-              <span className="nav-section-title">{sectionName}</span>
-              <div className="nav-items-stack">
-                {items.map((item) => {
-                  const isActive = activeTab === item.id;
-                  return (
-                    <button
-                      key={item.id}
-                      className={`nav-item ${isActive ? 'active' : ''}`}
-                      onClick={() => onNavigate(item.id)}
-                      title={item.description}
-                    >
-                      <span className={`nav-icon icon-${item.icon}`} />
-                      <div className="nav-text">
-                        <strong className="nav-label">{item.label}</strong>
-                        <span className="nav-desc">{item.description}</span>
-                      </div>
-                      {isActive && <span className="active-indicator" />}
-                    </button>
-                  );
-                })}
+          <div className="nav-items-stack desktop-primary-nav">
+            {navItems.map((item) => {
+              const isActive = activeTab === item.id;
+              return (
+                <button
+                  key={item.id}
+                  className={`nav-item ${isActive ? 'active' : ''}`}
+                  onClick={() => onNavigate(item.id)}
+                  title={item.description}
+                >
+                  <span className={`nav-icon icon-${item.icon}`} />
+                  <div className="nav-text">
+                    <strong className="nav-label">{item.label}</strong>
+                    <span className="nav-desc">{item.description}</span>
+                  </div>
+                  {isActive && <span className="active-indicator" />}
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="nav-items-stack mobile-secondary-nav" style={{ marginTop: '1rem' }}>
+            <span className="nav-section-title">Ajustes e Conta</span>
+            <button className="nav-item" onClick={() => onNavigate('settings')}>
+              <span className="nav-icon icon-settings" />
+              <div className="nav-text">
+                <strong className="nav-label">Perfil e Configurações</strong>
+                <span className="nav-desc">Conta, segurança e backup</span>
               </div>
-            </div>
-          ))}
+            </button>
+            <button className="nav-item" onClick={() => onNavigate('store')}>
+              <span className="nav-icon icon-store" />
+              <div className="nav-text">
+                <strong className="nav-label">Licença Pro</strong>
+                <span className="nav-desc">Planos e recursos</span>
+              </div>
+            </button>
+          </div>
         </nav>
 
         <footer className="sidebar-footer">

@@ -1,10 +1,9 @@
 import type { AppTab, ActiveWorkContext } from '../appTypes';
 import type { CalculationCapture } from '../../core/types/workflow';
-import type { Client, WorkOrder } from '../../core/types/business';
+import type { Client, Service as WorkOrder } from '../../core/types/business';
 import type { SavedBudgetRecord } from '../../features/budgets/storage/savedBudgetsStorage';
-import { ActiveWorkContextCard } from '../components/ActiveWorkContextCard';
 import { EmptyState, MetricCard, MoneyValue, PageHeader, PageShell, SectionHeader } from '../components/designSystem';
-import { formatCompactCurrency } from '../../core/format/currency';
+import { formatCompactCurrency, formatCurrency } from '../../core/format/currency';
 
 interface HomeScreenProps {
   goTo: (tab: AppTab) => void;
@@ -25,59 +24,79 @@ export function HomeScreen({
   onStartNewAttendance
 }: HomeScreenProps) {
   const currentMonthBudgets = savedBudgets.filter(isBudgetFromCurrentMonth);
-  const monthlyBudgetTotal = currentMonthBudgets.reduce((total, budget) => total + calculateSavedBudgetValue(budget), 0);
-  const accountsReceivable = currentMonthBudgets.filter((budget) => budget.status === 'sent' || budget.status === 'approved').reduce((total, budget) => total + calculateSavedBudgetValue(budget), 0);
   
-  const monthlyExpenses = currentMonthBudgets.reduce((total, budget) => {
+  // Financeiro
+  const revenue = currentMonthBudgets.filter((b) => b.status === 'approved').reduce((acc, b) => acc + calculateSavedBudgetValue(b), 0);
+  const expenses = currentMonthBudgets.reduce((total, budget) => {
     const materialEstimate = budget.materialCost ?? budget.items.filter((item) => item.category === 'material').reduce((itemTotal, item) => itemTotal + item.quantity * item.unitPrice, 0);
     return total + materialEstimate + (budget.operationalCost ?? 0) + budget.travelCost + budget.additionalFees;
   }, 0);
-  
-  const monthlyCashFlow = monthlyBudgetTotal - monthlyExpenses;
-  const monthlyNetProfit = Math.max(monthlyCashFlow, 0);
-  
+  const profit = Math.max(revenue - expenses, 0);
+
+  // Status
+  const pendingBudgets = savedBudgets.filter(b => b.status === 'sent');
+  const activeServices = workOrders.filter(w => w.status === 'in-progress');
+  const pendingPayments = workOrders.filter(w => w.paymentStatus === 'pending' || w.paymentStatus === 'partial');
+
   return (
     <PageShell className="aferix-dashboard-screen">
-      <PageHeader
-        title="Controle seu lucro"
-        description="Gestão financeira simples para o seu dia a dia profissional."
-        action={<button type="button" className="primary-action inline-action" onClick={onStartNewAttendance}>Novo orçamento</button>}
-      />
-      <ActiveWorkContextCard {...context} />
+      <header className="home-hero-header" style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '2rem' }}>
+        <div>
+          <h1 style={{ fontSize: '1.5rem', fontWeight: 800, margin: 0 }}>Controle seu lucro</h1>
+          <p style={{ color: 'var(--aferix-text-muted)', fontSize: '0.9rem', marginTop: '0.25rem' }}>Resumo financeiro e operacional das suas atividades.</p>
+        </div>
+        <button type="button" className="primary-action" style={{ padding: '1rem', fontSize: '1rem', fontWeight: 700 }} onClick={onStartNewAttendance}>
+          + Novo Orçamento
+        </button>
+      </header>
 
-      <div className="metric-grid dashboard-metric-grid" aria-label="Resumo financeiro">
-        <MetricCard label="Lucro no mês" value={<MoneyValue value={monthlyNetProfit} tone="success" />} tone="success" />
-        <MetricCard label="A receber" value={<MoneyValue value={accountsReceivable} />} />
-        <MetricCard label="Caixa" value={<MoneyValue value={monthlyCashFlow} />} />
-      </div>
+      <section className="aferix-panel-card" style={{ marginBottom: '1.5rem' }}>
+        <SectionHeader title="Resultado no Mês" eyebrow="Financeiro" />
+        <div className="metric-grid dashboard-metric-grid">
+          <MetricCard label="Lucro Líquido" value={<MoneyValue value={profit} tone="success" />} tone="success" />
+          <MetricCard label="Entradas" value={<MoneyValue value={revenue} />} />
+          <MetricCard label="Saídas" value={<MoneyValue value={expenses} tone="danger" />} />
+        </div>
+      </section>
 
       <div className="home-action-toolbar compact-actions">
         <button type="button" className="ghost-action" onClick={() => goTo('clients')}>Clientes</button>
         <button type="button" className="ghost-action" onClick={() => goTo('financial')}>Financeiro</button>
-        <button type="button" className="ghost-action" onClick={() => goTo('settings')}>Menu</button>
+        <button type="button" className="ghost-action" onClick={() => goTo('settings')}>Mais</button>
       </div>
 
       <section className="aferix-panel-card home-command-panel">
-        <SectionHeader title="Atenção necessária" eyebrow="Pendências" />
+        <SectionHeader title="Atenção Necessária" eyebrow="Operação" />
+        
+        <div className="status-highlights-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.75rem', marginBottom: '1rem' }}>
+          <div className="highlight-card" onClick={() => goTo('budgets')} style={{ padding: '1rem', background: 'var(--aferix-surface-active)', borderRadius: '8px', textAlign: 'center', cursor: 'pointer' }}>
+            <strong style={{ display: 'block', fontSize: '1.5rem', color: pendingBudgets.length > 0 ? 'var(--aferix-primary)' : 'inherit' }}>{pendingBudgets.length}</strong>
+            <small style={{ color: 'var(--aferix-text-muted)', fontSize: '0.75rem' }}>Orçamentos<br/>Aguardando</small>
+          </div>
+          <div className="highlight-card" onClick={() => goTo('clients')} style={{ padding: '1rem', background: 'var(--aferix-surface-active)', borderRadius: '8px', textAlign: 'center', cursor: 'pointer' }}>
+            <strong style={{ display: 'block', fontSize: '1.5rem', color: activeServices.length > 0 ? 'var(--aferix-primary)' : 'inherit' }}>{activeServices.length}</strong>
+            <small style={{ color: 'var(--aferix-text-muted)', fontSize: '0.75rem' }}>Serviços em<br/>Execução</small>
+          </div>
+          <div className="highlight-card" onClick={() => goTo('clients')} style={{ padding: '1rem', background: 'var(--aferix-surface-active)', borderRadius: '8px', textAlign: 'center', cursor: 'pointer' }}>
+            <strong style={{ display: 'block', fontSize: '1.5rem', color: pendingPayments.length > 0 ? 'var(--aferix-danger, #ef4444)' : 'inherit' }}>{pendingPayments.length}</strong>
+            <small style={{ color: 'var(--aferix-text-muted)', fontSize: '0.75rem' }}>Pagamentos<br/>Pendentes</small>
+          </div>
+        </div>
+
         <div className="home-recent-strip">
           <div className="continuous-list">
-            {workOrders.filter(w => w.status !== 'done' && w.status !== 'cancelled').length === 0 ? (
+            {activeServices.length === 0 ? (
               <EmptyState title="Tudo em dia" description="Crie um novo orçamento para começar." />
             ) : (
-              workOrders.filter(w => w.status !== 'done' && w.status !== 'cancelled').slice(0, 5).map(order => {
+              activeServices.slice(0, 5).map(order => {
                 const orderClient = clients.find(c => c.id === order.clientId);
-                const orderBudget = savedBudgets.find(b => b.workOrderId === order.id);
-                const budgetValue = orderBudget ? orderBudget.items.reduce((acc, item) => acc + item.quantity * item.unitPrice, 0) : 0;
-                const createdAtDate = new Date(order.createdAt || Date.now());
-                const timeString = isNaN(createdAtDate.getTime()) ? '--:--' : createdAtDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
                 return (
                   <article key={order.id} className="continuous-list-item" onClick={() => goTo('clients')}>
-                    <span className="time-col">{timeString}</span>
                     <div className="client-col">
                       <strong>{orderClient?.name ?? 'Cliente Avulso'}</strong>
                       <small>{order.title}</small>
                     </div>
-                    <em className="value-col">{formatCompactCurrency(budgetValue)}</em>
+                    <em className="value-col" style={{ fontSize: '0.75rem', color: 'var(--aferix-primary)' }}>Em execução</em>
                   </article>
                 );
               })

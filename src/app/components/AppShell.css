@@ -35,19 +35,19 @@ html, body, #root {
 }
 
 .sidebar-header {
-  padding: 24px;
+  padding: 24px 20px 20px;
   border-bottom: 1px solid var(--aferix-border-soft);
 }
 
 .app-brand {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
 }
 
 .app-logo {
-  width: 32px;
-  height: 32px;
+  width: 26px;
+  height: 26px;
 }
 
 .brand-text-stack {
@@ -57,17 +57,17 @@ html, body, #root {
 
 .brand-name {
   font-weight: 800;
-  font-size: 1.1rem;
-  letter-spacing: -0.02em;
+  font-size: 1.05rem;
+  letter-spacing: -0.01em;
   color: var(--aferix-text);
 }
 
 .brand-tagline {
-  font-size: 0.65rem;
-  font-weight: 700;
-  color: var(--aferix-primary);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
+  font-size: 0.6rem;
+  font-weight: 600;
+  color: var(--aferix-text-muted);
+  text-transform: none;
+  letter-spacing: 0.02em;
 }
 
 .sidebar-nav {
@@ -272,8 +272,24 @@ html, body, #root {
   letter-spacing: 0.05em;
 }
 
+.desktop-primary-nav {
+  display: flex;
+}
+
+.mobile-secondary-nav {
+  display: none;
+}
+
 /* Responsive adjustments */
 @media (max-width: 1024px) {
+  .desktop-primary-nav {
+    display: none !important;
+  }
+  
+  .mobile-secondary-nav {
+    display: flex;
+  }
+
   .app-main-layout {
     grid-template-columns: 1fr;
   }
@@ -283,7 +299,7 @@ html, body, #root {
     top: 0;
     left: 0;
     bottom: 0;
-    width: 280px;
+    width: 260px;
     transform: translateX(-100%);
     box-shadow: 20px 0 60px rgba(0,0,0,0.5);
   }

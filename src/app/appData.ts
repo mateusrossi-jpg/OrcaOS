@@ -12,7 +12,7 @@ export const navItems: Array<{ id: AppTab; label: string; description: string; i
   { id: 'home', label: 'Início', description: 'Resumo e ações rápidas', icon: 'home', primary: true },
   { id: 'clients', label: 'Clientes', description: 'Gestão de clientes e serviços', icon: 'clients', primary: true },
   { id: 'financial', label: 'Financeiro', description: 'Receitas e custos', icon: 'finance', primary: true },
-  { id: 'settings', label: 'Menu', description: 'Mais ferramentas', icon: 'menu', primary: true },
+  { id: 'settings', label: 'Mais', description: 'Outras ferramentas', icon: 'menu', primary: true },
 ];
 
 export function planLabel(plan: ModulePlan): string {
