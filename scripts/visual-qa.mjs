@@ -408,6 +408,20 @@ if (globalCSS.includes('.general-form-field div:has(.technical-unit) input') &&
   logWarn('Recomendado incluir padding-right de proteção nos inputs/selects que possuem sufixos posicionados à direita');
 }
 
+// 8.9.7. Catalog legacy CSS cleanup
+logStep('Catalog legacy CSS cleanup');
+const catalogCSS = readFile('src/features/catalog/components/CatalogHubWorkspace.css');
+const suppCSS = readFile('src/features/catalog/components/SupplierProfileWorkspace.css');
+const taxCSS = readFile('src/features/catalog/components/SupplierTaxMarginWorkspace.css');
+
+['var(--orca-', '#000000', '#111111', '#222222', '#666666', 'border-radius: 4px', 'rgba(3, 9, 8', 'rgba(4, 12, 10', 'rgba(8, 18, 16', 'rgba(148, 214, 218'].forEach(token => {
+  if (!catalogCSS.includes(token) && !suppCSS.includes(token) && !taxCSS.includes(token)) {
+    logSuccess(`Livre de token legado / fallback em Catálogo: ${token}`);
+  } else {
+    logError(`Encontrou token legado / fallback em estilos de Catálogo: ${token}`);
+  }
+});
+
 // 9. Design Tokens
 logStep('Design Tokens (aferixTheme.css)');
 ['--aferix-bg', '--aferix-surface', '--aferix-surface-2', '--aferix-border', '--aferix-text', '--aferix-text-secondary', '--aferix-primary', '--aferix-danger'].forEach(token => {
