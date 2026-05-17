@@ -110,9 +110,67 @@ const calcTSX = readFile('src/app/screens/CalculationsScreen.tsx');
   else logError(`Encontrou texto colado legado: ${token}`);
 });
 
+// 8. Clientes / Atendimentos
+logStep('Clientes / Atendimentos (ClientWorkOrderWorkspace)');
+const clientTSX = readFile('src/features/clients/components/ClientWorkOrderWorkspace.tsx');
+if (clientTSX) {
+  logSuccess('ClientWorkOrderWorkspace.tsx encontrado e lido');
+  ['ClientWorkOrderWorkspace', 'ContextBanner', 'MetricCard', 'home-action-toolbar'].forEach(token => {
+    if (clientTSX.includes(token)) logSuccess(`Estrutura de Clientes encontrada: ${token}`);
+    else logError(`Faltando estrutura em ClientWorkOrderWorkspace.tsx: ${token}`);
+  });
+} else {
+  logError('ClientWorkOrderWorkspace.tsx não encontrado');
+}
+
+const clientCSS = readFile('src/features/clients/components/ClientWorkOrderWorkspace.css');
+if (clientCSS) {
+  logSuccess('ClientWorkOrderWorkspace.css encontrado e lido');
+  ['.refined-client-os', '.client-os-indicator-grid', '.client-os-grid', '@media (max-width: 768px)'].forEach(rule => {
+    if (clientCSS.includes(rule)) logSuccess(`Regra CSS do workspace encontrada: ${rule}`);
+    else logError(`Faltando regra CSS no workspace: ${rule}`);
+  });
+} else {
+  logError('ClientWorkOrderWorkspace.css não encontrado');
+}
+
+const clientScreenTSX = readFile('src/app/screens/ClientsScreen.tsx');
+if (clientScreenTSX) {
+  logSuccess('ClientsScreen.tsx encontrado e lido');
+  if (clientScreenTSX.includes('ClientsScreen')) logSuccess('Componente ClientsScreen declarado');
+  else logError('ClientsScreen não encontrado no arquivo de tela');
+}
+
+const themeCSS = readFile('src/styles/aferixTheme.css');
+
+// Validar padrões seguros para o contexto ativo (.context-banner)
+if (themeCSS.includes('.context-banner-action')) {
+  logSuccess('Regras para botão do contexto ativo encontradas');
+} else {
+  logError('Faltando regras para .context-banner-action');
+}
+
+const contextBannerMobileMatch = themeCSS.match(/\.context-banner\s*\{[^}]*display:\s*grid/);
+if (contextBannerMobileMatch || themeCSS.includes('grid-template-columns: auto 1fr')) {
+  logSuccess('Regra para contexto ativo com grid-template-columns no mobile encontrada');
+} else {
+  logWarn('Faltando regra específica para grid-template-columns no mobile para .context-banner');
+}
+
+if (!themeCSS.match(/\.context-banner-action\s*\{[^}]*position:\s*absolute/)) {
+  logSuccess('Livre de position: absolute indevido no botão de contexto');
+} else {
+  logError('Erro crítico: botão do contexto ativo usando position absolute!');
+}
+
+if (!themeCSS.match(/\.context-banner-action\s*\{[^}]*(margin-top|margin-bottom|transform):\s*-\d+/)) {
+  logSuccess('Livre de margens negativas ou transformações de empurre nocivas');
+} else {
+  logError('Erro crítico: botão do contexto ativo usando margens negativas ou transformações nocivas!');
+}
+
 // 9. Design Tokens
 logStep('Design Tokens (aferixTheme.css)');
-const themeCSS = readFile('src/styles/aferixTheme.css');
 ['--aferix-bg', '--aferix-surface', '--aferix-surface-2', '--aferix-border', '--aferix-text', '--aferix-text-secondary', '--aferix-primary', '--aferix-danger'].forEach(token => {
   if (themeCSS.includes(token)) logSuccess(`Token essencial encontrado: ${token}`);
   else logError(`Faltando token essencial: ${token}`);
