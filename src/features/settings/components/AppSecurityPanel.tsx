@@ -53,7 +53,7 @@ export function AppSecurityPanel() {
   }
 
   return (
-    <section className="local-backup-workspace app-security-panel">
+    <section className="local-backup-workspace settings-security-panel app-security-panel">
       <div className="local-backup-header">
         <div>
           <span className="orca-kicker">Segurança</span>
@@ -63,17 +63,17 @@ export function AppSecurityPanel() {
         <strong>{isEnabled ? 'Ativo' : 'Opcional'}</strong>
       </div>
 
-      <div className="local-backup-grid">
-        <article className="local-backup-card app-security-card">
+      <div className="local-backup-grid settings-security-grid">
+        <article className="local-backup-card settings-security-card app-security-card">
           <div className="local-card-heading">
             <strong>{isEnabled ? 'Alterar PIN' : 'Ativar PIN'}</strong>
             <small>Proteção local contra acesso casual neste navegador. Conta e criptografia forte entram na fase de backend.</small>
           </div>
-          <label className="local-backup-file">
+          <label className="local-backup-file settings-pin-field">
             <span>Novo PIN</span>
             <input inputMode="numeric" type="password" value={pin} onChange={(event) => setPin(event.target.value)} />
           </label>
-          <label className="local-backup-file">
+          <label className="local-backup-file settings-pin-field">
             <span>Confirmar PIN</span>
             <input inputMode="numeric" type="password" value={confirmPin} onChange={(event) => setConfirmPin(event.target.value)} />
           </label>
@@ -82,7 +82,7 @@ export function AppSecurityPanel() {
           </div>
         </article>
 
-        <article className="local-backup-card app-security-card">
+        <article className="local-backup-card settings-security-card app-security-card">
           <div className="local-card-heading">
             <strong>Sessão atual</strong>
             <small>Bloqueie o app ao emprestar o aparelho ou ao terminar um atendimento em campo.</small>

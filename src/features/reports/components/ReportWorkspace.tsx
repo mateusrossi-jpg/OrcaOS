@@ -138,24 +138,6 @@ export function ReportWorkspace({ captures, activeClient = null, activeWorkOrder
         ))}
       </div>
 
-      <div className="dashboard-finance-tiles no-print" style={{ margin: '1rem 0' }}>
-        <article className="finance-tile"><span>Itens</span><strong>{reportItems.length}</strong></article>
-        <article className="finance-tile"><span>Imagens</span><strong>{itemsWithImage}</strong></article>
-        <article className="finance-tile"><span>Diagnósticos</span><strong>{diagnostics}</strong></article>
-      </div>
-
-      <div className="aferix-panel-card no-print">
-        <header>
-          <div>
-            <h2>Visão Gerencial</h2>
-          </div>
-        </header>
-        <div className="dashboard-finance-tiles" style={{ padding: '1rem' }}>
-          <article className="finance-tile"><span>Aprovado</span><strong>{money(totalApproved)}</strong></article>
-          <article className="finance-tile"><span>Ticket</span><strong>{money(averageTicket)}</strong></article>
-          <article className="finance-tile"><span>Conversão</span><strong>{approvalRate.toFixed(0)}%</strong></article>
-        </div>
-      </div>
 
       <article className={`report-document report-template-${reportTemplateId}`}>
         <header className="report-document-header">
@@ -246,6 +228,20 @@ export function ReportWorkspace({ captures, activeClient = null, activeWorkOrder
           <div className="signature-line">Responsável técnico / aceite</div>
         </footer>
       </article>
+
+      {reportItems.length > 0 && (
+        <details className="aferix-panel-card report-management-panel no-print" style={{ marginTop: "1.5rem" }}>
+          <summary>Visão gerencial e contadores</summary>
+          <div className="report-management-grid">
+            <article><span>Itens</span><strong>{reportItems.length}</strong></article>
+            <article><span>Imagens</span><strong>{itemsWithImage}</strong></article>
+            <article><span>Diagnósticos</span><strong>{diagnostics}</strong></article>
+            <article><span>Aprovado</span><strong>{money(totalApproved)}</strong></article>
+            <article><span>Ticket</span><strong>{money(averageTicket)}</strong></article>
+            <article><span>Conversão</span><strong>{approvalRate.toFixed(0)}%</strong></article>
+          </div>
+        </details>
+      )}
     </>
   );
 }

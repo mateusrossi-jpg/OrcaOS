@@ -255,8 +255,8 @@ button.danger {
 .client-os-section-tabs,
 .budget-workspace-tabs,
 .catalog-subtabs,
-.settings-section-tabs,
-.calculation-profession-tabs,
+
+
 .catalog-primary-tabs,
 .catalog-secondary-tabs {
   display: grid !important;
@@ -564,6 +564,12 @@ svg {
   display: block;
 }
 
+.active-work-context-card > div {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
 .active-work-context-card strong,
 .info-card strong,
 .notice-box strong {
@@ -758,8 +764,8 @@ button.secondary {
 .client-os-section-tabs,
 .budget-workspace-tabs,
 .catalog-subtabs,
-.settings-section-tabs,
-.calculation-profession-tabs,
+
+
 .catalog-primary-tabs,
 .catalog-secondary-tabs,
 .survey-step-guide {
@@ -1238,5 +1244,197 @@ button.secondary {
   .context-banner-action {
     width: 100%;
     margin-left: 0;
+  }
+
+  .active-work-context-card {
+    align-items: flex-start !important;
+  }
+}
+
+
+/* Settings & Security Workspace Hardening */
+.account-status-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  min-width: 0;
+}
+
+.account-email-card {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+  border: 1px solid var(--aferix-border);
+  border-radius: 12px;
+  padding: 16px;
+  background: var(--aferix-surface-2);
+}
+
+.account-email-card > div:first-child {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.account-email-card strong,
+.account-email-card small {
+  display: block;
+}
+
+.settings-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  min-width: 0;
+}
+
+.general-form-field {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.general-form-field span {
+  display: block;
+  color: var(--aferix-text-secondary);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.general-form-field input,
+.general-form-field select,
+.general-form-field textarea {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+}
+
+.settings-actions-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+  min-width: 0;
+}
+
+.settings-actions-row button {
+  width: 100%;
+}
+
+.app-security-panel {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
+
+.app-security-panel .local-backup-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: start;
+  min-width: 0;
+}
+
+.app-security-panel .local-backup-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  min-width: 0;
+}
+
+.app-security-panel .local-backup-card {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+  padding: 16px;
+}
+
+.app-security-panel .local-card-heading {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.app-security-panel .local-card-heading strong,
+.app-security-panel .local-card-heading small {
+  display: block;
+}
+
+.app-security-panel .local-backup-file {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.app-security-panel .local-backup-file span {
+  display: block;
+  color: var(--aferix-text-secondary);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.app-security-panel .local-backup-file input {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+}
+
+.app-security-panel .local-backup-actions {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+
+.app-security-panel .local-backup-actions button {
+  width: 100%;
+}
+
+.settings-section-tabs {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  gap: 8px !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  padding: 4px !important;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.settings-section-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.settings-section-tabs button {
+  flex: 0 0 auto !important;
+  min-width: max-content !important;
+  white-space: nowrap !important;
+  min-height: 40px !important;
+  padding: 0 14px !important;
+}
+
+@media (min-width: 900px) {
+  .settings-section-tabs {
+    display: grid !important;
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+    overflow: visible !important;
+  }
+
+  .settings-section-tabs button {
+    min-width: 0 !important;
+  }
+}
+
+@media (max-width: 760px) {
+  .account-status-grid,
+  .settings-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .account-email-card {
+    padding: 14px;
+  }
+
+  .app-security-panel .local-backup-header,
+  .app-security-panel .local-backup-grid {
+    grid-template-columns: 1fr;
   }
 }
