@@ -1,0 +1,14 @@
+<svg width="300" height="90" viewBox="0 0 300 90" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Aferix Wordmark Document</title>
+  <desc id="desc">AFERIX horizontal wordmark for printed documents with dark grey typography and integrated gold-gradient X.</desc>
+  <defs>
+    <linearGradient id="gold-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#d97706"/>
+      <stop offset="50%" stop-color="#f5a400"/>
+      <stop offset="100%" stop-color="#fbbf24"/>
+    </linearGradient>
+  </defs>
+  <text x="12" y="64" font-family="'Outfit', 'Inter', 'Manrope', 'Sora', 'Segoe UI', sans-serif" font-size="52" font-weight="900" letter-spacing="2">
+    <tspan fill="#111827">AFERI</tspan><tspan fill="url(#gold-gradient)">X</tspan>
+  </text>
+</svg>

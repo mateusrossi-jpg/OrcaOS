@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import type { Client, ReportTemplateId, WorkOrder } from '../../../core/types/business';
 import type { CalculationCapture } from '../../../core/types/workflow';
 import { getReportCaptureMetrics, isClientPurchaseMaterial } from '../../workflow/utils/captureWorkflow';
@@ -90,9 +91,10 @@ function reportTemplateLabel(templateId: ReportTemplateId): string {
   return 'Relatório comercial';
 }
 
-const AFERIX_LOGO_LIGHT_URL = '/icons/aferix-logo-light.svg';
+const AFERIX_LOGO_LIGHT_URL = '/icons/aferix-wordmark-document.svg';
 
 export function ReportWorkspace({ captures, activeClient = null, activeWorkOrder = null }: ReportWorkspaceProps) {
+  const [zoom, setZoom] = useState(1);
   const { reportItems, itemsWithImage, diagnostics } = getReportCaptureMetrics(captures);
   const businessProfile = loadBusinessProfile();
   const reportTemplateId = businessProfile.defaultReportTemplateId;
@@ -139,7 +141,34 @@ export function ReportWorkspace({ captures, activeClient = null, activeWorkOrder
       </div>
 
 
-      <article className={`report-document report-template-${reportTemplateId}`}>
+      {reportItems.length > 0 && (
+        <div className="aferix-preview-toolbar no-print">
+          <span className="toolbar-label">Ajustar Visualização</span>
+          <div className="toolbar-actions">
+            <button type="button" className="toolbar-btn" onClick={() => setZoom(prev => Math.max(0.6, prev - 0.1))} aria-label="Diminuir zoom">
+              -
+            </button>
+            <span className="zoom-percentage">{Math.round(zoom * 100)}%</span>
+            <button type="button" className="toolbar-btn" onClick={() => setZoom(prev => Math.min(1.4, prev + 0.1))} aria-label="Aumentar zoom">
+              +
+            </button>
+            <button type="button" className="toolbar-btn" onClick={() => setZoom(1)} aria-label="Restaurar zoom">
+              Reset
+            </button>
+          </div>
+        </div>
+      )}
+
+      <div className="document-preview-container" style={{ width: '100%', overflowX: 'auto', display: 'flex', justifyContent: 'center' }}>
+        <article 
+          className={`report-document report-template-${reportTemplateId}`}
+          style={{
+            transform: `scale(${zoom})`,
+            transformOrigin: 'top center',
+            margin: '12px auto',
+            marginBottom: zoom > 1 ? `${(zoom - 1) * 800}px` : '12px'
+          }}
+        >
         <header className="report-document-header">
           <div className="report-company-row">
             <img src={logoSource} alt={`Logo ${profileName}`} />
@@ -228,6 +257,7 @@ export function ReportWorkspace({ captures, activeClient = null, activeWorkOrder
           <div className="signature-line">Responsável técnico / aceite</div>
         </footer>
       </article>
+      </div>
 
       {reportItems.length > 0 && (
         <details className="aferix-panel-card report-management-panel no-print" style={{ marginTop: "1.5rem" }}>

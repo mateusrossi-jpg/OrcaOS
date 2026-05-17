@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import type { BudgetItem, BudgetTemplateId, BusinessProfile } from '../../../core/types/business';
 import { calculateBudgetItemTotal } from '../../../core/pricing/budget';
 import { hasBlockingBudgetIssues, type BudgetValidationIssue } from '../../../core/pricing/budgetValidation';
@@ -27,7 +28,7 @@ interface BudgetPrintPreviewProps {
   validationIssues?: BudgetValidationIssue[];
 }
 
-const AFERIX_LOGO_LIGHT_URL = '/icons/aferix-logo-light.svg';
+const AFERIX_LOGO_LIGHT_URL = '/icons/aferix-wordmark-document.svg';
 
 const currencyFormatter = new Intl.NumberFormat('pt-BR', {
   style: 'currency',
@@ -90,6 +91,7 @@ export function BudgetPrintPreview({
   templateId = 'simple',
   validationIssues = [],
 }: BudgetPrintPreviewProps) {
+  const [zoom, setZoom] = useState(1);
   const hasBlockingIssues = hasBlockingBudgetIssues(validationIssues);
   const issuedAt = new Intl.DateTimeFormat('pt-BR', {
     dateStyle: 'short',
@@ -134,7 +136,33 @@ export function BudgetPrintPreview({
         </div>
       )}
 
-      <article className={`print-document print-template-${templateId}`} aria-label="Prévia impressa do orçamento">
+      <div className="aferix-preview-toolbar no-print">
+        <span className="toolbar-label">Ajustar Visualização</span>
+        <div className="toolbar-actions">
+          <button type="button" className="toolbar-btn" onClick={() => setZoom(prev => Math.max(0.6, prev - 0.1))} aria-label="Diminuir zoom">
+            -
+          </button>
+          <span className="zoom-percentage">{Math.round(zoom * 100)}%</span>
+          <button type="button" className="toolbar-btn" onClick={() => setZoom(prev => Math.min(1.4, prev + 0.1))} aria-label="Aumentar zoom">
+            +
+          </button>
+          <button type="button" className="toolbar-btn" onClick={() => setZoom(1)} aria-label="Restaurar zoom">
+            Reset
+          </button>
+        </div>
+      </div>
+
+      <div className="document-preview-container" style={{ width: '100%', overflowX: 'auto', display: 'flex', justifyContent: 'center' }}>
+        <article 
+          className={`print-document print-template-${templateId}`} 
+          aria-label="Prévia impressa do orçamento"
+          style={{
+            transform: `scale(${zoom})`,
+            transformOrigin: 'top center',
+            margin: '12px auto',
+            marginBottom: zoom > 1 ? `${(zoom - 1) * 800}px` : '12px'
+          }}
+        >
         {isPremiumTemplate && (
           <section className="print-cover-page">
             <span>Proposta premium</span>
@@ -279,6 +307,7 @@ export function BudgetPrintPreview({
           <div className="signature-line">Assinatura / aceite do cliente</div>
         </footer>
       </article>
+      </div>
     </section>
   );
 }

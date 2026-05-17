@@ -123,9 +123,9 @@
 }
 
 .report-company-row img {
-  max-width: 176px;
-  max-height: 52px;
-  object-fit: contain;
+  max-width: 120px !important;
+  height: 36px !important;
+  object-fit: contain !important;
 }
 
 .report-company-row > span {
@@ -333,8 +333,8 @@
   }
 
   .report-company-row img {
-    max-width: 132px;
-    max-height: 42px;
+    max-width: 120px !important;
+    height: 36px !important;
   }
 }
 
@@ -351,4 +351,80 @@
     box-shadow: none;
   }
 }
+
+/* Zoom / Preview Toolbar styling */
+.aferix-preview-toolbar {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  padding: 10px 16px !important;
+  background: var(--aferix-surface-raised, #15171c) !important;
+  border: 1px solid var(--aferix-border, #24262d) !important;
+  border-radius: var(--aferix-radius-md, 12px) !important;
+  margin: 12px 0 !important;
+  min-width: 0 !important;
+}
+
+.aferix-preview-toolbar .toolbar-label {
+  font-size: 0.8125rem !important;
+  font-weight: 600 !important;
+  color: var(--aferix-text-muted, #a6a6af) !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+}
+
+.aferix-preview-toolbar .toolbar-actions {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+.aferix-preview-toolbar .toolbar-btn {
+  min-height: 28px !important;
+  height: 28px !important;
+  padding: 0 10px !important;
+  font-size: 0.75rem !important;
+  font-weight: 700 !important;
+  background: var(--aferix-surface, #101114) !important;
+  border: 1px solid var(--aferix-border, #24262d) !important;
+  border-radius: var(--aferix-radius-sm, 8px) !important;
+  color: var(--aferix-text, #f5f1e8) !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+}
+
+.aferix-preview-toolbar .toolbar-btn:hover {
+  background: var(--aferix-surface-hover, #202228) !important;
+  border-color: var(--aferix-border-strong, #343741) !important;
+  color: var(--aferix-primary, #f5a400) !important;
+}
+
+.aferix-preview-toolbar .zoom-percentage {
+  font-family: var(--aferix-mono, monospace) !important;
+  font-size: 0.8125rem !important;
+  font-weight: 700 !important;
+  color: var(--aferix-primary, #f5a400) !important;
+  min-width: 48px !important;
+  text-align: center !important;
+}
+
+/* Mobile response for toolbar */
+@media (max-width: 640px) {
+  .aferix-preview-toolbar {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 10px !important;
+    padding: 12px !important;
+  }
+  
+  .aferix-preview-toolbar .toolbar-label {
+    text-align: center !important;
+  }
+  
+  .aferix-preview-toolbar .toolbar-actions {
+    justify-content: center !important;
+  }
+}
+
 
