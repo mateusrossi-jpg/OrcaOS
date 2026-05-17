@@ -460,8 +460,6 @@ export function ClientWorkOrderWorkspace({ initialSection = 'dashboard', section
 
       <div className="home-action-toolbar">
         <button className={`ghost-action ${activeSection === 'dashboard' ? 'active' : ''}`} type="button" onClick={() => setActiveSection('dashboard')}>Painel</button>
-        <button className={`ghost-action ${activeSection === 'newClient' ? 'active' : ''}`} type="button" onClick={() => setActiveSection('newClient')}>+ Cliente</button>
-        <button className={`ghost-action ${activeSection === 'newWorkOrder' ? 'active' : ''}`} type="button" onClick={() => setActiveSection('newWorkOrder')}>+ Atendimento</button>
         <button className={`ghost-action ${activeSection === 'clients' ? 'active' : ''}`} type="button" onClick={() => setActiveSection('clients')}>Clientes</button>
         <button className={`ghost-action ${activeSection === 'workOrders' ? 'active' : ''}`} type="button" onClick={() => setActiveSection('workOrders')}>Histórico</button>
       </div>
@@ -611,11 +609,12 @@ export function ClientWorkOrderWorkspace({ initialSection = 'dashboard', section
 
       {activeSection === 'clients' && (
         <div className="aferix-panel-card">
-          <header>
+          <header className="client-os-section-header">
             <div>
-              <h2>Base de Clientes</h2>
+              <h2>Clientes</h2>
+              <p>Cadastro e consulta de clientes.</p>
             </div>
-            <button className="ghost-action" type="button" onClick={() => setActiveSection('newClient')}>+ Novo Cliente</button>
+            <button className="ghost-action" type="button" onClick={() => setActiveSection('newClient')}>Novo cliente</button>
           </header>
           <div className="continuous-list">
             <div className="continuous-list-item" style={{ padding: '0.5rem' }}>
@@ -641,11 +640,14 @@ export function ClientWorkOrderWorkspace({ initialSection = 'dashboard', section
 
       {activeSection === 'workOrders' && (
         <div className="aferix-panel-card">
-          <header>
+          <header className="client-os-section-header">
             <div>
-              <h2>Histórico de Atendimentos</h2>
+              <h2>Histórico</h2>
+              <p>Atendimentos registrados.</p>
             </div>
-            <button className="ghost-action" type="button" onClick={() => setActiveSection('newWorkOrder')}>+ Novo Atendimento</button>
+            {activeWorkOrder && (
+              <button className="ghost-action" type="button" onClick={() => setActiveSection('newWorkOrder')}>Novo atendimento</button>
+            )}
           </header>
           <div className="continuous-list">
             <div className="continuous-list-item" style={{ padding: '0.5rem' }}>

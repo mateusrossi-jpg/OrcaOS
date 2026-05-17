@@ -158,6 +158,33 @@ if (!themeCSS.match(/\.context-banner-action[^}]*margin-top:\s*-\d+/)) {
   logError('Erro crítico: botão do contexto ativo usando margin-top negativo!');
 }
 
+// 8.5. Clientes / Atendimentos sem ações duplicadas
+logStep('Clientes / Atendimentos sem redundância');
+const clientWorkspaceTSX = readFile('src/features/clients/components/ClientWorkOrderWorkspace.tsx');
+const clientToolbarMatch = clientWorkspaceTSX.match(/<div className="home-action-toolbar">([\s\S]*?)<\/div>/);
+const clientToolbar = clientToolbarMatch?.[1] ?? '';
+
+['Painel', 'Clientes', 'Histórico'].forEach(label => {
+  if (clientToolbar.includes(`>${label}<`)) logSuccess(`Toolbar de clientes mantém navegação: ${label}`);
+  else logError(`Toolbar de clientes sem navegação esperada: ${label}`);
+});
+
+['+ Cliente', '+ Atendimento'].forEach(label => {
+  if (!clientToolbar.includes(label)) logSuccess(`Toolbar de clientes livre da ação duplicada: ${label}`);
+  else logError(`Toolbar de clientes ainda renderiza ação duplicada: ${label}`);
+});
+
+['newClient', 'newWorkOrder', "actionLabel={activeWorkOrder ? 'Limpar contexto' : 'Novo atendimento'}", "setActiveSection('newClient')", "setActiveSection('newWorkOrder')"].forEach(token => {
+  if (clientWorkspaceTSX.includes(token)) logSuccess(`Fluxo de clientes preservado: ${token}`);
+  else logError(`Fluxo de clientes ausente: ${token}`);
+});
+
+if (clientWorkspaceTSX.includes('Cadastro e consulta de clientes.') && clientWorkspaceTSX.includes('Atendimentos registrados.')) {
+  logSuccess('Copy de Clientes/Histórico está clara e contextual');
+} else {
+  logError('Copy de Clientes/Histórico precisa manter clareza contextual');
+}
+
 // 8.5. Branding, Logo e Intro
 logStep('Branding, Logo e Intro');
 const appTSX = readFile('src/app/App.tsx');
