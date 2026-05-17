@@ -175,32 +175,71 @@ if (appShellTSX.includes('aferix-wordmark-premium.svg') && appShellTSX.includes(
 }
 
 const introTSX = readFile('src/app/components/AferixIntro.tsx');
-if (introTSX.includes('Gestão financeira para autônomos') && introTSX.includes('aferix-splash-mark.svg')) {
+if (introTSX.includes('Controle seu lucro com clareza') && introTSX.includes('Gestão financeira para autônomos') && introTSX.includes('aferix-splash-mark.svg')) {
   logSuccess('Estrutura e copy da Intro validadas no AferixIntro.tsx');
 } else {
   logError('AferixIntro.tsx não contém as frases de posicionamento financeiro premium ou logo correto');
 }
 
-// 8.5.b. Brand assets / App icon
-logStep('Brand assets / App icon');
+// 8.5.b. Brand assets / Publication readiness
+logStep('Brand assets / Publication readiness');
 const appIconSVG = readFile('public/icons/aferix-app-icon.svg');
-if (appIconSVG.includes('viewBox="0 0 512 512"') && !appIconSVG.toLowerCase().includes('aferix')) {
+if (appIconSVG.includes('viewBox="0 0 512 512"') && !appIconSVG.includes('<text') && !appIconSVG.match(/>\s*Aferix\s*</i)) {
   logSuccess('aferix-app-icon.svg validado: viewBox 0 0 512 512, sem texto pequeno ilegível');
 } else {
-  logError('aferix-app-icon.svg inválido: deve ter viewBox 512x512 e não conter texto "Aferix"');
+  logError('aferix-app-icon.svg inválido: deve ter viewBox 512x512 e não conter texto renderizado');
 }
 
 const manifestWebManifest = readFile('public/manifest.webmanifest');
-if (manifestWebManifest.includes('aferix-app-icon.svg') && manifestWebManifest.includes('Aferix')) {
+if (manifestWebManifest.includes('aferix-app-icon.svg') && manifestWebManifest.includes('"name": "Aferix"') && manifestWebManifest.includes('"short_name": "Aferix"')) {
   logSuccess('manifest.webmanifest validado: aponta para aferix-app-icon.svg e tem o nome correto');
 } else {
   logError('manifest.webmanifest inválido: não aponta para o novo ícone ou nome incorreto');
+}
+
+if (manifestWebManifest.includes('"theme_color": "#050607"') && manifestWebManifest.includes('"background_color": "#050607"')) {
+  logSuccess('manifest.webmanifest usa cores dark premium para instalação/PWA');
+} else {
+  logError('manifest.webmanifest deve usar theme/background #050607');
+}
+
+if (manifestWebManifest.includes('"purpose": "any maskable"') && manifestWebManifest.includes('"sizes": "512x512"')) {
+  logSuccess('Manifest PWA validado com purpose any maskable e size 512x512');
+} else {
+  logError('Manifest PWA deve declarar ícone 512x512 com purpose any maskable');
 }
 
 if (appShellTSX.includes('aferix-wordmark-premium.svg') && !appShellTSX.includes('aferix-app-icon.svg')) {
   logSuccess('AppShell.tsx usa o wordmark premium no header, e não o ícone do launcher');
 } else {
   logError('Atenção: AppShell.tsx deve usar o wordmark premium, não o ícone do launcher no header principal');
+}
+
+const appAccessGateTSX = readFile('src/features/settings/components/AppAccessGate.tsx');
+const appAccessGateCSS = readFile('src/features/settings/components/AppAccessGate.css');
+if (appAccessGateTSX.includes('aferix-splash-mark.svg') && !appAccessGateTSX.includes('style={{')) {
+  logSuccess('AppAccessGate usa splash-mark sem estilos inline de placeholder');
+} else {
+  logError('AppAccessGate deve usar splash premium sem estilos inline');
+}
+
+if (!appAccessGateCSS.includes('rgba(19, 213, 223') && !appAccessGateCSS.includes('var(--orca-')) {
+  logSuccess('Splash/gate livre de acento ciano e tokens Orca legados');
+} else {
+  logError('Splash/gate ainda possui ciano ou tokens Orca legados');
+}
+
+const androidColors = readFile('android/app/src/main/res/values/colors.xml');
+if (!androidColors.includes('#00B8C2') && androidColors.includes('#F5A400') && androidColors.includes('#050607')) {
+  logSuccess('Cores Android nativas alinhadas ao dark premium Aferix');
+} else {
+  logError('Cores Android nativas ainda parecem legadas ou sem dourado/dark');
+}
+
+if (!readFile('android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png')) {
+  logWarn('PNGs/adaptive icons Android não foram inspecionados em modo texto; validar visualmente no Android Studio antes da publicação final');
+} else {
+  logSuccess('Recursos PNG/adaptive icon Android existem no projeto');
 }
 
 // 8.6. Regras de logo adicionais

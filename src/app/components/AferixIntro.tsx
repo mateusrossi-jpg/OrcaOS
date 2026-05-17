@@ -38,10 +38,10 @@ export function AferixIntro() {
           alt="Aferix" 
         />
         <h1 className="aferix-intro-phrase">
-          Gestão financeira para autônomos que precisam lucrar com clareza.
+          Controle seu lucro com clareza.
         </h1>
         <p className="aferix-intro-sub">
-          Propostas, custos, lucro real e relatórios em um fluxo local-first.
+          Gestão financeira para autônomos.
         </p>
         <div className="aferix-intro-loader" aria-hidden="true">
           <div className="aferix-intro-loader-bar" />

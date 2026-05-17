@@ -1,15 +1,14 @@
 .aferix-intro {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
   z-index: 99999;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #050607;
-  color: #f8fafc;
+  background:
+    radial-gradient(circle at 50% 42%, rgba(245, 164, 0, 0.08), transparent 42%),
+    linear-gradient(180deg, #090b0f 0%, #050607 72%);
+  color: #f5f1e8;
   padding: 24px;
   overflow: hidden;
   transition: opacity 0.4s ease-out, visibility 0.4s ease-out;
@@ -31,9 +30,9 @@
   width: 480px;
   height: 480px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(245, 164, 0, 0.08) 0%, rgba(245, 164, 0, 0) 70%);
+  background: radial-gradient(circle, rgba(245, 164, 0, 0.075) 0%, rgba(245, 164, 0, 0) 72%);
   pointer-events: none;
-  filter: blur(40px);
+  filter: blur(36px);
 }
 
 .aferix-intro-content {
@@ -48,29 +47,29 @@
 }
 
 .aferix-intro-logo {
-  width: 140px;
+  width: 156px;
   height: auto;
-  margin-bottom: 32px;
-  animation: introLogoPulse 3s ease-in-out infinite;
+  margin-bottom: 28px;
+  animation: introLogoSettle 900ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .aferix-intro-phrase {
   font-family: 'Outfit', 'Inter', 'Sora', sans-serif;
-  font-size: 20px;
+  font-size: 22px;
   font-weight: 700;
-  line-height: 1.4;
-  color: #f8fafc;
+  line-height: 1.25;
+  color: #f5f1e8;
   margin: 0 0 12px 0;
-  letter-spacing: -0.02em;
+  letter-spacing: 0;
 }
 
 .aferix-intro-sub {
   font-family: 'Inter', sans-serif;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 400;
   line-height: 1.6;
-  color: #a7b3ad;
-  margin: 0 0 32px 0;
+  color: #a6a6af;
+  margin: 0 0 30px 0;
 }
 
 .aferix-intro-loader {
@@ -88,7 +87,7 @@
   left: 0;
   height: 100%;
   width: 100%;
-  background: linear-gradient(90deg, #d97706, #f59e0b, #fbbf24);
+  background: linear-gradient(90deg, #d97706, #f5a400, #ffb21a);
   border-radius: 9px;
   transform: translateX(-100%);
   animation: introLoaderProgress 1.9s cubic-bezier(0.65, 0, 0.35, 1) forwards;
@@ -105,14 +104,16 @@
   }
 }
 
-@keyframes introLogoPulse {
-  0%, 100% {
-    transform: scale(1);
-    filter: drop-shadow(0 0 0px rgba(245, 164, 0, 0));
+@keyframes introLogoSettle {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+    filter: blur(4px);
   }
-  50% {
-    transform: scale(1.02);
-    filter: drop-shadow(0 0 12px rgba(245, 164, 0, 0.12));
+  to {
+    opacity: 1;
+    transform: scale(1);
+    filter: blur(0);
   }
 }
 
@@ -124,16 +125,30 @@
 
 @media (max-width: 480px) {
   .aferix-intro-logo {
-    width: 120px;
+    width: 138px;
   }
   .aferix-intro-phrase {
     font-size: 18px;
   }
   .aferix-intro-sub {
-    font-size: 12px;
+    font-size: 13px;
   }
   .aferix-intro-glow {
     width: 320px;
     height: 320px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aferix-intro,
+  .aferix-intro-content,
+  .aferix-intro-logo,
+  .aferix-intro-loader-bar {
+    animation: none;
+    transition: none;
+  }
+
+  .aferix-intro-loader-bar {
+    transform: translateX(0);
   }
 }

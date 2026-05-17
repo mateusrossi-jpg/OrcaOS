@@ -5,15 +5,15 @@
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "background_color": "#090A0F",
-  "theme_color": "#090A0F",
+  "background_color": "#050607",
+  "theme_color": "#050607",
   "orientation": "portrait-primary",
   "lang": "pt-BR",
   "categories": ["productivity", "business", "utilities"],
   "icons": [
     {
       "src": "/icons/aferix-app-icon.svg",
-      "sizes": "any",
+      "sizes": "512x512",
       "type": "image/svg+xml",
       "purpose": "any maskable"
     }

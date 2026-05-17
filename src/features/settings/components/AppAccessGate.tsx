@@ -72,9 +72,10 @@ export function AppAccessGate({ children }: AppAccessGateProps) {
   if (isStarting) {
     return (
       <main className="app-startup-splash" aria-label="Abrindo Aferix">
-        <div className="app-startup-mark" aria-hidden="true" style={{ marginBottom: 0 }}>
-          <img src="/icons/aferix-splash-mark.svg" alt="Aferix" style={{ width: '220px', height: '220px' }} />
+        <div className="app-startup-mark" aria-hidden="true">
+          <img src="/icons/aferix-splash-mark.svg" alt="" />
         </div>
+        <p className="app-startup-copy">Controle seu lucro com clareza.</p>
         <span className="app-startup-scan" aria-hidden="true" />
       </main>
     );
@@ -86,7 +87,7 @@ export function AppAccessGate({ children }: AppAccessGateProps) {
     <main className="app-access-gate">
       <form className="app-access-card" onSubmit={unlockApp}>
         <div className="app-access-brand">
-          <img src="/icons/aferix-app-icon.svg" alt="Aferix" style={{ width: '48px', height: '48px', borderRadius: '12px' }} />
+          <img src="/icons/aferix-app-icon.svg" alt="Aferix" />
           <div>
             <span className="orca-kicker">Aferix protegido</span>
             <strong>Acesso local</strong>

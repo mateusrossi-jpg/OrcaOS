@@ -10,7 +10,7 @@
         android:strokeWidth="46"
         android:strokeLineCap="round"
         android:strokeLineJoin="round"
-        android:pathData="M 180,380 L 256,170" />
+        android:pathData="M 171,365 L 256,145" />
 
     <!-- Right stem of the A -->
     <path
@@ -18,26 +18,26 @@
         android:strokeWidth="46"
         android:strokeLineCap="round"
         android:strokeLineJoin="round"
-        android:pathData="M 256,170 L 332,380" />
+        android:pathData="M 256,145 L 341,365" />
 
     <!-- Upward trending crossbar -->
     <path
         android:strokeColor="#FFFFFFFF"
         android:strokeWidth="46"
         android:strokeLineCap="round"
-        android:pathData="M 160,300 L 375,205" />
+        android:pathData="M 147,300 L 386,198" />
 
     <!-- Intersecting leg of the X -->
     <path
         android:strokeColor="#FFFFFFFF"
         android:strokeWidth="46"
         android:strokeLineCap="round"
-        android:pathData="M 285,190 L 350,320" />
+        android:pathData="M 292,178 L 359,314" />
 
     <!-- Overlapping top of the X -->
     <path
         android:strokeColor="#FFFFFFFF"
         android:strokeWidth="46"
         android:strokeLineCap="round"
-        android:pathData="M 285,190 L 315,250" />
+        android:pathData="M 292,178 L 321,237" />
 </vector>
