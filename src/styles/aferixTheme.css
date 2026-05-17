@@ -857,14 +857,19 @@ button.secondary {
 }
 
 .context-banner {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  min-width: 0;
-  padding: 16px;
-  border: 1px solid var(--aferix-border);
-  border-radius: var(--aferix-radius-md);
-  background: linear-gradient(180deg, var(--aferix-surface-raised), var(--aferix-surface));
+  display: grid !important;
+  grid-template-columns: auto minmax(0, 1fr) auto !important;
+  gap: 12px !important;
+  align-items: center !important;
+  min-width: 0 !important;
+  padding: 16px !important;
+  border: 1px solid var(--aferix-border) !important;
+  border-radius: var(--aferix-radius-md) !important;
+  background: linear-gradient(180deg, var(--aferix-surface-raised), var(--aferix-surface)) !important;
+}
+
+.context-banner > * {
+  min-width: 0 !important;
 }
 
 .context-banner-icon {
@@ -877,17 +882,21 @@ button.secondary {
   border-radius: var(--aferix-radius-sm);
   color: var(--aferix-brand);
   background: rgba(245, 164, 0, 0.1);
+  flex: 0 0 auto !important;
 }
 
 .context-banner-content {
-  display: grid;
-  gap: 4px;
-  min-width: 0;
+  display: grid !important;
+  gap: 4px !important;
+  min-width: 0 !important;
 }
 
 .context-banner-content strong,
 .context-banner-content small {
-  display: block;
+  display: block !important;
+  max-width: 100% !important;
+  overflow-wrap: normal !important;
+  word-break: normal !important;
 }
 
 .context-banner-content strong {
@@ -903,8 +912,11 @@ button.secondary {
 }
 
 .context-banner-action {
-  margin-left: auto;
-  flex: none;
+  min-width: 180px !important;
+  max-width: 100% !important;
+  white-space: nowrap !important;
+  justify-self: end !important;
+  margin-left: 0 !important;
 }
 
 .aferix-tabs {
@@ -1240,16 +1252,6 @@ button.secondary {
   .client-os-form-actions {
     display: grid !important;
     grid-template-columns: 1fr !important;
-  }
-
-  .context-banner {
-    align-items: flex-start;
-    padding: 14px;
-  }
-
-  .context-banner-action {
-    width: 100%;
-    margin-left: 0;
   }
 
   .active-work-context-card {
