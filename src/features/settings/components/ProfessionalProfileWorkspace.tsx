@@ -95,7 +95,7 @@ export function ProfessionalProfileWorkspace() {
   }
 
   return (
-    <div className="professional-profile-workspace" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+    <div className="professional-profile-workspace">
       <div className="aferix-panel-card">
         <header>
           <div>
@@ -111,7 +111,7 @@ export function ProfessionalProfileWorkspace() {
             <h2>IDs de Identificação</h2>
           </div>
         </header>
-        <div className="dashboard-finance-tiles" style={{ padding: '1.5rem' }}>
+        <div className="dashboard-finance-tiles">
           <article className="finance-tile">
             <span>Profissional</span>
             <code>{profile.professionalId}</code>
@@ -121,7 +121,7 @@ export function ProfessionalProfileWorkspace() {
             <code>{profile.companyId}</code>
           </article>
         </div>
-        <div style={{ padding: '0 1.5rem 1.5rem' }}>
+        <div className="action-button-container">
           <button className="ghost-action" type="button" onClick={regenerateIds}>Renovar Identificadores</button>
         </div>
       </div>
@@ -132,18 +132,18 @@ export function ProfessionalProfileWorkspace() {
             <h2>Dados Comerciais</h2>
           </div>
         </header>
-        <div className="professional-logo-editor" style={{ padding: '1.5rem', borderBottom: '1px solid #222' }}>
+        <div className="professional-logo-editor">
           <div className="professional-logo-preview">
-            {profile.logoDataUrl || profile.logoUrl ? <img src={profile.logoDataUrl || profile.logoUrl} alt="Logo" /> : <div style={{ width: '80px', height: '40px', background: '#222', borderRadius: '4px', display: 'grid', placeItems: 'center', fontSize: '0.6rem', color: '#666' }}>SEM LOGO</div>}
+            {profile.logoDataUrl || profile.logoUrl ? <img src={profile.logoDataUrl || profile.logoUrl} alt="Logo" /> : <div className="logo-placeholder">SEM LOGO</div>}
           </div>
           <div className="professional-logo-copy">
-            <div className="professional-profile-actions" style={{ marginTop: '0.5rem' }}>
-              <label className="ghost-action file-action">Upload Logo<input accept="image/*" type="file" onChange={handleLogoFileChange} style={{ display: 'none' }} /></label>
-              {(profile.logoDataUrl || profile.logoUrl) && <button className="ghost-action" type="button" onClick={removeLogo} style={{ color: '#ef4444' }}>Remover</button>}
+            <div className="professional-profile-actions">
+              <label className="ghost-action file-action">Upload Logo<input accept="image/*" type="file" onChange={handleLogoFileChange} /></label>
+              {(profile.logoDataUrl || profile.logoUrl) && <button className="ghost-action danger-action" type="button" onClick={removeLogo}>Remover</button>}
             </div>
           </div>
         </div>
-        <div className="professional-profile-grid" style={{ padding: '1.5rem' }}>
+        <div className="professional-profile-grid">
           <label className="budget-field"><span>Nome Profissional</span><input value={profile.professionalName} onChange={(event) => updateProfile('professionalName', event.target.value)} /></label>
           <label className="budget-field"><span>Nome Empresa</span><input value={profile.businessName} onChange={(event) => updateProfile('businessName', event.target.value)} /></label>
           <label className="budget-field"><span>Documento</span><input value={profile.document} onChange={(event) => updateProfile('document', event.target.value)} /></label>
@@ -158,13 +158,13 @@ export function ProfessionalProfileWorkspace() {
             <h2>Padrões de Propostas</h2>
           </div>
         </header>
-        <div className="professional-profile-grid" style={{ padding: '1.5rem' }}>
+        <div className="professional-profile-grid">
           <label className="budget-field"><span>Validade</span><input value={profile.defaultValidity} onChange={(event) => updateProfile('defaultValidity', event.target.value)} /></label>
           <label className="budget-field"><span>Garantia</span><input value={profile.defaultGuarantee} onChange={(event) => updateProfile('defaultGuarantee', event.target.value)} /></label>
           <label className="budget-field wide"><span>Condições de Pagamento</span><textarea value={profile.defaultPaymentTerms} onChange={(event) => updateProfile('defaultPaymentTerms', event.target.value)} /></label>
           <label className="budget-field wide"><span>Observações</span><textarea value={profile.commercialNotes} onChange={(event) => updateProfile('commercialNotes', event.target.value)} /></label>
         </div>
-        <div style={{ padding: '0 1.5rem 1.5rem' }}>
+        <div className="action-button-container">
           <button className="ghost-action" type="button" onClick={saveProfile}>Salvar Alterações</button>
         </div>
       </div>

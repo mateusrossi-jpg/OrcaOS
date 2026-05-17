@@ -2,6 +2,8 @@
   display: flex;
   align-items: center;
   gap: 1.5rem;
+  padding: 1.5rem;
+  border-bottom: 1px solid #222;
 }
 
 .professional-logo-preview {
@@ -21,17 +23,54 @@
   object-fit: contain;
 }
 
+/* Grid for profile fields */
 .professional-profile-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 1rem;
+  padding: 1.5rem;
 }
 
+/* Actions container for logo upload / remove */
 .professional-profile-actions {
   display: flex;
   gap: 0.5rem;
+  margin-top: 0.5rem;
 }
 
+/* File input hidden */
+.file-action input {
+  display: none;
+}
+
+/* Cursor for file action label */
 .file-action {
   cursor: pointer;
+}
+
+/* Finance tiles container */
+.dashboard-finance-tiles {
+  padding: 1.5rem;
+}
+
+/* Container for action buttons (e.g., Regenerate IDs, Save) */
+.action-button-container {
+  padding: 0 1.5rem 1.5rem;
+}
+
+/* Placeholder when no logo */
+.logo-placeholder {
+  width: 80px;
+  height: 40px;
+  background: #222;
+  border-radius: 4px;
+  display: grid;
+  place-items: center;
+  font-size: 0.6rem;
+  color: #666;
+}
+
+/* Danger style for remove button */
+.danger-action {
+  color: #ef4444;
 }
