@@ -14,9 +14,9 @@
 .budget-summary,
 .budget-section-panel {
   min-width: 0;
-  border: 1px solid #222222;
-  border-radius: 4px;
-  background: #111111;
+  border: 1px solid var(--aferix-border, #1f1f22);
+  border-radius: var(--aferix-radius, 4px);
+  background: var(--aferix-surface, #0d0d0f);
   box-shadow: none;
 }
 
@@ -28,18 +28,18 @@
   justify-self: start;
   width: fit-content;
   max-width: 100%;
-  border-radius: 4px;
+  border-radius: calc(var(--aferix-radius, 4px) - 1px);
   padding: 4px 9px;
-  border: 1px solid #222222;
-  background: #0a0a0a;
+  border: 1px solid var(--aferix-border, #1f1f22);
+  background: var(--aferix-surface-2, #111111);
 }
 
 .budget-guidance-card {
-  border: 1px solid #222222;
-  border-radius: 4px;
+  border: 1px solid var(--aferix-border, #1f1f22);
+  border-radius: var(--aferix-radius, 4px);
   padding: 12px 14px;
-  color: #666666;
-  background: #111111;
+  color: var(--aferix-text-muted, #71717a);
+  background: var(--aferix-surface-2, #111111);
   font-weight: 500;
   line-height: 1.4;
 }
@@ -64,20 +64,20 @@
   gap: 14px;
   align-items: center;
   min-width: 0;
-  border: 1px solid #222222;
-  border-radius: 4px;
+  border: 1px solid var(--aferix-border, #1f1f22);
+  border-radius: var(--aferix-radius, 4px);
   padding: 16px;
-  background: #000000;
+  background: var(--aferix-surface, #0d0d0f);
 }
 
 .budget-quick-mode-card.manual {
-  border-color: rgba(245, 166, 35, 0.28);
-  background: rgba(245, 166, 35, 0.06);
+  border-color: rgba(245, 158, 11, 0.28);
+  background: rgba(245, 158, 11, 0.04);
 }
 
 .budget-quick-mode-card.guided {
   border-color: rgba(245, 158, 11, 0.28);
-  background: rgba(245, 158, 11, 0.06);
+  background: rgba(245, 158, 11, 0.04);
 }
 
 .budget-quick-mode-card > div:first-child {
@@ -87,7 +87,7 @@
 }
 
 .budget-quick-mode-card span {
-  color: var(--orca-accent, #f59e0b);
+  color: var(--aferix-primary, #f59e0b);
   font-size: 0.74rem;
   font-weight: 950;
   letter-spacing: 0.04em;
@@ -95,11 +95,11 @@
 }
 
 .budget-quick-mode-card.manual span {
-  color: var(--orca-amber);
+  color: var(--aferix-primary, #f59e0b);
 }
 
 .budget-quick-mode-card strong {
-  color: var(--orca-text, #f8fafc);
+  color: var(--aferix-text, #f8fafc);
   font-size: 1.12rem;
   line-height: 1.2;
   overflow-wrap: anywhere;
@@ -107,12 +107,12 @@
 
 .budget-quick-mode-card small,
 .budget-quick-mode-card em {
-  color: var(--orca-muted, #a7b3ad);
+  color: var(--aferix-text-muted, #71717a);
   line-height: 1.4;
 }
 
 .budget-quick-mode-card em {
-  color: var(--orca-text, #f8fafc);
+  color: var(--aferix-text, #f8fafc);
   font-style: normal;
   font-weight: 850;
 }
@@ -126,34 +126,32 @@
 
 .budget-quick-actions button {
   min-height: 42px;
-  border: 1px solid #222222;
-  border-radius: 4px;
+  border: 1px solid var(--aferix-border, #27272a);
+  border-radius: var(--aferix-radius, 4px);
   padding: 0 15px;
-  color: #f8fafc;
-  background: #000000;
+  color: var(--aferix-text, #f8fafc);
+  background: var(--aferix-surface-2, #18181b);
   font: inherit;
   font-weight: 600;
   cursor: pointer;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  transition: all 0.2s ease;
 }
 
 .budget-quick-actions button:hover,
-.budget-workspace-tabs button:hover,
 .logo-upload-action:hover {
   border-color: rgba(245, 158, 11, 0.44);
-  background:
-    linear-gradient(180deg, rgba(245, 158, 11, 0.16), rgba(245, 158, 11, 0.07)),
-    var(--aferix-bg-soft, #090b0f);
+  background: var(--aferix-surface, #0d0d0f);
 }
 
 .budget-guided-map {
   display: grid;
   gap: 10px;
-  border: 1px solid #222222;
-  border-radius: 4px;
+  border: 1px solid var(--aferix-border, #1f1f22);
+  border-radius: var(--aferix-radius, 4px);
   padding: 14px;
-  background: #111111;
+  background: var(--aferix-surface, #0d0d0f);
 }
 
 .budget-guided-status {
@@ -318,31 +316,42 @@
 
 .budget-workspace-stepper {
   display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  border: 1px solid #222222;
-  border-radius: 4px;
-  background: #050505;
+  flex-wrap: nowrap;
+  gap: 8px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  border: 1px solid var(--aferix-border, #1f1f22);
+  border-radius: var(--aferix-radius, 4px);
+  background: var(--aferix-surface, #0d0d0f);
   padding: 6px;
   margin-bottom: 8px;
 }
 
+.budget-workspace-stepper::-webkit-scrollbar {
+  display: none;
+}
+
 .budget-workspace-stepper button {
-  flex: 1 1 120px;
+  flex: 0 0 auto;
+  min-width: max-content;
+  white-space: nowrap;
   min-height: 38px;
   border: 1px solid transparent;
-  border-radius: 4px;
+  border-radius: calc(var(--aferix-radius, 4px) - 2px);
   background: transparent;
-  color: #888888;
+  color: var(--aferix-text-muted, #71717a);
   font-family: inherit;
   cursor: pointer;
   transition: all 0.2s ease;
+  padding: 0 16px;
 }
 
 .budget-workspace-stepper button.active {
-  background: #111111;
-  border-color: rgba(245, 158, 11, 0.55);
-  color: #f8fafc;
+  background: var(--aferix-surface-2, #18181b);
+  border-color: var(--aferix-border, #27272a);
+  color: var(--aferix-primary, #f59e0b);
 }
 
 .budget-workspace-stepper button span {
@@ -2181,41 +2190,7 @@ textarea {
 }
 
 
-/* Proposal workspace mobile-first hardening - Definitive Fix */
-.budget-workspace-stepper {
-  display: grid !important;
-  grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
-  gap: 6px !important;
-  border: 1px solid var(--aferix-border) !important;
-  border-radius: var(--aferix-radius) !important;
-  background: #050505 !important;
-  padding: 6px !important;
-}
 
-.budget-workspace-stepper button {
-  width: 100% !important;
-  min-width: 0 !important;
-}
-
-@media (max-width: 760px) {
-  .budget-workspace-stepper {
-    display: flex !important;
-    flex-wrap: nowrap !important;
-    overflow-x: auto !important;
-    scrollbar-width: none !important;
-    -webkit-overflow-scrolling: touch !important;
-  }
-
-  .budget-workspace-stepper::-webkit-scrollbar {
-    display: none !important;
-  }
-
-  .budget-workspace-stepper button {
-    flex: 0 0 auto !important;
-    min-width: 112px !important;
-    white-space: nowrap !important;
-  }
-}
 
 .budget-secondary-links {
   display: grid !important;
@@ -2228,6 +2203,7 @@ textarea {
 }
 
 @media (max-width: 760px) {
+  .budget-items-layout,
   .budget-header-card,
   .budget-form-grid,
   .budget-item-manager-header,

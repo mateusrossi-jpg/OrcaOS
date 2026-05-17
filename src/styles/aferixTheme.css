@@ -1388,40 +1388,7 @@ button.secondary {
   width: 100%;
 }
 
-.settings-section-tabs {
-  display: flex !important;
-  flex-wrap: nowrap !important;
-  gap: 8px !important;
-  overflow-x: auto !important;
-  overflow-y: hidden !important;
-  padding: 4px !important;
-  scrollbar-width: none;
-  -webkit-overflow-scrolling: touch;
-}
 
-.settings-section-tabs::-webkit-scrollbar {
-  display: none;
-}
-
-.settings-section-tabs button {
-  flex: 0 0 auto !important;
-  min-width: max-content !important;
-  white-space: nowrap !important;
-  min-height: 40px !important;
-  padding: 0 14px !important;
-}
-
-@media (min-width: 900px) {
-  .settings-section-tabs {
-    display: grid !important;
-    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
-    overflow: visible !important;
-  }
-
-  .settings-section-tabs button {
-    min-width: 0 !important;
-  }
-}
 
 @media (max-width: 760px) {
   .account-status-grid,

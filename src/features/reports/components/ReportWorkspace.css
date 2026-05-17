@@ -1,5 +1,5 @@
 .report-command-panel {
-  border-left: 3px solid var(--orca-accent, #f59e0b);
+  border-left: 3px solid var(--aferix-primary, #f59e0b);
 }
 
 .report-command-panel header {
@@ -24,15 +24,15 @@
   display: grid;
   gap: 4px;
   min-width: 0;
-  border: 1px solid var(--aferix-border, #24262d);
-  border-left: 3px solid var(--aferix-border-strong, #343741);
-  border-radius: 10px;
+  border: 1px solid var(--aferix-border, #1f1f22);
+  border-left: 3px solid var(--aferix-border, #27272a);
+  border-radius: var(--aferix-radius, 4px);
   padding: 10px 12px;
-  background: var(--aferix-bg-soft, #090b0f);
+  background: var(--aferix-surface, #0d0d0f);
 }
 
 .report-status-chip.ready {
-  border-left-color: var(--aferix-brand, #f5a400);
+  border-left-color: var(--aferix-primary, #f59e0b);
 }
 
 .report-status-chip span {
@@ -72,10 +72,10 @@
   display: grid;
   gap: 6px;
   min-width: 0;
-  border: 1px solid var(--aferix-border, #24262d);
-  border-radius: 12px;
+  border: 1px solid var(--aferix-border, #1f1f22);
+  border-radius: var(--aferix-radius, 4px);
   padding: 14px;
-  background: var(--aferix-bg-soft, #090b0f);
+  background: var(--aferix-surface, #0d0d0f);
 }
 
 .report-management-grid span {
