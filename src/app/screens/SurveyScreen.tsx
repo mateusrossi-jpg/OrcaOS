@@ -105,7 +105,7 @@ export function SurveyScreen({
     onAddMany([
       {
         id: createAppId('survey-measurement'),
-        module: 'diagnosticoTecnico',
+        module: 'orcamentoTecnico',
         moduleLabel: 'Itens técnicos',
         calculatorLabel: 'Medição de campo',
         destination: 'survey',

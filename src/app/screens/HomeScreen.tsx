@@ -1,15 +1,13 @@
-import type { AppTab, ModuleCardData, ActiveWorkContext } from '../appTypes';
+import type { AppTab, ActiveWorkContext } from '../appTypes';
 import type { CalculationCapture } from '../../core/types/workflow';
 import type { Client, WorkOrder } from '../../core/types/business';
 import type { SavedBudgetRecord } from '../../features/budgets/storage/savedBudgetsStorage';
-import { calculationModules } from '../appData';
 import { ActiveWorkContextCard } from '../components/ActiveWorkContextCard';
 import { EmptyState, MetricCard, MoneyValue, PageHeader, PageShell, SectionHeader } from '../components/designSystem';
 import { formatCompactCurrency } from '../../core/format/currency';
 
 interface HomeScreenProps {
   goTo: (tab: AppTab) => void;
-  openModule: (module: ModuleCardData) => void;
   captures: CalculationCapture[];
   clients: Client[];
   workOrders: WorkOrder[];

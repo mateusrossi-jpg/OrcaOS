@@ -62,7 +62,6 @@ export function buildMaterialSupplyPatch(capture: CalculationCapture, mode: Mate
   const currentReference = capture.materialReferenceUnitValue ?? capture.unitValue ?? '0';
   return {
     materialSupplyMode: mode,
-    materialSupplyLabel: materialSupplyLabel(mode),
     materialReferenceUnitValue: currentReference,
     clientPurchaseRequired: !isProfessionalSupply,
     shouldGenerateBudgetItem: isProfessionalSupply,

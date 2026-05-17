@@ -316,7 +316,6 @@ function createCaptureFromCatalogItem(item: CatalogHubItem): CalculationCapture 
     quantity: String(item.defaultQuantity),
     unitValue: String(item.defaultUnitValue),
     materialSupplyMode: item.kind === 'material' ? 'client' : undefined,
-    materialSupplyLabel: item.kind === 'material' ? 'Referência para compra do cliente' : undefined,
     clientPurchaseRequired: item.kind === 'material' ? true : undefined,
     imageDataUrl: item.imageUrl,
     shouldGenerateBudgetItem: item.destination !== 'survey',

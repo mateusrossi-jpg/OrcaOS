@@ -11,7 +11,7 @@ import { loadActiveWorkOrderId, loadClients, loadWorkOrders, saveWorkOrders } fr
 import { AppShell } from './components/AppShell';
 import { AferixIntro } from './components/AferixIntro';
 import { navItems, userPlan } from './appData';
-import type { AppTab, CalculationSectorId, ModuleCardData } from './appTypes';
+import type { AppTab, ActiveWorkContext } from './appTypes';
 import { loadStoredCaptures, saveStoredCaptures } from './storage/calculationCapturesStorage';
 import { cleanupRuntimeValidationData } from './storage/runtimeValidationCleanup';
 import { HomeScreen } from './screens/HomeScreen';
@@ -25,7 +25,6 @@ import { FinancialScreen } from './screens/FinancialScreen';
 import { ClientsScreen } from './screens/ClientsScreen';
 import { StoreScreen } from './screens/StoreScreen';
 import { MenuScreen } from './screens/MenuScreen';
-import { getSectorForModule } from './utils/moduleHelpers';
 
 function LazyWorkspaceFallback() {
   return (
@@ -40,8 +39,6 @@ function LazyWorkspaceFallback() {
 
 export function App() {
   const [activeTab, setActiveTab] = useState<AppTab>('home');
-  const [selectedModule, setSelectedModule] = useState<ModuleCardData | null>(null);
-  const [activeSector, setActiveSector] = useState<string>('financial');
   const [clientInitialSection, setClientInitialSection] = useState<'dashboard' | 'newClient' | 'newWorkOrder' | 'clients' | 'workOrders'>('dashboard');
   const [clientSectionRequestKey, setClientSectionRequestKey] = useState(0);
   const [captures, setCaptures] = useState<CalculationCapture[]>(() => {
@@ -66,14 +63,14 @@ export function App() {
 
   const activeWorkOrder = useMemo(() => workOrders.find((workOrder) => workOrder.id === activeWorkOrderId) ?? null, [activeWorkOrderId, workOrders]);
   const activeClient = useMemo(() => (activeWorkOrder?.clientId ? clients.find((client) => client.id === activeWorkOrder.clientId) ?? null : null), [activeWorkOrder?.clientId, clients]);
-  const context = useMemo(() => ({ activeClient, activeWorkOrder }), [activeClient, activeWorkOrder]);
+  const context: ActiveWorkContext = useMemo(() => ({ activeClient, activeWorkOrder }), [activeClient, activeWorkOrder]);
 
   function attachActiveWorkOrder(capture: CalculationCapture): CalculationCapture {
     return activeWorkOrderId && !capture.workOrderId ? { ...capture, workOrderId: activeWorkOrderId } : capture;
   }
 
   function addCalculationCapture(capture: CalculationCapture) {
-    setCaptures((current) => [{ itemType: 'technicalObservation', editableDescription: capture.summary, quantity: '1', unitValue: '', shouldGenerateBudgetItem: capture.destination !== 'survey', convertedToBudgetItem: false, ...attachActiveWorkOrder(capture) }, ...current]);
+    setCaptures((current) => [attachActiveWorkOrder(capture), ...current]);
   }
 
   function addManyCalculationCaptures(items: CalculationCapture[]) {
@@ -90,20 +87,12 @@ export function App() {
 
   function goTo(tab: AppTab) {
     setActiveTab(tab);
-    if (tab !== 'calculations') setSelectedModule(null);
   }
 
   function openClientSection(section: 'dashboard' | 'newClient' | 'newWorkOrder' | 'clients' | 'workOrders') {
     setClientInitialSection(section);
     setClientSectionRequestKey((current) => current + 1);
     setActiveTab('clients');
-    setSelectedModule(null);
-  }
-
-  function openModule(module: ModuleCardData | null) {
-    setSelectedModule(module);
-    if (module) setActiveSector(getSectorForModule(module.id));
-    setActiveTab('calculations');
   }
 
   function convertActiveBudgetToWorkOrder() {
@@ -124,13 +113,13 @@ export function App() {
       <AferixIntro />
       <AppShell activeTab={activeTab} navItems={navItems} activeClient={activeClient} activeWorkOrder={activeWorkOrder} onNavigate={goTo}>
         <Suspense fallback={<LazyWorkspaceFallback />}>
-          {activeTab === 'home' && <HomeScreen goTo={goTo} openModule={openModule} captures={captures} clients={clients} workOrders={workOrders} savedBudgets={loadSavedBudgets()} context={context} onStartNewAttendance={() => openClientSection('newWorkOrder')} />}
+          {activeTab === 'home' && <HomeScreen goTo={goTo} captures={captures} clients={clients} workOrders={workOrders} savedBudgets={loadSavedBudgets()} context={context} onStartNewAttendance={() => openClientSection('newWorkOrder')} />}
           {activeTab === 'clients' && <ClientsScreen initialSection={clientInitialSection} sectionRequestKey={clientSectionRequestKey} onOpenBudgets={() => goTo('budgets')} onStartSurvey={() => goTo('survey')} onContextChange={(nextClients, nextWorkOrders, nextActiveWorkOrderId) => { setClients(nextClients); setWorkOrders(nextWorkOrders); setActiveWorkOrderId(nextActiveWorkOrderId); }} />}
           {activeTab === 'financial' && <FinancialScreen context={context} />}
           {activeTab === 'settings' && <MenuScreen account={account} onAccountChange={setAccount} goTo={goTo} />}
           
           {/* Sub-telas acessadas via Menu ou fluxo direto */}
-          {activeTab === 'calculations' && <CalculationsScreen selectedModule={selectedModule} openModule={openModule} activeSector={activeSector as CalculationSectorId} onSelectSector={setActiveSector as (sector: CalculationSectorId) => void} goTo={goTo} userPlan={activeUserPlan} onCaptureCalculation={addCalculationCapture} context={context} captures={captures} />}
+          {activeTab === 'calculations' && <CalculationsScreen goTo={goTo} userPlan={activeUserPlan} onCaptureCalculation={addCalculationCapture} context={context} captures={captures} />}
           {activeTab === 'survey' && <SurveyScreen captures={captures} context={context} onRemove={removeCalculationCapture} onUpdate={updateCalculationCapture} onAddMany={addManyCalculationCaptures} goTo={goTo} />}
           {activeTab === 'budgets' && <BudgetsScreen captures={captures} context={context} userPlan={activeUserPlan} goTo={goTo} onRemove={removeCalculationCapture} onUpdate={updateCalculationCapture} onConvertApprovedBudgetToWorkOrder={convertActiveBudgetToWorkOrder} />}
           {activeTab === 'catalog' && <CatalogScreen onAddMany={addManyCalculationCaptures} context={context} />}

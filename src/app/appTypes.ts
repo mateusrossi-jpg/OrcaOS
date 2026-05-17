@@ -1,34 +1,9 @@
-import type { CalculatorModule } from '../core/access/featureAccess';
 import type { Client, WorkOrder } from '../core/types/business';
 
-export type AppTab = 'home' | 'operations' | 'finance' | 'menu' | 'calculations' | 'survey' | 'catalog' | 'purchaseList' | 'reports' | 'store' | 'settings' | 'clients' | 'budgets';
+export type AppTab = 'home' | 'clients' | 'financial' | 'settings' | 'calculations' | 'survey' | 'budgets' | 'catalog' | 'purchaseList' | 'reports' | 'store';
 export type ModuleTone = 'blue' | 'gray' | 'green' | 'orange' | 'muted';
 export type ModulePlan = 'free' | 'pro' | 'soon';
 export type SurveySection = 'context' | 'labor' | 'materials' | 'measurements' | 'notes' | 'review';
-
-export type CalculationSectorId =
-  | 'financial';
-
-export interface ModuleCardData {
-  id: string;
-  title: string;
-  description: string;
-  purpose?: string;
-  icon: string;
-  tone: ModuleTone;
-  count: string;
-  available: boolean;
-  plan: ModulePlan;
-  calculatorModule?: CalculatorModule;
-}
-
-export interface CalculationSectorGroup {
-  id: CalculationSectorId;
-  title: string;
-  description: string;
-  icon: string;
-  moduleIds: string[];
-}
 
 export interface ActiveWorkContext {
   activeClient: Client | null;

@@ -64,7 +64,6 @@ function applySupplyModeToCapture(capture: CalculationCapture, mode: MaterialSup
     ...capture,
     unitValue,
     materialSupplyMode: mode,
-    materialSupplyLabel: supplyLabel,
     materialReferenceUnitValue: referenceUnitValue,
     clientPurchaseRequired: mode === 'client' || mode === 'mixed' || mode === 'undefined',
     shouldGenerateBudgetItem: chargeMaterial ? capture.shouldGenerateBudgetItem : false,

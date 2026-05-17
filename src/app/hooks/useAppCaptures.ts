@@ -1,54 +1,51 @@
-import { useState, useEffect, useCallback } from 'react';
+import type { ActiveWorkContext } from '../appTypes';
+import { loadActiveWorkOrderId } from '../../features/clients/storage/clientWorkOrderStorage';
 import type { CalculationCapture } from '../../core/types/workflow';
-import { loadStoredCaptures, saveStoredCaptures } from '../storage/calculationCapturesStorage';
-import { cleanupRuntimeValidationData } from '../storage/runtimeValidationCleanup';
 
-export function useAppCaptures(activeWorkOrderId: string | null) {
-  const [captures, setCaptures] = useState<CalculationCapture[]>(() => {
-    cleanupRuntimeValidationData();
-    return loadStoredCaptures();
-  });
+/**
+ * Hook para centralizar a lógica de captura de cálculos no App.
+ * Simplificado para o MVP Aferix.
+ */
+export function useAppCaptures(
+  activeWorkOrderId: string | null,
+  setCaptures: React.Dispatch<React.SetStateAction<CalculationCapture[]>>
+) {
+  function attachActiveWorkOrder(capture: CalculationCapture): CalculationCapture {
+    const currentActiveId = activeWorkOrderId || loadActiveWorkOrderId();
+    return currentActiveId && !capture.workOrderId 
+      ? { ...capture, workOrderId: currentActiveId } 
+      : capture;
+  }
 
-  useEffect(() => {
-    saveStoredCaptures(captures);
-  }, [captures]);
-
-  const attachActiveWorkOrder = useCallback((capture: CalculationCapture): CalculationCapture => {
-    return activeWorkOrderId && !capture.workOrderId ? { ...capture, workOrderId: activeWorkOrderId } : capture;
-  }, [activeWorkOrderId]);
-
-  const addCalculationCapture = useCallback((capture: CalculationCapture) => {
+  function addCalculationCapture(capture: CalculationCapture) {
     setCaptures((current) => [
-      {
-        itemType: 'technicalObservation',
-        editableDescription: capture.summary,
-        quantity: '1',
-        unitValue: '',
-        shouldGenerateBudgetItem: capture.destination !== 'survey',
-        convertedToBudgetItem: false,
-        ...attachActiveWorkOrder(capture)
-      },
+      attachActiveWorkOrder(capture),
       ...current
     ]);
-  }, [attachActiveWorkOrder]);
+  }
 
-  const addManyCalculationCaptures = useCallback((items: CalculationCapture[]) => {
-    setCaptures((current) => [...items.map(attachActiveWorkOrder), ...current]);
-  }, [attachActiveWorkOrder]);
+  function addManyCalculationCaptures(items: CalculationCapture[]) {
+    setCaptures((current) => [
+      ...items.map(attachActiveWorkOrder),
+      ...current
+    ]);
+  }
 
-  const updateCalculationCapture = useCallback((id: string, patch: Partial<CalculationCapture>) => {
-    setCaptures((current) => current.map((capture) => (capture.id === id ? { ...capture, ...patch } : capture)));
-  }, []);
+  function updateCalculationCapture(id: string, patch: Partial<CalculationCapture>) {
+    setCaptures((current) => 
+      current.map((capture) => (capture.id === id ? { ...capture, ...patch } : capture))
+    );
+  }
 
-  const removeCalculationCapture = useCallback((id: string) => {
+  function removeCalculationCapture(id: string) {
     setCaptures((current) => current.filter((capture) => capture.id !== id));
-  }, []);
+  }
 
   return {
-    captures,
     addCalculationCapture,
     addManyCalculationCaptures,
     updateCalculationCapture,
-    removeCalculationCapture
+    removeCalculationCapture,
+    attachActiveWorkOrder
   };
 }
