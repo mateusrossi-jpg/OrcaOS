@@ -266,6 +266,47 @@ if (!fundGeraisCSS.match(/\.fundamental-picker-card\s*\{[^}]*background:\s*var\(
   logError('Erro: Encontrou fundo esverdeado legado (#101713) nos cards de produtividade');
 }
 
+// 8.8.5. Simulador / Orçamento Técnico Detalhes
+logStep('Simulador / Orçamento Técnico Detalhes');
+const techTSX = readFile('src/features/calculators/components/TechnicalBudgetHumanWorkspace.tsx');
+const generalCalcCSS = readFile('src/features/calculators/components/GeneralCalculatorWorkspace.css');
+
+if (!techTSX.includes('className="general-calculator-overlay"')) {
+  logSuccess('TechnicalBudgetHumanWorkspace.tsx não contém className="general-calculator-overlay"');
+} else {
+  logError('TechnicalBudgetHumanWorkspace.tsx ainda contém className="general-calculator-overlay"');
+}
+
+if (!techTSX.includes('aria-modal="true"')) {
+  logSuccess('TechnicalBudgetHumanWorkspace.tsx não contém aria-modal="true"');
+} else {
+  logError('TechnicalBudgetHumanWorkspace.tsx ainda contém aria-modal="true"');
+}
+
+if (!techTSX.includes('general-overlay-backdrop')) {
+  logSuccess('TechnicalBudgetHumanWorkspace.tsx não renderiza general-overlay-backdrop');
+} else {
+  logError('TechnicalBudgetHumanWorkspace.tsx ainda renderiza general-overlay-backdrop');
+}
+
+if (generalCalcCSS.includes('.general-calculator-detail-panel')) {
+  logSuccess('GeneralCalculatorWorkspace.css possui classe .general-calculator-detail-panel');
+} else {
+  logError('GeneralCalculatorWorkspace.css não possui classe .general-calculator-detail-panel');
+}
+
+if (generalCalcCSS.includes('.general-calculator-detail-header')) {
+  logSuccess('GeneralCalculatorWorkspace.css possui classe .general-calculator-detail-header');
+} else {
+  logError('GeneralCalculatorWorkspace.css não possui classe .general-calculator-detail-header');
+}
+
+if (generalCalcCSS.includes('.general-calculator-detail-back')) {
+  logSuccess('GeneralCalculatorWorkspace.css possui classe .general-calculator-detail-back');
+} else {
+  logError('GeneralCalculatorWorkspace.css não possui classe .general-calculator-detail-back');
+}
+
 // 9. Design Tokens
 logStep('Design Tokens (aferixTheme.css)');
 ['--aferix-bg', '--aferix-surface', '--aferix-surface-2', '--aferix-border', '--aferix-text', '--aferix-text-secondary', '--aferix-primary', '--aferix-danger'].forEach(token => {

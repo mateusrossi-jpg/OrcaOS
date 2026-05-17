@@ -175,27 +175,34 @@ export function TechnicalBudgetHumanWorkspace({ onCaptureCalculation }: Props) {
 
   return (
     <div className="general-calculator-workspace">
-      <div className="general-plan-banner"><div><strong>Orçamento técnico</strong><span>Cálculos comerciais simples para serviço, preço final, diária, hora técnica e pagamento.</span></div><em>{rules.length} cálculos</em></div>
-      <div className="general-picker-list">{rules.map((rule) => <button className="general-picker-card" key={rule.mode} type="button" onClick={() => openCalculator(rule.mode)}><span><strong>{rule.label}</strong><small>{rule.description}</small></span><em>LIVRE</em></button>)}</div>
-
-      {activeRule && activeMode && (
-        <div className="general-calculator-overlay" role="dialog" aria-modal="true" aria-label={activeRule.label}>
-          <div className="general-overlay-backdrop" onClick={closeCalculator} />
-          <section className="general-overlay-panel">
-            <header className="general-overlay-header"><button type="button" onClick={closeCalculator}>‹</button><div><span>Orçamento técnico</span><h2>{activeRule.label}</h2><p>{activeRule.description}</p></div><em>LIVRE</em></header>
-            <form className="general-calculator-form" onSubmit={(event) => event.preventDefault()}>
-              {primaryFields[activeMode].map((field) => <NumberField key={field.key} field={field} value={values[field.key]} onChange={(value) => setValue(field.key, value)} />)}
-              <div className="general-advanced-block"><button type="button" onClick={() => setShowAdvanced((current) => !current)}>{showAdvanced ? 'Ocultar ajustes avançados' : 'Mostrar ajustes avançados'}</button>{showAdvanced && <div className="general-advanced-grid">{activeMode === 'final-price' && <SelectField value={marginMode} onChange={setMarginMode} />}{advancedFields[activeMode].length === 0 && <p className="general-helper-text">Este cálculo não possui campos avançados.</p>}{advancedFields[activeMode].map((field) => <NumberField key={field.key} field={field} value={values[field.key]} onChange={(value) => setValue(field.key, value)} />)}</div>}</div>
-            </form>
-            {calculated.error && <p className="general-error-message">{calculated.error}</p>}
-            {calculated.cards.length > 0 && <div className="general-result-grid">{calculated.cards.map((item) => <ResultCard key={item.label} {...item} />)}</div>}
-            {calculated.formula.length > 0 && <div className="general-formula-box"><strong>Como este cálculo é feito</strong>{calculated.formula.map((item) => <span key={item}>{item}</span>)}</div>}
-            {calculated.orientation && <p className="general-helper-text">{calculated.orientation}</p>}
-            {addedMessage && <p className="general-added-message">{addedMessage}</p>}
-            <div className="general-capture-actions"><button type="button" onClick={() => includeResult('survey')}>Adicionar ao atendimento</button><button type="button" onClick={() => includeResult('budget')}>Adicionar ao orçamento</button><button type="button" onClick={() => includeResult('both')}>Adicionar aos dois</button><button className="secondary-action" type="button" onClick={closeCalculator}>Voltar</button></div>
-            <small className="general-technical-note">Cálculo preliminar. Revise escopo, garantia, prazo, impostos e condições antes de enviar ao cliente.</small>
-          </section>
-        </div>
+      {activeRule && activeMode ? (
+        <section className="general-calculator-detail-panel" aria-label={activeRule.label}>
+          <header className="general-calculator-detail-header">
+            <button className="general-calculator-detail-back" type="button" onClick={closeCalculator}>‹</button>
+            <div>
+              <span>Orçamento técnico</span>
+              <h2>{activeRule.label}</h2>
+              <p>{activeRule.description}</p>
+            </div>
+            <em>LIVRE</em>
+          </header>
+          <form className="general-calculator-form" onSubmit={(event) => event.preventDefault()}>
+            {primaryFields[activeMode].map((field) => <NumberField key={field.key} field={field} value={values[field.key]} onChange={(value) => setValue(field.key, value)} />)}
+            <div className="general-advanced-block"><button type="button" onClick={() => setShowAdvanced((current) => !current)}>{showAdvanced ? 'Ocultar ajustes avançados' : 'Mostrar ajustes avançados'}</button>{showAdvanced && <div className="general-advanced-grid">{activeMode === 'final-price' && <SelectField value={marginMode} onChange={setMarginMode} />}{advancedFields[activeMode].length === 0 && <p className="general-helper-text">Este cálculo não possui campos avançados.</p>}{advancedFields[activeMode].map((field) => <NumberField key={field.key} field={field} value={values[field.key]} onChange={(value) => setValue(field.key, value)} />)}</div>}</div>
+          </form>
+          {calculated.error && <p className="general-error-message">{calculated.error}</p>}
+          {calculated.cards.length > 0 && <div className="general-result-grid">{calculated.cards.map((item) => <ResultCard key={item.label} {...item} />)}</div>}
+          {calculated.formula.length > 0 && <div className="general-formula-box"><strong>Como este cálculo é feito</strong>{calculated.formula.map((item) => <span key={item}>{item}</span>)}</div>}
+          {calculated.orientation && <p className="general-helper-text">{calculated.orientation}</p>}
+          {addedMessage && <p className="general-added-message">{addedMessage}</p>}
+          <div className="general-capture-actions"><button type="button" onClick={() => includeResult('survey')}>Adicionar ao atendimento</button><button type="button" onClick={() => includeResult('budget')}>Adicionar ao orçamento</button><button type="button" onClick={() => includeResult('both')}>Adicionar aos dois</button><button className="secondary-action" type="button" onClick={closeCalculator}>Voltar</button></div>
+          <small className="general-technical-note">Cálculo preliminar. Revise escopo, garantia, prazo, impostos e condições antes de enviar ao cliente.</small>
+        </section>
+      ) : (
+        <>
+          <div className="general-plan-banner"><div><strong>Orçamento técnico</strong><span>Cálculos comerciais simples para serviço, preço final, diária, hora técnica e pagamento.</span></div><em>{rules.length} cálculos</em></div>
+          <div className="general-picker-list">{rules.map((rule) => <button className="general-picker-card" key={rule.mode} type="button" onClick={() => openCalculator(rule.mode)}><span><strong>{rule.label}</strong><small>{rule.description}</small></span><em>LIVRE</em></button>)}</div>
+        </>
       )}
     </div>
   );
