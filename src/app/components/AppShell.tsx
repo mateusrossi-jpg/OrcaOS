@@ -39,29 +39,29 @@ export function AppShell({ children, activeTab, navItems, onNavigate, activeClie
   }, {} as Record<string, typeof navItems>);
 
   return (
-    <main className={`app-main-layout ${isSidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
+    <main className={`app-main-layout ${isSidebarCollapsed ? 'sidebar-collapsed' : 'sidebar-expanded'}`}>
       {/* Mobile Top Bar */}
       <header className="mobile-top-bar">
-        <button className="menu-toggle" type="button" onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}>
+        <button className="menu-toggle" type="button" aria-label="Abrir menu" onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}>
           {isSidebarCollapsed ? '☰' : '✕'}
         </button>
         <div className="mobile-app-brand">
-          <img src={AFERIX_ICON_URL} alt="Aferix" className="app-logo-small" />
-          <span>AFERIX</span>
+          <img src={AFERIX_ICON_URL} alt="" className="app-logo-small" />
+          <span className="brand-name-text">AFERIX</span>
         </div>
         <div className="mobile-context-info">
           {activeClient && <span className="client-initials" title={activeClient.name}>{activeClient.name.charAt(0).toUpperCase()}</span>}
         </div>
       </header>
 
-      {/* Main Sidebar */}
+      {/* Main Sidebar / Sidebar Drawer */}
       <aside className="app-sidebar">
         <header className="sidebar-header">
           <div className="app-brand">
             <img src={AFERIX_ICON_URL} alt="Aferix" className="app-logo" />
-            <div className="brand-text">
+            <div className="brand-text-stack">
               <span className="brand-name">AFERIX</span>
-              <span className="brand-tagline">PROFISSIONAL</span>
+              <span className="brand-tagline">FINANCEIRO</span>
             </div>
           </div>
         </header>
@@ -70,24 +70,26 @@ export function AppShell({ children, activeTab, navItems, onNavigate, activeClie
           {Object.entries(sections).map(([sectionName, items]) => (
             <div key={sectionName} className="nav-section">
               <span className="nav-section-title">{sectionName}</span>
-              {items.map((item) => {
-                const isActive = activeTab === item.id;
-                return (
-                  <button
-                    key={item.id}
-                    className={`nav-item ${isActive ? 'active' : ''}`}
-                    onClick={() => onNavigate(item.id)}
-                    title={item.description}
-                  >
-                    <span className={`nav-icon icon-${item.icon}`} />
-                    <div className="nav-text">
-                      <span className="nav-label">{item.label}</span>
-                      <span className="nav-desc">{item.description}</span>
-                    </div>
-                    {isActive && <span className="active-indicator" />}
-                  </button>
-                );
-              })}
+              <div className="nav-items-stack">
+                {items.map((item) => {
+                  const isActive = activeTab === item.id;
+                  return (
+                    <button
+                      key={item.id}
+                      className={`nav-item ${isActive ? 'active' : ''}`}
+                      onClick={() => onNavigate(item.id)}
+                      title={item.description}
+                    >
+                      <span className={`nav-icon icon-${item.icon}`} />
+                      <div className="nav-text">
+                        <strong className="nav-label">{item.label}</strong>
+                        <span className="nav-desc">{item.description}</span>
+                      </div>
+                      {isActive && <span className="active-indicator" />}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           ))}
         </nav>
