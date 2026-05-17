@@ -462,6 +462,11 @@ body,
 }
 
 .drawer-brand-card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 56px;
+  padding: 12px;
   min-width: 0;
   overflow: hidden;
   border: 1px solid var(--aferix-border);
@@ -479,14 +484,6 @@ body,
   box-shadow: none;
 }
 
-.drawer-brand-card {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  min-height: 56px;
-  padding: 8px 12px;
-}
-
 .drawer-brand-mark {
   display: block;
   width: 38px;
@@ -498,25 +495,7 @@ body,
   border: 1px solid #222222;
 }
 
-.drawer-close-button {
-  display: grid;
-  place-items: center;
-  width: 38px;
-  height: 38px;
-  min-width: 38px;
-  border: 1px solid var(--aferix-border);
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.035);
-  color: var(--aferix-text-muted);
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
 
-.drawer-close-button:hover {
-  color: var(--aferix-text);
-  border-color: var(--aferix-border-strong);
-  background: rgba(245, 164, 0, 0.08);
-}
 
 .drawer-brand-card strong,
 .drawer-brand-card small,

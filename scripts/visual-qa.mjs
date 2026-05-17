@@ -210,10 +210,10 @@ if (appShellCSS.includes('linear-gradient(') && appShellCSS.includes('.side-draw
   logError('Erro: side-drawer sem gradiente premium');
 }
 
-if (appShellTSX.includes('drawer-close-button') && appShellTSX.includes('<svg') && appShellTSX.includes('d="M18 6 6 18"')) {
-  logSuccess('Botão de fechar do drawer validado: contém ícone X e não é um card vazio');
+if (appShellTSX.includes('drawer-backdrop') && appShellTSX.includes('onClick={() => setIsDrawerOpen(false)}')) {
+  logSuccess('Drawer overlay/backdrop para fechamento validado com sucesso');
 } else {
-  logError('Botão de fechar do drawer está vazio ou sem o ícone X configurado');
+  logError('Faltando overlay/backdrop clicável para fechar o drawer');
 }
 
 // 9. Design Tokens
