@@ -95,40 +95,23 @@ export function ProfessionalProfileWorkspace() {
 
   return (
     <div className="professional-profile-workspace">
-      {/* Perfil Profissional */}
-      <section className="professional-profile-section">
-        <header className="professional-profile-header-card">
+      {/* 1. Introdução */}
+      <section className="professional-profile-header-card">
+        <header>
+          <span className="orca-kicker">Empresa</span>
           <h2>Perfil Profissional</h2>
+          <p>Dados usados em propostas, orçamentos e relatórios gerados pelo Aferix.</p>
         </header>
-        <div className="professional-profile-grid">
-          <label className="budget-field"><span>Nome Profissional</span><input value={profile.professionalName} onChange={e => updateProfile('professionalName', e.target.value)} /></label>
-          <label className="budget-field"><span>Nome Empresa</span><input value={profile.businessName} onChange={e => updateProfile('businessName', e.target.value)} /></label>
-          <label className="budget-field"><span>Documento</span><input value={profile.document} onChange={e => updateProfile('document', e.target.value)} /></label>
-          <label className="budget-field"><span>WhatsApp</span><input value={profile.phone} onChange={e => updateProfile('phone', e.target.value)} /></label>
-          <label className="budget-field wide"><span>Endereço Completo</span><input value={profile.address} onChange={e => updateProfile('address', e.target.value)} /></label>
-        </div>
       </section>
 
-      {/* Padrões de Propostas */}
+      {/* 2. Identidade visual */}
       <section className="professional-profile-section">
-        <header className="professional-profile-header-card">
-          <h2>Padrões de Propostas</h2>
-        </header>
-        <div className="professional-profile-grid">
-          <label className="budget-field"><span>Validade</span><input value={profile.defaultValidity} onChange={e => updateProfile('defaultValidity', e.target.value)} /></label>
-          <label className="budget-field"><span>Garantia</span><input value={profile.defaultGuarantee} onChange={e => updateProfile('defaultGuarantee', e.target.value)} /></label>
-          <label className="budget-field wide"><span>Condições de Pagamento</span><textarea value={profile.defaultPaymentTerms} onChange={e => updateProfile('defaultPaymentTerms', e.target.value)} /></label>
-          <label className="budget-field wide"><span>Observações</span><textarea value={profile.commercialNotes} onChange={e => updateProfile('commercialNotes', e.target.value)} /></label>
-        </div>
-        <div className="professional-profile-save-row">
-          <button className="primary-action" type="button" onClick={saveProfile}>Salvar Alterações</button>
-        </div>
-      </section>
-
-      {/* Configurações Adicionais */}
-      <section className="professional-profile-section">
-        <header className="professional-profile-header-card">
-          <h2>Configurações Adicionais</h2>
+        <header>
+          <div>
+            <span className="orca-kicker">Identidade visual</span>
+            <h2>Logo da empresa</h2>
+            <p>Use sua marca nos PDFs, propostas e relatórios enviados ao cliente.</p>
+          </div>
         </header>
         <div className="professional-logo-editor">
           <div className="professional-logo-preview">
@@ -141,6 +124,55 @@ export function ProfessionalProfileWorkspace() {
             </div>
           </div>
         </div>
+      </section>
+
+      {/* 3. Dados Comerciais */}
+      <section className="professional-profile-section">
+        <header>
+          <div>
+            <span className="orca-kicker">Comercial</span>
+            <h2>Dados Comerciais</h2>
+            <p>Essas informações aparecem nos documentos comerciais do Aferix.</p>
+          </div>
+        </header>
+        <div className="professional-profile-grid">
+          <label className="budget-field"><span>Nome Profissional</span><input value={profile.professionalName} onChange={e => updateProfile('professionalName', e.target.value)} /></label>
+          <label className="budget-field"><span>Nome Empresa</span><input value={profile.businessName} onChange={e => updateProfile('businessName', e.target.value)} /></label>
+          <label className="budget-field"><span>Documento</span><input value={profile.document} onChange={e => updateProfile('document', e.target.value)} /></label>
+          <label className="budget-field"><span>WhatsApp</span><input value={profile.phone} onChange={e => updateProfile('phone', e.target.value)} /></label>
+          <label className="budget-field wide"><span>Endereço Completo</span><input value={profile.address} onChange={e => updateProfile('address', e.target.value)} /></label>
+        </div>
+      </section>
+
+      {/* 4. Padrões de Propostas */}
+      <section className="professional-profile-section">
+        <header>
+          <div>
+            <span className="orca-kicker">Documentos</span>
+            <h2>Padrões de Propostas</h2>
+            <p>Defina textos padrão para validade, garantia, pagamento e observações.</p>
+          </div>
+        </header>
+        <div className="professional-profile-grid">
+          <label className="budget-field"><span>Validade</span><input value={profile.defaultValidity} onChange={e => updateProfile('defaultValidity', e.target.value)} /></label>
+          <label className="budget-field"><span>Garantia</span><input value={profile.defaultGuarantee} onChange={e => updateProfile('defaultGuarantee', e.target.value)} /></label>
+          <label className="budget-field wide"><span>Condições de Pagamento</span><textarea value={profile.defaultPaymentTerms} onChange={e => updateProfile('defaultPaymentTerms', e.target.value)} /></label>
+          <label className="budget-field wide"><span>Observações</span><textarea value={profile.commercialNotes} onChange={e => updateProfile('commercialNotes', e.target.value)} /></label>
+        </div>
+        <div className="professional-profile-save-row">
+          <button className="primary-action" type="button" onClick={saveProfile}>Salvar Alterações</button>
+        </div>
+      </section>
+
+      {/* 5. IDs de Identificação */}
+      <section className="professional-profile-section">
+        <header>
+          <div>
+            <span className="orca-kicker">Identificação local</span>
+            <h2>IDs de Identificação</h2>
+            <p>Identificadores locais usados para reconhecer este profissional e esta empresa neste dispositivo.</p>
+          </div>
+        </header>
         <div className="professional-profile-id-grid">
           <div className="professional-profile-id-card"><span>Profissional</span><code>{profile.professionalId}</code></div>
           <div className="professional-profile-id-card"><span>Empresa</span><code>{profile.companyId}</code></div>
