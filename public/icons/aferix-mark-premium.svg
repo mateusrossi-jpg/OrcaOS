@@ -2,16 +2,38 @@
   <title id="title">Aferix Mark Premium</title>
   <desc id="desc">Sleek dark gold-accented app icon with the stylized X trend signature of Aferix.</desc>
   <defs>
+    <!-- Deep Rich Premium Dark Gradient -->
+    <radialGradient id="bg-radial" cx="50%" cy="30%" r="80%" fx="50%" fy="30%">
+      <stop offset="0%" stop-color="#181a22"/>
+      <stop offset="60%" stop-color="#0a0b0f"/>
+      <stop offset="100%" stop-color="#030405"/>
+    </radialGradient>
+
+    <!-- Vibrant Amber/Gold Gradient for the trend line -->
     <linearGradient id="gold-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#d97706"/>
       <stop offset="50%" stop-color="#f5a400"/>
       <stop offset="100%" stop-color="#fbbf24"/>
     </linearGradient>
   </defs>
-  <rect width="116" height="116" x="2" y="2" rx="28" fill="#090b0f" stroke="rgba(245, 164, 0, 0.22)" stroke-width="2" />
+  <!-- Squircle Base -->
+  <rect width="114" height="114" x="3" y="3" rx="28" fill="url(#bg-radial)" stroke="rgba(255, 255, 255, 0.04)" stroke-width="2" />
+  
   <g id="aferix-brand-symbol">
-    <!-- Symmetric premium X composed of elegant intersecting capsules -->
-    <rect x="25" y="54.5" width="70" height="11" rx="5.5" transform="rotate(45 60 60)" fill="#f5f1e8" />
-    <rect x="25" y="54.5" width="70" height="11" rx="5.5" transform="rotate(-45 60 60)" fill="url(#gold-gradient)" />
+    <!-- Centered stylized monogram scaled from official brand symbol -->
+    <g transform="translate(60, 62) scale(0.24) translate(-256, -265)">
+      <!-- Left stem of the A (Off-white) -->
+      <path d="M 180 370 L 256 160" stroke="#F5F1E8" stroke-width="46" stroke-linecap="round" stroke-linejoin="round" />
+
+      <!-- Right stem of the A (Off-white) -->
+      <path d="M 256 160 L 332 370" stroke="#F5F1E8" stroke-width="46" stroke-linecap="round" stroke-linejoin="round" />
+
+      <!-- Upward trending crossbar (Gold Gradient) -->
+      <path d="M 160 290 L 375 195" stroke="url(#gold-gradient)" stroke-width="46" stroke-linecap="round" />
+
+      <!-- Intersecting leg of the X (Off-white/Gold) -->
+      <path d="M 285 180 L 350 310" stroke="#F5F1E8" stroke-width="46" stroke-linecap="round" />
+      <path d="M 285 180 L 315 240" stroke="url(#gold-gradient)" stroke-width="46" stroke-linecap="round" />
+    </g>
   </g>
 </svg>

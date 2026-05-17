@@ -2,50 +2,42 @@
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
-    android:viewportWidth="1024"
-    android:viewportHeight="1024">
+    android:viewportWidth="512"
+    android:viewportHeight="512">
+    <!-- Left stem of the A (Off-white) -->
     <path
-        android:fillColor="#10181C"
-        android:pathData="M112,112h800a180,180 0,0 1 180,180v440a180,180 0,0 1 -180,180h-800a180,180 0,0 1 -180,-180v-440a180,180 0,0 1 180,-180z" />
-    <path
-        android:fillColor="#00000000"
-        android:strokeColor="#00D8D8"
-        android:strokeWidth="72"
-        android:strokeLineCap="butt"
+        android:strokeColor="#F5F1E8"
+        android:strokeWidth="46"
+        android:strokeLineCap="round"
         android:strokeLineJoin="round"
-        android:pathData="M273.82,395.83 A265,265 0,0 1 702.63,327.92" />
+        android:pathData="M 180,380 L 256,170" />
+
+    <!-- Right stem of the A (Off-white) -->
     <path
-        android:fillColor="#00000000"
-        android:strokeColor="#00D8D8"
-        android:strokeWidth="72"
-        android:strokeLineCap="butt"
+        android:strokeColor="#F5F1E8"
+        android:strokeWidth="46"
+        android:strokeLineCap="round"
         android:strokeLineJoin="round"
-        android:pathData="M731.69,363.81 A265,265 0,0 1 702.63,696.08" />
+        android:pathData="M 256,170 L 332,380" />
+
+    <!-- Upward trending crossbar (Gold/Amber) -->
     <path
-        android:fillColor="#00000000"
-        android:strokeColor="#00D8D8"
-        android:strokeWidth="72"
-        android:strokeLineCap="butt"
-        android:strokeLineJoin="round"
-        android:pathData="M667.76,726.39 A265,265 0,0 1 327.92,702.63" />
+        android:strokeColor="#F5A400"
+        android:strokeWidth="46"
+        android:strokeLineCap="round"
+        android:pathData="M 160,300 L 375,205" />
+
+    <!-- Intersecting leg of the X (Off-white) -->
     <path
-        android:fillColor="#00000000"
-        android:strokeColor="#00D8D8"
-        android:strokeWidth="72"
-        android:strokeLineCap="butt"
-        android:strokeLineJoin="round"
-        android:pathData="M297.61,667.76 A265,265 0,0 1 257.27,438.96" />
+        android:strokeColor="#F5F1E8"
+        android:strokeWidth="46"
+        android:strokeLineCap="round"
+        android:pathData="M 285,190 L 350,320" />
+
+    <!-- Overlapping gold top of the X (Gold/Amber) -->
     <path
-        android:fillColor="#00D8D8"
-        android:pathData="M223,484h54a2,2 0,0 1 2,2v20a2,2 0,0 1 -2,2h-54a2,2 0,0 1 -2,-2v-20a2,2 0,0 1 2,-2z" />
-    <path
-        android:fillColor="#00D8D8"
-        android:pathData="M223,536h54a2,2 0,0 1 2,2v20a2,2 0,0 1 -2,2h-54a2,2 0,0 1 -2,-2v-20a2,2 0,0 1 2,-2z" />
-    <path
-        android:fillColor="#00000000"
-        android:strokeColor="#00D8D8"
-        android:strokeWidth="68"
-        android:strokeLineCap="butt"
-        android:strokeLineJoin="round"
-        android:pathData="M622.418,373.064 h-162 c-46,0 -74,29 -74,69 c0,42 32,67 83,67 h73 c55,0 88,29 88,71 c0,42 -32,71 -84,71 h-154" />
+        android:strokeColor="#F5A400"
+        android:strokeWidth="46"
+        android:strokeLineCap="round"
+        android:pathData="M 285,190 L 315,250" />
 </vector>

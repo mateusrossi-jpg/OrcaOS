@@ -181,6 +181,28 @@ if (introTSX.includes('Gestão financeira para autônomos') && introTSX.includes
   logError('AferixIntro.tsx não contém as frases de posicionamento financeiro premium ou logo correto');
 }
 
+// 8.5.b. Brand assets / App icon
+logStep('Brand assets / App icon');
+const appIconSVG = readFile('public/icons/aferix-app-icon.svg');
+if (appIconSVG.includes('viewBox="0 0 512 512"') && !appIconSVG.toLowerCase().includes('aferix')) {
+  logSuccess('aferix-app-icon.svg validado: viewBox 0 0 512 512, sem texto pequeno ilegível');
+} else {
+  logError('aferix-app-icon.svg inválido: deve ter viewBox 512x512 e não conter texto "Aferix"');
+}
+
+const manifestWebManifest = readFile('public/manifest.webmanifest');
+if (manifestWebManifest.includes('aferix-app-icon.svg') && manifestWebManifest.includes('Aferix')) {
+  logSuccess('manifest.webmanifest validado: aponta para aferix-app-icon.svg e tem o nome correto');
+} else {
+  logError('manifest.webmanifest inválido: não aponta para o novo ícone ou nome incorreto');
+}
+
+if (appShellTSX.includes('aferix-wordmark-premium.svg') && !appShellTSX.includes('aferix-app-icon.svg')) {
+  logSuccess('AppShell.tsx usa o wordmark premium no header, e não o ícone do launcher');
+} else {
+  logError('Atenção: AppShell.tsx deve usar o wordmark premium, não o ícone do launcher no header principal');
+}
+
 // 8.6. Regras de logo adicionais
 const wordmarkSVG = readFile('public/icons/aferix-wordmark-premium.svg');
 if (wordmarkSVG.includes('AFERI') && wordmarkSVG.includes('X') && !wordmarkSVG.includes('rect fill="#ffffff"')) {
@@ -366,6 +388,24 @@ if (themeCSS.includes('.drawer-panel::-webkit-scrollbar') && themeCSS.includes('
   logSuccess('aferixTheme.css define estilo de rolagem estético e fino para o side drawer / menu lateral');
 } else {
   logWarn('aferixTheme.css não possui estilos estéticos personalizados de scrollbar para a navegação');
+}
+
+// 8.9.6. Numeric input spinner cleanup
+logStep('Numeric input spinner cleanup');
+if (globalCSS.includes("input[type='number']::-webkit-outer-spin-button") &&
+    globalCSS.includes("input[type='number']::-webkit-inner-spin-button") &&
+    globalCSS.includes("-moz-appearance: textfield") &&
+    globalCSS.includes("appearance: textfield")) {
+  logSuccess('Regras CSS globais para ocultar spinners de inputs numéricos validadas com sucesso');
+} else {
+  logError('global.css deve conter regras para ocultar spinners de inputs type="number" (inner-spin-button, outer-spin-button e -moz-appearance)');
+}
+
+if (globalCSS.includes('.general-form-field div:has(.technical-unit) input') &&
+    globalCSS.includes('padding-right: 4.75rem')) {
+  logSuccess('Padding de proteção para campos com sufixo validado com sucesso');
+} else {
+  logWarn('Recomendado incluir padding-right de proteção nos inputs/selects que possuem sufixos posicionados à direita');
 }
 
 // 9. Design Tokens

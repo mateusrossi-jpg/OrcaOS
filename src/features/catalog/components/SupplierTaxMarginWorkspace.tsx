@@ -10,7 +10,6 @@ import {
   type PurchaseTaxRecord,
   type PurchaseUseCase,
 } from '../storage/purchaseTaxStorage';
-import './SupplierTaxMarginWorkspace.css';
 
 interface PurchaseTaxDraft {
   supplierName: string;
@@ -219,104 +218,216 @@ export function SupplierTaxMarginWorkspace() {
 
   return (
     <section className="supplier-tax-workspace">
-      <div className="supplier-tax-header">
+      <div className="catalog-tab-hero">
         <div>
-          <span className="orca-kicker">Compras, estoque e margem</span>
-          <h2>Custo real, impostos e preço viável</h2>
+          <span className="catalog-eyebrow">Compras, estoque e margem</span>
+          <h3>Custo real, impostos e preço viável</h3>
           <p>Cadastre compras de insumos/peças, simule custo real, carga tributária estimada, deslocamento, margem e preço sugerido.</p>
         </div>
         <strong>{records.length} lançamento(s)</strong>
       </div>
 
-      <div className="supplier-tax-grid-layout">
-        <div className="supplier-tax-card">
-          <div>
-            <strong>{editingId ? 'Editar lançamento de compra/custo' : 'Novo lançamento de compra/custo'}</strong>
-            <small>Use os valores da nota, cupom, pedido ou compra para formar custo gerencial.</small>
+      <div className="supplier-tax-grid-layout" style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.35fr) minmax(320px, 0.65fr)', gap: '24px', alignItems: 'start' }}>
+        <div className="catalog-form-card">
+          <header>
+            <div>
+              <h4>{editingId ? 'Editar lançamento' : 'Novo lançamento'}</h4>
+              <p>Use os valores da nota, cupom, pedido ou compra para formar custo gerencial.</p>
+            </div>
+          </header>
+          <div className="catalog-form-grid">
+            <div className="catalog-field col-4">
+              <span>Fornecedor</span>
+              <input value={draft.supplierName} placeholder="Ex.: Fornecedor principal" onChange={(event) => updateDraft('supplierName', event.target.value)} />
+            </div>
+            <div className="catalog-field col-4">
+              <span>Nota/pedido</span>
+              <input value={draft.documentNumber} placeholder="NF, cupom, pedido..." onChange={(event) => updateDraft('documentNumber', event.target.value)} />
+            </div>
+            <div className="catalog-field col-4">
+              <span>Data</span>
+              <input type="date" value={draft.purchaseDate} onChange={(event) => updateDraft('purchaseDate', event.target.value)} />
+            </div>
+            <div className="catalog-field col-12">
+              <span>Item/peça/insumo</span>
+              <input value={draft.productDescription} placeholder="Ex.: Módulo tomada 2P+T 20A branco" onChange={(event) => updateDraft('productDescription', event.target.value)} />
+            </div>
+            <div className="catalog-field col-4">
+              <span>NCM</span>
+              <input value={draft.ncm} placeholder="Opcional" onChange={(event) => updateDraft('ncm', event.target.value)} />
+            </div>
+            <div className="catalog-field col-4">
+              <span>CFOP</span>
+              <input value={draft.cfop} placeholder="Opcional" onChange={(event) => updateDraft('cfop', event.target.value)} />
+            </div>
+            <div className="catalog-field col-4">
+              <span>Uso</span>
+              <select value={draft.useCase} onChange={(event) => updateDraft('useCase', event.target.value as PurchaseUseCase)}>
+                <option value="estoque-revenda">Estoque para revenda</option>
+                <option value="insumo-servico">Insumo aplicado em serviço</option>
+                <option value="uso-proprio-obra">Uso próprio em obra/cliente</option>
+                <option value="ferramenta-equipamento">Ferramenta/equipamento</option>
+              </select>
+            </div>
+            <div className="catalog-field col-4">
+              <span>Regime</span>
+              <select value={draft.taxRegime} onChange={(event) => updateDraft('taxRegime', event.target.value as BusinessTaxRegime)}>
+                <option value="mei">MEI</option>
+                <option value="simples">Simples Nacional</option>
+                <option value="lucro-presumido">Lucro Presumido</option>
+                <option value="lucro-real">Lucro Real</option>
+                <option value="custom">Personalizado/contador</option>
+              </select>
+            </div>
+            <div className="catalog-field col-4">
+              <span>Quantidade</span>
+              <input inputMode="decimal" value={draft.quantity} onChange={(event) => updateDraft('quantity', event.target.value)} />
+            </div>
+            <div className="catalog-field col-4">
+              <span>Custo unitário</span>
+              <input inputMode="decimal" value={draft.unitCost} onChange={(event) => updateDraft('unitCost', event.target.value)} />
+            </div>
+            <div className="catalog-field col-4">
+              <span>Frete</span>
+              <input inputMode="decimal" value={draft.freightCost} onChange={(event) => updateDraft('freightCost', event.target.value)} />
+            </div>
+            <div className="catalog-field col-4">
+              <span>Outros custos</span>
+              <input inputMode="decimal" value={draft.otherCosts} onChange={(event) => updateDraft('otherCosts', event.target.value)} />
+            </div>
+            <div className="catalog-field col-4">
+              <span>Deslocamento compra</span>
+              <input inputMode="decimal" value={draft.travelCost} onChange={(event) => updateDraft('travelCost', event.target.value)} />
+            </div>
+            <div className="catalog-field col-4">
+              <span>ICMS destacado</span>
+              <input inputMode="decimal" value={draft.icmsValue} onChange={(event) => updateDraft('icmsValue', event.target.value)} />
+            </div>
+            <div className="catalog-field col-4">
+              <span>IPI destacado</span>
+              <input inputMode="decimal" value={draft.ipiValue} onChange={(event) => updateDraft('ipiValue', event.target.value)} />
+            </div>
+            <div className="catalog-field col-4">
+              <span>PIS</span>
+              <input inputMode="decimal" value={draft.pisValue} onChange={(event) => updateDraft('pisValue', event.target.value)} />
+            </div>
+            <div className="catalog-field col-4">
+              <span>Cofins</span>
+              <input inputMode="decimal" value={draft.cofinsValue} onChange={(event) => updateDraft('cofinsValue', event.target.value)} />
+            </div>
+            <div className="catalog-field col-4">
+              <span>ISS</span>
+              <input inputMode="decimal" value={draft.issValue} onChange={(event) => updateDraft('issValue', event.target.value)} />
+            </div>
+            <div className="catalog-field col-4">
+              <span>CBS 2026+</span>
+              <input inputMode="decimal" value={draft.cbsValue} onChange={(event) => updateDraft('cbsValue', event.target.value)} />
+            </div>
+            <div className="catalog-field col-4">
+              <span>IBS 2026+</span>
+              <input inputMode="decimal" value={draft.ibsValue} onChange={(event) => updateDraft('ibsValue', event.target.value)} />
+            </div>
+            <div className="catalog-field col-4">
+              <span>Crédito gerencial</span>
+              <input inputMode="decimal" value={draft.creditableTaxValue} onChange={(event) => updateDraft('creditableTaxValue', event.target.value)} />
+            </div>
+            <div className="catalog-field col-4">
+              <span>Margem líquida desejada %</span>
+              <input inputMode="decimal" value={draft.desiredNetMarginPercent} onChange={(event) => updateDraft('desiredNetMarginPercent', event.target.value)} />
+            </div>
+            <div className="catalog-field col-4">
+              <span>Imposto na venda %</span>
+              <input inputMode="decimal" value={draft.estimatedSaleTaxPercent} onChange={(event) => updateDraft('estimatedSaleTaxPercent', event.target.value)} />
+            </div>
+            <div className="catalog-field col-4">
+              <span>Taxa cartão %</span>
+              <input inputMode="decimal" value={draft.cardFeePercent} onChange={(event) => updateDraft('cardFeePercent', event.target.value)} />
+            </div>
+            <div className="catalog-field col-4">
+              <span>Reserva/risco %</span>
+              <input inputMode="decimal" value={draft.reservePercent} onChange={(event) => updateDraft('reservePercent', event.target.value)} />
+            </div>
+            <div className="catalog-field col-12">
+              <span>Observações fiscais/gerenciais</span>
+              <textarea value={draft.notes} placeholder="Ex.: compra para estoque, confirmar ICMS/ST, produto usado em atendimento..." onChange={(event) => updateDraft('notes', event.target.value)} />
+            </div>
           </div>
-          <div className="supplier-tax-form-grid">
-            <label><span>Fornecedor</span><input value={draft.supplierName} placeholder="Ex.: Fornecedor principal" onChange={(event) => updateDraft('supplierName', event.target.value)} /></label>
-            <label><span>Nota/pedido</span><input value={draft.documentNumber} placeholder="NF, cupom, pedido..." onChange={(event) => updateDraft('documentNumber', event.target.value)} /></label>
-            <label><span>Data</span><input type="date" value={draft.purchaseDate} onChange={(event) => updateDraft('purchaseDate', event.target.value)} /></label>
-            <label className="wide"><span>Item/peça/insumo</span><input value={draft.productDescription} placeholder="Ex.: Módulo tomada 2P+T 20A branco" onChange={(event) => updateDraft('productDescription', event.target.value)} /></label>
-            <label><span>NCM</span><input value={draft.ncm} placeholder="Opcional" onChange={(event) => updateDraft('ncm', event.target.value)} /></label>
-            <label><span>CFOP</span><input value={draft.cfop} placeholder="Opcional" onChange={(event) => updateDraft('cfop', event.target.value)} /></label>
-            <label><span>Uso</span><select value={draft.useCase} onChange={(event) => updateDraft('useCase', event.target.value as PurchaseUseCase)}><option value="estoque-revenda">Estoque para revenda</option><option value="insumo-servico">Insumo aplicado em serviço</option><option value="uso-proprio-obra">Uso próprio em obra/cliente</option><option value="ferramenta-equipamento">Ferramenta/equipamento</option></select></label>
-            <label><span>Regime</span><select value={draft.taxRegime} onChange={(event) => updateDraft('taxRegime', event.target.value as BusinessTaxRegime)}><option value="mei">MEI</option><option value="simples">Simples Nacional</option><option value="lucro-presumido">Lucro Presumido</option><option value="lucro-real">Lucro Real</option><option value="custom">Personalizado/contador</option></select></label>
-            <label><span>Quantidade</span><input inputMode="decimal" value={draft.quantity} onChange={(event) => updateDraft('quantity', event.target.value)} /></label>
-            <label><span>Custo unitário</span><input inputMode="decimal" value={draft.unitCost} onChange={(event) => updateDraft('unitCost', event.target.value)} /></label>
-            <label><span>Frete</span><input inputMode="decimal" value={draft.freightCost} onChange={(event) => updateDraft('freightCost', event.target.value)} /></label>
-            <label><span>Outros custos</span><input inputMode="decimal" value={draft.otherCosts} onChange={(event) => updateDraft('otherCosts', event.target.value)} /></label>
-            <label><span>Deslocamento compra</span><input inputMode="decimal" value={draft.travelCost} onChange={(event) => updateDraft('travelCost', event.target.value)} /></label>
-            <label><span>ICMS destacado</span><input inputMode="decimal" value={draft.icmsValue} onChange={(event) => updateDraft('icmsValue', event.target.value)} /></label>
-            <label><span>IPI destacado</span><input inputMode="decimal" value={draft.ipiValue} onChange={(event) => updateDraft('ipiValue', event.target.value)} /></label>
-            <label><span>PIS</span><input inputMode="decimal" value={draft.pisValue} onChange={(event) => updateDraft('pisValue', event.target.value)} /></label>
-            <label><span>Cofins</span><input inputMode="decimal" value={draft.cofinsValue} onChange={(event) => updateDraft('cofinsValue', event.target.value)} /></label>
-            <label><span>ISS</span><input inputMode="decimal" value={draft.issValue} onChange={(event) => updateDraft('issValue', event.target.value)} /></label>
-            <label><span>CBS 2026+</span><input inputMode="decimal" value={draft.cbsValue} onChange={(event) => updateDraft('cbsValue', event.target.value)} /></label>
-            <label><span>IBS 2026+</span><input inputMode="decimal" value={draft.ibsValue} onChange={(event) => updateDraft('ibsValue', event.target.value)} /></label>
-            <label><span>Crédito gerencial</span><input inputMode="decimal" value={draft.creditableTaxValue} onChange={(event) => updateDraft('creditableTaxValue', event.target.value)} /></label>
-            <label><span>Margem líquida desejada %</span><input inputMode="decimal" value={draft.desiredNetMarginPercent} onChange={(event) => updateDraft('desiredNetMarginPercent', event.target.value)} /></label>
-            <label><span>Imposto na venda %</span><input inputMode="decimal" value={draft.estimatedSaleTaxPercent} onChange={(event) => updateDraft('estimatedSaleTaxPercent', event.target.value)} /></label>
-            <label><span>Taxa cartão %</span><input inputMode="decimal" value={draft.cardFeePercent} onChange={(event) => updateDraft('cardFeePercent', event.target.value)} /></label>
-            <label><span>Reserva/risco %</span><input inputMode="decimal" value={draft.reservePercent} onChange={(event) => updateDraft('reservePercent', event.target.value)} /></label>
-            <label className="wide"><span>Observações fiscais/gerenciais</span><textarea value={draft.notes} placeholder="Ex.: compra para estoque, conferir ICMS/ST, produto usado em atendimento do cliente..." onChange={(event) => updateDraft('notes', event.target.value)} /></label>
-          </div>
-          <div className="supplier-tax-actions">
+          <div className="catalog-hub-actions start-actions" style={{ marginTop: '16px' }}>
             <button className="primary-action inline-action" type="button" onClick={saveRecord}>{editingId ? 'Salvar alterações' : 'Salvar lançamento'}</button>
             {editingId && <button className="secondary-action inline-action" type="button" onClick={resetForm}>Cancelar edição</button>}
           </div>
         </div>
 
         {previewSummary && (
-          <aside className="supplier-tax-card supplier-tax-preview">
-            <div><strong>Prévia de preço</strong><small>Estimativa gerencial. Valide alíquotas, créditos e regime com contador.</small></div>
-            <div className="supplier-tax-result-grid">
-              <article><span>Custo produtos</span><strong>{money(previewSummary.grossProductsCost)}</strong></article>
-              <article><span>Tributos compra</span><strong>{money(previewSummary.taxIncludedInPurchase)}</strong></article>
-              <article><span>Custo aquisição</span><strong>{money(previewSummary.grossAcquisitionCost)}</strong></article>
-              <article><span>Crédito gerencial</span><strong>{money(previewSummary.managerialCredit)}</strong></article>
-              <article><span>Custo líquido</span><strong>{money(previewSummary.netAcquisitionCost)}</strong></article>
-              <article><span>Custo un.</span><strong>{money(previewSummary.unitNetCost)}</strong></article>
-              <article><span>Percentual saída</span><strong>{previewSummary.saleVariablePercent.toFixed(2)}%</strong></article>
-              <article><span>Preço sugerido</span><strong>{money(previewSummary.suggestedSalePrice)}</strong></article>
-              <article><span>Preço un. sugerido</span><strong>{money(previewSummary.suggestedUnitSalePrice)}</strong></article>
-              <article><span>Markup</span><strong>{previewSummary.markupPercent.toFixed(2)}%</strong></article>
+          <aside className="catalog-form-card" style={{ background: 'linear-gradient(180deg, var(--aferix-surface-raised, #16181e), var(--aferix-surface, #0f1013))', border: '1px solid var(--aferix-border, #222222)' }}>
+            <header>
+              <div>
+                <h4>Prévia de Preço</h4>
+                <p>Estimativa gerencial tributária e comercial.</p>
+              </div>
+            </header>
+            <div className="supplier-tax-result-grid" style={{ display: 'grid', gap: '8px' }}>
+              <article style={{ display: 'grid', gap: '2px', border: '1px solid #222222', borderRadius: '8px', padding: '10px', background: '#000000' }}><span className="catalog-eyebrow" style={{ fontSize: '0.62rem' }}>Custo produtos</span><strong style={{ fontSize: '1rem' }}>{money(previewSummary.grossProductsCost)}</strong></article>
+              <article style={{ display: 'grid', gap: '2px', border: '1px solid #222222', borderRadius: '8px', padding: '10px', background: '#000000' }}><span className="catalog-eyebrow" style={{ fontSize: '0.62rem' }}>Tributos compra</span><strong style={{ fontSize: '1rem' }}>{money(previewSummary.taxIncludedInPurchase)}</strong></article>
+              <article style={{ display: 'grid', gap: '2px', border: '1px solid #222222', borderRadius: '8px', padding: '10px', background: '#000000' }}><span className="catalog-eyebrow" style={{ fontSize: '0.62rem' }}>Custo aquisição</span><strong style={{ fontSize: '1rem' }}>{money(previewSummary.grossAcquisitionCost)}</strong></article>
+              <article style={{ display: 'grid', gap: '2px', border: '1px solid #222222', borderRadius: '8px', padding: '10px', background: '#000000' }}><span className="catalog-eyebrow" style={{ fontSize: '0.62rem' }}>Crédito gerencial</span><strong style={{ fontSize: '1rem' }}>{money(previewSummary.managerialCredit)}</strong></article>
+              <article style={{ display: 'grid', gap: '2px', border: '1px solid #222222', borderRadius: '8px', padding: '10px', background: '#000000' }}><span className="catalog-eyebrow" style={{ fontSize: '0.62rem' }}>Custo líquido</span><strong style={{ fontSize: '1rem' }}>{money(previewSummary.netAcquisitionCost)}</strong></article>
+              <article style={{ display: 'grid', gap: '2px', border: '1px solid #222222', borderRadius: '8px', padding: '10px', background: '#000000' }}><span className="catalog-eyebrow" style={{ fontSize: '0.62rem' }}>Custo un.</span><strong style={{ fontSize: '1.15rem', color: 'var(--aferix-primary, #f5a400)' }}>{money(previewSummary.unitNetCost)}</strong></article>
+              <article style={{ display: 'grid', gap: '2px', border: '1px solid #222222', borderRadius: '8px', padding: '10px', background: '#000000' }}><span className="catalog-eyebrow" style={{ fontSize: '0.62rem' }}>Percentual saída</span><strong style={{ fontSize: '1rem' }}>{previewSummary.saleVariablePercent.toFixed(2)}%</strong></article>
+              <article style={{ display: 'grid', gap: '2px', border: '1px solid #222222', borderRadius: '8px', padding: '10px', background: '#000000' }}><span className="catalog-eyebrow" style={{ fontSize: '0.62rem' }}>Preço sugerido</span><strong style={{ fontSize: '1rem' }}>{money(previewSummary.suggestedSalePrice)}</strong></article>
+              <article style={{ display: 'grid', gap: '2px', border: '1px solid #222222', borderRadius: '8px', padding: '10px', background: '#000000' }}><span className="catalog-eyebrow" style={{ fontSize: '0.62rem' }}>Preço un. sugerido</span><strong style={{ fontSize: '1.25rem', color: 'var(--aferix-primary, #f5a400)' }}>{money(previewSummary.suggestedUnitSalePrice)}</strong></article>
+              <article style={{ display: 'grid', gap: '2px', border: '1px solid #222222', borderRadius: '8px', padding: '10px', background: '#000000' }}><span className="catalog-eyebrow" style={{ fontSize: '0.62rem' }}>Markup</span><strong style={{ fontSize: '1rem' }}>{previewSummary.markupPercent.toFixed(2)}%</strong></article>
             </div>
           </aside>
         )}
       </div>
 
-      <div className="supplier-tax-card">
-        <div><strong>Lançamentos salvos</strong><small>Use para comparar fornecedores, formar estoque e revisar margem.</small></div>
-        <label className="supplier-tax-search"><span>Buscar</span><input value={query} placeholder="Fornecedor, produto, nota, NCM..." onChange={(event) => setQuery(event.target.value)} /></label>
-        <div className="supplier-tax-list">
-          {records.length === 0 ? <div className="supplier-tax-empty">Nenhum lançamento salvo ainda.</div> : !query.trim() ? <div className="supplier-tax-empty">{records.length} lançamento(s) salvo(s). Pesquise para exibir.</div> : filteredRecords.length === 0 && <div className="supplier-tax-empty">Nenhum lançamento encontrado com essa busca.</div>}
+      <div className="aferix-panel-card catalog-list-card">
+        <header>
+          <div>
+            <h4>Lançamentos salvos</h4>
+            <p>Use para comparar fornecedores, formar estoque e revisar margem de lucro.</p>
+          </div>
+        </header>
+        <div className="catalog-form-grid" style={{ marginBottom: '16px' }}>
+          <div className="catalog-field col-12">
+            <span>Buscar</span>
+            <input value={query} placeholder="Fornecedor, produto, nota, NCM..." onChange={(event) => setQuery(event.target.value)} />
+          </div>
+        </div>
+        <div className="continuous-list">
+          {records.length === 0 ? (
+            <div className="continuous-list-empty">Nenhum lançamento salvo ainda.</div>
+          ) : !query.trim() ? (
+            <div className="continuous-list-empty">{records.length} lançamento(s) salvo(s). Pesquise para exibir.</div>
+          ) : filteredRecords.length === 0 ? (
+            <div className="continuous-list-empty">Nenhum lançamento encontrado com essa busca.</div>
+          ) : null}
           {visibleRecords.map((record) => {
             const summary = calculatePurchaseTaxSummary(record);
             return (
-              <article className="supplier-tax-record" key={record.id}>
-                <div>
-                  <span>{taxRegimeLabel(record.taxRegime)} · {purchaseUseCaseLabel(record.useCase)}</span>
+              <article className="continuous-list-item" key={record.id} style={{ display: 'grid', gridTemplateColumns: '1fr auto', alignItems: 'center', gap: '16px' }}>
+                <div className="client-col">
+                  <span className="catalog-eyebrow" style={{ fontSize: '0.68rem', marginBottom: '2px' }}>{taxRegimeLabel(record.taxRegime)} · {purchaseUseCaseLabel(record.useCase)}</span>
                   <strong>{record.productDescription}</strong>
                   <small>{record.supplierName} · {record.quantity} un. · custo un. {money(summary.unitNetCost)} · preço un. sugerido {money(summary.suggestedUnitSalePrice)}</small>
-                  <small>{record.documentNumber ? `Doc.: ${record.documentNumber}` : 'Sem documento informado'} · {record.ncm ? `NCM: ${record.ncm}` : 'NCM não informado'} · {record.cfop ? `CFOP: ${record.cfop}` : 'CFOP não informado'}</small>
+                  <small>{record.documentNumber ? `Doc.: ${record.documentNumber}` : 'Sem documento'} · {record.ncm ? `NCM: ${record.ncm}` : 'NCM não informado'} · {record.cfop ? `CFOP: ${record.cfop}` : 'CFOP não informado'}</small>
                 </div>
-                <div className="supplier-tax-actions compact-actions">
-                  <button className="secondary-action inline-action" type="button" onClick={() => editRecord(record)}>Editar</button>
-                  <button className="secondary-action inline-action" type="button" onClick={() => duplicateRecord(record)}>Duplicar</button>
-                  <button className="danger-action" type="button" onClick={() => removeRecord(record.id)}>Remover</button>
+                <div className="catalog-row-actions">
+                  <button className="ghost-action" type="button" onClick={() => editRecord(record)} style={{ minHeight: '32px', fontSize: '0.7rem' }}>Editar</button>
+                  <button className="ghost-action" type="button" onClick={() => duplicateRecord(record)} style={{ minHeight: '32px', fontSize: '0.7rem' }}>Duplicar</button>
+                  <button className="danger-action" type="button" onClick={() => removeRecord(record.id)} style={{ minHeight: '32px', fontSize: '0.7rem', padding: '0 8px', borderRadius: '4px' }}>Remover</button>
                 </div>
               </article>
             );
           })}
-          {hiddenRecordCount > 0 && <div className="supplier-tax-empty">Mais {hiddenRecordCount} lançamento(s) oculto(s). Use a busca para refinar.</div>}
+          {hiddenRecordCount > 0 && <div className="continuous-list-empty">Mais {hiddenRecordCount} lançamento(s) oculto(s). Use a busca para refinar.</div>}
         </div>
       </div>
 
-      <div className="supplier-tax-note">
-        <strong>Nota fiscal e impostos</strong>
-        <p>Use este módulo como controle gerencial. Para declaração fiscal, aproveitamento de crédito, ICMS/ST, monofásico, DAS, CBS/IBS e escrituração, valide as regras com contador e com os documentos fiscais da operação.</p>
+      <div className="catalog-form-card" style={{ borderStyle: 'dashed', background: 'rgba(255, 255, 255, 0.01)' }}>
+        <h4 style={{ fontSize: '1rem' }}>Nota fiscal e impostos</h4>
+        <p style={{ fontSize: '0.82rem', margin: 0 }}>Use este módulo como controle gerencial. Para declaração fiscal, aproveitamento de crédito, ICMS/ST, monofásico, DAS, CBS/IBS e escrituração, valide as regras com seu contador e com os documentos fiscais da operação.</p>
       </div>
 
       {feedback && <div className="guided-cart-feedback">{feedback}</div>}

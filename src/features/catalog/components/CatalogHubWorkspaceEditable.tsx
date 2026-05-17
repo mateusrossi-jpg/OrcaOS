@@ -571,26 +571,19 @@ export function CatalogHubWorkspace({ onSendToBudget, initialTab = 'items', enab
     reader.readAsDataURL(file);
   }
 
-  return (
-    <section className="catalog-hub-workspace">
-      <div className="aferix-panel-card">
-        <header>
+  if (activeTab === 'items') {
+    return (
+      <section className="catalog-tab-panel">
+        <div className="catalog-tab-hero">
           <div>
-            <h2>{activeTab === 'online' ? 'Consulta Online' : 'Catálogo Profissional'}</h2>
+            <span className="catalog-eyebrow">Catálogo</span>
+            <h3>Catálogo Profissional</h3>
+            <p>Itens e serviços já validados para reutilizar no campo e no orçamento.</p>
           </div>
-        </header>
-      </div>
-
-      {availableTabs.length > 1 && (
-        <div className="home-action-toolbar">
-          {availableTabs.includes('items') && <button className={`ghost-action ${activeTab === 'items' ? 'active' : ''}`} type="button" onClick={() => setActiveTab('items')}>Itens</button>}
-          {availableTabs.includes('suppliers') && <button className={`ghost-action ${activeTab === 'suppliers' ? 'active' : ''}`} type="button" onClick={() => setActiveTab('suppliers')}>Fornecedores</button>}
-          {availableTabs.includes('online') && <button className={`ghost-action ${activeTab === 'online' ? 'active' : ''}`} type="button" onClick={() => setActiveTab('online')}>Online</button>}
+          <strong>{items.length} item(ns)</strong>
         </div>
-      )}
 
-      {activeTab === 'items' && (
-        <>
+        <div className="catalog-tab-content">
           <div className="catalog-stats-grid">
             {itemKindStats.map((stat) => (
               <button className={`catalog-stat-card ${kindFilter === stat.kind ? 'active' : ''}`} key={stat.kind} type="button" onClick={() => setKindFilter(stat.kind)}>
@@ -605,195 +598,181 @@ export function CatalogHubWorkspace({ onSendToBudget, initialTab = 'items', enab
             <button className={`ghost-action ${itemsView === 'form' ? 'active' : ''}`} type="button" onClick={() => { resetItemForm(); setItemsView('form'); }}>Novo Item</button>
           </div>
 
-          {itemsView === 'form' && <div className="aferix-panel-card catalog-form-card">
-            <header>
-              <div>
-                <h2>{isEditingItem ? 'Editar Item' : 'Novo Item'}</h2>
-              </div>
-            </header>
-            <div className="catalog-hub-grid">
-              <label><span>Tipo</span><select value={itemDraft.kind} onChange={(event) => updateItemDraft('kind', event.target.value as CatalogHubItemKind)}><option value="material">Material</option><option value="labor">Mão de obra</option><option value="service">Serviço composto</option><option value="travel">Deslocamento</option><option value="fee">Taxa</option><option value="custom">Item personalizado</option></select></label>
-              <label className="wide"><span>Descrição</span><input value={itemDraft.title} placeholder="Ex.: Módulo tomada 2P+T 20A branco" onChange={(event) => updateItemDraft('title', event.target.value)} /></label>
-              <label><span>Nome popular</span><input value={itemDraft.popularName} placeholder="Ex.: tomada 20A" onChange={(event) => updateItemDraft('popularName', event.target.value)} /></label>
-              <label><span>Categoria</span><input list="catalog-categories" value={itemDraft.category} placeholder="Ex.: Tomadas e módulos" onChange={(event) => updateItemDraft('category', event.target.value)} /><datalist id="catalog-categories">{categories.map((category) => <option key={category} value={category} />)}</datalist></label>
-              <label><span>Área/profissão</span><input value={itemDraft.professionArea} placeholder="Ex.: Elétrica" onChange={(event) => updateItemDraft('professionArea', event.target.value)} /></label>
-              <label className="wide"><span>Descrição técnica</span><input value={itemDraft.technicalDescription} placeholder="Ex.: módulo 20A 2P+T para placa modular compatível" onChange={(event) => updateItemDraft('technicalDescription', event.target.value)} /></label>
-              <label><span>Marca</span><input value={itemDraft.brand} placeholder="Ex.: Fabricante" onChange={(event) => updateItemDraft('brand', event.target.value)} /></label>
-              <label><span>Fornecedor</span><select value={itemDraft.supplierId} onChange={(event) => updateItemDraft('supplierId', event.target.value)}><option value="">Sem fornecedor</option>{suppliers.map((supplier) => <option key={supplier.id} value={supplier.id}>{supplier.name}</option>)}</select></label>
-              <label><span>Modelo</span><input value={itemDraft.model} placeholder="Opcional" onChange={(event) => updateItemDraft('model', event.target.value)} /></label>
-              <label><span>Referência/SKU</span><input value={itemDraft.reference} placeholder="Opcional" onChange={(event) => updateItemDraft('reference', event.target.value)} /></label>
-              <label><span>Unidade</span><input value={itemDraft.unit} placeholder="un, m, cx, ponto..." onChange={(event) => updateItemDraft('unit', event.target.value)} /></label>
-              <label><span>Qtd. padrão</span><input inputMode="decimal" value={itemDraft.defaultQuantity} onChange={(event) => updateItemDraft('defaultQuantity', event.target.value)} /></label>
-              <label><span>Valor unitário</span><input inputMode="decimal" value={itemDraft.defaultUnitValue} onChange={(event) => updateItemDraft('defaultUnitValue', event.target.value)} /></label>
-              <label><span>Origem do dado</span><select value={itemDraft.dataOrigin} onChange={(event) => updateItemDraft('dataOrigin', event.target.value as NonNullable<CatalogHubItem['dataOrigin']>)}><option value="manual">Manual</option><option value="local-catalog">Catálogo local</option><option value="online-reference">Referência online</option><option value="supplier">Fornecedor</option></select></label>
-              <label><span>Preço atualizado em</span><input type="date" value={itemDraft.priceUpdatedAt ? itemDraft.priceUpdatedAt.slice(0, 10) : ''} onChange={(event) => updateItemDraft('priceUpdatedAt', event.target.value ? new Date(`${event.target.value}T12:00:00`).toISOString() : '')} /></label>
-              <label><span>Destino</span><select value={itemDraft.destination} onChange={(event) => updateItemDraft('destination', event.target.value as CalculationDestination)}><option value="survey">Atendimento</option><option value="budget">Orçamento</option><option value="both">Ambos</option></select></label>
-              <label className="wide"><span>Link fonte/catálogo</span><input value={itemDraft.sourceUrl} placeholder="https://..." onChange={(event) => updateItemDraft('sourceUrl', event.target.value)} /></label>
-              <label className="wide"><span>Foto ou URL da imagem</span><input value={itemDraft.imageUrl} placeholder="Cole uma URL de imagem ou envie uma foto abaixo" onChange={(event) => updateItemDraft('imageUrl', event.target.value)} /></label>
-              <label className="wide file-reference-field"><span>Enviar foto de referência</span><input accept="image/*" type="file" onChange={(event) => handleItemImageFile(event.target.files?.[0])} /></label>
-              <label className="wide"><span>Compatibilidades</span><textarea value={itemDraft.compatibility} placeholder="Ex.: compatível com placa e suporte da mesma linha modular." onChange={(event) => updateItemDraft('compatibility', event.target.value)} /></label>
-              <label className="wide"><span>Alternativas aceitas</span><textarea value={itemDraft.acceptedAlternatives} placeholder="Ex.: pode ser equivalente se for módulo 20A 2P+T da mesma linha." onChange={(event) => updateItemDraft('acceptedAlternatives', event.target.value)} /></label>
-              <label className="wide"><span>Alternativas proibidas</span><textarea value={itemDraft.forbiddenAlternatives} placeholder="Ex.: não substituir por tomada 10A." onChange={(event) => updateItemDraft('forbiddenAlternatives', event.target.value)} /></label>
-              <label className="wide"><span>Observação para o cliente</span><textarea value={itemDraft.clientNote} placeholder="Ex.: comprar tomada 20A 2P+T padrão brasileiro. Não substituir por 10A." onChange={(event) => updateItemDraft('clientNote', event.target.value)} /></label>
-              <label className="wide"><span>Observação técnica profissional</span><textarea value={itemDraft.professionalNote} placeholder="Ex.: conferir circuito, proteção e seção do cabo antes da execução." onChange={(event) => updateItemDraft('professionalNote', event.target.value)} /></label>
-              <label className="wide"><span>Orientação para compra</span><textarea value={itemDraft.purchaseGuidance} placeholder="Ex.: comprar exatamente este modelo ou equivalente validado; conferir tensão, cor, linha e encaixe..." onChange={(event) => updateItemDraft('purchaseGuidance', event.target.value)} /></label>
-              <label className="wide"><span>Observação</span><textarea value={itemDraft.notes} placeholder="Ex.: confirmar disponibilidade, linha compatível, preço aproximado..." onChange={(event) => updateItemDraft('notes', event.target.value)} /></label>
-            </div>
-            {itemDraft.imageUrl && (
-              <div className="catalog-reference-preview">
-                <img src={itemDraft.imageUrl} alt={`Referência de ${itemDraft.title || 'produto'}`} />
-                <span><strong>Foto de referência salva</strong><small>Essa imagem acompanha o item quando ele for enviado para relatório/lista de compra.</small></span>
-              </div>
-            )}
-            <div className="catalog-hub-actions start-actions">
-              <button className="primary-action inline-action" type="button" onClick={saveItem}>{isEditingItem ? 'Salvar alterações' : 'Cadastrar item'}</button>
-              {isEditingItem && <button className="secondary-action inline-action" type="button" onClick={() => { resetItemForm(); setItemsView('list'); }}>Cancelar edição</button>}
-              {!isEditingItem && <button className="secondary-action inline-action" type="button" onClick={() => setItemsView('list')}>Voltar para lista</button>}
-            </div>
-          </div>}
-
-          {itemsView === 'list' && <div className="aferix-panel-card catalog-list-card">
-            <header>
-              <div>
-                <h2>Itens do Catálogo</h2>
-              </div>
-            </header>
-            <div className="catalog-hub-grid compact catalog-filter-grid">
-              <label className="wide"><span>Buscar</span><input value={query} placeholder="tomada, disjuntor, serviço, marca..." onChange={(event) => setQuery(event.target.value)} /></label>
-              <label><span>Tipo</span><select value={kindFilter} onChange={(event) => setKindFilter(event.target.value as 'all' | CatalogHubItemKind)}><option value="all">Todos</option><option value="material">Materiais</option><option value="labor">Mão de obra</option><option value="service">Serviços compostos</option><option value="travel">Deslocamento</option><option value="fee">Taxas</option><option value="custom">Personalizados</option></select></label>
-              <label><span>Fornecedor</span><select value={supplierFilter} onChange={(event) => setSupplierFilter(event.target.value)}><option value="">Todos</option>{suppliers.map((supplier) => <option key={supplier.id} value={supplier.id}>{supplier.name}</option>)}</select></label>
-              <label><span>Fabricante</span><select value={brandFilter} onChange={(event) => setBrandFilter(event.target.value)}><option value="">Todos</option>{brands.map((brand) => <option key={brand} value={brand}>{brand}</option>)}</select></label>
-              <label><span>Categoria</span><select value={categoryFilter} onChange={(event) => setCategoryFilter(event.target.value)}><option value="">Todas</option>{categories.map((category) => <option key={category} value={category}>{category}</option>)}</select></label>
-              <label><span>Origem</span><select value={originFilter} onChange={(event) => setOriginFilter(event.target.value as 'all' | NonNullable<CatalogHubItem['dataOrigin']>)}><option value="all">Todas</option><option value="manual">Manual</option><option value="local-catalog">Catálogo local</option><option value="online-reference">Referência online</option><option value="supplier">Fornecedor</option></select></label>
-            </div>
-            <div className="catalog-list-meta"><span>{hasItemLookup ? `${filteredItems.length} de ${items.length} item(ns) · mostrando ${visibleFilteredItems.length}${hiddenFilteredItemCount > 0 ? ` · ${hiddenFilteredItemCount} oculto(s)` : ''}` : `${items.length} item(ns) cadastrados. Pesquise ou filtre para exibir.`}</span><button type="button" onClick={() => { setQuery(''); setKindFilter('all'); setSupplierFilter(''); setCategoryFilter(''); setBrandFilter(''); setOriginFilter('all'); }}>Limpar filtros</button></div>
-            <div className="continuous-list">
-              {!hasItemLookup && <div className="continuous-list-empty">Pesquise para listar os itens.</div>}
-              {hasItemLookup && filteredItems.length === 0 && <div className="continuous-list-empty">Nenhum item encontrado.</div>}
-              {visibleFilteredItems.map((item) => {
-                const supplierName = suppliers.find((supplier) => supplier.id === item.supplierId)?.name;
-                return (
-                  <article className="continuous-list-item" key={item.id}>
-                    <div className="client-col">
-                      <strong>{item.title}</strong>
-                      <small>{[itemKindLabel(item.kind), item.brand, supplierName].filter(Boolean).join(' · ')}</small>
-                    </div>
-                    <div className="value-col">{money(item.defaultUnitValue)}</div>
-                    <div className="catalog-row-actions">
-                      <button className="ghost-action" style={{ minHeight: '32px', fontSize: '0.7rem' }} type="button" onClick={() => editItem(item)}>Editar</button>
-                      <button className="ghost-action" style={{ minHeight: '32px', fontSize: '0.7rem' }} type="button" onClick={() => sendItem(item)}>Enviar</button>
-                    </div>
-                  </article>
-                );
-              })}
-              {hiddenFilteredItemCount > 0 && <div className="continuous-list-empty">+{hiddenFilteredItemCount} itens.</div>}
-            </div>
-          </div>}
-        </>
-      )}
-
-      {activeTab === 'suppliers' && (
-        <>
-          <div className="aferix-panel-card">
-            <header>
-              <div>
-                <h2>{editingSupplierId ? 'Editar Fornecedor' : 'Novo Fornecedor'}</h2>
-              </div>
-            </header>
-            <div className="catalog-hub-grid">
-              <label><span>Nome</span><input value={supplierDraft.name} placeholder="Ex.: Fornecedor principal" onChange={(event) => updateSupplierDraft('name', event.target.value)} /></label>
-              <label><span>Segmento</span><input value={supplierDraft.segment} placeholder="Ex.: Materiais elétricos" onChange={(event) => updateSupplierDraft('segment', event.target.value)} /></label>
-              <label><span>Site</span><input value={supplierDraft.websiteUrl} placeholder="https://..." onChange={(event) => updateSupplierDraft('websiteUrl', event.target.value)} /></label>
-              <label><span>Catálogo</span><input value={supplierDraft.catalogUrl} placeholder="https://..." onChange={(event) => updateSupplierDraft('catalogUrl', event.target.value)} /></label>
-              <label className="wide"><span>Busca online com {'{query}'}</span><input value={supplierDraft.searchUrlTemplate} placeholder="https://www.google.com/search?q=site:fornecedor.com {query}" onChange={(event) => updateSupplierDraft('searchUrlTemplate', event.target.value)} /></label>
-              <label><span>Telefone/WhatsApp</span><input value={supplierDraft.phone} placeholder="Opcional" onChange={(event) => updateSupplierDraft('phone', event.target.value)} /></label>
-              <label className="wide"><span>Observações</span><textarea value={supplierDraft.notes} placeholder="Condições, região, prazo, observações de compra..." onChange={(event) => updateSupplierDraft('notes', event.target.value)} /></label>
-            </div>
-            <div className="catalog-hub-actions start-actions">
-              <button className="primary-action inline-action" type="button" onClick={saveSupplier}>{editingSupplierId ? 'Salvar alterações' : 'Cadastrar fornecedor'}</button>
-              {editingSupplierId && <button className="secondary-action inline-action" type="button" onClick={resetSupplierForm}>Cancelar edição</button>}
-            </div>
-          </div>
-            <div className="continuous-list">
-              {!supplierSearch.trim() ? <div className="continuous-list-empty">Pesquise para listar fornecedores.</div> : filteredSuppliers.length === 0 && <div className="continuous-list-empty">Nenhum fornecedor encontrado.</div>}
-            {visibleSuppliers.map((supplier) => (
-              <article className="continuous-list-item" key={supplier.id}>
-                <div className="client-col">
-                  <strong>{supplier.name}</strong>
-                  <small>{supplier.segment} · {supplier.phone || 'Sem contato'}</small>
-                </div>
-                <div className="catalog-hub-actions">
-                  <button className="ghost-action" style={{ minHeight: '32px', fontSize: '0.7rem' }} type="button" onClick={() => editSupplier(supplier)}>Editar</button>
-                  <button className="ghost-action" style={{ minHeight: '32px', fontSize: '0.7rem', color: '#ef4444' }} type="button" onClick={() => removeSupplier(supplier.id)}>Remover</button>
-                </div>
-              </article>
-            ))}
-            {hiddenSupplierCount > 0 && <div className="continuous-list-empty">+{hiddenSupplierCount} fornecedores.</div>}
-          </div>
-        </>
-      )}
-
-      {activeTab === 'online' && (
-        <div className="aferix-panel-card online-card">
-          <header>
-            <div>
-              <h2>Assistente de Busca</h2>
-            </div>
-          </header>
-          <div className="catalog-hub-grid">
-            <label className="wide"><span>O que pesquisar?</span><input value={onlineQuery} placeholder="Ex.: tomada 20A branca 2P+T" onChange={(event) => setOnlineQuery(event.target.value)} /></label>
-            <label><span>Fornecedor/fabricante</span><select value={onlineSupplierId} onChange={(event) => setOnlineSupplierId(event.target.value)}>{suppliers.map((supplier) => <option key={supplier.id} value={supplier.id}>{supplier.name}</option>)}</select></label>
-            <label><span>Preço observado</span><input inputMode="decimal" value={onlineObservedPrice} placeholder="Ex.: 18,90" onChange={(event) => setOnlineObservedPrice(event.target.value)} /></label>
-            <label className="wide"><span>Referência escolhida</span><input value={onlineReference} placeholder="Ex.: SKU, modelo, código do fabricante ou link do produto" onChange={(event) => setOnlineReference(event.target.value)} /></label>
-            <label className="wide"><span>Link do produto escolhido</span><input value={onlineProductUrl} placeholder="Cole aqui o link real do produto após abrir a consulta" onChange={(event) => setOnlineProductUrl(event.target.value)} /></label>
-            <label className="wide"><span>Imagem do produto</span><input value={onlineImageUrl} placeholder="Cole uma URL de imagem ou envie uma foto abaixo" onChange={(event) => setOnlineImageUrl(event.target.value)} /></label>
-            <label className="wide file-reference-field"><span>Enviar foto de referência</span><input accept="image/*" type="file" onChange={(event) => handleOnlineImageFile(event.target.files?.[0])} /></label>
-          </div>
-          <div className="online-result-box">
-            <span>Consulta preparada</span>
-            <strong>{sanitizeCatalogDisplayText(onlineSupplier?.name ?? 'Fornecedor')}</strong>
-            <small>{onlineUrl || 'Cadastre um fornecedor com site/catálogo.'}</small>
-            <small>Abra a busca, escolha o item real e registre link, foto, modelo e preço como referência comercial.</small>
-            <small>{productSearchDisclaimer()}</small>
-          </div>
-          <div className="online-provider-grid">
-            <article><span>1</span><strong>Catálogo local</strong><small>Mostra primeiro o que já foi salvo.</small></article>
-            <article><span>2</span><strong>Fornecedor</strong><small>Abre busca oficial ou template cadastrado.</small></article>
-            <article><span>3</span><strong>Revisão manual</strong><small>Nada entra sem conferir dados.</small></article>
-          </div>
-          <div className="online-results-list">
-            {visibleOnlineResults.map((result) => (
-              <article className="online-result-card" key={result.id}>
-                {result.imageUrl && <img src={result.imageUrl} alt={`Referência de ${result.title}`} />}
+          {itemsView === 'form' && (
+            <div className="catalog-form-card">
+              <header>
                 <div>
-                  <span>{searchResultSourceLabel(result)}</span>
-                  <strong>{sanitizeCatalogDisplayText(result.title)}</strong>
-                  <small>{result.note}</small>
-                  {result.priceReference !== undefined && <small>Preço referência: {money(result.priceReference)}</small>}
-                  <small>Consulta: {new Intl.DateTimeFormat('pt-BR').format(new Date(result.checkedAt))}</small>
+                  <h4>{isEditingItem ? 'Editar Item' : 'Novo Item'}</h4>
+                  <p>Preencha os campos abaixo para cadastrar ou atualizar o item.</p>
                 </div>
-                <div className="catalog-hub-actions">
-                  {result.link && <a className="secondary-action inline-action" href={result.link} target="_blank" rel="noreferrer">Abrir</a>}
-                  <button className="primary-action inline-action" type="button" onClick={() => fillItemFromOnlineSearch(result)}>Revisar e adicionar</button>
+              </header>
+              <div className="catalog-form-grid">
+                <div className="catalog-field col-4"><span>Tipo</span><select value={itemDraft.kind} onChange={(event) => updateItemDraft('kind', event.target.value as CatalogHubItemKind)}><option value="material">Material</option><option value="labor">Mão de obra</option><option value="service">Serviço composto</option><option value="travel">Deslocamento</option><option value="fee">Taxa</option><option value="custom">Item personalizado</option></select></div>
+                <div className="catalog-field col-8"><span>Descrição</span><input value={itemDraft.title} placeholder="Ex.: Módulo tomada 2P+T 20A branco" onChange={(event) => updateItemDraft('title', event.target.value)} /></div>
+                <div className="catalog-field col-4"><span>Nome popular</span><input value={itemDraft.popularName} placeholder="Ex.: tomada 20A" onChange={(event) => updateItemDraft('popularName', event.target.value)} /></div>
+                <div className="catalog-field col-4"><span>Categoria</span><input list="catalog-categories" value={itemDraft.category} placeholder="Ex.: Tomadas e módulos" onChange={(event) => updateItemDraft('category', event.target.value)} /><datalist id="catalog-categories">{categories.map((category) => <option key={category} value={category} />)}</datalist></div>
+                <div className="catalog-field col-4"><span>Área/profissão</span><input value={itemDraft.professionArea} placeholder="Ex.: Elétrica" onChange={(event) => updateItemDraft('professionArea', event.target.value)} /></div>
+                <div className="catalog-field col-12"><span>Descrição técnica</span><input value={itemDraft.technicalDescription} placeholder="Ex.: módulo 20A 2P+T para placa modular compatível" onChange={(event) => updateItemDraft('technicalDescription', event.target.value)} /></div>
+                <div className="catalog-field col-3"><span>Marca</span><input value={itemDraft.brand} placeholder="Ex.: Fabricante" onChange={(event) => updateItemDraft('brand', event.target.value)} /></div>
+                <div className="catalog-field col-3"><span>Fornecedor</span><select value={itemDraft.supplierId} onChange={(event) => updateItemDraft('supplierId', event.target.value)}><option value="">Sem fornecedor</option>{suppliers.map((supplier) => <option key={supplier.id} value={supplier.id}>{supplier.name}</option>)}</select></div>
+                <div className="catalog-field col-3"><span>Modelo</span><input value={itemDraft.model} placeholder="Opcional" onChange={(event) => updateItemDraft('model', event.target.value)} /></div>
+                <div className="catalog-field col-3"><span>Referência/SKU</span><input value={itemDraft.reference} placeholder="Opcional" onChange={(event) => updateItemDraft('reference', event.target.value)} /></div>
+                <div className="catalog-field col-4"><span>Unidade</span><input value={itemDraft.unit} placeholder="un, m, cx, ponto..." onChange={(event) => updateItemDraft('unit', event.target.value)} /></div>
+                <div className="catalog-field col-4"><span>Qtd. padrão</span><input inputMode="decimal" value={itemDraft.defaultQuantity} onChange={(event) => updateItemDraft('defaultQuantity', event.target.value)} /></div>
+                <div className="catalog-field col-4"><span>Valor unitário</span><input inputMode="decimal" value={itemDraft.defaultUnitValue} onChange={(event) => updateItemDraft('defaultUnitValue', event.target.value)} /></div>
+                <div className="catalog-field col-4"><span>Origem do dado</span><select value={itemDraft.dataOrigin} onChange={(event) => updateItemDraft('dataOrigin', event.target.value as NonNullable<CatalogHubItem['dataOrigin']>)}><option value="manual">Manual</option><option value="local-catalog">Catálogo local</option><option value="online-reference">Referência online</option><option value="supplier">Fornecedor</option></select></div>
+                <div className="catalog-field col-4"><span>Preço atualizado em</span><input type="date" value={itemDraft.priceUpdatedAt ? itemDraft.priceUpdatedAt.slice(0, 10) : ''} onChange={(event) => updateItemDraft('priceUpdatedAt', event.target.value ? new Date(`${event.target.value}T12:00:00`).toISOString() : '')} /></div>
+                <div className="catalog-field col-4"><span>Destino</span><select value={itemDraft.destination} onChange={(event) => updateItemDraft('destination', event.target.value as CalculationDestination)}><option value="survey">Atendimento</option><option value="budget">Orçamento</option><option value="both">Ambos</option></select></div>
+                <div className="catalog-field col-12"><span>Link fonte/catálogo</span><input value={itemDraft.sourceUrl} placeholder="https://..." onChange={(event) => updateItemDraft('sourceUrl', event.target.value)} /></div>
+                <div className="catalog-field col-12"><span>Foto ou URL da imagem</span><input value={itemDraft.imageUrl} placeholder="Cole uma URL de imagem ou envie uma foto abaixo" onChange={(event) => updateItemDraft('imageUrl', event.target.value)} /></div>
+                <div className="catalog-field col-12 file-reference-field"><span>Enviar foto de referência</span><input accept="image/*" type="file" onChange={(event) => handleItemImageFile(event.target.files?.[0])} /></div>
+                <div className="catalog-field col-12"><span>Compatibilidades</span><textarea value={itemDraft.compatibility} placeholder="Ex.: compatível com placa e suporte da mesma linha modular." onChange={(event) => updateItemDraft('compatibility', event.target.value)} /></div>
+                <div className="catalog-field col-12"><span>Alternativas aceitas</span><textarea value={itemDraft.acceptedAlternatives} placeholder="Ex.: pode ser equivalente se for módulo 20A 2P+T da mesma linha." onChange={(event) => updateItemDraft('acceptedAlternatives', event.target.value)} /></div>
+                <div className="catalog-field col-12"><span>Alternativas proibidas</span><textarea value={itemDraft.forbiddenAlternatives} placeholder="Ex.: não substituir por tomada 10A." onChange={(event) => updateItemDraft('forbiddenAlternatives', event.target.value)} /></div>
+                <div className="catalog-field col-12"><span>Observação para o cliente</span><textarea value={itemDraft.clientNote} placeholder="Ex.: comprar tomada 20A 2P+T padrão brasileiro. Não substituir por 10A." onChange={(event) => updateItemDraft('clientNote', event.target.value)} /></div>
+                <div className="catalog-field col-12"><span>Observação técnica profissional</span><textarea value={itemDraft.professionalNote} placeholder="Ex.: conferir circuito, proteção e seção do cabo antes da execução." onChange={(event) => updateItemDraft('professionalNote', event.target.value)} /></div>
+                <div className="catalog-field col-12"><span>Orientação para compra</span><textarea value={itemDraft.purchaseGuidance} placeholder="Ex.: comprar exatamente este modelo ou equivalente validado; conferir tensão, cor, linha e encaixe..." onChange={(event) => updateItemDraft('purchaseGuidance', event.target.value)} /></div>
+                <div className="catalog-field col-12"><span>Observação</span><textarea value={itemDraft.notes} placeholder="Ex.: confirmar disponibilidade, linha compatível, preço aproximado..." onChange={(event) => updateItemDraft('notes', event.target.value)} /></div>
+              </div>
+              {itemDraft.imageUrl && (
+                <div className="catalog-reference-preview">
+                  <img src={itemDraft.imageUrl} alt={`Referência de ${itemDraft.title || 'produto'}`} />
+                  <span><strong>Foto de referência salva</strong><small>Essa imagem acompanha o item quando ele for enviado para relatório/lista de compra.</small></span>
                 </div>
-              </article>
-            ))}
-            {hiddenOnlineResultCount > 0 && <div className="catalog-hidden-row">Mais {hiddenOnlineResultCount} resultado(s) oculto(s). Refine a busca para encontrar o produto certo.</div>}
-          </div>
-          {onlineImageUrl && (
-            <div className="catalog-reference-preview">
-              <img src={onlineImageUrl} alt={`Referência de ${onlineQuery}`} />
-              <span><strong>Imagem pronta para referência</strong><small>Ao usar como referência, esta imagem será enviada para o cadastro do item.</small></span>
+              )}
+              <div className="catalog-hub-actions start-actions">
+                <button className="primary-action inline-action" type="button" onClick={saveItem}>{isEditingItem ? 'Salvar alterações' : 'Cadastrar item'}</button>
+                {isEditingItem && <button className="secondary-action inline-action" type="button" onClick={() => { resetItemForm(); setItemsView('list'); }}>Cancelar edição</button>}
+                {!isEditingItem && <button className="secondary-action inline-action" type="button" onClick={() => setItemsView('list')}>Voltar para lista</button>}
+              </div>
             </div>
           )}
-          <div className="catalog-hub-actions start-actions">
-            {onlineUrl && <a className="primary-action inline-action" href={onlineUrl} target="_blank" rel="noreferrer">Abrir consulta online</a>}
-            <button className="secondary-action inline-action" type="button" onClick={() => fillItemFromOnlineSearch()}>Usar como referência</button>
+
+          {itemsView === 'list' && (
+            <div className="aferix-panel-card catalog-list-card">
+              <header>
+                <div>
+                  <h2>Itens do Catálogo</h2>
+                </div>
+              </header>
+              <div className="catalog-hub-grid compact catalog-filter-grid">
+                <label className="wide"><span>Buscar</span><input value={query} placeholder="tomada, disjuntor, serviço, marca..." onChange={(event) => setQuery(event.target.value)} /></label>
+                <label><span>Tipo</span><select value={kindFilter} onChange={(event) => setKindFilter(event.target.value as 'all' | CatalogHubItemKind)}><option value="all">Todos</option><option value="material">Materiais</option><option value="labor">Mão de obra</option><option value="service">Serviços compostos</option><option value="travel">Deslocamento</option><option value="fee">Taxas</option><option value="custom">Personalizados</option></select></label>
+                <label><span>Fornecedor</span><select value={supplierFilter} onChange={(event) => setSupplierFilter(event.target.value)}><option value="">Todos</option>{suppliers.map((supplier) => <option key={supplier.id} value={supplier.id}>{supplier.name}</option>)}</select></label>
+                <label><span>Fabricante</span><select value={brandFilter} onChange={(event) => setBrandFilter(event.target.value)}><option value="">Todos</option>{brands.map((brand) => <option key={brand} value={brand}>{brand}</option>)}</select></label>
+                <label><span>Categoria</span><select value={categoryFilter} onChange={(event) => setCategoryFilter(event.target.value)}><option value="">Todas</option>{categories.map((category) => <option key={category} value={category}>{category}</option>)}</select></label>
+                <label><span>Origem</span><select value={originFilter} onChange={(event) => setOriginFilter(event.target.value as 'all' | NonNullable<CatalogHubItem['dataOrigin']>)}><option value="all">Todas</option><option value="manual">Manual</option><option value="local-catalog">Catálogo local</option><option value="online-reference">Referência online</option><option value="supplier">Fornecedor</option></select></label>
+              </div>
+              <div className="catalog-list-meta"><span>{hasItemLookup ? `${filteredItems.length} de ${items.length} item(ns) · mostrando ${visibleFilteredItems.length}${hiddenFilteredItemCount > 0 ? ` · ${hiddenFilteredItemCount} oculto(s)` : ''}` : `${items.length} item(ns) cadastrados. Pesquise ou filtre para exibir.`}</span><button type="button" onClick={() => { setQuery(''); setKindFilter('all'); setSupplierFilter(''); setCategoryFilter(''); setBrandFilter(''); setOriginFilter('all'); }}>Limpar filtros</button></div>
+              <div className="continuous-list">
+                {!hasItemLookup && <div className="continuous-list-empty">Pesquise para listar os itens.</div>}
+                {hasItemLookup && filteredItems.length === 0 && <div className="continuous-list-empty">Nenhum item encontrado.</div>}
+                {visibleFilteredItems.map((item) => {
+                  const supplierName = suppliers.find((supplier) => supplier.id === item.supplierId)?.name;
+                  return (
+                    <article className="continuous-list-item" key={item.id}>
+                      <div className="client-col">
+                        <strong>{item.title}</strong>
+                        <small>{[itemKindLabel(item.kind), item.brand, supplierName].filter(Boolean).join(' · ')}</small>
+                      </div>
+                      <div className="value-col">{money(item.defaultUnitValue)}</div>
+                      <div className="catalog-row-actions">
+                        <button className="ghost-action" style={{ minHeight: '32px', fontSize: '0.7rem' }} type="button" onClick={() => editItem(item)}>Editar</button>
+                        <button className="ghost-action" style={{ minHeight: '32px', fontSize: '0.7rem' }} type="button" onClick={() => sendItem(item)}>Enviar</button>
+                      </div>
+                    </article>
+                  );
+                })}
+                {hiddenFilteredItemCount > 0 && <div className="continuous-list-empty">+{hiddenFilteredItemCount} itens.</div>}
+              </div>
+            </div>
+          )}
+        </div>
+        {feedback && <div className="guided-cart-feedback">{feedback}</div>}
+      </section>
+    );
+  }
+
+  if (activeTab === 'online') {
+    return (
+      <section className="catalog-tab-panel">
+        <div className="catalog-tab-hero">
+          <div>
+            <span className="catalog-eyebrow">Busca online</span>
+            <h3>Consulta Online</h3>
+            <p>Pesquise produto real no fornecedor e traga modelo, preço e referência para o catálogo.</p>
           </div>
         </div>
-      )}
 
-      {feedback && <div className="guided-cart-feedback">{feedback}</div>}
-    </section>
-  );
+        <div className="catalog-tab-content">
+          <div className="catalog-form-card online-card">
+            <header>
+              <div>
+                <h4>Assistente de Busca</h4>
+                <p>Use os campos abaixo para planejar e registrar sua busca online.</p>
+              </div>
+            </header>
+            <div className="catalog-form-grid">
+              <div className="catalog-field col-12"><span>O que pesquisar?</span><input value={onlineQuery} placeholder="Ex.: tomada 20A branca 2P+T" onChange={(event) => setOnlineQuery(event.target.value)} /></div>
+              <div className="catalog-field col-6"><span>Fornecedor/fabricante</span><select value={onlineSupplierId} onChange={(event) => setOnlineSupplierId(event.target.value)}>{suppliers.map((supplier) => <option key={supplier.id} value={supplier.id}>{supplier.name}</option>)}</select></div>
+              <div className="catalog-field col-6"><span>Preço observado</span><input inputMode="decimal" value={onlineObservedPrice} placeholder="Ex.: 18,90" onChange={(event) => setOnlineObservedPrice(event.target.value)} /></div>
+              <div className="catalog-field col-12"><span>Referência escolhida</span><input value={onlineReference} placeholder="Ex.: SKU, modelo, código do fabricante ou link do produto" onChange={(event) => setOnlineReference(event.target.value)} /></div>
+              <div className="catalog-field col-12"><span>Link do produto escolhido</span><input value={onlineProductUrl} placeholder="Cole aqui o link real do produto após abrir a consulta" onChange={(event) => setOnlineProductUrl(event.target.value)} /></div>
+              <div className="catalog-field col-12"><span>Imagem do produto</span><input value={onlineImageUrl} placeholder="Cole uma URL de imagem ou envie uma foto abaixo" onChange={(event) => setOnlineImageUrl(event.target.value)} /></div>
+              <div className="catalog-field col-12 file-reference-field"><span>Enviar foto de referência</span><input accept="image/*" type="file" onChange={(event) => handleOnlineImageFile(event.target.files?.[0])} /></div>
+            </div>
+            
+            <div className="online-result-box" style={{ marginTop: '20px' }}>
+              <span>Consulta preparada</span>
+              <strong>{sanitizeCatalogDisplayText(onlineSupplier?.name ?? 'Fornecedor')}</strong>
+              <small>{onlineUrl || 'Cadastre um fornecedor com site/catálogo.'}</small>
+              <small>Abra a busca, escolha o item real e registre link, foto, modelo e preço como referência comercial.</small>
+              <small>{productSearchDisclaimer()}</small>
+            </div>
+
+            <div className="catalog-online-steps">
+              <article className="catalog-step-card"><span className="catalog-step-number">1</span><div><strong>Catálogo local</strong><p>Mostra primeiro o que já foi salvo.</p></div></article>
+              <article className="catalog-step-card"><span className="catalog-step-number">2</span><div><strong>Fornecedor</strong><p>Abre busca oficial ou template cadastrado.</p></div></article>
+              <article className="catalog-step-card"><span className="catalog-step-number">3</span><div><strong>Revisão manual</strong><p>Nada entra sem conferir dados.</p></div></article>
+            </div>
+
+            <div className="online-results-list" style={{ marginTop: '20px' }}>
+              {visibleOnlineResults.map((result) => (
+                <article className="online-result-card" key={result.id}>
+                  {result.imageUrl && <img src={result.imageUrl} alt={`Referência de ${result.title}`} />}
+                  <div>
+                    <span>{searchResultSourceLabel(result)}</span>
+                    <strong>{sanitizeCatalogDisplayText(result.title)}</strong>
+                    <small>{result.note}</small>
+                    {result.priceReference !== undefined && <small>Preço referência: {money(result.priceReference)}</small>}
+                    <small>Consulta: {new Intl.DateTimeFormat('pt-BR').format(new Date(result.checkedAt))}</small>
+                  </div>
+                  <div className="catalog-hub-actions">
+                    {result.link && <a className="secondary-action inline-action" href={result.link} target="_blank" rel="noreferrer">Abrir</a>}
+                    <button className="primary-action inline-action" type="button" onClick={() => fillItemFromOnlineSearch(result)}>Revisar e adicionar</button>
+                  </div>
+                </article>
+              ))}
+              {hiddenOnlineResultCount > 0 && <div className="catalog-hidden-row">Mais {hiddenOnlineResultCount} resultado(s) oculto(s). Refine a busca para encontrar o produto certo.</div>}
+            </div>
+
+            {onlineImageUrl && (
+              <div className="catalog-reference-preview" style={{ marginTop: '20px' }}>
+                <img src={onlineImageUrl} alt={`Referência de ${onlineQuery}`} />
+                <span><strong>Imagem pronta para referência</strong><small>Ao usar como referência, esta imagem será enviada para o cadastro do item.</small></span>
+              </div>
+            )}
+
+            <div className="catalog-hub-actions start-actions" style={{ marginTop: '20px' }}>
+              {onlineUrl && <a className="primary-action inline-action" href={onlineUrl} target="_blank" rel="noreferrer">Abrir consulta online</a>}
+              <button className="secondary-action inline-action" type="button" onClick={() => fillItemFromOnlineSearch()}>Usar como referência</button>
+            </div>
+          </div>
+        </div>
+        {feedback && <div className="guided-cart-feedback">{feedback}</div>}
+      </section>
+    );
+  }
+
+  return null;
 }

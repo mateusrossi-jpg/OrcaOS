@@ -8,7 +8,6 @@ import {
 } from '../storage/purchaseTaxStorage';
 import { createCatalogId, type CatalogHubItem } from '../storage/catalogHubStorage';
 import { upsertExternalCatalogHubItem } from '../storage/catalogHubSync';
-import './SupplierTaxMarginWorkspace.css';
 
 const currencyFormatter = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
 const PURCHASE_VISIBLE_LIMIT = 5;
@@ -89,43 +88,54 @@ export function PurchaseToCatalogBridge() {
 
   return (
     <section className="supplier-tax-workspace">
-      <div className="supplier-tax-header">
+      <div className="catalog-tab-hero">
         <div>
-          <span className="orca-kicker">Estoque → catálogo</span>
-          <h2>Criar item de catálogo a partir da compra</h2>
+          <span className="catalog-eyebrow">Estoque → catálogo</span>
+          <h3>Criar item de catálogo a partir da compra</h3>
           <p>Transforme uma compra lançada em item do Catálogo profissional usando o preço unitário sugerido pelo cálculo de custo, impostos e margem.</p>
         </div>
         <strong>{records.length} compra(s)</strong>
       </div>
 
-      <div className="supplier-tax-card">
-        <div>
-          <strong>Compras disponíveis</strong>
-          <small>Ao criar o item, ele aparece no Catálogo profissional e pode ser enviado ao orçamento.</small>
+      <div className="aferix-panel-card catalog-list-card">
+        <header>
+          <div>
+            <h4>Compras disponíveis</h4>
+            <p>Ao criar o item, ele aparece no Catálogo profissional e pode ser enviado diretamente ao orçamento.</p>
+          </div>
+        </header>
+        <div className="catalog-form-grid" style={{ marginBottom: '16px' }}>
+          <div className="catalog-field col-12">
+            <span>Buscar compra</span>
+            <input value={query} placeholder="Fornecedor, produto, nota, NCM..." onChange={(event) => setQuery(event.target.value)} />
+          </div>
         </div>
-        <label className="supplier-tax-search">
-          <span>Buscar compra</span>
-          <input value={query} placeholder="Fornecedor, produto, nota, NCM..." onChange={(event) => setQuery(event.target.value)} />
-        </label>
-        <div className="supplier-tax-list">
-          {records.length === 0 ? <small>Nenhuma compra encontrada. Salve uma compra acima para criar item de catálogo.</small> : !query.trim() ? <small>{records.length} compra(s) salva(s). Pesquise para exibir.</small> : filteredRecords.length === 0 ? <small>Nenhuma compra encontrada com essa busca.</small> : visibleRecords.map((record) => {
+        <div className="continuous-list">
+          {records.length === 0 ? (
+            <div className="continuous-list-empty">Nenhuma compra encontrada. Salve uma compra acima para criar item de catálogo.</div>
+          ) : !query.trim() ? (
+            <div className="continuous-list-empty">{records.length} compra(s) salva(s). Pesquise para exibir.</div>
+          ) : filteredRecords.length === 0 ? (
+            <div className="continuous-list-empty">Nenhuma compra encontrada com essa busca.</div>
+          ) : null}
+          {visibleRecords.map((record) => {
             const summary = calculatePurchaseTaxSummary(record);
             return (
-              <article className="supplier-tax-record" key={record.id}>
-                <div>
-                  <span>{purchaseUseCaseLabel(record.useCase)}</span>
+              <article className="continuous-list-item" key={record.id} style={{ display: 'grid', gridTemplateColumns: '1fr auto', alignItems: 'center', gap: '16px' }}>
+                <div className="client-col">
+                  <span className="catalog-eyebrow" style={{ fontSize: '0.68rem', marginBottom: '2px' }}>{purchaseUseCaseLabel(record.useCase)}</span>
                   <strong>{record.productDescription}</strong>
                   <small>{record.supplierName} · custo un. {money(summary.unitNetCost)} · preço catálogo {money(summary.suggestedUnitSalePrice)}</small>
                   <small>{record.documentNumber ? `Doc.: ${record.documentNumber}` : 'Sem documento'} · markup {summary.markupPercent.toFixed(2)}%</small>
                 </div>
-                <div className="supplier-tax-actions compact-actions">
-                  <button className="primary-action inline-action" type="button" onClick={() => createCatalogItem(record)}>Criar item de catálogo</button>
-                  <button className="secondary-action inline-action" type="button" onClick={() => duplicateAndCreateCatalogItem(record)}>Criar como novo lote</button>
+                <div className="catalog-row-actions">
+                  <button className="ghost-action" type="button" onClick={() => createCatalogItem(record)} style={{ minHeight: '32px', fontSize: '0.7rem' }}>Criar item de catálogo</button>
+                  <button className="ghost-action" type="button" onClick={() => duplicateAndCreateCatalogItem(record)} style={{ minHeight: '32px', fontSize: '0.7rem' }}>Criar como novo lote</button>
                 </div>
               </article>
             );
           })}
-          {hiddenRecordCount > 0 && <small>Mais {hiddenRecordCount} compra(s) oculta(s). Use a busca para refinar.</small>}
+          {hiddenRecordCount > 0 && <div className="continuous-list-empty">Mais {hiddenRecordCount} compra(s) oculta(s). Use a busca para refinar.</div>}
         </div>
       </div>
 

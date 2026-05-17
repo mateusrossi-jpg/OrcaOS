@@ -7,10 +7,10 @@
 .catalog-hub-header,
 .catalog-hub-card,
 .online-result-box {
-  border: 1px solid #222222;
-  border-radius: 4px;
-  background: #111111;
-  box-shadow: none;
+  border: 1px solid var(--aferix-border, #24262d) !important;
+  border-radius: var(--aferix-radius-md, 12px) !important;
+  background: linear-gradient(180deg, var(--aferix-surface-raised, #15171c), var(--aferix-surface, #101114)) !important;
+  box-shadow: none !important;
 }
 
 .catalog-hub-header {
@@ -246,9 +246,10 @@
 }
 
 .catalog-list-card {
-  border-color: #222222 !important;
-  background: #111111 !important;
-  border-radius: 4px !important;
+  border: 1px solid var(--aferix-border, #24262d) !important;
+  border-radius: var(--aferix-radius-md, 12px) !important;
+  background: linear-gradient(180deg, var(--aferix-surface-raised, #15171c), var(--aferix-surface, #101114)) !important;
+  box-shadow: none !important;
 }
 
 .catalog-new-item-action {

@@ -5,7 +5,6 @@ import {
   saveSupplierProfiles,
   type SupplierProfile,
 } from '../storage/supplierProfileStorage';
-import './SupplierProfileWorkspace.css';
 
 interface SupplierProfileDraft {
   name: string;
@@ -171,69 +170,129 @@ export function SupplierProfileWorkspace() {
 
   return (
     <section className="supplier-profile-workspace">
-      <div className="supplier-profile-header">
+      <div className="catalog-tab-hero">
         <div>
-          <span className="orca-kicker">Fornecedores fiscais</span>
-          <h2>Cadastro fiscal e gerencial de fornecedores</h2>
+          <span className="catalog-eyebrow">Fornecedores fiscais</span>
+          <h3>Cadastro fiscal e gerencial</h3>
           <p>Guarde dados da empresa, contato, condições de compra, prazos e observações fiscais para compras, estoque e relatórios.</p>
         </div>
         <strong>{profiles.length} fornecedor(es)</strong>
       </div>
 
-      <div className="supplier-profile-card">
-        <div>
-          <strong>{editingId ? 'Editar fornecedor' : 'Novo fornecedor'}</strong>
-          <small>Use para compras de estoque, comparação de fornecedores, relatórios e histórico de aquisição.</small>
+      <div className="catalog-form-card">
+        <header>
+          <div>
+            <h4>{editingId ? 'Editar fornecedor' : 'Novo fornecedor'}</h4>
+            <p>Use para compras de estoque, comparação de fornecedores, relatórios e histórico de aquisição.</p>
+          </div>
+        </header>
+        <div className="catalog-form-grid">
+          <div className="catalog-field col-4">
+            <span>Nome/razão social</span>
+            <input value={draft.name} placeholder="Ex.: Fornecedor principal" onChange={(event) => updateDraft('name', event.target.value)} />
+          </div>
+          <div className="catalog-field col-4">
+            <span>CNPJ/CPF</span>
+            <input value={draft.document} placeholder="Opcional" onChange={(event) => updateDraft('document', event.target.value)} />
+          </div>
+          <div className="catalog-field col-4">
+            <span>Inscrição estadual</span>
+            <input value={draft.stateRegistration} placeholder="Opcional" onChange={(event) => updateDraft('stateRegistration', event.target.value)} />
+          </div>
+          <div className="catalog-field col-4">
+            <span>Segmento</span>
+            <input value={draft.segment} placeholder="Materiais elétricos, hidráulica..." onChange={(event) => updateDraft('segment', event.target.value)} />
+          </div>
+          <div className="catalog-field col-4">
+            <span>Cidade</span>
+            <input value={draft.city} placeholder="Ex.: Campinas" onChange={(event) => updateDraft('city', event.target.value)} />
+          </div>
+          <div className="catalog-field col-4">
+            <span>UF</span>
+            <input value={draft.state} placeholder="SP" maxLength={2} onChange={(event) => updateDraft('state', event.target.value.toUpperCase())} />
+          </div>
+          <div className="catalog-field col-4">
+            <span>Contato</span>
+            <input value={draft.contactName} placeholder="Nome do vendedor/atendente" onChange={(event) => updateDraft('contactName', event.target.value)} />
+          </div>
+          <div className="catalog-field col-4">
+            <span>Telefone/WhatsApp</span>
+            <input value={draft.phone} placeholder="Opcional" onChange={(event) => updateDraft('phone', event.target.value)} />
+          </div>
+          <div className="catalog-field col-4">
+            <span>E-mail</span>
+            <input value={draft.email} placeholder="Opcional" onChange={(event) => updateDraft('email', event.target.value)} />
+          </div>
+          <div className="catalog-field col-12">
+            <span>Site</span>
+            <input value={draft.websiteUrl} placeholder="https://..." onChange={(event) => updateDraft('websiteUrl', event.target.value)} />
+          </div>
+          <div className="catalog-field col-12">
+            <span>Catálogo</span>
+            <input value={draft.catalogUrl} placeholder="https://..." onChange={(event) => updateDraft('catalogUrl', event.target.value)} />
+          </div>
+          <div className="catalog-field col-12">
+            <span>Prazo médio</span>
+            <input inputMode="numeric" value={draft.averageDeliveryDays} placeholder="dias" onChange={(event) => updateDraft('averageDeliveryDays', event.target.value)} />
+          </div>
+          <div className="catalog-field col-12">
+            <span>Condições de pagamento</span>
+            <input value={draft.paymentTerms} placeholder="Ex.: Pix à vista, boleto 28 dias, cartão..." onChange={(event) => updateDraft('paymentTerms', event.target.value)} />
+          </div>
+          <div className="catalog-field col-12">
+            <span>Observações fiscais</span>
+            <textarea value={draft.defaultTaxNotes} placeholder="Ex.: conferir ICMS/ST, monofásico, NCM, CFOP, compra para revenda..." onChange={(event) => updateDraft('defaultTaxNotes', event.target.value)} />
+          </div>
+          <div className="catalog-field col-12">
+            <span>Observações de compra</span>
+            <textarea value={draft.purchaseNotes} placeholder="Ex.: melhor preço em quantidade, entrega rápida, vendedor X, desconto para CNPJ..." onChange={(event) => updateDraft('purchaseNotes', event.target.value)} />
+          </div>
         </div>
-        <div className="supplier-profile-grid">
-          <label><span>Nome/razão social</span><input value={draft.name} placeholder="Ex.: Fornecedor principal" onChange={(event) => updateDraft('name', event.target.value)} /></label>
-          <label><span>CNPJ/CPF</span><input value={draft.document} placeholder="Opcional" onChange={(event) => updateDraft('document', event.target.value)} /></label>
-          <label><span>Inscrição estadual</span><input value={draft.stateRegistration} placeholder="Opcional" onChange={(event) => updateDraft('stateRegistration', event.target.value)} /></label>
-          <label><span>Segmento</span><input value={draft.segment} placeholder="Materiais elétricos, hidráulica..." onChange={(event) => updateDraft('segment', event.target.value)} /></label>
-          <label><span>Cidade</span><input value={draft.city} placeholder="Ex.: Campinas" onChange={(event) => updateDraft('city', event.target.value)} /></label>
-          <label><span>UF</span><input value={draft.state} placeholder="SP" maxLength={2} onChange={(event) => updateDraft('state', event.target.value.toUpperCase())} /></label>
-          <label><span>Contato</span><input value={draft.contactName} placeholder="Nome do vendedor/atendente" onChange={(event) => updateDraft('contactName', event.target.value)} /></label>
-          <label><span>Telefone/WhatsApp</span><input value={draft.phone} placeholder="Opcional" onChange={(event) => updateDraft('phone', event.target.value)} /></label>
-          <label><span>E-mail</span><input value={draft.email} placeholder="Opcional" onChange={(event) => updateDraft('email', event.target.value)} /></label>
-          <label><span>Site</span><input value={draft.websiteUrl} placeholder="https://..." onChange={(event) => updateDraft('websiteUrl', event.target.value)} /></label>
-          <label><span>Catálogo</span><input value={draft.catalogUrl} placeholder="https://..." onChange={(event) => updateDraft('catalogUrl', event.target.value)} /></label>
-          <label><span>Prazo médio</span><input inputMode="numeric" value={draft.averageDeliveryDays} placeholder="dias" onChange={(event) => updateDraft('averageDeliveryDays', event.target.value)} /></label>
-          <label className="wide"><span>Condições de pagamento</span><input value={draft.paymentTerms} placeholder="Ex.: Pix à vista, boleto 28 dias, cartão..." onChange={(event) => updateDraft('paymentTerms', event.target.value)} /></label>
-          <label className="wide"><span>Observações fiscais</span><textarea value={draft.defaultTaxNotes} placeholder="Ex.: conferir ICMS/ST, monofásico, NCM, CFOP, compra para revenda..." onChange={(event) => updateDraft('defaultTaxNotes', event.target.value)} /></label>
-          <label className="wide"><span>Observações de compra</span><textarea value={draft.purchaseNotes} placeholder="Ex.: melhor preço em quantidade, entrega rápida, vendedor X, desconto para CNPJ..." onChange={(event) => updateDraft('purchaseNotes', event.target.value)} /></label>
-        </div>
-        <div className="supplier-profile-actions">
+        <div className="catalog-hub-actions start-actions" style={{ marginTop: '16px' }}>
           <button className="primary-action inline-action" type="button" onClick={saveProfile}>{editingId ? 'Salvar alterações' : 'Cadastrar fornecedor'}</button>
           {editingId && <button className="secondary-action inline-action" type="button" onClick={resetForm}>Cancelar edição</button>}
         </div>
       </div>
 
-      <div className="supplier-profile-card">
-        <div>
-          <strong>Fornecedores cadastrados</strong>
-          <small>Edite, duplique ou remova fornecedores usados no controle de compras.</small>
+      <div className="aferix-panel-card catalog-list-card">
+        <header>
+          <div>
+            <h4>Fornecedores cadastrados</h4>
+            <p>Edite, duplique ou remova fornecedores usados no controle de compras.</p>
+          </div>
+        </header>
+        <div className="catalog-form-grid" style={{ marginBottom: '16px' }}>
+          <div className="catalog-field col-12">
+            <span>Buscar fornecedor</span>
+            <input value={query} placeholder="Nome, CNPJ, cidade, segmento..." onChange={(event) => setQuery(event.target.value)} />
+          </div>
         </div>
-        <label className="supplier-profile-search"><span>Buscar fornecedor</span><input value={query} placeholder="Nome, CNPJ, cidade, segmento..." onChange={(event) => setQuery(event.target.value)} /></label>
-        <div className="supplier-profile-list">
-          {profiles.length === 0 ? <div className="supplier-profile-empty">Nenhum fornecedor cadastrado ainda.</div> : !query.trim() ? <div className="supplier-profile-empty">{profiles.length} fornecedor(es) salvo(s). Pesquise para exibir.</div> : filteredProfiles.length === 0 && <div className="supplier-profile-empty">Nenhum fornecedor encontrado com essa busca.</div>}
+        <div className="continuous-list">
+          {profiles.length === 0 ? (
+            <div className="continuous-list-empty">Nenhum fornecedor cadastrado ainda.</div>
+          ) : !query.trim() ? (
+            <div className="continuous-list-empty">{profiles.length} fornecedor(es) salvo(s). Pesquise para exibir.</div>
+          ) : filteredProfiles.length === 0 ? (
+            <div className="continuous-list-empty">Nenhum fornecedor encontrado com essa busca.</div>
+          ) : null}
           {visibleProfiles.map((profile) => (
-            <article className="supplier-profile-item" key={profile.id}>
-              <div>
-                <span>{profile.segment}</span>
+            <article className="continuous-list-item" key={profile.id} style={{ display: 'grid', gridTemplateColumns: '1fr auto', alignItems: 'center', gap: '16px' }}>
+              <div className="client-col">
+                <span className="catalog-eyebrow" style={{ fontSize: '0.68rem', marginBottom: '2px' }}>{profile.segment}</span>
                 <strong>{profile.name}</strong>
                 <small>{[profile.document, profile.city, profile.state, profile.phone].filter(Boolean).join(' · ') || 'Sem dados complementares'}</small>
                 <small>{profile.paymentTerms || profile.purchaseNotes || 'Sem condições/observações cadastradas'}</small>
               </div>
-              <div className="supplier-profile-actions compact-actions">
-                {profile.websiteUrl && <a className="secondary-action inline-action" href={profile.websiteUrl} target="_blank" rel="noreferrer">Site</a>}
-                {profile.catalogUrl && <a className="secondary-action inline-action" href={profile.catalogUrl} target="_blank" rel="noreferrer">Catálogo</a>}
-                <button className="secondary-action inline-action" type="button" onClick={() => editProfile(profile)}>Editar</button>
-                <button className="secondary-action inline-action" type="button" onClick={() => duplicateProfile(profile)}>Duplicar</button>
-                <button className="danger-action" type="button" onClick={() => removeProfile(profile.id)}>Remover</button>
+              <div className="catalog-row-actions">
+                {profile.websiteUrl && <a className="ghost-action" href={profile.websiteUrl} target="_blank" rel="noreferrer" style={{ minHeight: '32px', fontSize: '0.7rem' }}>Site</a>}
+                {profile.catalogUrl && <a className="ghost-action" href={profile.catalogUrl} target="_blank" rel="noreferrer" style={{ minHeight: '32px', fontSize: '0.7rem' }}>Catálogo</a>}
+                <button className="ghost-action" type="button" onClick={() => editProfile(profile)} style={{ minHeight: '32px', fontSize: '0.7rem' }}>Editar</button>
+                <button className="ghost-action" type="button" onClick={() => duplicateProfile(profile)} style={{ minHeight: '32px', fontSize: '0.7rem' }}>Duplicar</button>
+                <button className="danger-action" type="button" onClick={() => removeProfile(profile.id)} style={{ minHeight: '32px', fontSize: '0.7rem', padding: '0 8px', borderRadius: '4px' }}>Remover</button>
               </div>
             </article>
           ))}
-          {hiddenProfileCount > 0 && <div className="supplier-profile-empty">Mais {hiddenProfileCount} fornecedor(es) oculto(s). Use a busca para refinar.</div>}
+          {hiddenProfileCount > 0 && <div className="continuous-list-empty">Mais {hiddenProfileCount} fornecedor(es) oculto(s). Use a busca para refinar.</div>}
         </div>
       </div>
 

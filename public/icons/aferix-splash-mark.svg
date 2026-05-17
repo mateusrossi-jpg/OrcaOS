@@ -9,12 +9,24 @@
     </linearGradient>
   </defs>
   <g id="aferix-stacked">
-    <!-- Big Symmetrical Premium Center Symbol X -->
-    <rect x="75" y="65" width="90" height="14" rx="7" transform="rotate(45 120 72)" fill="#f5f1e8" />
-    <rect x="75" y="65" width="90" height="14" rx="7" transform="rotate(-45 120 72)" fill="url(#gold-gradient)" />
+    <!-- Centered stylized monogram scaled from official brand symbol -->
+    <g transform="translate(120, 75) scale(0.38) translate(-256, -265)">
+      <!-- Left stem of the A (Off-white) -->
+      <path d="M 180 370 L 256 160" stroke="#F5F1E8" stroke-width="46" stroke-linecap="round" stroke-linejoin="round" />
+
+      <!-- Right stem of the A (Off-white) -->
+      <path d="M 256 160 L 332 370" stroke="#F5F1E8" stroke-width="46" stroke-linecap="round" stroke-linejoin="round" />
+
+      <!-- Upward trending crossbar (Gold Gradient) -->
+      <path d="M 160 290 L 375 195" stroke="url(#gold-gradient)" stroke-width="46" stroke-linecap="round" />
+
+      <!-- Intersecting leg of the X (Off-white/Gold) -->
+      <path d="M 285 180 L 350 310" stroke="#F5F1E8" stroke-width="46" stroke-linecap="round" />
+      <path d="M 285 180 L 315 240" stroke="url(#gold-gradient)" stroke-width="46" stroke-linecap="round" />
+    </g>
 
     <!-- Wordmark below -->
-    <text x="120" y="180" text-anchor="middle" font-family="'Outfit', 'Inter', 'Manrope', 'Sora', 'Segoe UI', sans-serif" font-size="34" font-weight="900" letter-spacing="3">
+    <text x="120" y="195" text-anchor="middle" font-family="'Outfit', 'Inter', 'Manrope', 'Sora', 'Segoe UI', sans-serif" font-size="28" font-weight="900" letter-spacing="3">
       <tspan fill="#f5f1e8">AFERI</tspan><tspan fill="url(#gold-gradient)">X</tspan>
     </text>
   </g>

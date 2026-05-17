@@ -1535,3 +1535,48 @@ a {
     grid-template-columns: 1fr;
   }
 }
+
+/* Remove native number spinners for a cleaner mobile-first UI */
+input[type='number']::-webkit-outer-spin-button,
+input[type='number']::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type='number'] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+/* Ensure inputs with absolute-positioned suffixes/units have adequate right padding to prevent overlapping */
+.general-form-field div:has(.technical-unit) input,
+.general-form-field div:has(small) input,
+.general-form-field div:has(.technical-unit) select,
+.general-form-field div:has(small) select {
+  padding-right: 4.75rem !important;
+}
+
+/* Support generic suffix class structures if used elsewhere */
+.input-with-suffix input,
+.calculator-input-with-suffix input,
+.general-field-with-suffix input,
+.aferix-input-with-suffix input {
+  padding-right: 4.75rem !important;
+}
+
+.input-suffix,
+.calculator-input-suffix,
+.general-input-suffix,
+.aferix-input-suffix,
+.technical-unit {
+  pointer-events: none;
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--aferix-text-secondary, #a7b3ad) !important;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+

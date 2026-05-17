@@ -1,12 +1,27 @@
 <svg width="320" height="320" viewBox="0 0 320 320" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
   <title id="title">Aferix A mark</title>
-  <desc id="desc">Minimal Aferix A monogram in premium gold.</desc>
+  <desc id="desc">Minimal Aferix A/AX monogram in premium gold/off-white.</desc>
   <defs>
-    <linearGradient id="gold" x1="66" y1="257" x2="225" y2="54" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#B78035"/>
-      <stop offset="0.45" stop-color="#CBA05C"/>
-      <stop offset="1" stop-color="#E0B965"/>
+    <!-- Vibrant Amber/Gold Gradient for the trend line -->
+    <linearGradient id="gold-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#d97706"/>
+      <stop offset="50%" stop-color="#f5a400"/>
+      <stop offset="100%" stop-color="#fbbf24"/>
     </linearGradient>
   </defs>
-  <path d="M160 48 L258 272 H207 L189 226 H91 L73 272 H22 L120 48 H160ZM106 184H174L140 96L106 184Z" fill="url(#gold)"/>
+  <!-- Centered stylized monogram scaled from official brand symbol -->
+  <g transform="translate(160, 165) scale(0.55) translate(-256, -265)">
+    <!-- Left stem of the A (Off-white) -->
+    <path d="M 180 370 L 256 160" stroke="#F5F1E8" stroke-width="46" stroke-linecap="round" stroke-linejoin="round" />
+
+    <!-- Right stem of the A (Off-white) -->
+    <path d="M 256 160 L 332 370" stroke="#F5F1E8" stroke-width="46" stroke-linecap="round" stroke-linejoin="round" />
+
+    <!-- Upward trending crossbar (Gold Gradient) -->
+    <path d="M 160 290 L 375 195" stroke="url(#gold-gradient)" stroke-width="46" stroke-linecap="round" />
+
+    <!-- Intersecting leg of the X (Off-white/Gold) -->
+    <path d="M 285 180 L 350 310" stroke="#F5F1E8" stroke-width="46" stroke-linecap="round" />
+    <path d="M 285 180 L 315 240" stroke="url(#gold-gradient)" stroke-width="46" stroke-linecap="round" />
+  </g>
 </svg>
