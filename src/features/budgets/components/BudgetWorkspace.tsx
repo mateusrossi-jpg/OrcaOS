@@ -7,7 +7,7 @@ import type { CalculationCapture, CalculationDestination } from '../../../core/t
 import { calculateBudgetItemTotal, calculateBudgetTotal } from '../../../core/pricing/budget';
 import { hasBlockingBudgetIssues, validateBudgetForProposal, validateBudgetItem, type BudgetValidationIssue } from '../../../core/pricing/budgetValidation';
 import { calculateProjectMargin } from '../../../core/finance/projectMargin';
-import { roundTechnical } from '../../../core/calculations/electrical';
+import { roundTechnical } from '../../../core/format/number';
 import { handleNumericInputFocus } from '../../../core/ui/numericInputFocus';
 import { clearBudgetDraft, loadBudgetDraft, saveBudgetDraft } from '../storage/budgetDraftStorage';
 import { loadBusinessProfile, saveBusinessProfile } from '../storage/businessProfileStorage';

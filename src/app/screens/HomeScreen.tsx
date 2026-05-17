@@ -20,18 +20,12 @@ interface HomeScreenProps {
 
 export function HomeScreen({
   goTo,
-  openModule,
-  captures,
   clients,
   workOrders,
   savedBudgets,
   context,
   onStartNewAttendance
 }: HomeScreenProps) {
-  // const openWorkOrders = workOrders.filter((workOrder) => workOrder.status !== 'done' && workOrder.status !== 'cancelled').length;
-  // const pendingBudgets = savedBudgets.filter((budget) => budget.status === 'draft' || budget.status === 'sent').length;
-  // const approvedBudgets = savedBudgets.filter((budget) => budget.status === 'approved').length;
-  
   const currentMonthBudgets = savedBudgets.filter(isBudgetFromCurrentMonth);
   const monthlyBudgetTotal = currentMonthBudgets.reduce((total, budget) => total + calculateSavedBudgetValue(budget), 0);
   const accountsReceivable = currentMonthBudgets.filter((budget) => budget.status === 'sent' || budget.status === 'approved').reduce((total, budget) => total + calculateSavedBudgetValue(budget), 0);
@@ -44,38 +38,33 @@ export function HomeScreen({
   const monthlyCashFlow = monthlyBudgetTotal - monthlyExpenses;
   const monthlyNetProfit = Math.max(monthlyCashFlow, 0);
   
-  // const budgetItems = captures.filter((capture) => capture.destination === 'budget' || capture.destination === 'both').length;
-  // const recentItems = captures.slice(0, 3);
-  const pricingModule = calculationModules.find((module) => module.id === 'orcamentoTecnico') ?? calculationModules[0];
-
   return (
     <PageShell className="aferix-dashboard-screen">
       <PageHeader
-        title="Controle seu lucro com clareza"
-        description="Monte propostas, acompanhe custos e gere relatórios profissionais sem perder o controle do seu dinheiro."
-        action={<button type="button" className="primary-action inline-action" onClick={onStartNewAttendance}>Novo atendimento</button>}
+        title="Controle seu lucro"
+        description="Gestão financeira simples para o seu dia a dia profissional."
+        action={<button type="button" className="primary-action inline-action" onClick={onStartNewAttendance}>Novo orçamento</button>}
       />
       <ActiveWorkContextCard {...context} />
 
-      <div className="metric-grid dashboard-metric-grid" aria-label="Resumo financeiro do mês">
-        <MetricCard label="Lucro líquido do mês" value={<MoneyValue value={monthlyNetProfit} tone="success" />} trend="+28% vs mês anterior" tone="success" />
-        <MetricCard label="Fluxo de caixa" value={<MoneyValue value={monthlyCashFlow} />} trend="+18% vs mês anterior" />
-        <MetricCard label="Contas a receber" value={<MoneyValue value={accountsReceivable} />} trend="Orçamentos enviados/aprovados" />
-        <MetricCard label="Despesas" value={<MoneyValue value={monthlyExpenses} />} trend="+12% vs mês anterior" />
+      <div className="metric-grid dashboard-metric-grid" aria-label="Resumo financeiro">
+        <MetricCard label="Lucro no mês" value={<MoneyValue value={monthlyNetProfit} tone="success" />} tone="success" />
+        <MetricCard label="A receber" value={<MoneyValue value={accountsReceivable} />} />
+        <MetricCard label="Caixa" value={<MoneyValue value={monthlyCashFlow} />} />
       </div>
 
       <div className="home-action-toolbar compact-actions">
-        <button type="button" className="ghost-action" onClick={() => goTo('budgets')}>Orçamento rápido</button>
-        <button type="button" className="ghost-action" onClick={() => openModule(pricingModule)}>Precificar</button>
+        <button type="button" className="ghost-action" onClick={() => goTo('clients')}>Atendimentos</button>
         <button type="button" className="ghost-action" onClick={() => goTo('financial')}>Financeiro</button>
+        <button type="button" className="ghost-action" onClick={() => goTo('settings')}>Menu</button>
       </div>
 
       <section className="aferix-panel-card home-command-panel">
-        <SectionHeader title="Atendimentos em andamento" eyebrow="Operação" />
+        <SectionHeader title="O que precisa de atenção" eyebrow="Atividades" />
         <div className="home-recent-strip">
           <div className="continuous-list">
             {workOrders.filter(w => w.status !== 'done' && w.status !== 'cancelled').length === 0 ? (
-              <EmptyState title="Nenhum atendimento em aberto" description="Crie um atendimento para acompanhar proposta, execução e relatório no mesmo contexto." />
+              <EmptyState title="Tudo em dia" description="Crie um novo orçamento para começar." />
             ) : (
               workOrders.filter(w => w.status !== 'done' && w.status !== 'cancelled').slice(0, 5).map(order => {
                 const orderClient = clients.find(c => c.id === order.clientId);
@@ -84,7 +73,7 @@ export function HomeScreen({
                 const createdAtDate = new Date(order.createdAt || Date.now());
                 const timeString = isNaN(createdAtDate.getTime()) ? '--:--' : createdAtDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
                 return (
-                  <article key={order.id} className="continuous-list-item">
+                  <article key={order.id} className="continuous-list-item" onClick={() => goTo('clients')}>
                     <span className="time-col">{timeString}</span>
                     <div className="client-col">
                       <strong>{orderClient?.name ?? 'Cliente Avulso'}</strong>

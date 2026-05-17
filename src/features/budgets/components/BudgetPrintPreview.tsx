@@ -2,7 +2,7 @@ import { useState } from 'react';
 import type { BudgetItem, BudgetTemplateId, BusinessProfile } from '../../../core/types/business';
 import { calculateBudgetItemTotal } from '../../../core/pricing/budget';
 import { hasBlockingBudgetIssues, type BudgetValidationIssue } from '../../../core/pricing/budgetValidation';
-import { roundTechnical } from '../../../core/calculations/electrical';
+import { roundTechnical } from '../../../core/format/number';
 import type { SavedBudgetStatus } from '../storage/savedBudgetsStorage';
 import './BudgetPrintPreview.css';
 

@@ -1,1 +1,1 @@
-export { GuidedBudgetCart } from './GuidedBudgetCartIntegrated';
+export { GuidedBudgetCart } from './GuidedBudgetCartRoomsConnected';

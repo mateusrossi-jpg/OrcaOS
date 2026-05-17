@@ -24,7 +24,7 @@ import { PurchaseListScreen } from './screens/PurchaseListScreen';
 import { FinancialScreen } from './screens/FinancialScreen';
 import { ClientsScreen } from './screens/ClientsScreen';
 import { StoreScreen } from './screens/StoreScreen';
-import { SettingsScreen } from './screens/SettingsScreen';
+import { MenuScreen } from './screens/MenuScreen';
 import { getSectorForModule } from './utils/moduleHelpers';
 
 function LazyWorkspaceFallback() {
@@ -125,16 +125,18 @@ export function App() {
       <AppShell activeTab={activeTab} navItems={navItems} activeClient={activeClient} activeWorkOrder={activeWorkOrder} onNavigate={goTo}>
         <Suspense fallback={<LazyWorkspaceFallback />}>
           {activeTab === 'home' && <HomeScreen goTo={goTo} openModule={openModule} captures={captures} clients={clients} workOrders={workOrders} savedBudgets={loadSavedBudgets()} context={context} onStartNewAttendance={() => openClientSection('newWorkOrder')} />}
+          {activeTab === 'clients' && <ClientsScreen initialSection={clientInitialSection} sectionRequestKey={clientSectionRequestKey} onOpenBudgets={() => goTo('budgets')} onStartSurvey={() => goTo('survey')} onContextChange={(nextClients, nextWorkOrders, nextActiveWorkOrderId) => { setClients(nextClients); setWorkOrders(nextWorkOrders); setActiveWorkOrderId(nextActiveWorkOrderId); }} />}
+          {activeTab === 'financial' && <FinancialScreen context={context} />}
+          {activeTab === 'settings' && <MenuScreen account={account} onAccountChange={setAccount} goTo={goTo} />}
+          
+          {/* Sub-telas acessadas via Menu ou fluxo direto */}
           {activeTab === 'calculations' && <CalculationsScreen selectedModule={selectedModule} openModule={openModule} activeSector={activeSector as CalculationSectorId} onSelectSector={setActiveSector as (sector: CalculationSectorId) => void} goTo={goTo} userPlan={activeUserPlan} onCaptureCalculation={addCalculationCapture} context={context} captures={captures} />}
           {activeTab === 'survey' && <SurveyScreen captures={captures} context={context} onRemove={removeCalculationCapture} onUpdate={updateCalculationCapture} onAddMany={addManyCalculationCaptures} goTo={goTo} />}
           {activeTab === 'budgets' && <BudgetsScreen captures={captures} context={context} userPlan={activeUserPlan} goTo={goTo} onRemove={removeCalculationCapture} onUpdate={updateCalculationCapture} onConvertApprovedBudgetToWorkOrder={convertActiveBudgetToWorkOrder} />}
           {activeTab === 'catalog' && <CatalogScreen onAddMany={addManyCalculationCaptures} context={context} />}
           {activeTab === 'purchaseList' && <PurchaseListScreen captures={captures} onUpdate={updateCalculationCapture} context={context} />}
           {activeTab === 'reports' && <ReportsScreen captures={captures} context={context} />}
-          {activeTab === 'financial' && <FinancialScreen context={context} />}
-          {activeTab === 'clients' && <ClientsScreen initialSection={clientInitialSection} sectionRequestKey={clientSectionRequestKey} onOpenBudgets={() => goTo('budgets')} onStartSurvey={() => goTo('survey')} onContextChange={(nextClients, nextWorkOrders, nextActiveWorkOrderId) => { setClients(nextClients); setWorkOrders(nextWorkOrders); setActiveWorkOrderId(nextActiveWorkOrderId); }} />}
           {activeTab === 'store' && <StoreScreen account={account} onAccountChange={setAccount} />}
-          {activeTab === 'settings' && <SettingsScreen account={account} onAccountChange={setAccount} />}
         </Suspense>
       </AppShell>
     </>

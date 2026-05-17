@@ -22,7 +22,7 @@ export function ClientsScreen({
     <section className="app-screen wide-screen">
       <header className="screen-header">
         <h1>Atendimentos</h1>
-        <p>Vincule um cliente agora ou continue sem cliente, levante dados e gere orçamento antes de converter em OS.</p>
+        <p>Gerencie seus clientes, orçamentos e ordens de serviço em um só lugar.</p>
       </header>
       <ClientWorkOrderWorkspace
         initialSection={initialSection}

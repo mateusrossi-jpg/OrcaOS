@@ -1,102 +1,46 @@
 # Aferix
 
-**Aferix** é um ERP financeiro local-first para prestadores de serviço, começando pelo atendimento real do profissional em campo: cliente, levantamento, cálculos, orçamento e relatório. O produto organiza atendimentos, propostas comerciais, documentos técnicos, catálogo e histórico local sem transformar a rotina do técnico em um sistema pesado.
-
-> Nome técnico do repositório: `Aferix`  
-> Nome comercial do produto: **Aferix**
+**Aferix** é um ERP financeiro local-first para prestadores de serviço, focado na clareza do lucro real: cliente, levantamento, precificação, orçamento e fluxo de caixa. O produto organiza atendimentos e propostas comerciais sem transformar a rotina do autônomo em um sistema complexo.
 
 ## Visão do produto
 
-O Aferix deve ser mais do que um aplicativo de cálculos. Ele deve unir:
+O Aferix é centrado na saúde financeira do pequeno prestador de serviço:
 
-- calculadoras técnicas;
-- atendimento guiado com cliente, ambientes, serviços, materiais, medições e observações;
-- orçamento de mão de obra, materiais, deslocamento e condições comerciais;
-- relatórios de visita técnica;
-- diagnóstico com fotos e observações;
-- cadastro de clientes;
-- conversão em ordem de serviço somente depois da aprovação do orçamento;
-- catálogo de serviços, materiais, composições e fornecedores;
-- histórico de atendimento;
-- lembretes de manutenção preventiva;
-- gestão simples local-first;
-- evolução futura para módulos por profissão e recursos Pro.
+- **Clientes e Atendimentos**: Gestão de contatos e histórico de serviços.
+- **Levantamento de Campo**: Checklist de ambientes, materiais e mão de obra.
+- **Precificação Inteligente**: Cálculos de margem real, markup, taxas e lucro líquido.
+- **Orçamentos e Propostas**: Geração de documentos profissionais para aprovação.
+- **Controle Financeiro**: Acompanhamento de entradas, saídas e lucro por período.
+- **Local-First & Offline**: Seus dados ficam no seu dispositivo, funcionando em qualquer lugar.
 
-## Público inicial
+## Público-alvo
 
-O foco inicial é em **prestadores de serviço e profissionais autônomos** que precisam transformar orçamento, custo e recebimento em decisão financeira rápida:
+O foco são **profissionais autônomos e pequenos prestadores de serviço** (manutenção, instalação, reformas, consultoria técnica) que precisam saber exatamente quanto estão ganhando em cada serviço.
 
-- manutenção predial;
-- ar-condicionado;
-- hidráulica;
-- pintura;
-- pequenos prestadores de serviço;
-- técnicos autônomos e integradores;
-- negócios de serviço que precisam enxergar lucro real.
-
-## Estratégia de evolução
-
-O projeto será dividido em fases:
-
-1. **MVP financeiro**: orçamento, lucro real, layout profissional e base modular.
-2. **Orçamentos**: clientes, serviços, materiais, mão de obra e PDF.
-3. **Relatórios técnicos**: visita, diagnóstico, imagens e recomendações.
-4. **Execução aprovada**: conversão do orçamento em OS, status, histórico, retorno e manutenção preventiva.
-5. **Plataforma modular**: novas profissões, módulos Pro e expansão para ERP.
-
-## Estrutura inicial
+## Estrutura do Projeto
 
 ```text
 Aferix/
-├── docs/
 ├── src/
-│   ├── app/
-│   ├── core/
-│   ├── data/
-│   ├── features/
-│   └── styles/
-└── tests/
+│   ├── app/        # Telas e componentes da interface
+│   ├── core/       # Regras de negócio, cálculos financeiros e acesso
+│   ├── features/   # Módulos do ERP (clientes, orçamentos, financeiro)
+│   └── styles/     # Identidade visual Dark Premium
+└── docs/           # Documentação e planejamento
 ```
 
 ## Desenvolvimento
 
-Base inicial usando React + TypeScript + Vite.
+Baseado em React + TypeScript + Vite.
 
 ```bash
 npm install
 npm run dev
 ```
 
-Antes de publicar ou chamar testadores:
+## Princípios
 
-```bash
-npm run rc:check
-```
-
-Documentos do beta fechado:
-
-- `docs/RELEASE_HANDOFF_0.1.0_RC1.md`
-- `docs/BETA_FECHADO_FECHAMENTO.md`
-- `docs/PLAY_INTERNAL_TEST_RELEASE_NOTES.md`
-- `docs/BETA_TESTER_FEEDBACK_FORM.md`
-- `docs/BETA_TESTER_INVITE_MESSAGE.md`
-- `docs/PLAY_CONSOLE_SUBMISSION_CHECKLIST.md`
-- `docs/ANDROID_REAL_DEVICE_TEST.md`
-- `docs/play-console-release.md`
-- `docs/ai/ORCAOS_RELEASE_CANDIDATE_RC2.md`
-- `docs/ai/ORCAOS_BETA_FECHADO_SIMULACAO_USUARIO_REAL.md`
-- `docs/ai/ORCAOS_COMMERCIAL_GATE_DEPLOYMENT.md`
-
-## Princípios do projeto
-
-- Simples para o usuário comum.
-- Técnico o suficiente para gerar confiança.
-- Cálculos separados da interface.
-- Documentação junto com o código.
-- Estrutura preparada para crescer sem virar bagunça.
-- Gratuito útil, Pro com recursos avançados.
-- Design bonito, direto e prático para uso em campo.
-
-## Aviso técnico
-
-Os cálculos devem ser validados com normas, tabelas, testes práticos e revisão profissional antes de qualquer uso como recomendação definitiva em instalações reais. A primeira fase do projeto usa funções e tabelas base como ponto de partida para validação progressiva.
+- **Simplicidade**: Interface limpa e direta para uso rápido em campo.
+- **Privacidade**: Dados armazenados localmente por padrão.
+- **Profissionalismo**: Propostas e relatórios que geram confiança no cliente.
+- **Estabilidade**: Foco em um fluxo operacional robusto e sem redundâncias.

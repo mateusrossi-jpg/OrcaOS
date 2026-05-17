@@ -1,4 +1,4 @@
-package br.com.aferix.app;
+package com.financial.aferix;
 
 import com.getcapacitor.BridgeActivity;
 

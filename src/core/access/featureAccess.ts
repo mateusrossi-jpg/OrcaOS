@@ -4,49 +4,19 @@ export type FeaturePlan = UserPlan | 'soon';
 export type CalculatorMode =
   | 'current'
   | 'power'
-  | 'ohms-law'
-  | 'power-resistance'
-  | 'resistor-network'
-  | 'consumption'
-  | 'voltage-drop'
-  | 'conversion'
-  | 'lighting'
-  | 'air-conditioning'
-  | 'conduit-fill'
-  | 'circuit-recommendation'
-  | 'cable-section-drop'
-  | 'max-distance-drop'
-  | 'transformer-sizing'
-  | 'awg-conversion'
-  | 'motor-current'
-  | 'motor-speed'
-  | 'pulley-ratio'
-  | 'analog-4-20ma'
-  | 'analog-0-10v';
+  | 'markup'
+  | 'margin'
+  | 'taxes'
+  | 'installments'
+  | 'travel'
+  | 'goals'
+  | 'warranty'
+  | 'discount'
+  | 'productivity';
 
 export type CalculatorModule =
-  | 'fundamentosGerais'
-  | 'eletricaPredial'
-  | 'fundamentals'
-  | 'installations'
-  | 'lighting'
-  | 'refrigeration'
-  | 'motors'
-  | 'rewinding'
-  | 'industrialAutomation'
-  | 'obras'
-  | 'pintura'
-  | 'conversores'
   | 'orcamentoTecnico'
-  | 'hidraulica'
-  | 'eletricaResidencial'
-  | 'financeiroAvancado'
-  | 'construcaoAvancada'
-  | 'hidraulicaAvancada'
-  | 'conversoresAvancados'
-  | 'transformadores'
-  | 'solar'
-  | 'diagnosticoTecnico';
+  | 'financeiroAvancado';
 
 export interface CalculatorAccessRule {
   mode: CalculatorMode;
@@ -72,11 +42,11 @@ export const calculatorAccessRules: CalculatorAccessRule[] = [
     shortDescription: 'Rateio mensal de custos fixos por período, volume e meta de lucro.',
   },
   {
-    mode: 'voltage-drop',
-    label: 'Legacy Pro',
-    module: 'installations',
+    mode: 'margin',
+    label: 'Margem real',
+    module: 'financeiroAvancado',
     plan: 'pro',
-    shortDescription: 'Legacy pro rule for tests.',
+    shortDescription: 'Cálculo de margem líquida real após custos e impostos.',
   }
 ];
 

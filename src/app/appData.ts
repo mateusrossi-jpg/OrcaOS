@@ -4,22 +4,30 @@ import type { AppTab, CalculationSectorGroup, ModuleCardData, ModulePlan } from 
 
 export const userPlan: UserPlan = 'free';
 
+/**
+ * Navegação Radicalmente Simplificada para o MVP.
+ * Foco: Home, Atendimentos (Operação), Financeiro e Menu (Mais).
+ */
 export const navItems: Array<{ id: AppTab; label: string; description: string; icon: string; section?: string; primary?: boolean }> = [
-  { id: 'home', label: 'Dashboard', description: 'Resumo financeiro', icon: 'dashboard', section: 'Gestão financeira', primary: true },
-  { id: 'budgets', label: 'Propostas', description: 'Fluxo comercial', icon: 'budget', section: 'Gestão financeira', primary: true },
-  { id: 'clients', label: 'Clientes', description: 'Atendimentos', icon: 'clients', section: 'Gestão financeira', primary: true },
-  { id: 'financial', label: 'Financeiro', description: 'Receitas e custos', icon: 'finance', section: 'Gestão financeira', primary: true },
-  { id: 'catalog', label: 'Catálogo', description: 'Itens e serviços', icon: 'catalog', section: 'Operação', primary: true },
-  { id: 'calculations', label: 'Simulador', description: 'Preço e margem', icon: 'calculator', section: 'Operação' },
-  { id: 'purchaseList', label: 'Compras', description: 'Lista do cliente', icon: 'list', section: 'Operação' },
-  { id: 'reports', label: 'Relatórios', description: 'Prévia do documento', icon: 'reports', section: 'Operação' },
-  { id: 'survey', label: 'Base técnica', description: 'Registro opcional', icon: 'survey', section: 'Operação' },
-  { id: 'store', label: 'Licença', description: 'Planos e acesso', icon: 'store', section: 'Sistema' },
-  { id: 'settings', label: 'Configurações', description: 'Perfil e backup', icon: 'settings', section: 'Sistema' },
+  { id: 'home', label: 'Início', description: 'Resumo e ações rápidas', icon: 'home', primary: true },
+  { id: 'clients', label: 'Atendimentos', description: 'Clientes e propostas', icon: 'clients', primary: true },
+  { id: 'financial', label: 'Financeiro', description: 'Entradas e saídas', icon: 'finance', primary: true },
+  { id: 'settings', label: 'Menu', description: 'Mais ferramentas', icon: 'menu', primary: true },
 ];
 
 export const calculationModules: ModuleCardData[] = [
-  { id: 'orcamentoTecnico', title: 'Precificação e financeiro', purpose: 'Quanto cobrar e quanto sobra', description: 'Preço, margem, lucro, tempo de trabalho, deslocamento, materiais, impostos/taxas e parcelamento/juros.', icon: 'R$', tone: 'orange', count: 'Preço + financeiro', available: true, plan: 'free', calculatorModule: 'orcamentoTecnico' },
+  { 
+    id: 'orcamentoTecnico', 
+    title: 'Precificação e financeiro', 
+    purpose: 'Quanto cobrar e quanto sobra', 
+    description: 'Preço, margem, lucro, tempo de trabalho, deslocamento, materiais, impostos/taxas e parcelamento/juros.', 
+    icon: 'R$', 
+    tone: 'orange', 
+    count: 'Preço + financeiro', 
+    available: true, 
+    plan: 'free', 
+    calculatorModule: 'orcamentoTecnico' 
+  },
 ];
 
 export const calculationSectorGroups: CalculationSectorGroup[] = [
