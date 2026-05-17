@@ -170,15 +170,21 @@ export function ReportWorkspace({ captures, activeClient = null, activeWorkOrder
           }}
         >
         <header className="report-document-header">
-          <div className="report-company-row">
-            <img src={logoSource} alt={`Logo ${profileName}`} />
-            <div>
-              <strong>{profileName}</strong>
-              {businessProfile.documentNumber && <small>{businessProfile.documentNumber}</small>}
-              {contactLine && <small>{contactLine}</small>}
-              {businessProfile.address && <small>{businessProfile.address}</small>}
+          {profileName === 'Aferix' ? (
+            <div className="report-document-brand-centered">
+              <img src={logoSource} alt="AFERIX" />
             </div>
-          </div>
+          ) : (
+            <div className="report-company-row">
+              <img src={logoSource} alt={`Logo ${profileName}`} />
+              <div>
+                <strong>{profileName}</strong>
+                {businessProfile.documentNumber && <small>{businessProfile.documentNumber}</small>}
+                {contactLine && <small>{contactLine}</small>}
+                {businessProfile.address && <small>{businessProfile.address}</small>}
+              </div>
+            </div>
+          )}
           <h1>{activeWorkOrder?.title || 'Relatório de atendimento'}</h1>
           <p>{activeWorkOrder?.description || 'Prévia comercial para envio ao cliente.'}</p>
           <small>Emitido em {formatDateTime(new Date().toISOString())}</small>

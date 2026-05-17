@@ -122,6 +122,23 @@
   border-bottom: 1px solid #e8e1d5;
 }
 
+.report-document-brand-centered {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #e8e1d5;
+  margin-bottom: 14px;
+}
+
+.report-document-brand-centered img {
+  display: block;
+  width: auto;
+  max-width: 128px;
+  max-height: 34px;
+  object-fit: contain !important;
+}
+
 .report-company-row img {
   max-width: 120px !important;
   height: 36px !important;

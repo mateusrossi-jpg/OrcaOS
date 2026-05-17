@@ -71,6 +71,19 @@ const reportCSS = readFile('src/features/reports/components/ReportWorkspace.css'
 if (!reportCSS.includes('High-contrast Light Mode Protection for Reports')) logSuccess(`Livre de comentário legado`);
 else logError(`Encontrou duplicação antiga (High-contrast Light Mode Protection)`);
 
+const reportTSX = readFile('src/features/reports/components/ReportWorkspace.tsx');
+if (reportTSX.includes("profileName === 'Aferix'")) {
+  logSuccess('ReportWorkspace.tsx trata condicionalmente o branding para não duplicar AFERIX e Aferix');
+} else {
+  logError('ReportWorkspace.tsx deve tratar condicionalmente o branding institucional');
+}
+
+if (reportTSX.includes('aferix-wordmark-document.svg')) {
+  logSuccess('ReportWorkspace.tsx utiliza a marca oficial aferix-wordmark-document.svg para documentos impressos/PDF');
+} else {
+  logError('ReportWorkspace.tsx não está utilizando aferix-wordmark-document.svg');
+}
+
 // 5. Propostas / Orçamento
 logStep('Propostas / Orçamento (BudgetWorkspace.css)');
 const budgetCSS = readFile('src/features/budgets/components/BudgetWorkspace.css');
@@ -214,6 +227,18 @@ if (appShellTSX.includes('drawer-backdrop') && appShellTSX.includes('onClick={()
   logSuccess('Drawer overlay/backdrop para fechamento validado com sucesso');
 } else {
   logError('Faltando overlay/backdrop clicável para fechar o drawer');
+}
+
+if (appShellCSS.includes('.desktop-sidebar-nav button small') && appShellCSS.includes('display: none !important')) {
+  logSuccess('Menu lateral/drawer esconde subtítulos pesados (small) para navegação limpa');
+} else {
+  logError('Menu lateral/drawer não possui regras CSS para ocultar subtítulos pesados');
+}
+
+if (appShellCSS.includes('.desktop-sidebar-nav button') && appShellCSS.includes('rgba(245, 164, 0, 0.08)')) {
+  logSuccess('Item ativo no menu possui cores e contraste adequados sem cards pesados');
+} else {
+  logError('Faltando regras de item ativo refinadas para navegação limpa no menu');
 }
 
 // 8.8. Simulador / Precificação Cards Check

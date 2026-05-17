@@ -738,3 +738,71 @@ body,
     padding-bottom: calc(30px + env(safe-area-inset-bottom));
   }
 }
+
+/* Premium Simplified Navigation Menu (No Cards, flat & elegant) */
+.desktop-sidebar-nav button,
+.drawer-nav button {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  width: 100% !important;
+  min-height: 40px !important;
+  height: 40px !important;
+  padding: 0 14px !important;
+  border-radius: var(--aferix-radius-sm, 6px) !important;
+  border: 1px solid transparent !important;
+  background: transparent !important;
+  color: var(--aferix-text-muted, #71717a) !important;
+  box-shadow: none !important;
+  margin: 2px 0 !important;
+  transition: all 0.2s ease !important;
+}
+
+.desktop-sidebar-nav button strong,
+.drawer-nav button strong {
+  font-size: 0.92rem !important;
+  font-weight: 600 !important;
+  color: inherit !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+}
+
+.desktop-sidebar-nav button small,
+.drawer-nav button small {
+  display: none !important;
+}
+
+.professional-app-shell:not(.sidebar-collapsed) .desktop-sidebar-nav .drawer-nav-icon,
+.drawer-nav .drawer-nav-icon {
+  display: none !important;
+}
+
+.desktop-sidebar-nav button:hover,
+.drawer-nav button:hover {
+  color: var(--aferix-text) !important;
+  background: rgba(255, 255, 255, 0.04) !important;
+  border-color: rgba(255, 255, 255, 0.02) !important;
+}
+
+.desktop-sidebar-nav button.active,
+.drawer-nav button.active {
+  color: var(--aferix-brand, #fbbf24) !important;
+  background: rgba(245, 164, 0, 0.08) !important;
+  border-color: rgba(245, 164, 0, 0.18) !important;
+}
+
+.desktop-sidebar-nav .drawer-nav-heading,
+.drawer-nav-heading {
+  display: block !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  color: #52525b !important;
+  letter-spacing: 0.12em !important;
+  margin: 18px 4px 6px !important;
+}
+
+.desktop-sidebar-nav .drawer-nav-heading:first-child,
+.drawer-nav-heading:first-child {
+  margin-top: 6px !important;
+}
