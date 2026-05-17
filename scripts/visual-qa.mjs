@@ -120,6 +120,11 @@ if (!storeTSX.includes('>Assinar Pro<')) {
 } else {
   logWarn('Revisar redundância: Assinar Pro também aparece fora do card do plano');
 }
+if (storeTSX.includes('>Planejado<')) {
+  logSuccess('Plano vitalício comunica estado planejado sem competir com CTA Pro');
+} else {
+  logWarn('Revisar copy do plano vitalício para não competir com Quero este plano');
+}
 
 // 6b. Financeiro / ação principal
 logStep('Financeiro / ação principal');
@@ -207,6 +212,51 @@ if (clientWorkspaceTSX.includes('Cadastro e consulta de clientes.') && clientWor
   logSuccess('Copy de Clientes/Histórico está clara e contextual');
 } else {
   logError('Copy de Clientes/Histórico precisa manter clareza contextual');
+}
+
+// 8.5b. UX redundancy guardrails
+logStep('UX redundancy guardrails');
+const uxGuide = readFile('docs/UX_REDUNDANCY_GUIDE.md');
+const technicalBudgetTSX = readFile('src/features/calculators/components/TechnicalBudgetHumanWorkspace.tsx');
+const catalogHubCSS = readFile('src/features/catalog/components/CatalogHubWorkspace.css');
+const catalogEditableTSX = readFile('src/features/catalog/components/CatalogHubWorkspaceEditable.tsx');
+
+if (uxGuide.includes('# Aferix — Guia de Redução de Redundância UX') && uxGuide.includes('Menu navega, botão executa ação.')) {
+  logSuccess('Guia de redundância UX encontrado em docs/UX_REDUNDANCY_GUIDE.md');
+} else {
+  logError('docs/UX_REDUNDANCY_GUIDE.md ausente ou sem o princípio oficial');
+}
+
+if (!clientToolbar.includes('+ Cliente') && !clientToolbar.includes('+ Atendimento')) {
+  logSuccess('Clientes/Atendimentos sem ações de criação na toolbar principal');
+} else {
+  logError('Clientes/Atendimentos reintroduziu + Cliente ou + Atendimento na toolbar');
+}
+
+['Painel', 'Clientes', 'Histórico'].forEach(label => {
+  if (clientToolbar.includes(`>${label}<`)) logSuccess(`Toolbar de Clientes preserva navegação: ${label}`);
+  else logError(`Toolbar de Clientes perdeu item de navegação: ${label}`);
+});
+
+if (!technicalBudgetTSX.includes('general-calculator-overlay') && !technicalBudgetTSX.includes('aria-modal="true"')) {
+  logSuccess('Simulador mantém detalhe de cálculo sem overlay/modal fixo');
+} else {
+  logError('Simulador reintroduziu overlay/modal fixo no detalhe de cálculo');
+}
+
+if (!catalogHubCSS.includes('var(--orca-')) {
+  logSuccess('Catálogo sem retorno de var(--orca-*) no CSS principal');
+} else {
+  logError('Catálogo voltou a usar var(--orca-*) no CSS principal');
+}
+
+['Projeto', 'Escopo', 'Custos', 'Comercial', 'Proposta'].forEach(step => {
+  if (budgetTSX.includes(`label: '${step}'`)) logSuccess(`Guardrail de Propostas preserva etapa: ${step}`);
+  else logError(`Guardrail de Propostas não encontrou etapa: ${step}`);
+});
+
+if (catalogEditableTSX.includes('home-action-toolbar') && catalogEditableTSX.includes('Novo Item')) {
+  logWarn('Catálogo ainda usa Novo Item em toolbar interna; mantido por segurança após padronização visual recente');
 }
 
 // 8.5. Branding, Logo e Intro

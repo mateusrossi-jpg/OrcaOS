@@ -120,7 +120,7 @@ export function StoreScreen({ account, onAccountChange }: StoreScreenProps) {
           price="R$ 29,90"
           description="Oferta planejada para fundadores."
           benefits={['Tudo do plano Pro', 'Sem mensalidades', 'Atualizações futuras', 'Suporte vitalício']}
-          action={<button className="primary-action inline-action" type="button" disabled>Quero este plano</button>}
+          action={<button className="secondary-action inline-action" type="button" disabled>Planejado</button>}
         />
       </section>
       <section className="aferix-panel-card store-comparison-card">
