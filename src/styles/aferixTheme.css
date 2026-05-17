@@ -2011,9 +2011,15 @@ button.secondary {
 
 .menu-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  grid-template-columns: repeat(2, 1fr);
   gap: 12px;
   margin-top: 8px;
+}
+
+@media (min-width: 768px) {
+  .menu-grid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  }
 }
 
 .menu-item-card {
@@ -2024,27 +2030,41 @@ button.secondary {
   padding: 24px 16px;
   text-align: center;
   background: var(--aferix-surface-raised) !important;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   border: 1px solid var(--aferix-border) !important;
   border-radius: var(--aferix-radius-lg) !important;
-  transition: all 0.2s ease;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   min-height: 140px;
+  position: relative;
+  overflow: hidden;
 }
 
 .menu-item-card:hover {
   background: var(--aferix-surface-hover) !important;
-  border-color: var(--aferix-border-strong) !important;
+  border-color: var(--aferix-primary) !important;
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.menu-item-card:active {
   transform: translateY(-2px);
 }
 
 .menu-item-icon {
-  font-size: 28px;
+  font-size: 32px;
   margin-bottom: 12px;
   display: block;
+  transition: transform 0.2s ease;
+}
+
+.menu-item-card:hover .menu-item-icon {
+  transform: scale(1.1);
 }
 
 .menu-item-card strong {
   display: block;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 700;
   color: var(--aferix-text);
   margin-bottom: 4px;
@@ -2052,35 +2072,36 @@ button.secondary {
 
 .menu-item-card small {
   display: block;
-  font-size: 12px;
+  font-size: 11px;
   color: var(--aferix-text-muted);
+  line-height: 1.2;
 }
 
 .menu-list-simple {
   display: flex;
   flex-direction: column;
-  gap: 1px;
-  background: var(--aferix-border);
-  border-radius: var(--aferix-radius-lg);
-  overflow: hidden;
-  border: 1px solid var(--aferix-border);
+  gap: 8px;
+  margin-top: 12px;
 }
 
 .simple-menu-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 20px;
+  padding: 14px 18px;
   background: var(--aferix-surface-raised) !important;
-  border: none !important;
-  border-radius: 0 !important;
+  border: 1px solid var(--aferix-border) !important;
+  border-radius: var(--aferix-radius-md) !important;
   text-align: left;
   width: 100%;
   min-height: auto !important;
+  transition: all 0.2s ease;
 }
 
 .simple-menu-row:hover {
   background: var(--aferix-surface-active) !important;
+  border-color: var(--aferix-border-strong) !important;
+  padding-left: 22px;
 }
 
 .simple-menu-row .row-content {
