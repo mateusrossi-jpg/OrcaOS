@@ -437,6 +437,23 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
   }, [serviceTemplates]);
 
   useEffect(() => {
+    function refreshCaptures() {
+      setStoredTechnicalCaptures(loadStoredTechnicalCaptures());
+    }
+
+    if (activeSection === 'items') {
+      refreshCaptures();
+    }
+
+    window.addEventListener('storage', refreshCaptures);
+    window.addEventListener('focus', refreshCaptures);
+    return () => {
+      window.removeEventListener('storage', refreshCaptures);
+      window.removeEventListener('focus', refreshCaptures);
+    };
+  }, [activeSection]);
+
+  useEffect(() => {
     const subtotal = safeBudgetSubtotal(items);
     const commercialSubtotal = subtotal + travelCost + additionalFees;
     const total = Math.max(commercialSubtotal - Math.max(discount, 0), 0);
@@ -532,7 +549,7 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
   const blockingProposalIssues = hasBlockingBudgetIssues(proposalIssues);
   const filteredBudgetItems = useMemo(() => {
     const normalizedSearch = budgetItemSearch.trim().toLowerCase();
-    if (!normalizedSearch && budgetItemCategoryFilter === 'all') return [];
+    if (!normalizedSearch && budgetItemCategoryFilter === 'all') return items;
     return items.filter((item) => {
       const categoryMatches = budgetItemCategoryFilter === 'all' || item.category === budgetItemCategoryFilter;
       const textMatches = !normalizedSearch || [item.description, categoryLabel(item.category), formatCurrency(safeBudgetItemTotal(item))].join(' ').toLowerCase().includes(normalizedSearch);
@@ -599,7 +616,6 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
 
   function markTechnicalCaptureConverted(id: string) {
     onTechnicalCaptureConverted?.(id);
-    if (technicalCaptures.length > 0) return;
     setStoredTechnicalCaptures((current) => {
       const updatedCaptures = current.map((capture) => (capture.id === id ? { ...capture, convertedToBudgetItem: true } : capture));
       saveStoredTechnicalCaptures(updatedCaptures);
@@ -617,6 +633,7 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
     setItems((current) => [...current, newItem]);
     setSelectedBudgetItemId(newItem.id);
     setDraft(emptyDraftItem);
+    setShareFeedback('Item adicionado ao orçamento.');
   }
 
   function addCatalogItem() {
@@ -656,7 +673,10 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
   }
 
   function addCatalogItemToBudget(item: CatalogItem) {
-    setItems((current) => [...current, createBudgetItemFromCatalog(item)]);
+    const newItem = createBudgetItemFromCatalog(item);
+    setItems((current) => [...current, newItem]);
+    setSelectedBudgetItemId(newItem.id);
+    setShareFeedback('Material do catálogo adicionado ao orçamento.');
     setActiveSection('items');
   }
 
@@ -721,7 +741,9 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
     const quantity = parseCommercialNumber(serviceTemplateQuantities[template.id], 1);
     const unitValue = parseCommercialNumber(serviceTemplateValues[template.id], template.defaultUnitValue);
     if (quantity <= 0) return;
-    setItems((current) => [...current, createBudgetItemFromServiceTemplate(template, quantity, unitValue)]);
+    const newItem = createBudgetItemFromServiceTemplate(template, quantity, unitValue);
+    setItems((current) => [...current, newItem]);
+    setSelectedBudgetItemId(newItem.id);
     setShareFeedback(`${template.title} adicionado ao orçamento${template.minimumValue ? ` (mínimo sugerido: ${formatCurrency(template.minimumValue)})` : ''}.`);
   }
 
@@ -733,7 +755,9 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
       return;
     }
     setItems((current) => [...current, budgetItem]);
+    setSelectedBudgetItemId(budgetItem.id);
     markTechnicalCaptureConverted(capture.id);
+    setShareFeedback('Cálculo técnico importado como item do orçamento.');
     setActiveSection('items');
   }
 
@@ -741,7 +765,9 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
     const validItems = pendingTechnicalCaptures.map(technicalCaptureToBudgetItem).filter((item) => !hasBlockingBudgetIssues(validateBudgetItem(item)));
     if (validItems.length === 0) return;
     setItems((current) => [...current, ...validItems]);
+    if (validItems[0]) setSelectedBudgetItemId(validItems[0].id);
     pendingTechnicalCaptures.forEach((capture) => markTechnicalCaptureConverted(capture.id));
+    setShareFeedback(`${validItems.length} cálculos técnicos importados com sucesso.`);
     setActiveSection('items');
   }
 
@@ -751,12 +777,14 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
     if (!confirmed) return;
     setItems((current) => current.filter((item) => item.id !== itemId));
     if (selectedBudgetItemId === itemId) setSelectedBudgetItemId(null);
+    setShareFeedback('Item removido do orçamento.');
   }
 
   function duplicateItem(item: BudgetItem) {
     const duplicatedItem = { ...item, id: createId(`copy-${item.id}`) };
     setItems((current) => [...current, duplicatedItem]);
     setSelectedBudgetItemId(duplicatedItem.id);
+    setShareFeedback('Item duplicado com sucesso.');
   }
 
   function loadStarterItems() {
@@ -764,6 +792,7 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
     if (!confirmed) return;
     setItems(starterFinancialBudgetItems);
     setSelectedBudgetItemId(starterFinancialBudgetItems[0]?.id ?? null);
+    setShareFeedback('Modelo de orçamento carregado.');
   }
 
   function clearItems() {
@@ -771,6 +800,7 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
     if (!confirmed) return;
     setItems([]);
     setSelectedBudgetItemId(null);
+    setShareFeedback('Todos os itens foram removidos.');
   }
 
   function clearBudgetForm() {
@@ -850,7 +880,13 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
 
   function saveCurrentBudget() {
     const saved = persistCurrentBudget();
-    if (saved) setShareFeedback('Orçamento salvo localmente neste navegador.');
+    if (saved) {
+      if (activeSection === 'context') {
+        setShareFeedback('Identificação salva. Agora adicione serviços ou materiais em Escopo.');
+      } else {
+        setShareFeedback('Orçamento salvo localmente neste navegador.');
+      }
+    }
   }
 
   function duplicateSavedBudget(record: SavedBudgetRecord) {
@@ -1126,6 +1162,37 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
         ))}
       </div>
 
+      {shareFeedback && (
+        <div className="budget-toast-banner" style={{
+          border: '1px solid rgba(245, 164, 0, 0.3)',
+          borderRadius: '8px',
+          padding: '10px 14px',
+          background: 'rgba(245, 164, 0, 0.06)',
+          color: 'var(--aferix-primary, #f59e0b)',
+          fontSize: '0.86rem',
+          fontWeight: 600,
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          gap: '12px',
+          marginBottom: '12px',
+          width: '100%',
+          boxSizing: 'border-box'
+        }}>
+          <span>{shareFeedback}</span>
+          <button type="button" onClick={() => setShareFeedback(null)} style={{
+            background: 'none',
+            border: 'none',
+            color: 'var(--aferix-primary, #f59e0b)',
+            cursor: 'pointer',
+            fontSize: '1.2rem',
+            padding: '0 6px',
+            lineHeight: 1,
+            fontWeight: 'bold'
+          }}>×</button>
+        </div>
+      )}
+
       <div className="budget-secondary-links">
         <button className={activeSection === 'catalog' ? 'active' : ''} type="button" onClick={() => setActiveSection('catalog')}>Catálogo</button>
         <button className={activeSection === 'history' ? 'active' : ''} type="button" onClick={() => setActiveSection('history')}>Histórico</button>
@@ -1138,10 +1205,10 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
           <div className="budget-section-header">
             <div>
               <h3>Identificação do Projeto</h3>
-              <p>Cliente, título e status.</p>
+              <p>Cliente, título e status do atendimento comercial.</p>
             </div>
             <div className="budget-header-actions">
-              <button type="button" className="primary-action inline-action" onClick={saveCurrentBudget}>{activeBudgetId ? 'Atualizar orçamento' : 'Salvar orçamento'}</button>
+              <button type="button" className="primary-action inline-action" onClick={saveCurrentBudget}>Salvar identificação</button>
               {activeBudgetId && <button type="button" className="danger-action inline-action" onClick={deleteActiveBudget}>Excluir rascunho</button>}
             </div>
           </div>
@@ -1156,7 +1223,7 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
           
           <div className="budget-actions">
             <button type="button" className="secondary-action inline-action" onClick={resetBudgetDraft}>Novo orçamento</button>
-            <button type="button" className="primary-action" onClick={() => setActiveSection('items')}>Próximo: Escopo</button>
+            <button type="button" className="primary-action highlight-next-step" onClick={() => setActiveSection('items')}>Adicionar itens ao orçamento</button>
           </div>
         </section>
       )}
@@ -1439,6 +1506,35 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
       {activeSection === 'preview' && (
         <section className="budget-section-panel preview-section-panel">
           <div className="budget-section-header"><div><h3>Envio e aprovação</h3><p>Envie a proposta, registre a aprovação e só depois gere a OS.</p></div></div>
+          
+          {items.length === 0 && (
+            <div className="budget-empty-preview-card" style={{
+              border: '1px dashed var(--aferix-primary, #f59e0b)',
+              borderRadius: '12px',
+              padding: '24px',
+              background: 'rgba(245, 158, 11, 0.05)',
+              textAlign: 'center',
+              display: 'grid',
+              gap: '12px',
+              justifyItems: 'center',
+              marginBottom: '20px',
+              width: '100%',
+              boxSizing: 'border-box'
+            }}>
+              <strong style={{ fontSize: '1.2rem', color: 'var(--aferix-primary, #f59e0b)', display: 'block' }}>Nenhum item no orçamento</strong>
+              <p style={{ color: 'var(--aferix-text-muted, #71717a)', maxWidth: '500px', margin: 0, lineHeight: 1.4 }}>
+                Adicione serviços, materiais ou importe cálculos para gerar valores na proposta.
+              </p>
+              <button
+                type="button"
+                className="primary-action inline-action"
+                onClick={() => setActiveSection('items')}
+                style={{ marginTop: '8px' }}
+              >
+                Adicionar itens
+              </button>
+            </div>
+          )}
           <div className="budget-simple-flow-card">
             <strong>Fluxo comercial simples</strong>
             <div>
