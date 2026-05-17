@@ -136,28 +136,46 @@ export function CalculationsScreen({
 
   return (
     <section className="app-screen calculations-overview-screen">
-      <header className="screen-header"><h1>Cálculos</h1><p>Use cálculos comerciais para decidir quanto cobrar, simular margem, estimar tempo, deslocamento, materiais, taxas e parcelamento.</p></header>
-      <div className="calculation-context-card">
-        <span>{context.activeWorkOrder ? 'Atendimento ativo detectado' : 'Modo avulso'}</span>
-        <strong>{calculationContext.title}</strong>
-        <p>{calculationContext.description}</p>
-        <small>{context.activeWorkOrder ? `${linkedCalculationCount} resultado(s) já ligados a este atendimento.` : 'Quando existir atendimento ativo, o app oferece vínculo com atendimento e orçamento.'}</small>
+      <header className="page-header">
+        <div>
+          <h1>Simulador de Preços</h1>
+          <p>Cálculos comerciais para formar preço, calcular margem e entender seu lucro real.</p>
+        </div>
+      </header>
+
+      <div className="metric-grid compact-metric-grid">
+        <article className="metric-card">
+          <span>Modo de uso</span>
+          <strong>{context.activeWorkOrder ? 'Vinculado' : 'Consulta avulsa'}</strong>
+          <small>{calculationContext.title}</small>
+        </article>
+        <article className="metric-card">
+          <span>Resultados</span>
+          <strong>{context.activeWorkOrder ? linkedCalculationCount : 0}</strong>
+          <small>{context.activeWorkOrder ? 'No atendimento atual' : 'Nenhum atendimento ativo'}</small>
+        </article>
       </div>
       {calculationSectorGroups.length > 1 && (
         <AferixTabs
           activeId={activeSector}
           items={calculationSectorGroups.map((group) => ({ id: group.id, label: group.title }))}
           onChange={onSelectSector}
+          variant="pill"
         />
       )}
-      <div className="survey-intro-card">
-        <span><strong>{selectedSector.title}</strong><small>{selectedSector.description}</small></span>
+
+      <div className="aferix-panel-card">
+        <header className="section-header">
+          <div>
+            <span className="orca-kicker">{selectedSector.title}</span>
+            <h2>Ferramentas disponíveis</h2>
+            <p>{selectedSector.description}</p>
+          </div>
+        </header>
+        <div className="module-list-app">
+          {sectorModules.map((module) => <ModuleCard key={module.id} module={module} compact onOpen={() => openModule(module)} />)}
+        </div>
       </div>
-      <div className="module-list-heading">
-        <strong>Finalidade principal</strong>
-        <small>O Aferix prioriza cálculos que ajudam a formar preço, negociar e entender lucro real.</small>
-      </div>
-      <div className="module-list-app">{sectorModules.map((module) => <ModuleCard key={module.id} module={module} compact onOpen={() => openModule(module)} />)}</div>
     </section>
   );
 }

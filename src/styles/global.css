@@ -356,21 +356,21 @@ a {
 }
 
 .module-plan-pill.free {
-  color: var(--aferix-accent, #f59e0b);
-  background: rgba(245, 158, 11, 0.10);
-  border-color: rgba(245, 158, 11, 0.2);
+  color: var(--aferix-text, #f8fafc);
+  background: var(--aferix-surface-2, #18181b);
+  border-color: var(--aferix-border, #27272a);
 }
 
 .module-plan-pill.pro {
   color: #000;
-  background: var(--aferix-premium-gradient);
+  background: linear-gradient(135deg, var(--aferix-primary, #f59e0b), #fcd34d);
   border: none;
 }
 
 .module-plan-pill.soon {
-  color: #71717a;
-  background: rgba(113, 113, 122, 0.1);
-  border-color: rgba(113, 113, 122, 0.2);
+  color: var(--aferix-text-muted, #71717a);
+  background: transparent;
+  border-color: var(--aferix-border, #27272a);
 }
 
 .module-list-app {

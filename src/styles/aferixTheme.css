@@ -987,17 +987,23 @@ button.secondary {
 }
 
 .plan-card {
-  display: grid !important;
-  gap: 14px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 16px !important;
   min-width: 0 !important;
-  padding: 18px !important;
+  padding: 24px !important;
   border: 1px solid var(--aferix-border) !important;
-  border-radius: var(--aferix-radius-md) !important;
-  background: linear-gradient(180deg, var(--aferix-surface-raised), var(--aferix-surface)) !important;
+  border-radius: 12px !important;
+  background: var(--aferix-surface) !important;
+}
+
+.plan-card > :last-child {
+  margin-top: auto !important;
 }
 
 .plan-card.featured {
-  border-color: rgba(245, 164, 0, 0.62) !important;
+  border-color: var(--aferix-primary) !important;
+  background: linear-gradient(180deg, var(--aferix-surface-raised), var(--aferix-surface)) !important;
 }
 
 .plan-card-heading h2,
