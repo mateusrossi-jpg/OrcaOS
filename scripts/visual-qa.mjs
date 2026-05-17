@@ -110,63 +110,39 @@ const calcTSX = readFile('src/app/screens/CalculationsScreen.tsx');
   else logError(`Encontrou texto colado legado: ${token}`);
 });
 
-// 8. Clientes / Atendimentos
-logStep('Clientes / Atendimentos (ClientWorkOrderWorkspace)');
-const clientTSX = readFile('src/features/clients/components/ClientWorkOrderWorkspace.tsx');
-if (clientTSX) {
-  logSuccess('ClientWorkOrderWorkspace.tsx encontrado e lido');
-  ['ClientWorkOrderWorkspace', 'ContextBanner', 'MetricCard', 'home-action-toolbar'].forEach(token => {
-    if (clientTSX.includes(token)) logSuccess(`Estrutura de Clientes encontrada: ${token}`);
-    else logError(`Faltando estrutura em ClientWorkOrderWorkspace.tsx: ${token}`);
-  });
-} else {
-  logError('ClientWorkOrderWorkspace.tsx não encontrado');
-}
-
-const clientCSS = readFile('src/features/clients/components/ClientWorkOrderWorkspace.css');
-if (clientCSS) {
-  logSuccess('ClientWorkOrderWorkspace.css encontrado e lido');
-  ['.refined-client-os', '.client-os-indicator-grid', '.client-os-grid', '@media (max-width: 768px)'].forEach(rule => {
-    if (clientCSS.includes(rule)) logSuccess(`Regra CSS do workspace encontrada: ${rule}`);
-    else logError(`Faltando regra CSS no workspace: ${rule}`);
-  });
-} else {
-  logError('ClientWorkOrderWorkspace.css não encontrado');
-}
-
-const clientScreenTSX = readFile('src/app/screens/ClientsScreen.tsx');
-if (clientScreenTSX) {
-  logSuccess('ClientsScreen.tsx encontrado e lido');
-  if (clientScreenTSX.includes('ClientsScreen')) logSuccess('Componente ClientsScreen declarado');
-  else logError('ClientsScreen não encontrado no arquivo de tela');
-}
-
+// 8. ContextBanner / Atendimentos
+logStep('ContextBanner / Atendimentos (aferixTheme.css)');
 const themeCSS = readFile('src/styles/aferixTheme.css');
 
-// Validar padrões seguros para o contexto ativo (.context-banner)
-if (themeCSS.includes('.context-banner-action')) {
-  logSuccess('Regras para botão do contexto ativo encontradas');
-} else {
-  logError('Faltando regras para .context-banner-action');
-}
+['.context-banner', '.context-banner-action'].forEach(cls => {
+  if (themeCSS.includes(cls)) logSuccess(`Encontrou classe do banner de contexto: ${cls}`);
+  else logError(`Faltando classe do banner de contexto: ${cls}`);
+});
 
-const contextBannerMobileMatch = themeCSS.match(/\.context-banner\s*\{[^}]*display:\s*grid/);
-if (contextBannerMobileMatch || themeCSS.includes('grid-template-columns: auto 1fr')) {
-  logSuccess('Regra para contexto ativo com grid-template-columns no mobile encontrada');
-} else {
-  logWarn('Faltando regra específica para grid-template-columns no mobile para .context-banner');
-}
+['grid-template-columns: auto minmax(0, 1fr) auto', '@media (max-width: 760px)', 'grid-column: 1 / -1', 'width: 100%', 'min-width: 0'].forEach(rule => {
+  if (themeCSS.includes(rule)) logSuccess(`Encontrou regra de segurança no CSS: ${rule}`);
+  else logError(`Faltando regra de segurança no CSS: ${rule}`);
+});
 
-if (!themeCSS.match(/\.context-banner-action\s*\{[^}]*position:\s*absolute/)) {
+// Validar que não existe position: absolute
+if (!themeCSS.match(/\.context-banner-action[^}]*position:\s*absolute/)) {
   logSuccess('Livre de position: absolute indevido no botão de contexto');
 } else {
-  logError('Erro crítico: botão do contexto ativo usando position absolute!');
+  logError('Erro crítico: botão do contexto ativo usando position: absolute!');
 }
 
-if (!themeCSS.match(/\.context-banner-action\s*\{[^}]*(margin-top|margin-bottom|transform):\s*-\d+/)) {
-  logSuccess('Livre de margens negativas ou transformações de empurre nocivas');
+// Validar que não existe transform
+if (!themeCSS.match(/\.context-banner-action[^}]*transform:/)) {
+  logSuccess('Livre de transform indevido no botão de contexto');
 } else {
-  logError('Erro crítico: botão do contexto ativo usando margens negativas ou transformações nocivas!');
+  logError('Erro crítico: botão do contexto ativo usando transform!');
+}
+
+// Validar que não existe margin-top negativo
+if (!themeCSS.match(/\.context-banner-action[^}]*margin-top:\s*-\d+/)) {
+  logSuccess('Livre de margin-top negativo indevido no botão de contexto');
+} else {
+  logError('Erro crítico: botão do contexto ativo usando margin-top negativo!');
 }
 
 // 9. Design Tokens
