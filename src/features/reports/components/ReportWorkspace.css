@@ -98,8 +98,8 @@
 .report-document {
   width: min(840px, 100%);
   margin: 12px auto 0;
-  border: 1px solid rgba(245, 158, 11, 0.24);
-  border-radius: 16px;
+  border: 1px solid #e5ded2 !important;
+  border-radius: 12px !important;
   padding: clamp(1.6rem, 3.5vw, 2.7rem);
   background: #fcfbf8 !important;
   color: #111827 !important;
@@ -161,18 +161,29 @@
 .report-document-header p,
 .report-document-header small,
 .report-document p,
-.report-document li {
+.report-document li,
+.report-document span {
   color: #4b5563 !important;
 }
 
 .report-document h1,
 .report-document h2,
+.report-document h3,
 .report-document strong {
   color: #111827 !important;
 }
 
 .report-document small {
   color: #4b5563 !important;
+}
+
+.report-document-header,
+.report-document-footer {
+  border-color: #d8d2c8 !important;
+}
+
+.report-company-row img {
+  object-fit: contain;
 }
 
 .report-context-box {
@@ -266,7 +277,8 @@
 }
 
 .report-empty-state {
-  border-left-color: var(--aferix-primary, #f5a400);
+  border-left: 3px solid var(--aferix-primary, #f5a400) !important;
+  padding: 0.85rem 1rem;
   background: #fff7ed !important;
   color: #111827 !important;
 }
@@ -315,7 +327,7 @@
 
   .report-document {
     padding: 18px !important;
-    border-radius: 12px;
+    border-radius: 12px !important;
   }
 
   .report-company-row {
@@ -343,59 +355,3 @@
   }
 }
 
-/* High-contrast Light Mode Protection for Reports */
-.report-document {
-  color-scheme: light;
-  background: #fcfbf8 !important;
-  color: #111827 !important;
-  border: 1px solid #e5ded2 !important;
-  border-radius: 12px !important;
-}
-
-.report-document :where(h1, h2, h3, strong) {
-  color: #111827 !important;
-}
-
-.report-document :where(p, small, li, span) {
-  color: #4b5563 !important;
-}
-
-.report-document-header,
-.report-document-footer {
-  border-color: #d8d2c8 !important;
-}
-
-.report-empty-state {
-  background: #fff7ed !important;
-  color: #111827 !important;
-  border-left: 3px solid var(--aferix-primary) !important;
-}
-
-.report-empty-state strong {
-  color: #111827 !important;
-}
-
-.report-empty-state p {
-  color: #374151 !important;
-}
-
-.report-company-row img {
-  object-fit: contain;
-}
-
-@media (max-width: 640px) {
-  .report-document {
-    padding: 18px !important;
-    border-radius: 12px !important;
-  }
-
-  .report-company-row {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-
-  .report-company-row img {
-    max-width: 132px;
-    max-height: 42px;
-  }
-}
