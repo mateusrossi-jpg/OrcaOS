@@ -379,3 +379,96 @@
     justify-self: start;
   }
 }
+
+.fundamental-plan-banner,
+.fundamental-picker-card,
+.fundamental-overlay-panel,
+.fundamental-result-card {
+  border-color: var(--aferix-border) !important;
+  border-radius: var(--aferix-radius-md) !important;
+  background: linear-gradient(180deg, var(--aferix-surface-raised), var(--aferix-surface)) !important;
+  color: var(--aferix-text) !important;
+}
+
+.fundamental-overlay-header span,
+.fundamental-form-field span {
+  display: block !important;
+  color: var(--aferix-brand) !important;
+}
+
+.fundamental-plan-banner strong,
+.fundamental-picker-card strong,
+.fundamental-overlay-header h2 {
+  display: block !important;
+  color: var(--aferix-text) !important;
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0 !important;
+}
+
+.fundamental-plan-banner span,
+.fundamental-picker-card small,
+.fundamental-overlay-header p {
+  display: block !important;
+  margin-top: 6px !important;
+  color: var(--aferix-text-muted) !important;
+  font-size: 13px !important;
+}
+
+.fundamental-overlay-panel {
+  background: var(--aferix-bg) !important;
+}
+
+.fundamental-form-field input,
+.fundamental-form-field select {
+  min-height: 46px !important;
+  border-color: var(--aferix-border) !important;
+  border-radius: var(--aferix-radius-sm) !important;
+  color: var(--aferix-text) !important;
+  background: var(--aferix-bg-soft) !important;
+}
+
+.fundamental-capture-actions button {
+  min-height: 44px !important;
+  border-radius: var(--aferix-radius-sm) !important;
+  color: #111214 !important;
+  background: var(--aferix-brand) !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+}
+
+.fundamental-capture-actions button.secondary-action {
+  color: var(--aferix-text) !important;
+  background: var(--aferix-bg-soft) !important;
+}
+
+.fundamental-picker-card em,
+.fundamental-overlay-header em {
+  border: 1px solid var(--aferix-border) !important;
+  border-radius: var(--aferix-radius-sm) !important;
+  background: var(--aferix-bg-soft) !important;
+  color: var(--aferix-brand) !important;
+  font-weight: 600 !important;
+  padding: 4px 8px !important;
+  font-size: 11px !important;
+}
+
+.fundamental-result-card strong {
+  color: var(--aferix-brand) !important;
+}
+
+.general-formula-box {
+  border-color: var(--aferix-border) !important;
+  border-radius: var(--aferix-radius-md) !important;
+  background: var(--aferix-bg-soft) !important;
+  color: var(--aferix-text-muted) !important;
+}
+
+.general-formula-box strong {
+  color: var(--aferix-brand) !important;
+}
+
+.fundamental-added-message {
+  color: var(--aferix-brand) !important;
+  background: rgba(245, 158, 11, 0.10) !important;
+}

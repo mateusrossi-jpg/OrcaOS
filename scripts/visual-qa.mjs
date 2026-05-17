@@ -216,6 +216,22 @@ if (appShellTSX.includes('drawer-backdrop') && appShellTSX.includes('onClick={()
   logError('Faltando overlay/backdrop clicável para fechar o drawer');
 }
 
+// 8.8. Simulador / Precificação Cards Check
+logStep('Simulador / Precificação Cards Check');
+const fundGeraisCSS = readFile('src/features/calculators/components/GeneralFundamentalsWorkspace.css');
+
+if (fundGeraisCSS.includes('var(--aferix-surface-raised)')) {
+  logSuccess('Cards de produtividade normatizados com o design system Aferix');
+} else {
+  logError('Cards de produtividade estão com estilo desalinhado ou sem variáveis aferix');
+}
+
+if (!fundGeraisCSS.match(/\.fundamental-picker-card\s*\{[^}]*background:\s*var\(--stable-surface,\s*#101713\)/) && !fundGeraisCSS.match(/\.fundamental-plan-banner\s*\{[^}]*background:\s*var\(--stable-surface,\s*#101713\)/)) {
+  logSuccess('Livre de fundo esverdeado legado (#101713) nos cards de produtividade/cálculo');
+} else {
+  logError('Erro: Encontrou fundo esverdeado legado (#101713) nos cards de produtividade');
+}
+
 // 9. Design Tokens
 logStep('Design Tokens (aferixTheme.css)');
 ['--aferix-bg', '--aferix-surface', '--aferix-surface-2', '--aferix-border', '--aferix-text', '--aferix-text-secondary', '--aferix-primary', '--aferix-danger'].forEach(token => {
