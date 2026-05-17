@@ -182,6 +182,40 @@ if (appShellTSX.includes('aferix-wordmark-premium.svg')) {
   logError('AppShell.tsx deve utilizar a logo completa no header');
 }
 
+// 8.7. Drawer / Overlay Premium
+logStep('Drawer / Overlay Premium');
+const appShellCSS = readFile('src/app/components/AppShell.css');
+
+if (appShellCSS.includes('.drawer-backdrop') && appShellCSS.includes('backdrop-filter')) {
+  logSuccess('Encontrou regras de overlay translúcido e filtro de desfoque (blur)');
+} else {
+  logError('AppShell.css não possui regras de desfoque ou classe .drawer-backdrop');
+}
+
+if (appShellCSS.includes('blur(6px)') || appShellCSS.includes('blur(5px)') || appShellCSS.includes('blur(7px)') || appShellCSS.includes('blur(8px)')) {
+  logSuccess('Filtro de blur está dentro do limite premium e seguro de até 8px');
+} else {
+  logError('Erro de design: blur fora do intervalo premium recomendado');
+}
+
+if (appShellCSS.includes('@supports not') && appShellCSS.includes('backdrop-filter')) {
+  logSuccess('Fallback cross-browser para backdrop-filter configurado corretamente');
+} else {
+  logError('Faltando bloco de fallback @supports not para navegadores antigos');
+}
+
+if (appShellCSS.includes('linear-gradient(') && appShellCSS.includes('.side-drawer')) {
+  logSuccess('Side-drawer utiliza gradiente escuro premium ao invés de cor chapada');
+} else {
+  logError('Erro: side-drawer sem gradiente premium');
+}
+
+if (appShellTSX.includes('drawer-close-button') && appShellTSX.includes('<svg') && appShellTSX.includes('d="M18 6 6 18"')) {
+  logSuccess('Botão de fechar do drawer validado: contém ícone X e não é um card vazio');
+} else {
+  logError('Botão de fechar do drawer está vazio ou sem o ícone X configurado');
+}
+
 // 9. Design Tokens
 logStep('Design Tokens (aferixTheme.css)');
 ['--aferix-bg', '--aferix-surface', '--aferix-surface-2', '--aferix-border', '--aferix-text', '--aferix-text-secondary', '--aferix-primary', '--aferix-danger'].forEach(token => {

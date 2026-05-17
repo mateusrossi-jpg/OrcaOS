@@ -404,8 +404,18 @@ body,
   inset: 0;
   z-index: 80;
   border: 0;
-  background: rgba(2, 6, 23, 0.58);
-  backdrop-filter: none;
+  background:
+    radial-gradient(circle at top left, rgba(245, 164, 0, 0.08), transparent 32rem),
+    rgba(0, 0, 0, 0.58);
+  backdrop-filter: blur(6px) saturate(115%);
+  -webkit-backdrop-filter: blur(6px) saturate(115%);
+  transition: opacity 180ms ease;
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .drawer-backdrop {
+    background: rgba(0, 0, 0, 0.72);
+  }
 }
 
 .side-drawer {
@@ -417,7 +427,7 @@ body,
   display: grid;
   align-content: start;
   gap: 10px;
-  width: min(86vw, 360px);
+  width: min(86vw, 340px);
   max-width: calc(100vw - 16px - env(safe-area-inset-left) - env(safe-area-inset-right));
   min-width: 0;
   height: auto;
@@ -428,11 +438,18 @@ body,
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
   border: 1px solid var(--aferix-border);
-  border-radius: 4px;
-  background: var(--aferix-bg);
-  box-shadow: var(--aferix-shadow);
+  border-radius: 12px;
+  background: linear-gradient(180deg, rgba(16, 17, 20, 0.98), rgba(5, 6, 7, 0.98));
+  box-shadow: 24px 0 80px rgba(0, 0, 0, 0.42);
   transform: translateX(calc(-100% - 24px));
   transition: transform 180ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .side-drawer,
+  .drawer-backdrop {
+    transition: none !important;
+  }
 }
 
 .side-drawer.open {
@@ -444,12 +461,20 @@ body,
   min-width: 0;
 }
 
-.drawer-brand-card,
+.drawer-brand-card {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--aferix-border);
+  border-radius: 12px;
+  background: var(--aferix-surface);
+  box-shadow: none;
+}
+
 .drawer-status-strip {
   min-width: 0;
   overflow: hidden;
   border: 1px solid var(--aferix-border);
-  border-radius: 4px;
+  border-radius: 8px;
   background: var(--aferix-surface);
   box-shadow: none;
 }
@@ -476,21 +501,21 @@ body,
 .drawer-close-button {
   display: grid;
   place-items: center;
-  width: 32px;
-  height: 32px;
-  min-width: 32px;
-  border: 1px solid #222222;
-  border-radius: 4px;
-  background: #000000;
-  color: #666666;
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
+  border: 1px solid var(--aferix-border);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.035);
+  color: var(--aferix-text-muted);
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .drawer-close-button:hover {
-  border-color: var(--aferix-primary);
-  color: var(--aferix-primary);
-  background: rgba(245, 158, 11, 0.06);
+  color: var(--aferix-text);
+  border-color: var(--aferix-border-strong);
+  background: rgba(245, 164, 0, 0.08);
 }
 
 .drawer-brand-card strong,
