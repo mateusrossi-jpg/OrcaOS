@@ -2,18 +2,16 @@
   <title id="title">Aferix Mark Premium</title>
   <desc id="desc">Sleek dark gold-accented app icon with the stylized X trend signature of Aferix.</desc>
   <defs>
-    <linearGradient id="gold-premium" x1="40" y1="86" x2="98" y2="28" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#b45309"/>
-      <stop offset="0.4" stop-color="#f5a623"/>
-      <stop offset="0.8" stop-color="#f59e0b"/>
-      <stop offset="1" stop-color="#fbbf24"/>
+    <linearGradient id="gold-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#d97706"/>
+      <stop offset="50%" stop-color="#f5a400"/>
+      <stop offset="100%" stop-color="#fbbf24"/>
     </linearGradient>
   </defs>
-  <rect width="118" height="118" x="1" y="1" rx="26" fill="#090b0f" stroke="rgba(245, 158, 11, 0.22)" stroke-width="2" />
+  <rect width="116" height="116" x="2" y="2" rx="28" fill="#090b0f" stroke="rgba(245, 164, 0, 0.22)" stroke-width="2" />
   <g id="aferix-brand-symbol">
-    <!-- Left-to-right leg of the X -->
-    <path d="M38 40 L52 40 L82 86 L68 86 Z" fill="#f8fafc" />
-    <!-- Rising financial arrow leg of the X -->
-    <path d="M42 86 L68 53 L56 53 L98 28 L92 71 L83 60 L70 86 Z" fill="url(#gold-premium)" />
+    <!-- Symmetric premium X composed of elegant intersecting capsules -->
+    <rect x="25" y="54.5" width="70" height="11" rx="5.5" transform="rotate(45 60 60)" fill="#f5f1e8" />
+    <rect x="25" y="54.5" width="70" height="11" rx="5.5" transform="rotate(-45 60 60)" fill="url(#gold-gradient)" />
   </g>
 </svg>

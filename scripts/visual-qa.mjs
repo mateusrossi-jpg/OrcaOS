@@ -168,6 +168,20 @@ if (introTSX.includes('Gestão financeira para autônomos') && introTSX.includes
   logError('AferixIntro.tsx não contém as frases de posicionamento financeiro premium ou logo correto');
 }
 
+// 8.6. Regras de logo adicionais
+const wordmarkSVG = readFile('public/icons/aferix-wordmark-premium.svg');
+if (wordmarkSVG.includes('AFERI') && wordmarkSVG.includes('X') && !wordmarkSVG.includes('rect fill="#ffffff"')) {
+  logSuccess('SVG do wordmark validado: palavra AFERIX completa, integrada e sem fundo branco');
+} else {
+  logError('Wordmark SVG inválido: não possui a palavra AFERIX completa ou possui fundo branco');
+}
+
+if (appShellTSX.includes('aferix-wordmark-premium.svg')) {
+  logSuccess('AppShell.tsx utiliza o wordmark premium no header principal');
+} else {
+  logError('AppShell.tsx deve utilizar a logo completa no header');
+}
+
 // 9. Design Tokens
 logStep('Design Tokens (aferixTheme.css)');
 ['--aferix-bg', '--aferix-surface', '--aferix-surface-2', '--aferix-border', '--aferix-text', '--aferix-text-secondary', '--aferix-primary', '--aferix-danger'].forEach(token => {

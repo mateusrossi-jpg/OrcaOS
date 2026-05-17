@@ -1,19 +1,14 @@
-<svg width="450" height="120" viewBox="0 0 450 120" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+<svg width="300" height="90" viewBox="0 0 300 90" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
   <title id="title">Aferix Wordmark Premium</title>
-  <desc id="desc">AFERIX premium dark-theme wordmark with off-white typography and stylized gold rising X trend arrow.</desc>
+  <desc id="desc">AFERIX horizontal premium wordmark with off-white typography and integrated gold-gradient X.</desc>
   <defs>
-    <linearGradient id="gold-premium" x1="300" y1="96" x2="370" y2="24" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#b45309"/>
-      <stop offset="0.4" stop-color="#f5a623"/>
-      <stop offset="0.8" stop-color="#f59e0b"/>
-      <stop offset="1" stop-color="#fbbf24"/>
+    <linearGradient id="gold-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#d97706"/>
+      <stop offset="50%" stop-color="#f5a400"/>
+      <stop offset="100%" stop-color="#fbbf24"/>
     </linearGradient>
   </defs>
-  <g id="aferix-brand-horizontal">
-    <text x="24" y="80" fill="#f8fafc" font-family="'Outfit', 'Inter', 'Sora', sans-serif" font-size="64" font-weight="900" letter-spacing="4">AFERI</text>
-    <!-- Left-to-right leg of the X -->
-    <path d="M295 44 L312 44 L350 96 L333 96 Z" fill="#f8fafc" />
-    <!-- Rising financial arrow leg of the X -->
-    <path d="M302 96 L335 55 L320 55 L372 24 L365 78 L354 64 L338 96 Z" fill="url(#gold-premium)" />
-  </g>
+  <text x="12" y="64" font-family="'Outfit', 'Inter', 'Manrope', 'Sora', 'Segoe UI', sans-serif" font-size="52" font-weight="900" letter-spacing="2">
+    <tspan fill="#f5f1e8">AFERI</tspan><tspan fill="url(#gold-gradient)">X</tspan>
+  </text>
 </svg>
