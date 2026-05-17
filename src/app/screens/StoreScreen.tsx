@@ -144,9 +144,9 @@ export function StoreScreen({ account, onAccountChange }: StoreScreenProps) {
         <div className="billing-readiness-grid">
           <article><span>Canal</span><strong>{billingReadiness.channelLabel}</strong><small>{billingReadiness.channel === 'beta-assisted' ? 'Sem cobrança automática no beta.' : 'Canal configurável por ambiente.'}</small></article>
           <article><span>Endpoint Pro</span><strong>{billingReadiness.entitlementEndpointConfigured ? 'Configurado' : 'Pendente'}</strong><small>Responsável por liberar, expirar ou bloquear Pro.</small></article>
-          <article><span>Android package</span><strong>{billingReadiness.packageName || 'Pendente'}</strong><small>Necessário para Google Play Billing.</small></article>
-          <article><span>Produto Pro</span><strong>{billingReadiness.proProductId || 'Pendente'}</strong><small>ID da assinatura/produto no Play Console.</small></article>
-          <article><span>Bridge Android</span><strong>{billingReadiness.googlePlayBridgeName}</strong><small>{googlePlaySetup.bridgeAvailable ? 'Disponível neste app.' : 'Aguardando plugin nativo.'}</small></article>
+          <article><span>Android package</span><strong className="android-package" title={billingReadiness.packageName || 'Pendente'}>{billingReadiness.packageName || 'Pendente'}</strong><small>Necessário para Google Play Billing.</small></article>
+          <article><span>Produto Pro</span><strong className="product-id" title={billingReadiness.proProductId || 'Pendente'}>{billingReadiness.proProductId || 'Pendente'}</strong><small>ID da assinatura/produto no Play Console.</small></article>
+          <article><span>Bridge Android</span><strong className="long-token" title={billingReadiness.googlePlayBridgeName}>{billingReadiness.googlePlayBridgeName}</strong><small>{googlePlaySetup.bridgeAvailable ? 'Disponível neste app.' : 'Aguardando plugin nativo.'}</small></article>
         </div>
         <div className="billing-release-list">
           {billingReadiness.releaseChecklist.map((item) => <span key={item}>{item}</span>)}
@@ -158,8 +158,8 @@ export function StoreScreen({ account, onAccountChange }: StoreScreenProps) {
           <h2>Compra pela conta Google</h2>
           </div>
         <div className="billing-readiness-grid">
-          <article><span>Produto</span><strong>{googlePlaySetup.productId || 'Pendente'}</strong><small>Assinatura/produto Pro no Play Console.</small></article>
-          <article><span>Pacote</span><strong>{googlePlaySetup.packageName || 'Pendente'}</strong><small>Deve bater com o app publicado.</small></article>
+          <article><span>Produto</span><strong className="product-id" title={googlePlaySetup.productId || 'Pendente'}>{googlePlaySetup.productId || 'Pendente'}</strong><small>Assinatura/produto Pro no Play Console.</small></article>
+          <article><span>Pacote</span><strong className="android-package" title={googlePlaySetup.packageName || 'Pendente'}>{googlePlaySetup.packageName || 'Pendente'}</strong><small>Deve bater com o app publicado.</small></article>
           <article><span>Backend</span><strong>{googlePlaySetup.entitlementEndpoint ? 'Configurado' : 'Pendente'}</strong><small>Valida token com Google, não no front-end.</small></article>
         </div>
         <div className="general-capture-actions">

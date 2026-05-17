@@ -307,6 +307,46 @@ if (generalCalcCSS.includes('.general-calculator-detail-back')) {
   logError('GeneralCalculatorWorkspace.css não possui classe .general-calculator-detail-back');
 }
 
+// 8.9.5. Refinamentos Visuais Aferix (Mecanismos de Overflow, Dropdown Premium, Catalog 2-colunas e Scrollbars)
+logStep('Refinamentos Visuais Aferix');
+const storeTSX_Check = readFile('src/app/screens/StoreScreen.tsx');
+if (storeTSX_Check.includes('className="android-package"') && storeTSX_Check.includes('title=')) {
+  logSuccess('StoreScreen.tsx implementa proteção e atributos title de acessibilidade contra estouro de texto');
+} else {
+  logError('StoreScreen.tsx está sem classes de proteção contra overflow (android-package) ou atributos title');
+}
+
+if (themeCSS.includes('.long-token') && themeCSS.includes('.android-package') && themeCSS.includes('text-overflow: ellipsis')) {
+  logSuccess('aferixTheme.css define classes utilitárias para truncamento com reticências (.long-token, .android-package)');
+} else {
+  logError('aferixTheme.css não possui regras utilitárias de reticências para textos técnicos longos');
+}
+
+if (themeCSS.includes('.top-nav-dropdown') && themeCSS.includes('rgba(22, 24, 30, 0.98)')) {
+  logSuccess('aferixTheme.css define estilo glassmorphic premium para dropdown superior desktop');
+} else {
+  logError('aferixTheme.css não possui estilos glassmorphic premium para .top-nav-dropdown');
+}
+
+if (themeCSS.includes('.catalog-stats-grid') && themeCSS.includes('.catalog-stat-card')) {
+  logSuccess('aferixTheme.css define layout de 2 colunas no mobile e 6 no desktop para estatísticas do Catálogo');
+} else {
+  logError('aferixTheme.css não possui as regras de grid de estatísticas do Catálogo (.catalog-stats-grid)');
+}
+
+const catalogHubTSX = readFile('src/features/catalog/components/CatalogHubWorkspaceEditable.tsx');
+if (catalogHubTSX.includes('className="catalog-stats-grid"')) {
+  logSuccess('CatalogHubWorkspaceEditable.tsx utiliza a classe catalog-stats-grid para exibição móvel aprimorada');
+} else {
+  logError('CatalogHubWorkspaceEditable.tsx não utiliza a classe catalog-stats-grid');
+}
+
+if (themeCSS.includes('.drawer-panel::-webkit-scrollbar') && themeCSS.includes('rgba(255, 255, 255, 0.18)')) {
+  logSuccess('aferixTheme.css define estilo de rolagem estético e fino para o side drawer / menu lateral');
+} else {
+  logWarn('aferixTheme.css não possui estilos estéticos personalizados de scrollbar para a navegação');
+}
+
 // 9. Design Tokens
 logStep('Design Tokens (aferixTheme.css)');
 ['--aferix-bg', '--aferix-surface', '--aferix-surface-2', '--aferix-border', '--aferix-text', '--aferix-text-secondary', '--aferix-primary', '--aferix-danger'].forEach(token => {

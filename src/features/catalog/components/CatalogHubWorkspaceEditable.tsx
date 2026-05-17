@@ -591,11 +591,11 @@ export function CatalogHubWorkspace({ onSendToBudget, initialTab = 'items', enab
 
       {activeTab === 'items' && (
         <>
-          <div className="dashboard-finance-tiles" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))' }}>
+          <div className="catalog-stats-grid">
             {itemKindStats.map((stat) => (
-              <button className={`finance-tile ${kindFilter === stat.kind ? 'active' : ''}`} key={stat.kind} type="button" onClick={() => setKindFilter(stat.kind)} style={{ cursor: 'pointer', textAlign: 'left', border: kindFilter === stat.kind ? '1px solid #f59e0b' : '1px solid #222' }}>
-                <span style={{ fontSize: '0.65rem' }}>{stat.label}</span>
-                <strong style={{ fontSize: '1.2rem' }}>{stat.count}</strong>
+              <button className={`catalog-stat-card ${kindFilter === stat.kind ? 'active' : ''}`} key={stat.kind} type="button" onClick={() => setKindFilter(stat.kind)}>
+                <span>{stat.label}</span>
+                <strong>{stat.count}</strong>
               </button>
             ))}
           </div>

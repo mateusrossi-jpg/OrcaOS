@@ -1471,3 +1471,335 @@ button.secondary {
 .client-os-workspace .dashboard-finance-tiles {
   margin-bottom: 16px !important;
 }
+
+/* ==================================================
+   AFERIX PREMIUM USER INTERFACE REFINEMENTS
+   ================================================== */
+
+/* 1. Global Card Text Overflow Protection */
+.aferix-card,
+.aferix-panel,
+.aferix-panel-card,
+.metric-card,
+.license-card,
+.settings-card,
+.catalog-card,
+.billing-card,
+.payment-card,
+.billing-readiness-grid article,
+.settings-readiness-grid article,
+.plan-priority-grid article {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.aferix-card *,
+.aferix-panel *,
+.aferix-panel-card *,
+.metric-card *,
+.license-card *,
+.settings-card *,
+.catalog-card *,
+.billing-card *,
+.payment-card *,
+.billing-readiness-grid article *,
+.settings-readiness-grid article *,
+.plan-priority-grid article * {
+  min-width: 0;
+}
+
+.aferix-card strong,
+.aferix-card p,
+.aferix-card span,
+.aferix-card small,
+.aferix-panel strong,
+.aferix-panel p,
+.aferix-panel span,
+.aferix-panel small,
+.license-card strong,
+.license-card p,
+.license-card span,
+.license-card small,
+.billing-card strong,
+.billing-card p,
+.billing-card span,
+.billing-card small,
+.payment-card strong,
+.payment-card p,
+.payment-card span,
+.payment-card small,
+.billing-readiness-grid article strong,
+.billing-readiness-grid article p,
+.billing-readiness-grid article span,
+.billing-readiness-grid article small,
+.settings-readiness-grid article strong,
+.settings-readiness-grid article p,
+.settings-readiness-grid article span,
+.settings-readiness-grid article small {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.long-token,
+.installation-id,
+.billing-package,
+.android-package,
+.product-id,
+.license-id {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 2. Refining License/Payments Status Grids */
+.billing-status-grid,
+.license-status-grid,
+.payment-status-grid,
+.billing-readiness-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)) !important;
+  gap: 14px !important;
+  width: 100%;
+}
+
+.billing-status-card,
+.license-status-card,
+.payment-status-card {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.billing-status-card strong,
+.license-status-card strong,
+.payment-status-card strong {
+  display: block;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  line-height: 1.1;
+}
+
+@media (min-width: 1200px) {
+  .billing-status-grid,
+  .license-status-grid,
+  .payment-status-grid,
+  .billing-readiness-grid {
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)) !important;
+  }
+}
+
+/* 3. Premium Desktop Top Nav Dropdown */
+.top-nav-item {
+  position: relative;
+}
+
+.top-nav-menu-button {
+  height: 38px;
+  padding: 0 14px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--aferix-text-muted);
+  font-weight: 800;
+}
+
+.top-nav-menu-button:hover,
+.top-nav-menu-button[aria-expanded="true"],
+.top-nav-menu-button.active {
+  color: var(--aferix-primary) !important;
+  background: rgba(245, 164, 0, 0.08) !important;
+  border-color: rgba(245, 164, 0, 0.22) !important;
+}
+
+.top-nav-dropdown {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 0;
+  min-width: 220px;
+  padding: 8px;
+  border: 1px solid var(--aferix-border);
+  border-radius: 14px;
+  background:
+    linear-gradient(180deg, rgba(22, 24, 30, 0.98), rgba(10, 11, 14, 0.98)) !important;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.55) !important;
+  z-index: 100;
+}
+
+.top-nav-dropdown button {
+  width: 100%;
+  min-height: 42px;
+  padding: 0 12px;
+  border: 0 !important;
+  border-radius: 10px;
+  background: transparent !important;
+  color: var(--aferix-text-muted) !important;
+  text-align: left;
+  font-weight: 750 !important;
+}
+
+.top-nav-dropdown button:hover,
+.top-nav-dropdown button.active {
+  color: var(--aferix-primary) !important;
+  background: rgba(245, 164, 0, 0.09) !important;
+}
+
+/* 6. Side Drawer Premium Scrollbars */
+.drawer-panel,
+.mobile-drawer,
+.drawer-nav-scroll,
+.side-drawer {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.24) transparent;
+}
+
+.drawer-panel::-webkit-scrollbar,
+.mobile-drawer::-webkit-scrollbar,
+.drawer-nav-scroll::-webkit-scrollbar,
+.side-drawer::-webkit-scrollbar {
+  width: 6px;
+}
+
+.drawer-panel::-webkit-scrollbar-track,
+.mobile-drawer::-webkit-scrollbar-track,
+.drawer-nav-scroll::-webkit-scrollbar-track,
+.side-drawer::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.drawer-panel::-webkit-scrollbar-thumb,
+.mobile-drawer::-webkit-scrollbar-thumb,
+.drawer-nav-scroll::-webkit-scrollbar-thumb,
+.side-drawer::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.drawer-panel::-webkit-scrollbar-thumb:hover,
+.mobile-drawer::-webkit-scrollbar-thumb:hover,
+.drawer-nav-scroll::-webkit-scrollbar-thumb:hover,
+.side-drawer::-webkit-scrollbar-thumb:hover {
+  background: rgba(245, 164, 0, 0.35);
+}
+
+/* ==================================================
+   Task 4 & 5: Catalog Summary Stats & Navigation Tabs
+   ================================================== */
+
+/* 4. Catalog Professional Summary Stats / Cards */
+.catalog-summary-grid,
+.catalog-stats-grid,
+.catalog-metrics-grid {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 12px !important;
+  width: 100% !important;
+  margin-bottom: 16px !important;
+}
+
+.catalog-summary-card,
+.catalog-stat-card,
+.catalog-metric-card {
+  min-height: 96px !important;
+  padding: 16px !important;
+  border: 1px solid var(--aferix-border, #222222) !important;
+  border-radius: var(--aferix-radius-md, 12px) !important;
+  background: linear-gradient(180deg, var(--aferix-surface-raised, #16181e), var(--aferix-surface, #0f1013)) !important;
+  display: grid !important;
+  align-content: center !important;
+  justify-items: start !important;
+  text-align: left !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+
+.catalog-summary-card:hover,
+.catalog-stat-card:hover,
+.catalog-metric-card:hover {
+  border-color: rgba(255, 255, 255, 0.15) !important;
+  transform: translateY(-1px) !important;
+}
+
+.catalog-summary-card span,
+.catalog-stat-card span,
+.catalog-metric-card span {
+  font-size: 0.72rem !important;
+  font-weight: 800 !important;
+  text-transform: uppercase !important;
+  color: var(--aferix-text-muted, #94a3b8) !important;
+  letter-spacing: 0.05em !important;
+}
+
+.catalog-summary-card strong,
+.catalog-stat-card strong,
+.catalog-metric-card strong {
+  font-size: 1.25rem !important;
+  font-weight: 900 !important;
+  color: var(--aferix-text, #f8fafc) !important;
+  margin-top: 4px !important;
+}
+
+.catalog-summary-card.active,
+.catalog-stat-card.active,
+.catalog-metric-card.active {
+  border-color: var(--aferix-primary, #f5a400) !important;
+  background: linear-gradient(180deg, rgba(245, 164, 0, 0.08), rgba(245, 164, 0, 0.02)) !important;
+}
+
+.catalog-summary-card.active strong,
+.catalog-stat-card.active strong,
+.catalog-metric-card.active strong {
+  color: var(--aferix-primary, #f5a400) !important;
+}
+
+@media (min-width: 768px) {
+  .catalog-summary-grid,
+  .catalog-stats-grid,
+  .catalog-metrics-grid {
+    grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+  }
+}
+
+/* 5. Catalog Horizontal Navigation Tabs */
+.catalog-tabs {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  overflow-x: auto !important;
+  padding: 0 0 8px !important;
+  border-bottom: 1px solid var(--aferix-border, #222222) !important;
+  scrollbar-width: none !important;
+  width: 100% !important;
+  margin-bottom: 18px !important;
+}
+
+.catalog-tabs::-webkit-scrollbar {
+  display: none !important;
+}
+
+.catalog-tabs button {
+  flex: 0 0 auto !important;
+  min-height: 40px !important;
+  padding: 0 14px !important;
+  border: 0 !important;
+  border-bottom: 2px solid transparent !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: var(--aferix-text-muted, #94a3b8) !important;
+  font-weight: 800 !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+
+.catalog-tabs button:hover {
+  color: var(--aferix-text, #f8fafc) !important;
+  background: transparent !important;
+}
+
+.catalog-tabs button.active {
+  color: var(--aferix-primary, #f5a400) !important;
+  border-bottom: 2px solid var(--aferix-primary, #f5a400) !important;
+  background: transparent !important;
+}
+
+

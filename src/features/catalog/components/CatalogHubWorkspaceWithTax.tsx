@@ -46,12 +46,12 @@ export function CatalogHubWorkspace({ onSendToBudget }: CatalogHubWorkspaceWithT
         <h1>Catálogo e Estoque</h1>
       </header>
 
-      <div className="home-action-toolbar">
-        <button className={`ghost-action ${activeSection === 'catalog' ? 'active' : ''}`} type="button" onClick={() => setActiveSection('catalog')}>Itens</button>
-        <button className={`ghost-action ${activeSection === 'suppliers' ? 'active' : ''}`} type="button" onClick={() => setActiveSection('suppliers')}>Fornecedores</button>
-        <button className={`ghost-action ${activeSection === 'pricing' ? 'active' : ''}`} type="button" onClick={() => setActiveSection('pricing')}>Margem</button>
-        <button className={`ghost-action ${activeSection === 'online' ? 'active' : ''}`} type="button" onClick={() => setActiveSection('online')}>Busca Online</button>
-        <button className={`ghost-action ${activeSection === 'purchases' ? 'active' : ''}`} type="button" onClick={() => setActiveSection('purchases')}>Estoque</button>
+      <div className="catalog-tabs" role="tablist">
+        <button className={activeSection === 'catalog' ? 'active' : ''} type="button" role="tab" aria-selected={activeSection === 'catalog'} onClick={() => setActiveSection('catalog')}>Itens</button>
+        <button className={activeSection === 'suppliers' ? 'active' : ''} type="button" role="tab" aria-selected={activeSection === 'suppliers'} onClick={() => setActiveSection('suppliers')}>Fornecedores</button>
+        <button className={activeSection === 'pricing' ? 'active' : ''} type="button" role="tab" aria-selected={activeSection === 'pricing'} onClick={() => setActiveSection('pricing')}>Margem</button>
+        <button className={activeSection === 'online' ? 'active' : ''} type="button" role="tab" aria-selected={activeSection === 'online'} onClick={() => setActiveSection('online')}>Busca Online</button>
+        <button className={activeSection === 'purchases' ? 'active' : ''} type="button" role="tab" aria-selected={activeSection === 'purchases'} onClick={() => setActiveSection('purchases')}>Estoque</button>
       </div>
 
       {activeSection === 'catalog' && <CatalogHubWorkspaceLive enabledTabs={['items']} onSendToBudget={onSendToBudget} />}
