@@ -1,5 +1,5 @@
-import type { Client, WorkOrder } from '../../core/types/business';
-import { formatWorkOrderDate, priorityLabel, statusLabel } from '../utils/workOrderLabels';
+import type { Client, Service as WorkOrder } from '../../core/types/business';
+import './ActiveWorkContextCard.css';
 
 interface ActiveWorkContextCardProps {
   activeClient: Client | null;
@@ -7,26 +7,35 @@ interface ActiveWorkContextCardProps {
 }
 
 export function ActiveWorkContextCard({ activeClient, activeWorkOrder }: ActiveWorkContextCardProps) {
-  if (!activeWorkOrder) {
-    return (
-      <aside className="active-work-context-card empty-context">
-        <span className="app-icon tone-gray">AT</span>
-        <div className="active-work-context-content">
-          <strong>Nenhum atendimento ativo</strong>
-          <small>Crie ou retome um atendimento para vincular cálculos, orçamento e relatório.</small>
-        </div>
-      </aside>
-    );
-  }
-
   return (
-    <aside className="active-work-context-card">
-      <span className="app-icon tone-blue">AT</span>
-      <div className="active-work-context-content">
-        <strong>{activeWorkOrder.title}</strong>
-        <small>{activeClient?.name ?? 'Cliente não vinculado'} · {statusLabel(activeWorkOrder.status)} · Prioridade {priorityLabel(activeWorkOrder.priority)}</small>
-        <small>{activeWorkOrder.address || activeClient?.address || 'Sem endereço'} · {formatWorkOrderDate(activeWorkOrder.scheduledDate)}</small>
+    <div className="active-work-context-card">
+      <div className="context-main-info">
+        {activeWorkOrder ? (
+          <>
+            <span className="context-label">Serviço ativo</span>
+            <strong>{activeWorkOrder.title}</strong>
+            <small>{activeClient?.name ?? 'Cliente Avulso'}</small>
+          </>
+        ) : (
+          <>
+            <span className="context-label">Fluxo operacional</span>
+            <strong>Nenhum serviço ativo</strong>
+            <small>Crie um novo orçamento para vincular cálculos e propostas.</small>
+          </>
+        )}
       </div>
-    </aside>
+      {activeWorkOrder && (
+        <div className="context-quick-stats">
+          <div className="stat-item">
+            <span>Prioridade</span>
+            <strong>{activeWorkOrder.priority || 'Normal'}</strong>
+          </div>
+          <div className="stat-item">
+            <span>Status</span>
+            <strong className={`status-text ${activeWorkOrder.status}`}>{activeWorkOrder.status === 'in-progress' ? 'Em execução' : 'Concluído'}</strong>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }

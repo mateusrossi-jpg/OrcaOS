@@ -1,0 +1,84 @@
+.active-work-context-card {
+  background: var(--aferix-surface-raised);
+  border: 1px solid var(--aferix-border);
+  border-radius: var(--aferix-radius-lg);
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.context-main-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.context-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--aferix-text-soft);
+  font-weight: 600;
+}
+
+.context-main-info strong {
+  font-size: 1.1rem;
+  color: var(--aferix-text);
+  font-weight: 700;
+}
+
+.context-main-info small {
+  color: var(--aferix-text-muted);
+  font-size: 0.85rem;
+}
+
+.context-quick-stats {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.15rem;
+}
+
+.stat-item span {
+  font-size: 0.65rem;
+  color: var(--aferix-text-soft);
+}
+
+.stat-item strong {
+  font-size: 0.9rem;
+  color: var(--aferix-text);
+}
+
+.status-text.in-progress {
+  color: var(--aferix-primary);
+}
+
+.status-text.done {
+  color: var(--aferix-success);
+}
+
+@media (max-width: 480px) {
+  .active-work-context-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .context-quick-stats {
+    width: 100%;
+    justify-content: flex-start;
+    padding-top: 1rem;
+    border-top: 1px solid var(--aferix-border-soft);
+  }
+
+  .stat-item {
+    align-items: flex-start;
+  }
+}

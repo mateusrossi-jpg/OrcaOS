@@ -21,8 +21,8 @@ export function ClientsScreen({
   return (
     <section className="app-screen wide-screen">
       <header className="screen-header">
-        <h1>Atendimentos</h1>
-        <p>Gerencie seus clientes, orçamentos e ordens de serviço em um só lugar.</p>
+        <h1>Clientes e Serviços</h1>
+        <p>Gerencie seus clientes, orçamentos e serviços em um só lugar.</p>
       </header>
       <ClientWorkOrderWorkspace
         initialSection={initialSection}

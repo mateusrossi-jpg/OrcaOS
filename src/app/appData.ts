@@ -6,11 +6,11 @@ export const userPlan: UserPlan = 'free';
 
 /**
  * Navegação Radicalmente Simplificada para o MVP.
- * Foco: Home, Atendimentos (Operação), Financeiro e Menu (Mais).
+ * Foco: Home, Clientes, Financeiro e Menu (Mais).
  */
 export const navItems: Array<{ id: AppTab; label: string; description: string; icon: string; section?: string; primary?: boolean }> = [
   { id: 'home', label: 'Início', description: 'Resumo e ações rápidas', icon: 'home', primary: true },
-  { id: 'clients', label: 'Atendimentos', description: 'Clientes e propostas', icon: 'clients', primary: true },
+  { id: 'clients', label: 'Clientes', description: 'Gestão de clientes e serviços', icon: 'clients', primary: true },
   { id: 'financial', label: 'Financeiro', description: 'Receitas e custos', icon: 'finance', primary: true },
   { id: 'settings', label: 'Menu', description: 'Mais ferramentas', icon: 'menu', primary: true },
 ];

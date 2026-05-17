@@ -60,6 +60,8 @@ export interface BudgetItem {
   category: 'labor' | 'material' | 'other';
 }
 
+export type BudgetStatus = 'draft' | 'sent' | 'approved' | 'rejected' | 'expired' | 'cancelled';
+
 export interface Budget {
   id: string;
   clientId?: string;
@@ -83,19 +85,26 @@ export interface Budget {
   custos_operacionais?: number;
   aliquota_imposto?: number;
   lucro_liquido?: number;
-  status: 'draft' | 'sent' | 'approved' | 'rejected' | 'expired' | 'cancelled';
+  status: BudgetStatus;
   templateId?: BudgetTemplateId;
 }
 
-export interface WorkOrder {
+export type ServiceStatus = 'in-progress' | 'done' | 'cancelled';
+
+export interface Service {
   id: string;
   clientId?: string;
+  budgetId?: string; // Vínculo com o orçamento aprovado
   title: string;
   description?: string;
   address?: string;
   priority?: 'low' | 'normal' | 'high' | 'urgent';
-  status: 'open' | 'scheduled' | 'in-progress' | 'done' | 'cancelled';
+  status: ServiceStatus;
   scheduledDate?: string;
+  paymentStatus: 'pending' | 'partial' | 'paid';
   createdAt?: string;
   updatedAt?: string;
 }
+
+// Mantendo o alias temporário para não quebrar o build imediatamente
+export type WorkOrder = Service;

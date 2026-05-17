@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import type { Client, WorkOrder } from '../../../core/types/business';
+import type { Client, Service as WorkOrder } from '../../../core/types/business';
 import {
   loadActiveWorkOrderId,
   loadClients,
@@ -51,6 +51,7 @@ interface WorkOrderDraft {
   priority: NonNullable<WorkOrder['priority']>;
   status: WorkOrder['status'];
   scheduledDate: string;
+  paymentStatus: WorkOrder['paymentStatus'];
 }
 
 const CLIENT_OS_VISIBLE_LIMIT = 5;
@@ -86,8 +87,9 @@ const emptyWorkOrderDraft: WorkOrderDraft = {
   description: '',
   address: '',
   priority: 'normal',
-  status: 'open',
+  status: 'in-progress',
   scheduledDate: '',
+  paymentStatus: 'pending',
 };
 
 function createId(prefix: string): string {
@@ -108,11 +110,19 @@ function formatDateTime(value?: string): string {
 
 function statusLabel(status: WorkOrder['status']): string {
   const labels: Record<WorkOrder['status'], string> = {
-    open: 'Em orçamento',
-    scheduled: 'Agendada',
-    'in-progress': 'Execução autorizada',
-    done: 'Concluída',
-    cancelled: 'Cancelada',
+    'in-progress': 'Em execução',
+    done: 'Concluído',
+    cancelled: 'Cancelado',
+  };
+
+  return labels[status];
+}
+
+function paymentStatusLabel(status: WorkOrder['paymentStatus']): string {
+  const labels: Record<WorkOrder['paymentStatus'], string> = {
+    pending: 'Pendente',
+    partial: 'Parcial',
+    paid: 'Pago',
   };
 
   return labels[status];
@@ -339,7 +349,7 @@ export function ClientWorkOrderWorkspace({ initialSection = 'dashboard', section
 
   function removeClient(clientId: string) {
     const client = clients.find((item) => item.id === clientId);
-    const confirmed = window.confirm(`Remover ${client?.name ?? 'este cliente'}? Os atendimentos vinculados continuam salvos, mas ficam sem cliente.`);
+    const confirmed = window.confirm(`Remover ${client?.name ?? 'este cliente'}? Os serviços vinculados continuam salvos, mas ficam sem cliente.`);
     if (!confirmed) return;
     setClients((current) => current.filter((client) => client.id !== clientId));
     setWorkOrders((current) => current.map((workOrder) => (workOrder.clientId === clientId ? { ...workOrder, clientId: undefined, updatedAt: new Date().toISOString() } : workOrder)));
@@ -360,6 +370,7 @@ export function ClientWorkOrderWorkspace({ initialSection = 'dashboard', section
         priority: workOrderDraft.priority,
         status: workOrderDraft.status,
         scheduledDate: workOrderDraft.scheduledDate || undefined,
+        paymentStatus: workOrderDraft.paymentStatus,
         updatedAt: now,
       } : workOrder)));
       setActiveWorkOrderId(editingWorkOrderId);
@@ -370,7 +381,7 @@ export function ClientWorkOrderWorkspace({ initialSection = 'dashboard', section
     }
 
     const workOrder: WorkOrder = {
-      id: createId('os'),
+      id: createId('service'),
       clientId: workOrderDraft.clientId || undefined,
       title: workOrderDraft.title.trim(),
       description: workOrderDraft.description.trim() || undefined,
@@ -378,6 +389,7 @@ export function ClientWorkOrderWorkspace({ initialSection = 'dashboard', section
       priority: workOrderDraft.priority,
       status: workOrderDraft.status,
       scheduledDate: workOrderDraft.scheduledDate || undefined,
+      paymentStatus: 'pending',
       createdAt: now,
       updatedAt: now,
     };
@@ -392,7 +404,7 @@ export function ClientWorkOrderWorkspace({ initialSection = 'dashboard', section
 
   function removeWorkOrder(workOrderId: string) {
     const workOrder = workOrders.find((item) => item.id === workOrderId);
-    const confirmed = window.confirm(`Remover ${workOrder?.title ?? 'este atendimento'}? Cálculos, orçamentos e relatórios já salvos não serão apagados automaticamente.`);
+    const confirmed = window.confirm(`Remover ${workOrder?.title ?? 'este serviço'}? Cálculos, orçamentos e relatórios já salvos não serão apagados automaticamente.`);
     if (!confirmed) return;
     setWorkOrders((current) => current.filter((workOrder) => workOrder.id !== workOrderId));
     if (activeWorkOrderId === workOrderId) setActiveWorkOrderId(null);
@@ -411,6 +423,7 @@ export function ClientWorkOrderWorkspace({ initialSection = 'dashboard', section
       scheduledDate: workOrder.scheduledDate ?? '',
       priority: workOrder.priority ?? 'normal',
       status: workOrder.status,
+      paymentStatus: workOrder.paymentStatus,
     });
     setEditingWorkOrderId(workOrder.id);
     setActiveWorkOrderId(workOrder.id);
@@ -441,27 +454,27 @@ export function ClientWorkOrderWorkspace({ initialSection = 'dashboard', section
   return (
     <div className="client-os-workspace refined-client-os">
       <header className="screen-header">
-        <h1>Clientes e Atendimentos</h1>
+        <h1>Gestão de Clientes</h1>
       </header>
 
       <ContextBanner
-        icon="AT"
-        title={activeWorkOrder ? activeWorkOrder.title : 'Nenhum atendimento ativo'}
-        description={activeWorkOrder ? `${activeClient?.name ?? 'Cliente não vinculado'} · ${statusLabel(activeWorkOrder.status)}` : 'Selecione um atendimento para usar como contexto.'}
-        actionLabel={activeWorkOrder ? 'Limpar contexto' : 'Novo atendimento'}
+        icon="SV"
+        title={activeWorkOrder ? activeWorkOrder.title : 'Nenhum serviço ativo'}
+        description={activeWorkOrder ? `${activeClient?.name ?? 'Cliente não vinculado'} · ${statusLabel(activeWorkOrder.status)}` : 'Selecione um serviço para usar como contexto.'}
+        actionLabel={activeWorkOrder ? 'Limpar contexto' : 'Novo serviço'}
         onAction={activeWorkOrder ? () => setActiveWorkOrderId(null) : () => setActiveSection('newWorkOrder')}
       />
 
       <div className="dashboard-finance-tiles" style={{ marginBottom: '1.5rem' }}>
         <MetricCard label="Clientes" value={clients.length} />
-        <MetricCard label="Abertos" value={openWorkOrders} tone={openWorkOrders > 0 ? 'brand' : 'default'} />
+        <MetricCard label="Em execução" value={openWorkOrders} tone={openWorkOrders > 0 ? 'brand' : 'default'} />
         <MetricCard label="Concluídos" value={doneWorkOrders} />
       </div>
 
       <div className="home-action-toolbar">
         <button className={`ghost-action ${activeSection === 'dashboard' ? 'active' : ''}`} type="button" onClick={() => setActiveSection('dashboard')}>Painel</button>
         <button className={`ghost-action ${activeSection === 'clients' ? 'active' : ''}`} type="button" onClick={() => setActiveSection('clients')}>Clientes</button>
-        <button className={`ghost-action ${activeSection === 'workOrders' ? 'active' : ''}`} type="button" onClick={() => setActiveSection('workOrders')}>Histórico</button>
+        <button className={`ghost-action ${activeSection === 'workOrders' ? 'active' : ''}`} type="button" onClick={() => setActiveSection('workOrders')}>Serviços</button>
       </div>
 
       {activeSection === 'dashboard' && (
@@ -469,19 +482,19 @@ export function ClientWorkOrderWorkspace({ initialSection = 'dashboard', section
           <div className="aferix-panel-card">
             <header>
               <div>
-                <h2>Próximos Atendimentos</h2>
+                <h2>Serviços Recentes</h2>
               </div>
               <button className="ghost-action" type="button" onClick={() => setActiveSection('workOrders')}>Ver Todos</button>
             </header>
             <div className="continuous-list">
-              {nextWorkOrders.length === 0 ? <div className="continuous-list-empty">Nenhum atendimento agendado.</div> : nextWorkOrders.map((workOrder) => {
+              {nextWorkOrders.length === 0 ? <div className="continuous-list-empty">Nenhum serviço registrado.</div> : nextWorkOrders.map((workOrder) => {
                 const client = workOrder.clientId ? clients.find((item) => item.id === workOrder.clientId) : null;
                 const isActive = workOrder.id === activeWorkOrderId;
                 return (
                   <article className={`continuous-list-item ${isActive ? 'active' : ''}`} key={workOrder.id} onClick={() => setActiveWorkOrderId(workOrder.id)} style={{ cursor: 'pointer' }}>
                     <div className="client-col">
                       <strong>{workOrder.title}</strong>
-                      <small>{client?.name ?? 'S/ Cliente'} · {statusLabel(workOrder.status)}</small>
+                      <small>{client?.name ?? 'S/ Cliente'} · {statusLabel(workOrder.status)} · {paymentStatusLabel(workOrder.paymentStatus)}</small>
                     </div>
                     <div className="value-col" style={{ fontSize: '0.7rem' }}>{formatDateTime(workOrder.scheduledDate)}</div>
                   </article>
@@ -567,7 +580,7 @@ export function ClientWorkOrderWorkspace({ initialSection = 'dashboard', section
         <div className="aferix-panel-card">
           <header>
             <div>
-              <h2>{editingWorkOrderId ? 'Editar Atendimento' : 'Novo Atendimento'}</h2>
+              <h2>{editingWorkOrderId ? 'Editar Serviço' : 'Novo Serviço'}</h2>
             </div>
           </header>
 
@@ -592,8 +605,9 @@ export function ClientWorkOrderWorkspace({ initialSection = 'dashboard', section
                 ))}
               </div>
             </div>
-            <label className="budget-field"><span>Status</span><select value={workOrderDraft.status} onChange={(event) => updateWorkOrderDraft('status', event.target.value as WorkOrder['status'])}><option value="open">Em orçamento</option><option value="scheduled">Agendada</option><option value="in-progress">Execução autorizada</option><option value="done">Concluída</option><option value="cancelled">Cancelada</option></select></label>
-            <label className="budget-field client-os-wide"><span>Título do atendimento</span><input value={workOrderDraft.title} placeholder="Ex.: Instalação de tomadas no quarto" onChange={(event) => updateWorkOrderDraft('title', event.target.value)} /></label>
+            <label className="budget-field"><span>Status da execução</span><select value={workOrderDraft.status} onChange={(event) => updateWorkOrderDraft('status', event.target.value as WorkOrder['status'])}><option value="in-progress">Em execução</option><option value="done">Concluído</option><option value="cancelled">Cancelado</option></select></label>
+            <label className="budget-field"><span>Pagamento</span><select value={workOrderDraft.paymentStatus} onChange={(event) => updateWorkOrderDraft('paymentStatus', event.target.value as WorkOrder['paymentStatus'])}><option value="pending">Pendente</option><option value="partial">Parcial</option><option value="paid">Pago</option></select></label>
+            <label className="budget-field client-os-wide"><span>Título do serviço</span><input value={workOrderDraft.title} placeholder="Ex.: Instalação de tomadas no quarto" onChange={(event) => updateWorkOrderDraft('title', event.target.value)} /></label>
             <label className="budget-field client-os-wide"><span>Descrição inicial</span><textarea value={workOrderDraft.description} placeholder="Ex.: Cliente quer adicionar 3 pontos e revisar tomada antiga." onChange={(event) => updateWorkOrderDraft('description', event.target.value)} /></label>
             <label className="budget-field"><span>Prioridade</span><select value={workOrderDraft.priority} onChange={(event) => updateWorkOrderDraft('priority', event.target.value as NonNullable<WorkOrder['priority']>)}><option value="low">Baixa</option><option value="normal">Normal</option><option value="high">Alta</option><option value="urgent">Urgente</option></select></label>
             <label className="budget-field"><span>Data agendada</span><input type="datetime-local" value={workOrderDraft.scheduledDate} onChange={(event) => updateWorkOrderDraft('scheduledDate', event.target.value)} /></label>
@@ -629,7 +643,7 @@ export function ClientWorkOrderWorkspace({ initialSection = 'dashboard', section
                 </div>
                 <div className="catalog-row-actions">
                   <button className="ghost-action" style={{ minHeight: '32px', fontSize: '0.7rem' }} type="button" onClick={() => openClientForEdit(client)}>Editar</button>
-                  <button className="ghost-action" style={{ minHeight: '32px', fontSize: '0.7rem' }} type="button" onClick={() => { setWorkOrderDraft((current) => ({ ...current, clientId: client.id, address: client.address ?? current.address })); setActiveSection('newWorkOrder'); }}>OS</button>
+                  <button className="ghost-action" style={{ minHeight: '32px', fontSize: '0.7rem' }} type="button" onClick={() => { setWorkOrderDraft((current) => ({ ...current, clientId: client.id, address: client.address ?? current.address })); setActiveSection('newWorkOrder'); }}>Novo Serviço</button>
                 </div>
               </article>
             ))}
@@ -642,25 +656,25 @@ export function ClientWorkOrderWorkspace({ initialSection = 'dashboard', section
         <div className="aferix-panel-card">
           <header className="client-os-section-header">
             <div>
-              <h2>Histórico</h2>
-              <p>Atendimentos registrados.</p>
+              <h2>Serviços</h2>
+              <p>Histórico de execuções.</p>
             </div>
             {activeWorkOrder && (
-              <button className="ghost-action" type="button" onClick={() => setActiveSection('newWorkOrder')}>Novo atendimento</button>
+              <button className="ghost-action" type="button" onClick={() => setActiveSection('newWorkOrder')}>Novo serviço</button>
             )}
           </header>
           <div className="continuous-list">
             <div className="continuous-list-item" style={{ padding: '0.5rem' }}>
               <input value={workOrderSearch} placeholder="Buscar por título, cliente ou status..." onChange={(event) => setWorkOrderSearch(event.target.value)} style={{ width: '100%', background: 'transparent', border: 'none', color: '#fff', outline: 'none' }} />
             </div>
-            {workOrders.length === 0 ? <div className="continuous-list-empty">Nenhum atendimento registrado.</div> : filteredWorkOrders.length === 0 && workOrderSearch.trim() ? <div className="continuous-list-empty">Nenhum resultado para "{workOrderSearch}".</div> : visibleWorkOrders.map((workOrder) => {
+            {workOrders.length === 0 ? <div className="continuous-list-empty">Nenhum serviço registrado.</div> : filteredWorkOrders.length === 0 && workOrderSearch.trim() ? <div className="continuous-list-empty">Nenhum resultado para "{workOrderSearch}".</div> : visibleWorkOrders.map((workOrder) => {
               const client = workOrder.clientId ? clients.find((item) => item.id === workOrder.clientId) : null;
               const isActive = workOrder.id === activeWorkOrderId;
               return (
                 <article className={`continuous-list-item ${isActive ? 'active' : ''}`} key={workOrder.id}>
                   <div className="client-col">
                     <strong>{workOrder.title}</strong>
-                    <small>{client?.name ?? 'S/ Cliente'} · {statusLabel(workOrder.status)} · {priorityLabel(workOrder.priority)}</small>
+                    <small>{client?.name ?? 'S/ Cliente'} · {statusLabel(workOrder.status)} · {paymentStatusLabel(workOrder.paymentStatus)}</small>
                     <small>{formatDateTime(workOrder.scheduledDate)}</small>
                   </div>
                   <div className="catalog-row-actions">
@@ -670,7 +684,7 @@ export function ClientWorkOrderWorkspace({ initialSection = 'dashboard', section
                 </article>
               );
             })}
-            {hiddenWorkOrderCount > 0 && <div className="continuous-list-empty">+{hiddenWorkOrderCount} atendimentos.</div>}
+            {hiddenWorkOrderCount > 0 && <div className="continuous-list-empty">+{hiddenWorkOrderCount} serviços.</div>}
           </div>
         </div>
       )}

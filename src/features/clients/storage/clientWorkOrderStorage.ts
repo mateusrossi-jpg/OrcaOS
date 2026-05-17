@@ -1,4 +1,4 @@
-import type { Client, WorkOrder } from '../../../core/types/business';
+import type { Client, Service as WorkOrder, ServiceStatus } from '../../../core/types/business';
 
 const CLIENTS_STORAGE_KEY = 'orcaos:clients:v1';
 const WORK_ORDERS_STORAGE_KEY = 'orcaos:work-orders:v1';
@@ -16,9 +16,7 @@ function isWorkOrder(value: unknown): value is WorkOrder {
   return (
     typeof workOrder.id === 'string' &&
     typeof workOrder.title === 'string' &&
-    (workOrder.status === 'open' ||
-      workOrder.status === 'scheduled' ||
-      workOrder.status === 'in-progress' ||
+    (workOrder.status === 'in-progress' ||
       workOrder.status === 'done' ||
       workOrder.status === 'cancelled')
   );
@@ -32,7 +30,18 @@ function readJsonArray<T>(key: string, guard: (value: unknown) => value is T): T
     if (!storedValue) return [];
 
     const parsedValue: unknown = JSON.parse(storedValue);
-    return Array.isArray(parsedValue) ? parsedValue.filter(guard) : [];
+    
+    // Migração de dados legados para os novos status se necessário
+    if (Array.isArray(parsedValue)) {
+      const migrated = parsedValue.map((item: any) => {
+        if (item.status === 'open' || item.status === 'scheduled') {
+          return { ...item, status: 'in-progress' };
+        }
+        return item;
+      });
+      return migrated.filter(guard);
+    }
+    return [];
   } catch {
     return [];
   }

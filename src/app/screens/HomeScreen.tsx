@@ -52,13 +52,13 @@ export function HomeScreen({
       </div>
 
       <div className="home-action-toolbar compact-actions">
-        <button type="button" className="ghost-action" onClick={() => goTo('clients')}>Atendimentos</button>
+        <button type="button" className="ghost-action" onClick={() => goTo('clients')}>Clientes</button>
         <button type="button" className="ghost-action" onClick={() => goTo('financial')}>Financeiro</button>
         <button type="button" className="ghost-action" onClick={() => goTo('settings')}>Menu</button>
       </div>
 
       <section className="aferix-panel-card home-command-panel">
-        <SectionHeader title="O que precisa de atenção" eyebrow="Atividades" />
+        <SectionHeader title="Atenção necessária" eyebrow="Pendências" />
         <div className="home-recent-strip">
           <div className="continuous-list">
             {workOrders.filter(w => w.status !== 'done' && w.status !== 'cancelled').length === 0 ? (

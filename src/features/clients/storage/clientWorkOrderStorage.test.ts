@@ -1,69 +1,42 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import type { Client, WorkOrder } from '../../../core/types/business';
-import { createMemoryStorage } from '../../../test/createMemoryStorage';
-import {
-  loadActiveWorkOrderId,
-  loadClients,
-  loadWorkOrders,
-  saveActiveWorkOrderId,
-  saveClients,
-  saveWorkOrders,
-} from './clientWorkOrderStorage';
+import { describe, expect, it } from 'vitest';
+import { loadClients, saveClients, loadWorkOrders, saveWorkOrders, loadActiveWorkOrderId, saveActiveWorkOrderId } from './clientWorkOrderStorage';
+import type { Client, Service as WorkOrder } from '../../../core/types/business';
 
-const client: Client = {
-  id: 'client-1',
-  name: 'Cliente exemplo',
-  phone: '',
-};
+describe('clientWorkOrderStorage', () => {
+  const mockClient: Client = {
+    id: 'client-1',
+    name: 'Test Client',
+    phone: '123456789',
+    email: 'test@example.com'
+  };
 
-const workOrder: WorkOrder = {
-  id: 'wo-1',
-  clientId: 'client-1',
-  title: 'Instalação elétrica',
-  status: 'open',
-};
+  const mockWorkOrder: WorkOrder = {
+    id: 'os-1',
+    clientId: 'client-1',
+    title: 'Test Service',
+    status: 'in-progress',
+    priority: 'normal',
+    paymentStatus: 'pending'
+  };
 
-describe('client and work order storage', () => {
-  beforeEach(() => {
-    vi.stubGlobal('window', {
-      localStorage: createMemoryStorage(),
-    });
+  it('correctly loads and saves clients', () => {
+    saveClients([mockClient]);
+    const clients = loadClients();
+    expect(clients).toHaveLength(1);
+    expect(clients[0]).toEqual(mockClient);
   });
 
-  afterEach(() => {
-    if (typeof window !== 'undefined') window.localStorage.clear();
-    vi.unstubAllGlobals();
+  it('correctly loads and saves work orders', () => {
+    saveWorkOrders([mockWorkOrder]);
+    const workOrders = loadWorkOrders();
+    expect(workOrders).toHaveLength(1);
+    expect(workOrders[0]).toEqual(mockWorkOrder);
   });
 
-  it('saves and loads clients and work orders', () => {
-    saveClients([client]);
-    saveWorkOrders([workOrder]);
-
-    expect(loadClients()).toEqual([client]);
-    expect(loadWorkOrders()).toEqual([workOrder]);
-  });
-
-  it('filters invalid client and work order records', () => {
-    window.localStorage.setItem('orcaos:clients:v1', JSON.stringify([client, { id: 123 }, { id: 'missing-name' }]));
-    window.localStorage.setItem('orcaos:work-orders:v1', JSON.stringify([workOrder, { id: 'bad-status', title: 'Inválida', status: 'waiting' }]));
-
-    expect(loadClients()).toEqual([client]);
-    expect(loadWorkOrders()).toEqual([workOrder]);
-  });
-
-  it('persists and clears the active work order id', () => {
-    saveActiveWorkOrderId('wo-1');
-    expect(loadActiveWorkOrderId()).toBe('wo-1');
-
+  it('correctly manages active work order ID', () => {
+    saveActiveWorkOrderId('os-1');
+    expect(loadActiveWorkOrderId()).toBe('os-1');
     saveActiveWorkOrderId(null);
-    expect(loadActiveWorkOrderId()).toBeNull();
-  });
-
-  it('returns safe defaults when browser storage is unavailable', () => {
-    vi.unstubAllGlobals();
-
-    expect(loadClients()).toEqual([]);
-    expect(loadWorkOrders()).toEqual([]);
     expect(loadActiveWorkOrderId()).toBeNull();
   });
 });

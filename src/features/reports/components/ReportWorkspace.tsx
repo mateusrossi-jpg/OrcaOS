@@ -32,11 +32,9 @@ function formatOptionalDateTime(value?: string): string {
 function statusLabel(status?: WorkOrder['status']): string {
   if (!status) return 'Sem status';
   const labels: Record<WorkOrder['status'], string> = {
-    open: 'Em orçamento',
-    scheduled: 'Agendada',
-    'in-progress': 'Execução autorizada',
-    done: 'Concluída',
-    cancelled: 'Cancelada',
+    'in-progress': 'Em execução',
+    done: 'Concluído',
+    cancelled: 'Cancelado',
   };
   return labels[status];
 }
@@ -112,7 +110,7 @@ export function ReportWorkspace({ captures, activeClient = null, activeWorkOrder
   const approvalRate = savedBudgets.length > 0 ? (approvedBudgets.length / savedBudgets.length) * 100 : 0;
   const readyChecks = [
     { label: 'Cliente vinculado', ready: Boolean(activeClient) },
-    { label: 'Atendimento identificado', ready: Boolean(activeWorkOrder?.title) },
+    { label: 'Serviço identificado', ready: Boolean(activeWorkOrder?.title) },
     { label: 'Itens técnicos', ready: reportItems.length > 0 },
     { label: 'Diagnóstico ou observação técnica', ready: diagnostics > 0 || notesAndRecommendations.length > 0 },
   ];
