@@ -227,24 +227,86 @@ export function SupplierTaxMarginWorkspace() {
         <strong>{records.length} lançamento(s)</strong>
       </div>
 
-      <div className="supplier-tax-grid-layout" style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.35fr) minmax(320px, 0.65fr)', gap: '24px', alignItems: 'start' }}>
-        <div className="catalog-form-card">
-          <header>
+      <div className="supplier-tax-grid-layout" style={{ 
+        display: 'grid', 
+        gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', 
+        gap: '32px', 
+        alignItems: 'start' 
+      }}>
+        {previewSummary && (
+          <aside className="catalog-form-card premium-finance-panel" style={{ 
+            background: 'var(--aferix-surface-raised, #16181e)', 
+            border: '1px solid var(--aferix-border-strong, #333333)',
+            padding: '32px',
+            borderRadius: '16px',
+            boxShadow: '0 12px 48px rgba(0,0,0,0.5)',
+            order: window.innerWidth < 768 ? 1 : 0
+          }}>
+            <header style={{ marginBottom: '32px', borderBottom: '2px solid var(--aferix-primary)', paddingBottom: '16px', width: 'fit-content' }}>
+              <div>
+                <h4 style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--aferix-text)', letterSpacing: '-0.02em' }}>Prévia de Preço</h4>
+                <p style={{ fontSize: '0.9rem', color: 'var(--aferix-text-muted)', marginTop: '4px' }}>Análise estratégica de margem e custo.</p>
+              </div>
+            </header>
+            
+            <div className="supplier-tax-result-list" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', padding: '12px 0', borderBottom: '1px solid var(--aferix-border-soft)' }}>
+                <span style={{ fontSize: '0.75rem', color: 'var(--aferix-text-soft)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Custo bruto produtos</span>
+                <strong style={{ fontSize: '1.25rem' }}>{money(previewSummary.grossProductsCost)}</strong>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', padding: '12px 0', borderBottom: '1px solid var(--aferix-border-soft)' }}>
+                <span style={{ fontSize: '0.75rem', color: 'var(--aferix-text-soft)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Tributos na compra</span>
+                <strong style={{ fontSize: '1.25rem' }}>{money(previewSummary.taxIncludedInPurchase)}</strong>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', padding: '12px 0', borderBottom: '1px solid var(--aferix-border-soft)' }}>
+                <span style={{ fontSize: '0.75rem', color: 'var(--aferix-text-soft)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Custo de aquisição</span>
+                <strong style={{ fontSize: '1.25rem' }}>{money(previewSummary.grossAcquisitionCost)}</strong>
+              </div>
+              
+              <div style={{ padding: '24px', background: 'var(--aferix-surface-active)', borderRadius: '12px', border: '1px solid var(--aferix-primary-soft, rgba(245, 164, 0, 0.15))', margin: '8px 0' }}>
+                <span style={{ fontSize: '0.85rem', color: 'var(--aferix-primary)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', display: 'block', marginBottom: '8px' }}>Custo unitário líquido</span>
+                <strong style={{ fontSize: '2.25rem', color: 'var(--aferix-primary)', lineHeight: 1 }}>{money(previewSummary.unitNetCost)}</strong>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px', background: 'rgba(255,255,255,0.03)', borderRadius: '8px' }}>
+                <span style={{ fontSize: '0.8rem', color: 'var(--aferix-text-soft)', fontWeight: 600 }}>Markup calculado</span>
+                <strong style={{ fontSize: '1.25rem' }}>{previewSummary.markupPercent.toFixed(2)}%</strong>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', padding: '24px', background: 'var(--aferix-primary)', borderRadius: '12px', color: '#000', boxShadow: '0 8px 24px rgba(245, 164, 0, 0.3)' }}>
+                <span style={{ fontSize: '0.9rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em', opacity: 0.8 }}>Preço de Venda Sugerido (un.)</span>
+                <strong style={{ fontSize: '2.5rem', fontWeight: 950, lineHeight: 1 }}>{money(previewSummary.suggestedUnitSalePrice)}</strong>
+              </div>
+              
+              <p style={{ fontSize: '0.75rem', color: 'var(--aferix-text-muted)', textAlign: 'center', marginTop: '12px', lineHeight: 1.5 }}>
+                Margem líquida alvo de <strong>{previewRecord?.desiredNetMarginPercent}%</strong> e<br/>encargos de saída estimados em <strong>{previewSummary.saleVariablePercent.toFixed(1)}%</strong>.
+              </p>
+            </div>
+          </aside>
+        )}
+
+        <div className="catalog-form-card secondary-form-panel" style={{ 
+          background: 'transparent', 
+          border: '1px solid var(--aferix-border-soft)', 
+          padding: '24px',
+          borderRadius: '12px'
+        }}>
+          <header style={{ marginBottom: '24px' }}>
             <div>
-              <h4>{editingId ? 'Editar lançamento' : 'Novo lançamento'}</h4>
-              <p>Use os valores da nota, cupom, pedido ou compra para formar custo gerencial.</p>
+              <h4 style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--aferix-text-soft)' }}>{editingId ? 'Editar lançamento' : 'Novo lançamento'}</h4>
+              <p style={{ fontSize: '0.85rem', color: 'var(--aferix-text-muted)', marginTop: '4px' }}>Cadastre custos e compras.</p>
             </div>
           </header>
-          <div className="catalog-form-grid">
-            <div className="catalog-field col-4">
+          <div className="catalog-form-grid compact-form">
+            <div className="catalog-field col-12">
               <span>Fornecedor</span>
               <input value={draft.supplierName} placeholder="Ex.: Fornecedor principal" onChange={(event) => updateDraft('supplierName', event.target.value)} />
             </div>
-            <div className="catalog-field col-4">
+            <div className="catalog-field col-6">
               <span>Nota/pedido</span>
               <input value={draft.documentNumber} placeholder="NF, cupom, pedido..." onChange={(event) => updateDraft('documentNumber', event.target.value)} />
             </div>
-            <div className="catalog-field col-4">
+            <div className="catalog-field col-6">
               <span>Data</span>
               <input type="date" value={draft.purchaseDate} onChange={(event) => updateDraft('purchaseDate', event.target.value)} />
             </div>
@@ -252,134 +314,66 @@ export function SupplierTaxMarginWorkspace() {
               <span>Item/peça/insumo</span>
               <input value={draft.productDescription} placeholder="Ex.: Módulo tomada 2P+T 20A branco" onChange={(event) => updateDraft('productDescription', event.target.value)} />
             </div>
-            <div className="catalog-field col-4">
-              <span>NCM</span>
-              <input value={draft.ncm} placeholder="Opcional" onChange={(event) => updateDraft('ncm', event.target.value)} />
-            </div>
-            <div className="catalog-field col-4">
-              <span>CFOP</span>
-              <input value={draft.cfop} placeholder="Opcional" onChange={(event) => updateDraft('cfop', event.target.value)} />
-            </div>
-            <div className="catalog-field col-4">
-              <span>Uso</span>
-              <select value={draft.useCase} onChange={(event) => updateDraft('useCase', event.target.value as PurchaseUseCase)}>
-                <option value="estoque-revenda">Estoque para revenda</option>
-                <option value="insumo-servico">Insumo aplicado em serviço</option>
-                <option value="uso-proprio-obra">Uso próprio em obra/cliente</option>
-                <option value="ferramenta-equipamento">Ferramenta/equipamento</option>
-              </select>
-            </div>
-            <div className="catalog-field col-4">
-              <span>Regime</span>
-              <select value={draft.taxRegime} onChange={(event) => updateDraft('taxRegime', event.target.value as BusinessTaxRegime)}>
-                <option value="mei">MEI</option>
-                <option value="simples">Simples Nacional</option>
-                <option value="lucro-presumido">Lucro Presumido</option>
-                <option value="lucro-real">Lucro Real</option>
-                <option value="custom">Personalizado/contador</option>
-              </select>
-            </div>
-            <div className="catalog-field col-4">
+            <div className="catalog-field col-6">
               <span>Quantidade</span>
               <input inputMode="decimal" value={draft.quantity} onChange={(event) => updateDraft('quantity', event.target.value)} />
             </div>
-            <div className="catalog-field col-4">
+            <div className="catalog-field col-6">
               <span>Custo unitário</span>
               <input inputMode="decimal" value={draft.unitCost} onChange={(event) => updateDraft('unitCost', event.target.value)} />
             </div>
-            <div className="catalog-field col-4">
-              <span>Frete</span>
-              <input inputMode="decimal" value={draft.freightCost} onChange={(event) => updateDraft('freightCost', event.target.value)} />
-            </div>
-            <div className="catalog-field col-4">
-              <span>Outros custos</span>
-              <input inputMode="decimal" value={draft.otherCosts} onChange={(event) => updateDraft('otherCosts', event.target.value)} />
-            </div>
-            <div className="catalog-field col-4">
-              <span>Deslocamento compra</span>
-              <input inputMode="decimal" value={draft.travelCost} onChange={(event) => updateDraft('travelCost', event.target.value)} />
-            </div>
-            <div className="catalog-field col-4">
-              <span>ICMS destacado</span>
-              <input inputMode="decimal" value={draft.icmsValue} onChange={(event) => updateDraft('icmsValue', event.target.value)} />
-            </div>
-            <div className="catalog-field col-4">
-              <span>IPI destacado</span>
-              <input inputMode="decimal" value={draft.ipiValue} onChange={(event) => updateDraft('ipiValue', event.target.value)} />
-            </div>
-            <div className="catalog-field col-4">
-              <span>PIS</span>
-              <input inputMode="decimal" value={draft.pisValue} onChange={(event) => updateDraft('pisValue', event.target.value)} />
-            </div>
-            <div className="catalog-field col-4">
-              <span>Cofins</span>
-              <input inputMode="decimal" value={draft.cofinsValue} onChange={(event) => updateDraft('cofinsValue', event.target.value)} />
-            </div>
-            <div className="catalog-field col-4">
-              <span>ISS</span>
-              <input inputMode="decimal" value={draft.issValue} onChange={(event) => updateDraft('issValue', event.target.value)} />
-            </div>
-            <div className="catalog-field col-4">
-              <span>CBS 2026+</span>
-              <input inputMode="decimal" value={draft.cbsValue} onChange={(event) => updateDraft('cbsValue', event.target.value)} />
-            </div>
-            <div className="catalog-field col-4">
-              <span>IBS 2026+</span>
-              <input inputMode="decimal" value={draft.ibsValue} onChange={(event) => updateDraft('ibsValue', event.target.value)} />
-            </div>
-            <div className="catalog-field col-4">
-              <span>Crédito gerencial</span>
-              <input inputMode="decimal" value={draft.creditableTaxValue} onChange={(event) => updateDraft('creditableTaxValue', event.target.value)} />
-            </div>
-            <div className="catalog-field col-4">
-              <span>Margem líquida desejada %</span>
-              <input inputMode="decimal" value={draft.desiredNetMarginPercent} onChange={(event) => updateDraft('desiredNetMarginPercent', event.target.value)} />
-            </div>
-            <div className="catalog-field col-4">
-              <span>Imposto na venda %</span>
-              <input inputMode="decimal" value={draft.estimatedSaleTaxPercent} onChange={(event) => updateDraft('estimatedSaleTaxPercent', event.target.value)} />
-            </div>
-            <div className="catalog-field col-4">
-              <span>Taxa cartão %</span>
-              <input inputMode="decimal" value={draft.cardFeePercent} onChange={(event) => updateDraft('cardFeePercent', event.target.value)} />
-            </div>
-            <div className="catalog-field col-4">
-              <span>Reserva/risco %</span>
-              <input inputMode="decimal" value={draft.reservePercent} onChange={(event) => updateDraft('reservePercent', event.target.value)} />
-            </div>
+            
+            <details className="catalog-field col-12" style={{ cursor: 'pointer' }}>
+              <summary style={{ fontSize: '0.8rem', color: 'var(--aferix-primary)', fontWeight: 600, marginBottom: '8px' }}>Mais detalhes (Impostos e Frete)</summary>
+              <div className="catalog-form-grid" style={{ paddingTop: '12px' }}>
+                <div className="catalog-field col-6">
+                  <span>Frete</span>
+                  <input inputMode="decimal" value={draft.freightCost} onChange={(event) => updateDraft('freightCost', event.target.value)} />
+                </div>
+                <div className="catalog-field col-6">
+                  <span>Outros custos</span>
+                  <input inputMode="decimal" value={draft.otherCosts} onChange={(event) => updateDraft('otherCosts', event.target.value)} />
+                </div>
+                <div className="catalog-field col-6">
+                  <span>Uso</span>
+                  <select value={draft.useCase} onChange={(event) => updateDraft('useCase', event.target.value as PurchaseUseCase)}>
+                    <option value="estoque-revenda">Estoque para revenda</option>
+                    <option value="insumo-servico">Insumo aplicado em serviço</option>
+                    <option value="uso-proprio-obra">Uso próprio em obra/cliente</option>
+                    <option value="ferramenta-equipamento">Ferramenta/equipamento</option>
+                  </select>
+                </div>
+                <div className="catalog-field col-6">
+                  <span>Regime</span>
+                  <select value={draft.taxRegime} onChange={(event) => updateDraft('taxRegime', event.target.value as BusinessTaxRegime)}>
+                    <option value="mei">MEI</option>
+                    <option value="simples">Simples Nacional</option>
+                    <option value="lucro-presumido">Lucro Presumido</option>
+                    <option value="lucro-real">Lucro Real</option>
+                    <option value="custom">Personalizado/contador</option>
+                  </select>
+                </div>
+                <div className="catalog-field col-6">
+                  <span>Margem líquida %</span>
+                  <input inputMode="decimal" value={draft.desiredNetMarginPercent} onChange={(event) => updateDraft('desiredNetMarginPercent', event.target.value)} />
+                </div>
+                <div className="catalog-field col-6">
+                  <span>Imposto na venda %</span>
+                  <input inputMode="decimal" value={draft.estimatedSaleTaxPercent} onChange={(event) => updateDraft('estimatedSaleTaxPercent', event.target.value)} />
+                </div>
+              </div>
+            </details>
+
             <div className="catalog-field col-12">
-              <span>Observações fiscais/gerenciais</span>
-              <textarea value={draft.notes} placeholder="Ex.: compra para estoque, confirmar ICMS/ST, produto usado em atendimento..." onChange={(event) => updateDraft('notes', event.target.value)} />
+              <span>Observações</span>
+              <textarea value={draft.notes} rows={2} placeholder="Notas rápidas..." onChange={(event) => updateDraft('notes', event.target.value)} />
             </div>
           </div>
-          <div className="catalog-hub-actions start-actions" style={{ marginTop: '16px' }}>
-            <button className="primary-action inline-action" type="button" onClick={saveRecord}>{editingId ? 'Salvar alterações' : 'Salvar lançamento'}</button>
-            {editingId && <button className="secondary-action inline-action" type="button" onClick={resetForm}>Cancelar edição</button>}
+          <div className="catalog-hub-actions start-actions" style={{ marginTop: '20px' }}>
+            <button className="primary-action inline-action" type="button" onClick={saveRecord}>{editingId ? 'Salvar' : 'Salvar lançamento'}</button>
+            {editingId && <button className="secondary-action inline-action" type="button" onClick={resetForm}>Cancelar</button>}
           </div>
         </div>
-
-        {previewSummary && (
-          <aside className="catalog-form-card" style={{ background: 'linear-gradient(180deg, var(--aferix-surface-raised, #16181e), var(--aferix-surface, #0f1013))', border: '1px solid var(--aferix-border, #222222)' }}>
-            <header>
-              <div>
-                <h4>Prévia de Preço</h4>
-                <p>Estimativa gerencial tributária e comercial.</p>
-              </div>
-            </header>
-            <div className="supplier-tax-result-grid" style={{ display: 'grid', gap: '8px' }}>
-              <article style={{ display: 'grid', gap: '2px', border: '1px solid #222222', borderRadius: '8px', padding: '10px', background: '#000000' }}><span className="catalog-eyebrow" style={{ fontSize: '0.62rem' }}>Custo produtos</span><strong style={{ fontSize: '1rem' }}>{money(previewSummary.grossProductsCost)}</strong></article>
-              <article style={{ display: 'grid', gap: '2px', border: '1px solid #222222', borderRadius: '8px', padding: '10px', background: '#000000' }}><span className="catalog-eyebrow" style={{ fontSize: '0.62rem' }}>Tributos compra</span><strong style={{ fontSize: '1rem' }}>{money(previewSummary.taxIncludedInPurchase)}</strong></article>
-              <article style={{ display: 'grid', gap: '2px', border: '1px solid #222222', borderRadius: '8px', padding: '10px', background: '#000000' }}><span className="catalog-eyebrow" style={{ fontSize: '0.62rem' }}>Custo aquisição</span><strong style={{ fontSize: '1rem' }}>{money(previewSummary.grossAcquisitionCost)}</strong></article>
-              <article style={{ display: 'grid', gap: '2px', border: '1px solid #222222', borderRadius: '8px', padding: '10px', background: '#000000' }}><span className="catalog-eyebrow" style={{ fontSize: '0.62rem' }}>Crédito gerencial</span><strong style={{ fontSize: '1rem' }}>{money(previewSummary.managerialCredit)}</strong></article>
-              <article style={{ display: 'grid', gap: '2px', border: '1px solid #222222', borderRadius: '8px', padding: '10px', background: '#000000' }}><span className="catalog-eyebrow" style={{ fontSize: '0.62rem' }}>Custo líquido</span><strong style={{ fontSize: '1rem' }}>{money(previewSummary.netAcquisitionCost)}</strong></article>
-              <article style={{ display: 'grid', gap: '2px', border: '1px solid #222222', borderRadius: '8px', padding: '10px', background: '#000000' }}><span className="catalog-eyebrow" style={{ fontSize: '0.62rem' }}>Custo un.</span><strong style={{ fontSize: '1.15rem', color: 'var(--aferix-primary, #f5a400)' }}>{money(previewSummary.unitNetCost)}</strong></article>
-              <article style={{ display: 'grid', gap: '2px', border: '1px solid #222222', borderRadius: '8px', padding: '10px', background: '#000000' }}><span className="catalog-eyebrow" style={{ fontSize: '0.62rem' }}>Percentual saída</span><strong style={{ fontSize: '1rem' }}>{previewSummary.saleVariablePercent.toFixed(2)}%</strong></article>
-              <article style={{ display: 'grid', gap: '2px', border: '1px solid #222222', borderRadius: '8px', padding: '10px', background: '#000000' }}><span className="catalog-eyebrow" style={{ fontSize: '0.62rem' }}>Preço sugerido</span><strong style={{ fontSize: '1rem' }}>{money(previewSummary.suggestedSalePrice)}</strong></article>
-              <article style={{ display: 'grid', gap: '2px', border: '1px solid #222222', borderRadius: '8px', padding: '10px', background: '#000000' }}><span className="catalog-eyebrow" style={{ fontSize: '0.62rem' }}>Preço un. sugerido</span><strong style={{ fontSize: '1.25rem', color: 'var(--aferix-primary, #f5a400)' }}>{money(previewSummary.suggestedUnitSalePrice)}</strong></article>
-              <article style={{ display: 'grid', gap: '2px', border: '1px solid #222222', borderRadius: '8px', padding: '10px', background: '#000000' }}><span className="catalog-eyebrow" style={{ fontSize: '0.62rem' }}>Markup</span><strong style={{ fontSize: '1rem' }}>{previewSummary.markupPercent.toFixed(2)}%</strong></article>
-            </div>
-          </aside>
-        )}
       </div>
 
       <div className="aferix-panel-card catalog-list-card">

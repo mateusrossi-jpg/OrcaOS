@@ -8,28 +8,21 @@ interface ClientsScreenProps {
   sectionRequestKey?: number;
   onContextChange: (clients: Client[], workOrders: WorkOrder[], activeWorkOrderId: string | null) => void;
   onOpenBudgets: () => void;
-  onStartSurvey: () => void;
 }
 
 export function ClientsScreen({
   initialSection,
   sectionRequestKey,
   onContextChange,
-  onOpenBudgets,
-  onStartSurvey
+  onOpenBudgets
 }: ClientsScreenProps) {
   return (
     <section className="app-screen wide-screen">
-      <header className="screen-header">
-        <h1>Clientes e Serviços</h1>
-        <p>Gerencie seus clientes, orçamentos e serviços em um só lugar.</p>
-      </header>
       <ClientWorkOrderWorkspace
         initialSection={initialSection}
         sectionRequestKey={sectionRequestKey}
         onContextChange={onContextChange}
         onOpenBudgets={onOpenBudgets}
-        onStartSurvey={onStartSurvey}
       />
     </section>
   );

@@ -3,11 +3,10 @@ import type { AferixAccountState } from '../../core/access/accountPlanStorage';
 import {
   signInEmailAccount,
   signInGoogleAccount,
-  signInLocalAccount,
   signOutLocalAccount,
 } from '../../core/access/accountPlanStorage';
 import { isGoogleAccountLoginConfigured, requestGoogleAccountProfile } from '../../core/access/googleAccountAuth';
-import { planStatusTitle, planStatusDescription } from '../utils/planHelpers';
+import { planStatusTitle } from '../utils/planHelpers';
 import type { AppTab } from '../appTypes';
 import { SectionHeader } from '../components/designSystem';
 
@@ -127,26 +126,6 @@ export function MenuScreen({ account, onAccountChange, goTo }: MenuScreenProps) 
             <span className="menu-item-icon">📦</span>
             <strong>Catálogo</strong>
             <small>Itens e serviços</small>
-          </button>
-          <button className="menu-item-card" onClick={() => goTo('calculations')}>
-            <span className="menu-item-icon">⚖️</span>
-            <strong>Precificação</strong>
-            <small>Calculadoras comerciais</small>
-          </button>
-          <button className="menu-item-card" onClick={() => goTo('survey')}>
-            <span className="menu-item-icon">📝</span>
-            <strong>Levantamento</strong>
-            <small>Checklist de campo</small>
-          </button>
-          <button className="menu-item-card" onClick={() => goTo('purchaseList')}>
-            <span className="menu-item-icon">🛒</span>
-            <strong>Compras</strong>
-            <small>Lista do cliente</small>
-          </button>
-          <button className="menu-item-card" onClick={() => goTo('reports')}>
-            <span className="menu-item-icon">📄</span>
-            <strong>Relatórios</strong>
-            <small>Prévia de documentos</small>
           </button>
         </div>
       </div>

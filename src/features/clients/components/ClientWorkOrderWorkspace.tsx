@@ -19,7 +19,6 @@ interface ClientWorkOrderWorkspaceProps {
   sectionRequestKey?: number;
   onContextChange?: (clients: Client[], workOrders: WorkOrder[], activeWorkOrderId: string | null) => void;
   onOpenBudgets?: () => void;
-  onStartSurvey?: () => void;
 }
 
 interface ClientDraft {
@@ -198,7 +197,7 @@ function clientToDraft(client: Client): ClientDraft {
   };
 }
 
-export function ClientWorkOrderWorkspace({ initialSection = 'dashboard', sectionRequestKey = 0, onContextChange, onOpenBudgets, onStartSurvey }: ClientWorkOrderWorkspaceProps) {
+export function ClientWorkOrderWorkspace({ initialSection = 'dashboard', sectionRequestKey = 0, onContextChange, onOpenBudgets }: ClientWorkOrderWorkspaceProps) {
   const [activeSection, setActiveSection] = useState<ClientOsSection>('dashboard');
   const [clients, setClients] = useState<Client[]>(() => loadClients());
   const [workOrders, setWorkOrders] = useState<WorkOrder[]>(() => loadWorkOrders());
@@ -399,7 +398,6 @@ export function ClientWorkOrderWorkspace({ initialSection = 'dashboard', section
     setEditingWorkOrderId(null);
     setWorkOrderDraft({ ...emptyWorkOrderDraft, clientId: workOrder.clientId ?? '', address: selectedClient?.address ?? '' });
     setActiveSection('dashboard');
-    onStartSurvey?.();
   }
 
   function removeWorkOrder(workOrderId: string) {
@@ -577,46 +575,124 @@ export function ClientWorkOrderWorkspace({ initialSection = 'dashboard', section
       )}
 
       {activeSection === 'newWorkOrder' && (
-        <div className="aferix-panel-card">
-          <header>
+        <div className="aferix-panel-card work-order-form-panel">
+          <header className="form-header">
             <div>
-              <h2>{editingWorkOrderId ? 'Editar Serviço' : 'Novo Serviço'}</h2>
+              <h2 style={{ fontSize: '1.25rem', fontWeight: 800 }}>{editingWorkOrderId ? 'Editar Serviço' : 'Novo Serviço'}</h2>
+              <p style={{ fontSize: '0.85rem', color: 'var(--aferix-text-muted)' }}>Defina os detalhes da execução e vínculo.</p>
             </div>
           </header>
 
-          <div className="client-os-grid">
-            <div className="client-os-wide client-picker-block">
-              <div className="client-os-picker-head">
-                <span>Cliente vinculado</span>
-                <strong>{clients.find((client) => client.id === workOrderDraft.clientId)?.name ?? 'Sem cliente vinculado'}</strong>
-                <small>Busque nome, telefone, e-mail ou endereço.</small>
-              </div>
-              <label className="budget-field client-os-wide">
-                <span>Buscar cliente</span>
-                <input value={clientPickerSearch} placeholder="Nome, telefone ou endereço" onChange={(event) => setClientPickerSearch(event.target.value)} />
-              </label>
-              <div className="client-picker-results">
-                <button className={!workOrderDraft.clientId ? 'active' : ''} type="button" onClick={() => fillWorkOrderAddressFromClient('')}>Sem cliente</button>
-                {clientPickerResults.map((client) => (
-                  <button className={workOrderDraft.clientId === client.id ? 'active' : ''} key={client.id} type="button" onClick={() => fillWorkOrderAddressFromClient(client.id)}>
-                    <strong>{client.name}</strong>
-                    <small>{[client.phone, client.email, client.address].filter(Boolean).join(' · ') || 'Sem contato'}</small>
-                  </button>
-                ))}
+          <div className="client-os-vertical-form">
+            <div className="form-section-block">
+              <div className="client-picker-wrapper">
+                <label className="form-label-top">Cliente vinculado</label>
+                <div className={`selected-client-display ${!workOrderDraft.clientId ? 'empty' : 'active'}`}>
+                  {workOrderDraft.clientId ? (
+                    <>
+                      <strong>{clients.find((client) => client.id === workOrderDraft.clientId)?.name}</strong>
+                      <small>Cliente selecionado para este serviço</small>
+                    </>
+                  ) : (
+                    <>
+                      <strong>Sem cliente vinculado</strong>
+                      <small>Este serviço ficará avulso ou aguardando seleção</small>
+                    </>
+                  )}
+                </div>
+
+                <label className="form-label-top" style={{ marginTop: '1.5rem' }}>Buscar cliente</label>
+                <div className="search-input-wrapper">
+                  <input 
+                    className="premium-input"
+                    value={clientPickerSearch} 
+                    placeholder="Nome, telefone ou endereço" 
+                    onChange={(event) => setClientPickerSearch(event.target.value)} 
+                  />
+                </div>
+                
+                {clientPickerSearch.trim() && (
+                  <div className="client-picker-results mini-picker">
+                    <button className={!workOrderDraft.clientId ? 'active' : ''} type="button" onClick={() => { fillWorkOrderAddressFromClient(''); setClientPickerSearch(''); }}>
+                      <strong>Remover vínculo</strong>
+                    </button>
+                    {clientPickerResults.map((client) => (
+                      <button className={workOrderDraft.clientId === client.id ? 'active' : ''} key={client.id} type="button" onClick={() => { fillWorkOrderAddressFromClient(client.id); setClientPickerSearch(''); }}>
+                        <strong>{client.name}</strong>
+                        <small>{[client.phone, client.email].filter(Boolean).join(' · ')}</small>
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
-            <label className="budget-field"><span>Status da execução</span><select value={workOrderDraft.status} onChange={(event) => updateWorkOrderDraft('status', event.target.value as WorkOrder['status'])}><option value="in-progress">Em execução</option><option value="done">Concluído</option><option value="cancelled">Cancelado</option></select></label>
-            <label className="budget-field"><span>Pagamento</span><select value={workOrderDraft.paymentStatus} onChange={(event) => updateWorkOrderDraft('paymentStatus', event.target.value as WorkOrder['paymentStatus'])}><option value="pending">Pendente</option><option value="partial">Parcial</option><option value="paid">Pago</option></select></label>
-            <label className="budget-field client-os-wide"><span>Título do serviço</span><input value={workOrderDraft.title} placeholder="Ex.: Instalação de tomadas no quarto" onChange={(event) => updateWorkOrderDraft('title', event.target.value)} /></label>
-            <label className="budget-field client-os-wide"><span>Descrição inicial</span><textarea value={workOrderDraft.description} placeholder="Ex.: Cliente quer adicionar 3 pontos e revisar tomada antiga." onChange={(event) => updateWorkOrderDraft('description', event.target.value)} /></label>
-            <label className="budget-field"><span>Prioridade</span><select value={workOrderDraft.priority} onChange={(event) => updateWorkOrderDraft('priority', event.target.value as NonNullable<WorkOrder['priority']>)}><option value="low">Baixa</option><option value="normal">Normal</option><option value="high">Alta</option><option value="urgent">Urgente</option></select></label>
-            <label className="budget-field"><span>Data agendada</span><input type="datetime-local" value={workOrderDraft.scheduledDate} onChange={(event) => updateWorkOrderDraft('scheduledDate', event.target.value)} /></label>
-            <label className="budget-field client-os-wide"><span>Endereço do serviço</span><input value={workOrderDraft.address} onChange={(event) => updateWorkOrderDraft('address', event.target.value)} /></label>
+
+            <div className="form-grid-split">
+              <label className="catalog-field">
+                <span>Status da execução</span>
+                <select value={workOrderDraft.status} onChange={(event) => updateWorkOrderDraft('status', event.target.value as WorkOrder['status'])}>
+                  <option value="in-progress">Em execução</option>
+                  <option value="done">Concluído</option>
+                  <option value="cancelled">Cancelado</option>
+                </select>
+              </label>
+              <label className="catalog-field">
+                <span>Pagamento</span>
+                <select value={workOrderDraft.paymentStatus} onChange={(event) => updateWorkOrderDraft('paymentStatus', event.target.value as WorkOrder['paymentStatus'])}>
+                  <option value="pending">Pendente</option>
+                  <option value="partial">Parcial</option>
+                  <option value="paid">Pago</option>
+                </select>
+              </label>
+            </div>
+
+            <label className="catalog-field">
+              <span>Título do serviço</span>
+              <input value={workOrderDraft.title} placeholder="Ex.: Instalação de tomadas no quarto" onChange={(event) => updateWorkOrderDraft('title', event.target.value)} />
+            </label>
+
+            <label className="catalog-field">
+              <span>Descrição inicial</span>
+              <textarea 
+                value={workOrderDraft.description} 
+                placeholder="Ex.: Cliente quer adicionar 3 pontos e revisar tomada antiga." 
+                rows={4}
+                style={{ minHeight: '100px' }}
+                onChange={(event) => updateWorkOrderDraft('description', event.target.value)} 
+              />
+            </label>
+
+            <div className="form-grid-split">
+              <label className="catalog-field">
+                <span>Prioridade</span>
+                <select value={workOrderDraft.priority} onChange={(event) => updateWorkOrderDraft('priority', event.target.value as NonNullable<WorkOrder['priority']>)}>
+                  <option value="low">Baixa</option>
+                  <option value="normal">Normal</option>
+                  <option value="high">Alta</option>
+                  <option value="urgent">Urgente</option>
+                </select>
+              </label>
+              <label className="catalog-field">
+                <span>Data agendada</span>
+                <input type="datetime-local" value={workOrderDraft.scheduledDate} onChange={(event) => updateWorkOrderDraft('scheduledDate', event.target.value)} />
+              </label>
+            </div>
+
+            <label className="catalog-field">
+              <span>Endereço do serviço</span>
+              <input value={workOrderDraft.address} placeholder="Local da execução..." onChange={(event) => updateWorkOrderDraft('address', event.target.value)} />
+            </label>
           </div>
 
-          <div className="client-os-form-actions">
-            <button className="ghost-action" type="button" disabled={!workOrderDraft.title.trim()} onClick={addWorkOrder}>{editingWorkOrderId ? 'Salvar' : 'Criar'}</button>
-            {editingWorkOrderId && <button className="ghost-action" type="button" onClick={() => { setEditingWorkOrderId(null); setWorkOrderDraft(emptyWorkOrderDraft); setActiveSection('workOrders'); }}>Cancelar</button>}
+          <div className="client-os-form-actions-premium">
+            <button className="primary-action full-cta" type="button" disabled={!workOrderDraft.title.trim()} onClick={addWorkOrder}>
+              {editingWorkOrderId ? 'Salvar Alterações' : 'Criar Atendimento'}
+            </button>
+            {editingWorkOrderId && (
+              <button className="secondary-action full-cta" type="button" onClick={() => { setEditingWorkOrderId(null); setWorkOrderDraft(emptyWorkOrderDraft); setActiveSection('workOrders'); }}>
+                Cancelar
+              </button>
+            )}
           </div>
         </div>
       )}

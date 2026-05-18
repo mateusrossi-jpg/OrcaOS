@@ -121,6 +121,105 @@
   font-size: 0.75rem;
 }
 
+.client-os-vertical-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 24px 0;
+}
+
+.form-label-top {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--aferix-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+}
+
+.selected-client-display {
+  padding: 16px;
+  border-radius: var(--aferix-radius-md);
+  border: 1px solid var(--aferix-border);
+  background: var(--aferix-surface-active);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.selected-client-display.active {
+  border-color: var(--aferix-primary);
+  background: rgba(245, 164, 0, 0.05);
+}
+
+.selected-client-display strong {
+  font-size: 1rem;
+  color: var(--aferix-text);
+}
+
+.selected-client-display small {
+  font-size: 0.8rem;
+  color: var(--aferix-text-muted);
+}
+
+.premium-input {
+  width: 100%;
+  padding: 12px 16px;
+  background: var(--aferix-input-bg, #000);
+  border: 1px solid var(--aferix-border);
+  border-radius: var(--aferix-radius-md);
+  color: var(--aferix-text);
+  font-size: 1rem;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.premium-input:focus {
+  border-color: var(--aferix-primary);
+  box-shadow: 0 0 0 3px rgba(245, 164, 0, 0.1);
+}
+
+.form-grid-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.full-cta {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800 !important;
+  font-size: 1rem !important;
+  padding: 16px !important;
+}
+
+.client-os-form-actions-premium {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 12px;
+  padding-top: 24px;
+  border-top: 1px solid var(--aferix-border-soft);
+}
+
+.mini-picker {
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid var(--aferix-border-strong);
+  border-radius: var(--aferix-radius-md);
+  margin-top: 8px;
+  background: var(--aferix-surface-raised);
+}
+
+@media (max-width: 600px) {
+  .form-grid-split {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (max-width: 768px) {
   .client-os-indicator-grid {
     grid-template-columns: 1fr;

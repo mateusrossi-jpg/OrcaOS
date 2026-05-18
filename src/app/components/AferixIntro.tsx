@@ -32,11 +32,9 @@ export function AferixIntro() {
     <div className={`aferix-intro ${phase}`} role="dialog" aria-modal="true">
       <div className="aferix-intro-glow" />
       <div className="aferix-intro-content">
-        <img 
-          className="aferix-intro-logo" 
-          src="/icons/aferix-splash-mark.svg" 
-          alt="Aferix" 
-        />
+        <div className="aferix-intro-logo-text">
+          AFERI<span>X</span>
+        </div>
         <h1 className="aferix-intro-phrase">
           Controle seu lucro com clareza.
         </h1>

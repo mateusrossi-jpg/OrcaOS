@@ -9,10 +9,14 @@ export const userPlan: UserPlan = 'free';
  * Foco: Home, Clientes, Financeiro e Menu (Mais).
  */
 export const navItems: Array<{ id: AppTab; label: string; description: string; icon: string; section?: string; primary?: boolean }> = [
-  { id: 'home', label: 'Início', description: 'Resumo e ações rápidas', icon: 'home', primary: true },
-  { id: 'clients', label: 'Clientes', description: 'Gestão de clientes e serviços', icon: 'clients', primary: true },
+  { id: 'home', label: 'Início', description: 'Dashboard e resumo', icon: 'home', primary: true },
+  { id: 'new-budget', label: 'Novo orçamento', description: 'Criar proposta comercial', icon: 'plus-circle', primary: true },
+  { id: 'budgets', label: 'Orçamentos', description: 'Histórico de orçamentos', icon: 'document', primary: true },
+  { id: 'clients', label: 'Clientes', description: 'Gestão de clientes', icon: 'clients', primary: true },
+  { id: 'work-orders', label: 'Atendimentos', description: 'Histórico de atendimentos', icon: 'wrench', primary: true },
   { id: 'financial', label: 'Financeiro', description: 'Receitas e custos', icon: 'finance', primary: true },
-  { id: 'settings', label: 'Mais', description: 'Outras ferramentas', icon: 'menu', primary: true },
+  { id: 'reports', label: 'Relatórios', description: 'Visão geral da operação', icon: 'chart', primary: true },
+  { id: 'settings', label: 'Configurações', description: 'Ajustes e conta', icon: 'settings', primary: true },
 ];
 
 export function planLabel(plan: ModulePlan): string {

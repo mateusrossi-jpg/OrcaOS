@@ -46,11 +46,18 @@
   animation: introFadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-.aferix-intro-logo {
-  width: 156px;
-  height: auto;
-  margin-bottom: 28px;
+.aferix-intro-logo-text {
+  font-family: 'Outfit', 'Inter', 'Sora', sans-serif;
+  font-size: 52px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  color: #f5f1e8;
+  margin-bottom: 32px;
   animation: introLogoSettle 900ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.aferix-intro-logo-text span {
+  color: #f5a400;
 }
 
 .aferix-intro-phrase {

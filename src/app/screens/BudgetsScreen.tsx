@@ -19,29 +19,23 @@ interface BudgetsScreenProps {
 }
 
 export function BudgetsScreen({
-  captures,
+  captures: _captures,
   context,
   userPlan: activeUserPlan,
   goTo,
-  onRemove,
-  onUpdate,
+  onRemove: _onRemove,
+  onUpdate: _onUpdate,
   onConvertApprovedBudgetToWorkOrder
 }: BudgetsScreenProps) {
-  const budgetCaptures = captures.filter((capture) => capture.destination === 'budget' || capture.destination === 'both');
+  // Ocultamos a base técnica (cálculos) nesta versão para focar no financeiro
+  const budgetCaptures: CalculationCapture[] = []; 
+  
   return (
     <section className="app-screen wide-screen">
-      <header className="screen-header"><h1>Propostas</h1></header>
+      <header className="screen-header"><h1>Orçamentos</h1></header>
       <ActiveWorkContextCard {...context} />
-      {budgetCaptures.length > 0 && (
-        <details className="budget-technical-drawer">
-          <summary>
-            <span><strong>Base técnica do orçamento</strong><small>{budgetCaptures.length} item(ns) vindos de cálculos ou itens técnicos.</small></span>
-            <em>Revisar</em>
-          </summary>
-          <TechnicalCaptureList captures={budgetCaptures} emptyText="Abra um cálculo ou adicione itens diretamente no orçamento para montar a base técnica." onRemove={onRemove} onUpdate={onUpdate} />
-        </details>
-      )}
-      <BudgetWorkspaceClientBridge technicalCaptures={budgetCaptures} activeClient={context.activeClient} activeWorkOrder={context.activeWorkOrder} userPlan={activeUserPlan} onUpgradeRequest={() => goTo('store')} onTechnicalCaptureConverted={(id) => onUpdate(id, { convertedToBudgetItem: true })} onConvertApprovedBudgetToWorkOrder={onConvertApprovedBudgetToWorkOrder} />
+      
+      <BudgetWorkspaceClientBridge technicalCaptures={budgetCaptures} activeClient={context.activeClient} activeWorkOrder={context.activeWorkOrder} userPlan={activeUserPlan} onUpgradeRequest={() => goTo('store')} onTechnicalCaptureConverted={() => {}} onConvertApprovedBudgetToWorkOrder={onConvertApprovedBudgetToWorkOrder} />
     </section>
   );
 }

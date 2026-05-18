@@ -1346,7 +1346,6 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
               <h3>Itens do orçamento</h3>
               <p>Serviços e materiais da proposta.</p>
             </div>
-            {pendingTechnicalCaptures.length > 0 && <button type="button" className="primary-action inline-action" onClick={importAllTechnicalCaptures}>Importar itens ({pendingTechnicalCaptures.length})</button>}
           </div>
 
           <aside className="budget-sticky-summary" aria-label="Resumo fixo do orçamento">
@@ -1367,15 +1366,6 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
               </div>
             )}
           </aside>
-
-          {pendingTechnicalCaptures.length > 0 && (
-            <div className="technical-import-list compact-import-list">
-              {pendingTechnicalCaptures.map((capture) => {
-                const previewItem = technicalCaptureToBudgetItem(capture);
-                return <article className="technical-import-card" key={capture.id}><span><strong>{previewItem.description}</strong><small>{capture.moduleLabel} · {capture.calculatorLabel}</small><small>{categoryLabel(previewItem.category)} · {previewItem.quantity} × {formatCurrency(previewItem.unitPrice)}</small></span><button type="button" className="secondary-action inline-action" onClick={() => importTechnicalCapture(capture)}>Importar</button></article>;
-              })}
-            </div>
-          )}
 
           {/* Service template management moved to Catalog/Inventory section */}
 
