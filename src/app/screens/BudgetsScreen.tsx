@@ -1,4 +1,4 @@
-import { lazy } from 'react';
+import { lazy, useState } from 'react';
 import type { CalculationCapture } from '../../core/types/workflow';
 import type { Client, WorkOrder } from '../../core/types/business';
 import type { UserPlan } from '../../core/access/featureAccess';
@@ -6,7 +6,6 @@ import type { AppTab } from '../appTypes';
 import { ActiveWorkContextCard } from '../components/ActiveWorkContextCard';
 
 const BudgetWorkspaceClientBridge = lazy(() => import('../../features/budgets/components/BudgetWorkspaceClientBridge').then((module) => ({ default: module.BudgetWorkspaceClientBridge })));
-const TechnicalCaptureList = lazy(() => import('../../features/workflow/components/TechnicalCaptureList').then((module) => ({ default: module.TechnicalCaptureList })));
 
 interface BudgetsScreenProps {
   captures: CalculationCapture[];
@@ -16,26 +15,43 @@ interface BudgetsScreenProps {
   onRemove: (id: string) => void;
   onUpdate: (id: string, patch: Partial<CalculationCapture>) => void;
   onConvertApprovedBudgetToWorkOrder: () => void;
+  forceNewBudget?: boolean;
 }
 
 export function BudgetsScreen({
-  captures: _captures,
   context,
   userPlan: activeUserPlan,
   goTo,
-  onRemove: _onRemove,
-  onUpdate: _onUpdate,
-  onConvertApprovedBudgetToWorkOrder
+  onConvertApprovedBudgetToWorkOrder,
+  forceNewBudget: initialForceNewBudget = false
 }: BudgetsScreenProps) {
   // Ocultamos a base técnica (cálculos) nesta versão para focar no financeiro
   const budgetCaptures: CalculationCapture[] = []; 
+  const [resetKey, setResetKey] = useState(0);
+
+  function handleNewBudget() {
+    setResetKey(current => current + 1);
+  }
   
   return (
     <section className="app-screen wide-screen">
-      <header className="screen-header"><h1>Orçamentos</h1></header>
+      <header className="screen-header">
+        <h1>Orçamentos</h1>
+        <button type="button" className="primary-action inline-action" onClick={handleNewBudget}>+ Novo orçamento</button>
+      </header>
       <ActiveWorkContextCard {...context} />
       
-      <BudgetWorkspaceClientBridge technicalCaptures={budgetCaptures} activeClient={context.activeClient} activeWorkOrder={context.activeWorkOrder} userPlan={activeUserPlan} onUpgradeRequest={() => goTo('store')} onTechnicalCaptureConverted={() => {}} onConvertApprovedBudgetToWorkOrder={onConvertApprovedBudgetToWorkOrder} />
+      <BudgetWorkspaceClientBridge 
+        key={resetKey}
+        technicalCaptures={budgetCaptures} 
+        activeClient={context.activeClient} 
+        activeWorkOrder={context.activeWorkOrder} 
+        userPlan={activeUserPlan} 
+        onUpgradeRequest={() => goTo('store')} 
+        onTechnicalCaptureConverted={() => {}} 
+        onConvertApprovedBudgetToWorkOrder={onConvertApprovedBudgetToWorkOrder} 
+        forceNewBudget={initialForceNewBudget || resetKey > 0}
+      />
     </section>
   );
 }

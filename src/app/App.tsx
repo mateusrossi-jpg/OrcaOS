@@ -38,6 +38,7 @@ export function App() {
   const [activeTab, setActiveTab] = useState<AppTab>('home');
   const [clientInitialSection, setClientInitialSection] = useState<'dashboard' | 'newClient' | 'newWorkOrder' | 'clients' | 'workOrders'>('dashboard');
   const [clientSectionRequestKey, setClientSectionRequestKey] = useState(0);
+  const [budgetResetKey, setBudgetResetKey] = useState(0);
   const [captures, setCaptures] = useState<CalculationCapture[]>(() => {
     cleanupRuntimeValidationData();
     return loadStoredCaptures();
@@ -84,9 +85,12 @@ export function App() {
 
   function goTo(tab: AppTab) {
     if (tab === 'new-budget') {
-      setClientInitialSection('newWorkOrder');
-      setClientSectionRequestKey((current) => current + 1);
-    } else if (tab === 'work-orders') {
+      setBudgetResetKey((current) => current + 1);
+      setActiveTab('budgets');
+      return;
+    } 
+    
+    if (tab === 'work-orders') {
       setClientInitialSection('workOrders');
       setClientSectionRequestKey((current) => current + 1);
     } else if (tab === 'clients') {
@@ -99,8 +103,7 @@ export function App() {
   function openClientSection(section: 'dashboard' | 'newClient' | 'newWorkOrder' | 'clients' | 'workOrders') {
     setClientInitialSection(section);
     setClientSectionRequestKey((current) => current + 1);
-    if (section === 'newWorkOrder') setActiveTab('new-budget');
-    else if (section === 'workOrders') setActiveTab('work-orders');
+    if (section === 'workOrders') setActiveTab('work-orders');
     else setActiveTab('clients');
   }
 
@@ -124,7 +127,7 @@ export function App() {
         <Suspense fallback={<LazyWorkspaceFallback />}>
           {activeTab === 'home' && <HomeScreen goTo={goTo} captures={captures} clients={clients} workOrders={workOrders} savedBudgets={loadSavedBudgets()} context={context} onStartNewAttendance={() => goTo('new-budget')} />}
           
-          {(activeTab === 'clients' || activeTab === 'new-budget' || activeTab === 'work-orders') && (
+          {(activeTab === 'clients' || activeTab === 'work-orders') && (
             <ClientsScreen 
               initialSection={clientInitialSection} 
               sectionRequestKey={clientSectionRequestKey} 
@@ -141,7 +144,19 @@ export function App() {
           {activeTab === 'settings' && <MenuScreen account={account} onAccountChange={setAccount} goTo={goTo} />}
           
           {/* Sub-telas acessadas via Menu ou fluxo direto */}
-          {activeTab === 'budgets' && <BudgetsScreen captures={captures} context={context} userPlan={activeUserPlan} goTo={goTo} onRemove={removeCalculationCapture} onUpdate={updateCalculationCapture} onConvertApprovedBudgetToWorkOrder={convertActiveBudgetToWorkOrder} />}
+          {activeTab === 'budgets' && (
+            <BudgetsScreen 
+              key={budgetResetKey}
+              captures={captures} 
+              context={context} 
+              userPlan={activeUserPlan} 
+              goTo={goTo} 
+              onRemove={removeCalculationCapture} 
+              onUpdate={updateCalculationCapture} 
+              onConvertApprovedBudgetToWorkOrder={convertActiveBudgetToWorkOrder} 
+              forceNewBudget={budgetResetKey > 0}
+            />
+          )}
           {activeTab === 'catalog' && <CatalogScreen onAddMany={addManyCalculationCaptures} context={context} />}
           {activeTab === 'reports' && <ReportsScreen captures={captures} context={context} />}
           {activeTab === 'store' && <StoreScreen account={account} onAccountChange={setAccount} />}

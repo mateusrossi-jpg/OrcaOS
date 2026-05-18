@@ -106,7 +106,6 @@ const CAPTURES_STORAGE_KEY = 'orcaos:calculation-captures:v1';
 const VISIBLE_LIST_LIMIT = 5;
 const DEFAULT_TAX_RATE = 6;
 const DEFAULT_MARGIN_ALERT_THRESHOLD = 20;
-const savedDraft = loadBudgetDraft();
 
 const currencyFormatter = new Intl.NumberFormat('pt-BR', {
   style: 'currency',
@@ -367,9 +366,19 @@ function saveStoredTechnicalCaptures(captures: CalculationCapture[]): void {
   window.localStorage.setItem(CAPTURES_STORAGE_KEY, JSON.stringify(captures));
 }
 
-export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, activeWorkOrder = null, userPlan = 'free', onUpgradeRequest, onTechnicalCaptureConverted, onConvertApprovedBudgetToWorkOrder }: BudgetWorkspaceProps) {
+export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, activeWorkOrder = null, userPlan = 'free', onUpgradeRequest, onTechnicalCaptureConverted, onConvertApprovedBudgetToWorkOrder, forceNewBudget }: BudgetWorkspaceProps & { forceNewBudget?: boolean }) {
   const initialBusinessProfile = useMemo(() => loadBusinessProfile(), []);
-  const [activeSection, setActiveSection] = useState<BudgetWorkspaceSection>('items');
+  
+  // Se for solicitado um novo orçamento, limpamos o rascunho IMEDIATAMENTE
+  useMemo(() => {
+    if (forceNewBudget) {
+      clearBudgetDraft();
+    }
+  }, [forceNewBudget]);
+
+  const savedDraft = useMemo(() => forceNewBudget ? null : loadBudgetDraft(), [forceNewBudget]);
+
+  const [activeSection, setActiveSection] = useState<BudgetWorkspaceSection>(forceNewBudget ? 'context' : (savedDraft ? 'items' : 'context'));
   const [businessProfile, setBusinessProfile] = useState<BusinessProfile>(initialBusinessProfile);
   const [selectedTemplate, setSelectedTemplate] = useState<BudgetTemplateId>(() => budgetTemplateForPlan(initialBusinessProfile.defaultBudgetTemplateId, userPlan));
   const [catalogItems, setCatalogItems] = useState<CatalogItem[]>(() => loadCatalogItems());
@@ -383,6 +392,7 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
   const [editingServiceTemplateId, setEditingServiceTemplateId] = useState<string | null>(null);
   const [serviceTemplateQuantities, setServiceTemplateQuantities] = useState<Record<string, string>>({});
   const [serviceTemplateValues, setServiceTemplateValues] = useState<Record<string, string>>({});
+  
   const [items, setItems] = useState<BudgetItem[]>(savedDraft?.items ?? []);
   const [draft, setDraft] = useState<DraftBudgetItem>(emptyDraftItem);
   const [budgetItemSearch, setBudgetItemSearch] = useState('');
@@ -1150,11 +1160,11 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
 
       <div className="budget-workspace-stepper">
         {[
-          { id: 'context' as const, label: 'Projeto' },
-          { id: 'items' as const, label: 'Escopo' },
-          { id: 'costs' as const, label: 'Custos' },
-          { id: 'commercial' as const, label: 'Comercial' },
-          { id: 'preview' as const, label: 'Proposta' },
+          { id: 'context' as const, label: 'Identificação' },
+          { id: 'items' as const, label: 'Itens' },
+          { id: 'costs' as const, label: 'Lucro' },
+          { id: 'commercial' as const, label: 'Condições' },
+          { id: 'preview' as const, label: 'Revisão e PDF' },
         ].map((step) => (
           <button key={step.id} className={activeSection === step.id ? 'active' : ''} type="button" onClick={() => setActiveSection(step.id)}>
             <span>{step.label}</span>
@@ -1205,7 +1215,7 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
           <div className="budget-section-header">
             <div>
               <h3>Identificação do Projeto</h3>
-              <p>Cliente, título e status do atendimento comercial.</p>
+              <p>Cliente e serviço solicitado.</p>
             </div>
             <div className="budget-header-actions">
               <button type="button" className="primary-action inline-action" onClick={saveCurrentBudget}>Salvar identificação</button>
@@ -1215,15 +1225,15 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
 
           <div className="budget-header-card compact-budget-card">
             <label className="budget-field"><span>Cliente</span><input placeholder="Nome do cliente" value={clientName} onChange={(event) => setClientName(event.target.value)} /></label>
-            <label className="budget-field"><span>Título do orçamento</span><input placeholder="Ex.: Instalação elétrica residencial" value={budgetTitle} onChange={(event) => setBudgetTitle(event.target.value)} /></label>
+            <label className="budget-field"><span>Serviço solicitado (Título)</span><input placeholder="Ex.: Instalação de tomadas no quarto" value={budgetTitle} onChange={(event) => setBudgetTitle(event.target.value)} /></label>
             <label className="budget-field"><span>Status comercial</span><select value={budgetStatus} onChange={(event) => setBudgetStatus(event.target.value as SavedBudgetStatus)}><option value="draft">Rascunho</option><option value="sent">Enviado</option><option value="approved">Aprovado</option><option value="rejected">Recusado</option><option value="expired">Vencido</option><option value="cancelled">Cancelado</option></select></label>
           </div>
 
-          {!activeClient && !activeWorkOrder && <div className="budget-guidance-card">Dica: Selecione um cliente ou atendimento no menu superior para preencher automaticamente.</div>}
+          {!activeClient && !activeWorkOrder && <div className="budget-guidance-card">Comece identificando para quem é o orçamento e qual serviço foi solicitado.</div>}
           
           <div className="budget-actions">
-            <button type="button" className="secondary-action inline-action" onClick={resetBudgetDraft}>Novo orçamento</button>
-            <button type="button" className="primary-action highlight-next-step" onClick={() => setActiveSection('items')}>Adicionar itens ao orçamento</button>
+            <button type="button" className="secondary-action inline-action" onClick={resetBudgetDraft}>Limpar e Novo</button>
+            <button type="button" className="primary-action highlight-next-step" onClick={() => setActiveSection('items')}>Próximo: Adicionar itens</button>
           </div>
         </section>
       )}
@@ -1280,7 +1290,7 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
         <section className="budget-section-panel">
           <div className="budget-section-header">
             <div>
-              <h3>Inteligência de Lucro</h3>
+              <h3>Custos e Lucro</h3>
               <p>Informe custos para calcular lucro real.</p>
             </div>
           </div>
@@ -1311,7 +1321,7 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
         <section className="budget-section-panel">
           <div className="budget-section-header">
             <div>
-              <h3>Fechamento Comercial</h3>
+              <h3>Condições Comerciais</h3>
               <p>Pagamento, prazos e observações.</p>
             </div>
             <div className="budget-default-actions">
@@ -1333,7 +1343,7 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
           </div>
 
           <div className="budget-actions">
-            <button type="button" className="primary-action" onClick={() => setActiveSection('preview')}>Finalizar Proposta</button>
+            <button type="button" className="primary-action" onClick={() => setActiveSection('preview')}>Próximo: Revisão Final</button>
           </div>
         </section>
       )}
@@ -1343,8 +1353,8 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
         <section className="budget-section-panel budget-items-layout">
           <div className="budget-section-header">
             <div>
-              <h3>Itens do orçamento</h3>
-              <p>Serviços e materiais da proposta.</p>
+              <h3>Escopo e Itens</h3>
+              <p>Adicione os serviços e materiais deste orçamento.</p>
             </div>
           </div>
 
@@ -1495,7 +1505,7 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
 
       {activeSection === 'preview' && (
         <section className="budget-section-panel preview-section-panel">
-          <div className="budget-section-header"><div><h3>Envio e aprovação</h3><p>Envie a proposta, registre a aprovação e só depois gere a OS.</p></div></div>
+          <div className="budget-section-header"><div><h3>Revisão e Envio</h3><p>Confira a proposta final e envie para o cliente.</p></div></div>
           
           {items.length === 0 && (
             <div className="budget-empty-preview-card" style={{
@@ -1532,11 +1542,11 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
               <span className={budgetStatus === 'sent' ? 'active' : ''}>Enviado</span>
               <span className={budgetStatus === 'approved' ? 'active' : ''}>Aprovado</span>
             </div>
-            <small>Aprovar só confirma aceite comercial. A OS é criada em uma ação separada e aparece apenas depois da aprovação.</small>
+            <small>Aprovar o orçamento registra o aceite comercial. Atendimentos vinculados passarão para o status "Execução" se você clicar em "Converter em Atendimento".</small>
           </div>
           <div className="budget-flow-status-card">
             <div>
-              <span>Etapa atual</span>
+              <span>Status da Proposta</span>
               <strong>{statusLabel(budgetStatus)}</strong>
               <small>{statusGuidance(budgetStatus)}</small>
             </div>
@@ -1550,24 +1560,24 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
           {budgetStatus === 'approved' && (
             <div className="budget-convert-os-card">
               <div>
-                <strong>Próximo passo: gerar OS</strong>
-                <small>Use somente quando a execução foi autorizada. Depois disso o atendimento passa para execução autorizada.</small>
+                <strong>Próximo passo: Autorizar Execução</strong>
+                <small>Clique abaixo para oficializar o início do atendimento aprovado.</small>
               </div>
-              <button type="button" className="primary-action inline-action" onClick={convertApprovedBudgetToWorkOrder}>Converter em OS</button>
+              <button type="button" className="primary-action inline-action" onClick={convertApprovedBudgetToWorkOrder}>Converter em Atendimento</button>
             </div>
           )}
           <div className="budget-share-card">
             <div>
-              <strong>Enviar proposta</strong>
-              <small>Copie um resumo comercial ou abra o WhatsApp com valores e itens principais.</small>
+              <strong>Enviar Proposta ao Cliente</strong>
+              <small>Gere o PDF profissional ou copie um resumo para o WhatsApp.</small>
             </div>
             <div className="budget-actions compact-actions">
-              <button type="button" className="secondary-action inline-action" disabled={blockingProposalIssues} onClick={copyBudgetShareText}>Copiar texto</button>
-              <button type="button" className="primary-action inline-action" disabled={blockingProposalIssues} onClick={openBudgetWhatsApp}>Abrir WhatsApp</button>
+              <button type="button" className="secondary-action inline-action" disabled={blockingProposalIssues} onClick={copyBudgetShareText}>Copiar Resumo</button>
+              <button type="button" className="primary-action inline-action" disabled={blockingProposalIssues} onClick={openBudgetWhatsApp}>Enviar via WhatsApp</button>
               <Suspense fallback={<span className="primary-action inline-action pdf-download-btn">PDF</span>}>
-                <BudgetPdfDownloadButton budget={{ title: budgetTitle, items, discount, travelCost, additionalFees, paymentTerms, validity, commercialNotes }} businessProfile={businessProfile} total={summary.total} subtotal={summary.subtotal} clientName={clientName} fileName={`proposta-aferix-${clientName || 'cliente'}.pdf`} label="Baixar PDF Premium" />
+                <BudgetPdfDownloadButton budget={{ title: budgetTitle, items, discount, travelCost, additionalFees, paymentTerms, validity, commercialNotes }} businessProfile={businessProfile} total={summary.total} subtotal={summary.subtotal} clientName={clientName} fileName={`proposta-aferix-${clientName || 'cliente'}.pdf`} label="Baixar PDF Profissional" />
               </Suspense>
-              <button type="button" className="secondary-action inline-action" disabled={blockingProposalIssues} onClick={saveCurrentBudget}>Salvar orçamento</button>
+              <button type="button" className="secondary-action inline-action" disabled={blockingProposalIssues} onClick={saveCurrentBudget}>Salvar Alterações</button>
             </div>
             {shareFeedback && <small className="budget-share-feedback">{shareFeedback}</small>}
           </div>

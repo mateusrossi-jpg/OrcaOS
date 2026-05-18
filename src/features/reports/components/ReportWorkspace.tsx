@@ -40,11 +40,11 @@ function statusLabel(status?: WorkOrder['status']): string {
 }
 
 function itemTypeLabel(itemType: CalculationCapture['itemType']): string {
-  if (itemType === 'diagnostic') return 'Diagnóstico';
+  if (itemType === 'diagnostic') return 'Análise';
   if (itemType === 'service') return 'Serviço';
   if (itemType === 'material') return 'Material';
   if (itemType === 'projectSpecification') return 'Especificação';
-  return 'Observação técnica';
+  return 'Observação';
 }
 
 function printReport() {
@@ -84,8 +84,8 @@ function money(value: number): string {
 }
 
 function reportTemplateLabel(templateId: ReportTemplateId): string {
-  if (templateId === 'technicalDetailed') return 'Relatório detalhado';
-  if (templateId === 'managerial') return 'Relatório gerencial';
+  if (templateId === 'technicalDetailed') return 'Relatório de serviço';
+  if (templateId === 'managerial') return 'Relatório financeiro';
   return 'Relatório comercial';
 }
 
@@ -111,8 +111,8 @@ export function ReportWorkspace({ captures, activeClient = null, activeWorkOrder
   const readyChecks = [
     { label: 'Cliente vinculado', ready: Boolean(activeClient) },
     { label: 'Serviço identificado', ready: Boolean(activeWorkOrder?.title) },
-    { label: 'Itens técnicos', ready: reportItems.length > 0 },
-    { label: 'Diagnóstico ou observação técnica', ready: diagnostics > 0 || notesAndRecommendations.length > 0 },
+    { label: 'Itens adicionados', ready: reportItems.length > 0 },
+    { label: 'Análise ou observação', ready: diagnostics > 0 || notesAndRecommendations.length > 0 },
   ];
 
   return (

@@ -74,8 +74,8 @@ export function MenuScreen({ account, onAccountChange, goTo }: MenuScreenProps) 
               </div>
               <section className="account-email-card">
                 <div className="settings-form-grid">
-                  <label className="general-form-field"><span>Nome profissional</span><input value={nameDraft} placeholder="Ex.: Profissional técnico" onChange={(event) => setNameDraft(event.target.value)} /></label>
-                  <label className="general-form-field"><span>E-mail de acesso</span><input type="email" value={emailDraft} placeholder="profissional@email.com" onChange={(event) => setEmailDraft(event.target.value)} /></label>
+                  <label className="general-form-field"><span>Meu nome</span><input value={nameDraft} placeholder="Como o cliente te chama" onChange={(event) => setNameDraft(event.target.value)} /></label>
+                  <label className="general-form-field"><span>E-mail de acesso</span><input type="email" value={emailDraft} placeholder="seu@email.com" onChange={(event) => setEmailDraft(event.target.value)} /></label>
                 </div>
                 <div className="settings-actions-row">
                   <button type="button" className="primary-action inline-action" onClick={registerEmailAccount}>Salvar perfil</button>
@@ -114,25 +114,21 @@ export function MenuScreen({ account, onAccountChange, goTo }: MenuScreenProps) 
     <section className="app-screen menu-overview-screen">
       <header className="page-header">
         <div>
-          <h1>Mais Ferramentas</h1>
-          <p>Tudo o que você precisa para organizar sua operação.</p>
+          <h1>Configurações</h1>
+          <p>Gerencie seu perfil, conta e preferências do aplicativo.</p>
         </div>
       </header>
 
       <div className="aferix-panel-card">
-        <SectionHeader title="Operação" eyebrow="Ferramentas de campo" />
-        <div className="menu-grid">
-          <button className="menu-item-card" onClick={() => goTo('catalog')}>
-            <span className="menu-item-icon">📦</span>
-            <strong>Catálogo</strong>
-            <small>Itens e serviços</small>
-          </button>
-        </div>
-      </div>
-
-      <div className="aferix-panel-card" style={{ marginTop: '1.5rem' }}>
-        <SectionHeader title="Sistema" eyebrow="Configurações" />
+        <SectionHeader title="Sistema" eyebrow="Ajustes" />
         <div className="menu-list-simple">
+          <button className="simple-menu-row" onClick={() => goTo('catalog')}>
+            <div className="row-content">
+              <strong>Catálogo</strong>
+              <small>Meus itens e serviços</small>
+            </div>
+            <span className="row-arrow">›</span>
+          </button>
           <button className="simple-menu-row" onClick={() => setActiveSection('profile')}>
             <div className="row-content">
               <strong>Perfil e Conta</strong>
