@@ -125,7 +125,28 @@ export function App() {
       <AferixIntro />
       <AppShell activeTab={activeTab} navItems={navItems} activeClient={activeClient} activeWorkOrder={activeWorkOrder} onNavigate={goTo}>
         <Suspense fallback={<LazyWorkspaceFallback />}>
-          {activeTab === 'home' && <HomeScreen goTo={goTo} captures={captures} clients={clients} workOrders={workOrders} savedBudgets={loadSavedBudgets()} context={context} onStartNewAttendance={() => goTo('new-budget')} />}
+          {activeTab === 'home' && (
+            <HomeScreen 
+              goTo={goTo} 
+              captures={captures} 
+              clients={clients} 
+              workOrders={workOrders} 
+              savedBudgets={loadSavedBudgets()} 
+              context={context} 
+              onStartNewAttendance={() => goTo('new-budget')} 
+              onSelectWorkOrder={(id) => {
+                setActiveWorkOrderId(id);
+                openClientSection('workOrders');
+              }}
+              onSelectBudget={(budget) => {
+                // If the budget has a work order ID, set it as active
+                if (budget.workOrderId) {
+                  setActiveWorkOrderId(budget.workOrderId);
+                }
+                goTo('budgets');
+              }}
+            />
+          )}
           
           {(activeTab === 'clients' || activeTab === 'work-orders') && (
             <ClientsScreen 

@@ -1,4 +1,5 @@
-import type { ButtonHTMLAttributes, ReactNode } from 'react';
+import { useEffect, useRef, type ButtonHTMLAttributes, type ReactNode } from 'react';
+import { useAutoResizeTextArea } from '../../hooks/useAutoResizeTextArea';
 
 type Tone = 'default' | 'brand' | 'success' | 'danger' | 'muted';
 
@@ -203,5 +204,118 @@ export function AferixTabs<T extends string>({
         </button>
       ))}
     </div>
+  );
+}
+
+export function Modal({
+  isOpen,
+  title,
+  children,
+  onClose,
+  confirmLabel = 'Confirmar',
+  cancelLabel = 'Cancelar',
+  onConfirm,
+  tone = 'brand',
+}: {
+  isOpen: boolean;
+  title: string;
+  children: ReactNode;
+  onClose: () => void;
+  confirmLabel?: string;
+  cancelLabel?: string;
+  onConfirm?: () => void;
+  tone?: Tone;
+}) {
+  if (!isOpen) return null;
+
+  return (
+    <div className="aferix-modal-overlay" onClick={onClose}>
+      <div className="aferix-modal-card" onClick={(e) => e.stopPropagation()}>
+        <header className="aferix-modal-header">
+          <h2>{title}</h2>
+        </header>
+        <div className="aferix-modal-body">
+          {children}
+        </div>
+        <footer className="aferix-modal-footer">
+          <Button variant="secondary" onClick={onClose}>{cancelLabel}</Button>
+          {onConfirm && (
+            <Button variant={tone === 'danger' ? 'danger' : 'primary'} onClick={() => { onConfirm(); onClose(); }}>
+              {confirmLabel}
+            </Button>
+          )}
+        </footer>
+      </div>
+    </div>
+  );
+}
+
+export function TextArea({
+  value,
+  onChange,
+  placeholder,
+  rows = 1,
+  className = '',
+}: {
+  value: string;
+  onChange: (value: string) => void;
+  placeholder?: string;
+  rows?: number;
+  className?: string;
+}) {
+  const ref = useRef<HTMLTextAreaElement>(null);
+  useAutoResizeTextArea(ref.current, value);
+
+  return (
+    <textarea
+      ref={ref}
+      className={`aferix-textarea ${className}`.trim()}
+      value={value}
+      placeholder={placeholder}
+      rows={rows}
+      onChange={(e) => onChange(e.target.value)}
+      style={{ overflow: 'hidden', resize: 'none' }}
+    />
+  );
+}
+
+export function MonetaryInput({
+  value,
+  onChange,
+  placeholder,
+  label,
+  className = '',
+}: {
+  value: number;
+  onChange: (value: number) => void;
+  placeholder?: string;
+  label?: string;
+  className?: string;
+}) {
+  const displayValue = value === 0 ? '' : new Intl.NumberFormat('pt-BR', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(value);
+
+  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const rawValue = e.target.value.replace(/\D/g, '');
+    const numericValue = Number(rawValue) / 100;
+    onChange(numericValue);
+  }
+
+  return (
+    <label className={`budget-field monetary-input-field ${className}`.trim()}>
+      {label && <span>{label}</span>}
+      <div className="monetary-input-wrapper">
+        <span className="currency-prefix">R$</span>
+        <input
+          type="text"
+          inputMode="numeric"
+          value={displayValue}
+          placeholder={placeholder || '0,00'}
+          onChange={handleChange}
+        />
+      </div>
+    </label>
   );
 }

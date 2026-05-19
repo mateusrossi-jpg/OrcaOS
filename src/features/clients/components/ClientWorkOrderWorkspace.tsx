@@ -9,7 +9,7 @@ import {
   saveWorkOrders,
 } from '../storage/clientWorkOrderStorage';
 import { loadSavedBudgets } from '../../budgets/storage/savedBudgetsStorage';
-import { ContextBanner, MetricCard } from '../../../app/components/ui';
+import { ContextBanner, MetricCard, Modal, TextArea, MonetaryInput } from '../../../app/components/ui';
 import './ClientWorkOrderWorkspace.css';
 
 type ClientOsSection = 'dashboard' | 'newClient' | 'newWorkOrder' | 'clients' | 'workOrders';
@@ -36,7 +36,7 @@ interface ClientDraft {
   postalCode: string;
   stateRegistration: string;
   contributorType: NonNullable<Client['contributorType']>;
-  creditLimit: string;
+  creditLimit: number;
   additionalContacts: string;
   salesHistoryNotes: string;
   notes: string;
@@ -74,7 +74,7 @@ const emptyClientDraft: ClientDraft = {
   postalCode: '',
   stateRegistration: '',
   contributorType: 'not-informed',
-  creditLimit: '',
+  creditLimit: 0,
   additionalContacts: '',
   salesHistoryNotes: '',
   notes: '',
@@ -190,7 +190,7 @@ function clientToDraft(client: Client): ClientDraft {
     postalCode: client.postalCode ?? '',
     stateRegistration: client.stateRegistration ?? '',
     contributorType: client.contributorType ?? 'not-informed',
-    creditLimit: client.creditLimit ?? '',
+    creditLimit: Number(client.creditLimit) || 0,
     additionalContacts: client.additionalContacts ?? '',
     salesHistoryNotes: client.salesHistoryNotes ?? '',
     notes: client.notes ?? '',
@@ -210,6 +210,10 @@ export function ClientWorkOrderWorkspace({ initialSection = 'dashboard', section
   const [workOrderSearch, setWorkOrderSearch] = useState('');
   const [clientPickerSearch, setClientPickerSearch] = useState('');
   const [savedBudgets, setSavedBudgets] = useState(() => loadSavedBudgets());
+  
+  // Modals
+  const [modalType, setModalType] = useState<'removeClient' | 'removeWorkOrder' | null>(null);
+  const [itemToRemove, setItemToRemove] = useState<string | null>(null);
 
   const activeWorkOrder = workOrders.find((workOrder) => workOrder.id === activeWorkOrderId) ?? null;
   const activeClient = activeWorkOrder?.clientId ? clients.find((client) => client.id === activeWorkOrder.clientId) ?? null : null;
@@ -323,7 +327,7 @@ export function ClientWorkOrderWorkspace({ initialSection = 'dashboard', section
       postalCode: clientDraft.postalCode.trim() || undefined,
       stateRegistration: clientDraft.stateRegistration.trim() || undefined,
       contributorType: clientDraft.contributorType,
-      creditLimit: clientDraft.creditLimit.trim() || undefined,
+      creditLimit: String(clientDraft.creditLimit) || undefined,
       additionalContacts: clientDraft.additionalContacts.trim() || undefined,
       salesHistoryNotes: clientDraft.salesHistoryNotes.trim() || undefined,
       notes: clientDraft.notes.trim() || undefined,
@@ -346,12 +350,18 @@ export function ClientWorkOrderWorkspace({ initialSection = 'dashboard', section
     setActiveSection('newWorkOrder');
   }
 
-  function removeClient(clientId: string) {
-    const client = clients.find((item) => item.id === clientId);
-    const confirmed = window.confirm(`Remover ${client?.name ?? 'este cliente'}? Os atendimentos vinculados continuam salvos, mas ficam sem cliente.`);
-    if (!confirmed) return;
+  function confirmRemoveClient(clientId: string) {
+    setItemToRemove(clientId);
+    setModalType('removeClient');
+  }
+
+  function executeRemoveClient() {
+    if (!itemToRemove) return;
+    const clientId = itemToRemove;
     setClients((current) => current.filter((client) => client.id !== clientId));
     setWorkOrders((current) => current.map((workOrder) => (workOrder.clientId === clientId ? { ...workOrder, clientId: undefined, updatedAt: new Date().toISOString() } : workOrder)));
+    setItemToRemove(null);
+    setModalType(null);
   }
 
   function addWorkOrder() {
@@ -400,12 +410,18 @@ export function ClientWorkOrderWorkspace({ initialSection = 'dashboard', section
     setActiveSection('dashboard');
   }
 
-  function removeWorkOrder(workOrderId: string) {
-    const workOrder = workOrders.find((item) => item.id === workOrderId);
-    const confirmed = window.confirm(`Remover ${workOrder?.title ?? 'este atendimento'}? Cálculos, orçamentos e relatórios já salvos não serão apagados automaticamente.`);
-    if (!confirmed) return;
+  function confirmRemoveWorkOrder(workOrderId: string) {
+    setItemToRemove(workOrderId);
+    setModalType('removeWorkOrder');
+  }
+
+  function executeRemoveWorkOrder() {
+    if (!itemToRemove) return;
+    const workOrderId = itemToRemove;
     setWorkOrders((current) => current.filter((workOrder) => workOrder.id !== workOrderId));
     if (activeWorkOrderId === workOrderId) setActiveWorkOrderId(null);
+    setItemToRemove(null);
+    setModalType(null);
   }
 
   function updateWorkOrderStatus(workOrderId: string, status: WorkOrder['status']) {
@@ -456,7 +472,6 @@ export function ClientWorkOrderWorkspace({ initialSection = 'dashboard', section
       </header>
 
       <ContextBanner
-        icon="SV"
         title={activeWorkOrder ? activeWorkOrder.title : 'Nenhum atendimento ativo'}
         description={activeWorkOrder ? `${activeClient?.name ?? 'Cliente não vinculado'} · ${statusLabel(activeWorkOrder.status)}` : 'Selecione um atendimento para usar como contexto.'}
         actionLabel={activeWorkOrder ? 'Limpar contexto' : 'Novo atendimento'}
@@ -539,7 +554,7 @@ export function ClientWorkOrderWorkspace({ initialSection = 'dashboard', section
             <label className="budget-field"><span>CPF / CNPJ</span><input value={clientDraft.documentNumber} placeholder="Opcional" onChange={(event) => updateClientDraft('documentNumber', event.target.value)} /></label>
             <label className="budget-field"><span>Telefone / WhatsApp</span><input inputMode="tel" value={clientDraft.phone} onChange={(event) => updateClientDraft('phone', event.target.value)} /></label>
             <label className="budget-field"><span>E-mail</span><input type="email" value={clientDraft.email} placeholder="Opcional" onChange={(event) => updateClientDraft('email', event.target.value)} /></label>
-            <label className="budget-field client-os-wide"><span>Contatos adicionais</span><textarea value={clientDraft.additionalContacts} placeholder="Ex.: comprador, síndico, financeiro, segundo telefone..." onChange={(event) => updateClientDraft('additionalContacts', event.target.value)} /></label>
+            <label className="budget-field client-os-wide"><span>Contatos adicionais</span><TextArea value={clientDraft.additionalContacts} placeholder="Ex.: comprador, síndico, financeiro, segundo telefone..." onChange={(value) => updateClientDraft('additionalContacts', value)} /></label>
 
             <div className="client-form-section client-os-wide">
               <div className="client-form-section-head"><strong>Endereço completo</strong><small>Preencha por partes ou use o campo livre se estiver na visita.</small></div>
@@ -558,9 +573,9 @@ export function ClientWorkOrderWorkspace({ initialSection = 'dashboard', section
             </div>
             <label className="budget-field"><span>Inscrição Estadual</span><input value={clientDraft.stateRegistration} placeholder="Opcional" onChange={(event) => updateClientDraft('stateRegistration', event.target.value)} /></label>
             <label className="budget-field"><span>Tipo de contribuinte</span><select value={clientDraft.contributorType} onChange={(event) => updateClientDraft('contributorType', event.target.value as ClientDraft['contributorType'])}><option value="not-informed">Não informado</option><option value="individual">Pessoa física</option><option value="taxpayer">Contribuinte ICMS</option><option value="exempt">Isento</option><option value="non-taxpayer">Não contribuinte</option></select></label>
-            <label className="budget-field"><span>Limite de crédito</span><input inputMode="decimal" value={clientDraft.creditLimit} placeholder="Opcional" onChange={(event) => updateClientDraft('creditLimit', event.target.value)} /></label>
-            <label className="budget-field client-os-wide"><span>Histórico / vendas</span><textarea value={clientDraft.salesHistoryNotes} placeholder="Resumo manual de compras, atendimentos recorrentes, preferências ou restrições." onChange={(event) => updateClientDraft('salesHistoryNotes', event.target.value)} /></label>
-            <label className="budget-field client-os-wide"><span>Observações gerais</span><textarea value={clientDraft.notes} placeholder="Informações úteis para atendimento e relacionamento." onChange={(event) => updateClientDraft('notes', event.target.value)} /></label>
+            <MonetaryInput label="Limite de crédito" value={clientDraft.creditLimit} onChange={(value) => updateClientDraft('creditLimit', value)} />
+            <label className="budget-field client-os-wide"><span>Histórico / vendas</span><TextArea value={clientDraft.salesHistoryNotes} placeholder="Resumo manual de compras, atendimentos recorrentes, preferências ou restrições." onChange={(value) => updateClientDraft('salesHistoryNotes', value)} /></label>
+            <label className="budget-field client-os-wide"><span>Observações gerais</span><TextArea value={clientDraft.notes} placeholder="Informações úteis para atendimento e relacionamento." onChange={(value) => updateClientDraft('notes', value)} /></label>
           </div>
 
           <div className="client-os-form-actions">
@@ -578,7 +593,7 @@ export function ClientWorkOrderWorkspace({ initialSection = 'dashboard', section
         <div className="aferix-panel-card work-order-form-panel">
           <header className="form-header">
             <div>
-              <h2 style={{ fontSize: '1.25rem', fontWeight: 800 }}>{editingWorkOrderId ? 'Editar Atendimento' : 'Novo Atendimento'}</h2>
+              <h2 style={{ fontSize: '1.25rem', fontWeight: 800 }}>{editingWorkOrderId ? 'Editar Atendimento/Serviço' : 'Novo Atendimento/Serviço'}</h2>
               <p style={{ fontSize: '0.85rem', color: 'var(--aferix-text-muted)' }}>Defina os detalhes da execução e vínculo.</p>
             </div>
           </header>
@@ -591,7 +606,7 @@ export function ClientWorkOrderWorkspace({ initialSection = 'dashboard', section
                   {workOrderDraft.clientId ? (
                     <>
                       <strong>{clients.find((client) => client.id === workOrderDraft.clientId)?.name}</strong>
-                      <small>Cliente selecionado para este atendimento</small>
+                      <small>Cliente selecionado para este atendimento/serviço</small>
                     </>
                   ) : (
                     <>
@@ -647,18 +662,16 @@ export function ClientWorkOrderWorkspace({ initialSection = 'dashboard', section
             </div>
 
             <label className="catalog-field">
-              <span>Título do atendimento</span>
+              <span>Título do atendimento/serviço</span>
               <input value={workOrderDraft.title} placeholder="Ex.: Instalação de tomadas no quarto" onChange={(event) => updateWorkOrderDraft('title', event.target.value)} />
             </label>
 
             <label className="catalog-field">
               <span>Descrição inicial</span>
-              <textarea 
+              <TextArea 
                 value={workOrderDraft.description} 
                 placeholder="Ex.: Cliente quer adicionar 3 pontos e revisar tomada antiga." 
-                rows={4}
-                style={{ minHeight: '100px' }}
-                onChange={(event) => updateWorkOrderDraft('description', event.target.value)} 
+                onChange={(value) => updateWorkOrderDraft('description', value)} 
               />
             </label>
 
@@ -679,14 +692,14 @@ export function ClientWorkOrderWorkspace({ initialSection = 'dashboard', section
             </div>
 
             <label className="catalog-field">
-              <span>Endereço do atendimento</span>
+              <span>Endereço do atendimento/serviço</span>
               <input value={workOrderDraft.address} placeholder="Local da execução..." onChange={(event) => updateWorkOrderDraft('address', event.target.value)} />
             </label>
           </div>
 
           <div className="client-os-form-actions-premium">
             <button className="primary-action full-cta" type="button" disabled={!workOrderDraft.title.trim()} onClick={addWorkOrder}>
-              {editingWorkOrderId ? 'Salvar Alterações' : 'Criar Atendimento'}
+              {editingWorkOrderId ? 'Salvar Alterações' : 'Criar Atendimento/Serviço'}
             </button>
             {editingWorkOrderId && (
               <button className="secondary-action full-cta" type="button" onClick={() => { setEditingWorkOrderId(null); setWorkOrderDraft(emptyWorkOrderDraft); setActiveSection('workOrders'); }}>
@@ -720,6 +733,7 @@ export function ClientWorkOrderWorkspace({ initialSection = 'dashboard', section
                 <div className="catalog-row-actions">
                   <button className="ghost-action" style={{ minHeight: '32px', fontSize: '0.7rem' }} type="button" onClick={() => openClientForEdit(client)}>Editar</button>
                   <button className="ghost-action" style={{ minHeight: '32px', fontSize: '0.7rem' }} type="button" onClick={() => { setWorkOrderDraft((current) => ({ ...current, clientId: client.id, address: client.address ?? current.address })); setActiveSection('newWorkOrder'); }}>Novo Atendimento</button>
+                  <button className="ghost-action danger-ghost" style={{ minHeight: '32px', fontSize: '0.7rem' }} type="button" onClick={() => confirmRemoveClient(client.id)}>Excluir</button>
                 </div>
               </article>
             ))}
@@ -732,7 +746,7 @@ export function ClientWorkOrderWorkspace({ initialSection = 'dashboard', section
         <div className="aferix-panel-card">
           <header className="client-os-section-header">
             <div>
-              <h2>Atendimentos</h2>
+              <h2>Atendimentos/Serviços</h2>
               <p>Histórico de execuções.</p>
             </div>
             {activeWorkOrder && (
@@ -756,6 +770,7 @@ export function ClientWorkOrderWorkspace({ initialSection = 'dashboard', section
                   <div className="catalog-row-actions">
                     <button className="ghost-action" style={{ minHeight: '32px', fontSize: '0.7rem' }} type="button" onClick={() => setActiveWorkOrderId(workOrder.id)}>{isActive ? 'Ativo' : 'Ativar'}</button>
                     <button className="ghost-action" style={{ minHeight: '32px', fontSize: '0.7rem' }} type="button" onClick={() => openWorkOrderForEdit(workOrder)}>Editar</button>
+                    <button className="ghost-action danger-ghost" style={{ minHeight: '32px', fontSize: '0.7rem' }} type="button" onClick={() => confirmRemoveWorkOrder(workOrder.id)}>Excluir</button>
                   </div>
                 </article>
               );
@@ -764,6 +779,29 @@ export function ClientWorkOrderWorkspace({ initialSection = 'dashboard', section
           </div>
         </div>
       )}
+
+      {/* Confirmation Modals */}
+      <Modal
+        isOpen={modalType === 'removeClient'}
+        title="Remover Cliente?"
+        confirmLabel="Remover"
+        tone="danger"
+        onClose={() => setModalType(null)}
+        onConfirm={executeRemoveClient}
+      >
+        <p>Os atendimentos vinculados continuam salvos, mas ficarão sem cliente associado. Esta ação não pode ser desfeita.</p>
+      </Modal>
+
+      <Modal
+        isOpen={modalType === 'removeWorkOrder'}
+        title="Remover Atendimento?"
+        confirmLabel="Remover"
+        tone="danger"
+        onClose={() => setModalType(null)}
+        onConfirm={executeRemoveWorkOrder}
+      >
+        <p>Cálculos, orçamentos e relatórios vinculados a este atendimento continuarão salvos. Esta ação não pode ser desfeita.</p>
+      </Modal>
     </div>
   );
 }
