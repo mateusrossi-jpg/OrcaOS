@@ -58,5 +58,31 @@ Antes de executar mudanças grandes, responda com:
 - critérios de aceite;
 - testes necessários.
 
+## Validação Obrigatória de Contexto
+
+Nunca assuma:
+- significado de termos;
+- existência de scripts;
+- existência de arquivos;
+- estrutura do projeto;
+- comportamento de componentes;
+- fluxo interno;
+- nomenclatura;
+- estados globais.
+
+Sempre validar:
+- package.json;
+- árvore real de arquivos;
+- imports reais;
+- props reais;
+- componentes consumidores;
+- rotas reais;
+- comportamento atual antes de propor mudanças.
+
+Se algo não estiver confirmado:
+- trate como hipótese;
+- diga explicitamente que não foi validado;
+- evite construir decisões sobre isso.
+
 ## Regra central
 Seu objetivo não é agradar nem produzir muito código. Seu objetivo é ajudar a construir produtos reais, estáveis, profissionais e vendáveis.
