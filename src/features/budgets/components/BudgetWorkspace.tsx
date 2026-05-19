@@ -2,13 +2,16 @@ import { createId } from '../../../app/utils/idHelpers';
 import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
 import type { UserPlan } from '../../../core/access/featureAccess';
 import { FREE_PLAN_LIMITS } from '../../../core/access/planStrategy';
-import type { Budget, BudgetItem, BudgetTemplateId, BusinessProfile, CatalogItem, Client, WorkOrder } from '../../../core/types/business';
+import type { Budget, BudgetItem, BudgetTemplateId, BusinessProfile, CatalogItem, Client, Service as WorkOrder } from '../../../core/types/business';
 import type { CalculationCapture, CalculationDestination } from '../../../core/types/workflow';
 import { calculateBudgetItemTotal, calculateBudgetTotal } from '../../../core/pricing/budget';
 import { hasBlockingBudgetIssues, validateBudgetForProposal, validateBudgetItem, type BudgetValidationIssue } from '../../../core/pricing/budgetValidation';
 import { calculateProjectMargin } from '../../../core/finance/projectMargin';
 import { roundTechnical } from '../../../core/format/number';
 import { handleNumericInputFocus } from '../../../core/ui/numericInputFocus';
+import { PriceInput } from '../../../core/ui/PriceInput';
+import { ConfirmModal } from '../../../app/components/ui/ConfirmModal';
+import { AutoResizeTextarea } from '../../../app/components/designSystem';
 import { clearBudgetDraft, loadBudgetDraft, saveBudgetDraft } from '../storage/budgetDraftStorage';
 import { loadBusinessProfile, saveBusinessProfile } from '../storage/businessProfileStorage';
 import { loadCatalogItems, saveCatalogItems } from '../storage/catalogStorage';
@@ -25,6 +28,7 @@ import {
   type SavedBudgetRecord,
   type SavedBudgetStatus,
 } from '../storage/savedBudgetsStorage';
+import { loadClients, loadWorkOrders, saveActiveWorkOrderId, saveClients } from '../../clients/storage/clientWorkOrderStorage';
 import { starterFinancialBudgetItems } from '../budgetTemplates';
 import { BudgetPrintPreview } from './BudgetPrintPreview';
 import './BudgetWorkspace.css';
@@ -32,7 +36,7 @@ import './BudgetWorkspace.css';
 const BudgetPdfDownloadButton = lazy(() => import('./BudgetPdfDownloadButton').then((module) => ({ default: module.BudgetPdfDownloadButton })));
 
 type BudgetCategory = BudgetItem['category'];
-type BudgetWorkspaceSection = 'context' | 'items' | 'costs' | 'commercial' | 'preview' | 'catalog' | 'history';
+type BudgetWorkspaceSection = 'client' | 'service' | 'items' | 'costs' | 'review' | 'finish' | 'catalog' | 'history';
 
 interface BudgetWorkspaceProps {
   technicalCaptures?: CalculationCapture[];
@@ -42,6 +46,9 @@ interface BudgetWorkspaceProps {
   onUpgradeRequest?: () => void;
   onTechnicalCaptureConverted?: (id: string) => void;
   onConvertApprovedBudgetToWorkOrder?: () => void;
+  onContextChange?: (context: { activeClient: Client | null; activeWorkOrder: WorkOrder | null }) => void;
+  forceNewBudget?: boolean;
+  initialBudgetId?: string | null;
 }
 
 interface DraftBudgetItem {
@@ -125,11 +132,6 @@ function formatDateTime(value: string): string {
   return new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }).format(new Date(value));
 }
 
-function formatOptionalDateTime(value?: string): string {
-  if (!value) return 'Sem data agendada';
-  return new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }).format(new Date(value));
-}
-
 function categoryLabel(category: BudgetCategory): string {
   if (category === 'labor') return 'Mão de obra';
   if (category === 'material') return 'Material';
@@ -150,43 +152,16 @@ function statusLabel(status: SavedBudgetStatus): string {
 
 function statusGuidance(status: SavedBudgetStatus): string {
   if (status === 'sent') return 'Proposta enviada. Aguarde a resposta do cliente.';
-  if (status === 'approved') return 'Cliente aprovou o orçamento. A OS só nasce quando você tocar em Converter em OS.';
+  if (status === 'approved') return 'Cliente aprovou o orçamento. O serviço agora pode ser autorizado.';
   if (status === 'rejected') return 'Cliente recusou. Preserve o histórico e ajuste apenas se houver nova negociação.';
   if (status === 'expired') return 'Validade vencida. Revise preços, materiais e prazo antes de reenviar.';
   if (status === 'cancelled') return 'Fluxo cancelado. Use apenas como histórico.';
   return 'Rascunho em preparação. Complete dados, itens e condições antes do envio.';
 }
 
-function proUpgradeMessage(feature: string): string {
-  return `${feature} é um recurso Pro para ganhar tempo, vender melhor e organizar mais orçamentos.`;
-}
-
 function budgetTemplateForPlan(templateId: BudgetTemplateId | undefined, userPlan: UserPlan): BudgetTemplateId {
   if (userPlan === 'pro') return templateId ?? 'simple';
   return 'simple';
-}
-
-function budgetTemplateLabel(templateId: BudgetTemplateId): string {
-  if (templateId === 'professional') return 'Profissional Comercial';
-  if (templateId === 'technical') return 'Técnico Detalhado';
-  if (templateId === 'premiumModern') return 'Proposta Premium';
-  if (templateId === 'premiumDetailed') return 'Premium Detalhado';
-  return 'Orçamento Simples';
-}
-
-function renderBudgetIssues(issues: BudgetValidationIssue[]) {
-  if (issues.length === 0) return null;
-  const hasErrors = hasBlockingBudgetIssues(issues);
-  return (
-    <div className={hasErrors ? 'budget-validation-panel has-errors' : 'budget-validation-panel'} role="status">
-      <strong>{hasErrors ? 'Revise antes de gerar a proposta' : 'Atenção antes do envio'}</strong>
-      <ul>
-        {issues.map((issue) => (
-          <li className={issue.severity} key={`${issue.code}-${issue.message}`}>{issue.message}</li>
-        ))}
-      </ul>
-    </div>
-  );
 }
 
 function joinTextLines(lines: Array<string | false | null | undefined>): string {
@@ -291,28 +266,6 @@ function parseOptionalCommercialNumber(value: string): number | undefined {
   return Number.isFinite(parsedValue) && parsedValue >= 0 ? parsedValue : undefined;
 }
 
-function parseInputAmount(value: string): number {
-  if (!value.trim()) return 0;
-  const parsedValue = Number(value.replace(',', '.').trim());
-  return Number.isFinite(parsedValue) && parsedValue >= 0 ? parsedValue : 0;
-}
-
-function technicalTypeToBudgetCategory(capture: CalculationCapture): BudgetCategory {
-  if (capture.itemType === 'material') return 'material';
-  if (capture.itemType === 'service') return 'labor';
-  return 'other';
-}
-
-function technicalCaptureToBudgetItem(capture: CalculationCapture): BudgetItem {
-  return {
-    id: createId(`tech-${capture.id}`),
-    description: capture.editableDescription?.trim() || capture.summary || capture.calculatorLabel,
-    quantity: parseCommercialNumber(capture.quantity, 1),
-    unitPrice: parseCommercialNumber(capture.unitValue, 0),
-    category: technicalTypeToBudgetCategory(capture),
-  };
-}
-
 function createBudgetItemFromServiceTemplate(template: GuidedLaborTemplate, quantity: number, unitValue: number): BudgetItem {
   const details = [
     template.description,
@@ -329,23 +282,13 @@ function createBudgetItemFromServiceTemplate(template: GuidedLaborTemplate, quan
   };
 }
 
-function isCalculationDestination(value: unknown): value is CalculationDestination {
-  return value === 'survey' || value === 'budget' || value === 'both';
-}
-
 function isCalculationCapture(value: unknown): value is CalculationCapture {
   if (!value || typeof value !== 'object') return false;
   const item = value as Partial<CalculationCapture>;
   return (
     typeof item.id === 'string' &&
-    typeof item.module === 'string' &&
-    typeof item.moduleLabel === 'string' &&
-    typeof item.calculatorLabel === 'string' &&
-    isCalculationDestination(item.destination) &&
     typeof item.createdAt === 'string' &&
-    typeof item.summary === 'string' &&
-    Array.isArray(item.details) &&
-    item.details.every((detail) => typeof detail === 'string')
+    typeof item.summary === 'string'
   );
 }
 
@@ -355,7 +298,7 @@ function loadStoredTechnicalCaptures(): CalculationCapture[] {
     const storedValue = window.localStorage.getItem(CAPTURES_STORAGE_KEY);
     if (!storedValue) return [];
     const parsedValue: unknown = JSON.parse(storedValue);
-    return Array.isArray(parsedValue) ? parsedValue.filter(isCalculationCapture) : [];
+    return Array.isArray(parsedValue) ? (parsedValue as any[]).filter(isCalculationCapture) : [];
   } catch {
     return [];
   }
@@ -366,19 +309,39 @@ function saveStoredTechnicalCaptures(captures: CalculationCapture[]): void {
   window.localStorage.setItem(CAPTURES_STORAGE_KEY, JSON.stringify(captures));
 }
 
-export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, activeWorkOrder = null, userPlan = 'free', onUpgradeRequest, onTechnicalCaptureConverted, onConvertApprovedBudgetToWorkOrder, forceNewBudget }: BudgetWorkspaceProps & { forceNewBudget?: boolean }) {
+export function BudgetWorkspace({
+  technicalCaptures = [],
+  activeClient = null,
+  activeWorkOrder = null,
+  userPlan = 'free',
+  onUpgradeRequest,
+  onTechnicalCaptureConverted,
+  onConvertApprovedBudgetToWorkOrder,
+  onContextChange,
+  forceNewBudget,
+  initialBudgetId
+}: BudgetWorkspaceProps) {
   const initialBusinessProfile = useMemo(() => loadBusinessProfile(), []);
   
-  // Se for solicitado um novo orçamento, limpamos o rascunho IMEDIATAMENTE
-  useMemo(() => {
-    if (forceNewBudget) {
+  useEffect(() => {
+    if (forceNewBudget && !initialBudgetId) {
       clearBudgetDraft();
     }
-  }, [forceNewBudget]);
+  }, [forceNewBudget, initialBudgetId]);
 
-  const savedDraft = useMemo(() => forceNewBudget ? null : loadBudgetDraft(), [forceNewBudget]);
+  const savedDraft = useMemo(() => (forceNewBudget && !initialBudgetId) ? null : loadBudgetDraft(), [forceNewBudget, initialBudgetId]);
 
-  const [activeSection, setActiveSection] = useState<BudgetWorkspaceSection>(forceNewBudget ? 'context' : (savedDraft ? 'items' : 'context'));
+  const [activeSection, setActiveSection] = useState<BudgetWorkspaceSection>(forceNewBudget ? 'client' : (savedDraft ? 'items' : 'client'));
+  
+  useEffect(() => {
+    if (initialBudgetId) {
+      const budget = loadSavedBudgets().find(b => b.id === initialBudgetId);
+      if (budget) {
+        openSavedBudget(budget);
+      }
+    }
+  }, [initialBudgetId]);
+
   const [businessProfile, setBusinessProfile] = useState<BusinessProfile>(initialBusinessProfile);
   const [selectedTemplate, setSelectedTemplate] = useState<BudgetTemplateId>(() => budgetTemplateForPlan(initialBusinessProfile.defaultBudgetTemplateId, userPlan));
   const [catalogItems, setCatalogItems] = useState<CatalogItem[]>(() => loadCatalogItems());
@@ -386,7 +349,6 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
   const [catalogDraft, setCatalogDraft] = useState<DraftCatalogItem>(emptyCatalogDraft);
   const [editingCatalogItemId, setEditingCatalogItemId] = useState<string | null>(null);
   const [catalogSearch, setCatalogSearch] = useState('');
-  const [catalogCategoryFilter, setCatalogCategoryFilter] = useState<BudgetCategory | 'all'>('all');
   const [serviceTemplateSearch, setServiceTemplateSearch] = useState('');
   const [serviceTemplateDraft, setServiceTemplateDraft] = useState<ServiceTemplateDraft>(emptyServiceTemplateDraft);
   const [editingServiceTemplateId, setEditingServiceTemplateId] = useState<string | null>(null);
@@ -407,12 +369,15 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
   const [executionDeadline, setExecutionDeadline] = useState(savedDraft?.executionDeadline || initialBusinessProfile.defaultExecutionDeadline);
   const [commercialNotes, setCommercialNotes] = useState(savedDraft?.commercialNotes || initialBusinessProfile.defaultNotes);
   const [technicalNotes, setTechnicalNotes] = useState(savedDraft?.technicalNotes ?? '');
+  
   const [clientName, setClientName] = useState(savedDraft?.clientName ?? activeClient?.name ?? '');
   const [budgetTitle, setBudgetTitle] = useState(savedDraft?.budgetTitle ?? activeWorkOrder?.title ?? '');
+  const [problemDescription, setProblemDescription] = useState(savedDraft?.problemDescription ?? activeWorkOrder?.description ?? '');
+  
   const [budgetStatus, setBudgetStatus] = useState<SavedBudgetStatus>('draft');
   const [materialCost, setMaterialCost] = useState(savedDraft?.materialCost ?? 0);
   const [operationalCost, setOperationalCost] = useState(savedDraft?.operationalCost ?? 0);
-  const [taxRate, setTaxRate] = useState(savedDraft?.taxRate ?? savedDraft?.aliquota_imposto ?? DEFAULT_TAX_RATE);
+  const [taxRate, setTaxRate] = useState(savedDraft?.taxRate ?? DEFAULT_TAX_RATE);
   const [marginAlertThreshold, setMarginAlertThreshold] = useState(DEFAULT_MARGIN_ALERT_THRESHOLD);
   const [isSynced, setIsSynced] = useState(true);
   const [activeBudgetId, setActiveBudgetId] = useState<string | null>(null);
@@ -422,17 +387,37 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
   const [storedTechnicalCaptures, setStoredTechnicalCaptures] = useState<CalculationCapture[]>(() => loadStoredTechnicalCaptures());
   const [shareFeedback, setShareFeedback] = useState<string | null>(null);
 
-  const availableTechnicalCaptures = technicalCaptures.length > 0 ? technicalCaptures : storedTechnicalCaptures;
+  const [allClients, setAllClients] = useState<Client[]>(() => loadClients());
+  const [clientSearch, setClientSearch] = useState('');
 
-  const pendingTechnicalCaptures = useMemo(
-    () => availableTechnicalCaptures.filter(
-      (capture) =>
-        (capture.destination === 'budget' || capture.destination === 'both') &&
-        (capture.shouldGenerateBudgetItem ?? true) &&
-        !capture.convertedToBudgetItem,
-    ),
-    [availableTechnicalCaptures],
-  );
+  // Modal State
+  const [modalConfig, setModalConfig] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+    tone: 'danger' | 'primary';
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: () => {},
+    tone: 'primary'
+  });
+
+  const closeModal = () => setModalConfig(prev => ({ ...prev, isOpen: false }));
+
+  const confirmAction = (config: Omit<typeof modalConfig, 'isOpen'>) => {
+    setModalConfig({ ...config, isOpen: true });
+  };
+
+  const filteredClients = useMemo(() => {
+    const normalized = clientSearch.toLowerCase().trim();
+    if (!normalized) return allClients.slice(0, 5);
+    return allClients.filter(c => c.name.toLowerCase().includes(normalized)).slice(0, 5);
+  }, [allClients, clientSearch]);
+
+  const availableTechnicalCaptures = technicalCaptures.length > 0 ? technicalCaptures : storedTechnicalCaptures;
 
   useEffect(() => {
     saveBusinessProfile(businessProfile);
@@ -447,23 +432,6 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
   }, [serviceTemplates]);
 
   useEffect(() => {
-    function refreshCaptures() {
-      setStoredTechnicalCaptures(loadStoredTechnicalCaptures());
-    }
-
-    if (activeSection === 'items') {
-      refreshCaptures();
-    }
-
-    window.addEventListener('storage', refreshCaptures);
-    window.addEventListener('focus', refreshCaptures);
-    return () => {
-      window.removeEventListener('storage', refreshCaptures);
-      window.removeEventListener('focus', refreshCaptures);
-    };
-  }, [activeSection]);
-
-  useEffect(() => {
     const subtotal = safeBudgetSubtotal(items);
     const commercialSubtotal = subtotal + travelCost + additionalFees;
     const total = Math.max(commercialSubtotal - Math.max(discount, 0), 0);
@@ -476,6 +444,7 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
     const saved = saveBudgetDraft({
       clientName,
       budgetTitle,
+      problemDescription,
       discount,
       travelCost,
       additionalFees,
@@ -494,9 +463,9 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
       custos_operacionais: margin.custos_operacionais,
       aliquota_imposto: margin.aliquota_imposto,
       lucro_liquido: margin.lucro_liquido,
-    });
+    } as any);
     if (saved) setLastSavedAt(saved.updatedAt);
-  }, [additionalFees, budgetTitle, clientName, commercialNotes, discount, executionDeadline, guarantee, items, materialCost, operationalCost, paymentTerms, taxRate, technicalNotes, travelCost, validity]);
+  }, [additionalFees, budgetTitle, clientName, problemDescription, commercialNotes, discount, executionDeadline, guarantee, items, materialCost, operationalCost, paymentTerms, taxRate, technicalNotes, travelCost, validity]);
 
   useEffect(() => {
     if (activeClient?.name && !clientName.trim()) {
@@ -508,7 +477,10 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
     if (activeWorkOrder?.title && !budgetTitle.trim()) {
       setBudgetTitle(activeWorkOrder.title);
     }
-  }, [activeWorkOrder?.title, budgetTitle]);
+    if (activeWorkOrder?.description && !problemDescription.trim()) {
+      setProblemDescription(activeWorkOrder.description);
+    }
+  }, [activeWorkOrder?.title, activeWorkOrder?.description, budgetTitle, problemDescription]);
 
   const summary = useMemo(() => {
     const labor = items.filter((item) => item.category === 'labor').reduce((total, item) => total + safeBudgetItemTotal(item), 0);
@@ -537,75 +509,31 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
     };
   }, [additionalFees, discount, items, travelCost, materialCost, operationalCost, taxRate]);
 
-  const currentBudgetForValidation = useMemo<Budget>(() => ({
-    id: activeBudgetId ?? 'preview-budget',
-    clientId: activeClient?.id,
-    title: budgetTitle,
-    status: budgetStatus,
-    discount,
-    travelCost,
-    additionalFees,
-    notes: clientName.trim() ? 'client-confirmed' : '',
-    paymentTerms,
-    validity,
-    guarantee,
-    executionDeadline,
-    commercialNotes,
-    technicalNotes,
-    items,
-    templateId: selectedTemplate,
-  }), [activeBudgetId, activeClient?.id, additionalFees, budgetStatus, budgetTitle, clientName, commercialNotes, discount, executionDeadline, guarantee, items, paymentTerms, selectedTemplate, technicalNotes, travelCost, validity]);
-  const proposalIssues = useMemo(() => validateBudgetForProposal(currentBudgetForValidation), [currentBudgetForValidation]);
-  const blockingProposalIssues = hasBlockingBudgetIssues(proposalIssues);
-  const filteredBudgetItems = useMemo(() => {
-    const normalizedSearch = budgetItemSearch.trim().toLowerCase();
-    if (!normalizedSearch && budgetItemCategoryFilter === 'all') return items;
-    return items.filter((item) => {
-      const categoryMatches = budgetItemCategoryFilter === 'all' || item.category === budgetItemCategoryFilter;
-      const textMatches = !normalizedSearch || [item.description, categoryLabel(item.category), formatCurrency(safeBudgetItemTotal(item))].join(' ').toLowerCase().includes(normalizedSearch);
-      return categoryMatches && textMatches;
-    });
-  }, [budgetItemCategoryFilter, budgetItemSearch, items]);
-  const visibleBudgetItems = filteredBudgetItems.slice(0, VISIBLE_LIST_LIMIT);
-  const hiddenBudgetItemCount = Math.max(filteredBudgetItems.length - visibleBudgetItems.length, 0);
-  const filteredSavedBudgets = useMemo(() => {
-    const normalizedSearch = savedBudgetSearch.trim().toLowerCase();
-    if (!normalizedSearch) return [];
-    return savedBudgets.filter((record) => [record.title, record.clientName, statusLabel(record.status), formatCurrency(calculateSavedBudgetTotal(record))].join(' ').toLowerCase().includes(normalizedSearch));
-  }, [savedBudgetSearch, savedBudgets]);
-  const visibleSavedBudgets = filteredSavedBudgets.slice(0, VISIBLE_LIST_LIMIT);
-  const hiddenSavedBudgetCount = Math.max(filteredSavedBudgets.length - visibleSavedBudgets.length, 0);
-  const selectedBudgetItem = useMemo(() => items.find((item) => item.id === selectedBudgetItemId) ?? null, [items, selectedBudgetItemId]);
-
-  useEffect(() => {
-    if (items.length === 0) {
-      setSelectedBudgetItemId(null);
-      return;
+  function selectClient(client: Client) {
+    setClientName(client.name);
+    if (onContextChange) {
+      onContextChange({ activeClient: client, activeWorkOrder: null });
     }
-    if (!selectedBudgetItemId || !items.some((item) => item.id === selectedBudgetItemId)) {
-      setSelectedBudgetItemId(items[0]?.id ?? null);
-    }
-  }, [items, selectedBudgetItemId]);
-
-  function applyBusinessDefaultsToProposal() {
-    setPaymentTerms(businessProfile.defaultPaymentTerms);
-    setValidity(businessProfile.defaultValidity);
-    setGuarantee(businessProfile.defaultGuarantee);
-    setExecutionDeadline(businessProfile.defaultExecutionDeadline);
-    setCommercialNotes(businessProfile.defaultNotes);
-    setShareFeedback('Padrões locais aplicados neste orçamento.');
+    setActiveSection('service');
   }
 
-  function saveCurrentProposalAsDefaults() {
-    setBusinessProfile((current) => ({
-      ...current,
-      defaultPaymentTerms: paymentTerms,
-      defaultValidity: validity,
-      defaultGuarantee: guarantee,
-      defaultExecutionDeadline: executionDeadline,
-      defaultNotes: commercialNotes,
-    }));
-    setShareFeedback('Condições atuais salvas como padrão local para próximos orçamentos.');
+  function createNewClient() {
+    const name = clientName.trim();
+    if (!name) {
+      setShareFeedback('Informe o nome do cliente.');
+      return;
+    }
+    const newClient: Client = {
+      id: createId('client'),
+      name,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    const updatedClients = [newClient, ...allClients];
+    setAllClients(updatedClients);
+    saveClients(updatedClients);
+    selectClient(newClient);
+    setShareFeedback(`Cliente "${name}" criado e vinculado.`);
   }
 
   function updateDraft<K extends keyof DraftBudgetItem>(key: K, value: DraftBudgetItem[K]) {
@@ -616,21 +544,8 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
     setCatalogDraft((current) => ({ ...current, [key]: value }));
   }
 
-  function updateServiceTemplateDraft<K extends keyof ServiceTemplateDraft>(key: K, value: ServiceTemplateDraft[K]) {
-    setServiceTemplateDraft((current) => ({ ...current, [key]: value }));
-  }
-
   function updateBudgetItem<K extends keyof BudgetItem>(itemId: string, key: K, value: BudgetItem[K]) {
     setItems((current) => current.map((item) => (item.id === itemId ? { ...item, [key]: value } : item)));
-  }
-
-  function markTechnicalCaptureConverted(id: string) {
-    onTechnicalCaptureConverted?.(id);
-    setStoredTechnicalCaptures((current) => {
-      const updatedCaptures = current.map((capture) => (capture.id === id ? { ...capture, convertedToBudgetItem: true } : capture));
-      saveStoredTechnicalCaptures(updatedCaptures);
-      return updatedCaptures;
-    });
   }
 
   function addItem() {
@@ -643,20 +558,15 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
     setItems((current) => [...current, newItem]);
     setSelectedBudgetItemId(newItem.id);
     setDraft(emptyDraftItem);
-    setShareFeedback('Item adicionado ao orçamento.');
+    setShareFeedback('Item adicionado.');
   }
 
   function addCatalogItem() {
     if (!catalogDraft.description.trim() || catalogDraft.quantity <= 0 || catalogDraft.unitPrice < 0) return;
-    if (catalogLimitReached && !editingCatalogItemId) {
-      setShareFeedback(proUpgradeMessage(`Catálogo com mais de ${FREE_PLAN_LIMITS.catalogItems} itens`));
-      return;
-    }
     if (editingCatalogItemId) {
       setCatalogItems((current) => current.map((item) => (item.id === editingCatalogItemId ? { ...createCatalogItem(catalogDraft), id: item.id } : item)));
       setEditingCatalogItemId(null);
       setCatalogDraft(emptyCatalogDraft);
-      setShareFeedback('Item do catálogo simples atualizado.');
       return;
     }
     setCatalogItems((current) => [...current, createCatalogItem(catalogDraft)]);
@@ -669,185 +579,77 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
     setActiveSection('catalog');
   }
 
-  function cancelCatalogItemEdit() {
-    setEditingCatalogItemId(null);
-    setCatalogDraft(emptyCatalogDraft);
+  function removeCatalogItem(itemId: string) {
+    confirmAction({
+      title: 'Remover do catálogo?',
+      message: 'Esta ação remove o item do estoque simples deste dispositivo.',
+      tone: 'danger',
+      onConfirm: () => {
+        setCatalogItems((current) => current.filter((item) => item.id !== itemId));
+        closeModal();
+      }
+    });
   }
 
-  function removeCatalogItem(itemId: string) {
-    const item = catalogItems.find((catalogItem) => catalogItem.id === itemId);
-    const confirmed = window.confirm(`Remover "${item?.description ?? 'este item'}" do catálogo simples deste orçamento?`);
-    if (!confirmed) return;
-    if (editingCatalogItemId === itemId) cancelCatalogItemEdit();
-    setCatalogItems((current) => current.filter((item) => item.id !== itemId));
+  function loadStarterItems() {
+    const starterItemsWithNewIds = starterFinancialBudgetItems.map(item => ({
+      ...item,
+      id: createId('item')
+    }));
+    setItems((current) => [...current, ...starterItemsWithNewIds]);
+    setShareFeedback('Modelos básicos adicionados.');
+    setActiveSection('items');
+  }
+
+  function addServiceTemplateToBudget(template: GuidedLaborTemplate) {
+    const newItem: BudgetItem = {
+      id: createId(`template-${template.id}`),
+      description: template.title,
+      quantity: 1,
+      unitPrice: template.defaultUnitValue,
+      category: (template.category as BudgetCategory) || 'labor',
+    };
+    setItems((current) => [...current, newItem]);
+    setSelectedBudgetItemId(newItem.id);
+    setShareFeedback('Serviço do catálogo adicionado.');
+    setActiveSection('items');
   }
 
   function addCatalogItemToBudget(item: CatalogItem) {
     const newItem = createBudgetItemFromCatalog(item);
     setItems((current) => [...current, newItem]);
     setSelectedBudgetItemId(newItem.id);
-    setShareFeedback('Material do catálogo adicionado ao orçamento.');
-    setActiveSection('items');
-  }
-
-  function addServiceTemplate() {
-    if (serviceTemplateLimitReached && !editingServiceTemplateId) {
-      setShareFeedback(proUpgradeMessage(`Mais de ${FREE_PLAN_LIMITS.serviceTemplates} modelos pessoais`));
-      return;
-    }
-    const title = serviceTemplateDraft.title.trim();
-    if (!title) {
-      setShareFeedback('Informe o nome do serviço para criar o modelo.');
-      return;
-    }
-    const nextTemplatePatch = {
-      title,
-      description: serviceTemplateDraft.description.trim(),
-      defaultUnitValue: parseCommercialNumber(serviceTemplateDraft.defaultUnitValue, 0),
-      minimumValue: parseOptionalCommercialNumber(serviceTemplateDraft.minimumValue),
-      marginPercent: parseOptionalCommercialNumber(serviceTemplateDraft.marginPercent),
-      unit: serviceTemplateDraft.unit.trim() || 'serviço',
-      estimatedTime: serviceTemplateDraft.estimatedTime.trim(),
-      suggestedMaterials: serviceTemplateDraft.suggestedMaterials.trim(),
-      category: serviceTemplateDraft.category.trim(),
-      professionModule: serviceTemplateDraft.professionModule.trim(),
-      note: serviceTemplateDraft.note.trim() || 'Modelo pessoal criado no orçamento rápido.',
-      visible: true,
-    };
-    if (editingServiceTemplateId) {
-      updateServiceTemplate(editingServiceTemplateId, nextTemplatePatch);
-      setServiceTemplateValues((current) => ({ ...current, [editingServiceTemplateId]: String(nextTemplatePatch.defaultUnitValue) }));
-      setEditingServiceTemplateId(null);
-      setServiceTemplateDraft(emptyServiceTemplateDraft);
-      setShareFeedback('Modelo pessoal de serviço atualizado.');
-      return;
-    }
-    const template = createGuidedLaborTemplate({
-      ...nextTemplatePatch,
-    });
-    setServiceTemplates((current) => [template, ...current]);
-    setServiceTemplateValues((current) => ({ ...current, [template.id]: String(template.defaultUnitValue) }));
-    setServiceTemplateDraft(emptyServiceTemplateDraft);
-    setShareFeedback('Modelo pessoal de serviço criado.');
-  }
-
-  function editServiceTemplate(template: GuidedLaborTemplate) {
-    setServiceTemplateDraft(serviceTemplateToDraft(template));
-    setEditingServiceTemplateId(template.id);
-  }
-
-  function cancelServiceTemplateEdit() {
-    setEditingServiceTemplateId(null);
-    setServiceTemplateDraft(emptyServiceTemplateDraft);
-  }
-
-  function updateServiceTemplate(id: string, patch: Partial<Pick<GuidedLaborTemplate, 'title' | 'description' | 'defaultUnitValue' | 'minimumValue' | 'marginPercent' | 'unit' | 'estimatedTime' | 'suggestedMaterials' | 'category' | 'professionModule' | 'note' | 'visible'>>) {
-    setServiceTemplates((current) => current.map((template) => (
-      template.id === id ? { ...template, ...patch, updatedAt: new Date().toISOString() } : template
-    )));
-  }
-
-  function addServiceTemplateToBudget(template: GuidedLaborTemplate) {
-    const quantity = parseCommercialNumber(serviceTemplateQuantities[template.id], 1);
-    const unitValue = parseCommercialNumber(serviceTemplateValues[template.id], template.defaultUnitValue);
-    if (quantity <= 0) return;
-    const newItem = createBudgetItemFromServiceTemplate(template, quantity, unitValue);
-    setItems((current) => [...current, newItem]);
-    setSelectedBudgetItemId(newItem.id);
-    setShareFeedback(`${template.title} adicionado ao orçamento${template.minimumValue ? ` (mínimo sugerido: ${formatCurrency(template.minimumValue)})` : ''}.`);
-  }
-
-  function importTechnicalCapture(capture: CalculationCapture) {
-    const budgetItem = technicalCaptureToBudgetItem(capture);
-    const issues = validateBudgetItem(budgetItem);
-    if (hasBlockingBudgetIssues(issues)) {
-      setShareFeedback(issues[0]?.message ?? 'O item técnico não está pronto para orçamento.');
-      return;
-    }
-    setItems((current) => [...current, budgetItem]);
-    setSelectedBudgetItemId(budgetItem.id);
-    markTechnicalCaptureConverted(capture.id);
-    setShareFeedback('Cálculo técnico importado como item do orçamento.');
-    setActiveSection('items');
-  }
-
-  function importAllTechnicalCaptures() {
-    const validItems = pendingTechnicalCaptures.map(technicalCaptureToBudgetItem).filter((item) => !hasBlockingBudgetIssues(validateBudgetItem(item)));
-    if (validItems.length === 0) return;
-    setItems((current) => [...current, ...validItems]);
-    if (validItems[0]) setSelectedBudgetItemId(validItems[0].id);
-    pendingTechnicalCaptures.forEach((capture) => markTechnicalCaptureConverted(capture.id));
-    setShareFeedback(`${validItems.length} cálculos técnicos importados com sucesso.`);
+    setShareFeedback('Material adicionado.');
     setActiveSection('items');
   }
 
   function removeItem(itemId: string) {
-    const item = items.find((budgetItem) => budgetItem.id === itemId);
-    const confirmed = window.confirm(`Remover "${item?.description ?? 'este item'}" deste orçamento?`);
-    if (!confirmed) return;
-    setItems((current) => current.filter((item) => item.id !== itemId));
-    if (selectedBudgetItemId === itemId) setSelectedBudgetItemId(null);
-    setShareFeedback('Item removido do orçamento.');
-  }
-
-  function duplicateItem(item: BudgetItem) {
-    const duplicatedItem = { ...item, id: createId(`copy-${item.id}`) };
-    setItems((current) => [...current, duplicatedItem]);
-    setSelectedBudgetItemId(duplicatedItem.id);
-    setShareFeedback('Item duplicado com sucesso.');
-  }
-
-  function loadStarterItems() {
-    const confirmed = items.length === 0 || window.confirm('Substituir os itens atuais pelo modelo inicial?');
-    if (!confirmed) return;
-    setItems(starterFinancialBudgetItems);
-    setSelectedBudgetItemId(starterFinancialBudgetItems[0]?.id ?? null);
-    setShareFeedback('Modelo de orçamento carregado.');
+    confirmAction({
+      title: 'Remover item?',
+      message: 'Esta ação remove o item permanentemente deste orçamento.',
+      tone: 'danger',
+      onConfirm: () => {
+        setItems((current) => current.filter((item) => item.id !== itemId));
+        if (selectedBudgetItemId === itemId) setSelectedBudgetItemId(null);
+        closeModal();
+      }
+    });
   }
 
   function clearItems() {
-    const confirmed = window.confirm('Limpar todos os itens deste orçamento?');
-    if (!confirmed) return;
-    setItems([]);
-    setSelectedBudgetItemId(null);
-    setShareFeedback('Todos os itens foram removidos.');
-  }
-
-  function clearBudgetForm() {
-    setActiveBudgetId(null);
-    setBudgetStatus('draft');
-    setClientName(activeClient?.name ?? '');
-    setBudgetTitle(activeWorkOrder?.title ?? '');
-    setDiscount(0);
-    setTravelCost(0);
-    setAdditionalFees(0);
-    setPaymentTerms(businessProfile.defaultPaymentTerms);
-    setValidity(businessProfile.defaultValidity);
-    setGuarantee(businessProfile.defaultGuarantee);
-    setExecutionDeadline(businessProfile.defaultExecutionDeadline);
-    setCommercialNotes(businessProfile.defaultNotes);
-    setTechnicalNotes('');
-    setMaterialCost(0);
-    setOperationalCost(0);
-    setTaxRate(DEFAULT_TAX_RATE);
-    setItems([]);
-    setDraft(emptyDraftItem);
-    setLastSavedAt(null);
-    setActiveSection('preview');
-  }
-
-  function resetBudgetDraft() {
-    const confirmed = window.confirm('Criar um novo orçamento e limpar o rascunho atual? Orçamentos já salvos continuam na lista.');
-    if (!confirmed) return;
-    clearBudgetDraft();
-    clearBudgetForm();
+    confirmAction({
+      title: 'Limpar todos os itens?',
+      message: 'Deseja remover todos os serviços e materiais deste orçamento?',
+      tone: 'danger',
+      onConfirm: () => {
+        setItems([]);
+        setSelectedBudgetItemId(null);
+        closeModal();
+      }
+    });
   }
 
   function persistCurrentBudget(status: SavedBudgetStatus = budgetStatus): SavedBudgetRecord | null {
-    if (savedBudgetLimitReached) {
-      setShareFeedback(proUpgradeMessage(`Mais de ${FREE_PLAN_LIMITS.savedBudgets} orçamentos salvos`));
-      return null;
-    }
     const projectMargin = calculateProjectMargin({
       total_servicos: summary.total,
       custo_materiais: materialCost,
@@ -888,168 +690,6 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
     return saved;
   }
 
-  function saveCurrentBudget() {
-    const saved = persistCurrentBudget();
-    if (saved) {
-      if (activeSection === 'context') {
-        setShareFeedback('Identificação salva. Agora adicione serviços ou materiais em Escopo.');
-      } else {
-        setShareFeedback('Orçamento salvo localmente neste navegador.');
-      }
-    }
-  }
-
-  function duplicateSavedBudget(record: SavedBudgetRecord) {
-    if (!isProPlan) {
-      setShareFeedback(proUpgradeMessage('Duplicar orçamento'));
-      onUpgradeRequest?.();
-      return;
-    }
-    const duplicated = saveBudgetRecord({
-      clientId: record.clientId,
-      workOrderId: record.workOrderId,
-      clientName: record.clientName,
-      title: `${record.title || 'Orçamento sem título'} - cópia`,
-      status: 'draft',
-      discount: record.discount,
-      travelCost: record.travelCost,
-      additionalFees: record.additionalFees,
-      paymentTerms: record.paymentTerms,
-      validity: record.validity,
-      guarantee: record.guarantee,
-      executionDeadline: record.executionDeadline,
-      commercialNotes: record.commercialNotes,
-      technicalNotes: record.technicalNotes,
-      templateId: record.templateId as BudgetTemplateId | undefined,
-      items: record.items,
-      materialCost: record.materialCost,
-      operationalCost: record.operationalCost,
-      taxRate: record.taxRate,
-      total_servicos: record.total_servicos,
-      custo_materiais: record.custo_materiais,
-      custos_operacionais: record.custos_operacionais,
-      aliquota_imposto: record.aliquota_imposto,
-      lucro_liquido: record.lucro_liquido,
-    });
-    if (!duplicated) {
-      setShareFeedback('Não foi possível duplicar este orçamento.');
-      return;
-    }
-    setSavedBudgets(loadSavedBudgets());
-    openSavedBudget(duplicated);
-    setShareFeedback('Orçamento duplicado como novo rascunho.');
-  }
-
-  function updateSavedBudgetStatus(record: SavedBudgetRecord, status: SavedBudgetStatus) {
-    const updated = saveBudgetRecord({
-      id: record.id,
-      clientId: record.clientId,
-      workOrderId: record.workOrderId,
-      clientName: record.clientName,
-      title: record.title,
-      status,
-      discount: record.discount,
-      travelCost: record.travelCost,
-      additionalFees: record.additionalFees,
-      paymentTerms: record.paymentTerms,
-      validity: record.validity,
-      guarantee: record.guarantee,
-      executionDeadline: record.executionDeadline,
-      commercialNotes: record.commercialNotes,
-      technicalNotes: record.technicalNotes,
-      templateId: record.templateId,
-      items: record.items,
-      materialCost: record.materialCost,
-      operationalCost: record.operationalCost,
-      taxRate: record.taxRate,
-      total_servicos: record.total_servicos,
-      custo_materiais: record.custo_materiais,
-      custos_operacionais: record.custos_operacionais,
-      aliquota_imposto: record.aliquota_imposto,
-      lucro_liquido: record.lucro_liquido,
-    });
-    setSavedBudgets(loadSavedBudgets());
-    if (record.id === activeBudgetId && updated) setBudgetStatus(updated.status);
-    setShareFeedback(`Orçamento marcado como ${statusLabel(status).toLowerCase()}.`);
-  }
-
-  function markBudgetAsSent() {
-    const saved = persistCurrentBudget('sent');
-    if (saved) setShareFeedback('Orçamento marcado como enviado.');
-  }
-
-  function markBudgetAsApproved() {
-    const saved = persistCurrentBudget('approved');
-    if (saved) setShareFeedback('Orçamento aprovado. Agora você pode converter em OS.');
-  }
-
-  function buildBudgetShareText(): string {
-    const companyName = businessProfile.businessName || businessProfile.responsibleName || 'Aferix';
-    const itemLines = items.length > 0
-      ? items.map((item, index) => `${index + 1}. ${item.description} - ${item.quantity} x ${formatCurrency(item.unitPrice)} = ${formatCurrency(safeBudgetItemTotal(item))}`)
-      : ['Sem itens cadastrados ainda.'];
-
-    return joinTextLines([
-      `${budgetTitle || 'Orçamento técnico'}`,
-      `Profissional: ${companyName}`,
-      clientName.trim() ? `Cliente: ${clientName.trim()}` : null,
-      '',
-      'Itens:',
-      ...itemLines,
-      '',
-      `Subtotal: ${formatCurrency(summary.subtotal)}`,
-      travelCost > 0 ? `Deslocamento: ${formatCurrency(travelCost)}` : null,
-      additionalFees > 0 ? `Taxas adicionais: ${formatCurrency(additionalFees)}` : null,
-      discount > 0 ? `Desconto: ${formatCurrency(discount)}` : null,
-      `Total: ${formatCurrency(summary.total)}`,
-      paymentTerms ? `Pagamento: ${paymentTerms}` : null,
-      validity ? `Validade: ${validity}` : null,
-      guarantee ? `Garantia: ${guarantee}` : null,
-      executionDeadline ? `Prazo: ${executionDeadline}` : null,
-      commercialNotes ? `Observações comerciais: ${commercialNotes}` : null,
-      technicalNotes ? `Observações técnicas: ${technicalNotes}` : null,
-    ]);
-  }
-
-  async function copyBudgetShareText() {
-    if (blockingProposalIssues) {
-      setShareFeedback(proposalIssues.find((issue) => issue.severity === 'error')?.message ?? 'Revise a proposta antes de copiar.');
-      return;
-    }
-    const text = buildBudgetShareText();
-    try {
-      await navigator.clipboard.writeText(text);
-      setShareFeedback('Texto da proposta copiado.');
-    } catch {
-      setShareFeedback('Não foi possível copiar automaticamente. Use a prévia para conferir e imprimir.');
-    }
-  }
-
-  function openBudgetWhatsApp() {
-    if (blockingProposalIssues) {
-      setShareFeedback(proposalIssues.find((issue) => issue.severity === 'error')?.message ?? 'Revise a proposta antes de enviar.');
-      return;
-    }
-    const url = `https://wa.me/?text=${encodeURIComponent(buildBudgetShareText())}`;
-    window.open(url, '_blank', 'noopener,noreferrer');
-    persistCurrentBudget('sent');
-    setShareFeedback('WhatsApp aberto com o texto da proposta.');
-  }
-
-  function convertApprovedBudgetToWorkOrder() {
-    if (budgetStatus !== 'approved') {
-      setShareFeedback('Marque o orçamento como aprovado antes de converter em OS.');
-      return;
-    }
-    const confirmed = window.confirm('Confirmar conversão deste orçamento aprovado em OS? Use esta ação somente quando o cliente autorizou a execução.');
-    if (!confirmed) {
-      setShareFeedback('Conversão cancelada. O orçamento continua aprovado.');
-      return;
-    }
-    onConvertApprovedBudgetToWorkOrder?.();
-    setShareFeedback(activeWorkOrder ? 'OS aprovada. Atendimento marcado como execução autorizada.' : 'Orçamento aprovado. Crie ou vincule um atendimento para gerar a OS.');
-  }
-
   function openSavedBudget(record: SavedBudgetRecord) {
     setActiveBudgetId(record.id);
     setClientName(record.clientName);
@@ -1068,80 +708,102 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
     setItems(record.items);
     setMaterialCost(record.materialCost ?? 0);
     setOperationalCost(record.operationalCost ?? 0);
-    setTaxRate(record.taxRate ?? record.aliquota_imposto ?? DEFAULT_TAX_RATE);
+    setTaxRate(record.taxRate ?? DEFAULT_TAX_RATE);
     setDraft(emptyDraftItem);
-    setActiveSection('preview');
+    setActiveSection('review');
   }
 
   function removeSavedBudget(recordId: string) {
-    const record = savedBudgets.find((budget) => budget.id === recordId);
-    const confirmed = window.confirm(`Excluir "${record?.title || 'este orçamento'}"? Esta ação remove o orçamento salvo deste navegador.`);
-    if (!confirmed) return;
+    confirmAction({
+      title: 'Excluir orçamento?',
+      message: 'Esta ação remove o orçamento salvo deste navegador e não pode ser desfeita.',
+      tone: 'danger',
+      onConfirm: () => {
+        setSavedBudgets(deleteSavedBudget(recordId));
+        if (recordId === activeBudgetId) {
+          clearBudgetDraft();
+          setActiveBudgetId(null);
+          setItems([]);
+        }
+        closeModal();
+      }
+    });
+  }
 
-    setSavedBudgets(deleteSavedBudget(recordId));
-    if (recordId === activeBudgetId) {
-      clearBudgetDraft();
-      clearBudgetForm();
+  function buildBudgetShareText(): string {
+    const companyName = businessProfile.businessName || businessProfile.responsibleName || 'Aferix';
+    const itemLines = items.map((item, index) => `${index + 1}. ${item.description} - ${item.quantity} x ${formatCurrency(item.unitPrice)} = ${formatCurrency(safeBudgetItemTotal(item))}`);
+    return joinTextLines([
+      `${budgetTitle || 'Orçamento técnico'}`,
+      `Profissional: ${companyName}`,
+      clientName.trim() ? `Cliente: ${clientName.trim()}` : null,
+      '',
+      'Itens:',
+      ...itemLines,
+      '',
+      `Subtotal: ${formatCurrency(summary.subtotal)}`,
+      travelCost > 0 ? `Deslocamento: ${formatCurrency(travelCost)}` : null,
+      additionalFees > 0 ? `Taxas: ${formatCurrency(additionalFees)}` : null,
+      discount > 0 ? `Desconto: ${formatCurrency(discount)}` : null,
+      `Total: ${formatCurrency(summary.total)}`,
+      paymentTerms ? `Pagamento: ${paymentTerms}` : null,
+    ]);
+  }
+
+  async function copyBudgetShareText() {
+    try {
+      await navigator.clipboard.writeText(buildBudgetShareText());
+      setShareFeedback('Resumo copiado.');
+    } catch {
+      setShareFeedback('Falha ao copiar.');
     }
-    setShareFeedback('Orçamento excluído.');
   }
 
-  function deleteActiveBudget() {
-    if (!activeBudgetId) return;
-    removeSavedBudget(activeBudgetId);
+  function openBudgetWhatsApp() {
+    const url = `https://wa.me/?text=${encodeURIComponent(buildBudgetShareText())}`;
+    window.open(url, '_blank');
+    persistCurrentBudget('sent');
   }
 
-  const canAddItem = draft.description.trim().length > 0 && draft.quantity > 0 && draft.unitPrice >= 0;
-  const canAddCatalogItem = catalogDraft.description.trim().length > 0 && catalogDraft.quantity > 0 && catalogDraft.unitPrice >= 0;
-  const canAddServiceTemplate = serviceTemplateDraft.title.trim().length > 0;
-  const visibleServiceTemplates = serviceTemplates.filter((template) => {
-    if (!template.visible) return false;
-    const normalizedSearch = serviceTemplateSearch.trim().toLowerCase();
-    if (!normalizedSearch) return false;
-    return [template.title, template.description, template.category, template.professionModule, template.suggestedMaterials, template.note].filter(Boolean).join(' ').toLowerCase().includes(normalizedSearch);
-  }).sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
-  const visibleCatalogItems = catalogItems.filter((item) => {
-    const hasLookup = catalogSearch.trim().length > 0 || catalogCategoryFilter !== 'all';
-    if (!hasLookup) return false;
-    const categoryMatches = catalogCategoryFilter === 'all' || item.category === catalogCategoryFilter;
-    const normalizedSearch = catalogSearch.trim().toLowerCase();
-    const textMatches = !normalizedSearch || [item.description, categoryLabel(item.category), item.notes, formatCurrency(item.unitPrice)].filter(Boolean).join(' ').toLowerCase().includes(normalizedSearch);
-    return categoryMatches && textMatches;
-  });
+  function convertApprovedBudgetToWorkOrder() {
+    if (budgetStatus !== 'approved') return;
+    confirmAction({
+      title: 'Autorizar Execução?',
+      message: 'O serviço passará para status "Em Execução" e você poderá gerenciar a entrega.',
+      tone: 'primary',
+      onConfirm: () => {
+        onConvertApprovedBudgetToWorkOrder?.();
+        closeModal();
+      }
+    });
+  }
+
   const isProPlan = userPlan === 'pro';
-  const savedBudgetLimitReached = !isProPlan && !activeBudgetId && savedBudgets.length >= FREE_PLAN_LIMITS.savedBudgets;
-  const catalogLimitReached = !isProPlan && catalogItems.length >= FREE_PLAN_LIMITS.catalogItems;
-  const serviceTemplateLimitReached = !isProPlan && serviceTemplates.length >= FREE_PLAN_LIMITS.serviceTemplates;
-  const budgetApprovalAction =
-    budgetStatus === 'draft'
-      ? { label: 'Marcar como enviado', description: 'Use depois de copiar, enviar por WhatsApp ou entregar a proposta ao cliente.' }
-      : budgetStatus === 'sent'
-        ? { label: 'Marcar como aprovado', description: 'Use somente quando o cliente confirmar que aceitou o orçamento.' }
-        : null;
-  const estimatedMarginValue = Math.max(summary.total - summary.material - summary.travel - summary.fees, 0);
-  const estimatedMarginPercent = summary.total > 0 ? Math.round((estimatedMarginValue / summary.total) * 100) : 0;
+  const visibleServiceTemplates = serviceTemplates.filter(t => t.visible && (!serviceTemplateSearch || t.title.toLowerCase().includes(serviceTemplateSearch.toLowerCase()))).slice(0, 5);
+  const visibleCatalogItems = catalogItems.filter(t => !catalogSearch || t.description.toLowerCase().includes(catalogSearch.toLowerCase())).slice(0, 5);
 
   return (
     <div className="budget-workspace">
-      {activeSection !== 'context' && activeSection !== 'items' && (
+      <ConfirmModal 
+        isOpen={modalConfig.isOpen}
+        title={modalConfig.title}
+        message={modalConfig.message}
+        onConfirm={modalConfig.onConfirm}
+        onCancel={closeModal}
+        tone={modalConfig.tone}
+        confirmLabel={modalConfig.tone === 'danger' ? 'Remover' : 'Confirmar'}
+      />
+
+      {(activeSection === 'costs' || activeSection === 'review' || activeSection === 'finish') && (
         <div className="budget-profit-panel sticky-top no-print">
           <div className="profit-sync-indicator">
             <div className={`led-indicator ${isSynced ? 'synced' : 'pending'}`}></div>
-            {isSynced ? 'Salvo localmente neste dispositivo' : 'Alterações locais pendentes'}
+            {isSynced ? 'Backup local ativo' : 'Aguardando sincronia'}
           </div>
           <div className="profit-data-grid">
-            <div className="profit-item">
-              <span>Investimento Materiais</span>
-              <strong>{formatCurrency(materialCost)}</strong>
-            </div>
-            <div className="profit-item">
-              <span>Custo Operacional</span>
-              <strong>{formatCurrency(operationalCost)}</strong>
-            </div>
-            <div className="profit-item">
-              <span>Impostos ({taxRate}%)</span>
-              <strong>{formatCurrency(summary.estimatedTaxes)}</strong>
-            </div>
+            <div className="profit-item"><span>Materiais</span><strong>{formatCurrency(materialCost)}</strong></div>
+            <div className="profit-item"><span>Operacional</span><strong>{formatCurrency(operationalCost)}</strong></div>
+            <div className="profit-item"><span>Impostos</span><strong>{formatCurrency(summary.estimatedTaxes)}</strong></div>
             <div className="profit-item net-profit">
               <span>Lucro Líquido Real</span>
               <strong>{formatCurrency(summary.netProfit)}</strong>
@@ -1156,20 +818,24 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
         <strong>{formatSavedAt(lastSavedAt)}</strong>
       </div>
 
-      {/* Redundant work order context removed as requested */}
-
       <div className="budget-workspace-stepper">
         {[
-          { id: 'context' as const, label: 'Identificação' },
-          { id: 'items' as const, label: 'Itens' },
-          { id: 'costs' as const, label: 'Lucro' },
-          { id: 'commercial' as const, label: 'Condições' },
-          { id: 'preview' as const, label: 'Revisão e PDF' },
+          { id: 'client' as const, label: '1. Cliente' },
+          { id: 'service' as const, label: '2. Serviço' },
+          { id: 'items' as const, label: '3. Itens' },
+          { id: 'costs' as const, label: '4. Custos' },
+          { id: 'review' as const, label: '5. Revisão' },
+          { id: 'finish' as const, label: '6. Finalizar' },
         ].map((step) => (
           <button key={step.id} className={activeSection === step.id ? 'active' : ''} type="button" onClick={() => setActiveSection(step.id)}>
             <span>{step.label}</span>
           </button>
         ))}
+      </div>
+
+      <div className="budget-secondary-links">
+        <button className={activeSection === 'catalog' ? 'active' : ''} type="button" onClick={() => setActiveSection('catalog')}>Estoque/Serviços</button>
+        <button className={activeSection === 'history' ? 'active' : ''} type="button" onClick={() => setActiveSection('history')}>Histórico</button>
       </div>
 
       {shareFeedback && (
@@ -1191,97 +857,130 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
         }}>
           <span>{shareFeedback}</span>
           <button type="button" onClick={() => setShareFeedback(null)} style={{
-            background: 'none',
-            border: 'none',
-            color: 'var(--aferix-primary, #f59e0b)',
-            cursor: 'pointer',
-            fontSize: '1.2rem',
-            padding: '0 6px',
-            lineHeight: 1,
-            fontWeight: 'bold'
+            background: 'none', border: 'none', color: 'var(--aferix-primary, #f59e0b)', cursor: 'pointer', fontSize: '1.2rem', padding: '0 6px', lineHeight: 1, fontWeight: 'bold'
           }}>×</button>
         </div>
       )}
 
-      <div className="budget-secondary-links">
-        <button className={activeSection === 'catalog' ? 'active' : ''} type="button" onClick={() => setActiveSection('catalog')}>Catálogo</button>
-        <button className={activeSection === 'history' ? 'active' : ''} type="button" onClick={() => setActiveSection('history')}>Histórico</button>
-      </div>
-
-
-
-      {activeSection === 'context' && (
+      {activeSection === 'client' && (
         <section className="budget-section-panel">
           <div className="budget-section-header">
             <div>
-              <h3>Identificação do Projeto</h3>
-              <p>Cliente e serviço solicitado.</p>
-            </div>
-            <div className="budget-header-actions">
-              <button type="button" className="primary-action inline-action" onClick={saveCurrentBudget}>Salvar identificação</button>
-              {activeBudgetId && <button type="button" className="danger-action inline-action" onClick={deleteActiveBudget}>Excluir rascunho</button>}
+              <h3>Identificação do Cliente</h3>
+              <p>Escolha um cliente existente ou informe um novo.</p>
             </div>
           </div>
-
-          <div className="budget-header-card compact-budget-card">
-            <label className="budget-field"><span>Cliente</span><input placeholder="Nome do cliente" value={clientName} onChange={(event) => setClientName(event.target.value)} /></label>
-            <label className="budget-field"><span>Serviço solicitado (Título)</span><input placeholder="Ex.: Instalação de tomadas no quarto" value={budgetTitle} onChange={(event) => setBudgetTitle(event.target.value)} /></label>
-            <label className="budget-field"><span>Status comercial</span><select value={budgetStatus} onChange={(event) => setBudgetStatus(event.target.value as SavedBudgetStatus)}><option value="draft">Rascunho</option><option value="sent">Enviado</option><option value="approved">Aprovado</option><option value="rejected">Recusado</option><option value="expired">Vencido</option><option value="cancelled">Cancelado</option></select></label>
-          </div>
-
-          {!activeClient && !activeWorkOrder && <div className="budget-guidance-card">Comece identificando para quem é o orçamento e qual serviço foi solicitado.</div>}
           
+          <div className="budget-header-card compact-budget-card">
+            <label className="budget-field budget-field-wide">
+              <span>Nome do Cliente</span>
+              <input 
+                placeholder="Ex.: João Silva" 
+                value={clientName} 
+                onChange={(e) => {
+                  setClientName(e.target.value);
+                  setClientSearch(e.target.value);
+                }} 
+              />
+            </label>
+          </div>
+
           <div className="budget-actions">
-            <button type="button" className="secondary-action inline-action" onClick={resetBudgetDraft}>Limpar e Novo</button>
-            <button type="button" className="primary-action highlight-next-step" onClick={() => setActiveSection('items')}>Próximo: Adicionar itens</button>
+            <button type="button" className="secondary-action inline-action" onClick={createNewClient}>Criar novo cliente</button>
+            <button type="button" className="primary-action highlight-next-step" onClick={() => setActiveSection('service')}>Próximo: Dados do Serviço</button>
+          </div>
+
+          {filteredClients.length > 0 && clientSearch && (
+            <div className="budget-quick-client-list">
+              <strong>Sugestões encontradas:</strong>
+              {filteredClients.map(c => (
+                <button key={c.id} onClick={() => selectClient(c)} className="quick-client-item">
+                  {c.name} {c.email ? `(${c.email})` : ''}
+                </button>
+              ))}
+            </div>
+          )}
+        </section>
+      )}
+
+      {activeSection === 'service' && (
+        <section className="budget-section-panel">
+          <div className="budget-section-header">
+            <div>
+              <h3>Dados do Serviço</h3>
+              <p>Defina o problema e o que será feito.</p>
+            </div>
+          </div>
+          
+          <div className="budget-header-card compact-budget-card">
+            <label className="budget-field budget-field-wide">
+              <span>Título da Proposta</span>
+              <input placeholder="Ex.: Reforma elétrica do banheiro" value={budgetTitle} onChange={(e) => setBudgetTitle(e.target.value)} />
+            </label>
+            <label className="budget-field budget-field-wide">
+              <span>Problema / Necessidade</span>
+              <AutoResizeTextarea placeholder="Descreva o que o cliente solicitou..." value={problemDescription} onChange={(e) => setProblemDescription(e.target.value)} rows={3} />
+            </label>
+          </div>
+
+          <div className="budget-actions">
+            <button type="button" className="secondary-action" onClick={() => setActiveSection('client')}>Voltar</button>
+            <button type="button" className="primary-action highlight-next-step" onClick={() => setActiveSection('items')}>Próximo: Adicionar Itens</button>
           </div>
         </section>
       )}
 
-      {activeSection === 'history' && (
-        <section className="budget-section-panel">
-          <div className="saved-budget-panel inline-saved-panel">
-            <div className="saved-budget-panel-header"><div><h3>Histórico de Orçamentos</h3><p>Orçamentos salvos neste dispositivo.</p></div></div>
-            <div className="budget-list-search-bar">
-              <label className="budget-field"><span>Buscar no histórico</span><input value={savedBudgetSearch} placeholder="Cliente, título, status ou valor" onChange={(event) => setSavedBudgetSearch(event.target.value)} /></label>
+      {activeSection === 'items' && (
+        <section className="budget-section-panel budget-items-layout">
+          <div className="budget-section-header">
+            <div>
+              <h3>Escopo e Itens</h3>
+              <p>Liste os serviços e materiais inclusos.</p>
             </div>
-            <div className="saved-budget-list">
-              <div className="budget-table-header saved"><span>Orçamento</span><span>Ações rápidas</span></div>
-              {savedBudgets.length === 0 ? (
-                <div className="empty-budget">Nenhum orçamento salvo ainda.</div>
-              ) : !savedBudgetSearch.trim() ? (
-                <div className="empty-budget">Há {savedBudgets.length} orçamento(s) salvo(s). Use a busca para exibir os detalhes.</div>
-              ) : visibleSavedBudgets.length === 0 ? (
-                <div className="empty-budget">Nenhum orçamento encontrado com essa busca.</div>
-              ) : (
-                visibleSavedBudgets.map((record) => (
-                  <article className={record.id === activeBudgetId ? 'saved-budget-card active' : 'saved-budget-card'} key={record.id}>
-                    <button type="button" className="saved-budget-open" onClick={() => openSavedBudget(record)}>
-                      <strong>{record.title || 'Orçamento sem título'}</strong>
-                      <small>{record.clientName || 'Cliente não informado'}</small>
-                      <span>{statusLabel(record.status)} · {formatCurrency(calculateSavedBudgetTotal(record))} · {formatDateTime(record.updatedAt)}</span>
-                    </button>
-                    <div className="saved-budget-actions">
-                      <button type="button" className="secondary-action inline-action" onClick={() => openSavedBudget(record)}>Editar</button>
-                      <Suspense fallback={<span className="primary-action inline-action pdf-download-btn">PDF</span>}>
-                        <BudgetPdfDownloadButton 
-                          budget={{ title: record.title, items: record.items, discount: record.discount, travelCost: record.travelCost, additionalFees: record.additionalFees, paymentTerms: record.paymentTerms, validity: record.validity, commercialNotes: record.commercialNotes }} 
-                          businessProfile={businessProfile} 
-                          total={calculateSavedBudgetTotal(record)} 
-                          subtotal={safeBudgetSubtotal(record.items)} 
-                          clientName={record.clientName} 
-                          fileName={`proposta-aferix-${record.clientName || 'cliente'}.pdf`} 
-                          label="Baixar PDF" 
-                        />
-                      </Suspense>
-                      <button type="button" className="secondary-action inline-action" onClick={() => duplicateSavedBudget(record)}>Duplicar</button>
-                      <button type="button" className="saved-budget-delete" onClick={() => removeSavedBudget(record.id)}>Excluir</button>
-                    </div>
-                  </article>
-                ))
-              )}
-              {hiddenSavedBudgetCount > 0 && <div className="empty-budget compact">Mais {hiddenSavedBudgetCount} orçamento(s) oculto(s). Use a busca para refinar.</div>}
+          </div>
+
+          <aside className="budget-sticky-summary">
+            <span>Resumo parcial</span>
+            <div><small>Venda total</small><strong>{formatCurrency(summary.total)}</strong></div>
+            <div className={summary.netProfit >= 0 ? 'highlight-profit positive' : 'highlight-profit negative'}>
+              <small>Lucro estimado</small><strong>{formatCurrency(summary.netProfit)}</strong>
             </div>
+          </aside>
+
+          <div className="budget-editor compact-budget-card">
+            <div className="budget-form-grid">
+              <label className="budget-field budget-field-wide"><span>Descrição</span><input placeholder="Item ou serviço" value={draft.description} onChange={(e) => updateDraft('description', e.target.value)} /></label>
+              <label className="budget-field"><span>Qtd.</span><input type="number" value={draft.quantity} onChange={(e) => updateDraft('quantity', Number(e.target.value))} /></label>
+              <PriceInput label="Valor Unitário" value={draft.unitPrice} onChange={(val) => updateDraft('unitPrice', val)} />
+              <label className="budget-field"><span>Tipo</span><select value={draft.category} onChange={(e) => updateDraft('category', e.target.value as any)}><option value="labor">Mão de obra</option><option value="material">Material</option><option value="other">Outro</option></select></label>
+            </div>
+            <div className="budget-actions">
+              <button type="button" className="primary-action inline-action" onClick={addItem}>Adicionar Item</button>
+              <button type="button" className="secondary-action inline-action" onClick={loadStarterItems}>Usar Modelo</button>
+              <button type="button" className="ghost-action" onClick={clearItems}>Limpar Itens</button>
+            </div>
+          </div>
+
+          <div className="budget-item-manager">
+            {items.length === 0 ? <div className="empty-budget">Nenhum item adicionado.</div> : (
+              <div className="budget-item-table">
+                {items.map(item => (
+                  <div key={item.id} className="budget-item-table-row">
+                    <span>
+                      <strong>{item.description}</strong>
+                      <small>{categoryLabel(item.category)} · Qtd {item.quantity}</small>
+                    </span>
+                    <em>{formatCurrency(safeBudgetItemTotal(item))}</em>
+                    <button onClick={() => removeItem(item.id)} className="danger-action small">×</button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="budget-actions">
+            <button type="button" className="secondary-action" onClick={() => setActiveSection('service')}>Voltar</button>
+            <button type="button" className="primary-action highlight-next-step" onClick={() => setActiveSection('costs')}>Próximo: Precificação Real</button>
           </div>
         </section>
       )}
@@ -1290,305 +989,185 @@ export function BudgetWorkspace({ technicalCaptures = [], activeClient = null, a
         <section className="budget-section-panel">
           <div className="budget-section-header">
             <div>
-              <h3>Custos e Lucro</h3>
-              <p>Informe custos para calcular lucro real.</p>
+              <h3>Custos e Lucratividade</h3>
+              <p>Informe seus custos reais para garantir sua margem.</p>
             </div>
           </div>
 
           <div className="budget-header-card compact-budget-card">
-            <label className="budget-field"><span>Investimento em Materiais (Custo)</span><input type="number" inputMode="decimal" min="0" step="0.01" value={materialCost} onFocus={handleNumericInputFocus} onChange={(event) => setMaterialCost(parseInputAmount(event.target.value))} /></label>
-            <label className="budget-field"><span>Custos Operacionais (Logística/Outros)</span><input type="number" inputMode="decimal" min="0" step="0.01" value={operationalCost} onFocus={handleNumericInputFocus} onChange={(event) => setOperationalCost(parseInputAmount(event.target.value))} /></label>
-            <label className="budget-field"><span>Alíquota de Imposto Estimada (%)</span><input type="number" inputMode="decimal" min="0" max="100" step="0.1" value={taxRate} onFocus={handleNumericInputFocus} onChange={(event) => setTaxRate(Math.min(parseInputAmount(event.target.value), 100))} /></label>
-            
-            <div className="budget-field-wide budget-costs-summary">
-              <strong>Resultado do Projeto</strong>
-              <div className="costs-summary-grid">
-                <div><span>Total cobrado</span><strong>{formatCurrency(summary.total)}</strong></div>
-                <div><span>Impostos estimados</span><strong>{formatCurrency(summary.estimatedTaxes)}</strong></div>
-                <div><span>Custos Totais</span><strong>{formatCurrency(summary.totalCosts)}</strong></div>
-                <div className="highlight"><span>Lucro Líquido Real</span><strong className="premium-accent">{formatCurrency(summary.netProfit)}</strong></div>
-              </div>
-            </div>
+            <PriceInput label="Custo de Materiais" value={materialCost} onChange={setMaterialCost} />
+            <PriceInput label="Custo Operacional" value={operationalCost} onChange={setOperationalCost} />
+            <label className="budget-field"><span>Imposto (%)</span><input type="number" value={taxRate} onChange={(e) => setTaxRate(Number(e.target.value))} /></label>
+          </div>
+
+          <div className="budget-costs-summary-box">
+             <div className="summary-item highlight"><span>Lucro Líquido</span><strong>{formatCurrency(summary.netProfit)}</strong></div>
+             <div className="summary-item"><span>Margem</span><strong>{summary.profitMargin.toFixed(1)}%</strong></div>
           </div>
 
           <div className="budget-actions">
-            <button type="button" className="primary-action" onClick={() => setActiveSection('commercial')}>Próximo: Condições</button>
+            <button type="button" className="secondary-action" onClick={() => setActiveSection('items')}>Voltar</button>
+            <button type="button" className="primary-action highlight-next-step" onClick={() => setActiveSection('review')}>Próximo: Revisão Final</button>
           </div>
         </section>
       )}
 
-      {activeSection === 'commercial' && (
+      {activeSection === 'review' && (
+        <section className="budget-section-panel review-section-panel">
+          <div className="budget-section-header">
+            <div>
+              <h3>Revisão Comercial</h3>
+              <p>Confira itens e condições antes de gerar o PDF.</p>
+            </div>
+          </div>
+
+          <div className="budget-header-card compact-budget-card">
+            <PriceInput label="Desconto Total" value={discount} onChange={setDiscount} />
+            <label className="budget-field"><span>Validade</span><input value={validity} onChange={(e) => setValidity(e.target.value)} /></label>
+            <label className="budget-field budget-field-wide"><span>Pagamento</span><AutoResizeTextarea value={paymentTerms} onChange={(e) => setPaymentTerms(e.target.value)} /></label>
+          </div>
+
+          <div className="budget-actions">
+             <button type="button" className="secondary-action" onClick={() => setActiveSection('costs')}>Voltar</button>
+             <button type="button" className="primary-action highlight-next-step" onClick={() => setActiveSection('finish')}>Próximo: Finalizar e Enviar</button>
+          </div>
+
+          <BudgetPrintPreview 
+            clientName={clientName} 
+            budgetTitle={budgetTitle} 
+            status={budgetStatus} 
+            items={items} 
+            discount={discount} 
+            travelCost={travelCost} 
+            additionalFees={additionalFees} 
+            subtotal={summary.subtotal} 
+            commercialSubtotal={summary.commercialSubtotal} 
+            total={summary.total} 
+            businessProfile={businessProfile} 
+            paymentTerms={paymentTerms} 
+            validity={validity} 
+            guarantee={guarantee} 
+            executionDeadline={executionDeadline} 
+            commercialNotes={commercialNotes} 
+            technicalNotes={technicalNotes} 
+            templateId={selectedTemplate} 
+          />
+        </section>
+      )}
+
+      {activeSection === 'finish' && (
         <section className="budget-section-panel">
           <div className="budget-section-header">
             <div>
-              <h3>Condições Comerciais</h3>
-              <p>Pagamento, prazos e observações.</p>
-            </div>
-            <div className="budget-default-actions">
-              <button type="button" className="secondary-action inline-action" onClick={applyBusinessDefaultsToProposal}>Aplicar padrões locais</button>
-              <button type="button" className="secondary-action inline-action" onClick={saveCurrentProposalAsDefaults}>Salvar como padrão local</button>
+              <h3>Finalizar e Enviar</h3>
+              <p>Gere o PDF ou envie pelo WhatsApp.</p>
             </div>
           </div>
 
-          <div className="budget-header-card compact-budget-card">
-            <label className="budget-field"><span>Deslocamento (Visível)</span><input type="number" inputMode="decimal" min="0" step="0.01" value={travelCost} onFocus={handleNumericInputFocus} onChange={(event) => setTravelCost(parseInputAmount(event.target.value))} /></label>
-            <label className="budget-field"><span>Taxas adicionais</span><input type="number" inputMode="decimal" min="0" step="0.01" value={additionalFees} onFocus={handleNumericInputFocus} onChange={(event) => setAdditionalFees(parseInputAmount(event.target.value))} /></label>
-            <label className="budget-field"><span>Desconto</span><input type="number" inputMode="decimal" min="0" step="0.01" value={discount} onFocus={handleNumericInputFocus} onChange={(event) => setDiscount(parseInputAmount(event.target.value))} /></label>
-            <label className="budget-field"><span>Validade da Proposta</span><input value={validity} placeholder="Ex.: 7 dias" onChange={(event) => setValidity(event.target.value)} /></label>
-            <label className="budget-field"><span>Garantia de Serviço</span><textarea value={guarantee} rows={guarantee.split('\n').length || 1} placeholder="Ex.: 90 dias" onChange={(event) => setGuarantee(event.target.value)} /></label>
-            <label className="budget-field"><span>Prazo de execução</span><textarea value={executionDeadline} rows={executionDeadline.split('\n').length || 1} placeholder="Ex.: 2 dias úteis" onChange={(event) => setExecutionDeadline(event.target.value)} /></label>
-            <label className="budget-field budget-field-wide"><span>Condições de pagamento</span><textarea value={paymentTerms} rows={paymentTerms.split('\n').length || 1} placeholder="Ex.: 50% na aprovação e 50% na entrega" onChange={(event) => setPaymentTerms(event.target.value)} /></label>
-            <label className="budget-field budget-field-wide"><span>Observações ao cliente</span><textarea value={commercialNotes} rows={commercialNotes.split('\n').length || 1} placeholder="Ex.: valores sujeitos a disponibilidade de materiais" onChange={(event) => setCommercialNotes(event.target.value)} /></label>
-            <label className="budget-field budget-field-wide"><span>Notas técnicas (Internas)</span><textarea value={technicalNotes} rows={technicalNotes.split('\n').length || 1} placeholder="Ex.: infraestrutura em bom estado" onChange={(event) => setTechnicalNotes(event.target.value)} /></label>
-          </div>
-
-          <div className="budget-actions">
-            <button type="button" className="primary-action" onClick={() => setActiveSection('preview')}>Próximo: Revisão Final</button>
-          </div>
-        </section>
-      )}
-
-
-      {activeSection === 'items' && (
-        <section className="budget-section-panel budget-items-layout">
-          <div className="budget-section-header">
-            <div>
-              <h3>Escopo e Itens</h3>
-              <p>Adicione os serviços e materiais deste orçamento.</p>
-            </div>
-          </div>
-
-          <aside className="budget-sticky-summary" aria-label="Resumo fixo do orçamento">
-            <span>Resumo comercial</span>
-            <div><small>Subtotal</small><strong>{formatCurrency(summary.subtotal)}</strong></div>
-            <div><small>Custos operacionais</small><strong>{formatCurrency(summary.operationalCost)}</strong></div>
-            <div><small>Impostos</small><strong>{formatCurrency(summary.estimatedTaxes)}</strong></div>
-            <div><small>Custos totais</small><strong>{formatCurrency(summary.totalCosts)}</strong></div>
-            <div className={summary.netProfit >= 0 ? 'highlight-profit positive' : 'highlight-profit negative'}><small>Resultado líquido</small><strong className="premium-accent">{formatCurrency(summary.netProfit)}</strong><em>{summary.profitMargin.toFixed(1)}% margem</em></div>
-            <label className="budget-margin-threshold">
-              <small>Alerta de margem mínima (%)</small>
-              <input type="number" inputMode="decimal" min="0" max="100" step="1" value={marginAlertThreshold} onFocus={handleNumericInputFocus} onChange={(event) => setMarginAlertThreshold(Math.min(parseInputAmount(event.target.value), 100))} />
-            </label>
-            {summary.total > 0 && summary.profitMargin < marginAlertThreshold && (
-              <div className="budget-margin-alert opportunity-alert" role="alert">
-                <strong>Margem abaixo de {marginAlertThreshold.toFixed(0)}%</strong>
-                <small>Revise preço, custos ou impostos antes de enviar a proposta.</small>
-              </div>
-            )}
-          </aside>
-
-          {/* Service template management moved to Catalog/Inventory section */}
-
-          <div className="budget-editor compact-budget-card" aria-label="Editor de orçamento">
-            <div className="budget-editor-title"><h3>Adicionar item manual</h3><p>Use para serviços ou materiais fora do catálogo.</p></div>
-            <div className="budget-form-grid"><label className="budget-field budget-field-wide"><span>Descrição</span><textarea placeholder="Ex.: Serviço recorrente com materiais inclusos" value={draft.description} rows={draft.description.split('\n').length || 1} onChange={(event) => updateDraft('description', event.target.value)} /></label><label className="budget-field"><span>Qtd.</span><input type="number" inputMode="decimal" min="0" step="0.01" value={draft.quantity} onFocus={handleNumericInputFocus} onChange={(event) => updateDraft('quantity', Number(event.target.value))} /></label><label className="budget-field"><span>Valor unitário</span><input type="number" inputMode="decimal" min="0" step="0.01" value={draft.unitPrice} onFocus={handleNumericInputFocus} onChange={(event) => updateDraft('unitPrice', Number(event.target.value))} /></label><label className="budget-field"><span>Categoria</span><select value={draft.category} onChange={(event) => updateDraft('category', event.target.value as BudgetCategory)}><option value="labor">Mão de obra</option><option value="material">Material</option><option value="other">Outro</option></select></label></div>
-            <div className="budget-actions"><button type="button" className="primary-action inline-action" disabled={!canAddItem} onClick={addItem}>Adicionar item</button><button type="button" className="secondary-action inline-action" onClick={loadStarterItems}>Carregar modelo</button><button type="button" className="ghost-action" onClick={clearItems}>Limpar itens</button></div>
-          </div>
-
-          <div className="budget-item-manager">
-            <div className="budget-item-manager-header">
-              <div>
-                <strong>Itens do orçamento</strong>
-                <small>{items.length} item(ns) no orçamento · {filteredBudgetItems.length} encontrado(s)</small>
-              </div>
-              <div className="budget-item-manager-filters">
-                <label className="budget-field"><span>Buscar item</span><input value={budgetItemSearch} placeholder="Descrição, categoria ou valor" onChange={(event) => setBudgetItemSearch(event.target.value)} /></label>
-                <label className="budget-field"><span>Categoria</span><select value={budgetItemCategoryFilter} onChange={(event) => setBudgetItemCategoryFilter(event.target.value as BudgetCategory | 'all')}><option value="all">Todas</option><option value="labor">Mão de obra</option><option value="material">Material</option><option value="other">Outro</option></select></label>
+          <div className="budget-finish-options-stack">
+            <div className="action-card primary">
+              <strong>Ação Principal</strong>
+              <p>Envie a proposta agora mesmo para o cliente.</p>
+              <div className="action-buttons">
+                <button className="primary-action" onClick={openBudgetWhatsApp}>Enviar pelo WhatsApp</button>
+                <Suspense fallback={<button disabled className="secondary-action">Carregando PDF...</button>}>
+                  <BudgetPdfDownloadButton 
+                    budget={{ title: budgetTitle, items, discount, travelCost, additionalFees, paymentTerms, validity, commercialNotes }} 
+                    businessProfile={businessProfile} 
+                    total={summary.total} 
+                    subtotal={summary.subtotal} 
+                    clientName={clientName} 
+                    fileName={`proposta-${clientName}.pdf`} 
+                    label="Baixar PDF Profissional" 
+                  />
+                </Suspense>
               </div>
             </div>
 
-            {items.length === 0 ? <div className="empty-budget">Nenhum item adicionado ainda.</div> : (
-              <div className="budget-item-manager-grid">
-                <div className="budget-item-table" role="list" aria-label="Itens do orçamento">
-                  <div className="budget-table-header"><span>Item</span><span>Total</span></div>
-                  {visibleBudgetItems.length === 0 ? <div className="empty-budget compact">{budgetItemSearch.trim() || budgetItemCategoryFilter !== 'all' ? 'Nenhum item encontrado com estes filtros.' : `${items.length} item(ns) no orçamento. Pesquise para exibir.`}</div> : visibleBudgetItems.map((item) => (
-                    <button className={selectedBudgetItemId === item.id ? 'budget-item-table-row active' : 'budget-item-table-row'} key={item.id} type="button" onClick={() => setSelectedBudgetItemId(item.id)}>
-                      <span>
-                        <strong>{item.description}</strong>
-                        <small>{categoryLabel(item.category)} · Qtd. {item.quantity}</small>
-                      </span>
-                      <em>{formatCurrency(safeBudgetItemTotal(item))}</em>
-                    </button>
-                  ))}
-                  {hiddenBudgetItemCount > 0 && <div className="empty-budget compact">Mais {hiddenBudgetItemCount} item(ns) oculto(s). Use busca ou categoria para refinar.</div>}
-                </div>
+            <div className="action-card secondary">
+              <strong>Controle Interno</strong>
+              <p>Atualize o status conforme a negociação avança.</p>
+              <div className="action-buttons">
+                <button onClick={() => persistCurrentBudget('sent')} className="secondary-action">Marcar como Enviado</button>
+                <button onClick={() => persistCurrentBudget('approved')} className="premium-action">Marcar como Aprovado</button>
+              </div>
+            </div>
 
-                <article className="editable-budget-item-card budget-item-edit-panel">
-                  {selectedBudgetItem ? (
-                    <>
-                      <div className="budget-item-edit-heading">
-                        <div><span>Editar item</span><strong>{selectedBudgetItem.description || 'Item sem descrição'}</strong></div>
-                        <em>{formatCurrency(safeBudgetItemTotal(selectedBudgetItem))}</em>
-                      </div>
-                      <div className="budget-form-grid">
-                        <label className="budget-field budget-field-wide"><span>Descrição</span><input value={selectedBudgetItem.description} onChange={(event) => updateBudgetItem(selectedBudgetItem.id, 'description', event.target.value)} /></label>
-                        <label className="budget-field"><span>Qtd.</span><input type="number" inputMode="decimal" min="0" step="0.01" value={selectedBudgetItem.quantity} onFocus={handleNumericInputFocus} onChange={(event) => updateBudgetItem(selectedBudgetItem.id, 'quantity', Number(event.target.value))} /></label>
-                        <label className="budget-field"><span>Valor unitário</span><input type="number" inputMode="decimal" min="0" step="0.01" value={selectedBudgetItem.unitPrice} onFocus={handleNumericInputFocus} onChange={(event) => updateBudgetItem(selectedBudgetItem.id, 'unitPrice', Number(event.target.value))} /></label>
-                        <label className="budget-field"><span>Categoria</span><select value={selectedBudgetItem.category} onChange={(event) => updateBudgetItem(selectedBudgetItem.id, 'category', event.target.value as BudgetCategory)}><option value="labor">Mão de obra</option><option value="material">Material</option><option value="other">Outro</option></select></label>
-                      </div>
-                      <div className="editable-budget-item-footer"><strong>{formatCurrency(safeBudgetItemTotal(selectedBudgetItem))}</strong><span>{categoryLabel(selectedBudgetItem.category)}</span><button type="button" className="secondary-action inline-action" onClick={() => duplicateItem(selectedBudgetItem)}>Duplicar</button><button type="button" className="danger-action" onClick={() => removeItem(selectedBudgetItem.id)}>Remover</button></div>
-                    </>
-                  ) : (
-                    <div className="empty-budget">Selecione um item para editar.</div>
-                  )}
-                </article>
+            {budgetStatus === 'approved' && (
+              <div className="action-card success">
+                <strong>Orçamento Aprovado!</strong>
+                <p>O cliente autorizou o serviço. Inicie a execução agora.</p>
+                <button onClick={convertApprovedBudgetToWorkOrder} className="primary-action full-width">
+                  Autorizar Execução (Serviço Real)
+                </button>
               </div>
             )}
           </div>
 
           <div className="budget-actions">
-            <button type="button" className="primary-action" onClick={() => setActiveSection('costs')}>Próximo: Precificação</button>
+            <button type="button" className="secondary-action" onClick={() => setActiveSection('review')}>Voltar</button>
           </div>
         </section>
       )}
 
       {activeSection === 'catalog' && (
+        <section className="budget-section-panel">
           <div className="inventory-management-group">
             <div className="service-template-panel">
-              <div className="budget-section-header">
-                <div>
-                  <h3>Modelos de serviços (Mão de Obra)</h3>
-                  <p>Cadastre serviços recorrentes para agilizar o orçamento.</p>
-                </div>
+              <h3>Modelos de Serviço</h3>
+              <div className="catalog-form-grid" style={{ marginBottom: '1rem' }}>
+                <input placeholder="Buscar modelo..." value={serviceTemplateSearch} onChange={(e) => setServiceTemplateSearch(e.target.value)} />
               </div>
-              <div className="budget-list-search-bar">
-                <label className="budget-field"><span>Buscar modelo</span><input value={serviceTemplateSearch} placeholder="Serviço, categoria ou profissão" onChange={(event) => setServiceTemplateSearch(event.target.value)} /></label>
-              </div>
-              <div className="service-template-new-card">
-                <div className="budget-editor-title budget-field-wide">
-                  <h3>{editingServiceTemplateId ? 'Editar modelo' : 'Novo modelo de serviço'}</h3>
-                </div>
-                <label className="budget-field budget-field-wide"><span>Nome do serviço</span><input value={serviceTemplateDraft.title} placeholder="Ex.: Instalação de ponto técnico" onChange={(event) => updateServiceTemplateDraft('title', event.target.value)} /></label>
-                <label className="budget-field"><span>Valor recomendado</span><input inputMode="decimal" value={serviceTemplateDraft.defaultUnitValue} onFocus={handleNumericInputFocus} onChange={(event) => updateServiceTemplateDraft('defaultUnitValue', event.target.value)} /></label>
-                <label className="budget-field"><span>Unidade</span><input value={serviceTemplateDraft.unit} placeholder="un, h, m..." onChange={(event) => updateServiceTemplateDraft('unit', event.target.value)} /></label>
-                <div className="budget-actions budget-field-wide">
-                  <button className="primary-action inline-action" type="button" disabled={!canAddServiceTemplate} onClick={addServiceTemplate}>{editingServiceTemplateId ? 'Salvar' : 'Cadastrar'}</button>
-                  {editingServiceTemplateId && <button className="secondary-action inline-action" type="button" onClick={cancelServiceTemplateEdit}>Cancelar</button>}
-                </div>
-              </div>
-              <div className="service-template-grid">
-                {visibleServiceTemplates.slice(0, 5).map((template) => (
-                  <article className="service-template-card" key={template.id}>
-                    <div><strong>{template.title}</strong><small>{formatCurrency(template.defaultUnitValue)} / {template.unit}</small></div>
-                    <div className="service-template-controls">
-                      <button className="secondary-action inline-action" type="button" onClick={() => editServiceTemplate(template)}>Editar</button>
-                      <button className="secondary-action inline-action" type="button" onClick={() => updateServiceTemplate(template.id, { visible: false })}>Ocultar</button>
+              <div className="service-template-grid compact-grid">
+                {visibleServiceTemplates.map(t => (
+                  <article key={t.id} className="service-template-card densified">
+                    <div className="card-info">
+                      <strong>{t.title}</strong>
+                      <small>{formatCurrency(t.defaultUnitValue)} / {t.unit}</small>
                     </div>
+                    <button className="primary-action small-btn" onClick={() => addServiceTemplateToBudget(t)}>Adicionar</button>
                   </article>
                 ))}
               </div>
             </div>
-
             <div className="catalog-panel">
-              <div className="budget-section-header"><div><h3>Estoque de produtos e materiais</h3><p>Cadastre itens recorrentes e adicione ao orçamento com um toque.</p></div></div>
-              <div className="catalog-form-grid">
-                <label className="budget-field budget-field-wide"><span>Descrição</span><input placeholder="Ex.: Material técnico padrão" value={catalogDraft.description} onChange={(event) => updateCatalogDraft('description', event.target.value)} /></label>
-                <label className="budget-field"><span>Valor unitário</span><input type="number" inputMode="decimal" min="0" step="0.01" value={catalogDraft.unitPrice} onFocus={handleNumericInputFocus} onChange={(event) => updateCatalogDraft('unitPrice', Number(event.target.value))} /></label>
-                <button type="button" className="primary-action inline-action" disabled={!canAddCatalogItem} onClick={addCatalogItem}>{editingCatalogItemId ? 'Salvar' : 'Cadastrar'}</button>
+              <h3>Estoque de Materiais</h3>
+              <div className="catalog-form-grid" style={{ marginBottom: '1rem' }}>
+                <input placeholder="Buscar material..." value={catalogSearch} onChange={(e) => setCatalogSearch(e.target.value)} />
               </div>
-              <div className="catalog-list">
-                {visibleCatalogItems.slice(0, 5).map((item) => (
-                  <article className="catalog-card" key={item.id}>
-                    <span><strong>{item.description}</strong><small>{formatCurrency(item.unitPrice)}</small></span>
-                    <div>
-                      <button type="button" className="secondary-action inline-action" onClick={() => editCatalogItem(item)}>Editar</button>
-                      <button type="button" className="danger-action" onClick={() => removeCatalogItem(item.id)}>Remover</button>
+              <div className="catalog-list compact-grid">
+                {visibleCatalogItems.map(item => (
+                  <article key={item.id} className="catalog-card densified">
+                    <div className="card-info">
+                      <strong>{item.description}</strong>
+                      <small>{formatCurrency(item.unitPrice)}</small>
                     </div>
+                    <button className="primary-action small-btn" onClick={() => addCatalogItemToBudget(item)}>Adicionar</button>
                   </article>
                 ))}
               </div>
             </div>
           </div>
+        </section>
       )}
 
-
-
-      {activeSection === 'preview' && (
-        <section className="budget-section-panel preview-section-panel">
-          <div className="budget-section-header"><div><h3>Revisão e Envio</h3><p>Confira a proposta final e envie para o cliente.</p></div></div>
-          
-          {items.length === 0 && (
-            <div className="budget-empty-preview-card" style={{
-              border: '1px dashed var(--aferix-primary, #f59e0b)',
-              borderRadius: '12px',
-              padding: '24px',
-              background: 'rgba(245, 158, 11, 0.05)',
-              textAlign: 'center',
-              display: 'grid',
-              gap: '12px',
-              justifyItems: 'center',
-              marginBottom: '20px',
-              width: '100%',
-              boxSizing: 'border-box'
-            }}>
-              <strong style={{ fontSize: '1.2rem', color: 'var(--aferix-primary, #f59e0b)', display: 'block' }}>Nenhum item no orçamento</strong>
-              <p style={{ color: 'var(--aferix-text-muted, #71717a)', maxWidth: '500px', margin: 0, lineHeight: 1.4 }}>
-                Adicione serviços, materiais ou importe cálculos para gerar valores na proposta.
-              </p>
-              <button
-                type="button"
-                className="primary-action inline-action"
-                onClick={() => setActiveSection('items')}
-                style={{ marginTop: '8px' }}
-              >
-                Adicionar itens
-              </button>
-            </div>
-          )}
-          <div className="budget-simple-flow-card">
-            <strong>Fluxo comercial simples</strong>
-            <div>
-              <span className={budgetStatus === 'draft' ? 'active' : ''}>Rascunho</span>
-              <span className={budgetStatus === 'sent' ? 'active' : ''}>Enviado</span>
-              <span className={budgetStatus === 'approved' ? 'active' : ''}>Aprovado</span>
-            </div>
-            <small>Aprovar o orçamento registra o aceite comercial. Atendimentos vinculados passarão para o status "Execução" se você clicar em "Converter em Atendimento".</small>
+      {activeSection === 'history' && (
+        <section className="budget-section-panel">
+          <h3>Histórico de Orçamentos</h3>
+          <div className="saved-budget-list">
+            {savedBudgets.map(record => (
+              <article key={record.id} className="saved-budget-card">
+                <div className="card-main">
+                  <strong>{record.title}</strong>
+                  <small>{record.clientName} · {formatCurrency(calculateSavedBudgetTotal(record))}</small>
+                </div>
+                <div className="action-buttons horizontal">
+                  <button onClick={() => openSavedBudget(record)} className="secondary-action small">Editar</button>
+                  <button onClick={() => removeSavedBudget(record.id)} className="danger-text small">Excluir</button>
+                </div>
+              </article>
+            ))}
           </div>
-          <div className="budget-flow-status-card">
-            <div>
-              <span>Status da Proposta</span>
-              <strong>{statusLabel(budgetStatus)}</strong>
-              <small>{statusGuidance(budgetStatus)}</small>
-            </div>
-            <div className="budget-actions compact-actions">
-              {budgetStatus === 'draft' && <button type="button" className="primary-action inline-action" disabled={blockingProposalIssues} onClick={markBudgetAsSent}>{budgetApprovalAction?.label}</button>}
-              {budgetStatus === 'sent' && <button type="button" className="primary-action inline-action" disabled={blockingProposalIssues} onClick={markBudgetAsApproved}>{budgetApprovalAction?.label}</button>}
-              {budgetStatus === 'approved' && <button type="button" className="secondary-action inline-action" onClick={() => setBudgetStatus('sent')}>Voltar para enviado</button>}
-            </div>
-            {budgetApprovalAction && <small className="budget-next-action-note">{budgetApprovalAction.description}</small>}
-          </div>
-          {budgetStatus === 'approved' && (
-            <div className="budget-convert-os-card">
-              <div>
-                <strong>Próximo passo: Autorizar Execução</strong>
-                <small>Clique abaixo para oficializar o início do atendimento aprovado.</small>
-              </div>
-              <button type="button" className="primary-action inline-action" onClick={convertApprovedBudgetToWorkOrder}>Converter em Atendimento</button>
-            </div>
-          )}
-          <div className="budget-share-card">
-            <div>
-              <strong>Enviar Proposta ao Cliente</strong>
-              <small>Gere o PDF profissional ou copie um resumo para o WhatsApp.</small>
-            </div>
-            <div className="budget-actions compact-actions">
-              <button type="button" className="secondary-action inline-action" disabled={blockingProposalIssues} onClick={copyBudgetShareText}>Copiar Resumo</button>
-              <button type="button" className="primary-action inline-action" disabled={blockingProposalIssues} onClick={openBudgetWhatsApp}>Enviar via WhatsApp</button>
-              <Suspense fallback={<span className="primary-action inline-action pdf-download-btn">PDF</span>}>
-                <BudgetPdfDownloadButton budget={{ title: budgetTitle, items, discount, travelCost, additionalFees, paymentTerms, validity, commercialNotes }} businessProfile={businessProfile} total={summary.total} subtotal={summary.subtotal} clientName={clientName} fileName={`proposta-aferix-${clientName || 'cliente'}.pdf`} label="Baixar PDF Profissional" />
-              </Suspense>
-              <button type="button" className="secondary-action inline-action" disabled={blockingProposalIssues} onClick={saveCurrentBudget}>Salvar Alterações</button>
-            </div>
-            {shareFeedback && <small className="budget-share-feedback">{shareFeedback}</small>}
-          </div>
-          <div className="budget-share-card">
-            <div>
-              <strong>Modelo aplicado</strong>
-              <small>O padrão do PDF é definido em Configurações &gt; Empresa. Este orçamento usa o modelo salvo no perfil ou no próprio orçamento aberto.</small>
-            </div>
-            <strong>{budgetTemplateLabel(selectedTemplate)}</strong>
-          </div>
-          <BudgetPrintPreview clientName={clientName} budgetTitle={budgetTitle} status={budgetStatus} items={items} discount={discount} travelCost={travelCost} additionalFees={additionalFees} subtotal={summary.subtotal} commercialSubtotal={summary.commercialSubtotal} total={summary.total} businessProfile={businessProfile} paymentTerms={paymentTerms} validity={validity} guarantee={guarantee} executionDeadline={executionDeadline} commercialNotes={commercialNotes} technicalNotes={technicalNotes} templateId={selectedTemplate} validationIssues={proposalIssues} />
         </section>
       )}
     </div>

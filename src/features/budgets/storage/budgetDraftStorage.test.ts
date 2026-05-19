@@ -18,6 +18,7 @@ describe('budget draft storage', () => {
     const saved = saveBudgetDraft({
       clientName: 'Cliente teste',
       budgetTitle: 'Instalação elétrica',
+      problemDescription: 'Cliente quer trocar fiação antiga',
       discount: 15,
       travelCost: 25,
       additionalFees: 10,
@@ -51,6 +52,7 @@ describe('budget draft storage', () => {
     expect(saved?.updatedAt).toBeDefined();
     expect(loaded?.clientName).toBe('Cliente teste');
     expect(loaded?.budgetTitle).toBe('Instalação elétrica');
+    expect(loaded?.problemDescription).toBe('Cliente quer trocar fiação antiga');
     expect(loaded?.discount).toBe(15);
     expect(loaded?.travelCost).toBe(25);
     expect(loaded?.additionalFees).toBe(10);
@@ -71,6 +73,7 @@ describe('budget draft storage', () => {
     saveBudgetDraft({
       clientName: 'Cliente teste',
       budgetTitle: 'Teste',
+      problemDescription: 'Testando',
       discount: 0,
       items: [],
     });

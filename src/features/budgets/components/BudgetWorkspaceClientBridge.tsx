@@ -11,7 +11,9 @@ interface BudgetWorkspaceClientBridgeProps {
   onUpgradeRequest?: () => void;
   onTechnicalCaptureConverted?: (id: string) => void;
   onConvertApprovedBudgetToWorkOrder?: () => void;
+  onContextChange?: (context: { activeClient: Client | null; activeWorkOrder: WorkOrder | null }) => void;
   forceNewBudget?: boolean;
+  initialBudgetId?: string | null;
 }
 
 export function BudgetWorkspaceClientBridge(props: BudgetWorkspaceClientBridgeProps) {

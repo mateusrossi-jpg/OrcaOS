@@ -15,7 +15,9 @@ interface BudgetsScreenProps {
   onRemove: (id: string) => void;
   onUpdate: (id: string, patch: Partial<CalculationCapture>) => void;
   onConvertApprovedBudgetToWorkOrder: () => void;
+  onContextChange: (activeClient: Client | null, activeWorkOrder: WorkOrder | null) => void;
   forceNewBudget?: boolean;
+  initialBudgetId?: string | null;
 }
 
 export function BudgetsScreen({
@@ -23,7 +25,9 @@ export function BudgetsScreen({
   userPlan: activeUserPlan,
   goTo,
   onConvertApprovedBudgetToWorkOrder,
-  forceNewBudget: initialForceNewBudget = false
+  onContextChange,
+  forceNewBudget: initialForceNewBudget = false,
+  initialBudgetId = null
 }: BudgetsScreenProps) {
   // Ocultamos a base técnica (cálculos) nesta versão para focar no financeiro
   const budgetCaptures: CalculationCapture[] = []; 
@@ -50,7 +54,9 @@ export function BudgetsScreen({
         onUpgradeRequest={() => goTo('store')} 
         onTechnicalCaptureConverted={() => {}} 
         onConvertApprovedBudgetToWorkOrder={onConvertApprovedBudgetToWorkOrder} 
+        onContextChange={(ctx) => onContextChange(ctx.activeClient, ctx.activeWorkOrder)}
         forceNewBudget={initialForceNewBudget || resetKey > 0}
+        initialBudgetId={initialBudgetId}
       />
     </section>
   );

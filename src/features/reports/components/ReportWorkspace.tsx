@@ -183,7 +183,7 @@ export function ReportWorkspace({ captures, activeClient = null, activeWorkOrder
               </div>
             </div>
           )}
-          <h1>{activeWorkOrder?.title || 'Relatório de atendimento'}</h1>
+          <h1>{activeWorkOrder?.title || 'Relatório de serviço'}</h1>
           <p>{activeWorkOrder?.description || 'Prévia comercial para envio ao cliente.'}</p>
           <small>Emitido em {formatDateTime(new Date().toISOString())}</small>
         </header>
@@ -199,7 +199,7 @@ export function ReportWorkspace({ captures, activeClient = null, activeWorkOrder
 
         {reportItems.length > 0 && (
           <section className="report-executive-summary">
-            <h2>Resumo do atendimento</h2>
+            <h2>Resumo do serviço</h2>
             <div className="report-summary-grid">
               <article>
                 <span>Serviços levantados</span>

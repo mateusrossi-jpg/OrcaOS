@@ -12,7 +12,7 @@ export const navItems: Array<{ id: AppTab; label: string; description: string; i
   { id: 'home', label: 'Início', description: 'Dashboard e resumo', icon: 'home', primary: true },
   { id: 'budgets', label: 'Orçamentos', description: 'Histórico de orçamentos', icon: 'document', primary: true },
   { id: 'clients', label: 'Clientes', description: 'Gestão de clientes', icon: 'clients', primary: true },
-  { id: 'work-orders', label: 'Atendimentos', description: 'Histórico de atendimentos', icon: 'wrench', primary: true },
+  { id: 'work-orders', label: 'Serviços', description: 'Histórico de serviços executados', icon: 'wrench', primary: true },
   { id: 'financial', label: 'Financeiro', description: 'Receitas e custos', icon: 'finance', primary: true },
   { id: 'reports', label: 'Relatórios', description: 'Visão geral da operação', icon: 'chart', primary: true },
 ];

@@ -5,6 +5,7 @@ const STORAGE_KEY = 'orcaos:budget-draft:v1';
 export interface BudgetDraftStorageState {
   clientName: string;
   budgetTitle: string;
+  problemDescription: string;
   discount: number;
   travelCost: number;
   additionalFees: number;
@@ -26,8 +27,8 @@ export interface BudgetDraftStorageState {
   updatedAt: string;
 }
 
-type BudgetDraftSaveInput = Pick<BudgetDraftStorageState, 'clientName' | 'budgetTitle' | 'discount' | 'items'> &
-  Partial<Omit<BudgetDraftStorageState, 'clientName' | 'budgetTitle' | 'discount' | 'items' | 'updatedAt'>>;
+type BudgetDraftSaveInput = Pick<BudgetDraftStorageState, 'clientName' | 'budgetTitle' | 'problemDescription' | 'discount' | 'items'> &
+  Partial<Omit<BudgetDraftStorageState, 'clientName' | 'budgetTitle' | 'problemDescription' | 'discount' | 'items' | 'updatedAt'>>;
 
 function isBrowserStorageAvailable(): boolean {
   return typeof window !== 'undefined' && typeof window.localStorage !== 'undefined';
@@ -73,6 +74,7 @@ export function loadBudgetDraft(): BudgetDraftStorageState | null {
     return {
       clientName: typeof parsed.clientName === 'string' ? parsed.clientName : '',
       budgetTitle: typeof parsed.budgetTitle === 'string' ? parsed.budgetTitle : '',
+      problemDescription: typeof parsed.problemDescription === 'string' ? parsed.problemDescription : '',
       discount: typeof parsed.discount === 'number' && Number.isFinite(parsed.discount) ? parsed.discount : 0,
       travelCost: typeof parsed.travelCost === 'number' && Number.isFinite(parsed.travelCost) ? parsed.travelCost : 0,
       additionalFees: typeof parsed.additionalFees === 'number' && Number.isFinite(parsed.additionalFees) ? parsed.additionalFees : 0,
@@ -106,6 +108,7 @@ export function saveBudgetDraft(state: BudgetDraftSaveInput): BudgetDraftStorage
   const payload: BudgetDraftStorageState = {
     clientName: state.clientName,
     budgetTitle: state.budgetTitle,
+    problemDescription: state.problemDescription,
     discount: state.discount,
     travelCost: state.travelCost ?? 0,
     additionalFees: state.additionalFees ?? 0,

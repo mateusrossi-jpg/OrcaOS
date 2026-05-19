@@ -4,10 +4,11 @@ import {
   AFERIX_ACCOUNT_CHANGED_EVENT,
   type AferixAccountState,
 } from '../core/access/accountPlanStorage';
-import type { Client, WorkOrder } from '../core/types/business';
+import { createId } from './utils/idHelpers';
+import type { Client, Service as WorkOrder } from '../core/types/business';
 import type { CalculationCapture } from '../core/types/workflow';
 import { loadSavedBudgets } from '../features/budgets/storage/savedBudgetsStorage';
-import { loadActiveWorkOrderId, loadClients, loadWorkOrders, saveWorkOrders } from '../features/clients/storage/clientWorkOrderStorage';
+import { loadActiveWorkOrderId, loadClients, loadWorkOrders, saveWorkOrders, saveActiveWorkOrderId } from '../features/clients/storage/clientWorkOrderStorage';
 import { AppShell } from './components/AppShell';
 import { AferixIntro } from './components/AferixIntro';
 import { navItems, userPlan } from './appData';
@@ -39,6 +40,7 @@ export function App() {
   const [clientInitialSection, setClientInitialSection] = useState<'dashboard' | 'newClient' | 'newWorkOrder' | 'clients' | 'workOrders'>('dashboard');
   const [clientSectionRequestKey, setClientSectionRequestKey] = useState(0);
   const [budgetResetKey, setBudgetResetKey] = useState(0);
+  const [activeBudgetId, setActiveBudgetId] = useState<string | null>(null);
   const [captures, setCaptures] = useState<CalculationCapture[]>(() => {
     cleanupRuntimeValidationData();
     return loadStoredCaptures();
@@ -85,6 +87,7 @@ export function App() {
 
   function goTo(tab: AppTab) {
     if (tab === 'new-budget') {
+      setActiveBudgetId(null);
       setBudgetResetKey((current) => current + 1);
       setActiveTab('budgets');
       return;
@@ -100,6 +103,12 @@ export function App() {
     setActiveTab(tab);
   }
 
+  function handleBudgetOpen(budgetId: string) {
+    setActiveBudgetId(budgetId);
+    setBudgetResetKey((current) => current + 1);
+    setActiveTab('budgets');
+  }
+
   function openClientSection(section: 'dashboard' | 'newClient' | 'newWorkOrder' | 'clients' | 'workOrders') {
     setClientInitialSection(section);
     setClientSectionRequestKey((current) => current + 1);
@@ -108,16 +117,56 @@ export function App() {
   }
 
   function convertActiveBudgetToWorkOrder() {
-    if (!activeWorkOrderId) return;
+    // Busca um orçamento aprovado para o contexto atual
+    const budget = loadSavedBudgets().find(b => b.status === 'approved' && (activeWorkOrderId ? b.workOrderId === activeWorkOrderId : b.clientName === activeClient?.name));
+    
     setWorkOrders((current) => {
-      const updatedWorkOrders = current.map((workOrder) => (
-        workOrder.id === activeWorkOrderId
-          ? { ...workOrder, status: 'in-progress' as const, updatedAt: new Date().toISOString() }
-          : workOrder
-      ));
+      let updatedWorkOrders = [...current];
+      
+      if (activeWorkOrderId) {
+        // Atualiza OS existente
+        updatedWorkOrders = updatedWorkOrders.map((workOrder) => (
+          workOrder.id === activeWorkOrderId
+            ? { ...workOrder, status: 'in-progress' as const, updatedAt: new Date().toISOString() }
+            : workOrder
+        ));
+      } else if (budget) {
+        // Cria nova OS a partir do orçamento
+        const newWorkOrder: WorkOrder = {
+          id: createId('wo'),
+          clientId: budget.clientId || activeClient?.id,
+          title: budget.title,
+          description: (budget as any).problemDescription || budget.commercialNotes,
+          status: 'in-progress',
+          paymentStatus: 'pending',
+          budgetId: budget.id,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
+        updatedWorkOrders = [newWorkOrder, ...updatedWorkOrders];
+        setActiveWorkOrderId(newWorkOrder.id);
+        saveActiveWorkOrderId(newWorkOrder.id);
+      }
+      
       saveWorkOrders(updatedWorkOrders);
       return updatedWorkOrders;
     });
+  }
+
+  function handleBudgetContextChange(nextActiveClient: Client | null, nextActiveWorkOrder: WorkOrder | null) {
+    if (nextActiveClient) {
+      setClients(current => {
+        if (current.some(c => c.id === nextActiveClient.id)) return current;
+        return [...current, nextActiveClient];
+      });
+    }
+    if (nextActiveWorkOrder) {
+      setWorkOrders(current => {
+        if (current.some(wo => wo.id === nextActiveWorkOrder.id)) return current;
+        return [...current, nextActiveWorkOrder];
+      });
+      setActiveWorkOrderId(nextActiveWorkOrder.id);
+    }
   }
 
   return (
@@ -125,7 +174,18 @@ export function App() {
       <AferixIntro />
       <AppShell activeTab={activeTab} navItems={navItems} activeClient={activeClient} activeWorkOrder={activeWorkOrder} onNavigate={goTo}>
         <Suspense fallback={<LazyWorkspaceFallback />}>
-          {activeTab === 'home' && <HomeScreen goTo={goTo} captures={captures} clients={clients} workOrders={workOrders} savedBudgets={loadSavedBudgets()} context={context} onStartNewAttendance={() => goTo('new-budget')} />}
+          {activeTab === 'home' && (
+            <HomeScreen 
+              goTo={goTo} 
+              captures={captures} 
+              clients={clients} 
+              workOrders={workOrders} 
+              savedBudgets={loadSavedBudgets()} 
+              context={context} 
+              onStartNewAttendance={() => goTo('new-budget')}
+              onBudgetOpen={handleBudgetOpen}
+            />
+          )}
           
           {(activeTab === 'clients' || activeTab === 'work-orders') && (
             <ClientsScreen 
@@ -154,7 +214,9 @@ export function App() {
               onRemove={removeCalculationCapture} 
               onUpdate={updateCalculationCapture} 
               onConvertApprovedBudgetToWorkOrder={convertActiveBudgetToWorkOrder} 
-              forceNewBudget={budgetResetKey > 0}
+              onContextChange={handleBudgetContextChange}
+              forceNewBudget={budgetResetKey > 0 && !activeBudgetId}
+              initialBudgetId={activeBudgetId}
             />
           )}
           {activeTab === 'catalog' && <CatalogScreen onAddMany={addManyCalculationCaptures} context={context} />}

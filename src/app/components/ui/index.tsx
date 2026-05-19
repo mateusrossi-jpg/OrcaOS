@@ -1,4 +1,4 @@
-import type { ButtonHTMLAttributes, ReactNode } from 'react';
+import { type ButtonHTMLAttributes, type ReactNode, type TextareaHTMLAttributes, useEffect, useRef } from 'react';
 
 type Tone = 'default' | 'brand' | 'success' | 'danger' | 'muted';
 
@@ -203,5 +203,32 @@ export function AferixTabs<T extends string>({
         </button>
       ))}
     </div>
+  );
+}
+
+export function AutoResizeTextarea({ className = '', ...props }: TextareaHTMLAttributes<HTMLTextAreaElement>) {
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+
+    function adjustHeight() {
+      textarea!.style.height = 'auto';
+      textarea!.style.height = `${textarea!.scrollHeight}px`;
+    }
+
+    textarea.addEventListener('input', adjustHeight);
+    adjustHeight(); // Initial adjustment
+
+    return () => textarea.removeEventListener('input', adjustHeight);
+  }, [props.value]);
+
+  return (
+    <textarea
+      ref={textareaRef}
+      className={`auto-resize-textarea ${className}`.trim()}
+      {...props}
+    />
   );
 }

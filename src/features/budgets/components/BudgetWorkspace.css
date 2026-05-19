@@ -1991,14 +1991,170 @@
   background: var(--aferix-surface, #0d0d0f);
 }
 
-.budget-costs-summary > strong {
-  display: block;
-  margin-bottom: 16px;
-  color: var(--aferix-text-secondary, #666666);
+.budget-finish-options-stack {
+  display: grid;
+  gap: 16px;
+  width: 100%;
+}
+
+.action-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 24px;
+  border-radius: 16px;
+  border: 1px solid var(--aferix-border, #1f1f22);
+  background: var(--aferix-surface-2, #18181b);
+  transition: all 0.2s ease;
+}
+
+.action-card.primary {
+  border-color: rgba(245, 158, 11, 0.3);
+  background: linear-gradient(180deg, rgba(245, 158, 11, 0.05), transparent);
+}
+
+.action-card.success {
+  border-color: rgba(16, 185, 129, 0.3);
+  background: linear-gradient(180deg, rgba(16, 185, 129, 0.05), transparent);
+}
+
+.action-card.secondary {
+  opacity: 0.9;
+}
+
+.action-card strong {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--aferix-text, #f8fafc);
+}
+
+.action-card p {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--aferix-text-muted, #71717a);
+  line-height: 1.6;
+}
+
+.action-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.action-buttons button {
+  width: 100%;
+  min-height: 52px !important;
+}
+
+.full-width {
+  width: 100% !important;
+  min-height: 56px !important;
+  font-size: 1rem !important;
+}
+
+.budget-field input[inputmode="numeric"] {
   font-family: var(--aferix-mono, monospace);
-  font-size: 0.68rem;
-  letter-spacing: 0.1em;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  color: var(--aferix-primary, #f5a400);
+}
+
+.budget-finish-options-stack {
+  display: grid;
+  gap: 20px;
+  width: 100%;
+}
+
+.budget-quick-client-list {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 12px;
+  border: 1px solid var(--aferix-border, #1f1f22);
+  border-radius: 12px;
+  background: var(--aferix-surface, #0d0d0f);
+}
+
+.quick-client-item {
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  padding: 0 12px;
+  text-align: left;
+  color: var(--aferix-text, #f8fafc);
+  background: var(--aferix-surface-2, #18181b);
+  font: inherit;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.quick-client-item:hover {
+  border-color: var(--aferix-primary, #f59e0b);
+  background: rgba(245, 158, 11, 0.08);
+}
+
+.budget-quick-client-list {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 12px;
+  border: 1px solid var(--aferix-border, #1f1f22);
+  border-radius: 12px;
+  background: var(--aferix-surface, #0d0d0f);
+}
+
+.quick-client-item {
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  padding: 0 12px;
+  text-align: left;
+  color: var(--aferix-text, #f8fafc);
+  background: var(--aferix-surface-2, #18181b);
+  font: inherit;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.quick-client-item:hover {
+  border-color: var(--aferix-primary, #f59e0b);
+  background: rgba(245, 158, 11, 0.08);
+}
+
+.budget-costs-summary-box {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-top: 16px;
+  padding: 16px;
+  border: 1px solid var(--aferix-border, #1f1f22);
+  border-radius: 12px;
+  background: var(--aferix-surface, #0d0d0f);
+}
+
+.summary-item {
+  display: grid;
+  gap: 4px;
+}
+
+.summary-item span {
+  font-size: 0.75rem;
+  color: var(--aferix-text-muted, #71717a);
   text-transform: uppercase;
+  font-weight: 700;
+}
+
+.summary-item strong {
+  font-size: 1.2rem;
+  color: var(--aferix-text, #f8fafc);
+}
+
+.summary-item.highlight strong {
+  color: var(--aferix-primary, #f59e0b);
+  font-size: 1.5rem;
 }
 
 .costs-summary-grid {
@@ -2212,3 +2368,60 @@ textarea {
   }
 }
 
+
+.compact-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 8px !important;
+}
+
+.densified {
+  display: flex !important;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 12px !important;
+  min-height: 110px !important;
+  gap: 8px !important;
+}
+
+.densified strong {
+  font-size: 0.85rem !important;
+  line-height: 1.3;
+  margin-bottom: 2px;
+}
+
+.densified small {
+  font-size: 0.75rem !important;
+  margin-top: 0 !important;
+}
+
+.small-btn {
+  min-height: 32px !important;
+  padding: 0 8px !important;
+  font-size: 0.75rem !important;
+  border-radius: 8px !important;
+}
+
+.card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.saved-budget-card .card-main {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.action-buttons.horizontal {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+@media (max-width: 520px) {
+  .compact-grid {
+    grid-template-columns: 1fr;
+  }
+}
