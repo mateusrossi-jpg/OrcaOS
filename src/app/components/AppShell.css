@@ -203,6 +203,7 @@ html, body, #root {
 @media (max-width: 1024px) {
   .app-main-layout {
     grid-template-columns: 1fr;
+    grid-template-rows: auto minmax(0, 1fr);
   }
 
   .app-sidebar {
