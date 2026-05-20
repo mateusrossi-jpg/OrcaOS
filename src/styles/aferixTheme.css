@@ -2428,3 +2428,377 @@ button.highlight-card {
   color: var(--aferix-text-muted, #94a3b8) !important;
   line-height: 1.4 !important;
 }
+
+/* ==================================================
+   AFERIX DEFINITIVE PREMIUM DESIGN SYSTEM
+   Final layer: one coherent product language.
+   ================================================== */
+
+:root {
+  --aferix-bg: #050607;
+  --aferix-bg-soft: #090a0d;
+  --aferix-surface: #0d0f13;
+  --aferix-surface-raised: #14161b;
+  --aferix-surface-active: #191c22;
+  --aferix-surface-hover: #1e2229;
+  --aferix-border: #242832;
+  --aferix-border-strong: #343a46;
+  --aferix-text: #f4efe4;
+  --aferix-text-muted: #a8a6a0;
+  --aferix-text-soft: #73716c;
+  --aferix-brand: #f5a400;
+  --aferix-primary: var(--aferix-brand);
+  --aferix-primary-strong: #ffb21a;
+  --aferix-primary-soft: rgba(245, 164, 0, 0.1);
+  --aferix-radius-sm: 10px;
+  --aferix-radius-md: 14px;
+  --aferix-radius-lg: 18px;
+  --aferix-card-padding-mobile: 14px;
+  --aferix-card-padding-desktop: 18px;
+  --aferix-shadow-sm: 0 12px 34px rgba(0, 0, 0, 0.22);
+  --aferix-shadow: 0 24px 70px rgba(0, 0, 0, 0.34);
+}
+
+html,
+body,
+#root {
+  background:
+    radial-gradient(circle at 12% 0%, rgba(245, 164, 0, 0.05), transparent 320px),
+    var(--aferix-bg) !important;
+}
+
+.app-main-layout {
+  background: var(--aferix-bg) !important;
+}
+
+.app-content-area {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.015), transparent 240px),
+    var(--aferix-bg) !important;
+}
+
+.content-container {
+  width: min(100%, 1160px);
+  padding: 16px 20px 26px !important;
+}
+
+.app-screen,
+.page-shell,
+.wide-screen,
+.catalog-hub-organized,
+.catalog-tab-panel,
+.catalog-tab-content,
+.budget-workspace,
+.simple-finance-workspace,
+.client-os-workspace {
+  gap: 12px !important;
+}
+
+.screen-header,
+.page-header {
+  min-height: 30px !important;
+  margin: 0 0 6px !important;
+}
+
+.screen-header h1,
+.page-header h1 {
+  font-size: clamp(21px, 2.4vw, 28px) !important;
+  font-weight: 900 !important;
+  line-height: 1.05 !important;
+  letter-spacing: -0.035em !important;
+}
+
+.section-header,
+.aferix-panel-card > header,
+.catalog-form-card > header,
+.catalog-list-card > header,
+.finance-entry-panel > header {
+  margin: 0 0 10px !important;
+}
+
+.section-header h2,
+.aferix-panel-card h2,
+.catalog-form-card h4,
+.catalog-list-card h4,
+.finance-entry-panel h2 {
+  font-size: 16px !important;
+  line-height: 1.15 !important;
+  font-weight: 850 !important;
+  letter-spacing: -0.02em !important;
+}
+
+.orca-kicker,
+.catalog-eyebrow,
+.budget-field span,
+.catalog-field span,
+.finance-field span,
+.general-form-field span {
+  color: var(--aferix-text-soft) !important;
+  font-size: 10.5px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.08em !important;
+  line-height: 1.2 !important;
+  text-transform: uppercase !important;
+}
+
+.aferix-panel-card,
+.catalog-form-card,
+.catalog-list-card,
+.catalog-tab-hero,
+.finance-entry-panel,
+.result-comparison-card,
+.context-banner,
+.info-card,
+.notice-box,
+.settings-row,
+.store-card,
+.account-email-card,
+.account-settings-panel,
+.budget-editor,
+.budget-summary,
+.budget-section-panel,
+.budget-header-card,
+.saved-budget-panel,
+.client-purchase-panel,
+.report-command-panel {
+  border: 1px solid var(--aferix-border) !important;
+  border-radius: var(--aferix-radius-md) !important;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.008)),
+    var(--aferix-surface) !important;
+  box-shadow: var(--aferix-shadow-sm) !important;
+}
+
+.aferix-panel-card,
+.catalog-form-card,
+.catalog-list-card,
+.finance-entry-panel {
+  padding: var(--aferix-card-padding-desktop) !important;
+}
+
+.metric-grid,
+.dashboard-finance-tiles,
+.finance-kpi-grid,
+.finance-result-grid,
+.catalog-stats-grid,
+.catalog-summary-grid,
+.catalog-metrics-grid,
+.client-summary-tiles {
+  gap: 10px !important;
+}
+
+.metric-card,
+.finance-tile,
+.catalog-stat-card,
+.catalog-summary-card,
+.catalog-metric-card {
+  min-height: 78px !important;
+  padding: 12px 14px !important;
+  border: 1px solid rgba(255, 255, 255, 0.07) !important;
+  border-radius: var(--aferix-radius-md) !important;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.032), rgba(255, 255, 255, 0.004)),
+    var(--aferix-surface) !important;
+  box-shadow: none !important;
+  align-content: center !important;
+}
+
+.metric-card > span,
+.finance-tile > span,
+.catalog-stat-card span,
+.catalog-summary-card span,
+.catalog-metric-card span {
+  color: var(--aferix-text-soft) !important;
+  font-size: 10.5px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.07em !important;
+  line-height: 1.18 !important;
+}
+
+.metric-card > strong,
+.finance-tile > strong,
+.catalog-stat-card strong,
+.catalog-summary-card strong,
+.catalog-metric-card strong {
+  color: var(--aferix-text) !important;
+  font-size: clamp(22px, 2.35vw, 28px) !important;
+  font-weight: 900 !important;
+  line-height: 1 !important;
+  letter-spacing: -0.035em !important;
+  font-variant-numeric: tabular-nums !important;
+}
+
+.metric-card.tone-brand,
+.metric-card.tone-success,
+.catalog-stat-card.active,
+.catalog-summary-card.active,
+.catalog-metric-card.active {
+  border-color: rgba(245, 164, 0, 0.34) !important;
+  background:
+    linear-gradient(180deg, rgba(245, 164, 0, 0.08), rgba(245, 164, 0, 0.018)),
+    var(--aferix-surface) !important;
+}
+
+.primary-action,
+.primary-action.inline-action,
+.primary-action.premium-cta,
+button.primary,
+.pdf-download-btn {
+  min-height: 44px !important;
+  border: 0 !important;
+  border-radius: var(--aferix-radius-sm) !important;
+  padding: 0 18px !important;
+  color: #13110c !important;
+  background: linear-gradient(180deg, #ffbb35, var(--aferix-brand)) !important;
+  box-shadow: 0 9px 24px rgba(245, 164, 0, 0.18) !important;
+  font-size: 0.88rem !important;
+  font-weight: 850 !important;
+  letter-spacing: 0 !important;
+  white-space: nowrap !important;
+}
+
+.ghost-action,
+.secondary-action,
+.secondary-action.inline-action,
+button.secondary {
+  min-height: 42px !important;
+  border: 1px solid var(--aferix-border) !important;
+  border-radius: var(--aferix-radius-sm) !important;
+  color: var(--aferix-text) !important;
+  background: rgba(255, 255, 255, 0.025) !important;
+  box-shadow: none !important;
+  font-weight: 750 !important;
+}
+
+.ghost-action.active,
+.secondary-action.active,
+.catalog-beta-switcher button.active,
+.budget-workspace-tabs button.active,
+.catalog-subtabs button.active {
+  border-color: rgba(245, 164, 0, 0.32) !important;
+  color: var(--aferix-brand) !important;
+  background: rgba(245, 164, 0, 0.08) !important;
+}
+
+.app-screen :where(input, select, textarea),
+.budget-field :where(input, select, textarea),
+.catalog-field :where(input, select, textarea),
+.finance-field :where(input, select, textarea),
+.general-form-field :where(input, select, textarea) {
+  min-height: 48px !important;
+  border: 1px solid var(--aferix-border) !important;
+  border-radius: var(--aferix-radius-sm) !important;
+  padding: 11px 13px !important;
+  color: var(--aferix-text) !important;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.018), transparent),
+    var(--aferix-bg-soft) !important;
+  font-size: 0.93rem !important;
+  line-height: 1.25 !important;
+}
+
+.app-screen :where(input:focus, select:focus, textarea:focus) {
+  border-color: rgba(245, 164, 0, 0.58) !important;
+  box-shadow: 0 0 0 3px rgba(245, 164, 0, 0.12) !important;
+}
+
+.continuous-list {
+  gap: 0 !important;
+}
+
+.continuous-list-item {
+  min-height: 58px !important;
+  padding: 11px 14px !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.055) !important;
+  background: transparent !important;
+}
+
+.continuous-list-item strong {
+  color: var(--aferix-text) !important;
+  font-size: 0.93rem !important;
+  font-weight: 820 !important;
+  line-height: 1.25 !important;
+}
+
+.continuous-list-item small {
+  color: var(--aferix-text-muted) !important;
+  font-size: 0.78rem !important;
+  line-height: 1.35 !important;
+}
+
+.budget-workspace-tabs,
+.catalog-tabs,
+.catalog-subtabs,
+.catalog-beta-switcher,
+.aferix-tabs-pill {
+  border-color: var(--aferix-border) !important;
+  background: rgba(255, 255, 255, 0.018) !important;
+}
+
+.home-finance-overview {
+  border-color: rgba(245, 164, 0, 0.16) !important;
+}
+
+.home-operations-grid {
+  align-items: start !important;
+}
+
+.client-list-panel,
+.simple-finance-workspace > .aferix-panel-card,
+.catalog-list-card {
+  overflow: hidden !important;
+  padding: 0 !important;
+}
+
+.client-control-row,
+.finance-search-container,
+.client-search-bar,
+.catalog-list-card > header,
+.simple-finance-workspace > .aferix-panel-card > header {
+  background: rgba(255, 255, 255, 0.012) !important;
+}
+
+@media (max-width: 767px) {
+  .content-container {
+    padding: 14px 14px calc(18px + env(safe-area-inset-bottom)) !important;
+  }
+
+  .app-screen,
+  .page-shell,
+  .wide-screen,
+  .catalog-hub-organized,
+  .catalog-tab-panel,
+  .catalog-tab-content,
+  .budget-workspace,
+  .simple-finance-workspace,
+  .client-os-workspace {
+    gap: 10px !important;
+  }
+
+  .screen-header,
+  .page-header {
+    margin-bottom: 4px !important;
+  }
+
+  .aferix-panel-card,
+  .catalog-form-card,
+  .catalog-list-card,
+  .finance-entry-panel {
+    padding: var(--aferix-card-padding-mobile) !important;
+  }
+
+  .metric-card,
+  .finance-tile,
+  .catalog-stat-card,
+  .catalog-summary-card,
+  .catalog-metric-card {
+    min-height: 74px !important;
+  }
+
+  .continuous-list-item {
+    border: 0 !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.055) !important;
+    border-radius: 0 !important;
+    margin: 0 !important;
+  }
+}
