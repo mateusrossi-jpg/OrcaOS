@@ -230,26 +230,26 @@ export function SupplierTaxMarginWorkspace() {
       <div className="supplier-tax-grid-layout" style={{ 
         display: 'grid', 
         gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', 
-        gap: '32px', 
+        gap: '14px', 
         alignItems: 'start' 
       }}>
         {previewSummary && (
           <aside className="catalog-form-card premium-finance-panel" style={{ 
             background: 'var(--aferix-surface-raised, #16181e)', 
             border: '1px solid var(--aferix-border-strong, #333333)',
-            padding: '32px',
-            borderRadius: '16px',
-            boxShadow: '0 12px 48px rgba(0,0,0,0.5)',
+            padding: '18px',
+            borderRadius: '12px',
+            boxShadow: '0 10px 28px rgba(0,0,0,0.32)',
             order: window.innerWidth < 768 ? 1 : 0
           }}>
-            <header style={{ marginBottom: '32px', borderBottom: '2px solid var(--aferix-primary)', paddingBottom: '16px', width: 'fit-content' }}>
+            <header style={{ marginBottom: '16px', borderBottom: '2px solid var(--aferix-primary)', paddingBottom: '10px', width: 'fit-content' }}>
               <div>
                 <h4 style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--aferix-text)', letterSpacing: '-0.02em' }}>Prévia de Preço</h4>
                 <p style={{ fontSize: '0.9rem', color: 'var(--aferix-text-muted)', marginTop: '4px' }}>Análise estratégica de margem e custo.</p>
               </div>
             </header>
             
-            <div className="supplier-tax-result-list" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div className="supplier-tax-result-list" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', padding: '12px 0', borderBottom: '1px solid var(--aferix-border-soft)' }}>
                 <span style={{ fontSize: '0.75rem', color: 'var(--aferix-text-soft)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Custo bruto produtos</span>
                 <strong style={{ fontSize: '1.25rem' }}>{money(previewSummary.grossProductsCost)}</strong>
@@ -263,7 +263,7 @@ export function SupplierTaxMarginWorkspace() {
                 <strong style={{ fontSize: '1.25rem' }}>{money(previewSummary.grossAcquisitionCost)}</strong>
               </div>
               
-              <div style={{ padding: '24px', background: 'var(--aferix-surface-active)', borderRadius: '12px', border: '1px solid var(--aferix-primary-soft, rgba(245, 164, 0, 0.15))', margin: '8px 0' }}>
+              <div style={{ padding: '16px', background: 'var(--aferix-surface-active)', borderRadius: '12px', border: '1px solid var(--aferix-primary-soft, rgba(245, 164, 0, 0.15))', margin: '4px 0' }}>
                 <span style={{ fontSize: '0.85rem', color: 'var(--aferix-primary)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', display: 'block', marginBottom: '8px' }}>Custo unitário líquido</span>
                 <strong style={{ fontSize: '2.25rem', color: 'var(--aferix-primary)', lineHeight: 1 }}>{money(previewSummary.unitNetCost)}</strong>
               </div>
@@ -273,14 +273,21 @@ export function SupplierTaxMarginWorkspace() {
                 <strong style={{ fontSize: '1.25rem' }}>{previewSummary.markupPercent.toFixed(2)}%</strong>
               </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', padding: '24px', background: 'var(--aferix-primary)', borderRadius: '12px', color: '#000', boxShadow: '0 8px 24px rgba(245, 164, 0, 0.3)' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', padding: '18px', background: 'var(--aferix-primary)', borderRadius: '12px', color: '#000', boxShadow: '0 8px 24px rgba(245, 164, 0, 0.3)' }}>
                 <span style={{ fontSize: '0.9rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em', opacity: 0.8 }}>Preço de Venda Sugerido (un.)</span>
                 <strong style={{ fontSize: '2.5rem', fontWeight: 950, lineHeight: 1 }}>{money(previewSummary.suggestedUnitSalePrice)}</strong>
               </div>
               
-              <p style={{ fontSize: '0.75rem', color: 'var(--aferix-text-muted)', textAlign: 'center', marginTop: '12px', lineHeight: 1.5 }}>
-                Margem líquida alvo de <strong>{previewRecord?.desiredNetMarginPercent}%</strong> e<br/>encargos de saída estimados em <strong>{previewSummary.saleVariablePercent.toFixed(1)}%</strong>.
-              </p>
+              <div className="markup-summary-grid">
+                <div>
+                  <span>Margem líquida alvo</span>
+                  <strong>{previewRecord?.desiredNetMarginPercent}%</strong>
+                </div>
+                <div>
+                  <span>Encargos estimados</span>
+                  <strong>{previewSummary.saleVariablePercent.toFixed(1)}%</strong>
+                </div>
+              </div>
             </div>
           </aside>
         )}
@@ -288,10 +295,10 @@ export function SupplierTaxMarginWorkspace() {
         <div className="catalog-form-card secondary-form-panel" style={{ 
           background: 'transparent', 
           border: '1px solid var(--aferix-border-soft)', 
-          padding: '24px',
+          padding: '18px',
           borderRadius: '12px'
         }}>
-          <header style={{ marginBottom: '24px' }}>
+          <header style={{ marginBottom: '14px' }}>
             <div>
               <h4 style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--aferix-text-soft)' }}>{editingId ? 'Editar lançamento' : 'Novo lançamento'}</h4>
               <p style={{ fontSize: '0.85rem', color: 'var(--aferix-text-muted)', marginTop: '4px' }}>Cadastre custos e compras.</p>

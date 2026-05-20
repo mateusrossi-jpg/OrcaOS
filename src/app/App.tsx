@@ -92,21 +92,17 @@ export function App() {
       return;
     } 
     
-    if (tab === 'work-orders') {
-      setClientInitialSection('workOrders');
-      setClientSectionRequestKey((current) => current + 1);
-    } else if (tab === 'clients') {
+    if (tab === 'clients') {
       setClientInitialSection('clients');
       setClientSectionRequestKey((current) => current + 1);
     }
     setActiveTab(tab);
   }
 
-  function openClientSection(section: 'dashboard' | 'newClient' | 'newWorkOrder' | 'clients' | 'workOrders') {
+  function openClientSection(section: 'dashboard' | 'newClient' | 'clients') {
     setClientInitialSection(section);
     setClientSectionRequestKey((current) => current + 1);
-    if (section === 'workOrders') setActiveTab('work-orders');
-    else setActiveTab('clients');
+    setActiveTab('clients');
   }
 
   function convertActiveBudgetToWorkOrder() {
@@ -136,10 +132,6 @@ export function App() {
               savedBudgets={loadSavedBudgets()} 
               context={context} 
               onStartNewAttendance={() => goTo('new-budget')} 
-              onSelectWorkOrder={(id) => {
-                setActiveWorkOrderId(id);
-                openClientSection('workOrders');
-              }}
               onSelectBudget={(budget) => {
                 setSelectedBudgetId(budget.id);
                 // If the budget has a work order ID, set it as active
@@ -151,9 +143,9 @@ export function App() {
             />
           )}
           
-          {(activeTab === 'clients' || activeTab === 'work-orders') && (
+          {activeTab === 'clients' && (
             <ClientsScreen 
-              initialSection={clientInitialSection} 
+              initialSection={clientInitialSection as any} 
               sectionRequestKey={clientSectionRequestKey} 
               onOpenBudgets={() => goTo('budgets')} 
               onContextChange={(nextClients, nextWorkOrders, nextActiveWorkOrderId) => { 
@@ -164,7 +156,7 @@ export function App() {
             />
           )}
 
-          {activeTab === 'financial' && <FinancialScreen context={context} />}
+          {activeTab === 'financial' && <FinancialScreen />}
           {activeTab === 'settings' && <MenuScreen account={account} onAccountChange={setAccount} goTo={goTo} />}
           
           {/* Sub-telas acessadas via Menu ou fluxo direto */}

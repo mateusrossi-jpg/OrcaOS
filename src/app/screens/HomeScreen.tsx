@@ -2,6 +2,8 @@ import type { AppTab, ActiveWorkContext } from '../appTypes';
 import type { CalculationCapture } from '../../core/types/workflow';
 import type { Client, Service as WorkOrder } from '../../core/types/business';
 import type { SavedBudgetRecord } from '../../features/budgets/storage/savedBudgetsStorage';
+import { calculateServiceProfit } from '../../core/finance/serviceProfit';
+import { loadSimpleFinanceRecords } from '../../features/finance/storage/simpleFinanceStorage';
 import { EmptyState, MetricCard, MoneyValue, PageShell, SectionHeader } from '../components/designSystem';
 
 interface HomeScreenProps {
@@ -12,17 +14,13 @@ interface HomeScreenProps {
   savedBudgets: SavedBudgetRecord[];
   context: ActiveWorkContext;
   onStartNewAttendance: () => void;
-  onSelectWorkOrder?: (id: string) => void;
   onSelectBudget?: (budget: SavedBudgetRecord) => void;
 }
 
 export function HomeScreen({
   goTo,
-  clients,
   workOrders,
   savedBudgets,
-  onStartNewAttendance,
-  onSelectWorkOrder,
   onSelectBudget
 }: HomeScreenProps) {
   const currentMonthBudgets = savedBudgets.filter(isBudgetFromCurrentMonth);
@@ -39,67 +37,59 @@ export function HomeScreen({
   const pendingBudgets = savedBudgets.filter(b => b.status === 'sent');
   const activeServices = workOrders.filter(w => w.status === 'in-progress');
   const pendingPayments = workOrders.filter(w => w.paymentStatus === 'pending' || w.paymentStatus === 'partial');
+  const recentClosings = loadSimpleFinanceRecords().slice(0, 4);
 
   return (
     <PageShell className="aferix-dashboard-screen">
-      <header className="home-hero-header" style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '2rem' }}>
+      <header className="screen-header home-hero-header">
         <div>
-          <h1 style={{ fontSize: '1.5rem', fontWeight: 800, margin: 0 }}>Controle seu lucro</h1>
-          <p style={{ color: 'var(--aferix-text-muted)', fontSize: '0.9rem', marginTop: '0.25rem' }}>Resumo financeiro e operacional das suas atividades.</p>
+          <h1>Controle seu lucro</h1>
         </div>
-        <button type="button" className="primary-action" style={{ padding: '1.25rem', fontSize: '1rem', fontWeight: 700, width: '100%' }} onClick={onStartNewAttendance}>
-          + Novo Orçamento
-        </button>
       </header>
 
-      <section className="aferix-panel-card" style={{ marginBottom: '1.5rem' }}>
+      <section className="aferix-panel-card home-finance-overview">
         <SectionHeader title="Resultado no Mês" eyebrow="Financeiro" />
-        <div className="metric-grid dashboard-metric-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '0.75rem' }}>
+        <div className="metric-grid dashboard-metric-grid">
           <MetricCard label="Lucro Líquido" value={<MoneyValue value={profit} tone="success" />} tone="success" />
           <MetricCard label="Entradas" value={<MoneyValue value={revenue} />} />
           <MetricCard label="Saídas" value={<MoneyValue value={expenses} tone="danger" />} />
         </div>
       </section>
 
-      <div className="home-action-toolbar compact-actions" style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1.5rem' }}>
-        <button type="button" className="ghost-action" style={{ flex: '1' }} onClick={() => goTo('clients')}>Clientes</button>
-        <button type="button" className="ghost-action" style={{ flex: '1' }} onClick={() => goTo('financial')}>Financeiro</button>
-        <button type="button" className="ghost-action" style={{ flex: '1' }} onClick={() => goTo('settings')}>Mais</button>
-      </div>
-
-      <section className="aferix-panel-card home-command-panel">
-        <SectionHeader title="Atenção Necessária" eyebrow="Operação" />
-        
-        <div className="status-highlights-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))', gap: '0.75rem', marginBottom: '1rem' }}>
-          <div className="highlight-card" onClick={() => goTo('budgets')} style={{ padding: '1rem', background: 'var(--aferix-surface-active)', borderRadius: '8px', textAlign: 'center', cursor: 'pointer', border: '1px solid var(--aferix-border)' }}>
-            <strong style={{ display: 'block', fontSize: '1.5rem', color: pendingBudgets.length > 0 ? 'var(--aferix-primary)' : 'inherit' }}>{pendingBudgets.length}</strong>
-            <small style={{ color: 'var(--aferix-text-muted)', fontSize: '0.75rem' }}>Orçamentos<br/>Aguardando</small>
-          </div>
-          <div className="highlight-card" onClick={() => goTo('work-orders')} style={{ padding: '1rem', background: 'var(--aferix-surface-active)', borderRadius: '8px', textAlign: 'center', cursor: 'pointer', border: '1px solid var(--aferix-border)' }}>
-            <strong style={{ display: 'block', fontSize: '1.5rem', color: activeServices.length > 0 ? 'var(--aferix-primary)' : 'inherit' }}>{activeServices.length}</strong>
-            <small style={{ color: 'var(--aferix-text-muted)', fontSize: '0.75rem' }}>Atendimentos em<br/>Execução</small>
-          </div>
-          <div className="highlight-card" onClick={() => goTo('work-orders')} style={{ padding: '1rem', background: 'var(--aferix-surface-active)', borderRadius: '8px', textAlign: 'center', cursor: 'pointer', border: '1px solid var(--aferix-border)' }}>
-            <strong style={{ display: 'block', fontSize: '1.5rem', color: pendingPayments.length > 0 ? 'var(--aferix-danger, #ef4444)' : 'inherit' }}>{pendingPayments.length}</strong>
-            <small style={{ color: 'var(--aferix-text-muted)', fontSize: '0.75rem' }}>Pagamentos<br/>Pendentes</small>
+      <section className="home-operations-grid">
+        <div className="aferix-panel-card home-command-panel">
+          <SectionHeader title="Atenção Necessária" eyebrow="Operação" />
+          <div className="status-highlights-grid home-signal-grid">
+            <button className="highlight-card" type="button" onClick={() => goTo('budgets')}>
+              <strong>{pendingBudgets.length}</strong>
+              <small>Orçamentos aguardando</small>
+            </button>
+            <div className="highlight-card">
+              <strong>{activeServices.length}</strong>
+              <small>Serviços em execução</small>
+            </div>
+            <div className="highlight-card">
+              <strong>{pendingPayments.length}</strong>
+              <small>Pagamentos pendentes</small>
+            </div>
           </div>
         </div>
 
-        <div className="home-recent-strip">
-          <SectionHeader title="Atendimentos Recentes" eyebrow="Execução" />
+        <div className="aferix-panel-card home-recent-strip">
+          <SectionHeader title="Fechamentos recentes" eyebrow="Resultado" />
           <div className="continuous-list">
-            {activeServices.length === 0 ? (
-              <EmptyState title="Tudo em dia" description="Crie um novo orçamento para começar." />
+            {recentClosings.length === 0 ? (
+              <EmptyState title="Sem fechamentos" description="Fechamentos salvos aparecem aqui." />
             ) : (
-              activeServices.slice(0, 5).map(order => {
-                const orderClient = clients.find(c => c.id === order.clientId);
+              recentClosings.map((record) => {
+                const profitRecord = calculateServiceProfit(record);
                 return (
-                  <article key={order.id} className="continuous-list-item" onClick={() => onSelectWorkOrder?.(order.id)} style={{ cursor: 'pointer', padding: '12px', borderBottom: '1px solid var(--aferix-border-soft)' }}>
+                  <article key={record.id} className="continuous-list-item home-compact-row">
                     <div className="client-col">
-                      <strong style={{ display: 'block' }}>{orderClient?.name ?? 'Cliente Avulso'}</strong>
-                      <small style={{ color: 'var(--aferix-text-muted)' }}>{order.title}</small>
+                      <strong>{record.title}</strong>
+                      <small>{record.clientName || 'Cliente final'} · {record.status === 'forecast' ? 'Aguardando' : 'Finalizado'}</small>
                     </div>
-                    <em className="value-col" style={{ fontSize: '0.75rem', color: 'var(--aferix-primary)', fontWeight: 600 }}>Em execução</em>
+                    <em className="value-col"><MoneyValue value={profitRecord.netProfit} tone={profitRecord.netProfit >= 0 ? 'success' : 'danger'} compact /></em>
                   </article>
                 );
               })
@@ -107,19 +97,19 @@ export function HomeScreen({
           </div>
         </div>
 
-        <div className="home-recent-strip" style={{ marginTop: '1.5rem' }}>
-          <SectionHeader title="Orçamentos Aguardando" eyebrow="Vendas" />
+        <div className="aferix-panel-card home-recent-strip">
+          <SectionHeader title="Propostas em aberto" eyebrow="Vendas" />
           <div className="continuous-list">
             {pendingBudgets.length === 0 ? (
-              <EmptyState title="Sem orçamentos" description="Envie uma proposta para ver aqui." />
+              <EmptyState title="Sem pendências" description="Propostas enviadas aparecem aqui." />
             ) : (
-              pendingBudgets.slice(0, 5).map(budget => (
-                <article key={budget.id} className="continuous-list-item" onClick={() => onSelectBudget?.(budget)} style={{ cursor: 'pointer', padding: '12px', borderBottom: '1px solid var(--aferix-border-soft)' }}>
+              pendingBudgets.slice(0, 4).map((budget) => (
+                <article key={budget.id} className="continuous-list-item home-compact-row clickable-row" onClick={() => onSelectBudget?.(budget)}>
                   <div className="client-col">
                     <strong style={{ display: 'block' }}>{budget.clientName || 'Cliente Avulso'}</strong>
                     <small style={{ color: 'var(--aferix-text-muted)' }}>{budget.title || 'Orçamento sem título'}</small>
                   </div>
-                  <em className="value-col" style={{ fontSize: '0.75rem', color: 'var(--aferix-primary)', fontWeight: 600 }}>Enviado</em>
+                  <em className="value-col">Enviado</em>
                 </article>
               ))
             )}

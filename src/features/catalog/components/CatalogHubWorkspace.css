@@ -1,3 +1,59 @@
+/* Continuous List Base - used across the app */
+.continuous-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.continuous-list-item {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 16px;
+  align-items: center;
+  padding: 16px;
+  border-bottom: 1px solid var(--aferix-border-soft, #1f2128);
+  min-width: 0;
+}
+
+.continuous-list-item:last-child {
+  border-bottom: none;
+}
+
+@media (max-width: 768px) {
+  .continuous-list-item {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 16px;
+    border: 1px solid var(--aferix-border, #24262d);
+    border-radius: var(--aferix-radius-md, 12px);
+    background: var(--aferix-surface-raised, #15171c);
+    margin-bottom: 8px;
+    align-items: stretch;
+  }
+
+  .continuous-list-item .value-col {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--aferix-primary);
+    border-top: 1px solid var(--aferix-border-soft);
+    padding-top: 8px;
+    margin-top: 4px;
+  }
+
+  .continuous-list-item .catalog-row-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .continuous-list-item .catalog-row-actions button {
+    width: 100%;
+    min-height: 44px;
+  }
+}
+
 .catalog-hub-workspace {
   display: grid;
   gap: 16px;
@@ -145,11 +201,12 @@
 
 .catalog-kind-summary span {
   min-width: 0;
-  overflow: hidden;
+  overflow: visible;
   font-size: 0.75rem;
   font-weight: 900;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  text-overflow: clip;
+  white-space: normal;
+  line-height: 1.2;
 }
 
 .catalog-kind-summary strong {
@@ -475,6 +532,37 @@
 
 .catalog-hub-actions.start-actions {
   justify-content: flex-start;
+}
+
+.catalog-view-actions {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 8px;
+}
+
+.catalog-view-actions button {
+  width: auto;
+  min-width: 116px !important;
+  min-height: 42px !important;
+  border-radius: 12px !important;
+}
+
+.catalog-view-actions .premium-cta {
+  min-width: 136px !important;
+  padding-inline: 18px !important;
+}
+
+@media (max-width: 520px) {
+  .catalog-view-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .catalog-view-actions button {
+    width: 100%;
+    min-width: 0 !important;
+  }
 }
 
 .online-card {

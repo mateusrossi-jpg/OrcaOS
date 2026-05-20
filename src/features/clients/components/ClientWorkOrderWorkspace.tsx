@@ -9,7 +9,7 @@ import {
   saveWorkOrders,
 } from '../storage/clientWorkOrderStorage';
 import { loadSavedBudgets } from '../../budgets/storage/savedBudgetsStorage';
-import { ContextBanner, MetricCard, Modal, TextArea, MonetaryInput } from '../../../app/components/ui';
+import { MetricCard, Modal, TextArea, MonetaryInput } from '../../../app/components/ui';
 import './ClientWorkOrderWorkspace.css';
 
 type ClientOsSection = 'dashboard' | 'newClient' | 'newWorkOrder' | 'clients' | 'workOrders';
@@ -172,9 +172,6 @@ export function ClientWorkOrderWorkspace({ initialSection, sectionRequestKey, on
   const visibleClients = filteredClients.slice(0, CLIENT_OS_VISIBLE_LIMIT);
   const visibleWorkOrders = filteredWorkOrders.slice(0, CLIENT_OS_VISIBLE_LIMIT);
   
-  const openWorkOrders = workOrders.filter((w) => w.status === 'in-progress').length;
-  const doneWorkOrders = workOrders.filter((w) => w.status === 'done').length;
-
   function updateClientDraft<K extends keyof ClientDraft>(key: K, value: ClientDraft[K]) {
     setClientDraft((current) => ({ ...current, [key]: value }));
   }
@@ -338,130 +335,48 @@ export function ClientWorkOrderWorkspace({ initialSection, sectionRequestKey, on
     }
   }
 
-  const isWorkOrderTab = activeSection === 'workOrders' || activeSection === 'newWorkOrder';
-  const isClientTab = activeSection === 'clients' || activeSection === 'newClient' || activeSection === 'dashboard';
-
   return (
     <div className="client-os-workspace refined-client-os">
-      <header className="screen-header">
-        <h1>{isWorkOrderTab ? 'Atendimentos' : 'Clientes'}</h1>
+      <header className="screen-header client-os-topbar">
+        <h1>Clientes</h1>
       </header>
 
-      {/* Context Banner: Only show when there is an active context */}
-      {activeWorkOrder && (
-        <ContextBanner
-          title={activeWorkOrder.title}
-          description={`${activeClient?.name ?? 'Cliente Avulso'} · ${statusLabel(activeWorkOrder.status)}`}
-          actionLabel="Limpar Contexto"
-          onAction={() => setActiveWorkOrderId(null)}
-        />
-      )}
-
-      {/* Metrics specialized by context */}
-      <div className="dashboard-finance-tiles" style={{ marginBottom: '1.5rem' }}>
-        {isClientTab ? (
-          <>
-            <MetricCard label="Clientes Totais" value={clients.length} />
-            <MetricCard label="Recém Adicionados" value={clients.filter(c => recentTimestamp(c).includes(new Date().toISOString().slice(0, 7))).length} tone="brand" />
-          </>
-        ) : (
-          <>
-            <MetricCard label="Em execução" value={openWorkOrders} tone={openWorkOrders > 0 ? 'brand' : 'default'} />
-            <MetricCard label="Concluídos" value={doneWorkOrders} />
-          </>
-        )}
-      </div>
-
-      <div className="home-action-toolbar">
-        {isClientTab ? (
-          <>
-            <button className={`ghost-action ${activeSection === 'clients' || activeSection === 'dashboard' ? 'active' : ''}`} type="button" onClick={() => setActiveSection('clients')}>Lista de Clientes</button>
-            <button className={`ghost-action ${activeSection === 'newClient' ? 'active' : ''}`} type="button" onClick={() => setActiveSection('newClient')}>+ Novo Cliente</button>
-          </>
-        ) : (
-          <>
-            <button className={`ghost-action ${activeSection === 'workOrders' ? 'active' : ''}`} type="button" onClick={() => setActiveSection('workOrders')}>Lista de Atendimentos</button>
-            <button className={`ghost-action ${activeSection === 'newWorkOrder' ? 'active' : ''}`} type="button" onClick={() => setActiveSection('newWorkOrder')}>+ Novo Atendimento</button>
-          </>
-        )}
-      </div>
-
-      {(activeSection === 'dashboard' || activeSection === 'clients') && isClientTab && (
-        <div className="client-os-indicator-grid">
-          <div className="aferix-panel-card">
-            <header>
-              <div>
-                <h2>Sua Base de Clientes</h2>
-                <p>Gerencie os contatos para seus orçamentos.</p>
-              </div>
-            </header>
-            
-            <div className="budget-list-search-bar" style={{ marginBottom: '1rem' }}>
-              <input 
-                placeholder="Buscar cliente por nome, telefone ou e-mail..." 
-                value={clientSearch}
-                onChange={(e) => setClientSearch(e.target.value)}
-                style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid var(--aferix-border)', background: 'var(--aferix-bg)', color: 'var(--aferix-text)' }}
-              />
+      {(activeSection === 'dashboard' || activeSection === 'clients') && (
+        <div className="aferix-panel-card client-list-panel">
+          <div className="client-control-row">
+            <div className="dashboard-finance-tiles client-summary-tiles">
+              <MetricCard label="Clientes Totais" value={clients.length} />
+              <MetricCard label="Recém Adicionados" value={clients.filter(c => recentTimestamp(c).includes(new Date().toISOString().slice(0, 7))).length} tone="brand" />
             </div>
-
-            <div className="continuous-list">
-              {visibleClients.length === 0 ? (
-                <div className="continuous-list-empty">Nenhum cliente encontrado.</div>
-              ) : (
-                visibleClients.map((client) => (
-                  <article className="continuous-list-item" key={client.id}>
-                    <div className="client-col">
-                      <strong>{client.name}</strong>
-                      <small>{client.phone} · {client.email}</small>
-                      {client.address && <small style={{ display: 'block', marginTop: '4px', opacity: 0.8 }}>{client.address}</small>}
-                    </div>
-                    <div className="value-col" style={{ display: 'flex', gap: '8px' }}>
-                      <button className="ghost-action icon-btn" title="Editar" onClick={() => openClientForEdit(client)}>✎</button>
-                      <button className="ghost-action icon-btn danger-text" title="Remover" onClick={() => confirmRemoveClient(client.id)}>✕</button>
-                    </div>
-                  </article>
-                ))
-              )}
-            </div>
+            <button className="primary-action premium-cta client-primary-cta" type="button" onClick={() => setActiveSection('newClient')}>+ Novo Cliente</button>
           </div>
-        </div>
-      )}
 
-      {activeSection === 'workOrders' && isWorkOrderTab && (
-        <div className="client-os-indicator-grid">
-          <div className="aferix-panel-card">
-            <header>
-              <div>
-                <h2>Serviços e Atendimentos</h2>
-                <p>Acompanhe a execução e os prazos dos seus serviços.</p>
-              </div>
-            </header>
+          <div className="budget-list-search-bar client-search-bar">
+            <input 
+              placeholder="Buscar cliente..." 
+              value={clientSearch}
+              onChange={(e) => setClientSearch(e.target.value)}
+            />
+          </div>
 
-            <div className="continuous-list">
-              {visibleWorkOrders.length === 0 ? (
-                <div className="continuous-list-empty">Nenhum atendimento registrado.</div>
-              ) : (
-                visibleWorkOrders.map((workOrder) => {
-                  const client = clients.find((c) => c.id === workOrder.clientId);
-                  const isContext = activeWorkOrderId === workOrder.id;
-                  return (
-                    <article className={`continuous-list-item ${isContext ? 'active-context-item' : ''}`} key={workOrder.id}>
-                      <div className="client-col">
-                        <strong>{workOrder.title}</strong>
-                        <small>{client?.name ?? 'Cliente Avulso'} · {statusLabel(workOrder.status)}</small>
-                        <small style={{ display: 'block', marginTop: '4px', opacity: 0.7 }}>{formatDateTime(workOrder.scheduledDate)}</small>
-                      </div>
-                      <div className="value-col" style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                        {!isContext && <button className="secondary-action inline-action" onClick={() => setActiveWorkOrderId(workOrder.id)}>Selecionar</button>}
-                        <button className="ghost-action icon-btn" title="Editar" onClick={() => openWorkOrderForEdit(workOrder)}>✎</button>
-                        <button className="ghost-action icon-btn danger-text" title="Remover" onClick={() => confirmRemoveWorkOrder(workOrder.id)}>✕</button>
-                      </div>
-                    </article>
-                  );
-                })
-              )}
-            </div>
+          <div className="continuous-list">
+            {visibleClients.length === 0 ? (
+              <div className="continuous-list-empty">Nenhum cliente encontrado.</div>
+            ) : (
+              visibleClients.map((client) => (
+                <article className="continuous-list-item client-compact-row" key={client.id}>
+                  <div className="client-col">
+                    <strong>{client.name}</strong>
+                    <small>{client.phone} · {client.email}</small>
+                    {client.address && <small style={{ display: 'block', marginTop: '4px', opacity: 0.8 }}>{client.address}</small>}
+                  </div>
+                  <div className="value-col" style={{ display: 'flex', gap: '8px' }}>
+                    <button className="ghost-action icon-btn" title="Editar" onClick={() => openClientForEdit(client)}>✎</button>
+                    <button className="ghost-action icon-btn danger-text" title="Remover" onClick={() => confirmRemoveClient(client.id)}>✕</button>
+                  </div>
+                </article>
+              ))
+            )}
           </div>
         </div>
       )}
@@ -507,131 +422,8 @@ export function ClientWorkOrderWorkspace({ initialSection, sectionRequestKey, on
           </div>
 
           <div className="client-os-form-actions">
-            <button className="ghost-action" type="button" onClick={addClient}>{editingClientId ? 'Salvar' : 'Continuar'}</button>
-            {editingClientId ? (
-              <button className="ghost-action" type="button" onClick={cancelClientEdit}>Cancelar</button>
-            ) : (
-              <button className="ghost-action" type="button" onClick={() => { setWorkOrderDraft((current) => ({ ...current, clientId: '' })); setActiveSection('newWorkOrder'); }}>Pular</button>
-            )}
-          </div>
-        </div>
-      )}
-
-      {activeSection === 'newWorkOrder' && (
-        <div className="aferix-panel-card work-order-form-panel">
-          <header className="form-header">
-            <div>
-              <h2 style={{ fontSize: '1.25rem', fontWeight: 800 }}>{editingWorkOrderId ? 'Editar Atendimento/Serviço' : 'Novo Atendimento/Serviço'}</h2>
-              <p style={{ fontSize: '0.85rem', color: 'var(--aferix-text-muted)' }}>Defina os detalhes da execução e vínculo.</p>
-            </div>
-          </header>
-
-          <div className="client-os-vertical-form">
-            <div className="form-section-block">
-              <div className="client-picker-wrapper">
-                <label className="form-label-top">Cliente vinculado</label>
-                <div className={`selected-client-display ${!workOrderDraft.clientId ? 'empty' : 'active'}`}>
-                  {workOrderDraft.clientId ? (
-                    <>
-                      <strong>{clients.find((client) => client.id === workOrderDraft.clientId)?.name}</strong>
-                      <small>Cliente selecionado para este atendimento/serviço</small>
-                    </>
-                  ) : (
-                    <>
-                      <strong>Sem cliente vinculado</strong>
-                      <small>Este atendimento ficará avulso ou aguardando seleção</small>
-                    </>
-                  )}
-                </div>
-
-                <label className="form-label-top" style={{ marginTop: '1.5rem' }}>Buscar cliente</label>
-                <div className="search-input-wrapper">
-                  <input 
-                    className="premium-input"
-                    value={clientPickerSearch} 
-                    placeholder="Nome, telefone ou endereço" 
-                    onChange={(event) => setClientPickerSearch(event.target.value)} 
-                  />
-                </div>
-                
-                {clientPickerSearch.trim() && (
-                  <div className="client-picker-results mini-picker">
-                    <button className={!workOrderDraft.clientId ? 'active' : ''} type="button" onClick={() => { fillWorkOrderAddressFromClient(''); setClientPickerSearch(''); }}>
-                      <strong>Remover vínculo</strong>
-                    </button>
-                    {clientPickerResults.map((client) => (
-                      <button className={workOrderDraft.clientId === client.id ? 'active' : ''} key={client.id} type="button" onClick={() => { fillWorkOrderAddressFromClient(client.id); setClientPickerSearch(''); }}>
-                        <strong>{client.name}</strong>
-                        <small>{[client.phone, client.email].filter(Boolean).join(' · ')}</small>
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <div className="form-grid-split">
-              <label className="catalog-field">
-                <span>Status da execução</span>
-                <select value={workOrderDraft.status} onChange={(event) => updateWorkOrderDraft('status', event.target.value as WorkOrder['status'])}>
-                  <option value="in-progress">Em execução</option>
-                  <option value="done">Concluído</option>
-                  <option value="cancelled">Cancelado</option>
-                </select>
-              </label>
-              <label className="catalog-field">
-                <span>Pagamento</span>
-                <select value={workOrderDraft.paymentStatus} onChange={(event) => updateWorkOrderDraft('paymentStatus', event.target.value as WorkOrder['paymentStatus'])}>
-                  <option value="pending">Pendente</option>
-                  <option value="partial">Parcial</option>
-                  <option value="paid">Pago</option>
-                </select>
-              </label>
-            </div>
-
-            <label className="catalog-field">
-              <span>Título do atendimento/serviço</span>
-              <input value={workOrderDraft.title} placeholder="Ex.: Instalação de tomadas no quarto" onChange={(event) => updateWorkOrderDraft('title', event.target.value)} />
-            </label>
-
-            <label className="catalog-field">
-              <span>Descrição inicial</span>
-              <TextArea 
-                value={workOrderDraft.description} 
-                placeholder="Ex.: Cliente quer adicionar 3 pontos e revisar tomada antiga." 
-                onChange={(value) => updateWorkOrderDraft('description', value)} 
-              />
-            </label>
-
-            <div className="form-grid-split">
-              <label className="catalog-field">
-                <span>Prioridade</span>
-                <select value={workOrderDraft.priority} onChange={(event) => updateWorkOrderDraft('priority', event.target.value as NonNullable<WorkOrder['priority']>)}>
-                  <option value="low">Baixa</option>
-                  <option value="normal">Normal</option>
-                  <option value="high">Alta</option>
-                  <option value="urgent">Urgente</option>
-                </select>
-              </label>
-              <label className="catalog-field">
-                <span>Data agendada</span>
-                <input type="datetime-local" value={workOrderDraft.scheduledDate} onChange={(event) => updateWorkOrderDraft('scheduledDate', event.target.value)} />
-              </label>
-            </div>
-
-            <label className="catalog-field">
-              <span>Endereço do atendimento/serviço</span>
-              <input value={workOrderDraft.address} placeholder="Local da execução..." onChange={(event) => updateWorkOrderDraft('address', event.target.value)} />
-            </label>
-          </div>
-
-          <div className="client-os-form-actions-premium">
-            <button className="primary-action full-cta" type="button" disabled={!workOrderDraft.title.trim()} onClick={addWorkOrder}>
-              {editingWorkOrderId ? 'Salvar Alterações' : 'Criar Atendimento/Serviço'}
-            </button>
-            <button className="secondary-action full-cta" type="button" onClick={() => { setEditingWorkOrderId(null); setWorkOrderDraft(emptyWorkOrderDraft); setActiveSection('workOrders'); }}>
-              Cancelar
-            </button>
+            <button className="primary-action premium-cta" type="button" onClick={addClient}>{editingClientId ? 'Salvar' : 'Continuar'}</button>
+            <button className="secondary-action" type="button" onClick={cancelClientEdit}>Cancelar</button>
           </div>
         </div>
       )}

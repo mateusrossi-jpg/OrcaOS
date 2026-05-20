@@ -592,9 +592,9 @@ export function CatalogHubWorkspace({ onSendToBudget, initialTab = 'items', enab
             ))}
           </div>
 
-          <div className="home-action-toolbar">
+          <div className="catalog-view-actions">
             <button className={`ghost-action ${itemsView === 'list' ? 'active' : ''}`} type="button" onClick={() => setItemsView('list')}>Lista</button>
-            <button className={`ghost-action ${itemsView === 'form' ? 'active' : ''}`} type="button" onClick={() => { resetItemForm(); setItemsView('form'); }}>Novo Item</button>
+            <button className={`primary-action premium-cta ${itemsView === 'form' ? 'active' : ''}`} type="button" onClick={() => { resetItemForm(); setItemsView('form'); }}>Novo Item</button>
           </div>
 
           {itemsView === 'form' && (

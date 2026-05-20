@@ -1,6 +1,6 @@
 .supplier-tax-workspace {
   display: grid;
-  gap: 18px;
+  gap: 12px;
   min-width: 0;
 }
 
@@ -66,8 +66,42 @@
 .supplier-tax-grid-layout {
   display: grid;
   grid-template-columns: minmax(0, 1.35fr) minmax(320px, 0.65fr);
-  gap: 16px;
+  gap: 14px;
   align-items: start;
+}
+
+.markup-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.markup-summary-grid div {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid var(--aferix-border);
+  border-radius: var(--aferix-radius-sm);
+  background: rgba(255, 255, 255, 0.03);
+  text-align: left;
+}
+
+.markup-summary-grid span {
+  color: var(--aferix-text-soft);
+  font-size: 0.7rem;
+  font-weight: 850;
+  letter-spacing: 0.05em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.markup-summary-grid strong {
+  color: var(--aferix-text) !important;
+  font-size: 1.35rem;
+  font-weight: 900;
+  line-height: 1;
 }
 
 .supplier-tax-card,
@@ -228,5 +262,9 @@
 
   .supplier-tax-actions > * {
     flex: 1;
+  }
+
+  .markup-summary-grid {
+    grid-template-columns: 1fr;
   }
 }

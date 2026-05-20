@@ -33,7 +33,7 @@ import './BudgetWorkspace.css';
 const BudgetPdfDownloadButton = lazy(() => import('./BudgetPdfDownloadButton').then((module) => ({ default: module.BudgetPdfDownloadButton })));
 
 type BudgetCategory = BudgetItem['category'];
-type BudgetWorkspaceSection = 'cliente' | 'serviço' | 'itens' | 'custos' | 'revisão' | 'documento' | 'catalog' | 'history';
+type BudgetWorkspaceSection = 'cliente' | 'serviço' | 'itens' | 'custos' | 'revisão' | 'documento';
 
 interface BudgetWorkspaceProps {
   technicalCaptures?: CalculationCapture[];
@@ -561,13 +561,10 @@ export function BudgetWorkspace({
     setCatalogDraft(emptyCatalogDraft);
   }
 
-  function editCatalogItem(item: CatalogItem) { setCatalogDraft(catalogItemToDraft(item)); setEditingCatalogItemId(item.id); setActiveSection('catalog'); }
-  function cancelCatalogItemEdit() { setEditingCatalogItemId(null); setCatalogDraft(emptyCatalogDraft); }
   function confirmRemoveCatalogItem(itemId: string) { setItemToRemove(itemId); setModalType('removeCatalogItem'); }
   function executeRemoveCatalogItem() {
     if (!itemToRemove) return;
     const itemId = itemToRemove;
-    if (editingCatalogItemId === itemId) cancelCatalogItemEdit();
     setCatalogItems((current) => current.filter((item) => item.id !== itemId));
     setItemToRemove(null); setModalType(null);
   }
@@ -730,14 +727,8 @@ export function BudgetWorkspace({
 
       {shareFeedback && <div className="budget-toast-banner"><span>{shareFeedback}</span><button type="button" onClick={() => setShareFeedback(null)}>×</button></div>}
 
-      <div className="budget-secondary-links">
-        <button className={activeSection === 'catalog' ? 'active' : ''} type="button" onClick={() => setActiveSection('catalog')}>Catálogo</button>
-        <button className={activeSection === 'history' ? 'active' : ''} type="button" onClick={() => setActiveSection('history')}>Histórico</button>
-      </div>
-
       {activeSection === 'cliente' && (
         <section className="budget-section-panel">
-          <div className="budget-section-header"><div><h3>Identificação do Cliente</h3><p>Quem é o cliente deste orçamento?</p></div></div>
           <div className="budget-header-card compact-budget-card">
             <label className="budget-field"><span>Cliente</span><input placeholder="Nome do cliente" value={clientName} onChange={(e) => setClientName(e.target.value)} /></label>
           </div>
@@ -747,7 +738,6 @@ export function BudgetWorkspace({
 
       {activeSection === 'serviço' && (
         <section className="budget-section-panel">
-          <div className="budget-section-header"><div><h3>Definição do Serviço</h3><p>O que será executado?</p></div></div>
           <div className="budget-header-card compact-budget-card">
             <label className="budget-field"><span>Título do Serviço</span><input placeholder="Ex.: Instalação de Ar Condicionado" value={budgetTitle} onChange={(e) => setBudgetTitle(e.target.value)} /></label>
             <label className="budget-field"><span>Status comercial</span><select value={budgetStatus} onChange={(e) => setBudgetStatus(e.target.value as SavedBudgetStatus)}><option value="draft">Rascunho</option><option value="sent">Enviado</option><option value="approved">Aprovado</option><option value="rejected">Recusado</option><option value="expired">Vencido</option><option value="cancelled">Cancelado</option></select></label>
@@ -758,7 +748,6 @@ export function BudgetWorkspace({
 
       {activeSection === 'itens' && (
         <section className="budget-section-panel budget-items-layout">
-          <div className="budget-section-header"><div><h3>Itens do Orçamento</h3><p>Adicione serviços, materiais e mão de obra deste orçamento.</p></div></div>
           <aside className="budget-sticky-summary">
             <span>Subtotal de itens</span>
             <div><small>Soma parcial</small><strong>{formatCurrency(summary.subtotal)}</strong></div>
@@ -804,7 +793,6 @@ export function BudgetWorkspace({
 
       {activeSection === 'custos' && (
         <section className="budget-section-panel">
-          <div className="budget-section-header"><div><h3>Custos Internos</h3><p>Quanto custa para você executar este serviço?</p></div></div>
           <div className="budget-header-card compact-budget-card">
             <MonetaryInput label="Investimento em Materiais (Custo)" value={materialCost} onChange={setMaterialCost} />
             <MonetaryInput label="Custos Operacionais" value={operationalCost} onChange={setOperationalCost} />
@@ -816,7 +804,6 @@ export function BudgetWorkspace({
 
       {activeSection === 'revisão' && (
         <section className="budget-section-panel">
-          <div className="budget-section-header"><div><h3>Revisão e Condições</h3><p>Bata o martelo no preço final e veja seu lucro.</p></div></div>
           <div className="budget-header-card compact-budget-card">
             <MonetaryInput label="Deslocamento / Frete" value={travelCost} onChange={setTravelCost} />
             <MonetaryInput label="Taxas adicionais" value={additionalFees} onChange={setAdditionalFees} />
@@ -833,12 +820,6 @@ export function BudgetWorkspace({
 
       {activeSection === 'documento' && (
         <section className="budget-section-panel preview-section-panel">
-          <div className="budget-section-header">
-            <div>
-              <h3>Documento e Envio</h3>
-              <p>Escolha o formato ideal para o seu cliente.</p>
-            </div>
-          </div>
 
           <div className="document-type-selector" style={{ display: 'grid', gap: '16px', margin: '10px 0' }}>
             {/* Orçamento Simples - Standard */}
@@ -917,48 +898,6 @@ export function BudgetWorkspace({
               templateId={selectedTemplate} 
               validationIssues={proposalIssues} 
             />
-          </div>
-        </section>
-      )}
-
-      {activeSection === 'catalog' && (
-        <div className="inventory-management-group">
-          <div className="catalog-panel">
-            <div className="budget-section-header"><div><h3>Catálogo de Materiais</h3><p>Itens recorrentes.</p></div></div>
-            <div className="catalog-form-grid">
-              <label className="budget-field budget-field-wide"><span>Descrição</span><input value={catalogDraft.description} onChange={(e) => updateCatalogDraft('description', e.target.value)} /></label>
-              <MonetaryInput label="Valor unitário" value={catalogDraft.unitPrice} onChange={(v) => updateCatalogDraft('unitPrice', v)} />
-              <button type="button" className="primary-action inline-action" disabled={!canAddCatalogItem} onClick={addCatalogItem}>{editingCatalogItemId ? 'Salvar' : 'Cadastrar'}</button>
-            </div>
-            <div className="catalog-list">
-              {catalogItems.map((item) => (
-                <article className="catalog-card" key={item.id}>
-                  <span><strong>{item.description}</strong><small>{formatCurrency(item.unitPrice)}</small></span>
-                  <div><button type="button" className="secondary-action inline-action" onClick={() => editCatalogItem(item)}>Editar</button><button type="button" className="danger-action" onClick={() => confirmRemoveCatalogItem(item.id)}>Remover</button></div>
-                </article>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {activeSection === 'history' && (
-        <section className="budget-section-panel">
-          <div className="saved-budget-panel">
-            <div className="saved-budget-panel-header"><div><h3>Histórico</h3></div></div>
-            <div className="saved-budget-list">
-              {savedBudgets.map((record) => (
-                <article className={record.id === activeBudgetId ? 'saved-budget-card active' : 'saved-budget-card'} key={record.id}>
-                  <button type="button" className="saved-budget-open" onClick={() => openSavedBudget(record)}>
-                    <strong>{record.title || 'Sem título'}</strong>
-                    <span>{statusLabel(record.status)} · {formatCurrency(calculateSavedBudgetTotal(record))}</span>
-                  </button>
-                  <div className="saved-budget-actions">
-                    <button type="button" className="saved-budget-delete" onClick={() => confirmRemoveSavedBudget(record.id)}>Excluir</button>
-                  </div>
-                </article>
-              ))}
-            </div>
           </div>
         </section>
       )}

@@ -1,22 +1,17 @@
-import { lazy } from 'react';
-import type { ActiveWorkContext } from '../appTypes';
-import { ActiveWorkContextCard } from '../components/ActiveWorkContextCard';
+import { lazy, useRef } from 'react';
 
 const SimpleFinanceWorkspace = lazy(() => import('../../features/finance/components/SimpleFinanceWorkspace').then((module) => ({ default: module.SimpleFinanceWorkspace })));
 
-interface FinancialScreenProps {
-  context: ActiveWorkContext;
-}
+export function FinancialScreen() {
+  const triggerNewEntryRef = useRef<(() => void) | null>(null);
 
-export function FinancialScreen({ context }: FinancialScreenProps) {
   return (
     <section className="app-screen wide-screen">
-      <header className="screen-header">
+      <header className="screen-header finance-screen-header">
         <h1>Financeiro</h1>
-        <p>Receitas, custos e lucro real.</p>
+        <button className="primary-action premium-cta finance-primary-cta" type="button" onClick={() => triggerNewEntryRef.current?.()}>+ Novo Fechamento</button>
       </header>
-      <ActiveWorkContextCard {...context} />
-      <SimpleFinanceWorkspace />
+      <SimpleFinanceWorkspace onNewEntryRequest={(cb) => { triggerNewEntryRef.current = cb; }} />
     </section>
   );
 }

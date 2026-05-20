@@ -81,15 +81,18 @@ body {
 }
 
 h1, h2, h3, h4 {
-  letter-spacing: 0;
-  font-weight: 700;
+  letter-spacing: -0.01em;
+  font-weight: 800;
   margin-bottom: 0.5rem;
   line-height: 1.2;
+  color: var(--aferix-text);
 }
 
 p {
   margin-bottom: 1rem;
   color: var(--aferix-text-muted);
+  font-size: 0.9375rem;
+  font-weight: 450;
 }
 
 @media (max-width: 768px) {
@@ -99,6 +102,68 @@ p {
   body {
     font-size: var(--aferix-base-font);
   }
+}
+
+/* --------------------------------------------------
+   PREMIUM TYPOGRAPHY SYSTEM
+   -------------------------------------------------- */
+
+.screen-header h1 {
+  font-size: 26px !important;
+  font-weight: 900 !important;
+  letter-spacing: -0.02em !important;
+}
+
+.aferix-panel-card h2,
+.section-header h2 {
+  font-size: 18px !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.01em !important;
+}
+
+.budget-field span,
+.catalog-field span,
+.finance-field span,
+.general-form-field span {
+  font-size: 0.72rem !important;
+  font-weight: 800 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  color: var(--aferix-text-muted) !important;
+  margin-bottom: 4px !important;
+  display: block !important;
+}
+
+.metric-card strong,
+.finance-tile strong {
+  font-family: var(--aferix-font) !important;
+  font-weight: 900 !important;
+  letter-spacing: -0.02em !important;
+}
+
+.metric-card span,
+.finance-tile span {
+  font-size: 0.68rem !important;
+  font-weight: 800 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.06em !important;
+  color: var(--aferix-text-soft) !important;
+}
+
+.active-work-context-card strong,
+.calculation-context-card strong {
+  font-size: 16px !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.01em !important;
+}
+
+.active-work-context-card small,
+.calculation-context-card small,
+.budget-field small,
+.finance-field small {
+  font-size: 0.75rem !important;
+  font-weight: 500 !important;
+  color: var(--aferix-text-muted) !important;
 }
 
 button {
@@ -134,13 +199,36 @@ button:active {
 .pdf-download-btn,
 button.primary {
   border: none !important;
-  border-radius: var(--aferix-radius) !important;
-  color: #000000 !important;
-  background: var(--aferix-primary) !important;
+  border-radius: var(--aferix-radius-sm) !important;
+  color: #111214 !important;
+  background: var(--aferix-brand) !important;
   font-weight: 600 !important;
   font-size: 0.875rem !important;
   padding: 10px 20px !important;
   height: auto !important;
+  min-height: 44px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+
+/* Premium CTA variant for main actions like "Novo Fechamento" */
+.primary-action.premium-cta {
+  min-width: 180px !important;
+  padding: 12px 24px !important;
+  font-weight: 700 !important;
+  white-space: nowrap !important;
+  text-transform: none !important;
+  letter-spacing: 0.01em !important;
+  box-shadow: 0 4px 12px rgba(245, 164, 0, 0.15) !important;
+}
+
+.primary-action.premium-cta:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 20px rgba(245, 164, 0, 0.25) !important;
+  background: var(--aferix-brand-hover) !important;
 }
 
 .primary-action:hover, button.primary:hover {
@@ -442,34 +530,35 @@ svg {
 .professional-app-content > .app-screen.wide-screen,
 .professional-app-content > .app-screen.aferix-dashboard-screen {
   max-width: 1180px !important;
-  gap: 16px !important;
+  gap: 12px !important;
 }
 
 .page-header,
 .screen-header {
   display: flex !important;
-  align-items: flex-end !important;
+  align-items: center !important;
   justify-content: space-between !important;
   gap: 16px !important;
-  margin: 0 0 4px !important;
+  margin: 0 0 8px !important;
+  padding-bottom: 0 !important;
 }
 
 .page-header h1,
 .screen-header h1 {
   margin: 0 !important;
   color: var(--aferix-text) !important;
-  font-size: 24px !important;
-  font-weight: 700 !important;
-  line-height: 1.15 !important;
-  letter-spacing: 0 !important;
+  font-size: 20px !important;
+  font-weight: 900 !important;
+  line-height: 1 !important;
+  letter-spacing: -0.025em !important;
 }
 
 .page-header p,
 .screen-header p {
-  margin: 6px 0 0 !important;
+  margin: 2px 0 0 !important;
   color: var(--aferix-text-muted) !important;
-  font-size: 14px !important;
-  line-height: 1.45 !important;
+  font-size: 12.5px !important;
+  line-height: 1.3 !important;
 }
 
 .section-header,
@@ -480,7 +569,7 @@ svg {
   align-items: center !important;
   justify-content: space-between !important;
   gap: 12px !important;
-  margin: 0 0 14px !important;
+  margin: 0 0 10px !important;
 }
 
 .section-header h2,
@@ -488,9 +577,9 @@ svg {
 .client-purchase-panel h2 {
   margin: 0 !important;
   color: var(--aferix-text) !important;
-  font-size: 18px !important;
-  font-weight: 600 !important;
-  letter-spacing: 0 !important;
+  font-size: 16px !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.015em !important;
 }
 
 .orca-kicker,
@@ -631,11 +720,11 @@ svg {
 .plan-priority-grid article,
 .survey-review-counts article {
   display: grid !important;
-  align-content: start !important;
-  gap: 8px !important;
-  min-height: 112px !important;
+  align-content: center !important;
+  gap: 4px !important;
+  min-height: 84px !important;
   min-width: 0 !important;
-  padding: 16px !important;
+  padding: 12px 16px !important;
   border: 1px solid var(--aferix-border) !important;
   border-radius: var(--aferix-radius-md) !important;
   background: linear-gradient(180deg, var(--aferix-surface-raised), var(--aferix-surface)) !important;
@@ -650,11 +739,11 @@ svg {
 .billing-readiness-grid span,
 .plan-priority-grid span,
 .survey-review-counts span {
-  color: var(--aferix-text-muted) !important;
-  font-size: 11px !important;
-  font-weight: 600 !important;
-  letter-spacing: 0.04em !important;
-  line-height: 1.3 !important;
+  color: var(--aferix-text-soft) !important;
+  font-size: 10px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.06em !important;
+  line-height: 1.2 !important;
   text-transform: uppercase !important;
 }
 
@@ -668,10 +757,10 @@ svg {
 .survey-review-counts strong {
   color: var(--aferix-text) !important;
   font-family: var(--aferix-font) !important;
-  font-size: clamp(24px, 3vw, 30px) !important;
-  font-weight: 700 !important;
-  line-height: 1.05 !important;
-  letter-spacing: 0 !important;
+  font-size: clamp(22px, 2.5vw, 26px) !important;
+  font-weight: 800 !important;
+  line-height: 1 !important;
+  letter-spacing: -0.02em !important;
   font-variant-numeric: tabular-nums !important;
 }
 
@@ -1229,9 +1318,9 @@ button.secondary {
     grid-template-columns: 1fr !important;
   }
 
-  .metric-card,
-  .finance-tile,
-  .client-purchase-summary article {
+.metric-card,
+.finance-tile,
+.client-purchase-summary article {
     min-height: 96px !important;
   }
 
@@ -1254,6 +1343,115 @@ button.secondary {
 
   .active-work-context-card {
     align-items: flex-start !important;
+  }
+}
+
+/* Aferix consolidation: compact premium dashboard and list rhythm */
+.aferix-dashboard-screen {
+  display: grid !important;
+  gap: 12px !important;
+}
+
+.home-hero-header {
+  margin-bottom: 0 !important;
+}
+
+.home-finance-overview {
+  padding: 16px !important;
+}
+
+.home-finance-overview .metric-card,
+.home-command-panel .highlight-card {
+  min-height: 72px !important;
+}
+
+.home-operations-grid {
+  display: grid;
+  grid-template-columns: minmax(260px, 0.8fr) minmax(0, 1.1fr) minmax(0, 1.1fr);
+  gap: 12px;
+  min-width: 0;
+}
+
+.home-command-panel,
+.home-recent-strip {
+  min-width: 0;
+  padding: 16px !important;
+}
+
+.home-signal-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+  margin: 0;
+}
+
+.highlight-card {
+  display: grid;
+  gap: 2px;
+  width: 100%;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid var(--aferix-border);
+  border-radius: var(--aferix-radius-sm);
+  background: var(--aferix-surface-active);
+  color: var(--aferix-text);
+  text-align: left;
+}
+
+button.highlight-card {
+  cursor: pointer;
+}
+
+.highlight-card strong {
+  color: var(--aferix-primary);
+  font-size: 22px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.highlight-card small {
+  color: var(--aferix-text-muted);
+  font-size: 12px;
+  line-height: 1.25;
+}
+
+.home-compact-row {
+  min-height: 58px !important;
+}
+
+.clickable-row {
+  cursor: pointer;
+}
+
+@media (max-width: 980px) {
+  .home-operations-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .home-command-panel {
+    grid-column: 1 / -1;
+  }
+
+  .home-signal-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 767px) {
+  .home-finance-overview {
+    padding: 14px !important;
+  }
+
+  .home-operations-grid,
+  .home-signal-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .home-finance-overview .metric-card,
+  .home-command-panel .highlight-card,
+  .home-compact-row {
+    min-height: 64px !important;
   }
 }
 
@@ -1692,24 +1890,24 @@ button.secondary {
 .catalog-metrics-grid {
   display: grid !important;
   grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-  gap: 12px !important;
+  gap: 10px !important;
   width: 100% !important;
-  margin-bottom: 24px !important;
+  margin-bottom: 12px !important;
 }
 
 @media (min-width: 768px) {
   .catalog-summary-grid,
   .catalog-stats-grid,
   .catalog-metrics-grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
   }
 }
 
 .catalog-summary-card,
 .catalog-stat-card,
 .catalog-metric-card {
-  min-height: 96px !important;
-  padding: 16px !important;
+  min-height: 78px !important;
+  padding: 12px 14px !important;
   border: 1px solid var(--aferix-border, #222222) !important;
   border-radius: var(--aferix-radius-md, 12px) !important;
   background: linear-gradient(180deg, var(--aferix-surface-raised, #16181e), var(--aferix-surface, #0f1013)) !important;
@@ -1731,22 +1929,67 @@ button.secondary {
 .catalog-summary-card span,
 .catalog-stat-card span,
 .catalog-metric-card span {
-  font-size: 0.72rem !important;
+  min-height: 26px !important;
+  font-size: 0.68rem !important;
   font-weight: 800 !important;
   text-transform: uppercase !important;
-  color: var(--aferix-text-muted, #94a3b8) !important;
+  color: var(--aferix-text-soft, #94a3b8) !important;
   letter-spacing: 0.05em !important;
   margin-bottom: 4px !important;
   display: block !important;
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  line-height: 1.2 !important;
 }
 
 .catalog-summary-card strong,
 .catalog-stat-card strong,
 .catalog-metric-card strong {
-  font-size: 1.5rem !important;
+  font-size: 1.45rem !important;
   font-weight: 900 !important;
   color: var(--aferix-text, #f8fafc) !important;
   margin-top: 0 !important;
+}
+
+.catalog-beta-switcher {
+  display: inline-grid;
+  grid-template-columns: repeat(2, minmax(120px, 1fr));
+  gap: 4px;
+  width: min(100%, 340px);
+  padding: 4px;
+  border: 1px solid var(--aferix-border);
+  border-radius: var(--aferix-radius-md);
+  background: var(--aferix-bg-soft);
+}
+
+.catalog-beta-switcher button {
+  min-height: 40px !important;
+  border: 1px solid transparent !important;
+  border-radius: var(--aferix-radius-sm) !important;
+  background: transparent !important;
+  color: var(--aferix-text-muted) !important;
+  font-weight: 800 !important;
+}
+
+.catalog-beta-switcher button.active {
+  border-color: rgba(245, 164, 0, 0.36) !important;
+  background: rgba(245, 164, 0, 0.1) !important;
+  color: var(--aferix-brand) !important;
+}
+
+.catalog-beta-context {
+  max-width: 620px;
+  margin: 6px 0 2px !important;
+  color: var(--aferix-text-muted);
+  font-size: 0.84rem;
+  line-height: 1.35;
+}
+
+@media (max-width: 420px) {
+  .catalog-beta-switcher {
+    width: 100%;
+  }
 }
 
 .catalog-summary-card.active,
@@ -1774,7 +2017,7 @@ button.secondary {
   scrollbar-width: none !important;
   -webkit-overflow-scrolling: touch !important;
   width: 100% !important;
-  margin-bottom: 24px !important;
+  margin-bottom: 16px !important;
 }
 
 .catalog-tabs::-webkit-scrollbar {
@@ -1822,12 +2065,12 @@ button.secondary {
   max-width: 1120px !important;
   margin: 0 auto !important;
   display: grid !important;
-  gap: 16px !important;
+  gap: 12px !important;
 }
 
 .catalog-tab-content {
   display: grid !important;
-  gap: 16px !important;
+  gap: 12px !important;
   width: 100% !important;
 }
 
@@ -1835,7 +2078,7 @@ button.secondary {
   .catalog-hub-organized,
   .catalog-tab-panel,
   .catalog-tab-content {
-    gap: 14px !important;
+    gap: 10px !important;
   }
 }
 
@@ -1844,18 +2087,18 @@ button.secondary {
   border: 1px solid var(--aferix-border, #222222) !important;
   border-radius: var(--aferix-radius-lg, 16px) !important;
   background: linear-gradient(180deg, var(--aferix-surface-raised, #16181e), var(--aferix-surface, #0f1013)) !important;
-  padding: 24px !important;
+  padding: 18px 20px !important;
   display: grid !important;
   grid-template-columns: minmax(0, 1fr) auto !important;
   align-items: start !important;
   gap: 8px !important;
-  margin-bottom: 24px !important;
+  margin-bottom: 16px !important;
   width: 100% !important;
 }
 
 .catalog-tab-hero h3 {
   margin: 0 !important;
-  font-size: 1.5rem !important;
+  font-size: 1.4rem !important;
   font-weight: 900 !important;
   color: var(--aferix-text, #f8fafc) !important;
   line-height: 1.2 !important;
@@ -1863,7 +2106,7 @@ button.secondary {
 
 .catalog-tab-hero p {
   margin: 4px 0 0 !important;
-  font-size: 0.88rem !important;
+  font-size: 0.84rem !important;
   color: var(--aferix-text-muted, #94a3b8) !important;
   line-height: 1.4 !important;
   max-width: 680px !important;
@@ -1871,18 +2114,18 @@ button.secondary {
 
 .catalog-tab-hero strong {
   align-self: flex-start !important;
-  font-size: 0.84rem !important;
+  font-size: 0.8rem !important;
   font-weight: 800 !important;
   color: var(--aferix-text-muted, #94a3b8) !important;
   background: rgba(255, 255, 255, 0.05) !important;
   border: 1px solid var(--aferix-border, #222222) !important;
-  padding: 6px 12px !important;
+  padding: 4px 10px !important;
   border-radius: 99px !important;
   white-space: nowrap !important;
 }
 
 .catalog-eyebrow {
-  font-size: 0.72rem !important;
+  font-size: 0.7rem !important;
   font-weight: 800 !important;
   text-transform: uppercase !important;
   color: var(--aferix-primary, #f5a400) !important;
@@ -1894,15 +2137,12 @@ button.secondary {
 @media (max-width: 720px) {
   .catalog-tab-hero {
     grid-template-columns: 1fr !important;
-    padding: 18px !important;
-    gap: 12px !important;
-    margin-bottom: 16px !important;
+    padding: 16px !important;
+    gap: 10px !important;
+    margin-bottom: 12px !important;
   }
   .catalog-tab-hero h3 {
-    font-size: 1.25rem !important;
-  }
-  .catalog-tab-hero strong {
-    align-self: flex-start !important;
+    font-size: 1.2rem !important;
   }
 }
 
@@ -1916,8 +2156,8 @@ button.secondary {
   background: linear-gradient(180deg, var(--aferix-surface-raised, #15171c), var(--aferix-surface, #101114)) !important;
   color: var(--aferix-text, #f8fafc) !important;
   box-shadow: none !important;
-  padding: 24px !important;
-  margin-bottom: 24px !important;
+  padding: 18px 20px !important;
+  margin-bottom: 16px !important;
   width: 100% !important;
 }
 
@@ -1925,7 +2165,7 @@ button.secondary {
   background: linear-gradient(180deg, var(--aferix-surface-raised, #15171c), var(--aferix-surface, #101114)) !important;
   border: 1px solid var(--aferix-border, #24262d) !important;
   border-radius: var(--aferix-radius-md, 12px) !important;
-  padding: 16px !important;
+  padding: 14px 16px !important;
   display: flex !important;
   flex-direction: column !important;
   justify-content: center !important;
@@ -2188,5 +2428,3 @@ button.secondary {
   color: var(--aferix-text-muted, #94a3b8) !important;
   line-height: 1.4 !important;
 }
-
-

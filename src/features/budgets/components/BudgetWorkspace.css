@@ -1,6 +1,6 @@
 .budget-workspace {
   display: grid;
-  gap: 16px;
+  gap: 12px;
   width: 100%;
   max-width: 100%;
   min-width: 0;
@@ -332,7 +332,7 @@
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
   border-bottom: 1px solid var(--aferix-border, #1f1f22);
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .budget-workspace-tabs::-webkit-scrollbar,
@@ -393,8 +393,8 @@
 
 .budget-section-panel {
   display: grid;
-  gap: 16px;
-  padding: 18px;
+  gap: 12px;
+  padding: 16px;
 }
 
 .budget-items-layout {

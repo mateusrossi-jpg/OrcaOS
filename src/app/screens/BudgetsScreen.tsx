@@ -3,7 +3,6 @@ import type { CalculationCapture } from '../../core/types/workflow';
 import type { Client, WorkOrder } from '../../core/types/business';
 import type { UserPlan } from '../../core/access/featureAccess';
 import type { AppTab } from '../appTypes';
-import { ActiveWorkContextCard } from '../components/ActiveWorkContextCard';
 
 const BudgetWorkspaceClientBridge = lazy(() => import('../../features/budgets/components/BudgetWorkspaceClientBridge').then((module) => ({ default: module.BudgetWorkspaceClientBridge })));
 
@@ -39,9 +38,7 @@ export function BudgetsScreen({
     <section className="app-screen wide-screen">
       <header className="screen-header">
         <h1>Orçamentos</h1>
-        <button type="button" className="primary-action inline-action" onClick={handleNewBudget}>+ Novo orçamento</button>
       </header>
-      <ActiveWorkContextCard {...context} />
       
       <BudgetWorkspaceClientBridge 
         key={resetKey}

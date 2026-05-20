@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { calculatePercentAmount, calculateServiceProfit } from '../../../core/finance/serviceProfit';
 import { calculateBudgetTotal } from '../../../core/pricing/budget';
 import type { Budget } from '../../../core/types/business';
@@ -103,9 +103,20 @@ function recordToDraft(record: SimpleFinanceRecord): FinanceDraft {
   };
 }
 
-export function SimpleFinanceWorkspace() {
+export function SimpleFinanceWorkspace({ onNewEntryRequest }: { onNewEntryRequest?: (callback: () => void) => void }) {
   const [draft, setDraft] = useState<FinanceDraft>(emptyDraft);
   const [showEntryForm, setShowEntryForm] = useState(false);
+  
+  // Expose the "new entry" logic if requested
+  useEffect(() => {
+    if (onNewEntryRequest) {
+      onNewEntryRequest(() => {
+        setDraft(emptyDraft);
+        setShowEntryForm(true);
+      });
+    }
+  }, [onNewEntryRequest]);
+
   const [records, setRecords] = useState<SimpleFinanceRecord[]>(() => loadSimpleFinanceRecords());
   const [recordSearch, setRecordSearch] = useState('');
   const savedBudgets = useMemo(() => loadSavedBudgets(), []);
@@ -268,7 +279,7 @@ export function SimpleFinanceWorkspace() {
             </div>
 
             <div className="finance-entry-actions">
-              <button className="primary-action full-cta" type="button" onClick={saveRecord}>{draft.id ? 'Atualizar Apuração' : 'Finalizar e Salvar Lucro'}</button>
+              <button className="primary-action premium-cta" style={{ width: '100%' }} type="button" onClick={saveRecord}>{draft.id ? 'Atualizar Apuração' : 'Finalizar e Salvar Lucro'}</button>
             </div>
           </div>
 
@@ -296,15 +307,20 @@ export function SimpleFinanceWorkspace() {
         </div>
       </div>}
 
-      <div className="aferix-panel-card">
-        <header>
+      <div className="aferix-panel-card" style={{ padding: '0', overflow: 'hidden' }}>
+        <header style={{ padding: '16px 20px', borderBottom: '1px solid var(--aferix-border-soft)' }}>
           <div>
-            <h2>Apuração de Resultados</h2>
-            <p>Histórico de serviços fechados e lucro real apurado.</p>
+            <h2 style={{ fontSize: '1.1rem', fontWeight: 700, margin: 0 }}>Apuração de Resultados</h2>
           </div>
-          <button className="primary-action inline-action" type="button" onClick={() => { setDraft(emptyDraft); setShowEntryForm(true); }}>+ Novo Fechamento</button>
         </header>
-        <label className="finance-field finance-search-field"><span>Buscar fechamento</span><input value={recordSearch} placeholder="Serviço, cliente ou valor" onChange={(event) => setRecordSearch(event.target.value)} /></label>
+        <div className="finance-search-container" style={{ padding: '12px 16px', borderBottom: '1px solid var(--aferix-border-soft)' }}>
+          <input 
+            value={recordSearch} 
+            placeholder="Buscar fechamento..." 
+            onChange={(event) => setRecordSearch(event.target.value)} 
+            style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid var(--aferix-border)', background: 'var(--aferix-bg-soft)', color: 'var(--aferix-text)', fontSize: '0.95rem' }}
+          />
+        </div>
         <div className="continuous-list">
           {records.length === 0 ? <div className="continuous-list-empty">Nenhum fechamento registrado.</div> : visibleRecords.length === 0 ? <div className="continuous-list-empty">Nenhum resultado para "{recordSearch}".</div> : visibleRecords.map((record) => {
             const profit = calculateServiceProfit(record);

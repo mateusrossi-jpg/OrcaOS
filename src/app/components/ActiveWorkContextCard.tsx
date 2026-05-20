@@ -10,7 +10,7 @@ export function ActiveWorkContextCard({ activeClient, activeWorkOrder }: ActiveW
   return (
     <div className="active-work-context-card">
       <div className="context-main-info">
-        <span className="context-label">Atendimento ativo</span>
+        <span className="context-label">Serviço selecionado</span>
         {activeWorkOrder ? (
           <>
             <strong>{activeWorkOrder.title}</strong>
