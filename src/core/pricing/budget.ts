@@ -1,9 +1,9 @@
 import type { Budget, BudgetItem } from '../types/business';
-import { ensurePositiveNumber } from '../validation/numberValidation';
+import { ensurePositiveNumber, ensureNonNegativeNumber } from '../validation/numberValidation';
 
 export function calculateBudgetItemTotal(item: BudgetItem): number {
   ensurePositiveNumber(item.quantity, 'Quantidade');
-  ensurePositiveNumber(item.unitPrice, 'Preço unitário');
+  ensureNonNegativeNumber(item.unitPrice, 'Preço unitário');
 
   return item.quantity * item.unitPrice;
 }

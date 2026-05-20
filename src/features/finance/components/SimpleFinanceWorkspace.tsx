@@ -26,6 +26,10 @@ interface FinanceDraft {
   estimatedTax: string;
   otherCosts: string;
   sourceBudgetId: string;
+  forecastReceived: number;
+  forecastMaterial: number;
+  forecastTravel: number;
+  forecastOther: number;
 }
 
 const emptyDraft: FinanceDraft = {
@@ -42,10 +46,14 @@ const emptyDraft: FinanceDraft = {
   estimatedTax: '0',
   otherCosts: '0',
   sourceBudgetId: '',
+  forecastReceived: 0,
+  forecastMaterial: 0,
+  forecastTravel: 0,
+  forecastOther: 0,
 };
 
 const moneyFormatter = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
-const FINANCE_VISIBLE_LIMIT = 5;
+const FINANCE_VISIBLE_LIMIT = 10;
 
 function parseAmount(value: string): number {
   const parsed = Number(value.replace(',', '.').trim());
@@ -88,6 +96,10 @@ function recordToDraft(record: SimpleFinanceRecord): FinanceDraft {
     estimatedTax: String(record.estimatedTax),
     otherCosts: String(record.otherCosts),
     sourceBudgetId: record.sourceBudgetId ?? '',
+    forecastReceived: record.receivedAmount,
+    forecastMaterial: record.materialCost,
+    forecastTravel: record.travelCost,
+    forecastOther: record.otherCosts,
   };
 }
 
@@ -98,15 +110,17 @@ export function SimpleFinanceWorkspace() {
   const [recordSearch, setRecordSearch] = useState('');
   const savedBudgets = useMemo(() => loadSavedBudgets(), []);
   const approvedBudgets = savedBudgets.filter((budget) => budget.status === 'approved');
+  
   const filteredRecords = useMemo(() => {
     const normalizedSearch = recordSearch.trim().toLowerCase();
-    if (!normalizedSearch) return [];
+    if (!normalizedSearch) return records;
     return records.filter((record) => [record.title, record.clientName, record.status === 'forecast' ? 'Previsto' : 'Recebido', money(record.receivedAmount)].join(' ').toLowerCase().includes(normalizedSearch));
   }, [recordSearch, records]);
+
   const visibleRecords = filteredRecords.slice(0, FINANCE_VISIBLE_LIMIT);
   const hiddenRecordCount = Math.max(filteredRecords.length - visibleRecords.length, 0);
 
-  const result = useMemo(() => calculateServiceProfit({
+  const realResult = useMemo(() => calculateServiceProfit({
     receivedAmount: parseAmount(draft.receivedAmount),
     materialCost: parseAmount(draft.materialCost),
     travelCost: parseAmount(draft.travelCost),
@@ -114,6 +128,17 @@ export function SimpleFinanceWorkspace() {
     estimatedTax: parseAmount(draft.estimatedTax),
     otherCosts: parseAmount(draft.otherCosts),
   }), [draft.cardFee, draft.estimatedTax, draft.materialCost, draft.otherCosts, draft.receivedAmount, draft.travelCost]);
+
+  const forecastResult = useMemo(() => calculateServiceProfit({
+    receivedAmount: draft.forecastReceived,
+    materialCost: draft.forecastMaterial,
+    travelCost: draft.forecastTravel,
+    cardFee: 0,
+    estimatedTax: 0,
+    otherCosts: draft.forecastOther,
+  }), [draft.forecastMaterial, draft.forecastOther, draft.forecastReceived, draft.forecastTravel]);
+
+  const profitDiff = realResult.netProfit - forecastResult.netProfit;
 
   const monthSummary = useMemo(() => {
     return records.reduce((summary, record) => {
@@ -132,28 +157,24 @@ export function SimpleFinanceWorkspace() {
     setDraft((current) => ({ ...current, [key]: value }));
   }
 
-  function applyPercent(kind: 'card' | 'tax') {
-    const received = parseAmount(draft.receivedAmount);
-    if (kind === 'card') {
-      updateDraft('cardFee', String(calculatePercentAmount(received, parseAmount(draft.cardFeePercent)).toFixed(2)));
-      return;
-    }
-    updateDraft('estimatedTax', String(calculatePercentAmount(received, parseAmount(draft.estimatedTaxPercent)).toFixed(2)));
-  }
-
   function useBudget(recordId: string) {
     const budget = approvedBudgets.find((item) => item.id === recordId);
     if (!budget) return;
     const materialCost = budget.items.filter((item) => item.category === 'material').reduce((total, item) => total + item.quantity * item.unitPrice, 0);
+    const totalOrçado = savedBudgetTotal(budget);
     setDraft((current) => ({
       ...current,
       title: budget.title,
       clientName: budget.clientName,
-      status: 'forecast',
-      receivedAmount: String(savedBudgetTotal(budget)),
+      status: 'realized',
+      receivedAmount: String(totalOrçado),
       materialCost: String(materialCost),
       travelCost: String(budget.travelCost),
       sourceBudgetId: budget.id,
+      forecastReceived: totalOrçado,
+      forecastMaterial: materialCost,
+      forecastTravel: budget.travelCost || 0,
+      forecastOther: budget.additionalFees || 0,
     }));
   }
 
@@ -199,42 +220,77 @@ export function SimpleFinanceWorkspace() {
       {showEntryForm && <div className="aferix-panel-card finance-entry-panel">
         <header>
           <div>
-            <h2>{draft.id ? 'Editar Lançamento' : 'Novo Lançamento'}</h2>
+            <h2>{draft.id ? 'Editar Fechamento' : 'Fechamento do Serviço'}</h2>
+            <p>Registre o resultado real comparado ao orçamento.</p>
           </div>
           <button className="ghost-action" type="button" onClick={() => { setDraft(emptyDraft); setShowEntryForm(false); }}>Fechar</button>
         </header>
 
         <div className="finance-entry-layout">
           <div className="finance-entry-main">
-            {approvedBudgets.length > 0 && (
+            {approvedBudgets.length > 0 && !draft.id && (
               <label className="finance-field finance-source-field">
-                <span>Preencher a partir de orçamento aprovado</span>
+                <span>Vincular orçamento aprovado</span>
                 <select value={draft.sourceBudgetId} onChange={(event) => useBudget(event.target.value)}>
-                  <option value="">Selecionar orçamento aprovado</option>
+                  <option value="">Selecionar orçamento para fechar</option>
                   {approvedBudgets.map((budget) => <option key={budget.id} value={budget.id}>{budget.title} · {money(savedBudgetTotal(budget))}</option>)}
                 </select>
               </label>
             )}
 
-            <div className="professional-profile-grid finance-form-grid">
-              <label className="budget-field wide"><span>Serviço</span><input value={draft.title} onChange={(event) => updateDraft('title', event.target.value)} /></label>
+            <div className="professional-profile-grid finance-form-grid" style={{ marginTop: '1.5rem' }}>
+              <label className="budget-field wide"><span>Título do Serviço</span><input value={draft.title} onChange={(event) => updateDraft('title', event.target.value)} /></label>
               <label className="budget-field"><span>Cliente</span><input value={draft.clientName} onChange={(event) => updateDraft('clientName', event.target.value)} /></label>
-              <label className="budget-field"><span>Status</span><select value={draft.status} onChange={(event) => updateDraft('status', event.target.value as SimpleFinanceRecord['status'])}><option value="forecast">Previsto</option><option value="realized">Recebido</option></select></label>
-              <label className="budget-field"><span>Recebido</span><input inputMode="decimal" value={draft.receivedAmount} onChange={(event) => updateDraft('receivedAmount', event.target.value)} /></label>
-              <label className="budget-field"><span>Material</span><input inputMode="decimal" value={draft.materialCost} onChange={(event) => updateDraft('materialCost', event.target.value)} /></label>
-              <label className="budget-field"><span>Deslocamento</span><input inputMode="decimal" value={draft.travelCost} onChange={(event) => updateDraft('travelCost', event.target.value)} /></label>
-              <label className="budget-field"><span>Outros</span><input inputMode="decimal" value={draft.otherCosts} onChange={(event) => updateDraft('otherCosts', event.target.value)} /></label>
+              <label className="budget-field"><span>Status</span><select value={draft.status} onChange={(event) => updateDraft('status', event.target.value as SimpleFinanceRecord['status'])}><option value="realized">Recebido / Concluído</option><option value="forecast">Aguardando Recebimento</option></select></label>
+              
+              <div className="comparative-input-group">
+                <label className="budget-field">
+                  <span>Valor Recebido (Real)</span>
+                  <input inputMode="decimal" value={draft.receivedAmount} onChange={(event) => updateDraft('receivedAmount', event.target.value)} />
+                  <small>Orçado: {money(draft.forecastReceived)}</small>
+                </label>
+                <label className="budget-field">
+                  <span>Custo Material (Real)</span>
+                  <input inputMode="decimal" value={draft.materialCost} onChange={(event) => updateDraft('materialCost', event.target.value)} />
+                  <small>Previsto: {money(draft.forecastMaterial)}</small>
+                </label>
+                <label className="budget-field">
+                  <span>Deslocamento (Real)</span>
+                  <input inputMode="decimal" value={draft.travelCost} onChange={(event) => updateDraft('travelCost', event.target.value)} />
+                  <small>Previsto: {money(draft.forecastTravel)}</small>
+                </label>
+                <label className="budget-field">
+                  <span>Outros Custos (Real)</span>
+                  <input inputMode="decimal" value={draft.otherCosts} onChange={(event) => updateDraft('otherCosts', event.target.value)} />
+                  <small>Previsto: {money(draft.forecastOther)}</small>
+                </label>
+              </div>
             </div>
 
             <div className="finance-entry-actions">
-              <button className="ghost-action" type="button" onClick={saveRecord}>{draft.id ? 'Atualizar' : 'Salvar'}</button>
+              <button className="primary-action full-cta" type="button" onClick={saveRecord}>{draft.id ? 'Atualizar Apuração' : 'Finalizar e Salvar Lucro'}</button>
             </div>
           </div>
 
           <aside className="finance-live-summary">
-            <div className="dashboard-finance-tiles finance-live-grid">
-              <MetricCard label="Lucro líquido" value={<MoneyValue value={result.netProfit} tone={result.netProfit >= 0 ? 'success' : 'danger'} />} tone={result.netProfit >= 0 ? 'success' : 'danger'} />
-              <MetricCard label="Margem" value={`${result.netMarginPercent.toFixed(1)}%`} tone={result.netMarginPercent >= 0 ? 'success' : 'danger'} />
+            <div className="aferix-panel-card result-comparison-card">
+              <header><h3>Resultado Final</h3></header>
+              <div className="result-metric">
+                <span>Lucro Real</span>
+                <strong className={realResult.netProfit >= 0 ? 'tone-success' : 'tone-danger'}>{money(realResult.netProfit)}</strong>
+              </div>
+              <div className="result-metric">
+                <span>Margem Real</span>
+                <strong>{realResult.netMarginPercent.toFixed(1)}%</strong>
+              </div>
+              <div className="result-divider" />
+              <div className="result-metric diff-metric">
+                <span>Diferença (vs Orçado)</span>
+                <strong className={profitDiff >= 0 ? 'tone-success' : 'tone-danger'}>
+                  {profitDiff >= 0 ? '+' : ''}{money(profitDiff)}
+                </strong>
+                <small>{profitDiff >= 0 ? 'Lucro acima do previsto' : 'Lucro abaixo do previsto'}</small>
+              </div>
             </div>
           </aside>
         </div>
@@ -243,25 +299,28 @@ export function SimpleFinanceWorkspace() {
       <div className="aferix-panel-card">
         <header>
           <div>
-            <h2>Histórico</h2>
-            <p>Lançamentos financeiros registrados neste dispositivo.</p>
+            <h2>Apuração de Resultados</h2>
+            <p>Histórico de serviços fechados e lucro real apurado.</p>
           </div>
-          <button className="ghost-action" type="button" onClick={() => { setDraft(emptyDraft); setShowEntryForm(true); }}>Novo lançamento</button>
+          <button className="primary-action inline-action" type="button" onClick={() => { setDraft(emptyDraft); setShowEntryForm(true); }}>+ Novo Fechamento</button>
         </header>
-        <label className="finance-field finance-search-field"><span>Buscar lançamento</span><input value={recordSearch} placeholder="Serviço, cliente, status ou valor" onChange={(event) => setRecordSearch(event.target.value)} /></label>
+        <label className="finance-field finance-search-field"><span>Buscar fechamento</span><input value={recordSearch} placeholder="Serviço, cliente ou valor" onChange={(event) => setRecordSearch(event.target.value)} /></label>
         <div className="continuous-list">
-          {records.length === 0 ? <div className="continuous-list-empty">Nenhum lançamento registrado.</div> : !recordSearch.trim() ? <div className="continuous-list-empty">Pesquise para listar os registros.</div> : visibleRecords.length === 0 ? <div className="continuous-list-empty">Nenhum resultado.</div> : visibleRecords.map((record) => {
+          {records.length === 0 ? <div className="continuous-list-empty">Nenhum fechamento registrado.</div> : visibleRecords.length === 0 ? <div className="continuous-list-empty">Nenhum resultado para "{recordSearch}".</div> : visibleRecords.map((record) => {
             const profit = calculateServiceProfit(record);
             return (
               <article className="continuous-list-item" key={record.id}>
                 <div className="client-col">
                   <strong>{record.title}</strong>
-                  <small>{record.clientName || 'Cliente final'} · {record.status === 'forecast' ? 'Previsto' : 'Recebido'}</small>
+                  <small>{record.clientName || 'Cliente final'} · {record.status === 'forecast' ? 'Aguardando' : 'Finalizado'}</small>
                 </div>
-                <div className="value-col">{money(profit.netProfit)}</div>
+                <div className="value-col">
+                   <strong>{money(profit.netProfit)}</strong>
+                   <small>{profit.netMarginPercent.toFixed(0)}% margem</small>
+                </div>
                 <div className="finance-record-actions">
-                  <button className="ghost-action compact-row-action" type="button" onClick={() => editRecord(record)}>Editar</button>
-                  <button className="ghost-action compact-row-action danger-row-action" type="button" onClick={() => removeRecord(record.id)}>Remover</button>
+                  <button className="ghost-action compact-row-action" type="button" onClick={() => editRecord(record)}>✎</button>
+                  <button className="ghost-action compact-row-action danger-row-action" type="button" onClick={() => removeRecord(record.id)}>✕</button>
                 </div>
               </article>
             );

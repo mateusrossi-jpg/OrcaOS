@@ -5,6 +5,7 @@
   max-width: 100%;
   min-width: 0;
   overflow-x: hidden;
+  height: auto;
 }
 
 .budget-save-status,
@@ -15,10 +16,14 @@
 .budget-section-panel,
 .budget-item-manager {
   min-width: 0;
+  height: auto;
+  min-height: fit-content;
   border: 1px solid var(--aferix-border, #1f1f22);
   border-radius: 12px;
   background: linear-gradient(180deg, var(--aferix-surface-2), var(--aferix-surface));
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
 }
 
 .budget-save-status {
@@ -1409,8 +1414,8 @@
   display: grid;
   gap: 0;
   min-width: 0;
-  max-height: 430px;
-  overflow: auto;
+  height: auto;
+  min-height: fit-content;
   border: 1px solid var(--aferix-border, #1f1f22);
   border-radius: 12px;
 }
@@ -1445,10 +1450,11 @@
   align-items: center;
   width: 100%;
   min-height: 64px;
+  height: auto;
   border: 0;
   border-bottom: 1px solid rgba(148, 163, 184, 0.14);
   border-radius: 0;
-  padding: 11px 12px;
+  padding: 14px 12px;
   color: var(--aferix-text, #f8fafc);
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.018), rgba(255, 255, 255, 0.004)),
@@ -1473,9 +1479,8 @@
 .budget-item-table-row small {
   display: block;
   min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  overflow-wrap: break-word;
+  white-space: normal;
 }
 
 .budget-item-table-row small {
@@ -2141,6 +2146,14 @@ textarea {
 
 
 @media (max-width: 760px) {
+  .budget-workspace {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    padding-bottom: calc(2rem + env(safe-area-inset-bottom));
+  }
+
   .budget-items-layout,
   .budget-header-card,
   .budget-form-grid,
@@ -2154,23 +2167,33 @@ textarea {
   .budget-list-search-bar,
   .inventory-management-group {
     grid-template-columns: 1fr !important;
+    width: 100% !important;
+    max-width: 100% !important;
   }
 
   .budget-section-panel,
   .budget-editor,
   .budget-item-manager,
   .saved-budget-panel {
-    padding: 14px !important;
-    border-radius: 12px !important;
+    padding: 18px !important;
+    border-radius: 16px !important;
+    width: 100% !important;
+    margin: 0 !important;
+  }
+
+  .budget-field {
+    width: 100% !important;
   }
 
   .budget-actions,
   .budget-default-actions,
   .saved-budget-actions,
   .editable-budget-item-footer {
-    display: grid !important;
-    grid-template-columns: 1fr !important;
-    gap: 10px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+    width: 100% !important;
+    margin-top: 1.5rem !important;
   }
 
   .budget-actions button,
@@ -2178,6 +2201,16 @@ textarea {
   .saved-budget-actions button,
   .editable-budget-item-footer button {
     width: 100% !important;
+    padding: 16px !important;
+    font-size: 1rem !important;
+    justify-content: center !important;
+  }
+
+  .budget-sticky-summary {
+    position: relative !important;
+    top: 0 !important;
+    width: 100% !important;
+    margin-bottom: 1.5rem !important;
   }
 }
 

@@ -16,6 +16,7 @@ interface BudgetsScreenProps {
   onUpdate: (id: string, patch: Partial<CalculationCapture>) => void;
   onConvertApprovedBudgetToWorkOrder: () => void;
   forceNewBudget?: boolean;
+  initialBudgetId?: string | null;
 }
 
 export function BudgetsScreen({
@@ -23,7 +24,8 @@ export function BudgetsScreen({
   userPlan: activeUserPlan,
   goTo,
   onConvertApprovedBudgetToWorkOrder,
-  forceNewBudget: initialForceNewBudget = false
+  forceNewBudget: initialForceNewBudget = false,
+  initialBudgetId = null
 }: BudgetsScreenProps) {
   // Ocultamos a base técnica (cálculos) nesta versão para focar no financeiro
   const budgetCaptures: CalculationCapture[] = []; 
@@ -51,6 +53,7 @@ export function BudgetsScreen({
         onTechnicalCaptureConverted={() => {}} 
         onConvertApprovedBudgetToWorkOrder={onConvertApprovedBudgetToWorkOrder} 
         forceNewBudget={initialForceNewBudget || resetKey > 0}
+        initialBudgetId={initialBudgetId}
       />
     </section>
   );

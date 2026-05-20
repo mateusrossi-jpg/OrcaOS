@@ -264,7 +264,7 @@ export function TextArea({
   className?: string;
 }) {
   const ref = useRef<HTMLTextAreaElement>(null);
-  useAutoResizeTextArea(ref.current, value);
+  useAutoResizeTextArea(ref, value);
 
   return (
     <textarea

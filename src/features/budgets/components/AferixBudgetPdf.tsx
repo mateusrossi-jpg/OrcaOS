@@ -2,8 +2,16 @@ import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
 import type { Budget, BusinessProfile } from '../../../core/types/business';
 import { calculateBudgetItemTotal } from '../../../core/pricing/budget';
 
-const formatCurrency = (value: number) => 
-  new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+const formatCurrency = (value: number) => {
+  const safeValue = Number.isFinite(value) ? value : 0;
+  return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(safeValue);
+};
+
+const safeCalculateItemTotal = (item: any) => {
+  const qty = Number.isFinite(item.quantity) ? item.quantity : 0;
+  const price = Number.isFinite(item.unitPrice) ? item.unitPrice : 0;
+  return qty * price;
+};
 
 interface BudgetPdfProps {
   budget: Partial<Budget>;
@@ -50,7 +58,7 @@ const SimplePdfTemplate = ({ budget, businessProfile, total, subtotal, clientNam
           </View>
           {items.map((item) => (
             <View style={stylesSimple.tableRow} key={item.id}>
-              <Text style={stylesSimple.colDesc}>{item.description}</Text><Text style={stylesSimple.colQty}>{item.quantity}</Text><Text style={stylesSimple.colUnit}>{formatCurrency(item.unitPrice)}</Text><Text style={stylesSimple.colTotal}>{formatCurrency(calculateBudgetItemTotal(item))}</Text>
+              <Text style={stylesSimple.colDesc}>{item.description}</Text><Text style={stylesSimple.colQty}>{item.quantity}</Text><Text style={stylesSimple.colUnit}>{formatCurrency(item.unitPrice)}</Text><Text style={stylesSimple.colTotal}>{formatCurrency(safeCalculateItemTotal(item))}</Text>
             </View>
           ))}
         </View>
@@ -128,7 +136,7 @@ const ProfessionalPdfTemplate = ({ budget, businessProfile, total, subtotal, cli
           </View>
           {items.map((item) => (
             <View style={stylesProf.tableRow} key={item.id}>
-              <Text style={stylesProf.colDesc}>{item.description}</Text><Text style={stylesProf.colQty}>{item.quantity}</Text><Text style={stylesProf.colUnit}>{formatCurrency(item.unitPrice)}</Text><Text style={stylesProf.colTotal}>{formatCurrency(calculateBudgetItemTotal(item))}</Text>
+              <Text style={stylesProf.colDesc}>{item.description}</Text><Text style={stylesProf.colQty}>{item.quantity}</Text><Text style={stylesProf.colUnit}>{formatCurrency(item.unitPrice)}</Text><Text style={stylesProf.colTotal}>{formatCurrency(safeCalculateItemTotal(item))}</Text>
             </View>
           ))}
         </View>

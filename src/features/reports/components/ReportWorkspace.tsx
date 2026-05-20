@@ -1,11 +1,10 @@
-import { useState } from 'react';
-import type { Client, ReportTemplateId, WorkOrder } from '../../../core/types/business';
+import { useMemo, useState } from 'react';
+import type { Client, WorkOrder, Budget } from '../../../core/types/business';
 import type { CalculationCapture } from '../../../core/types/workflow';
-import { getReportCaptureMetrics, isClientPurchaseMaterial } from '../../workflow/utils/captureWorkflow';
-import { loadBusinessProfile } from '../../budgets/storage/businessProfileStorage';
-import { loadSavedBudgets } from '../../budgets/storage/savedBudgetsStorage';
+import { loadSavedBudgets, type SavedBudgetRecord } from '../../budgets/storage/savedBudgetsStorage';
+import { loadSimpleFinanceRecords, type SimpleFinanceRecord } from '../../finance/storage/simpleFinanceStorage';
+import { calculateServiceProfit } from '../../../core/finance/serviceProfit';
 import { calculateBudgetTotal } from '../../../core/pricing/budget';
-import type { Budget } from '../../../core/types/business';
 import './ReportWorkspace.css';
 
 interface ReportWorkspaceProps {
@@ -14,55 +13,15 @@ interface ReportWorkspaceProps {
   activeWorkOrder?: WorkOrder | null;
 }
 
-function formatDateTime(value: string): string {
-  return new Intl.DateTimeFormat('pt-BR', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  }).format(new Date(value));
+type ReportCategory = 'financeiro' | 'clientes' | 'serviços' | 'desempenho';
+
+const moneyFormatter = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+
+function money(value: number): string {
+  return moneyFormatter.format(Number.isFinite(value) ? value : 0);
 }
 
-function formatOptionalDateTime(value?: string): string {
-  if (!value) return 'Sem data agendada';
-  return formatDateTime(value);
-}
-
-function statusLabel(status?: WorkOrder['status']): string {
-  if (!status) return 'Sem status';
-  const labels: Record<WorkOrder['status'], string> = {
-    'in-progress': 'Em execução',
-    done: 'Concluído',
-    cancelled: 'Cancelado',
-  };
-  return labels[status];
-}
-
-function itemTypeLabel(itemType: CalculationCapture['itemType']): string {
-  if (itemType === 'diagnostic') return 'Análise';
-  if (itemType === 'service') return 'Serviço';
-  if (itemType === 'material') return 'Material';
-  if (itemType === 'projectSpecification') return 'Especificação';
-  return 'Observação';
-}
-
-function printReport() {
-  window.print();
-}
-
-function captureTitle(capture: CalculationCapture): string {
-  return capture.editableDescription || capture.summary;
-}
-
-function compactList(items: CalculationCapture[], limit = 4): string {
-  if (items.length === 0) return 'Nenhum item registrado ainda.';
-  const visibleItems = items.slice(0, limit).map(captureTitle).join('; ');
-  const remainingCount = items.length - limit;
-  return remainingCount > 0 ? `${visibleItems}; +${remainingCount} item(ns).` : `${visibleItems}.`;
-}
-
-function budgetRecordTotal(record: ReturnType<typeof loadSavedBudgets>[number]): number {
+function budgetRecordTotal(record: SavedBudgetRecord): number {
   const budget: Budget = {
     id: record.id,
     title: record.title,
@@ -79,203 +38,174 @@ function budgetRecordTotal(record: ReturnType<typeof loadSavedBudgets>[number]):
   }
 }
 
-function money(value: number): string {
-  return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number.isFinite(value) ? value : 0);
-}
-
-function reportTemplateLabel(templateId: ReportTemplateId): string {
-  if (templateId === 'technicalDetailed') return 'Relatório de serviço';
-  if (templateId === 'managerial') return 'Relatório financeiro';
-  return 'Relatório comercial';
-}
-
-const AFERIX_LOGO_LIGHT_URL = '/icons/aferix-wordmark-document.svg';
-
 export function ReportWorkspace({ captures, activeClient = null, activeWorkOrder = null }: ReportWorkspaceProps) {
-  const [zoom, setZoom] = useState(1);
-  const { reportItems, itemsWithImage, diagnostics } = getReportCaptureMetrics(captures);
-  const businessProfile = loadBusinessProfile();
-  const reportTemplateId = businessProfile.defaultReportTemplateId;
-  const profileName = businessProfile.businessName || businessProfile.responsibleName || 'Aferix';
-  const contactLine = [businessProfile.phone, businessProfile.email].filter(Boolean).join(' · ');
-  const logoSource = businessProfile.logoDataUrl || businessProfile.logoUrl || AFERIX_LOGO_LIGHT_URL;
-  const serviceItems = reportItems.filter((capture) => capture.itemType === 'service');
-  const materialItems = reportItems.filter((capture) => capture.itemType === 'material');
-  const clientPurchaseItems = reportItems.filter(isClientPurchaseMaterial);
-  const notesAndRecommendations = reportItems.filter((capture) => capture.technicalNote?.trim());
-  const savedBudgets = loadSavedBudgets();
-  const approvedBudgets = savedBudgets.filter((budget) => budget.status === 'approved');
-  const totalApproved = approvedBudgets.reduce((sum, budget) => sum + budgetRecordTotal(budget), 0);
-  const averageTicket = approvedBudgets.length > 0 ? totalApproved / approvedBudgets.length : 0;
-  const approvalRate = savedBudgets.length > 0 ? (approvedBudgets.length / savedBudgets.length) * 100 : 0;
-  const readyChecks = [
-    { label: 'Cliente vinculado', ready: Boolean(activeClient) },
-    { label: 'Serviço identificado', ready: Boolean(activeWorkOrder?.title) },
-    { label: 'Itens adicionados', ready: reportItems.length > 0 },
-    { label: 'Análise ou observação', ready: diagnostics > 0 || notesAndRecommendations.length > 0 },
-  ];
+  const [activeCategory, setActiveCategory] = useState<ReportCategory>('financeiro');
+  
+  const savedBudgets = useMemo(() => loadSavedBudgets(), []);
+  const financeRecords = useMemo(() => loadSimpleFinanceRecords(), []);
+
+  // Calculate Hero Data: Planned vs Actual
+  const heroData = useMemo(() => {
+    const plannedProfit = savedBudgets
+      .filter(b => b.status === 'approved')
+      .reduce((sum, b) => sum + (b.lucro_liquido || 0), 0);
+    
+    const actualProfit = financeRecords
+      .filter(r => r.status === 'realized')
+      .reduce((sum, r) => sum + calculateServiceProfit(r).netProfit, 0);
+
+    const delta = actualProfit - plannedProfit;
+    const isPositive = delta >= 0;
+
+    return { plannedProfit, actualProfit, delta, isPositive };
+  }, [savedBudgets, financeRecords]);
+
+  // Category specific data
+  const financeStats = useMemo(() => {
+    const realized = financeRecords.filter(r => r.status === 'realized');
+    const totalRevenue = realized.reduce((sum, r) => sum + r.receivedAmount, 0);
+    const totalCosts = realized.reduce((sum, r) => {
+      const p = calculateServiceProfit(r);
+      return sum + p.directCosts;
+    }, 0);
+    const avgMargin = realized.length > 0 
+      ? realized.reduce((sum, r) => sum + calculateServiceProfit(r).netMarginPercent, 0) / realized.length 
+      : 0;
+
+    return { totalRevenue, totalCosts, avgMargin };
+  }, [financeRecords]);
+
+  const clientStats = useMemo(() => {
+    const clientMap = new Map<string, { name: string, count: number, total: number }>();
+    financeRecords.forEach(r => {
+      const entry = clientMap.get(r.clientName) || { name: r.clientName || 'Cliente Avulso', count: 0, total: 0 };
+      entry.count += 1;
+      entry.total += r.receivedAmount;
+      clientMap.set(r.clientName, entry);
+    });
+    return Array.from(clientMap.values()).sort((a, b) => b.total - a.total).slice(0, 5);
+  }, [financeRecords]);
 
   return (
-    <>
-      <div className="aferix-panel-card report-command-panel no-print">
-        <header>
-          <div>
-            <h2>Prévia do documento</h2>
-            <p>{reportTemplateLabel(reportTemplateId)}</p>
+    <div className="report-workspace-container">
+      {/* Hero Card: Planned vs Actual */}
+      <section className="report-hero-card">
+        <div className="hero-main-metric">
+          <span>Lucro Realizado (Mês)</span>
+          <strong>{money(heroData.actualProfit)}</strong>
+        </div>
+        <div className="hero-comparison-grid">
+          <div className="comparison-item">
+            <span>Lucro Previsto</span>
+            <strong>{money(heroData.plannedProfit)}</strong>
           </div>
-          <button className="ghost-action" type="button" onClick={printReport} disabled={reportItems.length === 0}>
-            Imprimir / PDF
-          </button>
-        </header>
-      </div>
-
-      <div className="dashboard-finance-tiles no-print" style={{ margin: '1rem 0' }}>
-        {readyChecks.map((check) => (
-          <article className="finance-tile" key={check.label} style={{ borderLeft: check.ready ? '3px solid #f59e0b' : '3px solid #444' }}>
-            <span style={{ fontSize: '0.65rem' }}>{check.label}</span>
-            <strong>{check.ready ? 'Pronto' : 'Pendente'}</strong>
-          </article>
-        ))}
-      </div>
-
-
-      {reportItems.length > 0 && (
-        <div className="aferix-preview-toolbar no-print">
-          <span className="toolbar-label">Ajustar Visualização</span>
-          <div className="toolbar-actions">
-            <button type="button" className="toolbar-btn" onClick={() => setZoom(prev => Math.max(0.6, prev - 0.1))} aria-label="Diminuir zoom">
-              -
-            </button>
-            <span className="zoom-percentage">{Math.round(zoom * 100)}%</span>
-            <button type="button" className="toolbar-btn" onClick={() => setZoom(prev => Math.min(1.4, prev + 0.1))} aria-label="Aumentar zoom">
-              +
-            </button>
-            <button type="button" className="toolbar-btn" onClick={() => setZoom(1)} aria-label="Restaurar zoom">
-              Reset
-            </button>
+          <div className="comparison-item">
+            <span>Diferença</span>
+            <div className={`comparison-delta ${heroData.isPositive ? 'delta-positive' : 'delta-negative'}`}>
+              {heroData.isPositive ? '▲' : '▼'} {money(Math.abs(heroData.delta))}
+            </div>
+            <small style={{ fontSize: '0.65rem', color: 'var(--aferix-text-muted)' }}>
+              {heroData.isPositive ? 'Acima do orçado' : 'Abaixo do orçado'}
+            </small>
           </div>
         </div>
-      )}
+      </section>
 
-      <div className="document-preview-container" style={{ width: '100%', overflowX: 'auto', display: 'flex', justifyContent: 'center' }}>
-        <article 
-          className={`report-document report-template-${reportTemplateId}`}
-          style={{
-            transform: `scale(${zoom})`,
-            transformOrigin: 'top center',
-            margin: '12px auto',
-            marginBottom: zoom > 1 ? `${(zoom - 1) * 800}px` : '12px'
-          }}
-        >
-        <header className="report-document-header">
-          {profileName === 'Aferix' ? (
-            <div className="report-document-brand-centered">
-              <img src={logoSource} alt="AFERIX" />
-            </div>
-          ) : (
-            <div className="report-company-row">
-              <img src={logoSource} alt={`Logo ${profileName}`} />
-              <div>
-                <strong>{profileName}</strong>
-                {businessProfile.documentNumber && <small>{businessProfile.documentNumber}</small>}
-                {contactLine && <small>{contactLine}</small>}
-                {businessProfile.address && <small>{businessProfile.address}</small>}
+      {/* Category Selector */}
+      <nav className="report-category-selector">
+        {[
+          { id: 'financeiro', label: 'Financeiro', icon: '💰' },
+          { id: 'clientes', label: 'Clientes', icon: '👤' },
+          { id: 'serviços', label: 'Serviços', icon: '🛠️' },
+          { id: 'desempenho', label: 'Desempenho', icon: '📈' }
+        ].map((cat) => (
+          <button 
+            key={cat.id} 
+            className={`category-chip ${activeCategory === cat.id ? 'active' : ''}`}
+            onClick={() => setActiveCategory(cat.id as ReportCategory)}
+          >
+            <i>{cat.icon}</i>
+            <span>{cat.label}</span>
+          </button>
+        ))}
+      </nav>
+
+      {/* Category Content */}
+      <section className="report-category-content">
+        {activeCategory === 'financeiro' && (
+          <>
+            <article className="report-stat-card">
+              <div className="report-stat-info">
+                <span>Faturamento Bruto</span>
+                <strong>{money(financeStats.totalRevenue)}</strong>
               </div>
-            </div>
-          )}
-          <h1>{activeWorkOrder?.title || 'Relatório de atendimento'}</h1>
-          <p>{activeWorkOrder?.description || 'Prévia comercial para envio ao cliente.'}</p>
-          <small>Emitido em {formatDateTime(new Date().toISOString())}</small>
-        </header>
-
-        {(activeClient || activeWorkOrder) && (
-          <section className="report-context-box">
-            <div><span>Cliente</span><strong>{activeClient?.name ?? 'Cliente não vinculado'}</strong></div>
-            <div><span>Contato</span><strong>{[activeClient?.phone, activeClient?.email].filter(Boolean).join(' · ') || 'Não informado'}</strong></div>
-            <div><span>Endereço</span><strong>{activeWorkOrder?.address || activeClient?.address || 'Não informado'}</strong></div>
-            <div><span>Status / data</span><strong>{statusLabel(activeWorkOrder?.status)} · {formatOptionalDateTime(activeWorkOrder?.scheduledDate)}</strong></div>
-          </section>
+            </article>
+            <article className="report-stat-card">
+              <div className="report-stat-info">
+                <span>Custos Operacionais</span>
+                <strong className="tone-danger">{money(financeStats.totalCosts)}</strong>
+              </div>
+            </article>
+            <article className="report-stat-card">
+              <div className="report-stat-info">
+                <span>Margem Média Líquida</span>
+                <strong>{financeStats.avgMargin.toFixed(1)}%</strong>
+              </div>
+            </article>
+          </>
         )}
 
-        {reportItems.length > 0 && (
-          <section className="report-executive-summary">
-            <h2>Resumo do atendimento</h2>
-            <div className="report-summary-grid">
-              <article>
-                <span>Serviços levantados</span>
-                <p>{compactList(serviceItems)}</p>
-              </article>
-              <article>
-                <span>Materiais identificados</span>
-                <p>{compactList(materialItems)}</p>
-              </article>
-              <article>
-                <span>Compra pelo cliente</span>
-                <p>{compactList(clientPurchaseItems)}</p>
-              </article>
-              <article>
-                <span>Notas e recomendações</span>
-                <p>{compactList(notesAndRecommendations)}</p>
-              </article>
-            </div>
-          </section>
-        )}
-
-        {reportItems.length === 0 ? (
-          <section className="report-empty-state">
-            <strong>Nenhum item para relatório</strong>
-            <p>Adicione serviços, observações ou materiais antes de gerar o documento.</p>
-          </section>
-        ) : (
-          <section className="report-item-list">
-            {reportItems.map((capture) => (
-              <article className="report-item-card" key={capture.id}>
-                <div className="report-item-content">
-                  <header>
-                    <span>{itemTypeLabel(capture.itemType)}</span>
-                    <h2>{capture.editableDescription || capture.summary}</h2>
-                    <small>{capture.calculatorLabel} · {formatDateTime(capture.createdAt)}</small>
-                  </header>
-
-                  {capture.imageDataUrl && (
-                    <figure className="report-item-image">
-                      <img src={capture.imageDataUrl} alt={`Imagem de ${capture.editableDescription || capture.summary}`} />
-                    </figure>
-                  )}
-
-                  {capture.technicalNote && <p className="report-technical-note">{capture.technicalNote}</p>}
-
-                  <ul>
-                    {capture.details.map((detail) => (
-                      <li key={detail}>{detail}</li>
-                    ))}
-                  </ul>
+        {activeCategory === 'clientes' && (
+          <div className="aferix-panel-card">
+            <header><h3>Maiores Clientes (Faturamento)</h3></header>
+            <div className="ranking-list" style={{ marginTop: '1rem' }}>
+              {clientStats.length === 0 ? (
+                <p style={{ color: 'var(--aferix-text-muted)' }}>Nenhum dado de cliente disponível.</p>
+              ) : clientStats.map((c, i) => (
+                <div key={i} className="report-ranking-item">
+                  <div className="client-col">
+                    <strong>{c.name}</strong>
+                    <small>{c.count} atendimentos</small>
+                  </div>
+                  <div className="value-col">
+                    <strong>{money(c.total)}</strong>
+                  </div>
                 </div>
-              </article>
-            ))}
-          </section>
+              ))}
+            </div>
+          </div>
         )}
 
-        <footer className="report-document-footer">
-          <p>Documento preparado para envio comercial ao cliente.</p>
-          <div className="signature-line">Responsável técnico / aceite</div>
-        </footer>
-      </article>
-      </div>
+        {activeCategory === 'serviços' && (
+          <>
+            <article className="report-stat-card">
+              <div className="report-stat-info">
+                <span>Serviços Concluídos</span>
+                <strong>{financeRecords.filter(r => r.status === 'realized').length}</strong>
+              </div>
+            </article>
+            <article className="report-stat-card">
+              <div className="report-stat-info">
+                <span>Orçamentos Aguardando</span>
+                <strong>{savedBudgets.filter(b => b.status === 'sent').length}</strong>
+              </div>
+            </article>
+          </>
+        )}
 
-      {reportItems.length > 0 && (
-        <details className="aferix-panel-card report-management-panel no-print" style={{ marginTop: "1.5rem" }}>
-          <summary>Visão gerencial e contadores</summary>
-          <div className="report-management-grid">
-            <article><span>Itens</span><strong>{reportItems.length}</strong></article>
-            <article><span>Imagens</span><strong>{itemsWithImage}</strong></article>
-            <article><span>Diagnósticos</span><strong>{diagnostics}</strong></article>
-            <article><span>Aprovado</span><strong>{money(totalApproved)}</strong></article>
-            <article><span>Ticket</span><strong>{money(averageTicket)}</strong></article>
-            <article><span>Conversão</span><strong>{approvalRate.toFixed(0)}%</strong></article>
-          </div>
-        </details>
-      )}
-    </>
+        {activeCategory === 'desempenho' && (
+          <article className="report-stat-card">
+            <div className="report-stat-info">
+              <span>Taxa de Aprovação</span>
+              <strong>
+                {savedBudgets.length > 0 
+                  ? ((savedBudgets.filter(b => b.status === 'approved').length / savedBudgets.length) * 100).toFixed(0) 
+                  : 0}%
+              </strong>
+            </div>
+          </article>
+        )}
+      </section>
+    </div>
   );
 }

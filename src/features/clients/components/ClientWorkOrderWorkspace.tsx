@@ -53,7 +53,7 @@ interface WorkOrderDraft {
   paymentStatus: WorkOrder['paymentStatus'];
 }
 
-const CLIENT_OS_VISIBLE_LIMIT = 5;
+const CLIENT_OS_VISIBLE_LIMIT = 10;
 
 function recentTimestamp(item: { updatedAt?: string; createdAt?: string }): string {
   return item.updatedAt ?? item.createdAt ?? '';
@@ -96,24 +96,17 @@ function createId(prefix: string): string {
 }
 
 function formatDateTime(value?: string): string {
-  if (!value) return 'Sem data';
-
-  return new Intl.DateTimeFormat('pt-BR', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  }).format(new Date(value));
+  if (!value) return 'Sem data agendada';
+  return new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short', timeStyle: 'short' }).format(new Date(value));
 }
 
-function statusLabel(status: WorkOrder['status']): string {
+function statusLabel(status?: WorkOrder['status']): string {
+  if (!status) return 'Sem status';
   const labels: Record<WorkOrder['status'], string> = {
     'in-progress': 'Em execução',
     done: 'Concluído',
     cancelled: 'Cancelado',
   };
-
   return labels[status];
 }
 
@@ -123,181 +116,64 @@ function paymentStatusLabel(status: WorkOrder['paymentStatus']): string {
     partial: 'Parcial',
     paid: 'Pago',
   };
-
   return labels[status];
 }
 
-function priorityLabel(priority?: WorkOrder['priority']): string {
-  const labels: Record<NonNullable<WorkOrder['priority']>, string> = {
-    low: 'Baixa',
-    normal: 'Normal',
-    high: 'Alta',
-    urgent: 'Urgente',
-  };
-
-  return labels[priority ?? 'normal'];
-}
-
-function budgetStatusLabel(status: string): string {
-  if (status === 'sent') return 'Enviado';
-  if (status === 'approved') return 'Aprovado';
-  if (status === 'rejected') return 'Recusado';
-  if (status === 'expired') return 'Vencido';
-  if (status === 'cancelled') return 'Cancelado';
-  return 'Rascunho';
-}
-
-function buildClientAddress(draft: ClientDraft): string {
-  const line1 = [draft.street.trim(), draft.addressNumber.trim()].filter(Boolean).join(', ');
-  const line2 = [draft.complement.trim(), draft.district.trim()].filter(Boolean).join(' - ');
-  const line3 = [draft.city.trim(), draft.state.trim()].filter(Boolean).join(' / ');
-  const line4 = draft.postalCode.trim();
-  return [draft.address.trim(), line1, line2, line3, line4].filter(Boolean).join(' · ');
-}
-
-function clientSearchText(client: Client): string {
-  return [
-    client.name,
-    client.documentNumber,
-    client.phone,
-    client.email,
-    client.address,
-    client.street,
-    client.district,
-    client.city,
-    client.state,
-    client.postalCode,
-    client.stateRegistration,
-    client.additionalContacts,
-    client.salesHistoryNotes,
-    client.notes,
-  ].filter(Boolean).join(' ').toLowerCase();
-}
-
-function clientToDraft(client: Client): ClientDraft {
-  return {
-    name: client.name,
-    documentNumber: client.documentNumber ?? '',
-    phone: client.phone ?? '',
-    email: client.email ?? '',
-    address: client.address ?? '',
-    street: client.street ?? '',
-    addressNumber: client.addressNumber ?? '',
-    complement: client.complement ?? '',
-    district: client.district ?? '',
-    city: client.city ?? '',
-    state: client.state ?? '',
-    postalCode: client.postalCode ?? '',
-    stateRegistration: client.stateRegistration ?? '',
-    contributorType: client.contributorType ?? 'not-informed',
-    creditLimit: Number(client.creditLimit) || 0,
-    additionalContacts: client.additionalContacts ?? '',
-    salesHistoryNotes: client.salesHistoryNotes ?? '',
-    notes: client.notes ?? '',
-  };
-}
-
-export function ClientWorkOrderWorkspace({ initialSection = 'dashboard', sectionRequestKey = 0, onContextChange, onOpenBudgets }: ClientWorkOrderWorkspaceProps) {
-  const [activeSection, setActiveSection] = useState<ClientOsSection>('dashboard');
+export function ClientWorkOrderWorkspace({ initialSection, sectionRequestKey, onContextChange, onOpenBudgets }: ClientWorkOrderWorkspaceProps) {
   const [clients, setClients] = useState<Client[]>(() => loadClients());
   const [workOrders, setWorkOrders] = useState<WorkOrder[]>(() => loadWorkOrders());
   const [activeWorkOrderId, setActiveWorkOrderId] = useState<string | null>(() => loadActiveWorkOrderId());
-  const [editingWorkOrderId, setEditingWorkOrderId] = useState<string | null>(null);
-  const [editingClientId, setEditingClientId] = useState<string | null>(null);
-  const [clientDraft, setClientDraft] = useState<ClientDraft>(emptyClientDraft);
-  const [workOrderDraft, setWorkOrderDraft] = useState<WorkOrderDraft>(emptyWorkOrderDraft);
+  const [activeSection, setActiveSection] = useState<ClientOsSection>(initialSection ?? 'dashboard');
+
   const [clientSearch, setClientSearch] = useState('');
   const [workOrderSearch, setWorkOrderSearch] = useState('');
   const [clientPickerSearch, setClientPickerSearch] = useState('');
-  const [savedBudgets, setSavedBudgets] = useState(() => loadSavedBudgets());
-  
-  // Modals
+
+  const [editingClientId, setEditingClientId] = useState<string | null>(null);
+  const [editingWorkOrderId, setEditingWorkOrderId] = useState<string | null>(null);
   const [modalType, setModalType] = useState<'removeClient' | 'removeWorkOrder' | null>(null);
   const [itemToRemove, setItemToRemove] = useState<string | null>(null);
 
-  const activeWorkOrder = workOrders.find((workOrder) => workOrder.id === activeWorkOrderId) ?? null;
-  const activeClient = activeWorkOrder?.clientId ? clients.find((client) => client.id === activeWorkOrder.clientId) ?? null : null;
-
-  const sortedWorkOrders = useMemo(
-    () => [...workOrders].sort((a, b) => (b.updatedAt ?? b.createdAt ?? '').localeCompare(a.updatedAt ?? a.createdAt ?? '')),
-    [workOrders],
-  );
-  const filteredClients = useMemo(() => {
-    const query = clientSearch.trim().toLowerCase();
-    const source = query ? clients.filter((client) => clientSearchText(client).includes(query)) : [];
-    return [...source].sort((a, b) => recentTimestamp(b).localeCompare(recentTimestamp(a)));
-  }, [clientSearch, clients]);
-  const filteredWorkOrders = useMemo(() => {
-    const query = workOrderSearch.trim().toLowerCase();
-    if (!query) return [];
-    return sortedWorkOrders.filter((workOrder) => {
-      const client = workOrder.clientId ? clients.find((item) => item.id === workOrder.clientId) : null;
-      return [workOrder.title, workOrder.description, workOrder.address, statusLabel(workOrder.status), priorityLabel(workOrder.priority), client?.name, client?.phone, client?.email].filter(Boolean).join(' ').toLowerCase().includes(query);
-    });
-  }, [clients, sortedWorkOrders, workOrderSearch]);
-  const clientPickerResults = useMemo(() => {
-    const query = clientPickerSearch.trim().toLowerCase();
-    const source = query ? clients.filter((client) => clientSearchText(client).includes(query)) : [];
-    return source.slice(0, 6);
-  }, [clientPickerSearch, clients]);
-  const visibleClients = filteredClients.slice(0, CLIENT_OS_VISIBLE_LIMIT);
-  const hiddenClientCount = Math.max(filteredClients.length - visibleClients.length, 0);
-  const visibleWorkOrders = filteredWorkOrders.slice(0, CLIENT_OS_VISIBLE_LIMIT);
-  const hiddenWorkOrderCount = Math.max(filteredWorkOrders.length - visibleWorkOrders.length, 0);
-
-  const openWorkOrders = workOrders.filter((workOrder) => workOrder.status !== 'done' && workOrder.status !== 'cancelled').length;
-  const doneWorkOrders = workOrders.filter((workOrder) => workOrder.status === 'done').length;
-  const nextWorkOrders = useMemo(
-    () => sortedWorkOrders
-      .filter((workOrder) => workOrder.status !== 'done' && workOrder.status !== 'cancelled')
-      .sort((a, b) => {
-        if (a.scheduledDate && b.scheduledDate) return a.scheduledDate.localeCompare(b.scheduledDate);
-        if (a.scheduledDate) return -1;
-        if (b.scheduledDate) return 1;
-        return (b.updatedAt ?? b.createdAt ?? '').localeCompare(a.updatedAt ?? a.createdAt ?? '');
-      })
-      .slice(0, 3),
-    [sortedWorkOrders],
-  );
-  const pendingBudgetList = useMemo(
-    () => savedBudgets
-      .filter((budget) => budget.status === 'draft' || budget.status === 'sent')
-      .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
-      .slice(0, 3),
-    [savedBudgets],
-  );
+  const [clientDraft, setClientDraft] = useState<ClientDraft>(emptyClientDraft);
+  const [workOrderDraft, setWorkOrderDraft] = useState<WorkOrderDraft>(emptyWorkOrderDraft);
 
   useEffect(() => {
-    const refreshBudgets = () => setSavedBudgets(loadSavedBudgets());
-    refreshBudgets();
-    window.addEventListener('focus', refreshBudgets);
-    window.addEventListener('storage', refreshBudgets);
-
-    return () => {
-      window.removeEventListener('focus', refreshBudgets);
-      window.removeEventListener('storage', refreshBudgets);
-    };
-  }, []);
-
-  useEffect(() => {
-    setActiveSection(initialSection);
+    if (initialSection) setActiveSection(initialSection);
   }, [initialSection, sectionRequestKey]);
 
-  useEffect(() => {
-    saveClients(clients);
-  }, [clients]);
+  useEffect(() => { saveClients(clients); onContextChange?.(clients, workOrders, activeWorkOrderId); }, [clients]);
+  useEffect(() => { saveWorkOrders(workOrders); onContextChange?.(clients, workOrders, activeWorkOrderId); }, [workOrders]);
+  useEffect(() => { saveActiveWorkOrderId(activeWorkOrderId); onContextChange?.(clients, workOrders, activeWorkOrderId); }, [activeWorkOrderId]);
 
-  useEffect(() => {
-    saveWorkOrders(workOrders);
-  }, [workOrders]);
+  const activeWorkOrder = useMemo(() => workOrders.find((w) => w.id === activeWorkOrderId) ?? null, [activeWorkOrderId, workOrders]);
+  const activeClient = useMemo(() => (activeWorkOrder?.clientId ? clients.find((c) => c.id === activeWorkOrder.clientId) ?? null : null), [activeWorkOrder, clients]);
 
-  useEffect(() => {
-    saveActiveWorkOrderId(activeWorkOrderId);
-  }, [activeWorkOrderId]);
+  const filteredClients = useMemo(() => {
+    const query = clientSearch.toLowerCase().trim();
+    if (!query) return clients;
+    return clients.filter((c) => [c.name, c.email, c.phone, c.address].some((v) => v?.toLowerCase().includes(query)));
+  }, [clients, clientSearch]);
 
-  useEffect(() => {
-    onContextChange?.(clients, workOrders, activeWorkOrderId);
-  }, [activeWorkOrderId, clients, onContextChange, workOrders]);
+  const filteredWorkOrders = useMemo(() => {
+    const query = workOrderSearch.toLowerCase().trim();
+    if (!query) return workOrders;
+    return workOrders.filter((w) => {
+      const client = w.clientId ? clients.find((c) => c.id === w.clientId) : null;
+      return [w.title, client?.name, w.status, w.description].some((v) => v?.toLowerCase().includes(query));
+    });
+  }, [workOrders, clients, workOrderSearch]);
+
+  const clientPickerResults = useMemo(() => {
+    const query = clientPickerSearch.toLowerCase().trim();
+    if (!query) return clients.slice(0, 5);
+    return clients.filter((c) => [c.name, c.email, c.phone].some((v) => v?.toLowerCase().includes(query))).slice(0, 5);
+  }, [clients, clientPickerSearch]);
+
+  const visibleClients = filteredClients.slice(0, CLIENT_OS_VISIBLE_LIMIT);
+  const visibleWorkOrders = filteredWorkOrders.slice(0, CLIENT_OS_VISIBLE_LIMIT);
+  
+  const openWorkOrders = workOrders.filter((w) => w.status === 'in-progress').length;
+  const doneWorkOrders = workOrders.filter((w) => w.status === 'done').length;
 
   function updateClientDraft<K extends keyof ClientDraft>(key: K, value: ClientDraft[K]) {
     setClientDraft((current) => ({ ...current, [key]: value }));
@@ -307,47 +183,64 @@ export function ClientWorkOrderWorkspace({ initialSection = 'dashboard', section
     setWorkOrderDraft((current) => ({ ...current, [key]: value }));
   }
 
+  function clientToDraft(client: Client): ClientDraft {
+    return {
+      name: client.name,
+      documentNumber: client.documentNumber ?? '',
+      phone: client.phone ?? '',
+      email: client.email ?? '',
+      address: client.address ?? '',
+      street: client.street ?? '',
+      addressNumber: client.addressNumber ?? '',
+      complement: client.complement ?? '',
+      district: client.district ?? '',
+      city: client.city ?? '',
+      state: client.state ?? '',
+      postalCode: client.postalCode ?? '',
+      stateRegistration: client.stateRegistration ?? '',
+      contributorType: client.contributorType ?? 'not-informed',
+      creditLimit: Number(client.creditLimit) || 0,
+      additionalContacts: client.additionalContacts ?? '',
+      salesHistoryNotes: client.salesHistoryNotes ?? '',
+      notes: client.notes ?? '',
+    };
+  }
+
   function addClient() {
     const now = new Date().toISOString();
-    const address = buildClientAddress(clientDraft);
-    const existingClient = editingClientId ? clients.find((client) => client.id === editingClientId) : null;
     const client: Client = {
-      id: existingClient?.id ?? createId('client'),
-      name: clientDraft.name.trim() || 'Cliente',
-      documentNumber: clientDraft.documentNumber.trim() || undefined,
-      phone: clientDraft.phone.trim() || undefined,
-      email: clientDraft.email.trim() || undefined,
-      address: address || undefined,
-      street: clientDraft.street.trim() || undefined,
-      addressNumber: clientDraft.addressNumber.trim() || undefined,
-      complement: clientDraft.complement.trim() || undefined,
-      district: clientDraft.district.trim() || undefined,
-      city: clientDraft.city.trim() || undefined,
-      state: clientDraft.state.trim() || undefined,
-      postalCode: clientDraft.postalCode.trim() || undefined,
-      stateRegistration: clientDraft.stateRegistration.trim() || undefined,
+      id: editingClientId ?? createId('client'),
+      name: clientDraft.name || 'Sem nome',
+      documentNumber: clientDraft.documentNumber,
+      phone: clientDraft.phone,
+      email: clientDraft.email,
+      address: clientDraft.address,
+      street: clientDraft.street,
+      addressNumber: clientDraft.addressNumber,
+      complement: clientDraft.complement,
+      district: clientDraft.district,
+      city: clientDraft.city,
+      state: clientDraft.state,
+      postalCode: clientDraft.postalCode,
+      stateRegistration: clientDraft.stateRegistration,
       contributorType: clientDraft.contributorType,
-      creditLimit: String(clientDraft.creditLimit) || undefined,
-      additionalContacts: clientDraft.additionalContacts.trim() || undefined,
-      salesHistoryNotes: clientDraft.salesHistoryNotes.trim() || undefined,
-      notes: clientDraft.notes.trim() || undefined,
-      createdAt: existingClient?.createdAt ?? now,
+      creditLimit: String(clientDraft.creditLimit),
+      additionalContacts: clientDraft.additionalContacts,
+      salesHistoryNotes: clientDraft.salesHistoryNotes,
+      notes: clientDraft.notes,
+      createdAt: editingClientId ? clients.find(c => c.id === editingClientId)?.createdAt ?? now : now,
       updatedAt: now,
     };
 
-    if (existingClient) {
-      setClients((current) => current.map((currentClient) => (currentClient.id === existingClient.id ? client : currentClient)));
-      setWorkOrderDraft((current) => ({ ...current, clientId: client.id, address: current.address || client.address || '' }));
-      setEditingClientId(null);
-      setClientDraft(emptyClientDraft);
-      setActiveSection('clients');
-      return;
+    if (editingClientId) {
+      setClients((current) => current.map((c) => (c.id === editingClientId ? client : c)));
+    } else {
+      setClients((current) => [client, ...current]);
     }
 
-    setClients((current) => [client, ...current]);
-    setWorkOrderDraft((current) => ({ ...current, clientId: client.id, address: client.address ?? current.address }));
+    setEditingClientId(null);
     setClientDraft(emptyClientDraft);
-    setActiveSection('newWorkOrder');
+    setActiveSection('clients');
   }
 
   function confirmRemoveClient(clientId: string) {
@@ -358,56 +251,40 @@ export function ClientWorkOrderWorkspace({ initialSection = 'dashboard', section
   function executeRemoveClient() {
     if (!itemToRemove) return;
     const clientId = itemToRemove;
-    setClients((current) => current.filter((client) => client.id !== clientId));
-    setWorkOrders((current) => current.map((workOrder) => (workOrder.clientId === clientId ? { ...workOrder, clientId: undefined, updatedAt: new Date().toISOString() } : workOrder)));
+    setClients((current) => current.filter((c) => c.id !== clientId));
+    setWorkOrders((current) => current.map((w) => (w.clientId === clientId ? { ...w, clientId: undefined } : w)));
     setItemToRemove(null);
     setModalType(null);
   }
 
   function addWorkOrder() {
-    if (!workOrderDraft.title.trim()) return;
-
     const now = new Date().toISOString();
-    const selectedClient = clients.find((client) => client.id === workOrderDraft.clientId);
-    if (editingWorkOrderId) {
-      setWorkOrders((current) => current.map((workOrder) => (workOrder.id === editingWorkOrderId ? {
-        ...workOrder,
-        clientId: workOrderDraft.clientId || undefined,
-        title: workOrderDraft.title.trim(),
-        description: workOrderDraft.description.trim() || undefined,
-        address: workOrderDraft.address.trim() || selectedClient?.address || undefined,
-        priority: workOrderDraft.priority,
-        status: workOrderDraft.status,
-        scheduledDate: workOrderDraft.scheduledDate || undefined,
-        paymentStatus: workOrderDraft.paymentStatus,
-        updatedAt: now,
-      } : workOrder)));
-      setActiveWorkOrderId(editingWorkOrderId);
-      setEditingWorkOrderId(null);
-      setWorkOrderDraft({ ...emptyWorkOrderDraft, clientId: workOrderDraft.clientId || '', address: selectedClient?.address ?? '' });
-      setActiveSection('workOrders');
-      return;
-    }
-
+    const selectedClient = clients.find((c) => c.id === workOrderDraft.clientId);
+    
     const workOrder: WorkOrder = {
-      id: createId('service'),
+      id: editingWorkOrderId ?? createId('os'),
       clientId: workOrderDraft.clientId || undefined,
-      title: workOrderDraft.title.trim(),
-      description: workOrderDraft.description.trim() || undefined,
-      address: workOrderDraft.address.trim() || selectedClient?.address || undefined,
+      title: workOrderDraft.title,
+      description: workOrderDraft.description,
+      address: workOrderDraft.address,
       priority: workOrderDraft.priority,
       status: workOrderDraft.status,
       scheduledDate: workOrderDraft.scheduledDate || undefined,
-      paymentStatus: 'pending',
-      createdAt: now,
+      paymentStatus: workOrderDraft.paymentStatus,
+      createdAt: editingWorkOrderId ? workOrders.find(w => w.id === editingWorkOrderId)?.createdAt ?? now : now,
       updatedAt: now,
     };
 
-    setWorkOrders((current) => [workOrder, ...current]);
+    if (editingWorkOrderId) {
+      setWorkOrders((current) => current.map((w) => (w.id === editingWorkOrderId ? workOrder : w)));
+    } else {
+      setWorkOrders((current) => [workOrder, ...current]);
+    }
+
     setActiveWorkOrderId(workOrder.id);
     setEditingWorkOrderId(null);
-    setWorkOrderDraft({ ...emptyWorkOrderDraft, clientId: workOrder.clientId ?? '', address: selectedClient?.address ?? '' });
-    setActiveSection('dashboard');
+    setWorkOrderDraft(emptyWorkOrderDraft);
+    setActiveSection('workOrders');
   }
 
   function confirmRemoveWorkOrder(workOrderId: string) {
@@ -418,14 +295,10 @@ export function ClientWorkOrderWorkspace({ initialSection = 'dashboard', section
   function executeRemoveWorkOrder() {
     if (!itemToRemove) return;
     const workOrderId = itemToRemove;
-    setWorkOrders((current) => current.filter((workOrder) => workOrder.id !== workOrderId));
+    setWorkOrders((current) => current.filter((w) => w.id !== workOrderId));
     if (activeWorkOrderId === workOrderId) setActiveWorkOrderId(null);
     setItemToRemove(null);
     setModalType(null);
-  }
-
-  function updateWorkOrderStatus(workOrderId: string, status: WorkOrder['status']) {
-    setWorkOrders((current) => current.map((workOrder) => (workOrder.id === workOrderId ? { ...workOrder, status, updatedAt: new Date().toISOString() } : workOrder)));
   }
 
   function openWorkOrderForEdit(workOrder: WorkOrder) {
@@ -465,74 +338,129 @@ export function ClientWorkOrderWorkspace({ initialSection = 'dashboard', section
     }
   }
 
+  const isWorkOrderTab = activeSection === 'workOrders' || activeSection === 'newWorkOrder';
+  const isClientTab = activeSection === 'clients' || activeSection === 'newClient' || activeSection === 'dashboard';
+
   return (
     <div className="client-os-workspace refined-client-os">
       <header className="screen-header">
-        <h1>Gestão de Clientes</h1>
+        <h1>{isWorkOrderTab ? 'Atendimentos' : 'Clientes'}</h1>
       </header>
 
-      <ContextBanner
-        title={activeWorkOrder ? activeWorkOrder.title : 'Nenhum atendimento ativo'}
-        description={activeWorkOrder ? `${activeClient?.name ?? 'Cliente não vinculado'} · ${statusLabel(activeWorkOrder.status)}` : 'Selecione um atendimento para usar como contexto.'}
-        actionLabel={activeWorkOrder ? 'Limpar contexto' : 'Novo atendimento'}
-        onAction={activeWorkOrder ? () => setActiveWorkOrderId(null) : () => setActiveSection('newWorkOrder')}
-      />
+      {/* Context Banner: Only show when there is an active context */}
+      {activeWorkOrder && (
+        <ContextBanner
+          title={activeWorkOrder.title}
+          description={`${activeClient?.name ?? 'Cliente Avulso'} · ${statusLabel(activeWorkOrder.status)}`}
+          actionLabel="Limpar Contexto"
+          onAction={() => setActiveWorkOrderId(null)}
+        />
+      )}
 
+      {/* Metrics specialized by context */}
       <div className="dashboard-finance-tiles" style={{ marginBottom: '1.5rem' }}>
-        <MetricCard label="Clientes" value={clients.length} />
-        <MetricCard label="Em execução" value={openWorkOrders} tone={openWorkOrders > 0 ? 'brand' : 'default'} />
-        <MetricCard label="Concluídos" value={doneWorkOrders} />
+        {isClientTab ? (
+          <>
+            <MetricCard label="Clientes Totais" value={clients.length} />
+            <MetricCard label="Recém Adicionados" value={clients.filter(c => recentTimestamp(c).includes(new Date().toISOString().slice(0, 7))).length} tone="brand" />
+          </>
+        ) : (
+          <>
+            <MetricCard label="Em execução" value={openWorkOrders} tone={openWorkOrders > 0 ? 'brand' : 'default'} />
+            <MetricCard label="Concluídos" value={doneWorkOrders} />
+          </>
+        )}
       </div>
 
       <div className="home-action-toolbar">
-        <button className={`ghost-action ${activeSection === 'dashboard' ? 'active' : ''}`} type="button" onClick={() => setActiveSection('dashboard')}>Painel</button>
-        <button className={`ghost-action ${activeSection === 'clients' ? 'active' : ''}`} type="button" onClick={() => setActiveSection('clients')}>Clientes</button>
-        <button className={`ghost-action ${activeSection === 'workOrders' ? 'active' : ''}`} type="button" onClick={() => setActiveSection('workOrders')}>Atendimentos</button>
+        {isClientTab ? (
+          <>
+            <button className={`ghost-action ${activeSection === 'clients' || activeSection === 'dashboard' ? 'active' : ''}`} type="button" onClick={() => setActiveSection('clients')}>Lista de Clientes</button>
+            <button className={`ghost-action ${activeSection === 'newClient' ? 'active' : ''}`} type="button" onClick={() => setActiveSection('newClient')}>+ Novo Cliente</button>
+          </>
+        ) : (
+          <>
+            <button className={`ghost-action ${activeSection === 'workOrders' ? 'active' : ''}`} type="button" onClick={() => setActiveSection('workOrders')}>Lista de Atendimentos</button>
+            <button className={`ghost-action ${activeSection === 'newWorkOrder' ? 'active' : ''}`} type="button" onClick={() => setActiveSection('newWorkOrder')}>+ Novo Atendimento</button>
+          </>
+        )}
       </div>
 
-      {activeSection === 'dashboard' && (
+      {(activeSection === 'dashboard' || activeSection === 'clients') && isClientTab && (
         <div className="client-os-indicator-grid">
           <div className="aferix-panel-card">
             <header>
               <div>
-                <h2>Atendimentos Recentes</h2>
+                <h2>Sua Base de Clientes</h2>
+                <p>Gerencie os contatos para seus orçamentos.</p>
               </div>
-              <button className="ghost-action" type="button" onClick={() => setActiveSection('workOrders')}>Ver Todos</button>
             </header>
+            
+            <div className="budget-list-search-bar" style={{ marginBottom: '1rem' }}>
+              <input 
+                placeholder="Buscar cliente por nome, telefone ou e-mail..." 
+                value={clientSearch}
+                onChange={(e) => setClientSearch(e.target.value)}
+                style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid var(--aferix-border)', background: 'var(--aferix-bg)', color: 'var(--aferix-text)' }}
+              />
+            </div>
+
             <div className="continuous-list">
-              {nextWorkOrders.length === 0 ? <div className="continuous-list-empty">Nenhum atendimento registrado.</div> : nextWorkOrders.map((workOrder) => {
-                const client = workOrder.clientId ? clients.find((item) => item.id === workOrder.clientId) : null;
-                const isActive = workOrder.id === activeWorkOrderId;
-                return (
-                  <article className={`continuous-list-item ${isActive ? 'active' : ''}`} key={workOrder.id} onClick={() => setActiveWorkOrderId(workOrder.id)} style={{ cursor: 'pointer' }}>
+              {visibleClients.length === 0 ? (
+                <div className="continuous-list-empty">Nenhum cliente encontrado.</div>
+              ) : (
+                visibleClients.map((client) => (
+                  <article className="continuous-list-item" key={client.id}>
                     <div className="client-col">
-                      <strong>{workOrder.title}</strong>
-                      <small>{client?.name ?? 'S/ Cliente'} · {statusLabel(workOrder.status)} · {paymentStatusLabel(workOrder.paymentStatus)}</small>
+                      <strong>{client.name}</strong>
+                      <small>{client.phone} · {client.email}</small>
+                      {client.address && <small style={{ display: 'block', marginTop: '4px', opacity: 0.8 }}>{client.address}</small>}
                     </div>
-                    <div className="value-col" style={{ fontSize: '0.7rem' }}>{formatDateTime(workOrder.scheduledDate)}</div>
+                    <div className="value-col" style={{ display: 'flex', gap: '8px' }}>
+                      <button className="ghost-action icon-btn" title="Editar" onClick={() => openClientForEdit(client)}>✎</button>
+                      <button className="ghost-action icon-btn danger-text" title="Remover" onClick={() => confirmRemoveClient(client.id)}>✕</button>
+                    </div>
                   </article>
-                );
-              })}
+                ))
+              )}
             </div>
           </div>
+        </div>
+      )}
 
+      {activeSection === 'workOrders' && isWorkOrderTab && (
+        <div className="client-os-indicator-grid">
           <div className="aferix-panel-card">
             <header>
               <div>
-                <h2>Orçamentos Pendentes</h2>
+                <h2>Serviços e Atendimentos</h2>
+                <p>Acompanhe a execução e os prazos dos seus serviços.</p>
               </div>
-              <button className="ghost-action" type="button" onClick={onOpenBudgets}>Ver Todos</button>
             </header>
+
             <div className="continuous-list">
-              {pendingBudgetList.length === 0 ? <div className="continuous-list-empty">Nenhum orçamento pendente.</div> : pendingBudgetList.map((budget) => (
-                <article className="continuous-list-item" key={budget.id}>
-                  <div className="client-col">
-                    <strong>{budget.title || 'S/ Título'}</strong>
-                    <small>{budget.clientName || 'S/ Cliente'} · {budgetStatusLabel(budget.status)}</small>
-                  </div>
-                  <div className="value-col" style={{ fontSize: '0.7rem' }}>{formatDateTime(budget.updatedAt)}</div>
-                </article>
-              ))}
+              {visibleWorkOrders.length === 0 ? (
+                <div className="continuous-list-empty">Nenhum atendimento registrado.</div>
+              ) : (
+                visibleWorkOrders.map((workOrder) => {
+                  const client = clients.find((c) => c.id === workOrder.clientId);
+                  const isContext = activeWorkOrderId === workOrder.id;
+                  return (
+                    <article className={`continuous-list-item ${isContext ? 'active-context-item' : ''}`} key={workOrder.id}>
+                      <div className="client-col">
+                        <strong>{workOrder.title}</strong>
+                        <small>{client?.name ?? 'Cliente Avulso'} · {statusLabel(workOrder.status)}</small>
+                        <small style={{ display: 'block', marginTop: '4px', opacity: 0.7 }}>{formatDateTime(workOrder.scheduledDate)}</small>
+                      </div>
+                      <div className="value-col" style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                        {!isContext && <button className="secondary-action inline-action" onClick={() => setActiveWorkOrderId(workOrder.id)}>Selecionar</button>}
+                        <button className="ghost-action icon-btn" title="Editar" onClick={() => openWorkOrderForEdit(workOrder)}>✎</button>
+                        <button className="ghost-action icon-btn danger-text" title="Remover" onClick={() => confirmRemoveWorkOrder(workOrder.id)}>✕</button>
+                      </div>
+                    </article>
+                  );
+                })
+              )}
             </div>
           </div>
         </div>
@@ -701,81 +629,9 @@ export function ClientWorkOrderWorkspace({ initialSection = 'dashboard', section
             <button className="primary-action full-cta" type="button" disabled={!workOrderDraft.title.trim()} onClick={addWorkOrder}>
               {editingWorkOrderId ? 'Salvar Alterações' : 'Criar Atendimento/Serviço'}
             </button>
-            {editingWorkOrderId && (
-              <button className="secondary-action full-cta" type="button" onClick={() => { setEditingWorkOrderId(null); setWorkOrderDraft(emptyWorkOrderDraft); setActiveSection('workOrders'); }}>
-                Cancelar
-              </button>
-            )}
-          </div>
-        </div>
-      )}
-
-      {activeSection === 'clients' && (
-        <div className="aferix-panel-card">
-          <header className="client-os-section-header">
-            <div>
-              <h2>Clientes</h2>
-              <p>Cadastro e consulta de clientes.</p>
-            </div>
-            <button className="ghost-action" type="button" onClick={() => setActiveSection('newClient')}>Novo cliente</button>
-          </header>
-          <div className="continuous-list">
-            <div className="continuous-list-item" style={{ padding: '0.5rem' }}>
-              <input value={clientSearch} placeholder="Buscar por nome, telefone ou endereço..." onChange={(event) => setClientSearch(event.target.value)} style={{ width: '100%', background: 'transparent', border: 'none', color: '#fff', outline: 'none' }} />
-            </div>
-            {clients.length === 0 ? <div className="continuous-list-empty">Nenhum cliente cadastrado.</div> : filteredClients.length === 0 && clientSearch.trim() ? <div className="continuous-list-empty">Nenhum resultado para "{clientSearch}".</div> : visibleClients.map((client) => (
-              <article className="continuous-list-item" key={client.id}>
-                <div className="client-col">
-                  <strong>{client.name}</strong>
-                  <small>{[client.phone, client.email].filter(Boolean).join(' · ') || 'Sem contato'}</small>
-                  <small>{client.address || 'Sem endereço'}</small>
-                </div>
-                <div className="catalog-row-actions">
-                  <button className="ghost-action" style={{ minHeight: '32px', fontSize: '0.7rem' }} type="button" onClick={() => openClientForEdit(client)}>Editar</button>
-                  <button className="ghost-action" style={{ minHeight: '32px', fontSize: '0.7rem' }} type="button" onClick={() => { setWorkOrderDraft((current) => ({ ...current, clientId: client.id, address: client.address ?? current.address })); setActiveSection('newWorkOrder'); }}>Novo Atendimento</button>
-                  <button className="ghost-action danger-ghost" style={{ minHeight: '32px', fontSize: '0.7rem' }} type="button" onClick={() => confirmRemoveClient(client.id)}>Excluir</button>
-                </div>
-              </article>
-            ))}
-            {hiddenClientCount > 0 && <div className="continuous-list-empty">+{hiddenClientCount} clientes.</div>}
-          </div>
-        </div>
-      )}
-
-      {activeSection === 'workOrders' && (
-        <div className="aferix-panel-card">
-          <header className="client-os-section-header">
-            <div>
-              <h2>Atendimentos/Serviços</h2>
-              <p>Histórico de execuções.</p>
-            </div>
-            {activeWorkOrder && (
-              <button className="ghost-action" type="button" onClick={() => setActiveSection('newWorkOrder')}>Novo atendimento</button>
-            )}
-          </header>
-          <div className="continuous-list">
-            <div className="continuous-list-item" style={{ padding: '0.5rem' }}>
-              <input value={workOrderSearch} placeholder="Buscar por título, cliente ou status..." onChange={(event) => setWorkOrderSearch(event.target.value)} style={{ width: '100%', background: 'transparent', border: 'none', color: '#fff', outline: 'none' }} />
-            </div>
-            {workOrders.length === 0 ? <div className="continuous-list-empty">Nenhum atendimento registrado.</div> : filteredWorkOrders.length === 0 && workOrderSearch.trim() ? <div className="continuous-list-empty">Nenhum resultado para "{workOrderSearch}".</div> : visibleWorkOrders.map((workOrder) => {
-              const client = workOrder.clientId ? clients.find((item) => item.id === workOrder.clientId) : null;
-              const isActive = workOrder.id === activeWorkOrderId;
-              return (
-                <article className={`continuous-list-item ${isActive ? 'active' : ''}`} key={workOrder.id}>
-                  <div className="client-col">
-                    <strong>{workOrder.title}</strong>
-                    <small>{client?.name ?? 'S/ Cliente'} · {statusLabel(workOrder.status)} · {paymentStatusLabel(workOrder.paymentStatus)}</small>
-                    <small>{formatDateTime(workOrder.scheduledDate)}</small>
-                  </div>
-                  <div className="catalog-row-actions">
-                    <button className="ghost-action" style={{ minHeight: '32px', fontSize: '0.7rem' }} type="button" onClick={() => setActiveWorkOrderId(workOrder.id)}>{isActive ? 'Ativo' : 'Ativar'}</button>
-                    <button className="ghost-action" style={{ minHeight: '32px', fontSize: '0.7rem' }} type="button" onClick={() => openWorkOrderForEdit(workOrder)}>Editar</button>
-                    <button className="ghost-action danger-ghost" style={{ minHeight: '32px', fontSize: '0.7rem' }} type="button" onClick={() => confirmRemoveWorkOrder(workOrder.id)}>Excluir</button>
-                  </div>
-                </article>
-              );
-            })}
-            {hiddenWorkOrderCount > 0 && <div className="continuous-list-empty">+{hiddenWorkOrderCount} atendimentos.</div>}
+            <button className="secondary-action full-cta" type="button" onClick={() => { setEditingWorkOrderId(null); setWorkOrderDraft(emptyWorkOrderDraft); setActiveSection('workOrders'); }}>
+              Cancelar
+            </button>
           </div>
         </div>
       )}

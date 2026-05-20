@@ -49,28 +49,33 @@ html, body, #root {
   gap: 12px;
 }
 
-.aferix-logo-text {
-  font-family: 'Outfit', 'Inter', 'Sora', sans-serif;
-  font-size: 1.5rem;
-  font-weight: 900;
-  letter-spacing: 0.05em;
-  color: #f5f1e8;
-}
-
-.aferix-logo-text span {
-  color: #f5a400;
-}
-
-.aferix-logo-text-small {
+.aferix-wordmark {
+  display: inline-flex !important;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0;
+  white-space: nowrap !important;
+  flex-wrap: nowrap !important;
+  line-height: 1;
+  width: auto !important;
+  min-width: max-content !important;
   font-family: 'Outfit', 'Inter', 'Sora', sans-serif;
   font-size: 1.1rem;
   font-weight: 900;
   letter-spacing: 0.05em;
   color: #f5f1e8;
+  flex-shrink: 0;
 }
 
-.aferix-logo-text-small span {
-  color: #f5a400;
+.aferix-wordmark-x {
+  display: inline !important;
+  color: #f5a400 !important;
+  white-space: nowrap !important;
+  line-height: inherit;
+}
+
+.aferix-wordmark.sidebar-logo {
+  font-size: 1.5rem;
 }
 
 .drawer-close-button {
@@ -127,6 +132,7 @@ html, body, #root {
   align-items: center;
   gap: 12px;
   padding: 10px 14px;
+  min-height: 48px;
   border-radius: var(--aferix-radius-sm);
   border: 1px solid transparent;
   background: transparent !important;
@@ -186,8 +192,8 @@ html, body, #root {
   padding: 0 16px;
   background: var(--aferix-bg);
   border-bottom: 1px solid var(--aferix-border);
+  grid-template-columns: 48px 1fr 48px;
   align-items: center;
-  justify-content: space-between;
   position: sticky;
   top: 0;
   z-index: 200;
@@ -214,7 +220,7 @@ html, body, #root {
   }
 
   .mobile-top-bar {
-    display: flex;
+    display: grid;
   }
 
   .app-content-area {
@@ -230,18 +236,51 @@ html, body, #root {
   background: transparent !important;
   border: none !important;
   color: var(--aferix-text);
-  font-size: 1.25rem;
+  font-size: 1.5rem;
   cursor: pointer;
-  padding: 8px;
+  padding: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
+  min-width: 48px;
+  min-height: 48px;
+}
+
+.sidebar-backdrop {
+  display: none;
+}
+
+@media (max-width: 1024px) {
+  .sidebar-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 90;
+    animation: fadeIn 0.3s ease;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .mobile-app-brand {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
+  min-width: 0;
+  text-align: center;
+}
+
+.mobile-context-info {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-width: 48px;
 }
 
 .client-initials {

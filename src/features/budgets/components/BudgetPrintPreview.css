@@ -4,12 +4,14 @@
   width: 100%;
   max-width: 100%;
   min-width: 0;
-  overflow: hidden;
+  height: auto;
+  min-height: fit-content;
   border: 1px solid #27272a;
   border-radius: 8px;
   padding: 18px;
   background: #161618;
   box-shadow: none;
+  overflow: visible;
 }
 
 .print-preview-header {
@@ -61,11 +63,15 @@
   width: 100%;
   max-width: 100%;
   min-width: 0;
-  overflow: hidden;
+  height: auto;
+  min-height: fit-content;
+  overflow: visible;
   color: #f8fafc;
   background: #0f0f11;
   border-radius: 8px;
   padding: 28px;
+  display: flex;
+  flex-direction: column;
 }
 
 .print-document-top {

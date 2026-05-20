@@ -11,18 +11,23 @@ export function AferixIntro() {
       return;
     }
 
+    // Lock scroll while intro is visible
+    document.body.style.overflow = 'hidden';
+
     const fadeTimer = setTimeout(() => {
       setPhase('fading');
     }, 1900);
 
     const hideTimer = setTimeout(() => {
       setPhase('hidden');
+      document.body.style.overflow = '';
       sessionStorage.setItem('aferix-intro-seen', 'true');
     }, 2300);
 
     return () => {
       clearTimeout(fadeTimer);
       clearTimeout(hideTimer);
+      document.body.style.overflow = '';
     };
   }, []);
 

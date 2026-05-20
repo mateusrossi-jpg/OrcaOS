@@ -36,6 +36,7 @@ function LazyWorkspaceFallback() {
 
 export function App() {
   const [activeTab, setActiveTab] = useState<AppTab>('home');
+  const [selectedBudgetId, setSelectedBudgetId] = useState<string | null>(null);
   const [clientInitialSection, setClientInitialSection] = useState<'dashboard' | 'newClient' | 'newWorkOrder' | 'clients' | 'workOrders'>('dashboard');
   const [clientSectionRequestKey, setClientSectionRequestKey] = useState(0);
   const [budgetResetKey, setBudgetResetKey] = useState(0);
@@ -85,6 +86,7 @@ export function App() {
 
   function goTo(tab: AppTab) {
     if (tab === 'new-budget') {
+      setSelectedBudgetId(null);
       setBudgetResetKey((current) => current + 1);
       setActiveTab('budgets');
       return;
@@ -139,11 +141,12 @@ export function App() {
                 openClientSection('workOrders');
               }}
               onSelectBudget={(budget) => {
+                setSelectedBudgetId(budget.id);
                 // If the budget has a work order ID, set it as active
                 if (budget.workOrderId) {
                   setActiveWorkOrderId(budget.workOrderId);
                 }
-                goTo('budgets');
+                setActiveTab('budgets');
               }}
             />
           )}
@@ -176,6 +179,7 @@ export function App() {
               onUpdate={updateCalculationCapture} 
               onConvertApprovedBudgetToWorkOrder={convertActiveBudgetToWorkOrder} 
               forceNewBudget={budgetResetKey > 0}
+              initialBudgetId={selectedBudgetId}
             />
           )}
           {activeTab === 'catalog' && <CatalogScreen onAddMany={addManyCalculationCaptures} context={context} />}

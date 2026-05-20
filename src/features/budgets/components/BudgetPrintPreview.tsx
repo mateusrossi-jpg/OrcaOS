@@ -98,27 +98,20 @@ export function BudgetPrintPreview({
     timeStyle: 'short',
   }).format(new Date());
 
-  const isSimpleTemplate = templateId === 'simple';
-  const isTechnicalTemplate = templateId === 'technical' || templateId === 'premiumDetailed';
-  const isPremiumTemplate = templateId === 'premiumModern' || templateId === 'premiumDetailed';
+  const isPremiumReport = templateId === 'premiumDetailed';
+  
   const profileName = businessProfile?.businessName?.trim() || businessProfile?.responsibleName?.trim() || 'Profissional';
   const documentNumber = businessProfile?.documentNumber?.trim();
   const contactLine = [businessProfile?.phone, businessProfile?.email].filter(Boolean).join(' · ');
   const address = businessProfile?.address?.trim();
-  const responsibleName = businessProfile?.responsibleName?.trim();
   const logoSource = businessProfile?.logoDataUrl?.trim() || businessProfile?.logoUrl?.trim() || AFERIX_LOGO_LIGHT_URL;
-  const categoryTotals = {
-    labor: items.filter((item) => item.category === 'labor').reduce((sum, item) => sum + safeBudgetItemTotal(item), 0),
-    material: items.filter((item) => item.category === 'material').reduce((sum, item) => sum + safeBudgetItemTotal(item), 0),
-    other: items.filter((item) => item.category === 'other').reduce((sum, item) => sum + safeBudgetItemTotal(item), 0),
-  };
 
   return (
     <section className="print-preview-shell">
       <div className="print-preview-header no-print">
         <div>
-          <h3>Prévia para cliente</h3>
-          <p>Use imprimir para salvar em PDF pelo navegador.</p>
+          <h3>{isPremiumReport ? '✨ Prévia do Relatório Premium' : '📄 Prévia do Orçamento Simples'}</h3>
+          <p>Confira os dados antes de enviar ao cliente.</p>
         </div>
         <button type="button" className="primary-action inline-action" disabled={hasBlockingIssues} onClick={printBudget}>
           Imprimir / salvar PDF
@@ -127,7 +120,7 @@ export function BudgetPrintPreview({
 
       {validationIssues.length > 0 && (
         <div className="print-validation-alert no-print" role="status">
-          <strong>{hasBlockingIssues ? 'Revise antes de gerar o PDF' : 'Atenção antes do envio'}</strong>
+          <strong>{hasBlockingIssues ? 'Revise antes de gerar o documento' : 'Atenção antes do envio'}</strong>
           <ul>
             {validationIssues.map((issue) => (
               <li className={issue.severity} key={`${issue.code}-${issue.message}`}>{issue.message}</li>
@@ -137,68 +130,51 @@ export function BudgetPrintPreview({
       )}
 
       <div className="aferix-preview-toolbar no-print">
-        <span className="toolbar-label">Ajustar Visualização</span>
+        <span className="toolbar-label">Zoom</span>
         <div className="toolbar-actions">
-          <button type="button" className="toolbar-btn" onClick={() => setZoom(prev => Math.max(0.6, prev - 0.1))} aria-label="Diminuir zoom">
-            -
-          </button>
+          <button type="button" className="toolbar-btn" onClick={() => setZoom(prev => Math.max(0.6, prev - 0.1))}>-</button>
           <span className="zoom-percentage">{Math.round(zoom * 100)}%</span>
-          <button type="button" className="toolbar-btn" onClick={() => setZoom(prev => Math.min(1.4, prev + 0.1))} aria-label="Aumentar zoom">
-            +
-          </button>
-          <button type="button" className="toolbar-btn" onClick={() => setZoom(1)} aria-label="Restaurar zoom">
-            Reset
-          </button>
+          <button type="button" className="toolbar-btn" onClick={() => setZoom(prev => Math.min(1.4, prev + 0.1))}>+</button>
+          <button type="button" className="toolbar-btn" onClick={() => setZoom(1)}>Reset</button>
         </div>
       </div>
 
-      <div className="document-preview-container" style={{ width: '100%', overflowX: 'auto', display: 'flex', justifyContent: 'center' }}>
-        <article 
-          className={`print-document print-template-${templateId}`} 
-          aria-label="Prévia impressa do orçamento"
-          style={{
-            transform: `scale(${zoom})`,
-            transformOrigin: 'top center',
-            margin: '12px auto',
-            marginBottom: zoom > 1 ? `${(zoom - 1) * 800}px` : '12px'
-          }}
-        >
-        {isPremiumTemplate && (
-          <section className="print-cover-page">
-            <span>Proposta premium</span>
-            <h1>{budgetTitle || 'Proposta técnica e comercial'}</h1>
-            <p>{clientName ? `Preparada para ${clientName}` : 'Preparada para o cliente'}</p>
-            <strong>{formatCurrency(total)}</strong>
-          </section>
-        )}
+      <div className="document-preview-container" style={{ width: '100%', overflow: 'auto', display: 'flex', justifyContent: 'center', padding: '20px 0', WebkitOverflowScrolling: 'touch' }}>
+        <div style={{ width: `${100 * zoom}%`, minWidth: 'fit-content', display: 'flex', justifyContent: 'center' }}>
+          <article 
+            className={`print-document ${isPremiumReport ? 'report-premium-layout' : 'budget-simple-layout'}`} 
+            aria-label="Prévia impressa"
+            style={{ transform: `scale(${zoom})`, transformOrigin: 'top center', margin: '0 auto', flexShrink: 0 }}
+          >
+        
         <header className="print-document-top">
           <div className="print-company-block">
-            {!isSimpleTemplate ? <img className="print-logo" src={logoSource} alt={`Logo ${profileName}`} /> : <span className="print-brand">Orçamento</span>}
-            <h2>{budgetTitle || 'Orçamento sem título'}</h2>
+            {isPremiumReport ? <img className="print-logo" src={logoSource} alt="Logo" /> : <span className="print-brand">Orçamento</span>}
+            <h2>{isPremiumReport ? 'Relatório de Atendimento' : (budgetTitle || 'Orçamento Comercial')}</h2>
             <p>{profileName}</p>
-            {!isSimpleTemplate && documentNumber && <p>{documentNumber}</p>}
+            {isPremiumReport && documentNumber && <p>{documentNumber}</p>}
             {contactLine && <p>{contactLine}</p>}
             {address && <p>{address}</p>}
           </div>
           <div className="print-status-box">
-            <span>Status</span>
+            <span>{isPremiumReport ? 'Ref. Técnica' : 'Status'}</span>
             <strong>{statusLabel(status)}</strong>
-            <small>Emitido em {issuedAt}</small>
-            {validity && <small>Validade: {validity}</small>}
+            <small>Data: {issuedAt}</small>
+            {validity && <small>Válido até: {validity}</small>}
           </div>
         </header>
 
         <section className="print-client-box">
-          <span>Cliente</span>
+          <span>Dados do Cliente</span>
           <strong>{clientName || 'Cliente não informado'}</strong>
         </section>
 
-        {isPremiumTemplate && (
-          <section className="print-client-box print-proposal-summary">
-            <span>Resumo da proposta</span>
-            <p>Problema identificado: necessidade registrada no atendimento/orçamento.</p>
-            <p>Solução proposta: execução dos serviços e fornecimento dos itens listados abaixo.</p>
-            <p>Benefícios: clareza no escopo, valores organizados e próximos passos documentados.</p>
+        {isPremiumReport && (
+          <section className="print-technical-focus">
+            <div className="print-client-box" style={{ borderLeft: '4px solid #f59e0b', paddingLeft: '12px', background: 'rgba(255,255,255,0.02)' }}>
+              <span>Diagnóstico e Escopo Técnico</span>
+              <p style={{ whiteSpace: 'pre-wrap' }}>{technicalNotes || 'Análise detalhada da necessidade registrada.'}</p>
+            </div>
           </section>
         )}
 
@@ -207,22 +183,20 @@ export function BudgetPrintPreview({
             <thead>
               <tr>
                 <th>Descrição</th>
-                <th>Categoria</th>
+                {isPremiumReport && <th>Categoria</th>}
                 <th>Qtd.</th>
-                <th>Unitário</th>
+                <th>V. Unit</th>
                 <th>Total</th>
               </tr>
             </thead>
             <tbody>
               {items.length === 0 ? (
-                <tr>
-                  <td colSpan={5}>Nenhum item informado.</td>
-                </tr>
+                <tr><td colSpan={isPremiumReport ? 5 : 4}>Nenhum item informado.</td></tr>
               ) : (
                 items.map((item) => (
                   <tr key={item.id}>
                     <td>{item.description}</td>
-                    <td>{categoryLabel(item.category)}</td>
+                    {isPremiumReport && <td>{categoryLabel(item.category)}</td>}
                     <td>{item.quantity}</td>
                     <td>{formatCurrency(item.unitPrice)}</td>
                     <td>{formatCurrency(safeBudgetItemTotal(item))}</td>
@@ -234,79 +208,44 @@ export function BudgetPrintPreview({
         </section>
 
         <section className="print-total-box">
-          <div>
-            <span>Itens</span>
-            <strong>{formatCurrency(subtotal)}</strong>
-          </div>
-          {travelCost > 0 && (
-            <div>
-              <span>Deslocamento</span>
-              <strong>{formatCurrency(travelCost)}</strong>
-            </div>
+          <div><span>Subtotal de Itens</span><strong>{formatCurrency(subtotal)}</strong></div>
+          {(travelCost > 0 || additionalFees > 0) && (
+            <div><span>Encargos e Deslocamento</span><strong>{formatCurrency(travelCost + additionalFees)}</strong></div>
           )}
-          {additionalFees > 0 && (
-            <div>
-              <span>Taxas adicionais</span>
-              <strong>{formatCurrency(additionalFees)}</strong>
-            </div>
-          )}
-          <div>
-            <span>Subtotal</span>
-            <strong>{formatCurrency(commercialSubtotal)}</strong>
-          </div>
-          <div>
-            <span>Desconto</span>
-            <strong>{formatCurrency(discount)}</strong>
-          </div>
+          {discount > 0 && <div><span>Desconto</span><strong>- {formatCurrency(discount)}</strong></div>}
           <div className="print-grand-total">
-            <span>Total</span>
+            <span>Investimento Final</span>
             <strong>{formatCurrency(total)}</strong>
           </div>
         </section>
 
-        {isTechnicalTemplate && (
-          <section className="print-client-box print-technical-section">
-            <span>Detalhamento técnico</span>
-            <div className="print-category-totals">
-              <p>Mão de obra: <strong>{formatCurrency(categoryTotals.labor)}</strong></p>
-              <p>Materiais: <strong>{formatCurrency(categoryTotals.material)}</strong></p>
-              <p>Outros: <strong>{formatCurrency(categoryTotals.other)}</strong></p>
+        {isPremiumReport ? (
+          <section className="print-premium-footer">
+            <div className="print-client-box">
+              <span>Termos, Garantia e Prazos</span>
+              {commercialNotes && <p style={{ whiteSpace: 'pre-wrap' }}>{commercialNotes}</p>}
+              {guarantee && <p><strong>Garantia:</strong> {guarantee}</p>}
+              {executionDeadline && <p><strong>Prazo de Execução:</strong> {executionDeadline}</p>}
             </div>
-            <p>Diagnóstico: {technicalNotes || 'Diagnóstico técnico a validar conforme visita, medições e condições reais do local.'}</p>
-            <p>Recomendações: confirmar medidas, disponibilidade de material e condições de execução antes do início.</p>
-            <p>Incluso: itens descritos no orçamento. Não incluso: serviços, materiais ou adequações não listados.</p>
-          </section>
-        )}
-
-        {isSimpleTemplate ? (
-          <section className="print-client-box">
-            <span>Observações</span>
-            {commercialNotes ? <p>{commercialNotes}</p> : <p>Valores sujeitos à confirmação conforme escopo final aprovado pelo cliente.</p>}
+            <footer className="print-footer" style={{ marginTop: '40px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '40px' }}>
+              <div className="signature-line">Assinatura Técnica</div>
+              <div className="signature-line">Aceite do Cliente</div>
+            </footer>
           </section>
         ) : (
-          <section className="print-client-box">
-            <span>Condições</span>
-            {paymentTerms && <p>{paymentTerms}</p>}
-            {validity && <p>Validade da proposta: {validity}</p>}
-            {guarantee && <p>Garantia: {guarantee}</p>}
-            {executionDeadline && <p>Prazo de execução: {executionDeadline}</p>}
-            {commercialNotes && <p>Observações comerciais: {commercialNotes}</p>}
-            {technicalNotes && <p>Observações técnicas: {technicalNotes}</p>}
+          <section className="budget-simple-footer">
+            <div className="print-client-box">
+              <span>Observações</span>
+              <p style={{ whiteSpace: 'pre-wrap' }}>{commercialNotes || 'Valores sujeitos à alteração sem aviso prévio.'}</p>
+              {paymentTerms && <p><strong>Pagamento:</strong> {paymentTerms}</p>}
+            </div>
+            <footer className="print-footer" style={{ marginTop: '30px' }}>
+              <div className="signature-line">Assinatura / Aceite</div>
+            </footer>
           </section>
         )}
-
-        {!isSimpleTemplate && (
-          <section className="print-client-box print-acceptance-box">
-            <span>Aceite</span>
-            <p>Ao aprovar esta proposta, o cliente autoriza a continuidade do atendimento para geração da OS e execução conforme escopo descrito.</p>
-          </section>
-        )}
-
-        <footer className="print-footer">
-          <p>{responsibleName ? `Responsável técnico/comercial: ${responsibleName}` : 'Orçamento gerado pelo Aferix.'}</p>
-          <div className="signature-line">Assinatura / aceite do cliente</div>
-        </footer>
       </article>
+      </div>
       </div>
     </section>
   );

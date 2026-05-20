@@ -45,8 +45,8 @@ export function AppShell({ children, activeTab, navItems, onNavigate, activeClie
           {isSidebarCollapsed ? '☰' : '✕'}
         </button>
         <div className="mobile-app-brand">
-          <div className="aferix-logo-text-small">
-            AFERI<span>X</span>
+          <div className="aferix-wordmark">
+            AFERI<span className="aferix-wordmark-x">X</span>
           </div>
         </div>
         <div className="mobile-context-info">
@@ -54,12 +54,21 @@ export function AppShell({ children, activeTab, navItems, onNavigate, activeClie
         </div>
       </header>
 
+      {/* Sidebar Backdrop (Mobile only) */}
+      {!isSidebarCollapsed && (
+        <div 
+          className="sidebar-backdrop" 
+          onClick={() => setIsSidebarCollapsed(true)}
+          aria-hidden="true"
+        />
+      )}
+
       {/* Main Sidebar / Sidebar Drawer */}
       <aside className="app-sidebar">
         <header className="sidebar-header">
           <div className="sidebar-brand-group">
-            <div className="aferix-logo-text">
-              AFERI<span>X</span>
+            <div className="aferix-wordmark sidebar-logo">
+              AFERI<span className="aferix-wordmark-x">X</span>
             </div>
           </div>
           <button className="drawer-close-button" type="button" aria-label="Fechar menu" onClick={() => setIsSidebarCollapsed(true)}>
