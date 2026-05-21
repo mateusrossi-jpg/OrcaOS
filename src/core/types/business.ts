@@ -118,5 +118,4 @@ export interface Service {
   updatedAt?: string;
 }
 
-// Mantendo o alias temporário para não quebrar o build imediatamente
 export type WorkOrder = Service;

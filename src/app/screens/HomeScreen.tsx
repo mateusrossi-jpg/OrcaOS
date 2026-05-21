@@ -4,7 +4,6 @@ import type { Client, Service as WorkOrder } from '../../core/types/business';
 import type { SavedBudgetRecord } from '../../features/budgets/storage/savedBudgetsStorage';
 import { calculateServiceProfit } from '../../core/finance/serviceProfit';
 import { isBudgetPendingAction, isBudgetRevenueRecognized } from '../../core/finance/budgetLifecycle';
-import { loadSimpleFinanceRecords } from '../../features/finance/storage/simpleFinanceStorage';
 import { EmptyState, MetricCard, MoneyValue, PageShell, SectionHeader } from '../components/designSystem';
 import { PageHeader } from '../components/ui';
 
@@ -26,26 +25,30 @@ export function HomeScreen({
   onSelectBudget
 }: HomeScreenProps) {
   const currentMonthBudgets = savedBudgets.filter(isBudgetFromCurrentMonth);
-  
-  // Financeiro
-  const revenue = currentMonthBudgets.filter((b) => isBudgetRevenueRecognized(b.status)).reduce((acc, b) => acc + calculateSavedBudgetValue(b), 0);
+
+  const revenue = currentMonthBudgets
+    .filter((b) => isBudgetRevenueRecognized(b.status))
+    .reduce((acc, b) => acc + calculateSavedBudgetValue(b), 0);
+
   const expenses = currentMonthBudgets.reduce((total, budget) => {
-    const materialEstimate = budget.materialCost ?? budget.items.filter((item) => item.category === 'material').reduce((itemTotal, item) => itemTotal + item.quantity * item.unitPrice, 0);
+    const materialEstimate = budget.materialCost ?? budget.items
+      .filter((item) => item.category === 'material')
+      .reduce((itemTotal, item) => itemTotal + item.quantity * item.unitPrice, 0);
     return total + materialEstimate + (budget.operationalCost ?? 0) + budget.travelCost + budget.additionalFees;
   }, 0);
+
   const profit = Math.max(revenue - expenses, 0);
 
-  // Status
   const pendingBudgets = savedBudgets.filter((b) => isBudgetPendingAction(b.status));
   const activeServices = workOrders.filter(w => w.status === 'in-progress');
   const pendingPayments = workOrders.filter(w => w.paymentStatus === 'pending' || w.paymentStatus === 'partial');
-  const recentClosings = loadSimpleFinanceRecords().slice(0, 4);
+  const recentClosings = savedBudgets.filter((b) => b.status === 'finalizado').slice(0, 4);
 
   return (
     <PageShell className="aferix-dashboard-screen">
-      <PageHeader 
-        title="Controle seu lucro" 
-        description="Visão geral do seu negócio." 
+      <PageHeader
+        title="Controle seu lucro"
+        description="Visão geral do seu negócio."
       />
 
       <section className="aferix-panel-card home-finance-overview">
@@ -77,13 +80,20 @@ export function HomeScreen({
         </div>
 
         <div className="aferix-panel-card home-recent-strip">
-          <SectionHeader title="Orçamentos concluídos recentes" eyebrow="Resultado" />
+          <SectionHeader title="Orçamentos finalizados recentes" eyebrow="Resultado" />
           <div className="continuous-list">
             {recentClosings.length === 0 ? (
-              <EmptyState title="Sem orçamentos concluídos" description="Orçamentos concluídos aparecem aqui." />
+              <EmptyState title="Nenhum orçamento finalizado" description="Quando um orçamento for finalizado, o resultado aparecerá aqui automaticamente." />
             ) : (
               recentClosings.map((record) => {
-                const profitRecord = calculateServiceProfit(record);
+                const profitRecord = calculateServiceProfit({
+                  receivedAmount: calculateSavedBudgetValue(record),
+                  materialCost: record.materialCost ?? 0,
+                  travelCost: record.travelCost,
+                  cardFee: 0,
+                  estimatedTax: 0,
+                  otherCosts: (record.additionalFees || 0) + (record.operationalCost || 0),
+                });
                 return (
                   <article key={record.id} className="continuous-list-item home-compact-row">
                     <div className="client-col">
@@ -92,7 +102,7 @@ export function HomeScreen({
                     </div>
                     <div className="value-col align-right">
                       <MoneyValue value={profitRecord.netProfit} tone={profitRecord.netProfit >= 0 ? 'success' : 'danger'} compact />
-                      <small className={record.status === 'forecast' ? 'tone-muted' : 'tone-success'}>{record.status === 'forecast' ? 'Previsto' : 'Finalizado'}</small>
+                      <small className="tone-success">Finalizado</small>
                     </div>
                   </article>
                 );

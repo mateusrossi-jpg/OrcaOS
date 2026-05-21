@@ -6,7 +6,7 @@ describe('budget pricing', () => {
   const budget: Budget = {
     id: 'test-budget',
     title: 'Orçamento de teste',
-    status: 'draft',
+    status: 'iniciado',
     discount: 20,
     items: [
       {

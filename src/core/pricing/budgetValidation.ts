@@ -92,12 +92,12 @@ export function validateBudgetForProposal(budget: Budget): BudgetValidationIssue
     issues.push({ code: 'guarantee-missing', message: 'Informe a garantia ou deixe claro que será combinada após aprovação.', severity: 'warning' });
   }
 
-  if (budget.status === 'expired') {
-    issues.push({ code: 'status-expired', message: 'Este orçamento está marcado como vencido.', severity: 'warning' });
+  if (budget.status === 'recusado') {
+    issues.push({ code: 'status-refused', message: 'Este orçamento está marcado como recusado.', severity: 'warning' });
   }
 
-  if (budget.status === 'cancelled') {
-    issues.push({ code: 'status-cancelled', message: 'Este orçamento está cancelado.', severity: 'warning' });
+  if (budget.status === 'cancelado') {
+    issues.push({ code: 'status-canceled', message: 'Este orçamento está cancelado.', severity: 'warning' });
   }
 
   return issues;

@@ -5,7 +5,7 @@ import { hasBlockingBudgetIssues, validateBudgetForProposal, validateBudgetItem 
 const validBudget: Budget = {
   id: 'budget',
   title: 'Orçamento',
-  status: 'draft',
+  status: 'iniciado',
   discount: 10,
   clientId: 'client-1',
   notes: 'client-confirmed',
@@ -65,7 +65,7 @@ describe('budget validation', () => {
   });
 
   it('warns for expired and cancelled status', () => {
-    expect(validateBudgetForProposal({ ...validBudget, status: 'expired' }).map((issue) => issue.code)).toContain('status-expired');
-    expect(validateBudgetForProposal({ ...validBudget, status: 'cancelled' }).map((issue) => issue.code)).toContain('status-cancelled');
+    expect(validateBudgetForProposal({ ...validBudget, status: 'recusado' }).map((issue) => issue.code)).toContain('status-expired');
+    expect(validateBudgetForProposal({ ...validBudget, status: 'cancelado' }).map((issue) => issue.code)).toContain('status-cancelled');
   });
 });

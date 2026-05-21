@@ -137,23 +137,27 @@ function categoryLabel(category: BudgetCategory): string {
 
 function statusLabel(status: SavedBudgetStatus): string {
   const labels: Record<SavedBudgetStatus, string> = {
-    draft: 'Orçamento pendente',
-    sent: 'Enviado',
-    approved: 'Aprovado',
-    rejected: 'Recusado',
-    expired: 'Vencido',
-    cancelled: 'Cancelado',
+    iniciado: 'Orçamento iniciado',
+    em_revisao: 'Em revisão',
+    enviado: 'Enviado ao cliente',
+    autorizado: 'Autorizado',
+    em_execucao: 'Em execução',
+    finalizado: 'Finalizado',
+    recusado: 'Recusado',
+    cancelado: 'Cancelado',
   };
   return labels[status];
 }
 
 function statusGuidance(status: SavedBudgetStatus): string {
-  if (status === 'sent') return 'Orçamento enviado. Aguarde a resposta do cliente.';
-  if (status === 'approved') return 'Cliente aprovou o orçamento. O atendimento só nasce quando você tocar em Converter em Atendimento.';
-  if (status === 'rejected') return 'Cliente recusou. Preserve o histórico e ajuste apenas se houver nova negociação.';
-  if (status === 'expired') return 'Validade vencida. Revise preços, materiais e prazo antes de reenviar.';
-  if (status === 'cancelled') return 'Fluxo cancelado. Use apenas como histórico.';
-  return 'Orçamento pendente. Complete dados, itens e condições antes do envio.';
+  if (status === 'enviado') return 'Orçamento enviado. Aguarde resposta do cliente.';
+  if (status === 'autorizado') return 'Cliente autorizou. Próximo passo: iniciar execução.';
+  if (status === 'recusado') return 'Cliente recusou. Preserve o histórico.';
+  if (status === 'em_revisao') return 'Revise itens, custos, margem e condições antes de enviar.';
+  if (status === 'cancelado') return 'Fluxo cancelado.';
+  if (status === 'em_execucao') return 'Serviço em execução. Ao concluir, finalize para lançar no financeiro.';
+  if (status === 'finalizado') return 'Serviço finalizado. Resultado entra automaticamente no financeiro.';
+  return 'Orçamento aberto para montagem.';
 }
 
 function budgetTemplateLabel(templateId: BudgetTemplateId): string {
@@ -386,7 +390,7 @@ export function BudgetWorkspace({
   const [technicalNotes, setTechnicalNotes] = useState(savedDraft?.technicalNotes ?? '');
   const [clientName, setClientName] = useState(savedDraft?.clientName ?? activeClient?.name ?? '');
   const [budgetTitle, setBudgetTitle] = useState(savedDraft?.budgetTitle ?? activeWorkOrder?.title ?? '');
-  const [budgetStatus, setBudgetStatus] = useState<SavedBudgetStatus>('draft');
+  const [budgetStatus, setBudgetStatus] = useState<SavedBudgetStatus>('iniciado');
   const [materialCost, setMaterialCost] = useState(savedDraft?.materialCost ?? 0);
   const [operationalCost, setOperationalCost] = useState(savedDraft?.operationalCost ?? 0);
   const [taxRate, setTaxRate] = useState(savedDraft?.taxRate ?? savedDraft?.aliquota_imposto ?? DEFAULT_TAX_RATE);
@@ -625,7 +629,7 @@ export function BudgetWorkspace({
   function executeClearItems() { setItems([]); setSelectedBudgetItemId(null); setShareFeedback('Todos os itens foram removidos.'); setModalType(null); }
 
   function clearBudgetForm() {
-    setActiveBudgetId(null); setBudgetStatus('draft'); setClientName(activeClient?.name ?? ''); setBudgetTitle(activeWorkOrder?.title ?? '');
+    setActiveBudgetId(null); setBudgetStatus('iniciado'); setClientName(activeClient?.name ?? ''); setBudgetTitle(activeWorkOrder?.title ?? '');
     setDiscount(0); setTravelCost(0); setAdditionalFees(0); setPaymentTerms(businessProfile.defaultPaymentTerms); setValidity(businessProfile.defaultValidity); setGuarantee(businessProfile.defaultGuarantee); setExecutionDeadline(businessProfile.defaultExecutionDeadline); setCommercialNotes(businessProfile.defaultNotes); setTechnicalNotes(''); setMaterialCost(0); setOperationalCost(0); setTaxRate(DEFAULT_TAX_RATE);
     setItems([]); setDraft(emptyDraftItem); setLastSavedAt(null); setActiveSection('documento');
   }
@@ -656,8 +660,13 @@ export function BudgetWorkspace({
     if (persistCurrentBudget(nextStatus)) setShareFeedback(feedback);
   }
 
-  function markBudgetAsSent() { transitionBudgetStatus('sent', 'Orçamento marcado como enviado.'); }
-  function markBudgetAsApproved() { transitionBudgetStatus('approved', 'Orçamento aprovado. Agora você pode converter em atendimento.'); }
+  function markBudgetAsSent() { transitionBudgetStatus('enviado', 'Orçamento marcado como enviado.'); }
+  function markBudgetInReview() { transitionBudgetStatus('em_revisao', 'Orçamento enviado para revisão.'); }
+  function markBudgetAuthorized() { transitionBudgetStatus('autorizado', 'Orçamento autorizado.'); }
+  function markBudgetInExecution() { transitionBudgetStatus('em_execucao', 'Execução iniciada.'); }
+  function markBudgetFinalized() { transitionBudgetStatus('finalizado', 'Serviço finalizado. Resultado lançado no financeiro.'); }
+  function markBudgetRejected() { transitionBudgetStatus('recusado', 'Orçamento marcado como recusado.'); }
+  function markBudgetCancelled() { transitionBudgetStatus('cancelado', 'Orçamento cancelado.'); }
 
   function duplicateActiveBudgetForRenegotiation() {
     if (!activeBudgetId) return;
@@ -666,7 +675,7 @@ export function BudgetWorkspace({
       workOrderId: activeWorkOrder?.id,
       clientName,
       title: budgetTitle ? (budgetTitle + ' (Revisão)') : 'Orçamento revisado',
-      status: 'draft',
+      status: 'iniciado',
       discount,
       travelCost,
       additionalFees,
@@ -707,12 +716,12 @@ export function BudgetWorkspace({
   function openBudgetWhatsApp() {
     if (blockingProposalIssues) { setShareFeedback(proposalIssues.find((i) => i.severity === 'error')?.message ?? 'Revise o orçamento.'); return; }
     window.open(`https://wa.me/?text=${encodeURIComponent(buildBudgetShareText())}`, '_blank', 'noopener,noreferrer');
-    persistCurrentBudget('sent');
+    persistCurrentBudget('enviado');
     setShareFeedback('WhatsApp aberto.');
   }
 
-  function confirmConvertApprovedBudgetToWorkOrder() { if (budgetStatus !== 'approved') { setShareFeedback('Aprove o orçamento primeiro.'); return; } setModalType('convertOs'); }
-  function executeConvertApprovedBudgetToWorkOrder() { onConvertApprovedBudgetToWorkOrder?.(); setShareFeedback(activeWorkOrder ? 'OS aprovada.' : 'Orçamento aprovado. Vincule um atendimento.'); setModalType(null); }
+  function confirmConvertApprovedBudgetToWorkOrder() { if (budgetStatus !== 'autorizado') { setShareFeedback('Autorize o orçamento primeiro.'); return; } setModalType('convertOs'); }
+  function executeConvertApprovedBudgetToWorkOrder() { onConvertApprovedBudgetToWorkOrder?.(); transitionBudgetStatus('em_execucao', 'Execução iniciada.'); setShareFeedback(activeWorkOrder ? 'Execução iniciada.' : 'Orçamento em execução.'); setModalType(null); }
 
   function openSavedBudget(record: SavedBudgetRecord) {
     setActiveBudgetId(record.id); setClientName(record.clientName); setBudgetTitle(record.title); setBudgetStatus(record.status); setDiscount(record.discount); setTravelCost(record.travelCost); setAdditionalFees(record.additionalFees); setPaymentTerms(record.paymentTerms || businessProfile.defaultPaymentTerms); setValidity(record.validity || businessProfile.defaultValidity); setGuarantee(record.guarantee || businessProfile.defaultGuarantee); setExecutionDeadline(record.executionDeadline || businessProfile.defaultExecutionDeadline); setCommercialNotes(record.commercialNotes || businessProfile.defaultNotes); setTechnicalNotes(record.technicalNotes);
@@ -739,8 +748,7 @@ export function BudgetWorkspace({
   const savedBudgetLimitReached = !isProPlan && !activeBudgetId && savedBudgets.length >= FREE_PLAN_LIMITS.savedBudgets;
   const catalogLimitReached = !isProPlan && catalogItems.length >= FREE_PLAN_LIMITS.catalogItems;
   const serviceTemplateLimitReached = !isProPlan && serviceTemplates.length >= FREE_PLAN_LIMITS.serviceTemplates;
-  const budgetApprovalAction = budgetStatus === 'draft' ? { label: 'Marcar como enviado', description: 'Use depois de copiar ou enviar orçamento.' } : budgetStatus === 'sent' ? { label: 'Marcar como aprovado', description: 'Use quando o cliente aceitar.' } : null;
-  const isBudgetLocked = Boolean(activeBudgetId && isBudgetClosedStatus(budgetStatus));
+    const isBudgetLocked = Boolean(activeBudgetId && isBudgetClosedStatus(budgetStatus));
 
   const visibleServiceTemplates = serviceTemplates.filter((t) => t.visible && (!serviceTemplateSearch.trim() || [t.title, t.description].join(' ').toLowerCase().includes(serviceTemplateSearch.toLowerCase()))).sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
   const visibleCatalogItems = catalogItems.filter((item) => (catalogSearch.trim().length > 0 || catalogCategoryFilter !== 'all') && (catalogCategoryFilter === 'all' || item.category === catalogCategoryFilter) && (!catalogSearch.trim() || item.description.toLowerCase().includes(catalogSearch.toLowerCase())));
@@ -788,7 +796,7 @@ export function BudgetWorkspace({
 
       {isBudgetLocked && (
         <div className="budget-toast-banner">
-          <span>Orçamento finalizado e bloqueado para edição. Duplique para negociar novamente sem alterar histórico.</span>
+          <span>{budgetStatus === 'finalizado' ? 'Orçamento finalizado e bloqueado para edição.' : budgetStatus === 'recusado' ? 'Orçamento recusado e bloqueado para edição.' : 'Orçamento cancelado e bloqueado para edição.'} Duplique para negociar novamente sem alterar histórico.</span>
           <button type="button" onClick={duplicateActiveBudgetForRenegotiation}>Duplicar</button>
         </div>
       )}
@@ -809,12 +817,14 @@ export function BudgetWorkspace({
             <label className="budget-field">
               <span>Status comercial</span>
               <select value={budgetStatus} onChange={(e) => setBudgetStatus(e.target.value as SavedBudgetStatus)} disabled={isBudgetLocked}>
-                <option value="draft" disabled={budgetStatus !== 'draft' && !canBudgetTransitionTo(budgetStatus, 'draft')}>Orçamento pendente</option>
-                <option value="sent" disabled={budgetStatus !== 'sent' && !canBudgetTransitionTo(budgetStatus, 'sent')}>Enviado</option>
-                <option value="approved" disabled={budgetStatus !== 'approved' && !canBudgetTransitionTo(budgetStatus, 'approved')}>Aprovado</option>
-                <option value="rejected" disabled={budgetStatus !== 'rejected' && !canBudgetTransitionTo(budgetStatus, 'rejected')}>Recusado</option>
-                <option value="expired" disabled={budgetStatus !== 'expired' && !canBudgetTransitionTo(budgetStatus, 'expired')}>Vencido</option>
-                <option value="cancelled" disabled={budgetStatus !== 'cancelled' && !canBudgetTransitionTo(budgetStatus, 'cancelled')}>Cancelado</option>
+                <option value="iniciado" disabled={budgetStatus !== 'iniciado' && !canBudgetTransitionTo(budgetStatus, 'iniciado')}>Orçamento iniciado</option>
+                <option value="em_revisao" disabled={budgetStatus !== 'em_revisao' && !canBudgetTransitionTo(budgetStatus, 'em_revisao')}>Em revisão</option>
+                <option value="enviado" disabled={budgetStatus !== 'enviado' && !canBudgetTransitionTo(budgetStatus, 'enviado')}>Orçamento enviado</option>
+                <option value="autorizado" disabled={budgetStatus !== 'autorizado' && !canBudgetTransitionTo(budgetStatus, 'autorizado')}>Autorizado</option>
+                <option value="em_execucao" disabled={budgetStatus !== 'em_execucao' && !canBudgetTransitionTo(budgetStatus, 'em_execucao')}>Em execução</option>
+                <option value="finalizado" disabled={budgetStatus !== 'finalizado' && !canBudgetTransitionTo(budgetStatus, 'finalizado')}>Finalizado</option>
+                <option value="recusado" disabled={budgetStatus !== 'recusado' && !canBudgetTransitionTo(budgetStatus, 'recusado')}>Recusado</option>
+                <option value="cancelado" disabled={budgetStatus !== 'cancelado' && !canBudgetTransitionTo(budgetStatus, 'cancelado')}>Cancelado</option>
               </select>
             </label>
           </div>
@@ -940,8 +950,13 @@ export function BudgetWorkspace({
           <div className="budget-flow-status-card">
             <div><span>Status do Orçamento</span><strong>{statusLabel(budgetStatus)}</strong><small>{statusGuidance(budgetStatus)}</small></div>
             <div className="budget-actions compact-actions">
-              {budgetStatus === 'draft' && <button type="button" className="primary-action inline-action" disabled={blockingProposalIssues} onClick={markBudgetAsSent}>Marcar como enviado</button>}
-              {budgetStatus === 'sent' && <button type="button" className="primary-action inline-action" disabled={blockingProposalIssues} onClick={markBudgetAsApproved}>Marcar como aprovado</button>}
+              {budgetStatus === 'iniciado' && <button type="button" className="primary-action inline-action" disabled={blockingProposalIssues} onClick={markBudgetInReview}>Enviar para revisão</button>}
+              {budgetStatus === 'em_revisao' && <button type="button" className="primary-action inline-action" disabled={blockingProposalIssues} onClick={markBudgetAsSent}>Marcar como enviado</button>}
+              {budgetStatus === 'enviado' && <button type="button" className="primary-action inline-action" disabled={blockingProposalIssues} onClick={markBudgetAuthorized}>Marcar como autorizado</button>}
+              {budgetStatus === 'autorizado' && <button type="button" className="primary-action inline-action" onClick={markBudgetInExecution}>Iniciar execução</button>}
+              {budgetStatus === 'em_execucao' && <button type="button" className="primary-action inline-action" onClick={markBudgetFinalized}>Finalizar serviço</button>}
+              {(budgetStatus === 'iniciado' || budgetStatus === 'em_revisao' || budgetStatus === 'enviado' || budgetStatus === 'autorizado' || budgetStatus === 'em_execucao') && <button type="button" className="secondary-action inline-action" onClick={markBudgetCancelled}>Cancelar</button>}
+              {(budgetStatus === 'enviado' || budgetStatus === 'autorizado' || budgetStatus === 'em_execucao') && <button type="button" className="danger-action inline-action" onClick={markBudgetRejected}>Marcar recusado</button>}
             </div>
           </div>
 

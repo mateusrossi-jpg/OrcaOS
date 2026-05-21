@@ -18,7 +18,7 @@ describe('saved budgets storage', () => {
     const saved = saveBudgetRecord({
       clientName: 'Cliente A',
       title: 'Orçamento A',
-      status: 'draft',
+      status: 'iniciado',
       discount: 0,
       materialCost: 120,
       operationalCost: 40,
@@ -45,7 +45,7 @@ describe('saved budgets storage', () => {
     const saved = saveBudgetRecord({
       clientName: 'Cliente A',
       title: 'Orçamento A',
-      status: 'draft',
+      status: 'iniciado',
       discount: 0,
       items: [],
     });
@@ -54,7 +54,7 @@ describe('saved budgets storage', () => {
       id: saved?.id,
       clientName: 'Cliente B',
       title: 'Orçamento atualizado',
-      status: 'approved',
+      status: 'autorizado',
       discount: 10,
       items: [],
     });
@@ -63,7 +63,7 @@ describe('saved budgets storage', () => {
 
     expect(records).toHaveLength(1);
     expect(records[0].clientName).toBe('Cliente B');
-    expect(records[0].status).toBe('approved');
+    expect(records[0].status).toBe('autorizado');
     expect(records[0].createdAt).toBe(saved?.createdAt);
   });
 
@@ -73,7 +73,7 @@ describe('saved budgets storage', () => {
         id: 'legacy',
         clientName: 'Cliente legado',
         title: 'Orçamento antigo',
-        status: 'draft',
+        status: 'iniciado',
         discount: 0,
         items: [],
         createdAt: '2026-05-01T00:00:00.000Z',
@@ -95,7 +95,7 @@ describe('saved budgets storage', () => {
     saveBudgetRecord({
       clientName: 'Cliente A',
       title: 'Orçamento vencido',
-      status: 'expired',
+      status: 'recusado',
       discount: 0,
       items: [],
     });
@@ -103,12 +103,12 @@ describe('saved budgets storage', () => {
     saveBudgetRecord({
       clientName: 'Cliente B',
       title: 'Orçamento cancelado',
-      status: 'cancelled',
+      status: 'cancelado',
       discount: 0,
       items: [],
     });
 
-    expect(loadSavedBudgets().map((record) => record.status)).toEqual(['cancelled', 'expired']);
+    expect(loadSavedBudgets().map((record) => record.status)).toEqual(['cancelado', 'recusado']);
   });
 
   it('keeps saved budgets sorted by most recent update', () => {
@@ -117,7 +117,7 @@ describe('saved budgets storage', () => {
         id: 'old',
         clientName: 'Cliente antigo',
         title: 'Antigo',
-        status: 'draft',
+        status: 'iniciado',
         discount: 0,
         items: [],
         createdAt: '2026-05-01T00:00:00.000Z',
@@ -127,7 +127,7 @@ describe('saved budgets storage', () => {
         id: 'new',
         clientName: 'Cliente novo',
         title: 'Novo',
-        status: 'sent',
+        status: 'enviado',
         discount: 0,
         items: [],
         createdAt: '2026-05-02T00:00:00.000Z',
@@ -142,7 +142,7 @@ describe('saved budgets storage', () => {
     const saved = saveBudgetRecord({
       clientName: 'Cliente A',
       title: 'Orçamento A',
-      status: 'draft',
+      status: 'iniciado',
       discount: 0,
       items: [],
     });

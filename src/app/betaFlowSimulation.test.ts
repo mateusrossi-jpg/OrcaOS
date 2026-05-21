@@ -16,7 +16,7 @@ describe('Aferix Flow Simulation', () => {
       items: [
         { id: 'item-1', description: 'Mão de obra', quantity: 1, unitPrice: 500, category: 'labor' }
       ],
-      status: 'approved'
+      status: 'finalizado'
     };
 
     const mockService: WorkOrder = {
@@ -29,7 +29,7 @@ describe('Aferix Flow Simulation', () => {
     };
 
     expect(mockClient.name).toBe('João Silva');
-    expect(mockBudget.status).toBe('approved');
+    expect(mockBudget.status).toBe('finalizado');
     expect(mockService.status).toBe('in-progress');
     expect(mockService.paymentStatus).toBe('pending');
   });

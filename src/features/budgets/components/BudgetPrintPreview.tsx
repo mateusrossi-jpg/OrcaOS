@@ -47,12 +47,14 @@ function categoryLabel(category: BudgetItem['category']): string {
 
 function statusLabel(status: SavedBudgetStatus): string {
   const labels: Record<SavedBudgetStatus, string> = {
-    draft: 'Orçamento pendente',
-    sent: 'Orçamento enviado',
-    approved: 'Aprovado',
-    rejected: 'Orçamento recusado',
-    expired: 'Vencido',
-    cancelled: 'Cancelado',
+    iniciado: 'Orçamento iniciado',
+    em_revisao: 'Em revisão',
+    enviado: 'Orçamento enviado',
+    autorizado: 'Autorizado',
+    em_execucao: 'Em execução',
+    finalizado: 'Finalizado',
+    recusado: 'Orçamento recusado',
+    cancelado: 'Cancelado',
   };
 
   return labels[status];

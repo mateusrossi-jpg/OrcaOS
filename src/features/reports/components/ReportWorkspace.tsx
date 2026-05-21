@@ -51,7 +51,7 @@ export function ReportWorkspace({ captures, activeClient = null, activeWorkOrder
   // Calculate Hero Data: Planned vs Actual
   const heroData = useMemo(() => {
     const plannedProfit = savedBudgets
-      .filter(b => b.status === 'approved')
+      .filter(b => b.status === 'finalizado')
       .reduce((sum, b) => sum + (b.lucro_liquido || 0), 0);
     
     const actualProfit = financeRecords
@@ -187,8 +187,8 @@ export function ReportWorkspace({ captures, activeClient = null, activeWorkOrder
             </article>
             <article className="report-stat-card">
               <div className="report-stat-info">
-                <span>Orçamentos Aguardando</span>
-                <strong>{savedBudgets.filter(b => b.status === 'sent').length}</strong>
+                <span>Orçamentos Enviados</span>
+                <strong>{savedBudgets.filter(b => b.status === 'enviado').length}</strong>
               </div>
             </article>
           </>
@@ -200,7 +200,7 @@ export function ReportWorkspace({ captures, activeClient = null, activeWorkOrder
               <span>Taxa de Aprovação</span>
               <strong>
                 {savedBudgets.length > 0 
-                  ? ((savedBudgets.filter(b => b.status === 'approved').length / savedBudgets.length) * 100).toFixed(0) 
+                  ? ((savedBudgets.filter(b => b.status === 'finalizado').length / savedBudgets.length) * 100).toFixed(0) 
                   : 0}%
               </strong>
             </div>
