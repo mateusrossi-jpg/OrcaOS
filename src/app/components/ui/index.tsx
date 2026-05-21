@@ -1,4 +1,5 @@
 import { useEffect, useRef, type ButtonHTMLAttributes, type ReactNode } from 'react';
+import { CompactActionMenu, type CompactActionItem } from '../CompactActionMenu';
 import { useAutoResizeTextArea } from '../../hooks/useAutoResizeTextArea';
 
 type Tone = 'default' | 'brand' | 'success' | 'danger' | 'muted';
@@ -464,4 +465,104 @@ export function Badge({ children, tone = 'default' }: { children: ReactNode; ton
 
 export function SectionTitle({ title, eyebrow }: { title: string; eyebrow?: string }) {
   return <SectionHeader title={title} eyebrow={eyebrow} />;
+}
+
+export function PanelCard({ children, className = '' }: { children: ReactNode; className?: string }) {
+  return <section className={`aferix-panel-card ${className}`.trim()}>{children}</section>;
+}
+
+export function ListCard({ children, className = '' }: { children: ReactNode; className?: string }) {
+  return <section className={`aferix-panel-card ${className}`.trim()}>{children}</section>;
+}
+
+export function DangerButton(props: Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'type'> & { children: ReactNode; className?: string }) {
+  const { children, className = '', ...rest } = props;
+  return <Button variant="danger" className={className} {...rest}>{children}</Button>;
+}
+
+export function StatusBadge({
+  status,
+  children,
+  tone = 'default',
+}: {
+  status?: string;
+  children?: ReactNode;
+  tone?: Tone;
+}) {
+  if (children) return <Badge tone={tone}>{children}</Badge>;
+
+  const normalized = (status ?? '').toLowerCase();
+  if (normalized === 'finalizado') return <Badge tone="success">🔒 Finalizado</Badge>;
+  if (normalized === 'cancelado') return <Badge tone="danger">🔒 Cancelado</Badge>;
+  if (normalized === 'recusado') return <Badge tone="danger">🔒 Recusado</Badge>;
+  if (normalized === 'em_revisao') return <Badge tone="brand">● Em revisão</Badge>;
+  if (normalized === 'enviado') return <Badge tone="brand">● Enviado</Badge>;
+  if (normalized === 'autorizado') return <Badge tone="success">● Autorizado</Badge>;
+  if (normalized === 'em_execucao') return <Badge tone="success">● Em execução</Badge>;
+  if (normalized === 'iniciado') return <Badge tone="default">● Iniciado</Badge>;
+  return <Badge tone="muted">● {status || 'Status'}</Badge>;
+}
+
+export function ActionMenu({
+  items,
+  label,
+  align = 'right',
+}: {
+  items: CompactActionItem[];
+  label?: string;
+  align?: 'left' | 'right';
+}) {
+  return <CompactActionMenu items={items} label={label} align={align} />;
+}
+
+export function SearchInput({
+  value,
+  onChange,
+  placeholder = 'Buscar...',
+  className = '',
+}: {
+  value: string;
+  onChange: (value: string) => void;
+  placeholder?: string;
+  className?: string;
+}) {
+  return (
+    <input
+      value={value}
+      placeholder={placeholder}
+      onChange={(e) => onChange(e.target.value)}
+      className={className}
+    />
+  );
+}
+
+export function FilterChips<T extends string>({
+  items,
+  active,
+  onChange,
+  className = '',
+  ariaLabel = 'Filtros',
+}: {
+  items: Array<{ id: T; label: string }>;
+  active: T;
+  onChange: (id: T) => void;
+  className?: string;
+  ariaLabel?: string;
+}) {
+  return (
+    <div className={`catalog-category-chips ${className}`.trim()} role="tablist" aria-label={ariaLabel}>
+      {items.map((item) => (
+        <button
+          key={item.id}
+          type="button"
+          role="tab"
+          aria-selected={active === item.id}
+          className={`category-chip ${active === item.id ? 'active' : ''}`}
+          onClick={() => onChange(item.id)}
+        >
+          {item.label}
+        </button>
+      ))}
+    </div>
+  );
 }
