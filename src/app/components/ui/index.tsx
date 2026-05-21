@@ -527,8 +527,8 @@ export function SearchInput({
 // Interface para o componente FilterChips
 interface FilterChipsProps<T extends string> {
   items: Array<{ id: T; label: string }>;
-  active: T; // Mantém a lógica de seleção única, como no original
-  onChange: (id: T) => void;
+  active: T[]; // Altera para permitir múltiplos ativos
+  onChange: (active: T[]) => void;
   className?: string;
   ariaLabel?: string;
 }
@@ -541,15 +541,20 @@ export function FilterChips<T extends string>({
   ariaLabel = 'Filtros',
 }: FilterChipsProps<T>) {
   return (
-    <div className={`filter-chips ${className}`.trim()} role="tablist" aria-label={ariaLabel}>
+    <div className={`filter-chips ${className}`.trim()} role="group" aria-label={ariaLabel}>
       {items.map((item) => (
         <button
           key={item.id}
           type="button"
-          role="tab"
-          aria-selected={active === item.id}
-          className={`filter-chip ${active === item.id ? 'active' : ''}`}
-          onClick={() => onChange(item.id)}
+          className={`filter-chip ${active.includes(item.id) ? 'active' : ''}`}
+          onClick={() => {
+            if (active.includes(item.id)) {
+              onChange(active.filter((id) => id !== item.id));
+            } else {
+              onChange([...active, item.id]);
+            }
+          }}
+          aria-pressed={active.includes(item.id)}
         >
           {item.label}
         </button>
