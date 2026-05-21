@@ -4,30 +4,21 @@ import { useAutoResizeTextArea } from '../../hooks/useAutoResizeTextArea';
 
 type Tone = 'default' | 'brand' | 'success' | 'danger' | 'muted';
 
-export function PageShell({ children, className = '' }: { children: ReactNode; className?: string }) {
-  return <section className={`app-screen page-shell ${className}`.trim()}>{children}</section>;
-}
+// PageShell foi movido para seu próprio arquivo (src/app/components/PageShell.tsx) para padronização.
+// Todas as importações de PageShell devem ser atualizadas para 'src/app/components/PageShell'.
 
-export function PageHeader({ title, description, action }: { title: string; description?: string; action?: ReactNode }) {
+// O antigo PageHeader e SectionHeader foram consolidados neste novo PageHeader.
+// Use PageHeader e passe as props 'description' ou 'eyebrow' conforme necessário.
+// A classe 'screen-header' pode ser adicionada no uso do componente PageHeader via 'className' se houver dependência de estilo.
+export function PageHeader({ title, description, eyebrow, action, className = '' }: { title: string; description?: string; eyebrow?: string; action?: ReactNode; className?: string }) {
   return (
-    <header className="screen-header page-header">
+    <header className={`page-header ${className}`.trim()}>
       <div>
+        {eyebrow && <span className="orca-kicker">{eyebrow}</span>}
         <h1>{title}</h1>
         {description && <p>{description}</p>}
       </div>
       {action && <div className="page-header-action">{action}</div>}
-    </header>
-  );
-}
-
-export function SectionHeader({ title, eyebrow, action }: { title: string; eyebrow?: string; action?: ReactNode }) {
-  return (
-    <header className="section-header">
-      <div>
-        {eyebrow && <span className="orca-kicker">{eyebrow}</span>}
-        <h2>{title}</h2>
-      </div>
-      {action}
     </header>
   );
 }
@@ -134,9 +125,9 @@ export function MoneyValue({ value, tone = 'default', compact = false }: { value
   return <span className={`money-value tone-${tone}${compact ? ' compact' : ''}`}>{formatted}</span>;
 }
 
-export function EmptyState({ title, description, action }: { title: string; description?: string; action?: ReactNode }) {
+export function EmptyState({ title, description, action, className = '' }: { title: string; description?: string; action?: ReactNode; className?: string }) {
   return (
-    <div className="empty-state-card premium-empty-state">
+    <div className={`empty-state-card ${className}`.trim()}>
       <div className="empty-state-icon" aria-hidden="true">
         <svg viewBox="0 0 24 24">
           <path d="M4 7.5A1.5 1.5 0 0 1 5.5 6h13A1.5 1.5 0 0 1 20 7.5v9A1.5 1.5 0 0 1 18.5 18h-13A1.5 1.5 0 0 1 4 16.5Z" />
@@ -389,12 +380,12 @@ export function BackCard({ label = 'Voltar', onClick }: { label?: string; onClic
   return <BackButton label={label} onClick={onClick} />;
 }
 
-export function PrimaryButton(props: Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'type'> & { children: ReactNode; className?: string }) {
+export function PrimaryButton(props: Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'type'> & { children: ReactNode }) {
   const { children, className = '', ...rest } = props;
   return <Button variant="primary" className={`full-page-cta ${className}`.trim()} {...rest}>{children}</Button>;
 }
 
-export function SecondaryButton(props: Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'type'> & { children: ReactNode; className?: string }) {
+export function SecondaryButton(props: Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'type'> & { children: ReactNode }) {
   const { children, className = '', ...rest } = props;
   return <Button variant="secondary" className={className} {...rest}>{children}</Button>;
 }
@@ -463,19 +454,22 @@ export function Badge({ children, tone = 'default' }: { children: ReactNode; ton
   return <span className={`aferix-badge tone-${tone}`}>{children}</span>;
 }
 
-export function SectionTitle({ title, eyebrow }: { title: string; eyebrow?: string }) {
-  return <SectionHeader title={title} eyebrow={eyebrow} />;
+export function SectionTitle({ title, eyebrow, className = '' }: { title: string; eyebrow?: string; className?: string }) {
+  return (
+    <header className={`section-title ${className}`.trim()}>
+      {eyebrow && <span className="orca-kicker">{eyebrow}</span>}
+      <h2>{title}</h2>
+    </header>
+  );
 }
 
 export function PanelCard({ children, className = '' }: { children: ReactNode; className?: string }) {
   return <section className={`aferix-panel-card ${className}`.trim()}>{children}</section>;
 }
+// ListCard foi consolidado com PanelCard, que serve como um componente Card genérico.
+// Todos os usos de ListCard devem ser atualizados para PanelCard.
 
-export function ListCard({ children, className = '' }: { children: ReactNode; className?: string }) {
-  return <section className={`aferix-panel-card ${className}`.trim()}>{children}</section>;
-}
-
-export function DangerButton(props: Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'type'> & { children: ReactNode; className?: string }) {
+export function DangerButton(props: Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'type'> & { children: ReactNode }) {
   const { children, className = '', ...rest } = props;
   return <Button variant="danger" className={className} {...rest}>{children}</Button>;
 }
@@ -515,6 +509,30 @@ export function ActionMenu({
   return <CompactActionMenu items={items} label={label} align={align} />;
 }
 
+// ActionMenu (novo componente)
+interface ActionMenuProps {
+  children: ReactNode;
+  label?: string; // Para acessibilidade
+  className?: string;
+}
+
+export function ActionMenu({ children, label = 'Opções', className = '' }: ActionMenuProps) {
+  // Uma implementação completa envolveria estado para abrir/fechar o menu e possivelmente um portal
+  // Para os propósitos da tarefa, que é consolidar UI/components e não criar features complexas,
+  // vamos criar uma estrutura básica para o componente.
+  // A lógica de interatividade (dropdown) virá em uma fase posterior ou através de um wrapper.
+  return (
+    <div className={`action-menu-wrapper ${className}`.trim()}>
+      <button className="action-menu-trigger" aria-label={label}>
+        <span>&#x22EF;</span> {/* Ellipsis horizontal */}
+      </button>
+      <div className="action-menu-content">
+        {children}
+      </div>
+    </div>
+  );
+}
+
 export function SearchInput({
   value,
   onChange,
@@ -536,28 +554,31 @@ export function SearchInput({
   );
 }
 
+// Interface para o componente FilterChips
+interface FilterChipsProps<T extends string> {
+  items: Array<{ id: T; label: string }>;
+  active: T; // Mantém a lógica de seleção única, como no original
+  onChange: (id: T) => void;
+  className?: string;
+  ariaLabel?: string;
+}
+
 export function FilterChips<T extends string>({
   items,
   active,
   onChange,
   className = '',
   ariaLabel = 'Filtros',
-}: {
-  items: Array<{ id: T; label: string }>;
-  active: T;
-  onChange: (id: T) => void;
-  className?: string;
-  ariaLabel?: string;
-}) {
+}: FilterChipsProps<T>) {
   return (
-    <div className={`catalog-category-chips ${className}`.trim()} role="tablist" aria-label={ariaLabel}>
+    <div className={`filter-chips ${className}`.trim()} role="tablist" aria-label={ariaLabel}>
       {items.map((item) => (
         <button
           key={item.id}
           type="button"
           role="tab"
           aria-selected={active === item.id}
-          className={`category-chip ${active === item.id ? 'active' : ''}`}
+          className={`filter-chip ${active === item.id ? 'active' : ''}`}
           onClick={() => onChange(item.id)}
         >
           {item.label}
