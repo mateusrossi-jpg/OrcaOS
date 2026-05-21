@@ -60,7 +60,19 @@ export interface BudgetItem {
   category: 'labor' | 'material' | 'other';
 }
 
-export type BudgetStatus = 'draft' | 'sent' | 'approved' | 'rejected' | 'expired' | 'cancelled';
+export type CoreBudgetStatus =
+  | 'iniciado'
+  | 'em_revisao'
+  | 'enviado'
+  | 'autorizado'
+  | 'em_execucao'
+  | 'finalizado'
+  | 'recusado'
+  | 'cancelado';
+
+export type LegacyBudgetStatus = 'draft' | 'sent' | 'approved' | 'rejected' | 'expired' | 'cancelled';
+
+export type BudgetStatus = CoreBudgetStatus | LegacyBudgetStatus;
 
 export interface Budget {
   id: string;
@@ -94,7 +106,7 @@ export type ServiceStatus = 'in-progress' | 'done' | 'cancelled';
 export interface Service {
   id: string;
   clientId?: string;
-  budgetId?: string; // Vínculo com o orçamento aprovado
+  budgetId?: string; // Vínculo com o orçamento aprovado/autorizado
   title: string;
   description?: string;
   address?: string;
