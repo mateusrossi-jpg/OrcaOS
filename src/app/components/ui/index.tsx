@@ -4,12 +4,7 @@ import { useAutoResizeTextArea } from '../../hooks/useAutoResizeTextArea';
 
 type Tone = 'default' | 'brand' | 'success' | 'danger' | 'muted';
 
-// PageShell foi movido para seu próprio arquivo (src/app/components/PageShell.tsx) para padronização.
-// Todas as importações de PageShell devem ser atualizadas para 'src/app/components/PageShell'.
 
-// O antigo PageHeader e SectionHeader foram consolidados neste novo PageHeader.
-// Use PageHeader e passe as props 'description' ou 'eyebrow' conforme necessário.
-// A classe 'screen-header' pode ser adicionada no uso do componente PageHeader via 'className' se houver dependência de estilo.
 export function PageHeader({ title, description, eyebrow, action, className = '' }: { title: string; description?: string; eyebrow?: string; action?: ReactNode; className?: string }) {
   return (
     <header className={`page-header ${className}`.trim()}>
@@ -125,18 +120,11 @@ export function MoneyValue({ value, tone = 'default', compact = false }: { value
   return <span className={`money-value tone-${tone}${compact ? ' compact' : ''}`}>{formatted}</span>;
 }
 
-export function EmptyState({ title, description, action, className = '' }: { title: string; description?: string; action?: ReactNode; className?: string }) {
+export function EmptyState({ message, children }: { message: string; children?: ReactNode }) {
   return (
-    <div className={`empty-state-card ${className}`.trim()}>
-      <div className="empty-state-icon" aria-hidden="true">
-        <svg viewBox="0 0 24 24">
-          <path d="M4 7.5A1.5 1.5 0 0 1 5.5 6h13A1.5 1.5 0 0 1 20 7.5v9A1.5 1.5 0 0 1 18.5 18h-13A1.5 1.5 0 0 1 4 16.5Z" />
-          <path d="m6 9 6 4 6-4" />
-        </svg>
-      </div>
-      <strong>{title}</strong>
-      {description && <p>{description}</p>}
-      {action && <div className="empty-state-action">{action}</div>}
+    <div className="empty-state">
+      <p className="empty-state-message">{message}</p>
+      {children}
     </div>
   );
 }
@@ -390,6 +378,11 @@ export function SecondaryButton(props: Omit<ButtonHTMLAttributes<HTMLButtonEleme
   return <Button variant="secondary" className={className} {...rest}>{children}</Button>;
 }
 
+export function DangerButton(props: Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'type'> & { children: ReactNode }) {
+  const { children, className = '', ...rest } = props;
+  return <Button variant="danger" className={className} {...rest}>{children}</Button>;
+}
+
 export function Input({
   label,
   className = '',
@@ -509,29 +502,6 @@ export function ActionMenu({
   return <CompactActionMenu items={items} label={label} align={align} />;
 }
 
-// ActionMenu (novo componente)
-interface ActionMenuProps {
-  children: ReactNode;
-  label?: string; // Para acessibilidade
-  className?: string;
-}
-
-export function ActionMenu({ children, label = 'Opções', className = '' }: ActionMenuProps) {
-  // Uma implementação completa envolveria estado para abrir/fechar o menu e possivelmente um portal
-  // Para os propósitos da tarefa, que é consolidar UI/components e não criar features complexas,
-  // vamos criar uma estrutura básica para o componente.
-  // A lógica de interatividade (dropdown) virá em uma fase posterior ou através de um wrapper.
-  return (
-    <div className={`action-menu-wrapper ${className}`.trim()}>
-      <button className="action-menu-trigger" aria-label={label}>
-        <span>&#x22EF;</span> {/* Ellipsis horizontal */}
-      </button>
-      <div className="action-menu-content">
-        {children}
-      </div>
-    </div>
-  );
-}
 
 export function SearchInput({
   value,
