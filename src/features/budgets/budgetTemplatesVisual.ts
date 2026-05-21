@@ -32,9 +32,9 @@ export const budgetTemplateOptions: BudgetTemplateOption[] = [
   },
   {
     id: 'premiumModern',
-    title: 'Proposta Premium',
-    description: 'Capa, problema identificado, solução proposta, benefícios e próximos passos.',
-    value: 'Para vender melhor serviços maiores com uma proposta mais consultiva.',
+    title: 'Orçamento Premium',
+    description: 'Capa, problema identificado, solução orçada, benefícios e próximos passos.',
+    value: 'Para vender melhor serviços maiores com um orçamento mais consultivo.',
     plan: 'pro',
   },
 ];

@@ -1,0 +1,3 @@
+.fundamental-picker-card, .fundamental-plan-banner {
+  background: var(--stable-surface, var(--aferix-surface-raised));
+}

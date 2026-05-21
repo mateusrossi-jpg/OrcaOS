@@ -274,7 +274,7 @@ function buildCatalogItemFromDraft(draft: ItemDraft, existingItem?: CatalogHubIt
   };
 }
 
-function createCaptureFromCatalogItem(item: CatalogHubItem): CalculationCapture {
+export function createCaptureFromCatalogItem(item: CatalogHubItem): CalculationCapture {
   const subtotal = item.defaultQuantity * item.defaultUnitValue;
   return {
     id: createCatalogId('catalog-hub-capture'),
@@ -521,7 +521,7 @@ export function CatalogHubWorkspace({ onSendToBudget, initialTab = 'items', enab
     const today = new Intl.DateTimeFormat('pt-BR').format(new Date());
     const onlineNote = [
       observedPrice ? `Preço observado: ${money(parseDecimal(observedPrice))} em ${today}.` : null,
-      `${result?.providerName ?? 'Referência online'} escolhida pelo profissional. Confirmar disponibilidade antes de enviar proposta.`,
+      `${result?.providerName ?? 'Referência online'} escolhida pelo profissional. Confirmar disponibilidade antes de enviar orçamento.`,
       result?.note,
     ].filter(Boolean).join(' ');
     const purchaseGuidance = [

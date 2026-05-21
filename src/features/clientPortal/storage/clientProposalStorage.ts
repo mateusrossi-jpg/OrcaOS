@@ -103,11 +103,11 @@ export function createClientProposalDraft(input: Partial<ClientProposal> = {}): 
     clientId: input.clientId,
     workOrderId: input.workOrderId,
     budgetId: input.budgetId,
-    title: input.title ?? 'Proposta de serviço',
+    title: input.title ?? 'Orçamento de serviço',
     clientName: input.clientName ?? 'Cliente',
     professionalDisplayName: input.professionalDisplayName ?? 'Profissional',
     professionalContact: input.professionalContact,
-    summary: input.summary ?? 'Proposta gerada pelo Aferix.',
+    summary: input.summary ?? 'Orçamento gerado pelo Aferix.',
     items: input.items ?? [],
     clientPurchaseMaterials: input.clientPurchaseMaterials ?? [],
     subtotal: input.subtotal ?? 0,
@@ -143,7 +143,7 @@ export function deleteClientProposal(id: string): ClientProposal[] {
 
 export function clientProposalStatusLabel(status: ClientProposalStatus): string {
   const labels: Record<ClientProposalStatus, string> = {
-    draft: 'Rascunho',
+    draft: 'Orçamento pendente',
     sent: 'Enviada',
     viewed: 'Visualizada',
     approved: 'Aprovada',

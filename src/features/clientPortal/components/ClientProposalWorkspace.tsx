@@ -62,7 +62,7 @@ export function ClientProposalWorkspace({ technicalCaptures = [], activeClient =
 
   function createProposalFromCurrentBudget() {
     if (proposalReadyCaptures.length === 0) {
-      setFeedback('Nenhum item técnico disponível para gerar proposta do cliente. Envie serviços ou materiais ao orçamento primeiro.');
+      setFeedback('Nenhum item técnico disponível para gerar orçamento do cliente. Envie serviços ou materiais ao orçamento primeiro.');
       return;
     }
 
@@ -70,7 +70,7 @@ export function ClientProposalWorkspace({ technicalCaptures = [], activeClient =
     upsertClientProposal(proposal);
     refresh();
     setPreviewProposal(proposal);
-    setFeedback(`Proposta criada a partir de ${proposalReadyCaptures.length} item(ns) técnico(s).`);
+    setFeedback(`Orçamento criado a partir de ${proposalReadyCaptures.length} item(ns) técnico(s).`);
   }
 
   function createExampleProposal() {
@@ -80,9 +80,9 @@ export function ClientProposalWorkspace({ technicalCaptures = [], activeClient =
       companyId: profile.companyId,
       professionalDisplayName: profile.businessName || profile.professionalName || 'Profissional Aferix',
       professionalContact: [profile.phone, profile.email].filter(Boolean).join(' · '),
-      title: 'Proposta exemplo para cliente',
+      title: 'Orçamento exemplo para cliente',
       clientName: 'Cliente exemplo',
-      summary: 'Exemplo de proposta pública separando serviços cobrados e materiais que podem ser comprados pelo cliente.',
+      summary: 'Exemplo de orçamento público separando serviços cobrados e materiais que podem ser comprados pelo cliente.',
       items: [
         { id: 'item-service-example', description: 'Mão de obra para instalação de tomadas e acabamento', quantity: 1, unitLabel: 'serviço', unitPrice: 450, totalPrice: 450, category: 'service', visibleToClient: true, notes: 'Inclui instalação e testes básicos.' },
       ],
@@ -99,21 +99,21 @@ export function ClientProposalWorkspace({ technicalCaptures = [], activeClient =
     upsertClientProposal(proposal);
     refresh();
     setPreviewProposal(proposal);
-    setFeedback('Proposta exemplo criada.');
+    setFeedback('Orçamento exemplo criado.');
   }
 
   function updateProposalStatus(proposal: ClientProposal, status: ClientProposalStatus) {
     const updatedProposal = upsertClientProposal({ ...proposal, ...statusTimestampPatch(status) });
     refresh();
     setPreviewProposal((current) => (current?.id === proposal.id ? updatedProposal : current));
-    setFeedback(`Proposta marcada como ${clientProposalStatusLabel(status).toLowerCase()}.`);
+    setFeedback(`Orçamento marcado como ${clientProposalStatusLabel(status).toLowerCase()}.`);
   }
 
   async function copyProposalText(proposal: ClientProposal) {
     const text = buildClientProposalShareText(proposal);
     try {
       await navigator.clipboard.writeText(text);
-      setFeedback('Texto da proposta copiado para envio ao cliente.');
+      setFeedback('Texto do orçamento copiado para envio ao cliente.');
     } catch {
       setFeedback('Não foi possível copiar automaticamente. Abra o WhatsApp ou selecione o texto manualmente em uma próxima etapa.');
     }
@@ -127,7 +127,7 @@ export function ClientProposalWorkspace({ technicalCaptures = [], activeClient =
   function removeProposal(id: string) {
     setProposals(deleteClientProposal(id));
     setPreviewProposal((current) => (current?.id === id ? null : current));
-    setFeedback('Proposta removida.');
+    setFeedback('Orçamento removido.');
   }
 
   return (
@@ -135,24 +135,24 @@ export function ClientProposalWorkspace({ technicalCaptures = [], activeClient =
       <div className="client-proposal-header">
         <div>
           <span className="orca-kicker">Aferix Cliente</span>
-          <h2>Propostas públicas do cliente</h2>
+          <h2>Orçamentos públicos do cliente</h2>
           <p>Base inicial para gerar visão simplificada do cliente, com preço final, materiais que ele compra, status e aceite.</p>
         </div>
-        <strong>{proposals.length} proposta(s)</strong>
+        <strong>{proposals.length} orçamento(s)</strong>
       </div>
 
       <div className="client-proposal-card">
         <div>
-          <strong>Gerar proposta do cliente</strong>
-          <small>{proposalReadyCaptures.length} item(ns) técnico(s) disponíveis para transformar em proposta pública.</small>
+          <strong>Gerar orçamento do cliente</strong>
+          <small>{proposalReadyCaptures.length} item(ns) técnico(s) disponíveis para transformar em orçamento público.</small>
         </div>
         <div className="client-proposal-actions">
-          <button className="primary-action inline-action" type="button" onClick={createProposalFromCurrentBudget}>Criar proposta do orçamento atual</button>
-          <button className="secondary-action inline-action" type="button" onClick={createExampleProposal}>Criar proposta exemplo</button>
+          <button className="primary-action inline-action" type="button" onClick={createProposalFromCurrentBudget}>Criar orçamento do orçamento atual</button>
+          <button className="secondary-action inline-action" type="button" onClick={createExampleProposal}>Criar orçamento exemplo</button>
           <button className="secondary-action inline-action" type="button" onClick={refresh}>Atualizar lista</button>
         </div>
         <label className="client-proposal-search">
-          <span>Buscar proposta</span>
+          <span>Buscar orçamento</span>
           <input value={query} placeholder="Cliente, título, profissional..." onChange={(event) => setQuery(event.target.value)} />
         </label>
       </div>
@@ -161,7 +161,7 @@ export function ClientProposalWorkspace({ technicalCaptures = [], activeClient =
 
       <div className="client-proposal-list">
         {filteredProposals.length === 0 ? (
-          <div className="client-proposal-empty">Nenhuma proposta pública criada ainda.</div>
+          <div className="client-proposal-empty">Nenhuma orçamento público criada ainda.</div>
         ) : filteredProposals.map((proposal) => (
           <article className={previewProposal?.id === proposal.id ? 'client-proposal-item is-previewing' : 'client-proposal-item'} key={proposal.id}>
             <header>

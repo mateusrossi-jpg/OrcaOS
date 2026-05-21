@@ -1,29 +1,29 @@
 :root {
-  --aferix-bg: #050607;
-  --aferix-bg-soft: #090b0f;
-  --aferix-surface: #101114;
-  --aferix-surface-raised: #15171c;
-  --aferix-surface-active: #1b1d23;
+  --aferix-bg: #070A0F;
+  --aferix-bg-soft: #070A0F;
+  --aferix-surface: #10141B;
+  --aferix-surface-raised: #151A22;
+  --aferix-surface-active: #1e2430;
   --aferix-surface-2: var(--aferix-surface-raised);
   --aferix-surface-3: var(--aferix-surface-active);
-  --aferix-surface-hover: #202228;
-  --aferix-border: #24262d;
-  --aferix-border-strong: #343741;
-  --aferix-text: #f5f1e8;
-  --aferix-text-primary: #f5f1e8;
-  --aferix-text-muted: #a6a6af;
-  --aferix-text-soft: #73737d;
+  --aferix-surface-hover: #1e2430;
+  --aferix-border: rgba(255,255,255,0.06);
+  --aferix-border-strong: rgba(255,255,255,0.12);
+  --aferix-text: #F8FAFC;
+  --aferix-text-primary: #F8FAFC;
+  --aferix-text-muted: #71717A;
+  --aferix-text-soft: #A1A1AA;
   --aferix-muted: var(--aferix-text-muted);
-  --aferix-text-secondary: var(--aferix-text-muted);
-  --aferix-brand: #f5a400;
+  --aferix-text-secondary: var(--aferix-text-soft);
+  --aferix-brand: #FFD21F;
   --aferix-brand-soft: #8a5d08;
-  --aferix-brand-hover: #ffb21a;
+  --aferix-brand-hover: #EAB308;
   --aferix-primary: var(--aferix-brand);
   --aferix-primary-strong: var(--aferix-brand-hover);
-  --aferix-primary-soft: rgba(245, 164, 0, 0.11);
-  --aferix-success: #22c55e;
-  --aferix-danger: #ef4444;
-  --aferix-warning: #f59e0b;
+  --aferix-primary-soft: rgba(250, 204, 21, 0.11);
+  --aferix-success: #22C55E;
+  --aferix-danger: #EF4444;
+  --aferix-warning: #FACC15;
   --aferix-accent: var(--aferix-brand);
   --aferix-radius-sm: 8px;
   --aferix-radius-md: 12px;
@@ -33,12 +33,12 @@
   --aferix-page-desktop-x: 24px;
   --aferix-card-padding-mobile: 16px;
   --aferix-card-padding-desktop: 20px;
-  --aferix-font: "Geist", "Outfit", "Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --aferix-font: "Inter", "Geist", "Outfit", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --aferix-mono: "JetBrains Mono", "SFMono-Regular", Consolas, "Liberation Mono", monospace;
-  --aferix-premium-gradient: linear-gradient(135deg, #f5a400 0%, #ffb21a 100%);
-  --aferix-premium-divider: linear-gradient(90deg, transparent 0%, rgba(245, 164, 0, 0.08) 20%, rgba(245, 164, 0, 0.28) 80%, transparent 100%);
-  --aferix-shadow-sm: 0 10px 24px rgba(0, 0, 0, 0.18);
-  --aferix-shadow: 0 18px 54px rgba(0, 0, 0, 0.32);
+  --aferix-premium-gradient: linear-gradient(135deg, #FACC15 0%, #EAB308 100%);
+  --aferix-premium-divider: linear-gradient(90deg, transparent 0%, rgba(250, 204, 21, 0.08) 20%, rgba(250, 204, 21, 0.28) 80%, transparent 100%);
+  --aferix-shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.1);
+  --aferix-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
 
   /* Legacy OrcaOS Variables (Deprecated - do not use for new development) */
   --orca-bg: var(--aferix-bg);
@@ -214,7 +214,7 @@ button.primary {
   transition: all 0.2s ease !important;
 }
 
-/* Premium CTA variant for main actions like "Novo Fechamento" */
+/* Premium CTA variant for main actions like "Atualizar Resultado" */
 .primary-action.premium-cta {
   min-width: 180px !important;
   padding: 12px 24px !important;
@@ -1238,17 +1238,90 @@ button.secondary {
   background: var(--aferix-surface-active) !important;
 }
 
-.compact-empty-state {
-  min-height: 160px !important;
-  padding: 24px !important;
+.premium-empty-state {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 48px 24px !important;
+  text-align: center !important;
+  min-height: 200px !important;
+  background: transparent !important;
+  border: 1px dashed var(--aferix-border-soft) !important;
+  border-radius: var(--aferix-radius-md) !important;
+  margin: 16px 0 !important;
 }
 
-.compact-empty-state strong {
-  font-size: 16px !important;
+.empty-state-icon {
+  width: 52px;
+  height: 52px;
+  margin-bottom: 12px;
+  border: 1px solid var(--aferix-border);
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.015);
 }
 
-.compact-empty-state p {
-  font-size: 13px !important;
+.empty-state-icon svg {
+  width: 22px;
+  height: 22px;
+  stroke: var(--aferix-text-muted);
+  stroke-width: 1.8;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.premium-empty-state strong {
+  font-size: 1.1rem !important;
+  color: var(--aferix-text) !important;
+  margin-bottom: 6px !important;
+}
+
+.premium-empty-state p {
+  font-size: 0.9rem !important;
+  color: var(--aferix-text-muted) !important;
+  max-width: 280px !important;
+}
+
+.aferix-back-button-card {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  width: 100% !important;
+  padding: 12px 16px !important;
+  background: var(--aferix-surface-raised) !important;
+  border: 1px solid var(--aferix-border) !important;
+  border-radius: var(--aferix-radius-md) !important;
+  color: var(--aferix-text) !important;
+  font-weight: 700 !important;
+  font-size: 0.9rem !important;
+  cursor: pointer !important;
+  margin-bottom: 8px !important;
+  transition: all 0.2s ease !important;
+}
+
+.aferix-back-button-card:active {
+  transform: scale(0.98);
+  background: var(--aferix-surface-active) !important;
+}
+
+.back-icon {
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+@media (max-width: 1024px) {
+  .app-sidebar {
+    border-right: none !important;
+    box-shadow: none !important;
+  }
+  
+  .sidebar-expanded .app-sidebar {
+    box-shadow: 20px 0 60px rgba(0,0,0,0.8) !important;
+  }
 }
 
 .client-purchase-warning {
@@ -1350,6 +1423,175 @@ button.secondary {
 .aferix-dashboard-screen {
   display: grid !important;
   gap: 12px !important;
+}
+
+.status-compact-list {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.status-compact-item {
+  display: grid;
+  gap: 4px;
+  padding: 12px;
+  border: 1px solid var(--aferix-border-soft);
+  border-radius: 12px;
+  background: var(--aferix-surface-raised);
+  text-align: left;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.status-compact-item:active {
+  transform: scale(0.98);
+}
+
+.status-label {
+  font-size: 0.65rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: var(--aferix-text-muted);
+  letter-spacing: 0.05em;
+}
+
+.status-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--aferix-primary);
+}
+
+.home-compact-row {
+  padding: 10px 14px !important;
+  min-height: 54px !important;
+}
+
+.align-right {
+  text-align: right;
+}
+
+.tone-muted {
+  color: var(--aferix-text-muted) !important;
+}
+
+/* Settings Premium */
+.settings-screen-premium .screen-header {
+  margin-bottom: 12px !important;
+}
+
+.account-status-grid-compact {
+  margin-bottom: 16px;
+}
+
+.settings-row-premium {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 18px;
+  border: 1px solid var(--aferix-border-soft);
+  border-radius: 16px;
+  background: var(--aferix-surface-raised);
+}
+
+.row-content {
+  display: grid;
+  gap: 2px;
+}
+
+.plan-badge {
+  padding: 4px 10px;
+  border-radius: 20px;
+  background: var(--aferix-primary);
+  color: var(--aferix-bg);
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.account-registration-card {
+  display: grid;
+  gap: 16px;
+  padding: 20px;
+  border: 1px solid var(--aferix-border-soft);
+  border-radius: 16px;
+  background: var(--aferix-surface);
+}
+
+.settings-actions-row-premium {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.settings-actions-row-premium button {
+  flex: 1;
+  min-width: 140px;
+}
+
+/* Backup Premium */
+.google-drive-backup-premium {
+  display: grid;
+  gap: 16px;
+  padding: 20px;
+  border: 1px solid var(--aferix-border-soft);
+  border-radius: 16px;
+  background: var(--aferix-surface);
+  margin-top: 16px;
+}
+
+.backup-panel-header {
+  display: grid;
+  gap: 4px;
+}
+
+.backup-actions-grid-premium {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.backup-status-card {
+  display: grid;
+  gap: 8px;
+  padding: 16px;
+  border: 1px solid var(--aferix-border-soft);
+  border-radius: 12px;
+  background: var(--aferix-surface-raised);
+}
+
+.backup-status-card span {
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: var(--aferix-text-muted);
+}
+
+.backup-main-actions {
+  display: grid;
+  gap: 12px;
+}
+
+.restore-area-premium {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border: 1px dashed var(--aferix-border);
+  border-radius: 12px;
+}
+
+.reload-btn {
+  margin-top: 10px;
+}
+
+@media (max-width: 600px) {
+  .status-compact-list {
+    grid-template-columns: 1fr;
+  }
+  
+  .backup-actions-grid-premium {
+    grid-template-columns: 1fr;
+  }
 }
 
 .home-hero-header {
@@ -2801,4 +3043,232 @@ button.secondary {
     border-radius: 0 !important;
     margin: 0 !important;
   }
+}
+
+/* Global premium structure pass */
+.app-screen,
+.app-screen.wide-screen {
+  display: grid !important;
+  gap: 14px !important;
+  width: 100% !important;
+  min-width: 0 !important;
+}
+
+.screen-header,
+.page-header {
+  min-height: 34px !important;
+  margin-bottom: 0 !important;
+}
+
+.screen-header h1,
+.page-header h1 {
+  font-size: clamp(1.35rem, 4vw, 1.75rem) !important;
+  line-height: 1.05 !important;
+}
+
+.full-page-cta {
+  width: 100% !important;
+  min-height: 46px !important;
+  border-radius: 12px !important;
+  font-weight: 800 !important;
+  justify-self: stretch !important;
+  box-shadow: 0 8px 22px rgba(245, 164, 0, 0.14) !important;
+}
+
+.panel-list-header {
+  padding: 14px 16px !important;
+  border-bottom: 1px solid var(--aferix-border-soft) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+}
+
+.panel-list-header h2 {
+  margin: 0 !important;
+  font-size: 1rem !important;
+  font-weight: 800 !important;
+}
+
+.app-screen :where(input, select, textarea),
+.aferix-select-field select,
+.aferix-textarea {
+  width: 100% !important;
+  min-width: 0 !important;
+  min-height: 46px !important;
+  border: 1px solid var(--aferix-border) !important;
+  border-radius: 12px !important;
+  background: var(--aferix-bg-soft) !important;
+  color: var(--aferix-text) !important;
+  padding: 11px 13px !important;
+  font-size: 0.94rem !important;
+  line-height: 1.25 !important;
+}
+
+.app-screen textarea,
+.aferix-textarea {
+  min-height: 88px !important;
+  line-height: 1.45 !important;
+}
+
+.aferix-select-field {
+  display: grid !important;
+  gap: 6px !important;
+  min-width: 0 !important;
+}
+
+.aferix-select-field > span,
+.app-screen :where(.budget-field > span, .catalog-field > span, .finance-field > span, .general-form-field > span) {
+  font-size: 0.68rem !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.075em !important;
+  line-height: 1.1 !important;
+  color: var(--aferix-text-soft) !important;
+  text-transform: uppercase !important;
+}
+
+.select-wrapper {
+  position: relative !important;
+  min-width: 0 !important;
+}
+
+.select-wrapper::after {
+  content: "";
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  width: 7px;
+  height: 7px;
+  border-right: 2px solid var(--aferix-text-muted);
+  border-bottom: 2px solid var(--aferix-text-muted);
+  transform: translateY(-65%) rotate(45deg);
+  pointer-events: none;
+}
+
+.select-wrapper select,
+.app-screen select {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  padding-right: 38px !important;
+}
+
+.metric-card,
+.finance-tile {
+  min-height: 72px !important;
+  border-radius: 12px !important;
+}
+
+.continuous-list,
+.budget-list-search-bar,
+.finance-search-container {
+  min-width: 0 !important;
+}
+
+.continuous-list-item {
+  min-width: 0 !important;
+}
+
+@media (max-width: 767px) {
+  .app-screen,
+  .app-screen.wide-screen {
+    gap: 12px !important;
+  }
+
+  .screen-header,
+  .page-header {
+    align-items: stretch !important;
+    gap: 8px !important;
+  }
+
+  .dashboard-finance-tiles,
+  .metric-grid,
+  .compact-metric-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 390px) {
+  .dashboard-finance-tiles,
+  .metric-grid,
+  .compact-metric-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Home status cards: normalize button/div alignment */
+.status-compact-list > .status-compact-item,
+button.status-compact-item {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  justify-content: flex-start !important;
+  text-align: left !important;
+  gap: 8px !important;
+  width: 100% !important;
+  min-height: 86px !important;
+  padding: 12px 14px !important;
+}
+
+button.status-compact-item {
+  border: 1px solid var(--aferix-border-soft) !important;
+  background: var(--aferix-surface-raised) !important;
+  color: var(--aferix-text) !important;
+}
+
+.status-compact-item .status-label {
+  margin: 0 !important;
+  line-height: 1.2 !important;
+}
+
+.status-compact-item .status-value {
+  margin: 0 !important;
+  line-height: 1 !important;
+}
+
+/* Design system unified building blocks */
+.premium-card {
+  padding: var(--aferix-card-padding-mobile) !important;
+  border: 1px solid var(--aferix-border) !important;
+  border-radius: var(--aferix-radius-md) !important;
+  background: linear-gradient(180deg, var(--aferix-surface-raised), var(--aferix-surface)) !important;
+}
+
+.aferix-input-field {
+  display: grid !important;
+  gap: 6px !important;
+}
+
+.aferix-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  padding: 2px 8px;
+  border: 1px solid var(--aferix-border);
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  background: var(--aferix-surface-active);
+  color: var(--aferix-text-soft);
+}
+
+.aferix-badge.tone-brand {
+  border-color: rgba(250, 204, 21, 0.34);
+  background: rgba(250, 204, 21, 0.1);
+  color: var(--aferix-primary);
+}
+
+.aferix-fab {
+  position: fixed;
+  right: 18px;
+  bottom: calc(20px + env(safe-area-inset-bottom));
+  z-index: 240;
+  min-height: 48px;
+  border-radius: 999px !important;
+  padding: 0 16px !important;
+  border: none !important;
+  background: var(--aferix-primary) !important;
+  color: #111214 !important;
+  font-weight: 800 !important;
+  box-shadow: 0 10px 24px rgba(250, 204, 21, 0.24);
 }

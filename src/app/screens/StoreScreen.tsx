@@ -1,36 +1,30 @@
 import { useState } from 'react';
 import type { AferixAccountState } from '../../core/access/accountPlanStorage';
 import { getBillingReadiness } from '../../core/access/billingReadiness';
-import { buildProCheckoutUrl, buildProManageUrl, isProCheckoutConfigured, isProManageConfigured } from '../../core/access/commercialCheckout';
-import { getGooglePlayBillingSetup, purchaseGooglePlayPro, restoreGooglePlayPurchases, syncGooglePlayPurchaseEntitlement } from '../../core/access/googlePlayBilling';
-import { isPlanEntitlementSyncConfigured, refreshPlanEntitlement } from '../../core/access/planEntitlements';
+import { buildProCheckoutUrl, buildProManageUrl } from '../../core/access/commercialCheckout';
+import { purchaseGooglePlayPro, restoreGooglePlayPurchases, syncGooglePlayPurchaseEntitlement, getGooglePlayBillingSetup } from '../../core/access/googlePlayBilling';
+import { refreshPlanEntitlement } from '../../core/access/planEntitlements';
 import { proPlanBenefits, proV1Priorities, futureProBacklog } from '../../core/access/planStrategy';
 import { isDevToolsEnabled } from '../../core/runtime/devTools';
 import { storePackages } from '../appData';
-import { MetricCard, PageHeader, PageShell, PlanCard, SectionHeader } from '../components/designSystem';
+import { MetricCard, PageHeader, PageShell, PlanCard, SectionHeader, BackButton } from '../components/ui';
 import { planStatusTitle, planStatusDescription } from '../utils/planHelpers';
 
 interface StoreScreenProps {
   account: AferixAccountState;
   onAccountChange: (account: AferixAccountState) => void;
+  onBack?: () => void;
 }
 
-export function StoreScreen({ account, onAccountChange }: StoreScreenProps) {
+export function StoreScreen({ account, onAccountChange, onBack }: StoreScreenProps) {
   const activeUserPlan = account.plan;
   const devToolsEnabled = isDevToolsEnabled();
   const [feedback, setFeedback] = useState<string | null>(null);
   const [isCheckingPlan, setIsCheckingPlan] = useState(false);
   const [isGooglePlayBusy, setIsGooglePlayBusy] = useState(false);
-  const checkoutConfigured = isProCheckoutConfigured();
-  const manageConfigured = isProManageConfigured();
   const billingReadiness = getBillingReadiness();
   const googlePlaySetup = getGooglePlayBillingSetup();
   const googlePlayMode = billingReadiness.channel === 'google-play';
-  const planSourceLabel = account.planSource === 'subscription'
-    ? 'verificação Pro'
-    : account.planSource === 'local-test' && devToolsEnabled
-      ? 'teste local'
-      : 'verificação local';
 
   async function checkSubscription() {
     setIsCheckingPlan(true);
@@ -92,6 +86,7 @@ export function StoreScreen({ account, onAccountChange }: StoreScreenProps) {
 
   return (
     <PageShell className="wide-screen store-screen">
+      {onBack && <BackButton label="Voltar" onClick={onBack} />}
       <PageHeader title="Licença" description="Escolha o plano ideal para o seu negócio." />
       <section className="plan-card-grid" aria-label="Planos Aferix">
         <PlanCard
@@ -145,7 +140,7 @@ export function StoreScreen({ account, onAccountChange }: StoreScreenProps) {
           <article><span>Canal</span><strong>{billingReadiness.channelLabel}</strong><small>{billingReadiness.channel === 'beta-assisted' ? 'Sem cobrança automática no beta.' : 'Canal configurável por ambiente.'}</small></article>
           <article><span>Endpoint Pro</span><strong>{billingReadiness.entitlementEndpointConfigured ? 'Configurado' : 'Pendente'}</strong><small>Responsável por liberar, expirar ou bloquear Pro.</small></article>
           <article><span>Android package</span><strong className="android-package" title={billingReadiness.packageName || 'Pendente'}>{billingReadiness.packageName || 'Pendente'}</strong><small>Necessário para Google Play Billing.</small></article>
-          <article><span>Produto Pro</span><strong className="product-id" title={billingReadiness.proProductId || 'Pendente'}>{billingReadiness.proProductId || 'Pendente'}</strong><small>ID da assinatura/produto no Play Console.</small></article>
+          <article><span>Produto Pro</span><strong className="product-id" title={billingReadiness.proProductId || 'Pendente'}>{billingReadiness.proProductId || 'Pendente'}</strong><small>ID da assinatura/product no Play Console.</small></article>
           <article><span>Bridge Android</span><strong className="long-token" title={billingReadiness.googlePlayBridgeName}>{billingReadiness.googlePlayBridgeName}</strong><small>{googlePlaySetup.bridgeAvailable ? 'Disponível neste app.' : 'Aguardando plugin nativo.'}</small></article>
         </div>
         <div className="billing-release-list">

@@ -42,7 +42,7 @@ const stylesSimple = StyleSheet.create({
 const SimplePdfTemplate = ({ budget, businessProfile, total, subtotal, clientName }: BudgetPdfProps) => {
   const items = budget.items || [];
   return (
-    <Document title={`Orçamento - ${budget.title || 'Proposta'}`}>
+    <Document title={`Orçamento - ${budget.title || 'Orçamento'}`}>
       <Page size="A4" style={stylesSimple.page}>
         <View style={stylesSimple.header}>
           <Text style={stylesSimple.companyName}>{businessProfile.businessName || businessProfile.responsibleName || 'Profissional'}</Text>
@@ -110,7 +110,7 @@ const stylesProf = StyleSheet.create({
 const ProfessionalPdfTemplate = ({ budget, businessProfile, total, subtotal, clientName }: BudgetPdfProps) => {
   const items = budget.items || [];
   return (
-    <Document title={`Orçamento - ${budget.title || 'Proposta'}`}>
+    <Document title={`Orçamento - ${budget.title || 'Orçamento'}`}>
       <Page size="A4" style={stylesProf.page}>
         <View style={stylesProf.header}>
           <View>
@@ -124,7 +124,7 @@ const ProfessionalPdfTemplate = ({ budget, businessProfile, total, subtotal, cli
             <Text>{businessProfile.email}</Text>
           </View>
         </View>
-        <Text style={stylesProf.documentTitle}>Proposta Comercial</Text>
+        <Text style={stylesProf.documentTitle}>Orçamento Comercial</Text>
         <View style={stylesProf.clientSection}>
           <Text style={stylesProf.clientLabel}>CLIENTE</Text>
           <Text style={stylesProf.clientName}>{clientName || 'Cliente não informado'}</Text>
@@ -166,7 +166,7 @@ const ProfessionalPdfTemplate = ({ budget, businessProfile, total, subtotal, cli
 // ==========================================
 // MODELO 3: COMERCIAL / APRESENTÁVEL
 // ==========================================
-// Similar ao Profissional por enquanto, será evoluído para ter capas ou layouts de proposta completos.
+// Similar ao Profissional por enquanto, será evoluído para ter capas ou layouts de orçamento completos.
 const CommercialPdfTemplate = ProfessionalPdfTemplate;
 
 

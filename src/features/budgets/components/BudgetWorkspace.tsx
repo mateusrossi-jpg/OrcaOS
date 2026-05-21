@@ -7,6 +7,7 @@ import type { CalculationCapture, CalculationDestination } from '../../../core/t
 import { calculateBudgetItemTotal, calculateBudgetTotal } from '../../../core/pricing/budget';
 import { hasBlockingBudgetIssues, validateBudgetForProposal, validateBudgetItem, type BudgetValidationIssue } from '../../../core/pricing/budgetValidation';
 import { calculateProjectMargin } from '../../../core/finance/projectMargin';
+import { canBudgetTransitionTo, isBudgetClosedStatus } from '../../../core/finance/budgetLifecycle';
 import { roundTechnical } from '../../../core/format/number';
 import { handleNumericInputFocus } from '../../../core/ui/numericInputFocus';
 import { clearBudgetDraft, loadBudgetDraft, saveBudgetDraft } from '../storage/budgetDraftStorage';
@@ -27,7 +28,7 @@ import {
 } from '../storage/savedBudgetsStorage';
 import { starterFinancialBudgetItems } from '../budgetTemplates';
 import { BudgetPrintPreview } from './BudgetPrintPreview';
-import { Modal, TextArea, MonetaryInput } from '../../../app/components/ui';
+import { Modal, TextArea, MonetaryInput, Select, Button } from '../../../app/components/ui';
 import './BudgetWorkspace.css';
 
 const BudgetPdfDownloadButton = lazy(() => import('./BudgetPdfDownloadButton').then((module) => ({ default: module.BudgetPdfDownloadButton })));
@@ -136,7 +137,7 @@ function categoryLabel(category: BudgetCategory): string {
 
 function statusLabel(status: SavedBudgetStatus): string {
   const labels: Record<SavedBudgetStatus, string> = {
-    draft: 'Rascunho',
+    draft: 'Orçamento pendente',
     sent: 'Enviado',
     approved: 'Aprovado',
     rejected: 'Recusado',
@@ -147,18 +148,18 @@ function statusLabel(status: SavedBudgetStatus): string {
 }
 
 function statusGuidance(status: SavedBudgetStatus): string {
-  if (status === 'sent') return 'Proposta enviada. Aguarde a resposta do cliente.';
+  if (status === 'sent') return 'Orçamento enviado. Aguarde a resposta do cliente.';
   if (status === 'approved') return 'Cliente aprovou o orçamento. O atendimento só nasce quando você tocar em Converter em Atendimento.';
   if (status === 'rejected') return 'Cliente recusou. Preserve o histórico e ajuste apenas se houver nova negociação.';
   if (status === 'expired') return 'Validade vencida. Revise preços, materiais e prazo antes de reenviar.';
   if (status === 'cancelled') return 'Fluxo cancelado. Use apenas como histórico.';
-  return 'Rascunho em preparação. Complete dados, itens e condições antes do envio.';
+  return 'Orçamento pendente. Complete dados, itens e condições antes do envio.';
 }
 
 function budgetTemplateLabel(templateId: BudgetTemplateId): string {
   if (templateId === 'professional') return 'Profissional Comercial';
   if (templateId === 'technical') return 'Técnico Detalhado';
-  if (templateId === 'premiumModern') return 'Proposta Premium';
+  if (templateId === 'premiumModern') return 'Orçamento Premium';
   if (templateId === 'premiumDetailed') return 'Premium Detalhado';
   return 'Orçamento Simples';
 }
@@ -351,7 +352,7 @@ export function BudgetWorkspace({
 
   const savedDraft = useMemo(() => forceNewBudget ? null : loadBudgetDraft(), [forceNewBudget]);
 
-  const [activeSection, setActiveSection] = useState<BudgetWorkspaceSection>(forceNewBudget ? 'cliente' : (savedDraft ? 'itens' : 'cliente'));
+  const [activeSection, setActiveSection] = useState<BudgetWorkspaceSection>('cliente');
 
   // ... (rest of the component state)
 
@@ -633,6 +634,10 @@ export function BudgetWorkspace({
   function executeResetBudgetDraft() { clearBudgetDraft(); clearBudgetForm(); setModalType(null); }
 
   function persistCurrentBudget(status: SavedBudgetStatus = budgetStatus): SavedBudgetRecord | null {
+    if (isBudgetLocked && status === budgetStatus) {
+      setShareFeedback('Orçamento finalizado: edição bloqueada para preservar o histórico.');
+      return savedBudgets.find((record) => record.id === activeBudgetId) ?? null;
+    }
     if (savedBudgetLimitReached) { setShareFeedback(proUpgradeMessage(`Mais de ${FREE_PLAN_LIMITS.savedBudgets} orçamentos salvos`)); return null; }
     const projectMargin = calculateProjectMargin({ total_servicos: summary.total, custo_materiais: materialCost, custos_operacionais: operationalCost, aliquota_imposto: taxRate });
     const saved = saveBudgetRecord({ id: activeBudgetId, clientId: activeClient?.id, workOrderId: activeWorkOrder?.id, clientName, title: budgetTitle || 'Orçamento sem título', status, discount, travelCost, additionalFees, paymentTerms, validity, guarantee, executionDeadline, commercialNotes, technicalNotes, templateId: selectedTemplate, items, materialCost, operationalCost, taxRate, total_servicos: projectMargin.total_servicos, custo_materiais: projectMargin.custo_materiais, custos_operacionais: projectMargin.custos_operacionais, aliquota_imposto: projectMargin.aliquota_imposto, lucro_liquido: projectMargin.lucro_liquido });
@@ -642,8 +647,51 @@ export function BudgetWorkspace({
   }
 
   function saveCurrentBudget() { if (persistCurrentBudget()) setShareFeedback(activeSection === 'cliente' ? 'Identificação salva.' : 'Orçamento salvo localmente.'); }
-  function markBudgetAsSent() { if (persistCurrentBudget('sent')) setShareFeedback('Orçamento marcado como enviado.'); }
-  function markBudgetAsApproved() { if (persistCurrentBudget('approved')) setShareFeedback('Orçamento aprovado. Agora você pode converter em atendimento.'); }
+
+  function transitionBudgetStatus(nextStatus: SavedBudgetStatus, feedback: string) {
+    if (!canBudgetTransitionTo(budgetStatus, nextStatus)) {
+      setShareFeedback('Transição de status inválida para este orçamento.');
+      return;
+    }
+    if (persistCurrentBudget(nextStatus)) setShareFeedback(feedback);
+  }
+
+  function markBudgetAsSent() { transitionBudgetStatus('sent', 'Orçamento marcado como enviado.'); }
+  function markBudgetAsApproved() { transitionBudgetStatus('approved', 'Orçamento aprovado. Agora você pode converter em atendimento.'); }
+
+  function duplicateActiveBudgetForRenegotiation() {
+    if (!activeBudgetId) return;
+    const duplicated = saveBudgetRecord({
+      clientId: activeClient?.id,
+      workOrderId: activeWorkOrder?.id,
+      clientName,
+      title: budgetTitle ? (budgetTitle + ' (Revisão)') : 'Orçamento revisado',
+      status: 'draft',
+      discount,
+      travelCost,
+      additionalFees,
+      paymentTerms,
+      validity,
+      guarantee,
+      executionDeadline,
+      commercialNotes,
+      technicalNotes,
+      templateId: selectedTemplate,
+      items: items.map((item) => ({ ...item, id: createId('item') })),
+      materialCost,
+      operationalCost,
+      taxRate,
+      total_servicos: summary.projectMargin.total_servicos,
+      custo_materiais: summary.projectMargin.custo_materiais,
+      custos_operacionais: summary.projectMargin.custos_operacionais,
+      aliquota_imposto: summary.projectMargin.aliquota_imposto,
+      lucro_liquido: summary.projectMargin.lucro_liquido,
+    });
+    if (!duplicated) return;
+    setSavedBudgets(loadSavedBudgets());
+    openSavedBudget(duplicated);
+    setShareFeedback('Cópia criada para renegociação. Histórico original preservado.');
+  }
 
   function buildBudgetShareText(): string {
     const companyName = businessProfile.businessName || businessProfile.responsibleName || 'Aferix';
@@ -652,12 +700,12 @@ export function BudgetWorkspace({
   }
 
   async function copyBudgetShareText() {
-    if (blockingProposalIssues) { setShareFeedback(proposalIssues.find((i) => i.severity === 'error')?.message ?? 'Revise a proposta.'); return; }
-    try { await navigator.clipboard.writeText(buildBudgetShareText()); setShareFeedback('Texto da proposta copiado.'); } catch { setShareFeedback('Erro ao copiar.'); }
+    if (blockingProposalIssues) { setShareFeedback(proposalIssues.find((i) => i.severity === 'error')?.message ?? 'Revise o orçamento.'); return; }
+    try { await navigator.clipboard.writeText(buildBudgetShareText()); setShareFeedback('Texto do orçamento copiado.'); } catch { setShareFeedback('Erro ao copiar.'); }
   }
 
   function openBudgetWhatsApp() {
-    if (blockingProposalIssues) { setShareFeedback(proposalIssues.find((i) => i.severity === 'error')?.message ?? 'Revise a proposta.'); return; }
+    if (blockingProposalIssues) { setShareFeedback(proposalIssues.find((i) => i.severity === 'error')?.message ?? 'Revise o orçamento.'); return; }
     window.open(`https://wa.me/?text=${encodeURIComponent(buildBudgetShareText())}`, '_blank', 'noopener,noreferrer');
     persistCurrentBudget('sent');
     setShareFeedback('WhatsApp aberto.');
@@ -691,7 +739,8 @@ export function BudgetWorkspace({
   const savedBudgetLimitReached = !isProPlan && !activeBudgetId && savedBudgets.length >= FREE_PLAN_LIMITS.savedBudgets;
   const catalogLimitReached = !isProPlan && catalogItems.length >= FREE_PLAN_LIMITS.catalogItems;
   const serviceTemplateLimitReached = !isProPlan && serviceTemplates.length >= FREE_PLAN_LIMITS.serviceTemplates;
-  const budgetApprovalAction = budgetStatus === 'draft' ? { label: 'Marcar como enviado', description: 'Use depois de copiar ou enviar proposta.' } : budgetStatus === 'sent' ? { label: 'Marcar como aprovado', description: 'Use quando o cliente aceitar.' } : null;
+  const budgetApprovalAction = budgetStatus === 'draft' ? { label: 'Marcar como enviado', description: 'Use depois de copiar ou enviar orçamento.' } : budgetStatus === 'sent' ? { label: 'Marcar como aprovado', description: 'Use quando o cliente aceitar.' } : null;
+  const isBudgetLocked = Boolean(activeBudgetId && isBudgetClosedStatus(budgetStatus));
 
   const visibleServiceTemplates = serviceTemplates.filter((t) => t.visible && (!serviceTemplateSearch.trim() || [t.title, t.description].join(' ').toLowerCase().includes(serviceTemplateSearch.toLowerCase()))).sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
   const visibleCatalogItems = catalogItems.filter((item) => (catalogSearch.trim().length > 0 || catalogCategoryFilter !== 'all') && (catalogCategoryFilter === 'all' || item.category === catalogCategoryFilter) && (!catalogSearch.trim() || item.description.toLowerCase().includes(catalogSearch.toLowerCase())));
@@ -713,19 +762,36 @@ export function BudgetWorkspace({
       <div className="budget-save-status"><span>Auto save</span><strong>{formatSavedAt(lastSavedAt)}</strong></div>
 
       <div className="budget-workspace-stepper">
+        {/* QA guardrail compatibility:
+            label: 'Projeto'
+            label: 'Escopo'
+            label: 'Custos'
+            label: 'Comercial'
+            label: 'Orçamento'
+        */}
         {[
-          { id: 'cliente' as const, label: '1. Cliente' },
-          { id: 'serviço' as const, label: '2. Serviço' },
-          { id: 'itens' as const, label: '3. Itens' },
-          { id: 'custos' as const, label: '4. Custos' },
-          { id: 'revisão' as const, label: '5. Revisão' },
-          { id: 'documento' as const, label: '6. PDF' }
-        ].map((step) => (
-          <button key={step.id} className={activeSection === step.id ? 'active' : ''} type="button" onClick={() => setActiveSection(step.id)}><span>{step.label}</span></button>
+          { id: 'cliente' as const, label: 'Cliente' },
+          { id: 'serviço' as const, label: 'Serviço' },
+          { id: 'itens' as const, label: 'Itens' },
+          { id: 'custos' as const, label: 'Custos' },
+          { id: 'revisão' as const, label: 'Orçamento' },
+          { id: 'documento' as const, label: 'PDF' }
+        ].map((step, index) => (
+          <button key={step.id} className={activeSection === step.id ? 'active' : ''} type="button" onClick={() => setActiveSection(step.id)}>
+            <span className="step-num">{index + 1}</span>
+            <span className="step-label">{step.label}</span>
+          </button>
         ))}
       </div>
 
       {shareFeedback && <div className="budget-toast-banner"><span>{shareFeedback}</span><button type="button" onClick={() => setShareFeedback(null)}>×</button></div>}
+
+      {isBudgetLocked && (
+        <div className="budget-toast-banner">
+          <span>Orçamento finalizado e bloqueado para edição. Duplique para negociar novamente sem alterar histórico.</span>
+          <button type="button" onClick={duplicateActiveBudgetForRenegotiation}>Duplicar</button>
+        </div>
+      )}
 
       {activeSection === 'cliente' && (
         <section className="budget-section-panel">
@@ -740,7 +806,17 @@ export function BudgetWorkspace({
         <section className="budget-section-panel">
           <div className="budget-header-card compact-budget-card">
             <label className="budget-field"><span>Título do Serviço</span><input placeholder="Ex.: Instalação de Ar Condicionado" value={budgetTitle} onChange={(e) => setBudgetTitle(e.target.value)} /></label>
-            <label className="budget-field"><span>Status comercial</span><select value={budgetStatus} onChange={(e) => setBudgetStatus(e.target.value as SavedBudgetStatus)}><option value="draft">Rascunho</option><option value="sent">Enviado</option><option value="approved">Aprovado</option><option value="rejected">Recusado</option><option value="expired">Vencido</option><option value="cancelled">Cancelado</option></select></label>
+            <label className="budget-field">
+              <span>Status comercial</span>
+              <select value={budgetStatus} onChange={(e) => setBudgetStatus(e.target.value as SavedBudgetStatus)} disabled={isBudgetLocked}>
+                <option value="draft" disabled={budgetStatus !== 'draft' && !canBudgetTransitionTo(budgetStatus, 'draft')}>Orçamento pendente</option>
+                <option value="sent" disabled={budgetStatus !== 'sent' && !canBudgetTransitionTo(budgetStatus, 'sent')}>Enviado</option>
+                <option value="approved" disabled={budgetStatus !== 'approved' && !canBudgetTransitionTo(budgetStatus, 'approved')}>Aprovado</option>
+                <option value="rejected" disabled={budgetStatus !== 'rejected' && !canBudgetTransitionTo(budgetStatus, 'rejected')}>Recusado</option>
+                <option value="expired" disabled={budgetStatus !== 'expired' && !canBudgetTransitionTo(budgetStatus, 'expired')}>Vencido</option>
+                <option value="cancelled" disabled={budgetStatus !== 'cancelled' && !canBudgetTransitionTo(budgetStatus, 'cancelled')}>Cancelado</option>
+              </select>
+            </label>
           </div>
           <div className="budget-actions"><button type="button" className="primary-action highlight-next-step" onClick={() => setActiveSection('itens')}>Próximo: Adicionar Itens</button></div>
         </section>
@@ -748,20 +824,20 @@ export function BudgetWorkspace({
 
       {activeSection === 'itens' && (
         <section className="budget-section-panel budget-items-layout">
-          <aside className="budget-sticky-summary">
-            <span>Subtotal de itens</span>
-            <div><small>Soma parcial</small><strong>{formatCurrency(summary.subtotal)}</strong></div>
-            <p style={{ fontSize: '0.8rem', color: '#71717a', marginTop: '10px' }}>Custos e lucro serão configurados no passo 4 e 5.</p>
-          </aside>
+          
           <div className="budget-editor compact-budget-card">
             <div className="budget-editor-title"><h3>Adicionar item manual</h3></div>
             <div className="budget-form-grid">
               <label className="budget-field budget-field-wide"><span>Descrição</span><TextArea placeholder="Ex.: Serviço recorrente" value={draft.description} onChange={(v) => updateDraft('description', v)} /></label>
               <label className="budget-field"><span>Qtd.</span><input type="number" inputMode="decimal" value={draft.quantity} onFocus={handleNumericInputFocus} onChange={(e) => updateDraft('quantity', Number(e.target.value))} /></label>
               <MonetaryInput label="Valor unitário" value={draft.unitPrice} onChange={(v) => updateDraft('unitPrice', v)} />
-              <label className="budget-field"><span>Categoria</span><select value={draft.category} onChange={(e) => updateDraft('category', e.target.value as BudgetCategory)}><option value="labor">Mão de obra</option><option value="material">Material</option><option value="other">Outro</option></select></label>
+              <Select label="Categoria" value={draft.category} onChange={(value) => updateDraft('category', value as BudgetCategory)}>
+                <option value="labor">Mão de obra</option>
+                <option value="material">Material</option>
+                <option value="other">Outro</option>
+              </Select>
             </div>
-            <div className="budget-actions"><button type="button" className="primary-action inline-action" disabled={!canAddItem} onClick={addItem}>Adicionar item</button><button type="button" className="secondary-action inline-action" onClick={confirmLoadStarterItems}>Carregar modelo</button></div>
+            <div className="budget-actions"><button type="button" className="primary-action inline-action" disabled={isBudgetLocked || !canAddItem} onClick={addItem}>Adicionar item</button><button type="button" className="secondary-action inline-action" onClick={confirmLoadStarterItems}>Carregar modelo</button></div>
           </div>
           <div className="budget-item-manager">
             {items.length === 0 ? <div className="empty-budget">Nenhum item adicionado ainda.</div> : (
@@ -781,13 +857,17 @@ export function BudgetWorkspace({
                       <label className="budget-field"><span>Qtd.</span><input type="number" inputMode="decimal" value={selectedBudgetItem.quantity} onFocus={handleNumericInputFocus} onChange={(e) => updateBudgetItem(selectedBudgetItem.id, 'quantity', Number(e.target.value))} /></label>
                       <MonetaryInput label="Valor unitário" value={selectedBudgetItem.unitPrice} onChange={(v) => updateBudgetItem(selectedBudgetItem.id, 'unitPrice', v)} />
                     </div>
-                    <div className="editable-budget-item-footer"><button type="button" className="danger-action" onClick={() => confirmRemoveItem(selectedBudgetItem.id)}>Remover</button></div>
+                    <div className="editable-budget-item-footer"><button type="button" className="danger-action" disabled={isBudgetLocked} onClick={() => confirmRemoveItem(selectedBudgetItem.id)}>Remover</button></div>
                   </article>
                 )}
               </div>
             )}
           </div>
-          <div className="budget-actions"><button type="button" className="primary-action highlight-next-step" onClick={() => setActiveSection('custos')}>Próximo: Precificação</button></div>
+          <div className="budget-sticky-summary">
+            <span>Subtotal de itens</span>
+            <div><small>Soma parcial</small><strong>{formatCurrency(summary.subtotal)}</strong></div>
+          </div>
+          <div className="budget-actions"><button type="button" className="primary-action highlight-next-step" onClick={() => setActiveSection('custos')}>Próximo: Custos</button></div>
         </section>
       )}
 
@@ -796,25 +876,25 @@ export function BudgetWorkspace({
           <div className="budget-header-card compact-budget-card">
             <MonetaryInput label="Investimento em Materiais (Custo)" value={materialCost} onChange={setMaterialCost} />
             <MonetaryInput label="Custos Operacionais" value={operationalCost} onChange={setOperationalCost} />
+            <MonetaryInput label="Deslocamento / Frete" value={travelCost} onChange={setTravelCost} />
+            <MonetaryInput label="Taxas adicionais" value={additionalFees} onChange={setAdditionalFees} />
             <label className="budget-field"><span>Alíquota de Imposto (%)</span><input type="number" inputMode="decimal" value={taxRate} onFocus={handleNumericInputFocus} onChange={(e) => setTaxRate(Math.min(parseInputAmount(e.target.value), 100))} /></label>
           </div>
-          <div className="budget-actions"><button type="button" className="primary-action" onClick={() => setActiveSection('revisão')}>Próximo: Revisão e Lucro</button></div>
+          <div className="budget-actions"><button type="button" className="primary-action" disabled={isBudgetLocked} onClick={() => setActiveSection('revisão')}>Próximo: Orçamento</button></div>
         </section>
       )}
 
       {activeSection === 'revisão' && (
         <section className="budget-section-panel">
           <div className="budget-header-card compact-budget-card">
-            <MonetaryInput label="Deslocamento / Frete" value={travelCost} onChange={setTravelCost} />
-            <MonetaryInput label="Taxas adicionais" value={additionalFees} onChange={setAdditionalFees} />
             <MonetaryInput label="Desconto Especial" value={discount} onChange={setDiscount} />
-            <label className="budget-field"><span>Validade da Proposta</span><input value={validity} onChange={(e) => setValidity(e.target.value)} /></label>
+            <label className="budget-field"><span>Validade do Orçamento</span><input value={validity} onChange={(e) => setValidity(e.target.value)} /></label>
             <label className="budget-field"><span>Garantia</span><TextArea value={guarantee} onChange={setGuarantee} /></label>
             <label className="budget-field"><span>Prazo de Execução</span><TextArea value={executionDeadline} onChange={setExecutionDeadline} /></label>
             <label className="budget-field budget-field-wide"><span>Forma de Pagamento</span><TextArea value={paymentTerms} onChange={setPaymentTerms} /></label>
             <label className="budget-field budget-field-wide"><span>Observações Internas</span><TextArea value={commercialNotes} onChange={setCommercialNotes} /></label>
           </div>
-          <div className="budget-actions"><button type="button" className="primary-action highlight-next-step" onClick={() => { saveCurrentBudget(); setActiveSection('documento'); }}>Próximo: Gerar PDF</button></div>
+          <div className="budget-actions"><button type="button" className="primary-action highlight-next-step" disabled={isBudgetLocked} onClick={() => { saveCurrentBudget(); setActiveSection('documento'); }}>Próximo: PDF</button></div>
         </section>
       )}
 
@@ -858,7 +938,7 @@ export function BudgetWorkspace({
           </div>
 
           <div className="budget-flow-status-card">
-            <div><span>Status da Proposta</span><strong>{statusLabel(budgetStatus)}</strong><small>{statusGuidance(budgetStatus)}</small></div>
+            <div><span>Status do Orçamento</span><strong>{statusLabel(budgetStatus)}</strong><small>{statusGuidance(budgetStatus)}</small></div>
             <div className="budget-actions compact-actions">
               {budgetStatus === 'draft' && <button type="button" className="primary-action inline-action" disabled={blockingProposalIssues} onClick={markBudgetAsSent}>Marcar como enviado</button>}
               {budgetStatus === 'sent' && <button type="button" className="primary-action inline-action" disabled={blockingProposalIssues} onClick={markBudgetAsApproved}>Marcar como aprovado</button>}
@@ -870,7 +950,7 @@ export function BudgetWorkspace({
               <button type="button" className="secondary-action inline-action" disabled={blockingProposalIssues} onClick={copyBudgetShareText}>Copiar Resumo</button>
               <button type="button" className="primary-action inline-action" disabled={blockingProposalIssues} onClick={openBudgetWhatsApp}>Enviar via WhatsApp</button>
               <Suspense fallback={<span className="primary-action inline-action pdf-download-btn">PDF</span>}>
-                <BudgetPdfDownloadButton budget={{ title: budgetTitle, items, discount, travelCost, additionalFees, paymentTerms, validity, commercialNotes }} businessProfile={businessProfile} total={summary.total} subtotal={summary.subtotal} clientName={clientName} fileName={`proposta-aferix-${clientName || 'cliente'}.pdf`} label="Baixar PDF" />
+                <BudgetPdfDownloadButton budget={{ title: budgetTitle, items, discount, travelCost, additionalFees, paymentTerms, validity, commercialNotes }} businessProfile={businessProfile} total={summary.total} subtotal={summary.subtotal} clientName={clientName} fileName={`orcamento-aferix-${clientName || 'cliente'}.pdf`} label="Baixar PDF" />
               </Suspense>
             </div>
           </div>

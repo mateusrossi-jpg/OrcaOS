@@ -30,7 +30,7 @@ export function ProfessionalIdentityCard({ compact = false, contextLabel = 'Iden
           <span className="orca-kicker">{contextLabel}</span>
           <strong>{displayName}</strong>
           {responsibleName && <small>Responsável: {responsibleName}</small>}
-          {!hasData && <small>Configure seus dados em Configurações para aparecerem em propostas e relatórios.</small>}
+          {!hasData && <small>Configure seus dados em Configurações para aparecerem em orçamentos e relatórios.</small>}
         </div>
       </div>
 

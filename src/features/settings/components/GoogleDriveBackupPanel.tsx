@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Button, Select } from '../../../app/components/ui';
 import {
   collectOrcaLocalBackup,
   restoreOrcaBackup,
@@ -111,70 +112,59 @@ export function GoogleDriveBackupPanel() {
   }
 
   return (
-    <section className="local-backup-workspace google-drive-backup-panel">
-      <div className="local-backup-header">
-        <div>
-          <span className="orca-kicker">Google Drive</span>
-          <h2>Backup privado no Drive</h2>
-          <p>Conecte Google somente quando quiser salvar ou restaurar uma cópia privada dos dados do Aferix.</p>
-        </div>
-        <strong>{accessToken ? 'Google conectado' : isConfigured ? 'Pronto para conectar' : 'Indisponível'}</strong>
+    <section className="google-drive-backup-premium">
+      <div className="backup-panel-header">
+        <span className="orca-kicker">Google Drive</span>
+        <h2>Backup Privado</h2>
+        <p>Sincronize seus dados com o Google Drive para segurança e backup.</p>
       </div>
 
-      {!isConfigured && (
-        <div className="local-backup-warning">
-          <strong>Drive indisponível neste ambiente</strong>
-          <p>O backup local continua disponível. O backup no Drive será liberado quando o acesso Google estiver configurado para este app.</p>
+      {!isConfigured ? (
+        <div className="backup-unavailable-card">
+          <strong>Drive Indisponível</strong>
+          <p>O backup no Drive requer configuração de ambiente.</p>
+        </div>
+      ) : (
+        <div className="backup-actions-grid-premium">
+          <div className="backup-status-card">
+            <span>Status da Conexão</span>
+            <strong>{accessToken ? 'Conectado' : 'Desconectado'}</strong>
+            {!accessToken && <Button variant="secondary" onClick={connectDrive}>Conectar Google</Button>}
+          </div>
+
+          <div className="backup-main-actions">
+            <Button variant="primary" disabled={!accessToken || isBusy} onClick={saveDriveBackup}>
+              {isBusy ? 'Salvando...' : 'Fazer Backup Agora'}
+            </Button>
+            
+            <div className="restore-area-premium">
+              <Select label="Restauração" value={restoreMode} onChange={(value) => setRestoreMode(value as 'merge' | 'replace')}>
+                <option value="merge">Mesclar dados</option>
+                <option value="replace">Substituir tudo</option>
+              </Select>
+              
+              {restoreMode === 'replace' && (
+                <div className="replace-confirmation-field">
+                  <input value={replaceConfirmation} placeholder="Digite SUBSTITUIR" onChange={(event) => setReplaceConfirmation(event.target.value)} />
+                </div>
+              )}
+              
+              <Button variant="ghost" disabled={!accessToken || isBusy} onClick={restoreDriveBackup}>
+                Restaurar Backup
+              </Button>
+            </div>
+          </div>
         </div>
       )}
-
-      <div className="local-backup-grid">
-        <article className="local-backup-card">
-          <div className="local-card-heading">
-            <strong>Salvar no Drive</strong>
-            <small>Cria ou atualiza uma cópia privada do Aferix na área do app dentro do Google Drive.</small>
-          </div>
-          <div className="local-backup-actions">
-            <button className="secondary-action inline-action" disabled={!isConfigured || isBusy} type="button" onClick={connectDrive}>Conectar Google</button>
-            <button className="primary-action inline-action" disabled={!isConfigured || isBusy} type="button" onClick={saveDriveBackup}>Salvar backup</button>
-          </div>
-        </article>
-
-        <article className="local-backup-card">
-          <div className="local-card-heading">
-            <strong>Restaurar do Drive</strong>
-            <small>Mesclar mantém os dados atuais. Substituir apaga os dados locais do Aferix antes de restaurar.</small>
-          </div>
-          <label className="local-backup-file">
-            <span>Modo de restauração</span>
-            <select value={restoreMode} onChange={(event) => setRestoreMode(event.target.value as 'merge' | 'replace')}>
-              <option value="merge">Mesclar com dados atuais</option>
-              <option value="replace">Substituir dados locais do Aferix</option>
-            </select>
-          </label>
-          {restoreMode === 'replace' && (
-            <label className="local-backup-file">
-              <span>Confirmação para substituir</span>
-              <input value={replaceConfirmation} placeholder="Digite SUBSTITUIR" onChange={(event) => setReplaceConfirmation(event.target.value)} />
-              <small>Isso substituirá os dados locais do Aferix neste navegador.</small>
-            </label>
-          )}
-          <div className="local-backup-actions">
-            <button className="secondary-action inline-action" disabled={!isConfigured || isBusy} type="button" onClick={refreshDriveStatus}>Ver último backup</button>
-            <button className="primary-action inline-action" disabled={!isConfigured || isBusy} type="button" onClick={restoreDriveBackup}>Restaurar</button>
-            {canReload && <button className="secondary-action inline-action" type="button" onClick={reloadAppNow}>Recarregar app agora</button>}
-          </div>
-        </article>
-      </div>
 
       {driveBackup && (
-        <div className="local-backup-preview">
-          <strong>Último backup no Drive</strong>
-          <small>{driveBackup.name} · {formatDriveDate(driveBackup.modifiedTime)} · {formatDriveSize(driveBackup.size)}</small>
+        <div className="backup-last-info">
+          <small>Último backup: {formatDriveDate(driveBackup.modifiedTime)} · {formatDriveSize(driveBackup.size)}</small>
         </div>
       )}
 
-      {feedback && <div className="guided-cart-feedback">{feedback}</div>}
+      {feedback && <div className="backup-feedback-message">{feedback}</div>}
+      {canReload && <Button variant="primary" className="reload-btn" onClick={reloadAppNow}>Recarregar App</Button>}
     </section>
   );
 }

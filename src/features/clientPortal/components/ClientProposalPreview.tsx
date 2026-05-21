@@ -27,13 +27,13 @@ export function ClientProposalPreview({ proposal, onClose }: ClientProposalPrevi
       <article className="client-proposal-preview-document">
         <header className="client-proposal-preview-header">
           <div>
-            <span>Proposta comercial</span>
+            <span>Orçamento comercial</span>
             <h1>{proposal.title}</h1>
             <p>{proposal.summary}</p>
           </div>
           <aside>
             <strong>{money(proposal.total)}</strong>
-            <small>Total da proposta</small>
+            <small>Total do orçamento</small>
           </aside>
         </header>
 
@@ -60,7 +60,7 @@ export function ClientProposalPreview({ proposal, onClose }: ClientProposalPrevi
         <section className="client-proposal-preview-section">
           <h2>Itens incluídos no valor</h2>
           {proposal.items.length === 0 ? (
-            <p>Nenhum item cobrado informado nesta proposta.</p>
+            <p>Nenhum item cobrado informado neste orçamento.</p>
           ) : (
             <div className="client-proposal-preview-table">
               <div className="table-row table-head">
@@ -139,7 +139,7 @@ export function ClientProposalPreview({ proposal, onClose }: ClientProposalPrevi
         </section>
 
         <footer className="client-proposal-preview-footer">
-          <p>Para aprovar, responda confirmando a aprovação da proposta. A execução deve ser validada pelo profissional responsável antes do início do serviço.</p>
+          <p>Para aprovar, responda confirmando a aprovação do orçamento. A execução deve ser validada pelo profissional responsável antes do início do serviço.</p>
           <div className="acceptance-line">Assinatura / aceite do cliente</div>
         </footer>
       </article>

@@ -3,6 +3,7 @@ import type { CalculationCapture } from '../../core/types/workflow';
 import type { Client, WorkOrder } from '../../core/types/business';
 import type { UserPlan } from '../../core/access/featureAccess';
 import type { AppTab } from '../appTypes';
+import { PageHeader } from '../components/ui';
 
 const BudgetWorkspaceClientBridge = lazy(() => import('../../features/budgets/components/BudgetWorkspaceClientBridge').then((module) => ({ default: module.BudgetWorkspaceClientBridge })));
 
@@ -35,10 +36,11 @@ export function BudgetsScreen({
   }
   
   return (
-    <section className="app-screen wide-screen">
-      <header className="screen-header">
-        <h1>Orçamentos</h1>
-      </header>
+    <section className="app-screen wide-screen budgets-screen-premium">
+      <PageHeader 
+        title="Orçamentos" 
+        description="Crie e gerencie orçamentos comerciais para seus clientes." 
+      />
       
       <BudgetWorkspaceClientBridge 
         key={resetKey}

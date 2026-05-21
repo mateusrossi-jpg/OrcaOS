@@ -1,4 +1,5 @@
 import { lazy, useRef } from 'react';
+import { PageHeader, Button, PageShell } from '../components/ui';
 
 const SimpleFinanceWorkspace = lazy(() => import('../../features/finance/components/SimpleFinanceWorkspace').then((module) => ({ default: module.SimpleFinanceWorkspace })));
 
@@ -6,12 +7,17 @@ export function FinancialScreen() {
   const triggerNewEntryRef = useRef<(() => void) | null>(null);
 
   return (
-    <section className="app-screen wide-screen">
-      <header className="screen-header finance-screen-header">
-        <h1>Financeiro</h1>
-        <button className="primary-action premium-cta finance-primary-cta" type="button" onClick={() => triggerNewEntryRef.current?.()}>+ Novo Fechamento</button>
-      </header>
+    <PageShell className="wide-screen">
+      <PageHeader 
+        title="Financeiro" 
+        description="Gestão de orçamentos por status e histórico financeiro."
+        action={
+          <Button variant="primary" className="full-page-cta" onClick={() => triggerNewEntryRef.current?.()}>
+            + Nova Apuração
+          </Button>
+        }
+      />
       <SimpleFinanceWorkspace onNewEntryRequest={(cb) => { triggerNewEntryRef.current = cb; }} />
-    </section>
+    </PageShell>
   );
 }

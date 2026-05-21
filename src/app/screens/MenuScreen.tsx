@@ -1,4 +1,5 @@
 import { useState, lazy, Suspense } from 'react';
+import { BackButton, PageHeader, PageShell } from '../components/ui';
 import type { AferixAccountState } from '../../core/access/accountPlanStorage';
 import {
   signInEmailAccount,
@@ -61,63 +62,47 @@ export function MenuScreen({ account, onAccountChange, goTo }: MenuScreenProps) 
 
   if (activeSection !== 'main') {
     return (
-      <section className="app-screen wide-screen">
-        <button className="back-button" type="button" onClick={() => setActiveSection('main')}>‹ Voltar ao Menu</button>
-        <Suspense fallback={<div className="empty-state-card"><p>Carregando...</p></div>}>
+      <PageShell className="wide-screen">
+        <Suspense fallback={<div className="empty-state-card premium-empty-state"><p>Carregando...</p></div>}>
           {activeSection === 'profile' && (
             <div className="settings-group account-settings-panel">
-              <SectionHeader title="Perfil profissional" eyebrow="Sistema" />
-              <div className="account-status-grid">
-                <article className="settings-row">
-                  <span><strong>{accountLabel}</strong><small>{planStatusTitle(account)}</small></span>
-                </article>
-              </div>
-              <section className="account-email-card">
-                <div className="settings-form-grid">
-                  <label className="general-form-field"><span>Meu nome</span><input value={nameDraft} placeholder="Como o cliente te chama" onChange={(event) => setNameDraft(event.target.value)} /></label>
-                  <label className="general-form-field"><span>E-mail de acesso</span><input type="email" value={emailDraft} placeholder="seu@email.com" onChange={(event) => setEmailDraft(event.target.value)} /></label>
-                </div>
-                <div className="settings-actions-row">
-                  <button type="button" className="primary-action inline-action" onClick={registerEmailAccount}>Salvar perfil</button>
-                  <button type="button" className="ghost-action" disabled={!googleReady || isSigningIn} onClick={connectGoogle}>{isSigningIn ? 'Conectando...' : 'Vincular Google'}</button>
-                </div>
-                {feedback && <p className="general-added-message">{feedback}</p>}
-                <div className="settings-actions-row" style={{ marginTop: '2rem' }}>
-                   <button className="secondary-action ghost-action" type="button" onClick={() => onAccountChange(signOutLocalAccount())}>Sair da conta</button>
-                </div>
-              </section>
-              <ProfessionalProfileWorkspace />
+              <ProfessionalProfileWorkspace onBack={() => setActiveSection('main')} />
             </div>
           )}
-          {activeSection === 'security' && <AppSecurityPanel />}
+          {activeSection === 'security' && (
+            <>
+              <BackButton label="Voltar ao Menu" onClick={() => setActiveSection('main')} />
+              <AppSecurityPanel />
+            </>
+          )}
           {activeSection === 'backup' && (
             <>
+              <BackButton label="Voltar ao Menu" onClick={() => setActiveSection('main')} />
               <LocalBackupWorkspace includeLinkedSettings={false} />
               <GoogleDriveBackupPanel />
             </>
           )}
           {activeSection === 'about' && (
             <>
+              <BackButton label="Voltar ao Menu" onClick={() => setActiveSection('main')} />
               <LegalCompliancePanel />
               <div className="settings-group account-settings-panel">
                  <SectionHeader title="Sobre o Aferix" eyebrow="Informação" />
-                 <p style={{ opacity: 0.7, fontSize: '0.9rem' }}>Versão MVP · Local-first</p>
+                 <p className="menu-about-note">Versão MVP · Local-first</p>
               </div>
             </>
           )}
         </Suspense>
-      </section>
+      </PageShell>
     );
   }
 
   return (
-    <section className="app-screen menu-overview-screen">
-      <header className="page-header">
-        <div>
-          <h1>Configurações</h1>
-          <p>Gerencie seu perfil, conta e preferências do aplicativo.</p>
-        </div>
-      </header>
+    <PageShell className="menu-overview-screen">
+      <PageHeader 
+        title="Configurações" 
+        description="Gerencie seu perfil, conta e preferências do aplicativo." 
+      />
 
       <div className="aferix-panel-card">
         <SectionHeader title="Sistema" eyebrow="Ajustes" />
@@ -166,6 +151,6 @@ export function MenuScreen({ account, onAccountChange, goTo }: MenuScreenProps) 
           </button>
         </div>
       </div>
-    </section>
+    </PageShell>
   );
 }

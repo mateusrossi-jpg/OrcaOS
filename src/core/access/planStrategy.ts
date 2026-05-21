@@ -18,7 +18,7 @@ export const FREE_PLAN_LIMITS = {
 
 export const freePlanBenefits: PlanBenefit[] = [
   { title: 'Cálculos básicos', description: 'Precificação essencial para decidir quanto cobrar.' },
-  { title: 'Orçamento manual simples', description: 'Monte e compartilhe uma proposta básica sem bloquear o atendimento.' },
+  { title: 'Orçamento manual simples', description: 'Monte e compartilhe uma orçamento básico sem bloquear o atendimento.' },
   { title: 'Alguns orçamentos salvos', description: 'Rascunhos e histórico local para uso real no dia a dia.' },
   { title: 'Clientes básicos', description: 'Cadastro simples para identificar cliente, contato e endereço.' },
   { title: 'Produtos e serviços simples', description: 'Itens recorrentes para acelerar o orçamento sem virar ERP pesado.' },
@@ -27,8 +27,8 @@ export const freePlanBenefits: PlanBenefit[] = [
 ];
 
 export const proPlanBenefits: PlanBenefit[] = [
-  { title: 'Orçamentos ilimitados', description: 'Sem limite prático para histórico, rascunhos e propostas.' },
-  { title: 'PDFs profissionais', description: 'Modelos comercial, técnico detalhado e proposta premium.' },
+  { title: 'Orçamentos ilimitados', description: 'Sem limite prático para histórico, rascunhos e orçamentos.' },
+  { title: 'PDFs profissionais', description: 'Modelos comercial, técnico detalhado e orçamento premium.' },
   { title: 'Identidade profissional', description: 'Logo, dados completos, assinatura, Pix e campos comerciais avançados.' },
   { title: 'Modelos personalizados', description: 'Serviços compostos e modelos reutilizáveis para ganhar tempo.' },
   { title: 'Catálogo ilimitado', description: 'Produtos, serviços, fornecedores e histórico mais completo.' },
@@ -40,7 +40,7 @@ export const proPlanBenefits: PlanBenefit[] = [
 
 export const proV1Priorities: PlanBenefit[] = [
   { title: 'Cálculos Pro vitalícios', description: 'Primeira camada vendável: margem real, taxas, parcelamento, metas, entrada, deslocamento e lucro.' },
-  { title: 'PDFs profissionais', description: 'Primeiro ganho perceptível: aparência melhor e proposta mais confiável.' },
+  { title: 'PDFs profissionais', description: 'Primeiro ganho perceptível: aparência melhor e orçamento mais confiável.' },
   { title: 'Orçamentos ilimitados', description: 'Remove atrito para quem usa o app todo dia.' },
   { title: 'Modelos personalizados', description: 'Acelera orçamento recorrente e serviços compostos.' },
   { title: 'Cálculos avançados', description: 'Ajuda a formar preço, desconto, juros, taxas e lucro.' },

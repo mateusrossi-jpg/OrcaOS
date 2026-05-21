@@ -1,7 +1,7 @@
 import { lazy } from 'react';
 import type { CalculationCapture } from '../../core/types/workflow';
 import type { ActiveWorkContext } from '../appTypes';
-import { ActiveWorkContextCard } from '../components/ActiveWorkContextCard';
+import { PageHeader, PageShell } from '../components/ui';
 
 const CatalogHubWorkspace = lazy(() => import('../../features/catalog/components/CatalogHubWorkspaceWithTax').then((module) => ({ default: module.CatalogHubWorkspace })));
 
@@ -12,11 +12,12 @@ interface CatalogScreenProps {
 
 export function CatalogScreen({ onAddMany, context }: CatalogScreenProps) {
   return (
-    <section className="app-screen wide-screen">
-      <header className="screen-header">
-        <h1>Estoque e catálogo</h1>
-      </header>
+    <PageShell className="wide-screen catalog-screen-premium">
+      <PageHeader 
+        title="Catálogo Profissional" 
+        description="Gerencie seus materiais e serviços padronizados." 
+      />
       <CatalogHubWorkspace onSendToBudget={onAddMany} />
-    </section>
+    </PageShell>
   );
 }

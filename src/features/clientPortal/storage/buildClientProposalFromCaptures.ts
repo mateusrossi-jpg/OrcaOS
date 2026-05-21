@@ -70,7 +70,7 @@ export function buildClientProposalFromCaptures(input: {
   const chargedItems = input.captures.filter(isBudgetChargedItem).map(buildPublicItem);
   const clientPurchaseMaterials = input.captures.filter(isClientPurchaseMaterial).map(buildClientMaterial);
   const subtotal = chargedItems.reduce((sum, item) => sum + (item.totalPrice ?? 0), 0);
-  const title = input.activeWorkOrder?.title ? `Proposta - ${input.activeWorkOrder.title}` : 'Proposta de serviço';
+  const title = input.activeWorkOrder?.title ? `Orçamento - ${input.activeWorkOrder.title}` : 'Orçamento de serviço';
   const clientName = input.activeClient?.name ?? 'Cliente não vinculado';
   const professionalDisplayName = profile.businessName || profile.professionalName || 'Profissional Aferix';
   const professionalContact = [profile.phone, profile.email].filter(Boolean).join(' · ');
@@ -84,7 +84,7 @@ export function buildClientProposalFromCaptures(input: {
     clientName,
     professionalDisplayName,
     professionalContact,
-    summary: input.activeWorkOrder?.description || 'Proposta gerada a partir dos itens técnicos do orçamento no Aferix.',
+    summary: input.activeWorkOrder?.description || 'Orçamento gerado a partir dos itens técnicos do orçamento no Aferix.',
     items: chargedItems,
     clientPurchaseMaterials,
     subtotal,
@@ -93,8 +93,8 @@ export function buildClientProposalFromCaptures(input: {
     validityText: '7 dias',
     paymentTerms: 'Condições de pagamento a combinar.',
     publicNotes: clientPurchaseMaterials.length > 0
-      ? 'Esta proposta possui materiais que deverão ser adquiridos pelo cliente conforme lista orientativa. Esses materiais não estão incluídos no total cobrado pelo profissional.'
+      ? 'Este orçamento possui materiais que deverão ser adquiridos pelo cliente conforme lista orientativa. Esses materiais não estão incluídos no total cobrado pelo profissional.'
       : 'Valores sujeitos à confirmação após vistoria, disponibilidade de agenda e validação técnica.',
-    internalNotes: `Proposta criada automaticamente a partir de ${input.captures.length} item(ns) técnico(s).`,
+    internalNotes: `Orçamento criado automaticamente a partir de ${input.captures.length} item(ns) técnico(s).`,
   });
 }

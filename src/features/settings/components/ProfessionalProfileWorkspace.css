@@ -232,3 +232,35 @@
   }
 }
 
+/* Professional logo compact premium pass */
+.professional-logo-editor {
+  grid-template-columns: 1fr !important;
+  justify-items: center !important;
+  text-align: center !important;
+  padding: 16px !important;
+}
+
+.professional-logo-preview {
+  width: 132px !important;
+  height: 88px !important;
+  max-width: 100% !important;
+  border-radius: 14px !important;
+  background: var(--aferix-bg-soft) !important;
+}
+
+.professional-logo-copy,
+.professional-profile-actions {
+  width: min(100%, 220px) !important;
+  justify-content: center !important;
+}
+
+.professional-profile-actions .file-action {
+  width: 100% !important;
+}
+
+@media (max-width: 760px) {
+  .professional-logo-preview {
+    width: 128px !important;
+    height: 84px !important;
+  }
+}

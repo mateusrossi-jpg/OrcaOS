@@ -1,4 +1,5 @@
 import { useState, type ChangeEvent } from 'react';
+import { BackButton, TextArea, Button } from '../../../app/components/ui';
 import type { BudgetTemplateId, ReportTemplateId } from '../../../core/types/business';
 import { budgetTemplateOptions } from '../../budgets/budgetTemplatesVisual';
 import { loadBusinessProfile, saveBusinessProfile } from '../../budgets/storage/businessProfileStorage';
@@ -54,7 +55,7 @@ function syncProfileToBusinessProfile(profile: ProfessionalProfile) {
   });
 }
 
-export function ProfessionalProfileWorkspace() {
+export function ProfessionalProfileWorkspace({ onBack }: { onBack?: () => void } = {}) {
   const [profile, setProfile] = useState<ProfessionalProfile>(() => loadProfessionalProfile());
   const [feedback, setFeedback] = useState<string | null>(null);
 
@@ -95,44 +96,46 @@ export function ProfessionalProfileWorkspace() {
 
   return (
     <div className="professional-profile-workspace">
-      {/* 1. Introdução */}
+      {onBack && <BackButton label="Voltar para Configurações" onClick={onBack} />}
+
       <section className="professional-profile-header-card">
         <header>
-          <span className="orca-kicker">Empresa</span>
-          <h2>Perfil Profissional</h2>
-          <p>Dados usados em propostas, orçamentos e relatórios gerados pelo Aferix.</p>
+          <div>
+            <span className="orca-kicker">Perfil</span>
+            <h2>Perfil Profissional</h2>
+            <p>Dados usados em orçamentos e relatórios.</p>
+          </div>
         </header>
       </section>
 
-      {/* 2. Identidade visual */}
+      {/* 1. Identidade visual */}
       <section className="professional-profile-section">
         <header>
           <div>
-            <span className="orca-kicker">Identidade visual</span>
+            <span className="orca-kicker">Identidade</span>
             <h2>Logo da empresa</h2>
-            <p>Use sua marca nos PDFs, propostas e relatórios enviados ao cliente.</p>
+            <p>Aparece em orçamentos e relatórios.</p>
           </div>
         </header>
         <div className="professional-logo-editor">
           <div className="professional-logo-preview">
-            {profile.logoDataUrl || profile.logoUrl ? <img src={profile.logoDataUrl || profile.logoUrl} alt="Logo" /> : <div className="logo-placeholder">SEM LOGO</div>}
+            {profile.logoDataUrl || profile.logoUrl ? <img src={profile.logoDataUrl || profile.logoUrl} alt="Logo" /> : <div className="logo-placeholder">MARCA</div>}
           </div>
           <div className="professional-logo-copy">
             <div className="professional-profile-actions">
-              <label className="ghost-action file-action">Upload Logo<input accept="image/*" type="file" onChange={handleLogoFileChange} /></label>
+              <label className="secondary-action file-action">Upload Logo<input accept="image/*" type="file" onChange={handleLogoFileChange} /></label>
               {(profile.logoDataUrl || profile.logoUrl) && <button className="ghost-action danger-action" type="button" onClick={removeLogo}>Remover</button>}
             </div>
           </div>
         </div>
       </section>
 
-      {/* 3. Dados Comerciais */}
+      {/* 2. Dados Comerciais */}
       <section className="professional-profile-section">
         <header>
           <div>
             <span className="orca-kicker">Comercial</span>
-            <h2>Dados Comerciais</h2>
-            <p>Essas informações aparecem nos documentos comerciais do Aferix.</p>
+            <h2>Dados da Empresa</h2>
           </div>
         </header>
         <div className="professional-profile-grid">
@@ -144,13 +147,36 @@ export function ProfessionalProfileWorkspace() {
         </div>
       </section>
 
-      {/* 4. Padrões de Propostas */}
+      {/* 2.5 IDs de Sincronização */}
+      <section className="professional-profile-section">
+        <header>
+          <div>
+            <span className="orca-kicker">Segurança</span>
+            <h2>Identificadores Locais</h2>
+            <p>IDs únicos para sincronização de dados entre dispositivos.</p>
+          </div>
+        </header>
+        <div className="professional-profile-id-grid">
+          <div className="professional-profile-id-card">
+            <span>ID Profissional</span>
+            <code>{profile.professionalId}</code>
+          </div>
+          <div className="professional-profile-id-card">
+            <span>ID Empresa</span>
+            <code>{profile.companyId}</code>
+          </div>
+        </div>
+        <div className="professional-profile-actions">
+          <button className="ghost-action" type="button" onClick={regenerateIds}>Regenerar IDs</button>
+        </div>
+      </section>
+
+      {/* 3. Padrões de Orçamentos */}
       <section className="professional-profile-section">
         <header>
           <div>
             <span className="orca-kicker">Documentos</span>
-            <h2>Padrões de Propostas</h2>
-            <p>Defina textos padrão para validade, garantia, pagamento e observações.</p>
+            <h2>Padrões de Orçamentos</h2>
           </div>
         </header>
         <div className="professional-profile-grid">
@@ -163,26 +189,6 @@ export function ProfessionalProfileWorkspace() {
           <button className="primary-action" type="button" onClick={saveProfile}>Salvar Alterações</button>
         </div>
       </section>
-
-      {/* 5. IDs de Identificação */}
-      <section className="professional-profile-section">
-        <header>
-          <div>
-            <span className="orca-kicker">Identificação local</span>
-            <h2>IDs de Identificação</h2>
-            <p>Identificadores locais usados para reconhecer este profissional e esta empresa neste dispositivo.</p>
-          </div>
-        </header>
-        <div className="professional-profile-id-grid">
-          <div className="professional-profile-id-card"><span>Profissional</span><code>{profile.professionalId}</code></div>
-          <div className="professional-profile-id-card"><span>Empresa</span><code>{profile.companyId}</code></div>
-        </div>
-        <div className="professional-profile-save-row">
-          <button className="ghost-action" type="button" onClick={regenerateIds}>Renovar Identificadores</button>
-        </div>
-      </section>
-
-      {feedback && <div className="guided-cart-feedback">{feedback}</div>}
     </div>
   );
 }

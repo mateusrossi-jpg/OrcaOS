@@ -13,7 +13,7 @@ interface BudgetWorkspaceWithIdentityProps {
 export function BudgetWorkspaceWithIdentity(props: BudgetWorkspaceWithIdentityProps) {
   return (
     <>
-      <ProfessionalIdentityCard contextLabel="Identidade da proposta" />
+      <ProfessionalIdentityCard contextLabel="Identidade do orçamento" />
       <BudgetWorkspace {...props} />
     </>
   );

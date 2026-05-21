@@ -1,0 +1,11 @@
+.general-calculator-detail-panel {
+  display: block;
+}
+
+.general-calculator-detail-header {
+  display: flex;
+}
+
+.general-calculator-detail-back {
+  cursor: pointer;
+}

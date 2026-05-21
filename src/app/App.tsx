@@ -176,7 +176,7 @@ export function App() {
           )}
           {activeTab === 'catalog' && <CatalogScreen onAddMany={addManyCalculationCaptures} context={context} />}
           {activeTab === 'reports' && <ReportsScreen captures={captures} context={context} />}
-          {activeTab === 'store' && <StoreScreen account={account} onAccountChange={setAccount} />}
+          {activeTab === 'store' && <StoreScreen account={account} onAccountChange={setAccount} onBack={() => goTo('settings')} />}
         </Suspense>
       </AppShell>
     </>

@@ -4,7 +4,7 @@ import { hasBlockingBudgetIssues, validateBudgetForProposal, validateBudgetItem 
 
 const validBudget: Budget = {
   id: 'budget',
-  title: 'Proposta',
+  title: 'Orçamento',
   status: 'draft',
   discount: 10,
   clientId: 'client-1',

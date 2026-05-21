@@ -16,14 +16,14 @@ export function buildClientProposalShareText(proposal: ClientProposal): string {
 
   lines.push(`*${proposal.title}*`);
   lines.push('');
-  lines.push(`Olá, ${proposal.clientName}. Segue a proposta preparada por ${proposal.professionalDisplayName}.`);
+  lines.push(`Olá, ${proposal.clientName}. Segue o orçamento preparado por ${proposal.professionalDisplayName}.`);
 
   if (proposal.professionalContact) {
     lines.push(`Contato: ${proposal.professionalContact}`);
   }
 
   lines.push('');
-  lines.push(`Resumo: ${lineOrFallback(proposal.summary, 'Proposta de serviço técnico.')}`);
+  lines.push(`Resumo: ${lineOrFallback(proposal.summary, 'Orçamento de serviço técnico.')}`);
   lines.push('');
 
   lines.push('*Itens incluídos no valor:*');
@@ -51,7 +51,7 @@ export function buildClientProposalShareText(proposal: ClientProposal): string {
   }
 
   lines.push('');
-  lines.push(`*Total da proposta:* ${money(proposal.total)}`);
+  lines.push(`*Total do orçamento:* ${money(proposal.total)}`);
   if (proposal.discount > 0) lines.push(`Desconto aplicado: ${money(proposal.discount)}`);
   lines.push(`Validade: ${lineOrFallback(proposal.validityText, 'A combinar')}`);
   lines.push(`Pagamento: ${lineOrFallback(proposal.paymentTerms, 'A combinar')}`);
@@ -62,7 +62,7 @@ export function buildClientProposalShareText(proposal: ClientProposal): string {
   }
 
   lines.push('');
-  lines.push('Para aprovar, responda esta mensagem confirmando a aprovação da proposta.');
+  lines.push('Para aprovar, responda esta mensagem confirmando a aprovação do orçamento.');
 
   return lines.join('\n');
 }

@@ -78,16 +78,16 @@ function applySupplyModeToCapture(capture: CalculationCapture, mode: MaterialSup
         ? 'Orientação ao cliente: comprar material conforme especificação antes da execução ou alinhar com o profissional.'
         : '',
       mode === 'mixed'
-        ? 'Orientação: separar quais itens serão fornecidos pelo profissional e quais serão comprados pelo cliente antes de aprovar a proposta.'
+        ? 'Orientação: separar quais itens serão fornecidos pelo profissional e quais serão comprados pelo cliente antes de aprovar o orçamento.'
         : '',
       mode === 'undefined'
-        ? 'Orientação: definir responsabilidade de compra dos materiais antes do fechamento comercial.'
+        ? 'Orientação: definir responsabilidade de compra dos materiais antes da finalização do orçamento.'
         : '',
     ].filter(Boolean),
     technicalNote: [
       capture.technicalNote,
       `Fornecimento de material: ${supplyLabel}.`,
-      chargeMaterial ? 'Material incluído na proposta.' : 'Material tratado como lista de compra/orientação para o cliente.',
+      chargeMaterial ? 'Material incluído no orçamento.' : 'Material tratado como lista de compra/orientação para o cliente.',
     ].filter(Boolean).join(' '),
   };
 }
@@ -106,7 +106,7 @@ export function MaterialSupplyModeBridge({ onSendToBudget, mode = 'all' }: Mater
         <div>
           <span className="orca-kicker">Materiais do orçamento</span>
           <h2>Quem vai comprar os materiais?</h2>
-          <p>Defina como os materiais lançados no orçamento serão tratados na proposta.</p>
+          <p>Defina como os materiais lançados no orçamento serão tratados no orçamento.</p>
         </div>
         <strong>{activeOption.label}</strong>
       </div>
@@ -121,7 +121,7 @@ export function MaterialSupplyModeBridge({ onSendToBudget, mode = 'all' }: Mater
       </div>
 
       <div className="material-supply-note">
-        <strong>Texto para proposta/cliente</strong>
+        <strong>Texto para orçamento/cliente</strong>
         <small>{activeOption.customerText}</small>
       </div>
 

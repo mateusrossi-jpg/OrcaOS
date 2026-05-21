@@ -27,7 +27,7 @@ describe('Budget Calculation Flow Protection', () => {
 
   const sampleBudget: Budget = {
     id: 'b-1',
-    title: 'Proposta Comercial',
+    title: 'Orçamento Comercial',
     status: 'draft',
     discount: 50,
     travelCost: 100,

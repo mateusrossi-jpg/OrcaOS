@@ -35,7 +35,7 @@ export function validateBudgetForProposal(budget: Budget): BudgetValidationIssue
   const issues: BudgetValidationIssue[] = [];
 
   if (budget.items.length === 0) {
-    issues.push({ code: 'budget-empty', message: 'Adicione itens para gerar uma proposta.', severity: 'error' });
+    issues.push({ code: 'budget-empty', message: 'Adicione itens para gerar um orçamento.', severity: 'error' });
   }
 
   if (!budget.title.trim()) {
@@ -47,7 +47,7 @@ export function validateBudgetForProposal(budget: Budget): BudgetValidationIssue
       if (issue.code !== 'item-price-zero') return issue;
       return {
         ...issue,
-        message: `${issue.message} Defina um valor maior que zero antes de gerar a proposta.`,
+        message: `${issue.message} Defina um valor maior que zero antes de gerar o orçamento.`,
         severity: 'error' as BudgetValidationSeverity,
       };
     });
@@ -85,7 +85,7 @@ export function validateBudgetForProposal(budget: Budget): BudgetValidationIssue
   }
 
   if (!budget.validity?.trim()) {
-    issues.push({ code: 'validity-missing', message: 'Informe a validade da proposta para evitar preço aberto sem prazo.', severity: 'warning' });
+    issues.push({ code: 'validity-missing', message: 'Informe a validade do orçamento para evitar preço aberto sem prazo.', severity: 'warning' });
   }
 
   if (!budget.guarantee?.trim()) {

@@ -81,7 +81,7 @@ describe('budget pricing', () => {
         id: 'invalid-price',
         description: 'Item inválido',
         quantity: 1,
-        unitPrice: 0,
+        unitPrice: -1,
         category: 'other',
       }),
     ).toThrow('Preço unitário');

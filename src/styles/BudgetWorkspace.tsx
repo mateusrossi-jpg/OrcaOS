@@ -14,7 +14,7 @@ export function BudgetWorkspace({ children, subtotal, taxes, netProfit }: Budget
       {/* Coluna Esquerda: Itens do Orçamento (70%) */}
       <div className="w-full md:w-[70%] bg-[#161618] border border-[#27272A] rounded-lg p-6">
         <h2 className="text-xl font-bold text-[#F8FAFC] mb-6 border-b border-[#27272A] pb-4">
-          Itens da Proposta
+          Itens do Orçamento
         </h2>
         {/* Renderiza a tabela de itens ou blocos de levantamento aqui */}
         <div className="space-y-4">

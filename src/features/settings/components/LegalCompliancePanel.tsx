@@ -15,7 +15,7 @@ const privacyNotice = [
 
 const termsNotice = [
   'Este beta fechado pode ter instabilidades, mudancas de fluxo e ajustes em recursos Pro.',
-  'O uso profissional e de responsabilidade do usuario, que deve conferir calculos, documentos e propostas antes de enviar ao cliente.',
+  'O uso profissional e de responsabilidade do usuario, que deve conferir calculos, documentos e orçamentos antes de enviar ao cliente.',
   'Recursos Pro podem mudar durante o beta fechado. Suporte e liberacao comercial podem ser manuais/assistidos.',
   'O usuario deve manter backup dos proprios dados.',
 ];

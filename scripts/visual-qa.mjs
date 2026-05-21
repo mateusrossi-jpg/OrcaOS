@@ -129,10 +129,11 @@ if (storeTSX.includes('>Planejado<')) {
 // 6b. Financeiro / ação principal
 logStep('Financeiro / ação principal');
 const financeTSX = readFile('src/features/finance/components/SimpleFinanceWorkspace.tsx');
-if (financeTSX.includes('Novo lançamento')) {
-  logSuccess('Financeiro mantém CTA para Novo lançamento');
+const financialScreenTSX = readFile('src/app/screens/FinancialScreen.tsx');
+if ((financialScreenTSX.includes('Novo Fechamento') || financialScreenTSX.includes('Nova Apuração')) && financialScreenTSX.includes('full-page-cta')) {
+  logSuccess('Financeiro mantém CTA principal abaixo do título');
 } else {
-  logError('Financeiro perdeu o CTA de Novo lançamento');
+  logError('Financeiro perdeu o CTA principal no padrão full-page-cta');
 }
 if (!financeTSX.includes('<h2>Gestão Financeira</h2>')) {
   logSuccess('Financeiro livre de card intermediário que só duplicava ação');
@@ -187,32 +188,28 @@ if (!themeCSS.match(/\.context-banner-action[^}]*margin-top:\s*-\d+/)) {
   logError('Erro crítico: botão do contexto ativo usando margin-top negativo!');
 }
 
-// 8.5. Clientes / Atendimentos sem ações duplicadas
+// 8.5. Clientes / Atendimentos sem redundância
 logStep('Clientes / Atendimentos sem redundância');
 const clientWorkspaceTSX = readFile('src/features/clients/components/ClientWorkOrderWorkspace.tsx');
-const clientToolbarMatch = clientWorkspaceTSX.match(/<div className="home-action-toolbar">([\s\S]*?)<\/div>/);
-const clientToolbar = clientToolbarMatch?.[1] ?? '';
+const hasClientToolbar = clientWorkspaceTSX.includes('className="home-action-toolbar"');
+const clientToolbar = '';
 
-['Painel', 'Clientes', 'Histórico'].forEach(label => {
-  if (clientToolbar.includes(`>${label}<`)) logSuccess(`Toolbar de clientes mantém navegação: ${label}`);
-  else logError(`Toolbar de clientes sem navegação esperada: ${label}`);
-});
+if (!hasClientToolbar && !clientWorkspaceTSX.includes('>Painel<') && !clientWorkspaceTSX.includes('>Histórico<')) {
+  logSuccess('Clientes removeu submenus internos redundantes: Painel, Clientes e Histórico');
+} else {
+  logError('Clientes ainda renderiza submenus internos redundantes');
+}
 
-['+ Cliente', '+ Atendimento'].forEach(label => {
-  if (!clientToolbar.includes(label)) logSuccess(`Toolbar de clientes livre da ação duplicada: ${label}`);
-  else logError(`Toolbar de clientes ainda renderiza ação duplicada: ${label}`);
-});
+if (clientWorkspaceTSX.includes('+ Novo Cliente') && clientWorkspaceTSX.includes('full-page-cta')) {
+  logSuccess('Clientes mantém CTA principal único e largura total');
+} else {
+  logError('Clientes sem CTA principal + Novo Cliente no padrão full-page-cta');
+}
 
 ['newClient', 'newWorkOrder', "actionLabel={activeWorkOrder ? 'Limpar contexto' : 'Novo atendimento'}", "setActiveSection('newClient')", "setActiveSection('newWorkOrder')"].forEach(token => {
   if (clientWorkspaceTSX.includes(token)) logSuccess(`Fluxo de clientes preservado: ${token}`);
   else logError(`Fluxo de clientes ausente: ${token}`);
 });
-
-if (clientWorkspaceTSX.includes('Cadastro e consulta de clientes.') && clientWorkspaceTSX.includes('Atendimentos registrados.')) {
-  logSuccess('Copy de Clientes/Histórico está clara e contextual');
-} else {
-  logError('Copy de Clientes/Histórico precisa manter clareza contextual');
-}
 
 // 8.5b. UX redundancy guardrails
 logStep('UX redundancy guardrails');
@@ -227,15 +224,15 @@ if (uxGuide.includes('# Aferix — Guia de Redução de Redundância UX') && uxG
   logError('docs/UX_REDUNDANCY_GUIDE.md ausente ou sem o princípio oficial');
 }
 
-if (!clientToolbar.includes('+ Cliente') && !clientToolbar.includes('+ Atendimento')) {
-  logSuccess('Clientes/Atendimentos sem ações de criação na toolbar principal');
+if (!hasClientToolbar) {
+  logSuccess('Clientes/Atendimentos sem toolbar interna redundante');
 } else {
-  logError('Clientes/Atendimentos reintroduziu + Cliente ou + Atendimento na toolbar');
+  logError('Clientes/Atendimentos reintroduziu toolbar interna redundante');
 }
 
-['Painel', 'Clientes', 'Histórico'].forEach(label => {
-  if (clientToolbar.includes(`>${label}<`)) logSuccess(`Toolbar de Clientes preserva navegação: ${label}`);
-  else logError(`Toolbar de Clientes perdeu item de navegação: ${label}`);
+['Painel', 'Histórico'].forEach(label => {
+  if (!clientWorkspaceTSX.includes(`>${label}<`)) logSuccess(`Clientes livre de submenu: ${label}`);
+  else logError(`Clientes reintroduziu submenu: ${label}`);
 });
 
 if (!technicalBudgetTSX.includes('general-calculator-overlay') && !technicalBudgetTSX.includes('aria-modal="true"')) {

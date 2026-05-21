@@ -9,7 +9,7 @@ import {
   saveSimpleFinanceRecord,
   type SimpleFinanceRecord,
 } from '../storage/simpleFinanceStorage';
-import { MetricCard, MoneyValue } from '../../../app/components/ui';
+import { MetricCard, MoneyValue, Button, Select, EmptyState, BackButton } from '../../../app/components/ui';
 import './SimpleFinanceWorkspace.css';
 
 interface FinanceDraft {
@@ -229,30 +229,31 @@ export function SimpleFinanceWorkspace({ onNewEntryRequest }: { onNewEntryReques
       </div>
 
       {showEntryForm && <div className="aferix-panel-card finance-entry-panel">
+        <BackButton onClick={() => { setDraft(emptyDraft); setShowEntryForm(false); }} label="Voltar para Orçamentos" />
         <header>
           <div>
-            <h2>{draft.id ? 'Editar Fechamento' : 'Fechamento do Serviço'}</h2>
-            <p>Registre o resultado real comparado ao orçamento.</p>
+            <h2>{draft.id ? 'Editar Resultado' : 'Resultado do Orçamento'}</h2>
+            <p>Registre o resultado real comparado ao orçamento concluído.</p>
           </div>
-          <button className="ghost-action" type="button" onClick={() => { setDraft(emptyDraft); setShowEntryForm(false); }}>Fechar</button>
         </header>
 
         <div className="finance-entry-layout">
           <div className="finance-entry-main">
             {approvedBudgets.length > 0 && !draft.id && (
-              <label className="finance-field finance-source-field">
-                <span>Vincular orçamento aprovado</span>
-                <select value={draft.sourceBudgetId} onChange={(event) => useBudget(event.target.value)}>
-                  <option value="">Selecionar orçamento para fechar</option>
-                  {approvedBudgets.map((budget) => <option key={budget.id} value={budget.id}>{budget.title} · {money(savedBudgetTotal(budget))}</option>)}
-                </select>
-              </label>
+              <Select label="Vincular orçamento aprovado" className="finance-source-field" value={draft.sourceBudgetId} onChange={(value: string) => useBudget(value)}>
+                <option value="">Selecionar orçamento concluído</option>
+                {approvedBudgets.map((budget) => <option key={budget.id} value={budget.id}>{budget.title} · {money(savedBudgetTotal(budget))}</option>)}
+              </Select>
             )}
 
-            <div className="professional-profile-grid finance-form-grid" style={{ marginTop: '1.5rem' }}>
+            <div className="finance-form-grid finance-form-grid-spaced">
               <label className="budget-field wide"><span>Título do Serviço</span><input value={draft.title} onChange={(event) => updateDraft('title', event.target.value)} /></label>
               <label className="budget-field"><span>Cliente</span><input value={draft.clientName} onChange={(event) => updateDraft('clientName', event.target.value)} /></label>
-              <label className="budget-field"><span>Status</span><select value={draft.status} onChange={(event) => updateDraft('status', event.target.value as SimpleFinanceRecord['status'])}><option value="realized">Recebido / Concluído</option><option value="forecast">Aguardando Recebimento</option></select></label>
+              
+              <Select label="Status" value={draft.status} onChange={(value: string) => updateDraft('status', value as SimpleFinanceRecord['status'])}>
+                <option value="realized">Recebido / Concluído</option>
+                <option value="forecast">Aguardando Recebimento</option>
+              </Select>
               
               <div className="comparative-input-group">
                 <label className="budget-field">
@@ -279,7 +280,7 @@ export function SimpleFinanceWorkspace({ onNewEntryRequest }: { onNewEntryReques
             </div>
 
             <div className="finance-entry-actions">
-              <button className="primary-action premium-cta" style={{ width: '100%' }} type="button" onClick={saveRecord}>{draft.id ? 'Atualizar Apuração' : 'Finalizar e Salvar Lucro'}</button>
+              <Button variant="primary" className="finance-entry-submit" onClick={saveRecord}>{draft.id ? 'Atualizar Apuração' : 'Finalizar e Salvar Lucro'}</Button>
             </div>
           </div>
 
@@ -307,40 +308,45 @@ export function SimpleFinanceWorkspace({ onNewEntryRequest }: { onNewEntryReques
         </div>
       </div>}
 
-      <div className="aferix-panel-card" style={{ padding: '0', overflow: 'hidden' }}>
-        <header style={{ padding: '16px 20px', borderBottom: '1px solid var(--aferix-border-soft)' }}>
+      <div className="aferix-panel-card finance-results-panel">
+        <header className="panel-list-header">
           <div>
-            <h2 style={{ fontSize: '1.1rem', fontWeight: 700, margin: 0 }}>Apuração de Resultados</h2>
+            <h2>Apuração de Resultados</h2>
           </div>
         </header>
-        <div className="finance-search-container" style={{ padding: '12px 16px', borderBottom: '1px solid var(--aferix-border-soft)' }}>
+        <div className="finance-search-container">
           <input 
             value={recordSearch} 
-            placeholder="Buscar fechamento..." 
+            placeholder="Buscar orçamento..." 
             onChange={(event) => setRecordSearch(event.target.value)} 
-            style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid var(--aferix-border)', background: 'var(--aferix-bg-soft)', color: 'var(--aferix-text)', fontSize: '0.95rem' }}
           />
         </div>
         <div className="continuous-list">
-          {records.length === 0 ? <div className="continuous-list-empty">Nenhum fechamento registrado.</div> : visibleRecords.length === 0 ? <div className="continuous-list-empty">Nenhum resultado para "{recordSearch}".</div> : visibleRecords.map((record) => {
-            const profit = calculateServiceProfit(record);
-            return (
-              <article className="continuous-list-item" key={record.id}>
-                <div className="client-col">
-                  <strong>{record.title}</strong>
-                  <small>{record.clientName || 'Cliente final'} · {record.status === 'forecast' ? 'Aguardando' : 'Finalizado'}</small>
-                </div>
-                <div className="value-col">
-                   <strong>{money(profit.netProfit)}</strong>
-                   <small>{profit.netMarginPercent.toFixed(0)}% margem</small>
-                </div>
-                <div className="finance-record-actions">
-                  <button className="ghost-action compact-row-action" type="button" onClick={() => editRecord(record)}>✎</button>
-                  <button className="ghost-action compact-row-action danger-row-action" type="button" onClick={() => removeRecord(record.id)}>✕</button>
-                </div>
-              </article>
-            );
-          })}
+          {records.length === 0 ? (
+            <EmptyState title="Sem orçamentos concluídos" description="Orçamentos concluídos aparecem aqui." />
+          ) : visibleRecords.length === 0 ? (
+            <EmptyState title="Nenhum resultado" description={`Nenhum orçamento encontrado para "${recordSearch}".`} />
+          ) : (
+            visibleRecords.map((record) => {
+              const profit = calculateServiceProfit(record);
+              return (
+                <article className="continuous-list-item" key={record.id}>
+                  <div className="client-col">
+                    <strong>{record.title}</strong>
+                    <small>{record.clientName || 'Cliente final'} · {record.status === 'forecast' ? 'Aguardando' : 'Finalizado'}</small>
+                  </div>
+                  <div className="value-col">
+                    <strong>{money(profit.netProfit)}</strong>
+                    <small>{profit.netMarginPercent.toFixed(0)}% margem</small>
+                  </div>
+                  <div className="finance-record-actions">
+                    <button className="ghost-action compact-row-action" type="button" onClick={() => editRecord(record)}>✎</button>
+                    <button className="ghost-action compact-row-action danger-row-action" type="button" onClick={() => removeRecord(record.id)}>✕</button>
+                  </div>
+                </article>
+              );
+            })
+          )}
           {hiddenRecordCount > 0 && <div className="continuous-list-empty">+{hiddenRecordCount} registros.</div>}
         </div>
       </div>

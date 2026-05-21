@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { EmptyState } from '../../../app/components/ui';
 import type { CalculationCapture, MaterialSupplyMode, TechnicalItemType } from '../../../core/types/workflow';
 import { handleNumericInputFocus } from '../../../core/ui/numericInputFocus';
 import {
@@ -28,7 +29,7 @@ const itemTypeOptions: Array<{ value: TechnicalItemType; label: string }> = [
 const materialSupplyOptions: Array<{ value: MaterialSupplyMode; label: string; helper: string }> = [
   { value: 'professional', label: 'Profissional fornece', helper: 'Entra no valor cobrado no orçamento.' },
   { value: 'client', label: 'Cliente compra', helper: 'Vira lista orientativa para o cliente comprar.' },
-  { value: 'mixed', label: 'Misto / alinhar', helper: 'Separar antes de aprovar a proposta.' },
+  { value: 'mixed', label: 'Misto / alinhar', helper: 'Separar antes de aprovar o orçamento.' },
   { value: 'undefined', label: 'A definir depois', helper: 'Responsabilidade de compra ainda pendente.' },
 ];
 
@@ -60,11 +61,10 @@ export function TechnicalCaptureList({ captures, emptyText, onRemove, onUpdate }
 
   if (captures.length === 0) {
     return (
-      <div className="survey-empty-state">
-        <span className="app-icon tone-gray large-icon">IT</span>
-        <strong>Nenhum item ainda</strong>
-        <p>{emptyText}</p>
-      </div>
+      <EmptyState 
+        title="Nenhum item ainda" 
+        description={emptyText || "Os itens calculados aparecerão aqui."}
+      />
     );
   }
 
@@ -199,8 +199,18 @@ export function TechnicalCaptureList({ captures, emptyText, onRemove, onUpdate }
 
   return (
     <div className="technical-capture-list technical-capture-list-sectioned">
-      <label className="technical-capture-search"><span>Buscar item técnico</span><input value={query} placeholder="Descrição, cálculo, observação ou detalhe" onChange={(event) => setQuery(event.target.value)} /></label>
-      {!query.trim() ? <div className="technical-capture-empty">Há {captures.length} item(ns) salvo(s). Pesquise para exibir e editar.</div> : filteredCaptures.length === 0 && <div className="technical-capture-empty">Nenhum item encontrado com essa busca.</div>}
+      <label className="technical-capture-search"><span>Buscar item técnico</span><input value={query} placeholder="Descrição, cálculo, observação..." onChange={(event) => setQuery(event.target.value)} /></label>
+      
+      {!query.trim() ? (
+        <div className="technical-capture-empty" style={{ padding: '2rem', textAlign: 'center', color: 'var(--aferix-text-muted)' }}>
+          Há {captures.length} item(ns) salvo(s). Pesquise para exibir.
+        </div>
+      ) : filteredCaptures.length === 0 ? (
+        <EmptyState 
+          title="Sem resultados" 
+          description={`Nenhum item encontrado para "${query}".`}
+        />
+      ) : null}
       {budgetableCaptures.length > 0 && (
         <section className="technical-capture-section">
           <header>

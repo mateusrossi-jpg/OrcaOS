@@ -1,14 +1,9 @@
-<svg width="300" height="90" viewBox="0 0 300 90" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+<svg width="420" height="92" viewBox="0 0 460 92" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
   <title id="title">Aferix Wordmark Premium</title>
-  <desc id="desc">AFERIX horizontal premium wordmark with off-white typography and integrated gold-gradient X.</desc>
+  <desc id="desc">Wordmark único AFERIX com X amarelo integrado.</desc>
   <defs>
-    <linearGradient id="gold-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#d97706"/>
-      <stop offset="50%" stop-color="#f5a400"/>
-      <stop offset="100%" stop-color="#fbbf24"/>
-    </linearGradient>
-  </defs>
-  <text x="12" y="64" font-family="'Outfit', 'Inter', 'Manrope', 'Sora', 'Segoe UI', sans-serif" font-size="52" font-weight="900" letter-spacing="2">
-    <tspan fill="#f5f1e8">AFERI</tspan><tspan fill="url(#gold-gradient)">X</tspan>
+    </defs>
+  <text x="230" y="67" text-anchor="middle" font-family="Inter, Outfit, Sora, Manrope, 'Segoe UI', Arial, sans-serif" font-size="66" font-weight="900" letter-spacing="2">
+    <tspan fill="#F8FAFC">AFERI</tspan><tspan fill="#FACC15">X</tspan>
   </text>
 </svg>

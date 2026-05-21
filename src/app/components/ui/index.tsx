@@ -41,8 +41,40 @@ export function Button({
   variant?: 'primary' | 'secondary' | 'ghost' | 'danger';
   className?: string;
 } & ButtonHTMLAttributes<HTMLButtonElement>) {
-  const variantClass = variant === 'primary' ? 'primary-action' : variant === 'danger' ? 'danger-action' : 'ghost-action';
+  const variantClass = 
+    variant === 'primary' ? 'primary-action' : 
+    variant === 'danger' ? 'danger-action' : 
+    variant === 'secondary' ? 'secondary-action' :
+    'ghost-action';
   return <button className={`${variantClass} ui-button ${className}`.trim()} type="button" {...props}>{children}</button>;
+}
+
+export function Select({
+  label,
+  value,
+  onChange,
+  children,
+  className = '',
+  helper,
+}: {
+  label?: string;
+  value: string;
+  onChange: (value: string) => void;
+  children: ReactNode;
+  className?: string;
+  helper?: string;
+}) {
+  return (
+    <label className={`aferix-select-field ${className}`.trim()}>
+      {label && <span>{label}</span>}
+      <div className="select-wrapper">
+        <select value={value} onChange={(e) => onChange(e.target.value)}>
+          {children}
+        </select>
+      </div>
+      {helper && <small>{helper}</small>}
+    </label>
+  );
 }
 
 export function MetricCard({
@@ -103,11 +135,38 @@ export function MoneyValue({ value, tone = 'default', compact = false }: { value
 
 export function EmptyState({ title, description, action }: { title: string; description?: string; action?: ReactNode }) {
   return (
-    <div className="empty-state-card compact-empty-state">
+    <div className="empty-state-card premium-empty-state">
+      <div className="empty-state-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24">
+          <path d="M4 7.5A1.5 1.5 0 0 1 5.5 6h13A1.5 1.5 0 0 1 20 7.5v9A1.5 1.5 0 0 1 18.5 18h-13A1.5 1.5 0 0 1 4 16.5Z" />
+          <path d="m6 9 6 4 6-4" />
+        </svg>
+      </div>
       <strong>{title}</strong>
       {description && <p>{description}</p>}
-      {action}
+      {action && <div className="empty-state-action">{action}</div>}
     </div>
+  );
+}
+
+export function BackButton({ 
+  label = 'Voltar', 
+  onClick, 
+  to 
+}: { 
+  label?: string; 
+  onClick?: () => void; 
+  to?: string; 
+}) {
+  return (
+    <button 
+      className="aferix-back-button-card" 
+      type="button" 
+      onClick={onClick}
+    >
+      <span className="back-icon">‹</span>
+      <span className="back-label">{label}</span>
+    </button>
   );
 }
 
@@ -318,4 +377,91 @@ export function MonetaryInput({
       </div>
     </label>
   );
+}
+
+
+export function PremiumCard({ children, className = '' }: { children: ReactNode; className?: string }) {
+  return <section className={`aferix-panel-card premium-card ${className}`.trim()}>{children}</section>;
+}
+
+export function BackCard({ label = 'Voltar', onClick }: { label?: string; onClick?: () => void }) {
+  return <BackButton label={label} onClick={onClick} />;
+}
+
+export function PrimaryButton(props: Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'type'> & { children: ReactNode; className?: string }) {
+  const { children, className = '', ...rest } = props;
+  return <Button variant="primary" className={`full-page-cta ${className}`.trim()} {...rest}>{children}</Button>;
+}
+
+export function SecondaryButton(props: Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'type'> & { children: ReactNode; className?: string }) {
+  const { children, className = '', ...rest } = props;
+  return <Button variant="secondary" className={className} {...rest}>{children}</Button>;
+}
+
+export function Input({
+  label,
+  className = '',
+  helper,
+  ...props
+}: {
+  label?: string;
+  helper?: string;
+  className?: string;
+} & React.InputHTMLAttributes<HTMLInputElement>) {
+  return (
+    <label className={`general-form-field aferix-input-field ${className}`.trim()}>
+      {label && <span>{label}</span>}
+      <input {...props} />
+      {helper && <small>{helper}</small>}
+    </label>
+  );
+}
+
+export function StatCard({ label, value, helper }: { label: string; value: ReactNode; helper?: ReactNode }) {
+  return <MetricCard label={label} value={value} helper={helper} />;
+}
+
+export function ListItem({
+  title,
+  subtitle,
+  value,
+  action,
+  className = '',
+}: {
+  title: ReactNode;
+  subtitle?: ReactNode;
+  value?: ReactNode;
+  action?: ReactNode;
+  className?: string;
+}) {
+  return (
+    <article className={`continuous-list-item ${className}`.trim()}>
+      <div className="client-col">
+        <strong>{title}</strong>
+        {subtitle && <small>{subtitle}</small>}
+      </div>
+      {(value || action) && (
+        <div className="value-col">
+          {value}
+          {action}
+        </div>
+      )}
+    </article>
+  );
+}
+
+export function FAB({ label, onClick }: { label: string; onClick: () => void }) {
+  return (
+    <button className="aferix-fab" type="button" onClick={onClick} aria-label={label}>
+      {label}
+    </button>
+  );
+}
+
+export function Badge({ children, tone = 'default' }: { children: ReactNode; tone?: Tone }) {
+  return <span className={`aferix-badge tone-${tone}`}>{children}</span>;
+}
+
+export function SectionTitle({ title, eyebrow }: { title: string; eyebrow?: string }) {
+  return <SectionHeader title={title} eyebrow={eyebrow} />;
 }

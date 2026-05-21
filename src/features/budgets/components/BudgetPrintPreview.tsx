@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import type { BudgetItem, BudgetTemplateId, BusinessProfile } from '../../../core/types/business';
 import { calculateBudgetItemTotal } from '../../../core/pricing/budget';
 import { hasBlockingBudgetIssues, type BudgetValidationIssue } from '../../../core/pricing/budgetValidation';
@@ -47,10 +47,10 @@ function categoryLabel(category: BudgetItem['category']): string {
 
 function statusLabel(status: SavedBudgetStatus): string {
   const labels: Record<SavedBudgetStatus, string> = {
-    draft: 'Rascunho',
-    sent: 'Enviado',
+    draft: 'Orçamento pendente',
+    sent: 'Orçamento enviado',
     approved: 'Aprovado',
-    rejected: 'Recusado',
+    rejected: 'Orçamento recusado',
     expired: 'Vencido',
     cancelled: 'Cancelado',
   };
@@ -91,7 +91,16 @@ export function BudgetPrintPreview({
   templateId = 'simple',
   validationIssues = [],
 }: BudgetPrintPreviewProps) {
-  const [zoom, setZoom] = useState(1);
+  const defaultZoom = useMemo(() => {
+    if (typeof window === 'undefined') return 0.6;
+    const width = window.innerWidth;
+    if (width <= 430) return 0.45;
+    if (width <= 768) return 0.55;
+    if (width <= 1024) return 0.7;
+    return 0.82;
+  }, []);
+
+  const [zoom, setZoom] = useState(defaultZoom);
   const hasBlockingIssues = hasBlockingBudgetIssues(validationIssues);
   const issuedAt = new Intl.DateTimeFormat('pt-BR', {
     dateStyle: 'short',
@@ -132,19 +141,19 @@ export function BudgetPrintPreview({
       <div className="aferix-preview-toolbar no-print">
         <span className="toolbar-label">Zoom</span>
         <div className="toolbar-actions">
-          <button type="button" className="toolbar-btn" onClick={() => setZoom(prev => Math.max(0.6, prev - 0.1))}>-</button>
+          <button type="button" className="toolbar-btn" onClick={() => setZoom(prev => Math.max(0.45, prev - 0.1))}>-</button>
           <span className="zoom-percentage">{Math.round(zoom * 100)}%</span>
           <button type="button" className="toolbar-btn" onClick={() => setZoom(prev => Math.min(1.4, prev + 0.1))}>+</button>
-          <button type="button" className="toolbar-btn" onClick={() => setZoom(1)}>Reset</button>
+          <button type="button" className="toolbar-btn" onClick={() => setZoom(defaultZoom)}>Reset</button>
         </div>
       </div>
 
-      <div className="document-preview-container" style={{ width: '100%', overflow: 'auto', display: 'flex', justifyContent: 'center', padding: '20px 0', WebkitOverflowScrolling: 'touch' }}>
-        <div style={{ width: `${100 * zoom}%`, minWidth: 'fit-content', display: 'flex', justifyContent: 'center' }}>
+      <div className="document-preview-container" style={{ width: '100%', overflow: 'auto', display: 'flex', justifyContent: 'center', padding: '12px 0 4px', WebkitOverflowScrolling: 'touch' }}>
+        <div style={{ width: '100%', minWidth: 0, display: 'flex', justifyContent: 'center' }}>
           <article 
             className={`print-document ${isPremiumReport ? 'report-premium-layout' : 'budget-simple-layout'}`} 
             aria-label="Prévia impressa"
-            style={{ transform: `scale(${zoom})`, transformOrigin: 'top center', margin: '0 auto', flexShrink: 0 }}
+            style={{ width: '100%', maxWidth: Math.max(320, Math.round(880 * zoom)), margin: '0 auto', flexShrink: 0 }}
           >
         
         <header className="print-document-top">

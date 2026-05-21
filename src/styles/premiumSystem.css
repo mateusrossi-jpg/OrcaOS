@@ -1,0 +1,1380 @@
+:root {
+  --aferix-bg: #070A0F;
+  --aferix-surface: #10141B;
+  --aferix-surface-raised: #151A22;
+  --aferix-border: rgba(255, 255, 255, 0.06);
+  --aferix-text: #F8FAFC;
+  --aferix-text-primary: #F8FAFC;
+  --aferix-text-secondary: #A1A1AA;
+  --aferix-text-muted: #71717A;
+  --aferix-primary: #FFD21F;
+  --aferix-primary-strong: #EAB308;
+  --aferix-success: #22C55E;
+  --aferix-danger: #EF4444;
+
+  --aferix-space-1: 8px;
+  --aferix-space-2: 12px;
+  --aferix-space-3: 16px;
+  --aferix-space-4: 20px;
+  --aferix-space-5: 24px;
+  --aferix-space-6: 32px;
+
+  --aferix-radius-sm: 10px;
+  --aferix-radius-md: 14px;
+  --aferix-radius-lg: 18px;
+
+  --aferix-shadow-sm: 0 6px 18px rgba(0, 0, 0, 0.25);
+  --aferix-shadow-md: 0 16px 40px rgba(0, 0, 0, 0.35);
+
+  --aferix-font: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+body {
+  font-family: var(--aferix-font);
+  background: var(--aferix-bg);
+  color: var(--aferix-text-primary);
+}
+
+.app-screen {
+  gap: var(--aferix-space-4);
+}
+
+.screen-header,
+.page-header {
+  gap: var(--aferix-space-3);
+  margin-bottom: var(--aferix-space-1);
+}
+
+.screen-header h1,
+.page-header h1 {
+  margin: 0;
+  font-size: clamp(1.35rem, 3vw, 2rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--aferix-text-primary);
+}
+
+.screen-header p,
+.page-header p {
+  margin: 4px 0 0;
+  color: var(--aferix-text-secondary);
+  font-size: 0.92rem;
+}
+
+.aferix-panel-card,
+.premium-card,
+.info-card,
+.notice-box,
+.plan-card,
+.settings-row,
+.store-card,
+.module-app-card,
+.empty-state-card {
+  background: linear-gradient(180deg, rgba(21, 26, 34, 0.95), rgba(16, 20, 27, 0.98)) !important;
+  border: 1px solid var(--aferix-border) !important;
+  border-radius: var(--aferix-radius-lg) !important;
+  box-shadow: var(--aferix-shadow-sm) !important;
+  padding: clamp(16px, 2vw, 24px) !important;
+}
+
+.metric-grid,
+.dashboard-metric-grid,
+.dashboard-finance-tiles,
+.client-summary-tiles {
+  gap: var(--aferix-space-3) !important;
+}
+
+.metric-card,
+.catalog-metric-card,
+.finance-tile,
+.report-stat-card {
+  background: rgba(255, 255, 255, 0.015) !important;
+  border: 1px solid var(--aferix-border) !important;
+  border-radius: var(--aferix-radius-md) !important;
+  min-height: 110px;
+  padding: 14px 16px !important;
+  box-shadow: none !important;
+}
+
+.metric-card > span,
+.catalog-metric-card span,
+.finance-tile span {
+  color: var(--aferix-text-muted) !important;
+  font-size: 0.68rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase;
+}
+
+.metric-card > strong,
+.catalog-metric-card strong,
+.finance-tile strong {
+  color: var(--aferix-text-primary) !important;
+  font-size: clamp(1.2rem, 2vw, 1.65rem) !important;
+  font-weight: 800 !important;
+}
+
+.tone-success,
+.metric-card.tone-success strong,
+.money-value.tone-success {
+  color: var(--aferix-success) !important;
+}
+
+.tone-danger,
+.metric-card.tone-danger strong,
+.money-value.tone-danger {
+  color: var(--aferix-danger) !important;
+}
+
+.primary-action,
+button.primary,
+.full-page-cta,
+.aferix-fab {
+  background: var(--aferix-primary) !important;
+  color: #121212 !important;
+  border: 1px solid transparent !important;
+  border-radius: 12px !important;
+  font-weight: 700 !important;
+  min-height: 44px !important;
+  box-shadow: 0 8px 24px rgba(255, 210, 31, 0.28) !important;
+  transition: all 0.2s ease;
+}
+
+.primary-action:hover,
+button.primary:hover,
+.full-page-cta:hover,
+.aferix-fab:hover {
+  background: var(--aferix-primary-strong) !important;
+  transform: translateY(-1px);
+}
+
+.secondary-action,
+.ghost-action,
+button.secondary,
+.aferix-back-button-card {
+  background: rgba(255, 255, 255, 0.02) !important;
+  color: var(--aferix-text-primary) !important;
+  border: 1px solid var(--aferix-border) !important;
+  border-radius: 12px !important;
+  min-height: 42px;
+}
+
+.general-form-field,
+.catalog-field,
+.budget-field,
+.finance-field,
+.aferix-input-field,
+.aferix-select-field {
+  display: grid !important;
+  gap: 8px !important;
+}
+
+.general-form-field > span,
+.catalog-field > span,
+.budget-field > span,
+.finance-field > span,
+.aferix-input-field > span,
+.aferix-select-field > span {
+  color: var(--aferix-text-muted) !important;
+  font-size: 0.7rem !important;
+  font-weight: 700 !important;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.general-form-field :where(input, select, textarea),
+.aferix-input-field input,
+.aferix-select-field select,
+.monetary-input-wrapper,
+.aferix-textarea,
+.select-wrapper select {
+  width: 100%;
+  min-height: 58px;
+  border: 1px solid var(--aferix-border) !important;
+  border-radius: 12px !important;
+  background: #10141B !important;
+  color: var(--aferix-text-primary) !important;
+  padding: 15px 16px !important;
+  box-shadow: none !important;
+}
+
+.general-form-field :where(input, select, textarea):focus,
+.aferix-input-field input:focus,
+.aferix-select-field select:focus,
+.aferix-textarea:focus {
+  outline: none;
+  border-color: rgba(255, 210, 31, 0.5) !important;
+  box-shadow: 0 0 0 3px rgba(255, 210, 31, 0.14) !important;
+}
+
+.continuous-list,
+.menu-list-simple {
+  display: grid;
+  gap: 10px;
+}
+
+.continuous-list-item,
+.simple-menu-row,
+.premium-catalog-item,
+.client-compact-row {
+  border: 1px solid var(--aferix-border) !important;
+  border-radius: var(--aferix-radius-md) !important;
+  background: rgba(255, 255, 255, 0.01) !important;
+  padding: 14px !important;
+  transition: all 0.2s ease;
+}
+
+.continuous-list-item:hover,
+.simple-menu-row:hover,
+.premium-catalog-item:hover,
+.clickable-row:hover {
+  border-color: rgba(255, 210, 31, 0.25) !important;
+  background: rgba(255, 255, 255, 0.025) !important;
+}
+
+.aferix-tabs {
+  border: 1px solid var(--aferix-border) !important;
+  border-radius: var(--aferix-radius-md) !important;
+  background: rgba(255, 255, 255, 0.015);
+  padding: 6px;
+  gap: 6px;
+}
+
+.aferix-tabs button {
+  border-radius: 10px !important;
+  border: 1px solid transparent !important;
+  color: var(--aferix-text-secondary) !important;
+  font-weight: 600;
+}
+
+.aferix-tabs button.active,
+.aferix-tabs button[aria-selected='true'] {
+  background: rgba(255, 210, 31, 0.16) !important;
+  color: var(--aferix-primary) !important;
+  border-color: rgba(255, 210, 31, 0.3) !important;
+}
+
+.aferix-badge {
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  border: 1px solid var(--aferix-border);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--aferix-text-secondary);
+}
+
+.premium-empty-state,
+.empty-state-card {
+  text-align: center;
+  display: grid !important;
+  justify-items: center;
+  gap: 10px;
+  min-height: 210px;
+  align-content: center;
+}
+
+.empty-state-icon {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 210, 31, 0.12);
+  color: var(--aferix-primary);
+  font-size: 1.4rem;
+}
+
+.aferix-fab {
+  position: fixed;
+  right: 18px;
+  bottom: 20px;
+  border-radius: 999px !important;
+  padding: 0 18px !important;
+  z-index: 50;
+}
+
+.home-operations-grid,
+.client-os-indicator-grid,
+.finance-entry-layout,
+.report-hero-card,
+.report-category-content,
+.premium-catalog-workspace {
+  gap: var(--aferix-space-3) !important;
+}
+
+.report-hero-card {
+  border-radius: var(--aferix-radius-lg) !important;
+  border: 1px solid var(--aferix-border) !important;
+  background: linear-gradient(180deg, #151A22 0%, #10141B 100%) !important;
+  box-shadow: var(--aferix-shadow-md) !important;
+}
+
+.report-hero-card::before {
+  background: linear-gradient(180deg, var(--aferix-primary), var(--aferix-primary-strong)) !important;
+}
+
+.hero-main-metric strong {
+  color: var(--aferix-primary) !important;
+}
+
+@media (max-width: 900px) {
+  .metric-grid,
+  .dashboard-finance-tiles,
+  .client-summary-tiles {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .page-header {
+    align-items: flex-start !important;
+  }
+
+  .page-header-action {
+    width: 100%;
+  }
+
+  .full-page-cta {
+    width: 100%;
+  }
+}
+
+@media (max-width: 560px) {
+  .metric-grid,
+  .dashboard-finance-tiles,
+  .client-summary-tiles {
+    grid-template-columns: 1fr !important;
+  }
+
+  .aferix-panel-card,
+  .premium-card,
+  .empty-state-card {
+    padding: 14px !important;
+    border-radius: 14px !important;
+  }
+}
+
+/* Final visual pass: cross-screen premium consistency */
+
+.page-shell,
+.wide-screen,
+.aferix-dashboard-screen,
+.settings-screen-premium,
+.catalog-screen-premium,
+.menu-overview-screen {
+  width: 100%;
+  max-width: 100%;
+}
+
+.page-header,
+.screen-header {
+  display: flex !important;
+  align-items: flex-end !important;
+  justify-content: space-between !important;
+  padding-bottom: 2px;
+}
+
+.page-header-action,
+.settings-actions-row-premium,
+.client-os-form-actions,
+.finance-entry-actions,
+.catalog-actions-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* Home */
+.home-finance-overview,
+.home-command-panel,
+.home-recent-strip {
+  border-radius: 18px !important;
+}
+
+.home-compact-row {
+  align-items: center !important;
+}
+
+.status-compact-item {
+  min-height: 64px;
+  border-radius: 12px;
+  border: 1px solid var(--aferix-border);
+  background: rgba(255, 255, 255, 0.012);
+  padding: 12px 14px;
+}
+
+.status-value {
+  color: var(--aferix-text-primary) !important;
+  font-size: 1.2rem !important;
+  font-weight: 800 !important;
+}
+
+/* Clients */
+.client-list-panel,
+.client-search-bar,
+.client-control-row {
+  border-color: var(--aferix-border) !important;
+}
+
+.client-search-bar input,
+.finance-search-container input,
+.catalog-main-search {
+  min-height: 46px !important;
+  border-radius: 12px !important;
+  border: 1px solid var(--aferix-border) !important;
+  background: #10141B !important;
+}
+
+.client-compact-row,
+.continuous-list-item {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+}
+
+.client-col strong,
+.item-title,
+.report-stat-info strong {
+  color: var(--aferix-text-primary) !important;
+  font-weight: 700 !important;
+  line-height: 1.25;
+}
+
+.client-col small,
+.item-meta,
+.report-stat-info span,
+.value-col small {
+  color: var(--aferix-text-secondary) !important;
+}
+
+/* Financial */
+.simple-finance-workspace > .aferix-panel-card,
+.finance-entry-panel,
+.result-comparison-card {
+  border-radius: 16px !important;
+}
+
+.result-divider {
+  background: var(--aferix-border) !important;
+}
+
+.result-metric strong,
+.diff-metric strong {
+  font-weight: 800 !important;
+}
+
+/* Catalog */
+.premium-catalog-workspace {
+  padding-top: 2px;
+}
+
+.catalog-category-chips {
+  gap: 10px !important;
+}
+
+.category-chip {
+  border-radius: 12px !important;
+  min-height: 44px !important;
+  background: rgba(255, 255, 255, 0.02) !important;
+}
+
+.category-chip.active {
+  background: rgba(255, 210, 31, 0.14) !important;
+  color: var(--aferix-primary) !important;
+}
+
+.premium-catalog-item {
+  min-height: 78px;
+}
+
+.item-price {
+  color: var(--aferix-primary) !important;
+  font-weight: 800 !important;
+}
+
+.item-action-btn:hover {
+  border-color: rgba(255, 210, 31, 0.35) !important;
+  color: var(--aferix-primary) !important;
+}
+
+/* Reports */
+.report-workspace-container {
+  gap: 16px !important;
+}
+
+.report-hero-card {
+  padding: 24px !important;
+}
+
+.hero-comparison-grid {
+  border-top: 1px solid var(--aferix-border) !important;
+}
+
+.comparison-item strong {
+  font-weight: 800 !important;
+}
+
+.report-ranking-item {
+  border-bottom-color: var(--aferix-border) !important;
+  padding: 12px 0;
+}
+
+/* Settings/Profile */
+.settings-content-area,
+.settings-group,
+.professional-profile-workspace,
+.professional-profile-section,
+.professional-profile-header-card {
+  gap: 14px !important;
+}
+
+.professional-profile-section,
+.professional-profile-header-card,
+.account-registration-card,
+.settings-row-premium {
+  border: 1px solid var(--aferix-border) !important;
+  background: linear-gradient(180deg, rgba(21, 26, 34, 0.95), rgba(16, 20, 27, 0.98)) !important;
+  border-radius: 16px !important;
+}
+
+.professional-logo-preview {
+  border-color: var(--aferix-border) !important;
+  background: #10141B !important;
+}
+
+/* Empty states refined */
+.empty-state-card p,
+.premium-empty-state p,
+.report-empty-state,
+.catalog-empty-state {
+  color: var(--aferix-text-secondary) !important;
+  max-width: 42ch;
+  margin: 0;
+}
+
+.empty-state-action .primary-action,
+.empty-state-action .full-page-cta {
+  min-width: 150px;
+}
+
+/* Motion and polish */
+.aferix-panel-card,
+.metric-card,
+.continuous-list-item,
+.simple-menu-row,
+.category-chip,
+.nav-item,
+button,
+input,
+select,
+textarea {
+  transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.aferix-panel-card:hover,
+.metric-card:hover {
+  border-color: rgba(255, 255, 255, 0.09) !important;
+}
+
+@media (max-width: 900px) {
+  .client-compact-row,
+  .continuous-list-item,
+  .premium-catalog-item {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+
+  .value-col,
+  .item-price-action,
+  .finance-record-actions {
+    width: 100%;
+    justify-content: space-between !important;
+  }
+}
+
+@media (max-width: 560px) {
+  .page-header,
+  .screen-header {
+    align-items: flex-start !important;
+    flex-direction: column;
+  }
+
+  .aferix-fab {
+    right: 14px;
+    bottom: 14px;
+  }
+}
+
+
+/* ===== Pixel pass: Home / Financeiro / Perfil ===== */
+.aferix-dashboard-screen .aferix-panel-card,
+.simple-finance-workspace .aferix-panel-card,
+.professional-profile-workspace .professional-profile-section,
+.professional-profile-workspace .professional-profile-header-card {
+  border-radius: 16px !important;
+  border-color: rgba(255,255,255,0.06) !important;
+}
+
+.aferix-dashboard-screen .metric-grid {
+  gap: 10px !important;
+}
+
+.aferix-dashboard-screen .metric-card {
+  min-height: 92px !important;
+  padding: 14px !important;
+}
+
+.aferix-dashboard-screen .status-compact-list {
+  display: grid !important;
+  gap: 10px !important;
+}
+
+.aferix-dashboard-screen .status-compact-item {
+  border-radius: 12px !important;
+  border: 1px solid var(--aferix-border) !important;
+  background: rgba(255,255,255,0.015) !important;
+}
+
+.aferix-dashboard-screen .home-compact-row {
+  min-height: 68px !important;
+  padding: 12px 14px !important;
+}
+
+.simple-finance-workspace .dashboard-finance-tiles {
+  gap: 10px !important;
+}
+
+.simple-finance-workspace .metric-card {
+  min-height: 90px !important;
+  padding: 12px 14px !important;
+}
+
+.simple-finance-workspace .finance-entry-panel {
+  border-radius: 16px !important;
+  background: linear-gradient(180deg, rgba(21,26,34,0.95), rgba(16,20,27,0.98)) !important;
+}
+
+.simple-finance-workspace .continuous-list-item {
+  min-height: 70px !important;
+  border-radius: 12px !important;
+}
+
+.professional-profile-workspace {
+  gap: 14px !important;
+}
+
+.professional-profile-workspace .professional-profile-section h2,
+.professional-profile-workspace .professional-profile-header-card h2 {
+  font-size: 1.06rem !important;
+  font-weight: 800 !important;
+}
+
+.professional-profile-workspace .professional-profile-section p,
+.professional-profile-workspace .professional-profile-header-card p {
+  color: var(--aferix-text-secondary) !important;
+}
+
+.professional-profile-workspace .professional-profile-id-card,
+.professional-profile-workspace .professional-logo-editor {
+  border-radius: 14px !important;
+  background: rgba(255,255,255,0.015) !important;
+}
+
+@media (max-width: 767px) {
+  .aferix-dashboard-screen .metric-grid,
+  .simple-finance-workspace .dashboard-finance-tiles {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .aferix-dashboard-screen .aferix-panel-card,
+  .simple-finance-workspace .aferix-panel-card,
+  .professional-profile-workspace .professional-profile-section,
+  .professional-profile-workspace .professional-profile-header-card {
+    padding: 16px !important;
+  }
+}
+
+
+/* ===== Micro contrast pass ===== */
+.metric-card > span,
+.finance-tile span,
+.catalog-metric-card span,
+.status-label,
+.value-col small {
+  color: #A1A1AA !important;
+}
+
+.metric-card > strong,
+.money-value,
+.status-value,
+.result-metric strong,
+.diff-metric strong {
+  color: #F8FAFC !important;
+}
+
+.metric-card.tone-success strong,
+.money-value.tone-success,
+.tone-success {
+  color: #22C55E !important;
+}
+
+.metric-card.tone-danger strong,
+.money-value.tone-danger,
+.tone-danger {
+  color: #EF4444 !important;
+}
+
+.metric-card.tone-brand strong,
+.item-price,
+.hero-main-metric strong,
+.aferix-badge.tone-brand {
+  color: #FFD21F !important;
+}
+
+.aferix-tabs button.active,
+.aferix-tabs button[aria-selected='true'],
+.category-chip.active,
+.nav-item.active {
+  box-shadow: inset 0 0 0 1px rgba(255, 210, 31, 0.22) !important;
+}
+
+.primary-action,
+.full-page-cta,
+.aferix-fab {
+  box-shadow: 0 10px 24px rgba(255, 210, 31, 0.22) !important;
+}
+
+.primary-action:hover,
+.full-page-cta:hover,
+.aferix-fab:hover {
+  box-shadow: 0 12px 28px rgba(255, 210, 31, 0.28) !important;
+}
+
+.empty-state-icon {
+  background: rgba(255, 210, 31, 0.08) !important;
+  border: 1px solid rgba(255, 210, 31, 0.2) !important;
+}
+
+.empty-state-icon svg {
+  stroke: #A1A1AA !important;
+}
+
+.aferix-panel-card,
+.premium-card,
+.report-hero-card,
+.finance-entry-panel,
+.professional-profile-section,
+.professional-profile-header-card {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.34) !important;
+}
+
+
+/* ===== Reference fidelity pass ===== */
+.metric-card.featured,
+.metric-card.tone-brand.featured {
+  background: linear-gradient(180deg, rgba(255, 210, 31, 0.96), rgba(234, 179, 8, 0.94)) !important;
+  border-color: rgba(255, 210, 31, 0.92) !important;
+  box-shadow: 0 12px 28px rgba(255, 210, 31, 0.24) !important;
+}
+
+.metric-card.featured > span,
+.metric-card.featured > small,
+.metric-card.featured .money-value,
+.metric-card.featured > strong {
+  color: #111214 !important;
+}
+
+.section-mode-tabs button.active,
+.client-os-section-tabs button.active,
+.budget-workspace-tabs button.active,
+.catalog-subtabs button.active,
+.settings-section-tabs button.active,
+.calculation-profession-tabs button.active,
+.catalog-primary-tabs button.active,
+.catalog-secondary-tabs button.active,
+.survey-step-guide button.active {
+  color: #FFD21F !important;
+  border-color: #FFD21F !important;
+}
+
+.aferix-badge.tone-brand,
+.plan-card-badge,
+.client-status-badge {
+  border-color: rgba(255, 210, 31, 0.34) !important;
+  background: rgba(255, 210, 31, 0.12) !important;
+  color: #FFD21F !important;
+}
+
+
+/* ===== Similarity pass: Clients / Finance / Catalog ===== */
+.client-list-panel .continuous-list,
+.simple-finance-workspace .continuous-list,
+.premium-catalog-list {
+  gap: 0 !important;
+  border-radius: 14px !important;
+  overflow: hidden !important;
+}
+
+.client-compact-row,
+.simple-finance-workspace .continuous-list-item,
+.premium-catalog-item {
+  border: 0 !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+  border-radius: 0 !important;
+  min-height: 72px !important;
+  padding: 12px 14px !important;
+}
+
+.client-list-panel .continuous-list .continuous-list-item:last-child,
+.simple-finance-workspace .continuous-list .continuous-list-item:last-child,
+.premium-catalog-list .premium-catalog-item:last-child {
+  border-bottom: 0 !important;
+}
+
+.client-avatar {
+  width: 36px !important;
+  height: 36px !important;
+  flex: 0 0 36px !important;
+}
+
+.client-col strong,
+.item-title,
+.simple-finance-workspace .client-col strong {
+  font-size: 0.94rem !important;
+  font-weight: 700 !important;
+  line-height: 1.24 !important;
+}
+
+.client-col small,
+.item-meta,
+.simple-finance-workspace .client-col small {
+  font-size: 0.78rem !important;
+  color: #A1A1AA !important;
+}
+
+.simple-finance-workspace .dashboard-finance-tiles .metric-card {
+  min-height: 84px !important;
+}
+
+.simple-finance-workspace .finance-entry-panel,
+.simple-finance-workspace .result-comparison-card {
+  border-radius: 14px !important;
+}
+
+.finance-record-actions .compact-row-action,
+.premium-catalog-item .item-action-btn {
+  min-width: 32px !important;
+  min-height: 32px !important;
+  border-radius: 9px !important;
+}
+
+.catalog-main-search,
+.client-search-bar input,
+.finance-search-container input {
+  min-height: 44px !important;
+  border-radius: 11px !important;
+}
+
+.catalog-category-chips {
+  gap: 6px !important;
+}
+
+.category-chip {
+  min-height: 52px !important;
+  font-size: 0.8rem !important;
+  font-weight: 650 !important;
+}
+
+@media (max-width: 767px) {
+  .client-compact-row,
+  .simple-finance-workspace .continuous-list-item,
+  .premium-catalog-item {
+    min-height: 68px !important;
+    padding: 11px 12px !important;
+  }
+
+  .category-chip {
+    min-height: 50px !important;
+  }
+}
+
+
+/* ===== Screenshot fixes (spacing/alignment) ===== */
+.home-compact-row .client-col strong,
+.home-compact-row .client-col small,
+.simple-finance-workspace .continuous-list-item .client-col strong,
+.simple-finance-workspace .continuous-list-item .client-col small {
+  display: block !important;
+}
+
+.home-recent-strip .value-col,
+.simple-finance-workspace .continuous-list-item .value-col {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-end !important;
+  justify-content: center !important;
+  gap: 4px !important;
+  min-width: max-content;
+}
+
+.home-recent-strip .value-col .money-value,
+.simple-finance-workspace .continuous-list-item .value-col .money-value {
+  line-height: 1.05 !important;
+}
+
+.home-recent-strip .value-col small,
+.simple-finance-workspace .continuous-list-item .value-col small {
+  margin: 0 !important;
+  line-height: 1.1 !important;
+}
+
+.client-list-panel .premium-empty-state,
+.client-list-panel .empty-state-card,
+.home-recent-strip .premium-empty-state,
+.home-recent-strip .empty-state-card {
+  min-height: 170px !important;
+  padding: 28px 18px !important;
+  border-radius: 14px !important;
+}
+
+@media (max-width: 767px) {
+  .home-recent-strip .value-col,
+  .simple-finance-workspace .continuous-list-item .value-col {
+    width: auto !important;
+    align-items: flex-start !important;
+    justify-content: flex-start !important;
+  }
+}
+
+
+/* ===== Final home card fit ===== */
+.aferix-dashboard-screen .home-recent-strip .home-compact-row {
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  align-items: center !important;
+  min-height: 62px !important;
+  padding: 10px 14px !important;
+}
+
+.aferix-dashboard-screen .home-recent-strip .value-col {
+  align-items: flex-end !important;
+  text-align: right !important;
+}
+
+.aferix-dashboard-screen .home-recent-strip .value-col .money-value {
+  font-size: 1.05rem !important;
+}
+
+.aferix-dashboard-screen .home-recent-strip .premium-empty-state,
+.aferix-dashboard-screen .home-recent-strip .empty-state-card {
+  min-height: 140px !important;
+  padding: 22px 16px !important;
+}
+
+@media (max-width: 767px) {
+  .aferix-dashboard-screen .home-recent-strip .home-compact-row {
+    grid-template-columns: minmax(0, 1fr) auto !important;
+  }
+
+  .aferix-dashboard-screen .home-recent-strip .value-col {
+    width: auto !important;
+    align-items: flex-end !important;
+  }
+}
+
+
+/* ===== Final compact pass: Home proposals empty ===== */
+.aferix-dashboard-screen .home-recent-strip .empty-state-card,
+.aferix-dashboard-screen .home-recent-strip .premium-empty-state {
+  min-height: 118px !important;
+  padding: 18px 14px !important;
+  gap: 8px !important;
+}
+
+.aferix-dashboard-screen .home-recent-strip .empty-state-icon {
+  width: 44px !important;
+  height: 44px !important;
+}
+
+.aferix-dashboard-screen .home-recent-strip .empty-state-icon svg {
+  width: 18px !important;
+  height: 18px !important;
+}
+
+.aferix-dashboard-screen .home-recent-strip .empty-state-card strong,
+.aferix-dashboard-screen .home-recent-strip .premium-empty-state strong {
+  font-size: 0.92rem !important;
+}
+
+.aferix-dashboard-screen .home-recent-strip .empty-state-card p,
+.aferix-dashboard-screen .home-recent-strip .premium-empty-state p {
+  font-size: 0.84rem !important;
+}
+
+
+/* ===== Home baseline propagated globally ===== */
+.app-screen,
+.page-shell,
+.wide-screen {
+  display: grid !important;
+  gap: 12px !important;
+}
+
+.page-header,
+.screen-header {
+  margin: 0 !important;
+  padding-bottom: 2px !important;
+}
+
+.page-header h1,
+.screen-header h1 {
+  font-size: clamp(1.28rem, 3.8vw, 1.9rem) !important;
+  line-height: 1.05 !important;
+}
+
+.page-header p,
+.screen-header p {
+  font-size: 0.92rem !important;
+  color: #A1A1AA !important;
+}
+
+.app-screen > .aferix-panel-card,
+.app-screen .aferix-panel-card,
+.page-shell .aferix-panel-card {
+  border-radius: 16px !important;
+  border: 1px solid rgba(255,255,255,0.06) !important;
+  background: linear-gradient(180deg, rgba(21,26,34,0.96), rgba(16,20,27,0.98)) !important;
+  box-shadow: 0 8px 22px rgba(0,0,0,0.34) !important;
+}
+
+.app-screen .continuous-list,
+.page-shell .continuous-list {
+  gap: 0 !important;
+  border: 1px solid rgba(255,255,255,0.06) !important;
+  border-radius: 14px !important;
+  overflow: hidden !important;
+}
+
+.app-screen .continuous-list-item,
+.page-shell .continuous-list-item {
+  border: 0 !important;
+  border-bottom: 1px solid rgba(255,255,255,0.06) !important;
+  border-radius: 0 !important;
+  min-height: 68px !important;
+  padding: 12px 14px !important;
+  background: transparent !important;
+}
+
+.app-screen .continuous-list .continuous-list-item:last-child,
+.page-shell .continuous-list .continuous-list-item:last-child {
+  border-bottom: 0 !important;
+}
+
+.app-screen .full-page-cta {
+  min-height: 48px !important;
+  border-radius: 12px !important;
+  font-size: 1.01rem !important;
+  font-weight: 800 !important;
+}
+
+.app-screen :where(.aferix-input-field input, .aferix-select-field select, input, select, textarea) {
+  border-radius: 12px !important;
+  min-height: 48px !important;
+}
+
+.app-screen .empty-state-card,
+.app-screen .premium-empty-state {
+  min-height: 130px !important;
+  padding: 18px 14px !important;
+  gap: 8px !important;
+  border-radius: 14px !important;
+}
+
+.app-screen .empty-state-icon {
+  width: 44px !important;
+  height: 44px !important;
+}
+
+.app-screen .empty-state-icon svg {
+  width: 18px !important;
+  height: 18px !important;
+}
+
+.app-screen .empty-state-card strong,
+.app-screen .premium-empty-state strong {
+  font-size: 0.95rem !important;
+}
+
+.app-screen .empty-state-card p,
+.app-screen .premium-empty-state p {
+  font-size: 0.84rem !important;
+}
+
+@media (max-width: 767px) {
+  .app-screen,
+  .page-shell,
+  .wide-screen {
+    gap: 11px !important;
+  }
+
+  .app-screen > .aferix-panel-card,
+  .app-screen .aferix-panel-card,
+  .page-shell .aferix-panel-card {
+    padding: 16px !important;
+  }
+}
+
+
+/* ===== Dashboard baseline: Menu / Settings / Store ===== */
+.menu-overview-screen,
+.settings-screen-premium,
+.store-screen {
+  gap: 12px !important;
+}
+
+.menu-overview-screen .aferix-panel-card,
+.settings-screen-premium .settings-group,
+.settings-screen-premium .aferix-panel-card,
+.store-screen .aferix-panel-card,
+.store-screen .plan-card,
+.store-screen .store-card {
+  border-radius: 16px !important;
+  border: 1px solid rgba(255,255,255,0.06) !important;
+  background: linear-gradient(180deg, rgba(21,26,34,0.96), rgba(16,20,27,0.98)) !important;
+  box-shadow: 0 8px 22px rgba(0,0,0,0.34) !important;
+}
+
+.menu-overview-screen .simple-menu-row,
+.settings-screen-premium .settings-row-premium,
+.store-screen .continuous-list-item,
+.store-screen .store-card {
+  min-height: 66px !important;
+  border-radius: 12px !important;
+}
+
+.settings-screen-premium .aferix-tabs,
+.store-screen .aferix-tabs {
+  border-radius: 12px !important;
+  padding: 5px !important;
+  gap: 6px !important;
+}
+
+.settings-screen-premium .aferix-tabs button,
+.store-screen .aferix-tabs button {
+  min-height: 38px !important;
+  font-size: 0.84rem !important;
+  font-weight: 700 !important;
+}
+
+.settings-screen-premium .settings-panel-title h2,
+.store-screen .settings-panel-title h2,
+.store-screen .aferix-panel-card h2,
+.menu-overview-screen .aferix-panel-card h2 {
+  font-size: 1.18rem !important;
+  line-height: 1.14 !important;
+  font-weight: 800 !important;
+  margin: 0 !important;
+}
+
+.settings-screen-premium .settings-panel-title p,
+.store-screen .settings-panel-title p,
+.menu-overview-screen .aferix-panel-card p {
+  color: #A1A1AA !important;
+  font-size: 0.9rem !important;
+}
+
+.store-screen .plan-card-grid {
+  gap: 10px !important;
+}
+
+.store-screen .plan-card {
+  padding: 16px !important;
+}
+
+.store-screen .plan-card h2 {
+  font-size: 1.1rem !important;
+}
+
+.store-screen .plan-card-price {
+  font-size: 1.5rem !important;
+  line-height: 1 !important;
+}
+
+.store-screen .billing-readiness-grid,
+.store-screen .metric-grid,
+.settings-screen-premium .account-status-grid-compact,
+.settings-screen-premium .settings-form-grid {
+  gap: 10px !important;
+}
+
+@media (max-width: 767px) {
+  .menu-overview-screen .aferix-panel-card,
+  .settings-screen-premium .settings-group,
+  .settings-screen-premium .aferix-panel-card,
+  .store-screen .aferix-panel-card,
+  .store-screen .plan-card,
+  .store-screen .store-card {
+    padding: 16px !important;
+  }
+
+  .store-screen .plan-card-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+
+/* ===== Inline-style cleanup classes ===== */
+.home-budget-client {
+  display: block !important;
+}
+
+.home-budget-title {
+  color: var(--aferix-text-muted) !important;
+}
+
+.menu-about-note {
+  opacity: 0.7;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.report-empty-copy {
+  color: var(--aferix-text-muted) !important;
+  margin: 0;
+}
+
+.report-document-hidden {
+  display: none !important;
+}
+
+.report-doc-logo {
+  height: 24px;
+}
+
+.report-doc-logo-sub {
+  height: 16px;
+  opacity: 0.5;
+}
+
+/* ===== Settings/Menu density aligned to Home baseline ===== */
+.settings-screen-premium .settings-content-area,
+.menu-overview-screen {
+  display: grid;
+  gap: 12px !important;
+}
+
+.settings-screen-premium .settings-group,
+.menu-overview-screen .aferix-panel-card {
+  padding: 16px !important;
+  border-radius: 16px !important;
+}
+
+.settings-screen-premium .settings-panel-title,
+.menu-overview-screen .section-header {
+  margin-bottom: 8px;
+}
+
+.settings-screen-premium .settings-panel-title h2,
+.menu-overview-screen .section-header h2 {
+  line-height: 1.18 !important;
+}
+
+.settings-screen-premium .settings-panel-title p,
+.menu-overview-screen .section-header p {
+  margin-top: 4px !important;
+}
+
+.settings-screen-premium .settings-row-premium,
+.menu-overview-screen .simple-menu-row {
+  min-height: 64px !important;
+  padding: 12px 14px !important;
+  border-radius: 12px !important;
+}
+
+.settings-screen-premium .settings-form-grid {
+  gap: 10px !important;
+}
+
+.settings-screen-premium .settings-actions-row-premium {
+  margin-top: 10px;
+}
+
+.settings-screen-premium .settings-actions-row-premium .primary-action,
+.settings-screen-premium .settings-actions-row-premium .secondary-action,
+.settings-screen-premium .settings-actions-row-premium .ghost-action {
+  min-height: 44px !important;
+}
+
+@media (max-width: 760px) {
+  .settings-screen-premium .settings-group,
+  .menu-overview-screen .aferix-panel-card {
+    padding: 14px !important;
+  }
+
+  .settings-screen-premium .settings-row-premium,
+  .menu-overview-screen .simple-menu-row {
+    min-height: 60px !important;
+    padding: 11px 12px !important;
+  }
+}
+
+/* ===== Reports/Catalog micro-pass: match Home rhythm ===== */
+.reports-screen-harmonized .report-workspace-container,
+.catalog-screen-premium .premium-catalog-workspace,
+.catalog-screen-premium .catalog-hub-workspace {
+  gap: 12px !important;
+}
+
+.reports-screen-harmonized .report-hero-card,
+.reports-screen-harmonized .report-category-content,
+.catalog-screen-premium .catalog-list-card,
+.catalog-screen-premium .catalog-hub-card,
+.catalog-screen-premium .catalog-edit-card {
+  border-radius: 16px !important;
+  padding: 16px !important;
+}
+
+.reports-screen-harmonized .report-stat-card,
+.reports-screen-harmonized .report-ranking-item,
+.catalog-screen-premium .premium-catalog-item,
+.catalog-screen-premium .continuous-list-item {
+  min-height: 64px !important;
+}
+
+.reports-screen-harmonized .report-stat-info strong,
+.catalog-screen-premium .item-title,
+.catalog-screen-premium .client-col strong {
+  line-height: 1.2 !important;
+}
+
+.catalog-screen-premium .catalog-main-search,
+.catalog-screen-premium .catalog-filter-card input,
+.catalog-screen-premium .catalog-filter-card select,
+.catalog-screen-premium .catalog-filter-card textarea {
+  min-height: 46px !important;
+  border-radius: 12px !important;
+}
+
+.catalog-screen-premium .catalog-category-chips {
+  gap: 10px !important;
+}
+
+.catalog-screen-premium .category-chip {
+  min-height: 56px !important;
+  border-radius: 12px !important;
+}
+
+@media (max-width: 760px) {
+  .reports-screen-harmonized .report-hero-card,
+  .reports-screen-harmonized .report-category-content,
+  .catalog-screen-premium .catalog-list-card,
+  .catalog-screen-premium .catalog-hub-card,
+  .catalog-screen-premium .catalog-edit-card {
+    padding: 14px !important;
+  }
+
+  .catalog-screen-premium .premium-catalog-item,
+  .catalog-screen-premium .continuous-list-item,
+  .reports-screen-harmonized .report-stat-card {
+    min-height: 60px !important;
+  }
+}

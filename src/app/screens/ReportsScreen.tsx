@@ -1,4 +1,5 @@
 import { lazy } from 'react';
+import { PageHeader, PageShell } from '../components/ui';
 import type { CalculationCapture } from '../../core/types/workflow';
 import type { Client, WorkOrder } from '../../core/types/business';
 
@@ -11,17 +12,16 @@ interface ReportsScreenProps {
 
 export function ReportsScreen({ captures, context }: ReportsScreenProps) {
   return (
-    <section className="app-screen wide-screen">
-      <header className="screen-header">
-        <h1>Relatórios e Performance</h1>
-        <p>Visão geral da sua saúde financeira e operacional.</p>
-      </header>
-      
-      <ReportWorkspace 
-        captures={captures} 
-        activeClient={context.activeClient} 
-        activeWorkOrder={context.activeWorkOrder} 
+    <PageShell className="wide-screen reports-screen-harmonized">
+      <PageHeader
+        title="Relatórios e Performance"
+        description="Visão geral da sua saúde financeira e operacional."
       />
-    </section>
+      <ReportWorkspace
+        captures={captures}
+        activeClient={context.activeClient}
+        activeWorkOrder={context.activeWorkOrder}
+      />
+    </PageShell>
   );
 }
