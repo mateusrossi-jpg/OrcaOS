@@ -1,5 +1,5 @@
 import { createId } from '../../../app/utils/idHelpers';
-import type { Budget, BudgetItem } from '../../../core/types/business';
+import type { Budget, BudgetItem, BudgetStatus } from '../../../core/types/business';
 
 const STORAGE_KEY = 'orcaos:saved-budgets:v1';
 
@@ -67,8 +67,32 @@ function isBrowserStorageAvailable(): boolean {
   return typeof window !== 'undefined' && typeof window.localStorage !== 'undefined';
 }
 
+export function normalizeBudgetStatus(value: unknown): BudgetStatus | null {
+  if (value === 'draft') return 'iniciado';
+  if (value === 'sent') return 'enviado';
+  if (value === 'approved') return 'autorizado';
+  if (value === 'rejected') return 'recusado';
+  if (value === 'expired') return 'recusado';
+  if (value === 'cancelled') return 'cancelado';
+
+  if (
+    value === 'iniciado' ||
+    value === 'em_revisao' ||
+    value === 'enviado' ||
+    value === 'autorizado' ||
+    value === 'em_execucao' ||
+    value === 'finalizado' ||
+    value === 'recusado' ||
+    value === 'cancelado'
+  ) {
+    return value;
+  }
+
+  return null;
+}
+
 function isValidStatus(value: unknown): value is SavedBudgetStatus {
-  return value === 'draft' || value === 'sent' || value === 'approved' || value === 'rejected' || value === 'expired' || value === 'cancelled';
+  return normalizeBudgetStatus(value) !== null;
 }
 
 function isBudgetItem(value: unknown): value is BudgetItem {
@@ -147,6 +171,7 @@ export function loadSavedBudgets(): SavedBudgetRecord[] {
 
     return parsed.filter(isSavedBudgetRecord).map((record) => ({
       ...record,
+      status: normalizeBudgetStatus(record.status) ?? 'iniciado',
       travelCost: record.travelCost ?? 0,
       additionalFees: record.additionalFees ?? 0,
       paymentTerms: record.paymentTerms ?? '',
@@ -192,7 +217,7 @@ export function saveBudgetRecord(input: SaveBudgetRecordInput): SavedBudgetRecor
     workOrderId: input.workOrderId ?? existingRecord?.workOrderId,
     clientName: input.clientName,
     title: input.title,
-    status: input.status,
+    status: normalizeBudgetStatus(input.status) ?? 'iniciado',
     discount: input.discount,
     travelCost: input.travelCost ?? 0,
     additionalFees: input.additionalFees ?? 0,
