@@ -136,7 +136,7 @@ function categoryLabel(category: BudgetCategory): string {
 }
 
 function statusLabel(status: SavedBudgetStatus): string {
-  const labels: Record<SavedBudgetStatus, string> = {
+  const labels: Partial<Record<SavedBudgetStatus, string>> = {
     iniciado: 'Orçamento iniciado',
     em_revisao: 'Em revisão',
     enviado: 'Enviado ao cliente',
@@ -145,8 +145,14 @@ function statusLabel(status: SavedBudgetStatus): string {
     finalizado: 'Finalizado',
     recusado: 'Recusado',
     cancelado: 'Cancelado',
+    draft: 'Orçamento iniciado',
+    sent: 'Enviado ao cliente',
+    approved: 'Autorizado',
+    rejected: 'Recusado',
+    expired: 'Recusado',
+    cancelled: 'Cancelado',
   };
-  return labels[status];
+  return labels[status] ?? 'Orçamento iniciado';
 }
 
 function statusGuidance(status: SavedBudgetStatus): string {

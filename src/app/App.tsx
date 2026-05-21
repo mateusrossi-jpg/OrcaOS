@@ -16,6 +16,7 @@ import { loadStoredCaptures, saveStoredCaptures } from './storage/calculationCap
 import { cleanupRuntimeValidationData } from './storage/runtimeValidationCleanup';
 import { HomeScreen } from './screens/HomeScreen';
 import { BudgetsScreen } from './screens/BudgetsScreen';
+import { BudgetHistoryScreen } from './screens/BudgetHistoryScreen';
 import { CatalogScreen } from './screens/CatalogScreen';
 import { ReportsScreen } from './screens/ReportsScreen';
 import { FinancialScreen } from './screens/FinancialScreen';
@@ -85,18 +86,26 @@ export function App() {
   }
 
   function goTo(tab: AppTab) {
-    if (tab === 'new-budget') {
+    if (tab === 'new-budget' || tab === 'budgets') {
       setSelectedBudgetId(null);
       setBudgetResetKey((current) => current + 1);
       setActiveTab('budgets');
       return;
-    } 
-    
+    }
+
     if (tab === 'clients') {
       setClientInitialSection('clients');
       setClientSectionRequestKey((current) => current + 1);
     }
     setActiveTab(tab);
+  }
+
+  function openBudgetForEdit(budgetId: string, workOrderId?: string | null) {
+    setSelectedBudgetId(budgetId);
+    if (workOrderId) {
+      setActiveWorkOrderId(workOrderId);
+    }
+    setActiveTab('budgets');
   }
 
   function openClientSection(section: 'dashboard' | 'newClient' | 'clients') {
@@ -133,12 +142,7 @@ export function App() {
               context={context} 
               onStartNewAttendance={() => goTo('new-budget')} 
               onSelectBudget={(budget) => {
-                setSelectedBudgetId(budget.id);
-                // If the budget has a work order ID, set it as active
-                if (budget.workOrderId) {
-                  setActiveWorkOrderId(budget.workOrderId);
-                }
-                setActiveTab('budgets');
+                openBudgetForEdit(budget.id, budget.workOrderId);
               }}
             />
           )}
@@ -159,7 +163,6 @@ export function App() {
           {activeTab === 'financial' && <FinancialScreen />}
           {activeTab === 'settings' && <MenuScreen account={account} onAccountChange={setAccount} goTo={goTo} />}
           
-          {/* Sub-telas acessadas via Menu ou fluxo direto */}
           {activeTab === 'budgets' && (
             <BudgetsScreen 
               key={budgetResetKey}
@@ -172,6 +175,12 @@ export function App() {
               onConvertApprovedBudgetToWorkOrder={convertActiveBudgetToWorkOrder} 
               forceNewBudget={budgetResetKey > 0}
               initialBudgetId={selectedBudgetId}
+            />
+          )}
+          {activeTab === 'budget-history' && (
+            <BudgetHistoryScreen
+              onNewBudget={() => goTo('budgets')}
+              onOpenBudget={(budgetId) => openBudgetForEdit(budgetId)}
             />
           )}
           {activeTab === 'catalog' && <CatalogScreen onAddMany={addManyCalculationCaptures} context={context} />}
