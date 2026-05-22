@@ -785,6 +785,12 @@ export function BudgetWorkspace({
         <section className="budget-section-panel">
           <PanelCard className="compact-budget-card">
             <div className="aferix-form-grid">
+              <div className="aferix-form-section aferix-form-grid-wide">
+                <div className="aferix-form-section-head">
+                  <strong>Identificação</strong>
+                  <small>Nome do cliente para vinculação do orçamento.</small>
+                </div>
+              </div>
               <Input 
                 className="aferix-form-grid-wide"
                 label="Cliente" 
@@ -819,6 +825,12 @@ export function BudgetWorkspace({
         <section className="budget-section-panel">
           <PanelCard className="compact-budget-card">
             <div className="aferix-form-grid">
+              <div className="aferix-form-section aferix-form-grid-wide">
+                <div className="aferix-form-section-head">
+                  <strong>Título e Controle</strong>
+                  <small>Defina o que está sendo orçado e o estado atual.</small>
+                </div>
+              </div>
               <Input 
                 className="aferix-form-grid-wide"
                 label="Título do Serviço" 
@@ -958,7 +970,7 @@ export function BudgetWorkspace({
                       <MonetaryInput label="Valor unitário" value={selectedBudgetItem.unitPrice} onChange={(v) => updateBudgetItem(selectedBudgetItem.id, 'unitPrice', v)} disabled={isBudgetLocked} />
                     </div>
                     <div className="aferix-form-actions aferix-form-actions-row budget-top-spacing-md">
-                      <Button variant="danger" disabled={isBudgetLocked} onClick={() => confirmRemoveItem(selectedBudgetItem.id)}>Remover</Button>
+                      <Button variant="danger" disabled={isBudgetLocked} onClick={() => confirmRemoveItem(selectedBudgetItemId!)}>Remover</Button>
                     </div>
                   </PanelCard>
                 )}
@@ -981,6 +993,12 @@ export function BudgetWorkspace({
         <section className="budget-section-panel">
           <PanelCard className="compact-budget-card">
             <div className="aferix-form-grid">
+              <div className="aferix-form-section aferix-form-grid-wide">
+                <div className="aferix-form-section-head">
+                  <strong>Custos e Impostos</strong>
+                  <small>Defina seus investimentos e taxas para calcular o lucro real.</small>
+                </div>
+              </div>
               <MonetaryInput label="Investimento em Materiais (Custo)" value={materialCost} onChange={setMaterialCost} disabled={isBudgetLocked} />
               <MonetaryInput label="Custos Operacionais" value={operationalCost} onChange={setOperationalCost} disabled={isBudgetLocked} />
               <MonetaryInput label="Deslocamento / Frete" value={travelCost} onChange={setTravelCost} disabled={isBudgetLocked} />
@@ -998,6 +1016,12 @@ export function BudgetWorkspace({
         <section className="budget-section-panel">
           <PanelCard className="compact-budget-card">
             <div className="aferix-form-grid">
+              <div className="aferix-form-section aferix-form-grid-wide">
+                <div className="aferix-form-section-head">
+                  <strong>Condições Comerciais</strong>
+                  <small>Prazos, garantias e observações finais do orçamento.</small>
+                </div>
+              </div>
               <MonetaryInput label="Desconto Especial" value={discount} onChange={setDiscount} disabled={isBudgetLocked} />
               <Input label="Validade do Orçamento" value={validity} onChange={(e) => setValidity(e.target.value)} disabled={isBudgetLocked} />
               <TextArea 

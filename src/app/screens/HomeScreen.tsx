@@ -202,7 +202,7 @@ export function HomeScreen({
           </div>
         </PanelCard>
 
-        <ListCard title="Alertas operacionais" subtitle="Pulse">
+        <ListCard title="Alertas de Atenção" subtitle="Pulse">
           {alerts.length === 0 ? (
             <EmptyState 
               title="Sem alertas críticos" 
@@ -222,7 +222,7 @@ export function HomeScreen({
           )}
         </ListCard>
 
-        <ListCard title="Finalizados recentes" subtitle="Money">
+        <ListCard title="Ganhos Recentes" subtitle="Money">
           {recentFinalized.length === 0 ? (
             <EmptyState 
               title="Nenhum orçamento finalizado" 

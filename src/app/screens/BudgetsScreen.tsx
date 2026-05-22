@@ -38,7 +38,8 @@ export function BudgetsScreen({
   return (
     <PageShell className="wide-screen budgets-screen-premium">
       <PageHeader 
-        title="Work · Novo orçamento" 
+        title="Novo orçamento" 
+        eyebrow="Work"
         description="Produza e edite orçamentos no fluxo operacional principal." 
       />
       

@@ -307,8 +307,8 @@ export function ClientWorkOrderWorkspace({ initialSection, initialClientId, sect
           </header>
 
           <div className="aferix-form-grid">
-            <div className="client-form-section aferix-form-grid-wide">
-              <div className="client-form-section-head">
+            <div className="aferix-form-section aferix-form-grid-wide">
+              <div className="aferix-form-section-head">
                 <strong>Identificação</strong>
                 <small>Dados para localizar cliente e orçamento.</small>
               </div>
@@ -350,8 +350,8 @@ export function ClientWorkOrderWorkspace({ initialSection, initialClientId, sect
               onChange={(value) => updateClientDraft('additionalContacts', value)} 
             />
 
-            <div className="client-form-section aferix-form-grid-wide">
-              <div className="client-form-section-head">
+            <div className="aferix-form-section aferix-form-grid-wide">
+              <div className="aferix-form-section-head">
                 <strong>Endereço</strong>
                 <small>Dados para faturamento e localização.</small>
               </div>
@@ -364,8 +364,8 @@ export function ClientWorkOrderWorkspace({ initialSection, initialClientId, sect
               onChange={(event) => updateClientDraft('address', event.target.value)} 
             />
             
-            <div className="client-form-section aferix-form-grid-wide">
-              <div className="client-form-section-head">
+            <div className="aferix-form-section aferix-form-grid-wide">
+              <div className="aferix-form-section-head">
                 <strong>Comercial</strong>
               </div>
             </div>

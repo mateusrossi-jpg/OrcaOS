@@ -142,7 +142,8 @@ export function MenuScreen({ account, onAccountChange, onNavigate }: MenuScreenP
   return (
     <PageShell className="menu-overview-screen">
       <PageHeader 
-        title="Base · Configurações" 
+        title="Configurações" 
+        eyebrow="Base"
         description="Gerencie seu perfil, conta e preferências do aplicativo." 
       />
 

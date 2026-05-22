@@ -14,7 +14,8 @@ export function CatalogScreen({ onAddMany, context }: CatalogScreenProps) {
   return (
     <PageShell className="wide-screen catalog-screen-premium">
       <PageHeader 
-        title="Base · Catálogo" 
+        title="Catálogo" 
+        eyebrow="Base"
         description="Materiais e serviços padronizados da base operacional." 
       />
       <CatalogHubWorkspace onSendToBudget={onAddMany} />

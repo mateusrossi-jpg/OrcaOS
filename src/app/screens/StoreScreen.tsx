@@ -90,7 +90,11 @@ export function StoreScreen({ account, onAccountChange, onBack }: StoreScreenPro
   return (
     <PageShell className="wide-screen store-screen">
       {onBack && <BackButton label="Voltar" onClick={onBack} />}
-      <PageHeader title="Licença" description="Escolha o plano ideal para o seu negócio." />
+      <PageHeader 
+        title="Licença" 
+        eyebrow="Base"
+        description="Escolha o plano ideal para o seu negócio." 
+      />
       <section className="plan-card-grid" aria-label="Planos Aferix">
         <PlanCard
           badge="FREE"
