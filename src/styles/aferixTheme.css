@@ -1135,7 +1135,7 @@ button.secondary {
   min-width: 0 !important;
   padding: 24px !important;
   border: 1px solid var(--aferix-border) !important;
-  border-radius: 12px !important;
+  border-radius: var(--aferix-radius-md) !important;
   background: var(--aferix-surface) !important;
 }
 
@@ -1189,24 +1189,16 @@ button.secondary {
   line-height: 1.35 !important;
   overflow-wrap: normal !important;
   word-break: normal !important;
+  display: flex !important;
+  align-items: flex-start !important;
+  gap: 8px !important;
 }
 
 .benefit-check {
   color: var(--aferix-primary) !important;
-  margin-right: 8px !important;
+  flex: none !important;
 }
 
-
-.plan-card li::before {
-  content: "";
-  display: inline-block;
-  width: 5px;
-  height: 5px;
-  margin-right: 8px;
-  border-radius: 1px;
-  background: var(--aferix-brand);
-  vertical-align: middle;
-}
 
 .store-account-actions {
   padding-top: 14px !important;
@@ -1400,6 +1392,13 @@ button.secondary {
   }
 }
 
+@media (max-width: 480px) {
+  .dashboard-metric-grid,
+  .plan-card-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
 @media (max-width: 767px) {
   .professional-app-content {
     padding: 16px var(--aferix-page-mobile-x) calc(18px + env(safe-area-inset-bottom)) !important;
@@ -1476,39 +1475,66 @@ button.secondary {
 
 .status-compact-list {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
 }
 
 .status-compact-item {
-  display: grid;
-  gap: 4px;
-  padding: 12px;
-  border: 1px solid var(--aferix-border-soft);
-  border-radius: 12px;
-  background: var(--aferix-surface-raised);
-  text-align: left;
-  border: none;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  padding: 14px 16px !important;
+  min-height: 82px !important;
+  border: 1px solid var(--aferix-border) !important;
+  border-radius: var(--aferix-radius-md) !important;
+  background: var(--aferix-surface-raised) !important;
+  text-align: left !important;
   cursor: pointer;
-  transition: transform 0.2s;
+  transition: all 0.2s ease;
+  color: var(--aferix-text) !important;
+}
+
+.status-compact-item:hover {
+  border-color: var(--aferix-primary) !important;
+  background: var(--aferix-surface) !important;
 }
 
 .status-compact-item:active {
-  transform: scale(0.98);
+  transform: scale(0.97);
 }
 
-.status-label {
-  font-size: 0.65rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  color: var(--aferix-text-muted);
-  letter-spacing: 0.05em;
+.status-compact-item .status-label {
+  color: var(--aferix-text-soft) !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.06em !important;
+  line-height: 1 !important;
+  margin: 0 !important;
 }
 
-.status-value {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--aferix-primary);
+.status-compact-item .status-value {
+  color: var(--aferix-text) !important;
+  font-size: 20px !important;
+  font-weight: 900 !important;
+  line-height: 1 !important;
+  margin: 0 !important;
+}
+
+@media (max-width: 600px) {
+  .status-compact-list {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  
+  .status-compact-item {
+    min-height: 68px !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+  }
 }
 
 .home-compact-row {
@@ -3338,36 +3364,6 @@ button.secondary {
   .compact-metric-grid {
     grid-template-columns: 1fr !important;
   }
-}
-
-/* Home status cards: normalize button/div alignment */
-.status-compact-list > .status-compact-item,
-button.status-compact-item {
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: flex-start !important;
-  justify-content: flex-start !important;
-  text-align: left !important;
-  gap: 8px !important;
-  width: 100% !important;
-  min-height: 86px !important;
-  padding: 12px 14px !important;
-}
-
-button.status-compact-item {
-  border: 1px solid var(--aferix-border-soft) !important;
-  background: var(--aferix-surface-raised) !important;
-  color: var(--aferix-text) !important;
-}
-
-.status-compact-item .status-label {
-  margin: 0 !important;
-  line-height: 1.2 !important;
-}
-
-.status-compact-item .status-value {
-  margin: 0 !important;
-  line-height: 1 !important;
 }
 
 /* Design system unified building blocks */

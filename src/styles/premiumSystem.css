@@ -394,13 +394,7 @@ button.secondary,
   align-items: center !important;
 }
 
-.status-compact-item {
-  min-height: 64px;
-  border-radius: 12px;
-  border: 1px solid var(--aferix-border);
-  background: rgba(255, 255, 255, 0.012);
-  padding: 12px 14px;
-}
+/* Status compact list removed, now in theme */
 
 .status-value {
   color: var(--aferix-text-primary) !important;
@@ -624,22 +618,7 @@ textarea {
   padding: 14px !important;
 }
 
-.aferix-dashboard-screen .status-compact-list {
-  display: grid !important;
-  gap: 10px !important;
-}
-
-.aferix-dashboard-screen .status-compact-item {
-  border-radius: 12px !important;
-  border: 1px solid var(--aferix-border) !important;
-  background: rgba(255,255,255,0.015) !important;
-}
-
-.aferix-dashboard-screen .home-compact-row {
-  min-height: 68px !important;
-  padding: 12px 14px !important;
-}
-
+/* Unified dashboard rhythm handled in theme */
 .simple-finance-workspace .dashboard-finance-tiles {
   gap: 10px !important;
 }
@@ -1732,25 +1711,6 @@ body,
   line-height: 1.4 !important;
   letter-spacing: 0 !important;
   color: var(--aferix-text-secondary) !important;
-}
-
-.orca-kicker,
-.catalog-eyebrow,
-.aferix-badge,
-.budget-field span,
-.catalog-field span,
-.finance-field span,
-.general-form-field span,
-.aferix-input-field > span,
-.aferix-select-field > span,
-.metric-card > span,
-.finance-tile span,
-.catalog-metric-card span {
-  font-size: var(--aferix-type-label) !important;
-  font-weight: 760 !important;
-  line-height: 1.2 !important;
-  letter-spacing: 0.08em !important;
-  text-transform: uppercase !important;
 }
 
 .metric-card > strong,
