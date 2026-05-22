@@ -9,8 +9,8 @@
   overflow: hidden;
   background:
     radial-gradient(circle at 50% 44%, rgba(245, 164, 0, 0.08), transparent 40%),
-    linear-gradient(180deg, var(--aferix-bg-soft, #090b0f), var(--aferix-bg, #050607));
-  color: var(--aferix-text, #f5f1e8);
+    linear-gradient(180deg, var(--aferix-bg-soft), var(--aferix-bg));
+  color: var(--aferix-text);
   padding: 24px;
 }
 
@@ -42,7 +42,7 @@
 
 .app-startup-copy {
   margin: 0;
-  color: var(--aferix-text-muted, #a6a6af);
+  color: var(--aferix-text-muted);
   font-size: 0.92rem;
   font-weight: 600;
   line-height: 1.35;
@@ -70,18 +70,18 @@
   padding: 18px;
   background:
     radial-gradient(circle at 50% 28%, rgba(245, 164, 0, 0.07), transparent 42%),
-    var(--aferix-bg, #050607);
-  color: var(--aferix-text, #f5f1e8);
+    var(--aferix-bg);
+  color: var(--aferix-text);
 }
 
 .app-access-card {
   display: grid;
   gap: 14px;
   width: min(100%, 440px);
-  border: 1px solid var(--aferix-border, #24262d);
+  border: 1px solid var(--aferix-border);
   border-radius: var(--aferix-radius-lg, 16px);
   padding: 24px;
-  background: linear-gradient(180deg, var(--aferix-surface-raised, #15171c), var(--aferix-surface, #101114));
+  background: linear-gradient(180deg, var(--aferix-surface-raised), var(--aferix-surface));
 }
 
 .app-access-card h1,
@@ -98,9 +98,9 @@
 .app-access-brand img {
   width: 50px;
   height: 50px;
-  border: 1px solid var(--aferix-border, #24262d);
+  border: 1px solid var(--aferix-border);
   border-radius: 12px;
-  background: var(--aferix-bg-soft, #090b0f);
+  background: var(--aferix-bg-soft);
   box-shadow: none;
 }
 
@@ -110,7 +110,7 @@
 }
 
 .app-access-brand strong {
-  color: var(--aferix-text, #f5f1e8);
+  color: var(--aferix-text);
   font-size: 1rem;
 }
 
@@ -121,14 +121,14 @@
 
 .app-access-card p,
 .app-access-card small {
-  color: var(--aferix-text-muted, #a6a6af);
+  color: var(--aferix-text-muted);
   line-height: 1.55;
 }
 
 .app-access-card label {
   display: grid;
   gap: 7px;
-  color: var(--aferix-text-muted, #a6a6af);
+  color: var(--aferix-text-muted);
   font-size: 0.82rem;
   font-weight: 850;
 }
@@ -136,10 +136,10 @@
 .app-access-card input {
   width: 100%;
   min-height: 52px;
-  border: 1px solid var(--aferix-border, #24262d);
+  border: 1px solid var(--aferix-border);
   border-radius: var(--aferix-radius-sm, 8px);
-  background: var(--aferix-bg-soft, #090b0f);
-  color: var(--aferix-text, #f5f1e8);
+  background: var(--aferix-bg-soft);
+  color: var(--aferix-text);
   font: inherit;
   font-size: 1.15rem;
   font-weight: 900;
