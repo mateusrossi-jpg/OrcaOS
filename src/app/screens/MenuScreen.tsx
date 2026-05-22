@@ -27,12 +27,12 @@ const LegalCompliancePanel = lazy(() => import('../../features/settings/componen
 interface MenuScreenProps {
   account: AferixAccountState;
   onAccountChange: (account: AferixAccountState) => void;
-  goTo: (tab: AppTab) => void;
+  onNavigate: (tab: AppTab) => void;
 }
 
 type MenuSection = 'main' | 'profile' | 'security' | 'backup' | 'about';
 
-export function MenuScreen({ account, onAccountChange, goTo }: MenuScreenProps) {
+export function MenuScreen({ account, onAccountChange, onNavigate }: MenuScreenProps) {
   const [activeSection, setActiveSection] = useState<MenuSection>('main');
   const [feedback, setFeedback] = useState<string | null>(null);
   const [isSigningIn, setIsSigningIn] = useState(false);
@@ -46,7 +46,7 @@ export function MenuScreen({ account, onAccountChange, goTo }: MenuScreenProps) 
     {
       title: 'Catálogo',
       subtitle: 'Meus itens e serviços',
-      onClick: () => goTo('catalog'),
+      onClick: () => onNavigate('catalog'),
     },
     {
       title: 'Perfil e Conta',
@@ -56,7 +56,7 @@ export function MenuScreen({ account, onAccountChange, goTo }: MenuScreenProps) 
     {
       title: 'Licença Pro',
       subtitle: 'Planos e recursos extras',
-      onClick: () => goTo('store'),
+      onClick: () => onNavigate('store'),
     },
     {
       title: 'Backup e Sincronização',

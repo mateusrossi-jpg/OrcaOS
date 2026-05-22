@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import type { Client, Service as WorkOrder } from '../../core/types/business';
 import './AppShell.css';
-import type { AppNavItem, AppTab } from '../appTypes';
+import type { AppNavItem, AppTab, AppIconGlyph } from '../appTypes';
 
 const AFERIX_WORDMARK = '/icons/aferix-wordmark-premium.svg';
 
@@ -37,16 +37,6 @@ export function AppShell({ children, activeTab, navItems, onNavigate, activeClie
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isBudgetGroupOpen, setIsBudgetGroupOpen] = useState(false);
   const [isBaseGroupOpen, setIsBaseGroupOpen] = useState(false);
-  const lastMenuActionAtRef = useRef(0);
-
-  const canRunMenuAction = () => {
-    const now = Date.now();
-    if (now - lastMenuActionAtRef.current < 180) {
-      return false;
-    }
-    lastMenuActionAtRef.current = now;
-    return true;
-  };
 
   useEffect(() => {
     setIsSidebarCollapsed(true);
@@ -70,13 +60,13 @@ export function AppShell({ children, activeTab, navItems, onNavigate, activeClie
 
   const mainNavItems = navItems.filter((item) => item.id !== 'settings' && item.id !== 'store');
 
-  const pulseItem = mainNavItems.find((item) => item.id === 'home');
-  const workItem = mainNavItems.find((item) => item.id === 'budget-history');
-  const moneyItem = mainNavItems.find((item) => item.id === 'financial');
-  const baseItem = mainNavItems.find((item) => item.id === 'clients');
+  const pulseItem = mainNavItems.find((item) => item.id === 'pulse');
+  const workItem = mainNavItems.find((item) => item.id === 'work-history');
+  const moneyItem = mainNavItems.find((item) => item.id === 'money');
+  const baseItem = mainNavItems.find((item) => item.id === 'base');
 
-  const baseSubItems = [
-    { id: 'clients', label: 'Clientes', description: 'Gestão da base de clientes', icon: 'clients' },
+  const baseSubItems: Array<{ id: AppTab; label: string; description: string; icon: AppIconGlyph }> = [
+    { id: 'base', label: 'Clientes', description: 'Gestão da base de clientes', icon: 'clients' },
     { id: 'catalog', label: 'Catálogo', description: 'Catálogo de itens e serviços', icon: 'document' },
     { id: 'reports', label: 'Relatórios', description: 'Análises e métricas', icon: 'chart' },
     { id: 'settings', label: 'Configurações', description: 'Preferências do app', icon: 'settings' },
@@ -84,14 +74,14 @@ export function AppShell({ children, activeTab, navItems, onNavigate, activeClie
   ];
 
   const baseActive =
-    activeTab === 'clients' ||
+    activeTab === 'base' ||
     activeTab === 'catalog' ||
     activeTab === 'reports' ||
     activeTab === 'settings' ||
     activeTab === 'store';
-  const workActive = activeTab === 'budgets' || activeTab === 'budget-history';
+  const workActive = activeTab === 'budgets' || activeTab === 'work-history';
 
-  const iconMap: Record<string, ReactNode> = {
+  const iconMap: Record<AppIconGlyph, ReactNode> = {
     home: <NavGlyph path="M3 10.5 12 3l9 7.5M6.5 9.5V21h11V9.5" />,
     document: <NavGlyph path="M8 3.5h8l4.5 4.5V20.5a1.5 1.5 0 0 1-1.5 1.5H8a1.5 1.5 0 0 1-1.5-1.5V5A1.5 1.5 0 0 1 8 3.5Zm8 .5V8h4" />,
     clients: <NavGlyph path="M16.5 11.5a3.5 3.5 0 1 0-3.5-3.5 3.5 3.5 0 0 0 3.5 3.5ZM7.5 12a3 3 0 1 0-3-3 3 3 0 0 0 3 3Zm0 2.5c-2.7 0-5 1.6-5 3.8V20h10v-1.7c0-2.2-2.3-3.8-5-3.8Zm9 0c-1 0-2 .2-2.8.7 1.1.8 1.8 1.9 1.8 3.2V20h6v-1.3c0-2.4-2.2-4.2-5-4.2Z" />,
@@ -109,7 +99,6 @@ export function AppShell({ children, activeTab, navItems, onNavigate, activeClie
           type="button"
           aria-label="Abrir menu"
           onClick={() => {
-            if (!canRunMenuAction()) return;
             setIsSidebarCollapsed((current) => {
               const nextCollapsed = !current;
               if (!nextCollapsed) {
@@ -177,12 +166,12 @@ export function AppShell({ children, activeTab, navItems, onNavigate, activeClie
             <div className="nav-items-stack">
               {pulseItem && (
                 <button
-                  className={`nav-item ${activeTab === 'home' ? 'active' : ''}`}
+                  className={`nav-item ${activeTab === 'pulse' ? 'active' : ''}`}
                   onClick={() => onNavigate(pulseItem.id)}
                 >
-                  <span className="nav-icon icon-home">{iconMap.home}</span>
-                  <strong className="nav-label">Pulse</strong>
-                  {activeTab === 'home' && <span className="active-indicator" />}
+                  <span className={`nav-icon icon-${pulseItem.icon}`}>{iconMap[pulseItem.icon]}</span>
+                  <strong className="nav-label">{pulseItem.label}</strong>
+                  {activeTab === 'pulse' && <span className="active-indicator" />}
                 </button>
               )}
 
@@ -192,12 +181,11 @@ export function AppShell({ children, activeTab, navItems, onNavigate, activeClie
                     type="button"
                     className={`nav-item nav-parent ${workActive ? 'active' : ''}`}
                     onClick={() => {
-                      if (!canRunMenuAction()) return;
                       setIsBudgetGroupOpen((current) => !current);
                     }}
                   >
-                    <span className="nav-icon icon-document">{iconMap.document}</span>
-                    <strong className="nav-label">Work</strong>
+                    <span className={`nav-icon icon-${workItem.icon}`}>{iconMap[workItem.icon]}</span>
+                    <strong className="nav-label">{workItem.label}</strong>
                     <span className={`nav-group-caret ${isBudgetGroupOpen ? 'open' : ''}`}>▾</span>
                     {workActive && <span className="active-indicator" />}
                   </button>
@@ -208,7 +196,6 @@ export function AppShell({ children, activeTab, navItems, onNavigate, activeClie
                         type="button"
                         className={`nav-subitem ${activeTab === 'budgets' ? 'active' : ''}`}
                         onClick={() => {
-                          if (!canRunMenuAction()) return;
                           onNavigate('budgets');
                         }}
                       >
@@ -216,10 +203,9 @@ export function AppShell({ children, activeTab, navItems, onNavigate, activeClie
                       </button>
                       <button
                         type="button"
-                        className={`nav-subitem ${activeTab === 'budget-history' ? 'active' : ''}`}
+                        className={`nav-subitem ${activeTab === 'work-history' ? 'active' : ''}`}
                         onClick={() => {
-                          if (!canRunMenuAction()) return;
-                          onNavigate('budget-history');
+                          onNavigate('work-history');
                         }}
                       >
                         Histórico
@@ -231,12 +217,12 @@ export function AppShell({ children, activeTab, navItems, onNavigate, activeClie
 
               {moneyItem && (
                 <button
-                  className={`nav-item ${activeTab === 'financial' ? 'active' : ''}`}
+                  className={`nav-item ${activeTab === 'money' ? 'active' : ''}`}
                   onClick={() => onNavigate(moneyItem.id)}
                 >
-                  <span className="nav-icon icon-finance">{iconMap.finance}</span>
-                  <strong className="nav-label">Money</strong>
-                  {activeTab === 'financial' && <span className="active-indicator" />}
+                  <span className={`nav-icon icon-${moneyItem.icon}`}>{iconMap[moneyItem.icon]}</span>
+                  <strong className="nav-label">{moneyItem.label}</strong>
+                  {activeTab === 'money' && <span className="active-indicator" />}
                 </button>
               )}
 
@@ -246,12 +232,11 @@ export function AppShell({ children, activeTab, navItems, onNavigate, activeClie
                     type="button"
                     className={`nav-item nav-parent ${baseActive ? 'active' : ''}`}
                     onClick={() => {
-                      if (!canRunMenuAction()) return;
                       setIsBaseGroupOpen((current) => !current);
                     }}
                   >
-                    <span className="nav-icon icon-clients">{iconMap.clients}</span>
-                    <strong className="nav-label">Base</strong>
+                    <span className={`nav-icon icon-${baseItem.icon}`}>{iconMap[baseItem.icon]}</span>
+                    <strong className="nav-label">{baseItem.label}</strong>
                     <span className={`nav-group-caret ${isBaseGroupOpen ? 'open' : ''}`}>▾</span>
                     {baseActive && <span className="active-indicator" />}
                   </button>
@@ -264,8 +249,7 @@ export function AppShell({ children, activeTab, navItems, onNavigate, activeClie
                           type="button"
                           className={`nav-subitem ${activeTab === item.id ? 'active' : ''}`}
                           onClick={() => {
-                            if (!canRunMenuAction()) return;
-                            onNavigate(item.id as any);
+                            onNavigate(item.id);
                           }}
                         >
                           {item.label}

@@ -18,7 +18,7 @@ import {
 } from '../components/ui';
 
 interface HomeScreenProps {
-  goTo: (tab: AppTab) => void;
+  onNavigate: (tab: AppTab) => void;
   captures: CalculationCapture[];
   clients: Client[];
   workOrders: WorkOrder[];
@@ -48,7 +48,7 @@ const severityRank: Record<AlertSeverity, number> = {
 };
 
 export function HomeScreen({
-  goTo,
+  onNavigate,
   workOrders,
   savedBudgets,
   onSelectBudget,
@@ -150,15 +150,15 @@ export function HomeScreen({
         <PanelCard className="home-command-panel">
           <SectionTitle title="Fila operacional" eyebrow="Work" />
           <div className="status-compact-list">
-            <button className="status-compact-item" type="button" onClick={() => goTo('budget-history')}>
+            <button className="status-compact-item" type="button" onClick={() => onNavigate('work-history')}>
               <span className="status-label">Aguardando resposta</span>
               <strong className="status-value">{awaitingReplyBudgets.length}</strong>
             </button>
-            <button className="status-compact-item" type="button" onClick={() => goTo('budget-history')}>
+            <button className="status-compact-item" type="button" onClick={() => onNavigate('work-history')}>
               <span className="status-label">Em execução</span>
               <strong className="status-value">{inExecutionBudgets.length}</strong>
             </button>
-            <button className="status-compact-item" type="button" onClick={() => goTo('budget-history')}>
+            <button className="status-compact-item" type="button" onClick={() => onNavigate('work-history')}>
               <span className="status-label">Finalização pendente</span>
               <strong className="status-value">{authorizedBudgets.length}</strong>
             </button>

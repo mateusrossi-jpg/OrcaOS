@@ -1,4 +1,4 @@
-import { Suspense, useEffect, useMemo, useState } from 'react';
+import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import {
   loadAccountState,
   AFERIX_ACCOUNT_CHANGED_EVENT,
@@ -7,7 +7,7 @@ import {
 import type { Client, WorkOrder } from '../core/types/business';
 import type { CalculationCapture } from '../core/types/workflow';
 import { loadSavedBudgets } from '../features/budgets/storage/savedBudgetsStorage';
-import { loadActiveWorkOrderId, loadClients, loadWorkOrders, saveWorkOrders } from '../features/clients/storage/clientWorkOrderStorage';
+import { loadActiveWorkOrderId, loadClients, loadWorkOrders } from '../features/clients/storage/clientWorkOrderStorage';
 import { AppShell } from './components/AppShell';
 import { AferixIntro } from './components/AferixIntro';
 import { navItems, userPlan } from './appData';
@@ -36,7 +36,7 @@ function LazyWorkspaceFallback() {
 }
 
 export function App() {
-  const [activeTab, setActiveTab] = useState<AppTab>('home');
+  const [activeTab, setActiveTab] = useState<AppTab>('pulse');
   const [selectedBudgetId, setSelectedBudgetId] = useState<string | null>(null);
   const [clientInitialSection, setClientInitialSection] = useState<'dashboard' | 'newClient' | 'newWorkOrder' | 'clients' | 'workOrders'>('dashboard');
   const [clientSectionRequestKey, setClientSectionRequestKey] = useState(0);
@@ -50,6 +50,15 @@ export function App() {
   const [activeWorkOrderId, setActiveWorkOrderId] = useState<string | null>(() => loadActiveWorkOrderId());
   const [account, setAccount] = useState<AferixAccountState>(() => loadAccountState());
   const activeUserPlan = account.plan ?? userPlan;
+
+  const lastMenuActionAtRef = useRef(0);
+
+  const canNavigate = () => {
+    const now = Date.now();
+    if (now - lastMenuActionAtRef.current < 200) return false;
+    lastMenuActionAtRef.current = now;
+    return true;
+  };
 
   useEffect(() => { saveStoredCaptures(captures); }, [captures]);
   useEffect(() => {
@@ -86,6 +95,7 @@ export function App() {
   }
 
   function goTo(tab: AppTab) {
+    if (!canNavigate()) return;
     if (tab === 'new-budget' || tab === 'budgets') {
       setSelectedBudgetId(null);
       setBudgetResetKey((current) => current + 1);
@@ -93,7 +103,7 @@ export function App() {
       return;
     }
 
-    if (tab === 'clients') {
+    if (tab === 'base') {
       setClientInitialSection('clients');
       setClientSectionRequestKey((current) => current + 1);
     }
@@ -101,6 +111,7 @@ export function App() {
   }
 
   function openBudgetForEdit(budgetId: string, workOrderId?: string | null) {
+    if (!canNavigate()) return;
     setSelectedBudgetId(budgetId);
     if (workOrderId) {
       setActiveWorkOrderId(workOrderId);
@@ -109,22 +120,10 @@ export function App() {
   }
 
   function openClientSection(section: 'dashboard' | 'newClient' | 'clients') {
+    if (!canNavigate()) return;
     setClientInitialSection(section);
     setClientSectionRequestKey((current) => current + 1);
-    setActiveTab('clients');
-  }
-
-  function convertActiveBudgetToWorkOrder() {
-    if (!activeWorkOrderId) return;
-    setWorkOrders((current) => {
-      const updatedWorkOrders = current.map((workOrder) => (
-        workOrder.id === activeWorkOrderId
-          ? { ...workOrder, status: 'in-progress' as const, updatedAt: new Date().toISOString() }
-          : workOrder
-      ));
-      saveWorkOrders(updatedWorkOrders);
-      return updatedWorkOrders;
-    });
+    setActiveTab('base');
   }
 
   return (
@@ -132,9 +131,9 @@ export function App() {
       <AferixIntro />
       <AppShell activeTab={activeTab} navItems={navItems} activeClient={activeClient} activeWorkOrder={activeWorkOrder} onNavigate={goTo}>
         <Suspense fallback={<LazyWorkspaceFallback />}>
-          {activeTab === 'home' && (
+          {activeTab === 'pulse' && (
             <HomeScreen 
-              goTo={goTo} 
+              onNavigate={goTo} 
               captures={captures} 
               clients={clients} 
               workOrders={workOrders} 
@@ -147,7 +146,7 @@ export function App() {
             />
           )}
           
-          {activeTab === 'clients' && (
+          {activeTab === 'base' && (
             <ClientsScreen 
               initialSection={clientInitialSection as any} 
               sectionRequestKey={clientSectionRequestKey} 
@@ -160,8 +159,8 @@ export function App() {
             />
           )}
 
-          {activeTab === 'financial' && <FinancialScreen />}
-          {activeTab === 'settings' && <MenuScreen account={account} onAccountChange={setAccount} goTo={goTo} />}
+          {activeTab === 'money' && <FinancialScreen />}
+          {activeTab === 'settings' && <MenuScreen account={account} onAccountChange={setAccount} onNavigate={goTo} />}
           
           {activeTab === 'budgets' && (
             <BudgetsScreen 
@@ -169,14 +168,14 @@ export function App() {
               captures={captures} 
               context={context} 
               userPlan={activeUserPlan} 
-              goTo={goTo} 
+              onNavigate={goTo} 
               onRemove={removeCalculationCapture} 
               onUpdate={updateCalculationCapture} 
               forceNewBudget={budgetResetKey > 0}
               initialBudgetId={selectedBudgetId}
             />
           )}
-          {activeTab === 'budget-history' && (
+          {activeTab === 'work-history' && (
             <BudgetHistoryScreen
               onNewBudget={() => goTo('budgets')}
               onOpenBudget={(budgetId) => openBudgetForEdit(budgetId)}

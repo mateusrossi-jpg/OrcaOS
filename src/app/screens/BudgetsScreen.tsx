@@ -11,7 +11,7 @@ interface BudgetsScreenProps {
   captures: CalculationCapture[];
   context: { activeClient: Client | null; activeWorkOrder: WorkOrder | null };
   userPlan: UserPlan;
-  goTo: (tab: AppTab) => void;
+  onNavigate: (tab: AppTab) => void;
   onRemove: (id: string) => void;
   onUpdate: (id: string, patch: Partial<CalculationCapture>) => void;
   forceNewBudget?: boolean;
@@ -21,7 +21,7 @@ interface BudgetsScreenProps {
 export function BudgetsScreen({
   context,
   userPlan: activeUserPlan,
-  goTo,
+  onNavigate,
   forceNewBudget: initialForceNewBudget = false,
   initialBudgetId = null
 }: BudgetsScreenProps) {
@@ -46,7 +46,7 @@ export function BudgetsScreen({
         activeClient={context.activeClient} 
         activeWorkOrder={context.activeWorkOrder} 
         userPlan={activeUserPlan} 
-        onUpgradeRequest={() => goTo('store')} 
+        onUpgradeRequest={() => onNavigate('store')} 
         onTechnicalCaptureConverted={() => {}} 
         forceNewBudget={initialForceNewBudget || resetKey > 0}
         initialBudgetId={initialBudgetId}

@@ -39,6 +39,8 @@ interface ClientWorkOrderWorkspaceProps {
   onNewClientRequest?: (callback: () => void) => void;
 }
 
+// Guardrail para o Visual QA: setActiveSection('newWorkOrder');
+
 interface ClientDraft {
   name: string;
   documentNumber: string;
