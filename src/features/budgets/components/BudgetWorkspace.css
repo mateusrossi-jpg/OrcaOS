@@ -2334,7 +2334,6 @@ textarea {
   font-size: 0.72rem;
   color: var(--aferix-text-muted);
   font-weight: 800;
-  text-transform: uppercase;
   letter-spacing: 0.04em;
 }
 

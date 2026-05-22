@@ -95,11 +95,12 @@
 }
 
 .print-logo {
-  display: block !important;
-  width: auto !important;
-  max-width: 120px !important;
-  height: 36px !important;
-  object-fit: contain !important;
+  display: block;
+  width: auto;
+  max-width: 140px;
+  height: 52px;
+  object-fit: contain;
+  margin-bottom: 8px;
 }
 
 .print-document h2 {
@@ -350,8 +351,8 @@
     width: 100%;
     border-radius: 0;
     padding: 0;
-    color: #f8fafc !important;
-    background: #0f0f11 !important;
+    color: var(--aferix-text) !important;
+    background: var(--aferix-surface) !important;
     box-shadow: none !important;
   }
 

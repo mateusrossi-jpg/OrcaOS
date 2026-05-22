@@ -87,14 +87,14 @@ export function summarizeOrcaBackupData(backup: OrcaLocalBackup): OrcaBackupData
 
   return [
     { label: 'Clientes', count: countArrayValue(keys['orcaos:clients:v1']) },
-    { label: 'OS', count: countArrayValue(keys['orcaos:work-orders:v1']) },
+    { label: 'Execução / Work', count: countArrayValue(keys['orcaos:work-orders:v1']) },
     { label: 'Orçamentos', count: countArrayValue(keys['orcaos:saved-budgets:v1']) },
-    { label: 'Catálogo', count: catalogCount },
+    { label: 'Catálogo / Base', count: catalogCount },
     { label: 'Fornecedores', count: supplierCount },
     { label: 'Configurações', count: settingsCount },
-    { label: 'Capturas de campo', count: surveyCount },
+    { label: 'Diagnósticos / Pulse', count: surveyCount },
     { label: 'Perfil profissional', count: profileCount },
-    { label: 'Conta/plano local', count: accountCount },
+    { label: 'Conta e Licença', count: accountCount },
   ];
 }
 
