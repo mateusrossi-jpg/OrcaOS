@@ -67,14 +67,14 @@ describe('local backup storage', () => {
 
     expect(summarizeOrcaBackupData(backup)).toEqual(expect.arrayContaining([
       { label: 'Clientes', count: 2 },
-      { label: 'OS', count: 1 },
+      { label: 'Execução / Work', count: 1 },
       { label: 'Orçamentos', count: 1 },
-      { label: 'Catálogo', count: 2 },
+      { label: 'Catálogo / Base', count: 2 },
       { label: 'Fornecedores', count: 1 },
       { label: 'Configurações', count: 0 },
-      { label: 'Capturas de campo', count: 1 },
+      { label: 'Diagnósticos / Pulse', count: 1 },
       { label: 'Perfil profissional', count: 2 },
-      { label: 'Conta/plano local', count: 1 },
+      { label: 'Conta e Licença', count: 1 },
     ]));
   });
 
