@@ -59,6 +59,13 @@
   border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
 
+@media (max-width: 520px) {
+  .hero-comparison-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
 .comparison-item {
   display: flex;
   flex-direction: column;

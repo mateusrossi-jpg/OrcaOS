@@ -124,44 +124,46 @@ export function LocalBackupWorkspace({ includeLinkedSettings = true }: { include
         </header>
       </div>
 
-      <div className="aferix-panel-card">
-        <header><div><h2>Exportar Dados</h2></div></header>
-        <div className="dashboard-finance-tiles local-backup-summary-tiles">
-          {currentDataSummary.slice(0, 3).map((item) => (
-            <article className="finance-tile" key={item.label}>
-              <span>{item.label}</span>
-              <strong>{item.count}</strong>
-            </article>
-          ))}
+      <div className="aferix-form-grid">
+        <div className="aferix-panel-card">
+          <header><div><h2>Exportar Dados</h2></div></header>
+          <div className="dashboard-finance-tiles local-backup-summary-tiles">
+            {currentDataSummary.slice(0, 3).map((item) => (
+              <article className="finance-tile" key={item.label}>
+                <span>{item.label}</span>
+                <strong>{item.count}</strong>
+              </article>
+            ))}
+          </div>
+          <div className="local-backup-actions local-backup-actions-spaced">
+            <Button variant="secondary" onClick={downloadBackup}>Download JSON</Button>
+            <Button variant="ghost" onClick={copyBackup}>Copiar</Button>
+            <Button variant="ghost" onClick={refreshBackupText}>Ver JSON</Button>
+          </div>
         </div>
-        <div className="local-backup-actions local-backup-actions-spaced">
-          <Button variant="secondary" onClick={downloadBackup}>Download JSON</Button>
-          <Button variant="ghost" onClick={copyBackup}>Copiar</Button>
-          <Button variant="ghost" onClick={refreshBackupText}>Ver JSON</Button>
-        </div>
-      </div>
 
-      <div className="aferix-panel-card">
-        <header><div><h2>Restaurar Dados</h2></div></header>
-        <div className="professional-profile-grid local-backup-restore-grid">
-          <label className="budget-field wide">
-            <span>Arquivo JSON</span>
-            <input type="file" accept="application/json,.json" onChange={(event) => handleFileImport(event.target.files?.[0] ?? null)} />
-          </label>
-          <Select label="Modo" value={restoreMode} onChange={(value) => setRestoreMode(value as 'merge' | 'replace')}>
-            <option value="merge">Mesclar dados</option>
-            <option value="replace">Substituir tudo</option>
-          </Select>
-          {restoreMode === 'replace' && (
+        <div className="aferix-panel-card">
+          <header><div><h2>Restaurar Dados</h2></div></header>
+          <div className="local-backup-restore-fields">
             <label className="budget-field wide">
-              <span>Confirmação</span>
-              <input value={replaceConfirmation} placeholder="Digite SUBSTITUIR" onChange={(e) => setReplaceConfirmation(e.target.value)} />
+              <span>Arquivo JSON</span>
+              <input type="file" accept="application/json,.json" onChange={(event) => handleFileImport(event.target.files?.[0] ?? null)} />
             </label>
-          )}
-        </div>
-        <div className="local-backup-actions local-backup-actions-padded">
-          <Button variant="primary" onClick={restoreImport}>Restaurar Backup</Button>
-          {canReload && <Button variant="secondary" onClick={reloadAppNow}>Recarregar App</Button>}
+            <Select label="Modo" value={restoreMode} onChange={(value) => setRestoreMode(value as 'merge' | 'replace')}>
+              <option value="merge">Mesclar dados</option>
+              <option value="replace">Substituir tudo</option>
+            </Select>
+            {restoreMode === 'replace' && (
+              <label className="budget-field wide">
+                <span>Confirmação</span>
+                <input value={replaceConfirmation} placeholder="Digite SUBSTITUIR" onChange={(e) => setReplaceConfirmation(e.target.value)} />
+              </label>
+            )}
+          </div>
+          <div className="local-backup-actions local-backup-actions-padded">
+            <Button variant="primary" onClick={restoreImport}>Restaurar Backup</Button>
+            {canReload && <Button variant="secondary" onClick={reloadAppNow}>Recarregar App</Button>}
+          </div>
         </div>
       </div>
 
