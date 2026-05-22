@@ -160,10 +160,7 @@
 }
 
 .client-form-section-head strong {
-  font-size: 0.8rem;
   color: var(--aferix-brand);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
 }
 
 .client-form-section-head small {
@@ -180,12 +177,6 @@
 
 .form-label-top {
   display: block;
-  font-size: 0.75rem;
-  font-weight: 800;
-  color: var(--aferix-text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-bottom: 8px;
 }
 
 .selected-client-display {
@@ -216,7 +207,7 @@
 .premium-input {
   width: 100%;
   padding: 12px 16px;
-  background: var(--aferix-input-bg, #000);
+  background: var(--aferix-bg);
   border: 1px solid var(--aferix-border);
   border-radius: var(--aferix-radius-md);
   color: var(--aferix-text);
@@ -352,7 +343,7 @@
 .client-list-panel .continuous-list {
   order: 3;
   border: 1px solid var(--aferix-border) !important;
-  border-radius: 12px !important;
+  border-radius: var(--aferix-radius-md) !important;
   overflow: hidden;
   background: var(--aferix-surface) !important;
 }
@@ -433,7 +424,7 @@
 .client-search-input {
   width: 100%;
   padding: 12px 16px;
-  border-radius: 8px;
+  border-radius: var(--aferix-radius-sm);
   border: 1px solid var(--aferix-border);
   background: var(--aferix-bg);
 }

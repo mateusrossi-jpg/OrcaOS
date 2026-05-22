@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, memo, type ReactNode } from 'react';
 import type { Client, Service as WorkOrder } from '../../core/types/business';
 import './AppShell.css';
 import type { AppNavItem, AppTab, AppIconGlyph } from '../appTypes';
@@ -24,13 +24,15 @@ interface AppShellProps {
   activeWorkOrder: WorkOrder | null;
 }
 
-function NavGlyph({ path }: { path: string }) {
+function NavGlyphRaw({ path }: { path: string }) {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
       <path d={path} />
     </svg>
   );
 }
+
+const NavGlyph = memo(NavGlyphRaw);
 
 export function AppShell({ children, activeTab, navItems, onNavigate, activeClient }: AppShellProps) {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);

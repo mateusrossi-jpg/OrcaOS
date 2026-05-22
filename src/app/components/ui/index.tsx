@@ -1,4 +1,4 @@
-import { useEffect, useRef, type ButtonHTMLAttributes, type HTMLAttributes, type ReactNode } from 'react';
+import { useEffect, useRef, memo, type ButtonHTMLAttributes, type HTMLAttributes, type ReactNode } from 'react';
 import { CompactActionMenu, type CompactActionItem } from '../CompactActionMenu';
 import { useAutoResizeTextArea } from '../../hooks/useAutoResizeTextArea';
 import { PageShell } from '../PageShell';
@@ -122,7 +122,7 @@ export function ListCard({
 /**
  * ListItem: Item de lista compacto e padronizado.
  */
-export function ListItem({
+export const ListItem = memo(function ListItem({
   title,
   subtitle,
   value,
@@ -155,12 +155,12 @@ export function ListItem({
       </div>
     </article>
   );
-}
+});
 
 /**
  * MetricCard: Card de métrica padronizado.
  */
-export function MetricCard({
+export const MetricCard = memo(function MetricCard({
   label,
   value,
   helper,
@@ -184,12 +184,12 @@ export function MetricCard({
       {(helper || trend) && <small>{helper ?? trend}</small>}
     </article>
   );
-}
+});
 
 /**
  * StatusBadge: Badge de status com suporte a ícones de cadeado.
  */
-export function StatusBadge({
+export const StatusBadge = memo(function StatusBadge({
   status,
   children,
   tone = 'default',
@@ -219,11 +219,11 @@ export function StatusBadge({
     return <Badge tone="default">● Iniciado</Badge>;
   
   return <Badge tone="muted">● {status || 'Status'}</Badge>;
-}
+});
 
-export function Badge({ children, tone = 'default' }: { children: ReactNode; tone?: Tone }) {
+export const Badge = memo(function Badge({ children, tone = 'default' }: { children: ReactNode; tone?: Tone }) {
   return <span className={`aferix-badge tone-${tone}`}>{children}</span>;
-}
+});
 
 /**
  * EmptyState: Estado vazio discreto e centralizado.
@@ -429,7 +429,7 @@ export function TextArea({
   );
 }
 
-export function MoneyValue({ value, tone = 'default', compact = false }: { value: number; tone?: Tone; compact?: boolean }) {
+export const MoneyValue = memo(function MoneyValue({ value, tone = 'default', compact = false }: { value: number; tone?: Tone; compact?: boolean }) {
   const formatted = new Intl.NumberFormat('pt-BR', {
     style: 'currency',
     currency: 'BRL',
@@ -438,7 +438,7 @@ export function MoneyValue({ value, tone = 'default', compact = false }: { value
   }).format(Number.isFinite(value) ? value : 0);
 
   return <span className={`money-value tone-${tone}${compact ? ' compact' : ''}`}>{formatted}</span>;
-}
+});
 
 export function MonetaryInput({
   value,
@@ -503,6 +503,19 @@ export function Modal({
   onConfirm?: () => void;
   tone?: Tone;
 }) {
+  useEffect(() => {
+    if (!isOpen) return;
+
+    function handleEsc(e: KeyboardEvent) {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    }
+
+    window.addEventListener('keydown', handleEsc);
+    return () => window.removeEventListener('keydown', handleEsc);
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   return (

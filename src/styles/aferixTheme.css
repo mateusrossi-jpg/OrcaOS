@@ -121,19 +121,6 @@ p {
   letter-spacing: -0.01em !important;
 }
 
-.budget-field span,
-.catalog-field span,
-.finance-field span,
-.general-form-field span {
-  font-size: 0.72rem !important;
-  font-weight: 800 !important;
-  text-transform: uppercase !important;
-  letter-spacing: 0.05em !important;
-  color: var(--aferix-text-muted) !important;
-  margin-bottom: 4px !important;
-  display: block !important;
-}
-
 .metric-card strong,
 .finance-tile strong {
   font-family: var(--aferix-font) !important;
@@ -584,13 +571,27 @@ svg {
 
 .orca-kicker,
 .drawer-nav-heading,
-.section-title-row h2 {
+.section-title-row h2,
+.catalog-eyebrow,
+.budget-field span,
+.catalog-field span,
+.finance-field span,
+.general-form-field span,
+.form-label-top,
+.client-form-section-head strong,
+.budget-guided-status span,
+.budget-commercial-map span,
+.summary-total span,
+.budget-summary-strip span {
   color: var(--aferix-text-soft) !important;
   font-family: var(--aferix-font) !important;
   font-size: 11px !important;
-  font-weight: 600 !important;
+  font-weight: 800 !important;
   letter-spacing: 0.08em !important;
+  line-height: 1.2 !important;
   text-transform: uppercase !important;
+  margin-bottom: 4px !important;
+  display: block !important;
 }
 
 .aferix-panel-card,
@@ -2764,8 +2765,8 @@ body,
   margin: 0 0 10px !important;
 }
 
-.section-header h2,
 .aferix-panel-card h2,
+.section-header h2,
 .catalog-form-card h4,
 .catalog-list-card h4,
 .finance-entry-panel h2 {
@@ -2773,20 +2774,8 @@ body,
   line-height: 1.15 !important;
   font-weight: 850 !important;
   letter-spacing: -0.02em !important;
-}
-
-.orca-kicker,
-.catalog-eyebrow,
-.budget-field span,
-.catalog-field span,
-.finance-field span,
-.general-form-field span {
-  color: var(--aferix-text-soft) !important;
-  font-size: 10.5px !important;
-  font-weight: 800 !important;
-  letter-spacing: 0.08em !important;
-  line-height: 1.2 !important;
-  text-transform: uppercase !important;
+  margin: 0 !important;
+  color: var(--aferix-text) !important;
 }
 
 .aferix-panel-card,
