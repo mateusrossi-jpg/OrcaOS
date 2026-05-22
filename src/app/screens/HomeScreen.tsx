@@ -138,11 +138,16 @@ export function HomeScreen({
     <PageShell className="aferix-dashboard-screen">
       <PageHeader
         title="Pulse"
-        description="Meu negócio está saudável hoje?"
+        eyebrow="Diagnóstico"
+        description="Como está a saúde do seu negócio hoje?"
       />
 
       <PanelCard className="home-finance-overview">
-        <SectionTitle title="Diagnóstico rápido" eyebrow="Pulse" />
+        <SectionTitle 
+          title="Visão Geral" 
+          eyebrow="Money" 
+          description="Resultados baseados em orçamentos finalizados."
+        />
         <div className="metric-grid dashboard-metric-grid">
           <MetricCard 
             label="Lucro atual" 
@@ -202,6 +207,7 @@ export function HomeScreen({
             <EmptyState 
               title="Sem alertas críticos" 
               description="Sua operação está estável neste momento." 
+              icon={<svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>}
             />
           ) : (
             alerts.map((alert) => (
@@ -221,6 +227,7 @@ export function HomeScreen({
             <EmptyState 
               title="Nenhum orçamento finalizado" 
               description="Quando um orçamento for finalizado, o resultado aparecerá aqui automaticamente." 
+              icon={<svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10H7v-2h10v2z"/></svg>}
             />
           ) : (
             recentFinalized.map((record) => {

@@ -36,6 +36,7 @@ import {
   Button, 
   PanelCard, 
   Input, 
+  SectionTitle,
   PrimaryButton, 
   SecondaryButton, 
   StatusBadge, 
@@ -783,22 +784,31 @@ export function BudgetWorkspace({
       {activeSection === 'cliente' && (
         <section className="budget-section-panel">
           <PanelCard className="compact-budget-card">
-            <Input label="Cliente" placeholder="Nome do cliente" value={clientName} onChange={(e) => setClientName(e.target.value)} disabled={isBudgetLocked} />
-            {activeBudgetId && savedBudgets.find(b => b.id === activeBudgetId)?.clientId && (
-              <div className="budget-context-link-row">
-                <Button 
-                  variant="ghost" 
-                  onClick={() => {
-                    const cid = savedBudgets.find(b => b.id === activeBudgetId)?.clientId;
-                    if (cid) onViewClient?.(cid);
-                  }}
-                >
-                  🔍 Ver ficha do cliente na Base
-                </Button>
-              </div>
-            )}
+            <div className="aferix-form-grid">
+              <Input 
+                className="aferix-form-grid-wide"
+                label="Cliente" 
+                placeholder="Nome do cliente" 
+                value={clientName} 
+                onChange={(e) => setClientName(e.target.value)} 
+                disabled={isBudgetLocked} 
+              />
+              {activeBudgetId && savedBudgets.find(b => b.id === activeBudgetId)?.clientId && (
+                <div className="budget-context-link-row aferix-form-grid-wide">
+                  <Button 
+                    variant="ghost" 
+                    onClick={() => {
+                      const cid = savedBudgets.find(b => b.id === activeBudgetId)?.clientId;
+                      if (cid) onViewClient?.(cid);
+                    }}
+                  >
+                    🔍 Ver ficha do cliente na Base
+                  </Button>
+                </div>
+              )}
+            </div>
           </PanelCard>
-          <div className="budget-actions">
+          <div className="aferix-form-actions aferix-form-actions-row">
             <SecondaryButton onClick={confirmResetBudgetDraft}>Limpar e Novo</SecondaryButton>
             <PrimaryButton onClick={() => setActiveSection('serviço')}>Próximo: Definir Serviço</PrimaryButton>
           </div>
@@ -808,19 +818,34 @@ export function BudgetWorkspace({
       {activeSection === 'serviço' && (
         <section className="budget-section-panel">
           <PanelCard className="compact-budget-card">
-            <Input label="Título do Serviço" placeholder="Ex.: Instalação de Ar Condicionado" value={budgetTitle} onChange={(e) => setBudgetTitle(e.target.value)} disabled={isBudgetLocked} />
-            <Select label="Status do orçamento" value={budgetStatus} onChange={(value) => setBudgetStatus(value as SavedBudgetStatus)} disabled={isBudgetLocked}>
-              <option value="iniciado" disabled={budgetStatus !== 'iniciado' && !canBudgetTransitionTo(budgetStatus, 'iniciado')}>Orçamento iniciado</option>
-              <option value="em_revisao" disabled={budgetStatus !== 'em_revisao' && !canBudgetTransitionTo(budgetStatus, 'em_revisao')}>Em revisão</option>
-              <option value="enviado" disabled={budgetStatus !== 'enviado' && !canBudgetTransitionTo(budgetStatus, 'enviado')}>Orçamento enviado</option>
-              <option value="autorizado" disabled={budgetStatus !== 'autorizado' && !canBudgetTransitionTo(budgetStatus, 'autorizado')}>Autorizado</option>
-              <option value="em_execucao" disabled={budgetStatus !== 'em_execucao' && !canBudgetTransitionTo(budgetStatus, 'em_execucao')}>Em execução</option>
-              <option value="finalizado" disabled={budgetStatus !== 'finalizado' && !canBudgetTransitionTo(budgetStatus, 'finalizado')}>Finalizado</option>
-              <option value="recusado" disabled={budgetStatus !== 'recusado' && !canBudgetTransitionTo(budgetStatus, 'recusado')}>Recusado</option>
-              <option value="cancelado" disabled={budgetStatus !== 'cancelado' && !canBudgetTransitionTo(budgetStatus, 'cancelado')}>Cancelado</option>
-            </Select>
+            <div className="aferix-form-grid">
+              <Input 
+                className="aferix-form-grid-wide"
+                label="Título do Serviço" 
+                placeholder="Ex.: Instalação de Ar Condicionado" 
+                value={budgetTitle} 
+                onChange={(e) => setBudgetTitle(e.target.value)} 
+                disabled={isBudgetLocked} 
+              />
+              <Select 
+                className="aferix-form-grid-wide"
+                label="Status do orçamento" 
+                value={budgetStatus} 
+                onChange={(value) => setBudgetStatus(value as SavedBudgetStatus)} 
+                disabled={isBudgetLocked}
+              >
+                <option value="iniciado" disabled={budgetStatus !== 'iniciado' && !canBudgetTransitionTo(budgetStatus, 'iniciado')}>Orçamento iniciado</option>
+                <option value="em_revisao" disabled={budgetStatus !== 'em_revisao' && !canBudgetTransitionTo(budgetStatus, 'em_revisao')}>Em revisão</option>
+                <option value="enviado" disabled={budgetStatus !== 'enviado' && !canBudgetTransitionTo(budgetStatus, 'enviado')}>Orçamento enviado</option>
+                <option value="autorizado" disabled={budgetStatus !== 'autorizado' && !canBudgetTransitionTo(budgetStatus, 'autorizado')}>Autorizado</option>
+                <option value="em_execucao" disabled={budgetStatus !== 'em_execucao' && !canBudgetTransitionTo(budgetStatus, 'em_execucao')}>Em execução</option>
+                <option value="finalizado" disabled={budgetStatus !== 'finalizado' && !canBudgetTransitionTo(budgetStatus, 'finalizado')}>Finalizado</option>
+                <option value="recusado" disabled={budgetStatus !== 'recusado' && !canBudgetTransitionTo(budgetStatus, 'recusado')}>Recusado</option>
+                <option value="cancelado" disabled={budgetStatus !== 'cancelado' && !canBudgetTransitionTo(budgetStatus, 'cancelado')}>Cancelado</option>
+              </Select>
+            </div>
           </PanelCard>
-          <div className="budget-actions">
+          <div className="aferix-form-actions aferix-form-actions-row">
             <PrimaryButton onClick={() => setActiveSection('itens')}>Próximo: Adicionar Itens</PrimaryButton>
           </div>
         </section>
@@ -830,8 +855,11 @@ export function BudgetWorkspace({
         <section className="budget-section-panel budget-items-layout">
           <PanelCard className="budget-catalog-integration">
             <header className="panel-list-header">
-              <h3>Biblioteca do Catálogo</h3>
-              <p>Adicione itens rápidos da sua base profissional.</p>
+              <SectionTitle 
+                title="Biblioteca do Catálogo" 
+                eyebrow="Base"
+                description="Adicione itens rápidos da sua base profissional."
+              />
             </header>
             
             <div className="budget-catalog-search-row">
@@ -880,15 +908,17 @@ export function BudgetWorkspace({
 
           <PanelCard className="budget-editor">
             <header className="panel-list-header">
-              <h3>Adicionar item manual</h3>
+              <SectionTitle title="Adicionar item manual" eyebrow="Personalizado" />
             </header>
-            <div className="budget-form-grid">
-              <div className="budget-field-wide">
-                <label className="aferix-input-field">
-                  <span>Descrição</span>
-                  <TextArea placeholder="Ex.: Serviço recorrente" value={draft.description} onChange={(v) => updateDraft('description', v)} disabled={isBudgetLocked} />
-                </label>
-              </div>
+            <div className="aferix-form-grid aferix-form-grid-3">
+              <TextArea 
+                className="aferix-form-grid-wide"
+                label="Descrição"
+                placeholder="Ex.: Serviço recorrente" 
+                value={draft.description} 
+                onChange={(v) => updateDraft('description', v)} 
+                disabled={isBudgetLocked} 
+              />
               <Input label="Qtd." type="number" inputMode="decimal" value={draft.quantity} onFocus={handleNumericInputFocus} onChange={(e) => updateDraft('quantity', Number(e.target.value))} disabled={isBudgetLocked} />
               <MonetaryInput label="Valor unitário" value={draft.unitPrice} onChange={(v) => updateDraft('unitPrice', v)} disabled={isBudgetLocked} />
               <Select label="Categoria" value={draft.category} onChange={(value) => updateDraft('category', value as BudgetCategory)} disabled={isBudgetLocked}>
@@ -897,7 +927,7 @@ export function BudgetWorkspace({
                 <option value="other">Outro</option>
               </Select>
             </div>
-            <div className="budget-actions budget-top-spacing-md">
+            <div className="aferix-form-actions aferix-form-actions-row budget-top-spacing-md">
               <PrimaryButton disabled={isBudgetLocked || !canAddItem} onClick={addItem}>Adicionar item</PrimaryButton>
               <SecondaryButton onClick={confirmLoadStarterItems} disabled={isBudgetLocked}>Carregar modelo</SecondaryButton>
             </div>
@@ -922,12 +952,12 @@ export function BudgetWorkspace({
                 </ListCard>
                 {selectedBudgetItem && (
                   <PanelCard className="budget-item-edit-panel">
-                    <div className="budget-form-grid">
-                      <Input className="budget-field-wide" label="Descrição" value={selectedBudgetItem.description} onChange={(e) => updateBudgetItem(selectedBudgetItem.id, 'description', e.target.value)} disabled={isBudgetLocked} />
+                    <div className="aferix-form-grid">
+                      <Input className="aferix-form-grid-wide" label="Descrição" value={selectedBudgetItem.description} onChange={(e) => updateBudgetItem(selectedBudgetItem.id, 'description', e.target.value)} disabled={isBudgetLocked} />
                       <Input label="Qtd." type="number" inputMode="decimal" value={selectedBudgetItem.quantity} onFocus={handleNumericInputFocus} onChange={(e) => updateBudgetItem(selectedBudgetItem.id, 'quantity', Number(e.target.value))} disabled={isBudgetLocked} />
                       <MonetaryInput label="Valor unitário" value={selectedBudgetItem.unitPrice} onChange={(v) => updateBudgetItem(selectedBudgetItem.id, 'unitPrice', v)} disabled={isBudgetLocked} />
                     </div>
-                    <div className="editable-budget-item-footer budget-top-spacing-md">
+                    <div className="aferix-form-actions aferix-form-actions-row budget-top-spacing-md">
                       <Button variant="danger" disabled={isBudgetLocked} onClick={() => confirmRemoveItem(selectedBudgetItem.id)}>Remover</Button>
                     </div>
                   </PanelCard>
@@ -937,11 +967,11 @@ export function BudgetWorkspace({
           </div>
           
           <PanelCard className="budget-sticky-summary">
-            <span>Subtotal de itens</span>
-            <div><small>Soma parcial</small><strong>{formatCurrency(summary.subtotal)}</strong></div>
+            <span className="orca-kicker">Resumo Financeiro</span>
+            <div><small>Subtotal de itens</small><strong>{formatCurrency(summary.subtotal)}</strong></div>
           </PanelCard>
           
-          <div className="budget-actions">
+          <div className="aferix-form-actions aferix-form-actions-row">
             <PrimaryButton onClick={() => setActiveSection('custos')}>Próximo: Custos</PrimaryButton>
           </div>
         </section>
@@ -950,13 +980,15 @@ export function BudgetWorkspace({
       {activeSection === 'custos' && (
         <section className="budget-section-panel">
           <PanelCard className="compact-budget-card">
-            <MonetaryInput label="Investimento em Materiais (Custo)" value={materialCost} onChange={setMaterialCost} disabled={isBudgetLocked} />
-            <MonetaryInput label="Custos Operacionais" value={operationalCost} onChange={setOperationalCost} disabled={isBudgetLocked} />
-            <MonetaryInput label="Deslocamento / Frete" value={travelCost} onChange={setTravelCost} disabled={isBudgetLocked} />
-            <MonetaryInput label="Taxas adicionais" value={additionalFees} onChange={setAdditionalFees} disabled={isBudgetLocked} />
-            <Input label="Alíquota de Imposto (%)" type="number" inputMode="decimal" value={taxRate} onFocus={handleNumericInputFocus} onChange={(e) => setTaxRate(Math.min(parseInputAmount(e.target.value), 100))} disabled={isBudgetLocked} />
+            <div className="aferix-form-grid">
+              <MonetaryInput label="Investimento em Materiais (Custo)" value={materialCost} onChange={setMaterialCost} disabled={isBudgetLocked} />
+              <MonetaryInput label="Custos Operacionais" value={operationalCost} onChange={setOperationalCost} disabled={isBudgetLocked} />
+              <MonetaryInput label="Deslocamento / Frete" value={travelCost} onChange={setTravelCost} disabled={isBudgetLocked} />
+              <MonetaryInput label="Taxas adicionais" value={additionalFees} onChange={setAdditionalFees} disabled={isBudgetLocked} />
+              <Input label="Alíquota de Imposto (%)" type="number" inputMode="decimal" value={taxRate} onFocus={handleNumericInputFocus} onChange={(e) => setTaxRate(Math.min(parseInputAmount(e.target.value), 100))} disabled={isBudgetLocked} />
+            </div>
           </PanelCard>
-          <div className="budget-actions">
+          <div className="aferix-form-actions aferix-form-actions-row">
             <PrimaryButton onClick={() => setActiveSection('revisão')}>Próximo: Orçamento</PrimaryButton>
           </div>
         </section>
@@ -965,34 +997,40 @@ export function BudgetWorkspace({
       {activeSection === 'revisão' && (
         <section className="budget-section-panel">
           <PanelCard className="compact-budget-card">
-            <MonetaryInput label="Desconto Especial" value={discount} onChange={setDiscount} disabled={isBudgetLocked} />
-            <Input label="Validade do Orçamento" value={validity} onChange={(e) => setValidity(e.target.value)} disabled={isBudgetLocked} />
-            <div className="budget-field-wide">
-              <label className="aferix-input-field">
-                <span>Garantia</span>
-                <TextArea value={guarantee} onChange={setGuarantee} disabled={isBudgetLocked} />
-              </label>
-            </div>
-            <div className="budget-field-wide">
-              <label className="aferix-input-field">
-                <span>Prazo de Execução</span>
-                <TextArea value={executionDeadline} onChange={setExecutionDeadline} disabled={isBudgetLocked} />
-              </label>
-            </div>
-            <div className="budget-field-wide">
-              <label className="aferix-input-field">
-                <span>Forma de Pagamento</span>
-                <TextArea value={paymentTerms} onChange={setPaymentTerms} disabled={isBudgetLocked} />
-              </label>
-            </div>
-            <div className="budget-field-wide">
-              <label className="aferix-input-field">
-                <span>Observações Internas</span>
-                <TextArea value={commercialNotes} onChange={setCommercialNotes} disabled={isBudgetLocked} />
-              </label>
+            <div className="aferix-form-grid">
+              <MonetaryInput label="Desconto Especial" value={discount} onChange={setDiscount} disabled={isBudgetLocked} />
+              <Input label="Validade do Orçamento" value={validity} onChange={(e) => setValidity(e.target.value)} disabled={isBudgetLocked} />
+              <TextArea 
+                className="aferix-form-grid-wide"
+                label="Garantia"
+                value={guarantee} 
+                onChange={setGuarantee} 
+                disabled={isBudgetLocked} 
+              />
+              <TextArea 
+                className="aferix-form-grid-wide"
+                label="Prazo de Execução"
+                value={executionDeadline} 
+                onChange={setExecutionDeadline} 
+                disabled={isBudgetLocked} 
+              />
+              <TextArea 
+                className="aferix-form-grid-wide"
+                label="Forma de Pagamento"
+                value={paymentTerms} 
+                onChange={setPaymentTerms} 
+                disabled={isBudgetLocked} 
+              />
+              <TextArea 
+                className="aferix-form-grid-wide"
+                label="Observações Internas"
+                value={commercialNotes} 
+                onChange={setCommercialNotes} 
+                disabled={isBudgetLocked} 
+              />
             </div>
           </PanelCard>
-          <div className="budget-actions">
+          <div className="aferix-form-actions aferix-form-actions-row">
             <PrimaryButton disabled={isBudgetLocked} onClick={() => { saveCurrentBudget(); setActiveSection('documento'); }}>Próximo: PDF</PrimaryButton>
           </div>
         </section>

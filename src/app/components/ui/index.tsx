@@ -6,7 +6,7 @@ import { PageShell } from '../PageShell';
 type Tone = 'default' | 'brand' | 'success' | 'danger' | 'muted';
 
 /**
- * PageHeader: título, descrição curta e ação principal opcional.
+ * PageHeader: título principal da tela, descrição e ação primária.
  */
 export function PageHeader({ 
   title, 
@@ -22,11 +22,11 @@ export function PageHeader({
   className?: string 
 }) {
   return (
-    <header className={`page-header ${className}`.trim()}>
+    <header className={`page-header screen-header ${className}`.trim()}>
       <div className="header-content">
         {eyebrow && <span className="orca-kicker">{eyebrow}</span>}
         <h1>{title}</h1>
-        {description && <p>{description}</p>}
+        {description && <p className="header-description">{description}</p>}
       </div>
       {action && <div className="page-header-action">{action}</div>}
     </header>
@@ -409,6 +409,8 @@ export function TextArea({
   value,
   onChange,
   placeholder,
+  label,
+  helper,
   rows = 1,
   className = '',
   disabled = false,
@@ -416,6 +418,8 @@ export function TextArea({
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
+  label?: string;
+  helper?: string;
   rows?: number;
   className?: string;
   disabled?: boolean;
@@ -424,15 +428,19 @@ export function TextArea({
   useAutoResizeTextArea(ref, value);
 
   return (
-    <textarea
-      ref={ref}
-      className={`aferix-textarea ${className}`.trim()}
-      value={value}
-      placeholder={placeholder}
-      rows={rows}
-      onChange={(e) => onChange(e.target.value)}
-      disabled={disabled}
-    />
+    <label className={`aferix-input-field ${className}`.trim()}>
+      {label && <span>{label}</span>}
+      <textarea
+        ref={ref}
+        className="aferix-textarea"
+        value={value}
+        placeholder={placeholder}
+        rows={rows}
+        onChange={(e) => onChange(e.target.value)}
+        disabled={disabled}
+      />
+      {helper && <small>{helper}</small>}
+    </label>
   );
 }
 
@@ -547,11 +555,27 @@ export function Modal({
   );
 }
 
-export function SectionTitle({ title, eyebrow, className = '' }: { title: string; eyebrow?: string; className?: string }) {
+export function SectionTitle({ 
+  title, 
+  eyebrow, 
+  description,
+  action,
+  className = '' 
+}: { 
+  title: string; 
+  eyebrow?: string; 
+  description?: string;
+  action?: ReactNode;
+  className?: string 
+}) {
   return (
     <header className={`section-title ${className}`.trim()}>
-      {eyebrow && <span className="orca-kicker">{eyebrow}</span>}
-      <h2>{title}</h2>
+      <div className="section-title-main">
+        {eyebrow && <span className="orca-kicker">{eyebrow}</span>}
+        <h2>{title}</h2>
+        {description && <p className="section-description">{description}</p>}
+      </div>
+      {action && <div className="section-title-action">{action}</div>}
     </header>
   );
 }

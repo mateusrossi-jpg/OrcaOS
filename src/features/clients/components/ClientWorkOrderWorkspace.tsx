@@ -23,6 +23,7 @@ import {
   StatusBadge,
   ActionMenu,
   Input,
+  SectionTitle,
   PrimaryButton,
   SecondaryButton,
   PanelCard
@@ -299,18 +300,21 @@ export function ClientWorkOrderWorkspace({ initialSection, initialClientId, sect
         <PanelCard className="client-form-card">
           <BackButton onClick={cancelClientEdit} label="Voltar para a Lista" />
           <header className="client-form-header">
-            <h2>{editingClientId ? 'Editar Cliente' : 'Novo Cliente'}</h2>
+            <SectionTitle 
+              title={editingClientId ? 'Editar Cliente' : 'Novo Cliente'} 
+              eyebrow="Ficha de cadastro"
+            />
           </header>
 
-          <div className="client-os-grid">
-            <div className="client-form-section client-os-wide">
+          <div className="aferix-form-grid">
+            <div className="client-form-section aferix-form-grid-wide">
               <div className="client-form-section-head">
                 <strong>Identificação</strong>
                 <small>Dados para localizar cliente e orçamento.</small>
               </div>
             </div>
             <Input 
-              className="client-os-wide"
+              className="aferix-form-grid-wide"
               label="Nome / razão social"
               value={clientDraft.name} 
               placeholder="Ex: João da Silva" 
@@ -330,6 +334,7 @@ export function ClientWorkOrderWorkspace({ initialSection, initialClientId, sect
               onChange={(event) => updateClientDraft('phone', event.target.value)} 
             />
             <Input 
+              className="aferix-form-grid-wide"
               label="E-mail"
               type="email" 
               value={clientDraft.email} 
@@ -337,32 +342,29 @@ export function ClientWorkOrderWorkspace({ initialSection, initialClientId, sect
               onChange={(event) => updateClientDraft('email', event.target.value)} 
             />
             
-            <div className="client-os-wide">
-              <label className="aferix-input-field">
-                <span>Contatos adicionais</span>
-                <TextArea 
-                  value={clientDraft.additionalContacts} 
-                  placeholder="Outros telefones ou nomes de contato..." 
-                  onChange={(value) => updateClientDraft('additionalContacts', value)} 
-                />
-              </label>
-            </div>
+            <TextArea 
+              className="aferix-form-grid-wide"
+              label="Contatos adicionais"
+              value={clientDraft.additionalContacts} 
+              placeholder="Outros telefones ou nomes de contato..." 
+              onChange={(value) => updateClientDraft('additionalContacts', value)} 
+            />
 
-            <div className="client-form-section client-os-wide">
+            <div className="client-form-section aferix-form-grid-wide">
               <div className="client-form-section-head">
                 <strong>Endereço</strong>
                 <small>Dados para faturamento e localização.</small>
               </div>
             </div>
             <Input 
-              className="client-os-wide"
+              className="aferix-form-grid-wide"
               label="Endereço Completo"
               value={clientDraft.address} 
               placeholder="Rua, número, bairro, cidade..." 
               onChange={(event) => updateClientDraft('address', event.target.value)} 
             />
             
-            <div className="client-form-section client-os-wide">
+            <div className="client-form-section aferix-form-grid-wide">
               <div className="client-form-section-head">
                 <strong>Comercial</strong>
               </div>
@@ -384,19 +386,16 @@ export function ClientWorkOrderWorkspace({ initialSection, initialClientId, sect
               onChange={(value) => updateClientDraft('creditLimit', value)} 
             />
             
-            <div className="client-os-wide">
-              <label className="aferix-input-field">
-                <span>Observações</span>
-                <TextArea 
-                  value={clientDraft.notes} 
-                  placeholder="Informações úteis para atendimento." 
-                  onChange={(value) => updateClientDraft('notes', value)} 
-                />
-              </label>
-            </div>
+            <TextArea 
+              className="aferix-form-grid-wide"
+              label="Observações"
+              value={clientDraft.notes} 
+              placeholder="Informações úteis para atendimento." 
+              onChange={(value) => updateClientDraft('notes', value)} 
+            />
           </div>
 
-          <div className="client-os-form-actions-stacked">
+          <div className="aferix-form-actions">
             <PrimaryButton onClick={addClient}>
               {editingClientId ? 'Salvar Alterações' : 'Cadastrar Cliente'}
             </PrimaryButton>

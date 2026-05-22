@@ -521,34 +521,77 @@ svg {
 }
 
 .page-header,
-.screen-header {
+.screen-header,
+.section-title {
   display: flex !important;
-  align-items: center !important;
+  align-items: flex-end !important;
   justify-content: space-between !important;
   gap: 16px !important;
-  margin: 0 0 8px !important;
-  padding-bottom: 0 !important;
+  margin: 0 0 16px !important;
+  padding-bottom: 8px !important;
+  border-bottom: 1px solid var(--aferix-border);
+}
+
+.header-content,
+.section-title-main {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
 }
 
 .page-header h1,
 .screen-header h1 {
   margin: 0 !important;
   color: var(--aferix-text) !important;
-  font-size: 20px !important;
+  font-size: 22px !important;
   font-weight: 900 !important;
-  line-height: 1 !important;
-  letter-spacing: -0.025em !important;
+  line-height: 1.1 !important;
+  letter-spacing: -0.02em !important;
 }
 
-.page-header p,
-.screen-header p {
-  margin: 2px 0 0 !important;
+.section-title h2 {
+  margin: 0 !important;
+  color: var(--aferix-text) !important;
+  font-size: 17px !important;
+  font-weight: 800 !important;
+  line-height: 1.2 !important;
+}
+
+.header-description,
+.section-description {
+  margin: 4px 0 0 !important;
   color: var(--aferix-text-muted) !important;
-  font-size: 12.5px !important;
-  line-height: 1.3 !important;
+  font-size: 13px !important;
+  line-height: 1.4 !important;
+  font-weight: 450 !important;
 }
 
-.section-header,
+.page-header-action,
+.section-title-action {
+  flex: none;
+}
+
+@media (max-width: 768px) {
+  .page-header,
+  .screen-header,
+  .section-title {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 12px !important;
+    margin-bottom: 20px !important;
+  }
+  
+  .page-header-action,
+  .section-title-action {
+    width: 100%;
+  }
+  
+  .page-header-action button,
+  .section-title-action button {
+    width: 100% !important;
+  }
+}
+
 .aferix-panel-card > header,
 .client-purchase-panel header,
 .report-command-panel header {
@@ -559,7 +602,6 @@ svg {
   margin: 0 0 10px !important;
 }
 
-.section-header h2,
 .aferix-panel-card h2,
 .client-purchase-panel h2 {
   margin: 0 !important;
@@ -1250,47 +1292,47 @@ button.secondary {
   flex-direction: column !important;
   align-items: center !important;
   justify-content: center !important;
-  padding: 48px 24px !important;
+  padding: 40px 24px !important;
   text-align: center !important;
-  min-height: 200px !important;
-  background: transparent !important;
-  border: 1px dashed var(--aferix-border-soft) !important;
-  border-radius: var(--aferix-radius-md) !important;
-  margin: 16px 0 !important;
+  min-height: 180px !important;
+  background: var(--aferix-surface) !important;
+  border: 1px solid var(--aferix-border-soft) !important;
+  border-radius: var(--aferix-radius-lg) !important;
+  margin: 12px 0 !important;
 }
 
 .empty-state-icon {
-  width: 52px;
-  height: 52px;
-  margin-bottom: 12px;
-  border: 1px solid var(--aferix-border);
+  width: 48px;
+  height: 48px;
+  margin-bottom: 16px;
+  border: 1px solid var(--aferix-border-soft);
   border-radius: 999px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.015);
+  background: var(--aferix-surface-raised);
 }
 
 .empty-state-icon svg {
-  width: 22px;
-  height: 22px;
-  stroke: var(--aferix-text-muted);
-  stroke-width: 1.8;
-  fill: none;
-  stroke-linecap: round;
-  stroke-linejoin: round;
+  width: 20px;
+  height: 20px;
+  color: var(--aferix-primary);
+  fill: currentColor;
 }
 
 .premium-empty-state strong {
-  font-size: 1.1rem !important;
+  font-size: 1.05rem !important;
+  font-weight: 800 !important;
   color: var(--aferix-text) !important;
-  margin-bottom: 6px !important;
+  margin-bottom: 4px !important;
 }
 
 .premium-empty-state p {
-  font-size: 0.9rem !important;
-  color: var(--aferix-text-muted) !important;
-  max-width: 280px !important;
+  font-size: 13.5px !important;
+  color: var(--aferix-text-soft) !important;
+  line-height: 1.5 !important;
+  max-width: 320px !important;
+  margin: 0 !important;
 }
 
 .aferix-back-button-card {
@@ -1987,6 +2029,63 @@ button.highlight-card {
   word-break: break-word;
 }
 
+.continuous-list-item {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  align-items: center !important;
+  gap: 16px !important;
+  padding: 12px 16px !important;
+  border-bottom: 1px solid var(--aferix-border);
+  transition: background 0.1s ease;
+}
+
+.continuous-list-item:last-child {
+  border-bottom: none;
+}
+
+.continuous-list-item.clickable-row:hover {
+  background: var(--aferix-surface-raised);
+}
+
+.client-col {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.client-col strong {
+  font-size: 14.5px !important;
+  font-weight: 650 !important;
+  color: var(--aferix-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.client-col small {
+  font-size: 12px !important;
+  color: var(--aferix-text-muted);
+}
+
+.value-col {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.status-wrapper,
+.value-wrapper,
+.action-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.value-wrapper strong {
+  font-size: 15px !important;
+  font-weight: 750 !important;
+  color: var(--aferix-text);
+}
+
 .long-token,
 .installation-id,
 .billing-package,
@@ -2000,7 +2099,49 @@ button.highlight-card {
   white-space: nowrap;
 }
 
-/* 2. Refining License/Payments Status Grids */
+/* 2. Standardized Form Layouts */
+.aferix-form-grid {
+  display: grid !important;
+  gap: 16px !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  width: 100% !important;
+}
+
+.aferix-form-grid-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+}
+
+.aferix-form-grid-4 {
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+}
+
+.aferix-form-grid-wide {
+  grid-column: 1 / -1 !important;
+}
+
+.aferix-form-actions {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+  margin-top: 24px !important;
+  padding-top: 20px !important;
+  border-top: 1px solid var(--aferix-border);
+}
+
+.aferix-form-actions-row {
+  flex-direction: row !important;
+  justify-content: flex-end !important;
+}
+
+@media (max-width: 768px) {
+  .aferix-form-grid,
+  .aferix-form-grid-3,
+  .aferix-form-grid-4 {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* 3. Refining License/Payments Status Grids */
 .billing-status-grid,
 .license-status-grid,
 .payment-status-grid,
