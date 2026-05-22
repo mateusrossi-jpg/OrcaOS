@@ -1,5 +1,20 @@
 import { useMemo, useState } from 'react';
-import { MetricCard, MoneyValue, EmptyState, Button, BackButton } from '../../../app/components/ui';
+import { 
+  MetricCard, 
+  MoneyValue, 
+  EmptyState, 
+  Button, 
+  BackButton, 
+  ListCard, 
+  ListItem, 
+  SearchInput, 
+  StatusBadge, 
+  ActionMenu, 
+  Input, 
+  PrimaryButton,
+  SecondaryButton, 
+  PanelCard 
+} from '../../../app/components/ui';
 import { calculateServiceProfit } from '../../../core/finance/serviceProfit';
 import { calculateBudgetTotal } from '../../../core/pricing/budget';
 import type { Budget } from '../../../core/types/business';
@@ -34,7 +49,7 @@ interface AdjustmentDraft {
 }
 
 const moneyFormatter = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
-const FINANCE_VISIBLE_LIMIT = 10;
+const FINANCE_VISIBLE_LIMIT = 5;
 
 function money(value: number): string {
   return moneyFormatter.format(Number.isFinite(value) ? value : 0);
@@ -66,16 +81,10 @@ function formatDate(value: string): string {
   return new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(new Date(value));
 }
 
-function statusLabel(status: string): string {
-  if (status === 'finalizado') return 'Finalizado';
-  if (status === 'recusado') return 'Recusado';
-  if (status === 'cancelado') return 'Cancelado';
-  return status;
-}
-
 export function SimpleFinanceWorkspace() {
   const [recordSearch, setRecordSearch] = useState('');
   const [editingDraft, setEditingDraft] = useState<AdjustmentDraft | null>(null);
+  const [showAllRows, setShowAllRows] = useState(false);
   const [syncTick, setSyncTick] = useState(0);
 
   const finalizedBudgets = useMemo(
@@ -131,7 +140,7 @@ export function SimpleFinanceWorkspace() {
     return rows.filter((row) => [row.title, row.clientName, money(row.receivedAmount)].join(' ').toLowerCase().includes(normalizedSearch));
   }, [recordSearch, rows]);
 
-  const visibleRows = filteredRows.slice(0, FINANCE_VISIBLE_LIMIT);
+  const visibleRows = showAllRows ? filteredRows : filteredRows.slice(0, FINANCE_VISIBLE_LIMIT);
   const hiddenRecordCount = Math.max(filteredRows.length - visibleRows.length, 0);
 
   const monthSummary = useMemo(() => {
@@ -185,72 +194,91 @@ export function SimpleFinanceWorkspace() {
         <MetricCard label="Lucro líquido" value={<MoneyValue value={monthSummary.net} tone={monthSummary.net >= 0 ? 'success' : 'danger'} />} tone={monthSummary.net >= 0 ? 'success' : 'danger'} />
       </div>
 
-      {editingDraft && <div className="aferix-panel-card finance-entry-panel">
-        <BackButton onClick={() => setEditingDraft(null)} label="Voltar para resultados" />
-        <header>
-          <div>
+      {editingDraft && (
+        <PanelCard className="finance-entry-panel">
+          <BackButton onClick={() => setEditingDraft(null)} label="Voltar para resultados" />
+          <header className="panel-list-header">
             <h2>Ajuste Financeiro do Orçamento</h2>
             <p>Refine valores reais de um orçamento finalizado.</p>
+          </header>
+
+          <div className="finance-form-grid finance-form-grid-spaced">
+            <Input className="wide" label="Título" value={editingDraft.title} onChange={(event) => setEditingDraft((current) => current ? { ...current, title: event.target.value } : current)} />
+            <Input label="Cliente" value={editingDraft.clientName} onChange={(event) => setEditingDraft((current) => current ? { ...current, clientName: event.target.value } : current)} />
+            <Input label="Receita realizada" inputMode="decimal" value={editingDraft.receivedAmount} onChange={(event) => setEditingDraft((current) => current ? { ...current, receivedAmount: event.target.value } : current)} />
+            <Input label="Custo material" inputMode="decimal" value={editingDraft.materialCost} onChange={(event) => setEditingDraft((current) => current ? { ...current, materialCost: event.target.value } : current)} />
+            <Input label="Deslocamento" inputMode="decimal" value={editingDraft.travelCost} onChange={(event) => setEditingDraft((current) => current ? { ...current, travelCost: event.target.value } : current)} />
+            <Input label="Outros custos" inputMode="decimal" value={editingDraft.otherCosts} onChange={(event) => setEditingDraft((current) => current ? { ...current, otherCosts: event.target.value } : current)} />
+            <Input label="Taxa cartão" inputMode="decimal" value={editingDraft.cardFee} onChange={(event) => setEditingDraft((current) => current ? { ...current, cardFee: event.target.value } : current)} />
+            <Input label="Imposto estimado" inputMode="decimal" value={editingDraft.estimatedTax} onChange={(event) => setEditingDraft((current) => current ? { ...current, estimatedTax: event.target.value } : current)} />
           </div>
-        </header>
 
-        <div className="finance-form-grid finance-form-grid-spaced">
-          <label className="budget-field wide"><span>Título</span><input value={editingDraft.title} onChange={(event) => setEditingDraft((current) => current ? { ...current, title: event.target.value } : current)} /></label>
-          <label className="budget-field"><span>Cliente</span><input value={editingDraft.clientName} onChange={(event) => setEditingDraft((current) => current ? { ...current, clientName: event.target.value } : current)} /></label>
-          <label className="budget-field"><span>Receita realizada</span><input inputMode="decimal" value={editingDraft.receivedAmount} onChange={(event) => setEditingDraft((current) => current ? { ...current, receivedAmount: event.target.value } : current)} /></label>
-          <label className="budget-field"><span>Custo material</span><input inputMode="decimal" value={editingDraft.materialCost} onChange={(event) => setEditingDraft((current) => current ? { ...current, materialCost: event.target.value } : current)} /></label>
-          <label className="budget-field"><span>Deslocamento</span><input inputMode="decimal" value={editingDraft.travelCost} onChange={(event) => setEditingDraft((current) => current ? { ...current, travelCost: event.target.value } : current)} /></label>
-          <label className="budget-field"><span>Outros custos</span><input inputMode="decimal" value={editingDraft.otherCosts} onChange={(event) => setEditingDraft((current) => current ? { ...current, otherCosts: event.target.value } : current)} /></label>
-          <label className="budget-field"><span>Taxa cartão</span><input inputMode="decimal" value={editingDraft.cardFee} onChange={(event) => setEditingDraft((current) => current ? { ...current, cardFee: event.target.value } : current)} /></label>
-          <label className="budget-field"><span>Imposto estimado</span><input inputMode="decimal" value={editingDraft.estimatedTax} onChange={(event) => setEditingDraft((current) => current ? { ...current, estimatedTax: event.target.value } : current)} /></label>
-        </div>
+          <div className="finance-entry-actions">
+            <PrimaryButton className="finance-entry-submit" onClick={saveAdjustment}>Salvar ajuste</PrimaryButton>
+          </div>
+        </PanelCard>
+      )}
 
-        <div className="finance-entry-actions">
-          <Button variant="primary" className="finance-entry-submit" onClick={saveAdjustment}>Salvar ajuste</Button>
-        </div>
-      </div>}
-
-      <div className="aferix-panel-card finance-results-panel">
+      <PanelCard className="finance-results-panel">
         <header className="panel-list-header">
-          <div>
-            <h2>Resultados de Orçamentos Finalizados</h2>
-          </div>
+          <h2>Resultados de Orçamentos Finalizados</h2>
         </header>
-        <div className="finance-search-container">
-          <input
-            value={recordSearch}
-            placeholder="Buscar orçamento..."
-            onChange={(event) => setRecordSearch(event.target.value)}
-          />
-        </div>
-        <div className="continuous-list">
-          {rows.length === 0 ? (
-            <EmptyState title="Nenhum orçamento finalizado" description="Quando um orçamento for finalizado, o resultado aparecerá aqui automaticamente." />
-          ) : visibleRows.length === 0 ? (
-            <EmptyState title="Nenhum resultado" description={`Nenhum orçamento encontrado para \"${recordSearch}\".`} />
-          ) : (
-            visibleRows.map((row) => {
-              const profit = calculateServiceProfit(row);
-              return (
-                <article className="continuous-list-item" key={row.budgetId}>
-                  <div className="client-col">
-                    <strong>{row.title}</strong>
-                    <small>{row.clientName || 'Cliente final'} · {statusLabel(row.status)} · {formatDate(row.updatedAt)}</small>
+        <SearchInput
+          value={recordSearch}
+          placeholder="Buscar orçamento por título, cliente ou valor..."
+          onChange={(value) => { setRecordSearch(value); setShowAllRows(false); }}
+        />
+      </PanelCard>
+
+      <ListCard>
+        {rows.length === 0 ? (
+          <EmptyState title="Nenhum orçamento finalizado" description="Quando um orçamento for finalizado, o resultado aparecerá aqui automaticamente." />
+        ) : filteredRows.length === 0 ? (
+          <EmptyState title="Nenhum resultado" description={`Nenhum orçamento encontrado para \"${recordSearch}\".`} />
+        ) : (
+          visibleRows.map((row) => {
+            const profit = calculateServiceProfit(row);
+            return (
+              <ListItem 
+                key={row.budgetId}
+                title={row.title}
+                subtitle={
+                  <div className="finance-row-meta-grid">
+                    <span>{row.clientName || 'Cliente final'} · {formatDate(row.updatedAt)}</span>
+                    <StatusBadge status="finalizado" />
                   </div>
-                  <div className="value-col">
+                }
+                value={
+                  <div className="finance-row-value-grid">
                     <strong>{money(profit.netProfit)}</strong>
                     <small>{profit.netMarginPercent.toFixed(0)}% margem</small>
                   </div>
-                  <div className="finance-record-actions">
-                    <button className="ghost-action compact-row-action" type="button" onClick={() => openAdjustment(row)}>✎</button>
+                }
+                action={
+                  <div className="finance-row-status-inline">
+                    <SecondaryButton onClick={() => openAdjustment(row)}>Abrir</SecondaryButton>
+                    <ActionMenu
+                      label="Ações do resultado"
+                      items={[
+                        { id: 'open', label: 'Abrir ajuste', onSelect: () => openAdjustment(row) },
+                        { id: 'edit', label: 'Editar', onSelect: () => openAdjustment(row) },
+                      ]}
+                    />
                   </div>
-                </article>
-              );
-            })
-          )}
-          {hiddenRecordCount > 0 && <div className="continuous-list-empty">+{hiddenRecordCount} registros.</div>}
-        </div>
-      </div>
+                }
+              />
+            );
+          })
+        )}
+        
+        {filteredRows.length > FINANCE_VISIBLE_LIMIT && (
+          <div className="finance-list-expand-wrap">
+            <Button variant="ghost" className="density-toggle-cta" onClick={() => setShowAllRows((current) => !current)}>
+              {showAllRows ? 'Ver menos' : `Ver mais (${hiddenRecordCount})`}
+            </Button>
+          </div>
+        )}
+      </ListCard>
     </section>
   );
 }

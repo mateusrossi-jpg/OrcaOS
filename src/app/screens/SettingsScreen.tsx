@@ -8,7 +8,7 @@ import {
 } from '../../core/access/accountPlanStorage';
 import { isGoogleAccountLoginConfigured, requestGoogleAccountProfile } from '../../core/access/googleAccountAuth';
 import { planStatusTitle, planStatusDescription } from '../utils/planHelpers';
-import { AferixTabs, PageHeader, PageShell } from '../components/ui';
+import { AferixTabs, PageHeader, PageShell, PanelCard, PrimaryButton, SecondaryButton, Button, Input } from '../components/ui';
 
 const AppSecurityPanel = lazy(() => import('../../features/settings/components/AppSecurityPanel').then((module) => ({ default: module.AppSecurityPanel })));
 const GoogleDriveBackupPanel = lazy(() => import('../../features/settings/components/GoogleDriveBackupPanel').then((module) => ({ default: module.GoogleDriveBackupPanel })));
@@ -80,7 +80,7 @@ export function SettingsScreen({ account, onAccountChange }: SettingsScreenProps
 
       <div className="settings-content-area">
         {activeTab === 'account' && (
-          <div className="settings-group account-settings-panel">
+          <PanelCard className="settings-group account-settings-panel">
             <div className="settings-panel-title">
               <span className="orca-kicker">Acesso e Identidade</span>
               <h2>Sua Conta</h2>
@@ -102,18 +102,18 @@ export function SettingsScreen({ account, onAccountChange }: SettingsScreenProps
 
             <section className="account-registration-card">
               <div className="settings-form-grid">
-                <label className="general-form-field"><span>Nome profissional</span><input value={nameDraft} placeholder="Ex.: Profissional técnico" onChange={(event) => setNameDraft(event.target.value)} /></label>
-                <label className="general-form-field"><span>E-mail de acesso</span><input type="email" value={emailDraft} placeholder="profissional@email.com" onChange={(event) => setEmailDraft(event.target.value)} /></label>
+                <Input label="Nome profissional" value={nameDraft} placeholder="Ex.: Profissional técnico" onChange={(event) => setNameDraft(event.target.value)} />
+                <Input label="E-mail de acesso" type="email" value={emailDraft} placeholder="profissional@email.com" onChange={(event) => setEmailDraft(event.target.value)} />
               </div>
               <div className="settings-actions-row-premium">
-                <button className="primary-action" type="button" onClick={registerEmailAccount}>Cadastrar e-mail</button>
-                <button className="secondary-action" type="button" disabled={!googleReady || isSigningIn} onClick={connectGoogle}>{isSigningIn ? 'Conectando...' : 'Vincular Google'}</button>
-                <button className="ghost-action" type="button" onClick={() => onAccountChange(signInLocalAccount())}>Entrar localmente</button>
-                <button className="ghost-action" type="button" onClick={() => onAccountChange(signOutLocalAccount())}>Sair</button>
+                <PrimaryButton onClick={registerEmailAccount}>Cadastrar e-mail</PrimaryButton>
+                <SecondaryButton disabled={!googleReady || isSigningIn} onClick={connectGoogle}>{isSigningIn ? 'Conectando...' : 'Vincular Google'}</SecondaryButton>
+                <Button variant="ghost" onClick={() => onAccountChange(signInLocalAccount())}>Entrar localmente</Button>
+                <Button variant="ghost" onClick={() => onAccountChange(signOutLocalAccount())}>Sair</Button>
               </div>
               {feedback && <p className="general-added-message">{feedback}</p>}
             </section>
-          </div>
+          </PanelCard>
         )}
 
         {activeTab === 'company' && <ProfessionalProfileWorkspace onBack={() => setActiveTab('account')} />}
@@ -130,7 +130,7 @@ export function SettingsScreen({ account, onAccountChange }: SettingsScreenProps
         {activeTab === 'about' && (
           <>
             <LegalCompliancePanel />
-            <div className="settings-group account-settings-panel">
+            <PanelCard className="settings-group account-settings-panel">
               <div className="settings-panel-title">
                 <span className="orca-kicker">Evolução planejada</span>
                 <h2>Roteiro do produto</h2>
@@ -143,7 +143,7 @@ export function SettingsScreen({ account, onAccountChange }: SettingsScreenProps
                 <article><span>4</span><strong>Fase 4: Documentação</strong><small>Relatórios técnicos e comerciais avançados.</small></article>
                 <article><span>5</span><strong>Fase 5: Ecossistema</strong><small>Web, nuvem, multiusuário, fiscal e integrações.</small></article>
               </div>
-            </div>
+            </PanelCard>
           </>
         )}
       </div>

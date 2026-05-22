@@ -8,7 +8,25 @@ import {
   saveClients,
   saveWorkOrders,
 } from '../storage/clientWorkOrderStorage';
-import { MetricCard, Modal, TextArea, MonetaryInput, Button, Select, EmptyState, BackButton } from '../../../app/components/ui';
+import { 
+  MetricCard, 
+  Modal, 
+  TextArea, 
+  MonetaryInput, 
+  Button, 
+  Select, 
+  EmptyState, 
+  BackButton,
+  ListCard,
+  ListItem,
+  SearchInput,
+  StatusBadge,
+  ActionMenu,
+  Input,
+  PrimaryButton,
+  SecondaryButton,
+  PanelCard
+} from '../../../app/components/ui';
 import './ClientWorkOrderWorkspace.css';
 
 type ClientOsSection = 'dashboard' | 'newClient' | 'newWorkOrder' | 'clients' | 'workOrders';
@@ -42,10 +60,7 @@ interface ClientDraft {
   notes: string;
 }
 
-const CLIENT_OS_VISIBLE_LIMIT = 10;
-
-// QA guardrail token: actionLabel={activeWorkOrder ? 'Limpar contexto' : 'Novo atendimento'}
-// QA guardrail token: + Novo Cliente full-page-cta
+const CLIENT_OS_VISIBLE_LIMIT = 5;
 
 function recentTimestamp(item: { updatedAt?: string; createdAt?: string }): string {
   return item.updatedAt ?? item.createdAt ?? '';
@@ -83,6 +98,7 @@ export function ClientWorkOrderWorkspace({ initialSection, sectionRequestKey, on
   const [activeSection, setActiveSection] = useState<ClientOsSection>(initialSection ?? 'clients');
 
   const [clientSearch, setClientSearch] = useState('');
+  const [showAllClients, setShowAllClients] = useState(false);
 
   const [editingClientId, setEditingClientId] = useState<string | null>(null);
   const [modalType, setModalType] = useState<'removeClient' | null>(null);
@@ -100,7 +116,6 @@ export function ClientWorkOrderWorkspace({ initialSection, sectionRequestKey, on
         setClientDraft(emptyClientDraft);
         setEditingClientId(null);
         setActiveSection('newClient');
-        // QA guardrail token: setActiveSection('newWorkOrder')
       });
     }
   }, [onNewClientRequest]);
@@ -115,7 +130,8 @@ export function ClientWorkOrderWorkspace({ initialSection, sectionRequestKey, on
     return clients.filter((c) => [c.name, c.email, c.phone, c.address].some((v) => v?.toLowerCase().includes(query)));
   }, [clients, clientSearch]);
 
-  const visibleClients = filteredClients.slice(0, CLIENT_OS_VISIBLE_LIMIT);
+  const visibleClients = showAllClients ? filteredClients : filteredClients.slice(0, CLIENT_OS_VISIBLE_LIMIT);
+  const hiddenClientsCount = Math.max(filteredClients.length - visibleClients.length, 0);
   
   function updateClientDraft<K extends keyof ClientDraft>(key: K, value: ClientDraft[K]) {
     setClientDraft((current) => ({ ...current, [key]: value }));
@@ -199,7 +215,6 @@ export function ClientWorkOrderWorkspace({ initialSection, sectionRequestKey, on
     setClientDraft(clientToDraft(client));
     setEditingClientId(client.id);
     setActiveSection('newClient');
-        // QA guardrail token: setActiveSection('newWorkOrder')
   }
 
   function cancelClientEdit() {
@@ -217,74 +232,130 @@ export function ClientWorkOrderWorkspace({ initialSection, sectionRequestKey, on
             <MetricCard label="Novos no mês" value={clients.filter(c => recentTimestamp(c).includes(new Date().toISOString().slice(0, 7))).length} tone="brand" />
           </div>
 
-          <div className="aferix-panel-card client-list-panel">
-            <div className="budget-list-search-bar client-search-bar">
-              <input 
-                placeholder="Buscar cliente..." 
-                value={clientSearch}
-                onChange={(e) => setClientSearch(e.target.value)}
-                className="client-search-input"
-              />
-            </div>
+          <PanelCard className="client-search-card">
+            <SearchInput 
+              placeholder="Buscar cliente por nome, e-mail ou telefone..." 
+              value={clientSearch}
+              onChange={(value) => { setClientSearch(value); setShowAllClients(false); }}
+            />
+          </PanelCard>
 
-            <div className="continuous-list client-continuous-list">
-              {visibleClients.length === 0 ? (
-                <div className="client-empty-wrap">
-                  <EmptyState 
-                    title="Nenhum cliente encontrado" 
-                    description={clientSearch ? "Tente buscar por outro termo." : "Sua lista de clientes está vazia."}
-                  />
-                </div>
-              ) : (
-                visibleClients.map((client) => (
-                  <article className="continuous-list-item client-compact-row client-row-divider" key={client.id}>
-                    <div className="client-row-main">
-                      <span className="client-avatar" aria-hidden="true">{client.name?.charAt(0).toUpperCase() || 'C'}</span>
-                      <div className="client-col">
-                        <strong>{client.name}</strong>
-                        <small>{client.phone} · {client.email}</small>
-                        {client.address && <small className="client-address-line">{client.address}</small>}
-                      </div>
+          <ListCard>
+            {visibleClients.length === 0 ? (
+              <EmptyState 
+                title="Nenhum cliente encontrado" 
+                description={clientSearch ? "Tente buscar por outro termo." : "Sua lista de clientes está vazia."}
+              />
+            ) : (
+              visibleClients.map((client) => (
+                <ListItem 
+                  key={client.id}
+                  title={client.name}
+                  subtitle={
+                    <div className="client-row-meta-grid">
+                      <span>{client.phone} · {client.email}</span>
+                      {client.address && <small className="client-address-line">{client.address}</small>}
                     </div>
-                    <div className="value-col client-value-col">
-                      <span className="client-status-badge">Ativo</span>
-                      <button className="ghost-action icon-btn" title="Editar" onClick={() => openClientForEdit(client)}>✎</button>
-                      <button className="ghost-action icon-btn danger-text" title="Remover" onClick={() => confirmRemoveClient(client.id)}>✕</button>
+                  }
+                  status={<StatusBadge tone="success">Ativo</StatusBadge>}
+                  action={
+                    <div className="client-row-status-inline">
+                      <SecondaryButton onClick={() => openClientForEdit(client)}>Abrir</SecondaryButton>
+                      <ActionMenu
+                        label="Ações do cliente"
+                        items={[
+                          { id: 'edit', label: 'Editar', onSelect: () => openClientForEdit(client) },
+                          { id: 'remove', label: 'Remover', tone: 'danger', onSelect: () => confirmRemoveClient(client.id) },
+                        ]}
+                      />
                     </div>
-                  </article>
-                ))
-              )}
-            </div>
-          </div>
+                  }
+                />
+              ))
+            )}
+            
+            {filteredClients.length > CLIENT_OS_VISIBLE_LIMIT && (
+              <div className="client-list-expand-wrap">
+                <Button variant="ghost" className="density-toggle-cta" onClick={() => setShowAllClients((current) => !current)}>
+                  {showAllClients ? 'Ver menos' : `Ver mais (${hiddenClientsCount})`}
+                </Button>
+              </div>
+            )}
+          </ListCard>
         </>
       )}
 
       {activeSection === 'newClient' && (
-        <div className="aferix-panel-card client-form-card">
+        <PanelCard className="client-form-card">
           <BackButton onClick={cancelClientEdit} label="Voltar para a Lista" />
           <header className="client-form-header">
-            <div>
-              <h2>{editingClientId ? 'Editar Cliente' : 'Novo Cliente'}</h2>
-            </div>
+            <h2>{editingClientId ? 'Editar Cliente' : 'Novo Cliente'}</h2>
           </header>
 
           <div className="client-os-grid">
             <div className="client-form-section client-os-wide">
-              <div className="client-form-section-head"><strong>Identificação</strong><small>Dados para localizar cliente e orçamento.</small></div>
+              <div className="client-form-section-head">
+                <strong>Identificação</strong>
+                <small>Dados para localizar cliente e orçamento.</small>
+              </div>
             </div>
-            <label className="budget-field client-os-wide"><span>Nome / razão social</span><input value={clientDraft.name} placeholder="Ex: João da Silva" onChange={(event) => updateClientDraft('name', event.target.value)} /></label>
-            <label className="budget-field"><span>CPF / CNPJ</span><input value={clientDraft.documentNumber} placeholder="Opcional" onChange={(event) => updateClientDraft('documentNumber', event.target.value)} /></label>
-            <label className="budget-field"><span>Telefone / WhatsApp</span><input inputMode="tel" value={clientDraft.phone} placeholder="(00) 00000-0000" onChange={(event) => updateClientDraft('phone', event.target.value)} /></label>
-            <label className="budget-field"><span>E-mail</span><input type="email" value={clientDraft.email} placeholder="contato@email.com" onChange={(event) => updateClientDraft('email', event.target.value)} /></label>
-            <label className="budget-field client-os-wide"><span>Contatos adicionais</span><TextArea value={clientDraft.additionalContacts} placeholder="Outros telefones ou nomes de contato..." onChange={(value) => updateClientDraft('additionalContacts', value)} /></label>
+            <Input 
+              className="client-os-wide"
+              label="Nome / razão social"
+              value={clientDraft.name} 
+              placeholder="Ex: João da Silva" 
+              onChange={(event) => updateClientDraft('name', event.target.value)} 
+            />
+            <Input 
+              label="CPF / CNPJ"
+              value={clientDraft.documentNumber} 
+              placeholder="Opcional" 
+              onChange={(event) => updateClientDraft('documentNumber', event.target.value)} 
+            />
+            <Input 
+              label="Telefone / WhatsApp"
+              inputMode="tel" 
+              value={clientDraft.phone} 
+              placeholder="(00) 00000-0000" 
+              onChange={(event) => updateClientDraft('phone', event.target.value)} 
+            />
+            <Input 
+              label="E-mail"
+              type="email" 
+              value={clientDraft.email} 
+              placeholder="contato@email.com" 
+              onChange={(event) => updateClientDraft('email', event.target.value)} 
+            />
+            
+            <div className="client-os-wide">
+              <label className="aferix-input-field">
+                <span>Contatos adicionais</span>
+                <TextArea 
+                  value={clientDraft.additionalContacts} 
+                  placeholder="Outros telefones ou nomes de contato..." 
+                  onChange={(value) => updateClientDraft('additionalContacts', value)} 
+                />
+              </label>
+            </div>
 
             <div className="client-form-section client-os-wide">
-              <div className="client-form-section-head"><strong>Endereço</strong><small>Dados para faturamento e localização.</small></div>
+              <div className="client-form-section-head">
+                <strong>Endereço</strong>
+                <small>Dados para faturamento e localização.</small>
+              </div>
             </div>
-            <label className="budget-field client-os-wide"><span>Endereço Completo</span><input value={clientDraft.address} placeholder="Rua, número, bairro, cidade..." onChange={(event) => updateClientDraft('address', event.target.value)} /></label>
+            <Input 
+              className="client-os-wide"
+              label="Endereço Completo"
+              value={clientDraft.address} 
+              placeholder="Rua, número, bairro, cidade..." 
+              onChange={(event) => updateClientDraft('address', event.target.value)} 
+            />
             
             <div className="client-form-section client-os-wide">
-              <div className="client-form-section-head"><strong>Comercial</strong></div>
+              <div className="client-form-section-head">
+                <strong>Comercial</strong>
+              </div>
             </div>
             <Select 
               label="Tipo de contribuinte" 
@@ -297,18 +368,35 @@ export function ClientWorkOrderWorkspace({ initialSection, sectionRequestKey, on
               <option value="exempt">Isento</option>
               <option value="non-taxpayer">Não contribuinte</option>
             </Select>
-            <MonetaryInput label="Limite de crédito" value={clientDraft.creditLimit} onChange={(value) => updateClientDraft('creditLimit', value)} />
-            <label className="budget-field client-os-wide"><span>Observações</span><TextArea value={clientDraft.notes} placeholder="Informações úteis para atendimento." onChange={(value) => updateClientDraft('notes', value)} /></label>
+            <MonetaryInput 
+              label="Limite de crédito" 
+              value={clientDraft.creditLimit} 
+              onChange={(value) => updateClientDraft('creditLimit', value)} 
+            />
+            
+            <div className="client-os-wide">
+              <label className="aferix-input-field">
+                <span>Observações</span>
+                <TextArea 
+                  value={clientDraft.notes} 
+                  placeholder="Informações úteis para atendimento." 
+                  onChange={(value) => updateClientDraft('notes', value)} 
+                />
+              </label>
+            </div>
           </div>
 
-          <div className="client-os-form-actions client-os-form-actions-stacked">
-            <Button variant="primary" onClick={addClient} className="client-action-full">{editingClientId ? 'Salvar Alterações' : 'Cadastrar Cliente'}</Button>
-            <Button variant="ghost" onClick={cancelClientEdit} className="client-action-full">Cancelar</Button>
+          <div className="client-os-form-actions-stacked">
+            <PrimaryButton onClick={addClient}>
+              {editingClientId ? 'Salvar Alterações' : 'Cadastrar Cliente'}
+            </PrimaryButton>
+            <SecondaryButton onClick={cancelClientEdit}>
+              Cancelar
+            </SecondaryButton>
           </div>
-        </div>
+        </PanelCard>
       )}
 
-      {/* Confirmation Modals */}
       <Modal
         isOpen={modalType === 'removeClient'}
         title="Remover Cliente?"

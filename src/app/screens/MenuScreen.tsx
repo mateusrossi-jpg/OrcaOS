@@ -1,5 +1,13 @@
 import { useState, lazy, Suspense } from 'react';
-import { BackButton, PageHeader, PageShell } from '../components/ui';
+import { 
+  BackButton, 
+  PageHeader, 
+  PageShell, 
+  PanelCard, 
+  ListCard, 
+  ListItem, 
+  SectionTitle 
+} from '../components/ui';
 import type { AferixAccountState } from '../../core/access/accountPlanStorage';
 import {
   signInEmailAccount,
@@ -9,7 +17,6 @@ import {
 import { isGoogleAccountLoginConfigured, requestGoogleAccountProfile } from '../../core/access/googleAccountAuth';
 import { planStatusTitle } from '../utils/planHelpers';
 import type { AppTab } from '../appTypes';
-import { SectionHeader } from '../components/designSystem';
 
 const AppSecurityPanel = lazy(() => import('../../features/settings/components/AppSecurityPanel').then((module) => ({ default: module.AppSecurityPanel })));
 const GoogleDriveBackupPanel = lazy(() => import('../../features/settings/components/GoogleDriveBackupPanel').then((module) => ({ default: module.GoogleDriveBackupPanel })));
@@ -29,11 +36,46 @@ export function MenuScreen({ account, onAccountChange, goTo }: MenuScreenProps) 
   const [activeSection, setActiveSection] = useState<MenuSection>('main');
   const [feedback, setFeedback] = useState<string | null>(null);
   const [isSigningIn, setIsSigningIn] = useState(false);
+  const [showAllSystemItems, setShowAllSystemItems] = useState(false);
   const [emailDraft, setEmailDraft] = useState(account.email);
   const [nameDraft, setNameDraft] = useState(account.displayName === 'Visitante' ? '' : account.displayName);
   const googleReady = isGoogleAccountLoginConfigured();
   
   const accountLabel = account.status === 'google' || account.status === 'email' || account.status === 'local' ? account.displayName : 'Sem login';
+  const systemItems = [
+    {
+      title: 'Catálogo',
+      subtitle: 'Meus itens e serviços',
+      onClick: () => goTo('catalog'),
+    },
+    {
+      title: 'Perfil e Conta',
+      subtitle: `${accountLabel} · ${planStatusTitle(account)}`,
+      onClick: () => setActiveSection('profile'),
+    },
+    {
+      title: 'Licença Pro',
+      subtitle: 'Planos e recursos extras',
+      onClick: () => goTo('store'),
+    },
+    {
+      title: 'Backup e Sincronização',
+      subtitle: 'Drive e exportação local',
+      onClick: () => setActiveSection('backup'),
+    },
+    {
+      title: 'Segurança',
+      subtitle: 'PIN e proteção de acesso',
+      onClick: () => setActiveSection('security'),
+    },
+    {
+      title: 'Sobre o Aferix',
+      subtitle: 'Privacidade e termos',
+      onClick: () => setActiveSection('about'),
+    },
+  ] as const;
+  const visibleSystemItems = showAllSystemItems ? systemItems : systemItems.slice(0, 5);
+  const hiddenSystemItemsCount = Math.max(systemItems.length - visibleSystemItems.length, 0);
   
   function registerEmailAccount() {
     try {
@@ -63,34 +105,34 @@ export function MenuScreen({ account, onAccountChange, goTo }: MenuScreenProps) 
   if (activeSection !== 'main') {
     return (
       <PageShell className="wide-screen">
-        <Suspense fallback={<div className="empty-state-card premium-empty-state"><p>Carregando...</p></div>}>
+        <Suspense fallback={<PanelCard><p>Carregando...</p></PanelCard>}>
           {activeSection === 'profile' && (
-            <div className="settings-group account-settings-panel">
+            <PanelCard className="settings-group account-settings-panel">
               <ProfessionalProfileWorkspace onBack={() => setActiveSection('main')} />
-            </div>
+            </PanelCard>
           )}
           {activeSection === 'security' && (
-            <>
+            <PanelCard className="settings-group account-settings-panel">
               <BackButton label="Voltar ao Menu" onClick={() => setActiveSection('main')} />
               <AppSecurityPanel />
-            </>
+            </PanelCard>
           )}
           {activeSection === 'backup' && (
-            <>
+            <PanelCard className="settings-group account-settings-panel">
               <BackButton label="Voltar ao Menu" onClick={() => setActiveSection('main')} />
               <LocalBackupWorkspace includeLinkedSettings={false} />
               <GoogleDriveBackupPanel />
-            </>
+            </PanelCard>
           )}
           {activeSection === 'about' && (
-            <>
+            <PanelCard className="settings-group account-settings-panel">
               <BackButton label="Voltar ao Menu" onClick={() => setActiveSection('main')} />
               <LegalCompliancePanel />
-              <div className="settings-group account-settings-panel">
-                 <SectionHeader title="Sobre o Aferix" eyebrow="Informação" />
-                 <p className="menu-about-note">Versão MVP · Local-first</p>
-              </div>
-            </>
+              <PanelCard>
+                <SectionTitle title="Sobre o Aferix" eyebrow="Informação" />
+                <p className="menu-about-note menu-about-note-spaced">Versão MVP · Local-first</p>
+              </PanelCard>
+            </PanelCard>
           )}
         </Suspense>
       </PageShell>
@@ -104,53 +146,26 @@ export function MenuScreen({ account, onAccountChange, goTo }: MenuScreenProps) 
         description="Gerencie seu perfil, conta e preferências do aplicativo." 
       />
 
-      <div className="aferix-panel-card">
-        <SectionHeader title="Sistema" eyebrow="Ajustes" />
-        <div className="menu-list-simple">
-          <button className="simple-menu-row" onClick={() => goTo('catalog')}>
-            <div className="row-content">
-              <strong>Catálogo</strong>
-              <small>Meus itens e serviços</small>
-            </div>
-            <span className="row-arrow">›</span>
+      <ListCard title="Sistema" subtitle="Ajustes">
+        {visibleSystemItems.map((item) => (
+          <ListItem
+            key={item.title}
+            title={item.title}
+            subtitle={item.subtitle}
+            onClick={item.onClick}
+            action={<span className="row-arrow">›</span>}
+          />
+        ))}
+        {systemItems.length > 5 && (
+          <button
+            type="button"
+            className="list-expand-toggle"
+            onClick={() => setShowAllSystemItems((current) => !current)}
+          >
+            {showAllSystemItems ? "Ver menos" : `Ver mais (${hiddenSystemItemsCount})`}
           </button>
-          <button className="simple-menu-row" onClick={() => setActiveSection('profile')}>
-            <div className="row-content">
-              <strong>Perfil e Conta</strong>
-              <small>{accountLabel} · {planStatusTitle(account)}</small>
-            </div>
-            <span className="row-arrow">›</span>
-          </button>
-          <button className="simple-menu-row" onClick={() => goTo('store')}>
-            <div className="row-content">
-              <strong>Licença Pro</strong>
-              <small>Planos e recursos extras</small>
-            </div>
-            <span className="row-arrow">›</span>
-          </button>
-          <button className="simple-menu-row" onClick={() => setActiveSection('backup')}>
-            <div className="row-content">
-              <strong>Backup e Sincronização</strong>
-              <small>Drive e exportação local</small>
-            </div>
-            <span className="row-arrow">›</span>
-          </button>
-          <button className="simple-menu-row" onClick={() => setActiveSection('security')}>
-            <div className="row-content">
-              <strong>Segurança</strong>
-              <small>PIN e proteção de acesso</small>
-            </div>
-            <span className="row-arrow">›</span>
-          </button>
-          <button className="simple-menu-row" onClick={() => setActiveSection('about')}>
-            <div className="row-content">
-              <strong>Sobre o Aferix</strong>
-              <small>Privacidade e termos</small>
-            </div>
-            <span className="row-arrow">›</span>
-          </button>
-        </div>
-      </div>
+        )}
+      </ListCard>
     </PageShell>
   );
 }

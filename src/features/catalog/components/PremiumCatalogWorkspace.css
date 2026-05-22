@@ -476,3 +476,18 @@
   border-color: rgba(239, 68, 68, 0.7) !important;
   background: rgba(239, 68, 68, 0.12) !important;
 }
+
+.premium-catalog-actions-spacing {
+  margin-top: 32px;
+  display: grid;
+  gap: 12px;
+}
+
+.premium-catalog-top-spacing-sm {
+  margin-top: 12px;
+}
+
+.premium-catalog-item-meta-grid {
+  display: grid;
+  gap: 2px;
+}

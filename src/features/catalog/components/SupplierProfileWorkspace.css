@@ -161,3 +161,35 @@
     flex: 1;
   }
 }
+
+.supplier-actions-top {
+  margin-top: 16px;
+}
+
+.supplier-search-spacing {
+  margin-bottom: 16px;
+}
+
+.supplier-profile-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 16px;
+}
+
+.supplier-profile-eyebrow {
+  font-size: 0.68rem;
+  margin-bottom: 2px;
+}
+
+.supplier-row-action {
+  min-height: 32px;
+  font-size: 0.7rem;
+}
+
+.supplier-row-danger-action {
+  min-height: 32px;
+  font-size: 0.7rem;
+  padding: 0 8px;
+  border-radius: 10px;
+}

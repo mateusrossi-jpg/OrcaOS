@@ -103,6 +103,7 @@ export function SupplierProfileWorkspace() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [query, setQuery] = useState('');
   const [feedback, setFeedback] = useState<string | null>(null);
+  const [showAllProfiles, setShowAllProfiles] = useState(false);
 
   useEffect(() => saveSupplierProfiles(profiles), [profiles]);
 
@@ -113,7 +114,7 @@ export function SupplierProfileWorkspace() {
       : [];
     return [...source].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
   }, [profiles, query]);
-  const visibleProfiles = filteredProfiles.slice(0, SUPPLIER_PROFILE_VISIBLE_LIMIT);
+  const visibleProfiles = showAllProfiles ? filteredProfiles : filteredProfiles.slice(0, SUPPLIER_PROFILE_VISIBLE_LIMIT);
   const hiddenProfileCount = Math.max(filteredProfiles.length - visibleProfiles.length, 0);
 
   function updateDraft<K extends keyof SupplierProfileDraft>(key: K, value: SupplierProfileDraft[K]) {
@@ -248,7 +249,7 @@ export function SupplierProfileWorkspace() {
             <textarea value={draft.purchaseNotes} placeholder="Ex.: melhor preço em quantidade, entrega rápida, vendedor X, desconto para CNPJ..." onChange={(event) => updateDraft('purchaseNotes', event.target.value)} />
           </div>
         </div>
-        <div className="catalog-hub-actions start-actions" style={{ marginTop: '16px' }}>
+        <div className="catalog-hub-actions start-actions supplier-actions-top">
           <button className="primary-action inline-action" type="button" onClick={saveProfile}>{editingId ? 'Salvar alterações' : 'Cadastrar fornecedor'}</button>
           {editingId && <button className="secondary-action inline-action" type="button" onClick={resetForm}>Cancelar edição</button>}
         </div>
@@ -261,7 +262,7 @@ export function SupplierProfileWorkspace() {
             <p>Edite, duplique ou remova fornecedores usados no controle de compras.</p>
           </div>
         </header>
-        <div className="catalog-form-grid" style={{ marginBottom: '16px' }}>
+        <div className="catalog-form-grid supplier-search-spacing">
           <div className="catalog-field col-12">
             <span>Buscar fornecedor</span>
             <input value={query} placeholder="Nome, CNPJ, cidade, segmento..." onChange={(event) => setQuery(event.target.value)} />
@@ -276,23 +277,31 @@ export function SupplierProfileWorkspace() {
             <div className="continuous-list-empty">Nenhum fornecedor encontrado com essa busca.</div>
           ) : null}
           {visibleProfiles.map((profile) => (
-            <article className="continuous-list-item" key={profile.id} style={{ display: 'grid', gridTemplateColumns: '1fr auto', alignItems: 'center', gap: '16px' }}>
+            <article className="continuous-list-item supplier-profile-row" key={profile.id}>
               <div className="client-col">
-                <span className="catalog-eyebrow" style={{ fontSize: '0.68rem', marginBottom: '2px' }}>{profile.segment}</span>
+                <span className="catalog-eyebrow supplier-profile-eyebrow">{profile.segment}</span>
                 <strong>{profile.name}</strong>
                 <small>{[profile.document, profile.city, profile.state, profile.phone].filter(Boolean).join(' · ') || 'Sem dados complementares'}</small>
                 <small>{profile.paymentTerms || profile.purchaseNotes || 'Sem condições/observações cadastradas'}</small>
               </div>
               <div className="catalog-row-actions">
-                {profile.websiteUrl && <a className="ghost-action" href={profile.websiteUrl} target="_blank" rel="noreferrer" style={{ minHeight: '32px', fontSize: '0.7rem' }}>Site</a>}
-                {profile.catalogUrl && <a className="ghost-action" href={profile.catalogUrl} target="_blank" rel="noreferrer" style={{ minHeight: '32px', fontSize: '0.7rem' }}>Catálogo</a>}
-                <button className="ghost-action" type="button" onClick={() => editProfile(profile)} style={{ minHeight: '32px', fontSize: '0.7rem' }}>Editar</button>
-                <button className="ghost-action" type="button" onClick={() => duplicateProfile(profile)} style={{ minHeight: '32px', fontSize: '0.7rem' }}>Duplicar</button>
-                <button className="danger-action" type="button" onClick={() => removeProfile(profile.id)} style={{ minHeight: '32px', fontSize: '0.7rem', padding: '0 8px', borderRadius: '4px' }}>Remover</button>
+                {profile.websiteUrl && <a className="ghost-action supplier-row-action" href={profile.websiteUrl} target="_blank" rel="noreferrer">Site</a>}
+                {profile.catalogUrl && <a className="ghost-action supplier-row-action" href={profile.catalogUrl} target="_blank" rel="noreferrer">Catálogo</a>}
+                <button className="ghost-action supplier-row-action" type="button" onClick={() => editProfile(profile)}>Editar</button>
+                <button className="ghost-action supplier-row-action" type="button" onClick={() => duplicateProfile(profile)}>Duplicar</button>
+                <button className="danger-action supplier-row-danger-action" type="button" onClick={() => removeProfile(profile.id)}>Remover</button>
               </div>
             </article>
           ))}
-          {hiddenProfileCount > 0 && <div className="continuous-list-empty">Mais {hiddenProfileCount} fornecedor(es) oculto(s). Use a busca para refinar.</div>}
+          {hiddenProfileCount > 0 && (
+            <button
+              type="button"
+              className="list-expand-toggle"
+              onClick={() => setShowAllProfiles((current) => !current)}
+            >
+              {showAllProfiles ? 'Ver menos' : ('Ver mais (' + hiddenProfileCount + ')')}
+            </button>
+          )}
         </div>
       </div>
 

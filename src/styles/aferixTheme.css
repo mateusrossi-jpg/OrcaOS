@@ -3272,3 +3272,54 @@ button.status-compact-item {
   font-weight: 800 !important;
   box-shadow: 0 10px 24px rgba(250, 204, 21, 0.24);
 }
+
+/* Global layout consistency baseline (mobile-first) */
+:root {
+  --aferix-layout-max: 1120px;
+  --aferix-layout-x-mobile: 14px;
+  --aferix-layout-x-desktop: 20px;
+  --aferix-layout-gap: 12px;
+}
+
+.content-container {
+  max-width: var(--aferix-layout-max) !important;
+  margin: 0 auto !important;
+  padding: 16px var(--aferix-layout-x-desktop) 26px !important;
+}
+
+.aferix-page-shell,
+.wide-screen,
+.app-screen.wide-screen {
+  width: 100%;
+  max-width: 100%;
+  display: grid !important;
+  gap: var(--aferix-layout-gap) !important;
+  align-content: start;
+}
+
+.aferix-page-shell > * + *,
+.wide-screen > * + *,
+.app-screen.wide-screen > * + * {
+  margin-top: 0 !important;
+}
+
+.page-header {
+  display: grid;
+  gap: 8px !important;
+  margin-bottom: 0 !important;
+}
+
+.page-header h1 {
+  margin: 0 !important;
+}
+
+.page-header p {
+  margin: 0 !important;
+  max-width: 64ch;
+}
+
+@media (max-width: 900px) {
+  .content-container {
+    padding: 14px var(--aferix-layout-x-mobile) calc(18px + env(safe-area-inset-bottom)) !important;
+  }
+}

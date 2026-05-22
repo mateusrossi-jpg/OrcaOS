@@ -3,7 +3,7 @@ import { ProfessionalProfileWorkspace } from './ProfessionalProfileWorkspace';
 
 export function SettingsWorkspace() {
   return (
-    <div className="refined-settings-workspace" style={{ padding: '1rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+    <div className="refined-settings-workspace refined-settings-workspace-layout">
       <header className="screen-header">
         <h1>Configurações e Perfil</h1>
       </header>

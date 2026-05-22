@@ -202,7 +202,7 @@ export function TechnicalCaptureList({ captures, emptyText, onRemove, onUpdate }
       <label className="technical-capture-search"><span>Buscar item técnico</span><input value={query} placeholder="Descrição, cálculo, observação..." onChange={(event) => setQuery(event.target.value)} /></label>
       
       {!query.trim() ? (
-        <div className="technical-capture-empty" style={{ padding: '2rem', textAlign: 'center', color: 'var(--aferix-text-muted)' }}>
+        <div className="technical-capture-empty technical-capture-empty-standard">
           Há {captures.length} item(ns) salvo(s). Pesquise para exibir.
         </div>
       ) : filteredCaptures.length === 0 ? (

@@ -34,7 +34,7 @@ html, body, #root {
   border-bottom: 1px solid var(--aferix-border);
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   position: relative;
   overflow: hidden;
 }
@@ -42,10 +42,10 @@ html, body, #root {
 .sidebar-brand-group {
   width: 100%;
   display: grid;
-  justify-items: center;
+  justify-items: start;
   align-items: center;
   gap: 6px;
-  text-align: center;
+  text-align: left;
   padding-right: 40px;
   box-sizing: border-box;
 }
@@ -106,6 +106,7 @@ html, body, #root {
 .nav-item {
   display: flex;
   align-items: center;
+  justify-content: flex-start;
   gap: 12px;
   padding: 12px 14px;
   min-height: 44px;
@@ -135,6 +136,8 @@ html, body, #root {
 .nav-label {
   font-size: 0.92rem;
   font-weight: 600;
+  text-align: left;
+  line-height: 1.2;
 }
 
 .nav-icon {
@@ -328,4 +331,59 @@ html, body, #root {
   .drawer-backdrop {
     background: rgba(0, 0, 0, 0.72);
   }
+}
+
+.nav-group {
+  display: grid;
+  gap: 6px;
+}
+
+.nav-parent {
+  justify-content: flex-start;
+}
+
+.nav-group-caret {
+  margin-left: auto;
+  color: var(--aferix-text-muted);
+  font-size: 0.8rem;
+  transition: transform 0.18s ease;
+}
+
+.nav-group-caret.open {
+  transform: rotate(180deg);
+}
+
+.nav-subitems {
+  display: grid;
+  gap: 6px;
+  padding-left: 34px;
+}
+
+.nav-subitem {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--aferix-text-secondary);
+  text-align: left;
+  padding: 10px 12px;
+  min-height: 38px;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.nav-subitem:hover {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.08);
+  color: var(--aferix-text);
+}
+
+.nav-subitem.active {
+  background: rgba(255, 210, 31, 0.08);
+  border-color: rgba(255, 210, 31, 0.24);
+  color: var(--aferix-primary);
 }

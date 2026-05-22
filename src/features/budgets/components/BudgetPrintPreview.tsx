@@ -156,14 +156,13 @@ export function BudgetPrintPreview({
         </div>
       </div>
 
-      <div className="document-preview-container" style={{ width: '100%', overflow: 'auto', display: 'flex', justifyContent: 'center', padding: '12px 0 4px', WebkitOverflowScrolling: 'touch' }}>
-        <div style={{ width: '100%', minWidth: 0, display: 'flex', justifyContent: 'center' }}>
-          <article 
-            className={`print-document ${isPremiumReport ? 'report-premium-layout' : 'budget-simple-layout'}`} 
+      <div className="document-preview-container budget-preview-container-layout">
+        <div className="budget-preview-inner-layout">
+          <article
+            className={'print-document budget-preview-scale-host ' + (isPremiumReport ? 'report-premium-layout' : 'budget-simple-layout')}
             aria-label="Prévia impressa"
-            style={{ width: '100%', maxWidth: Math.max(320, Math.round(880 * zoom)), margin: '0 auto', flexShrink: 0 }}
+            style={{ maxWidth: Math.max(320, Math.round(880 * zoom)) }}
           >
-        
         <header className="print-document-top">
           <div className="print-company-block">
             {isPremiumReport ? <img className="print-logo" src={logoSource} alt="Logo" /> : <span className="print-brand">Orçamento</span>}
@@ -188,9 +187,9 @@ export function BudgetPrintPreview({
 
         {isPremiumReport && (
           <section className="print-technical-focus">
-            <div className="print-client-box" style={{ borderLeft: '4px solid #f59e0b', paddingLeft: '12px', background: 'rgba(255,255,255,0.02)' }}>
+            <div className="print-client-box budget-print-client-highlight">
               <span>Diagnóstico e Escopo Técnico</span>
-              <p style={{ whiteSpace: 'pre-wrap' }}>{technicalNotes || 'Análise detalhada da necessidade registrada.'}</p>
+              <p className="budget-print-prewrap">{technicalNotes || 'Análise detalhada da necessidade registrada.'}</p>
             </div>
           </section>
         )}
@@ -240,11 +239,11 @@ export function BudgetPrintPreview({
           <section className="print-premium-footer">
             <div className="print-client-box">
               <span>Termos, Garantia e Prazos</span>
-              {commercialNotes && <p style={{ whiteSpace: 'pre-wrap' }}>{commercialNotes}</p>}
+              {commercialNotes && <p className="budget-print-prewrap">{commercialNotes}</p>}
               {guarantee && <p><strong>Garantia:</strong> {guarantee}</p>}
               {executionDeadline && <p><strong>Prazo de Execução:</strong> {executionDeadline}</p>}
             </div>
-            <footer className="print-footer" style={{ marginTop: '40px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '40px' }}>
+            <footer className="print-footer budget-print-footer-grid">
               <div className="signature-line">Assinatura Técnica</div>
               <div className="signature-line">Aceite do Cliente</div>
             </footer>
@@ -253,10 +252,10 @@ export function BudgetPrintPreview({
           <section className="budget-simple-footer">
             <div className="print-client-box">
               <span>Observações</span>
-              <p style={{ whiteSpace: 'pre-wrap' }}>{commercialNotes || 'Valores sujeitos à alteração sem aviso prévio.'}</p>
+              <p className="budget-print-prewrap">{commercialNotes || 'Valores sujeitos à alteração sem aviso prévio.'}</p>
               {paymentTerms && <p><strong>Pagamento:</strong> {paymentTerms}</p>}
             </div>
-            <footer className="print-footer" style={{ marginTop: '30px' }}>
+            <footer className="print-footer budget-print-footer-top-sm">
               <div className="signature-line">Assinatura / Aceite</div>
             </footer>
           </section>

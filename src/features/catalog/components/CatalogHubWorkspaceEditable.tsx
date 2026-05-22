@@ -676,8 +676,8 @@ export function CatalogHubWorkspace({ onSendToBudget, initialTab = 'items', enab
                       </div>
                       <div className="value-col">{money(item.defaultUnitValue)}</div>
                       <div className="catalog-row-actions">
-                        <button className="ghost-action" style={{ minHeight: '32px', fontSize: '0.7rem' }} type="button" onClick={() => editItem(item)}>Editar</button>
-                        <button className="ghost-action" style={{ minHeight: '32px', fontSize: '0.7rem' }} type="button" onClick={() => sendItem(item)}>Enviar</button>
+                        <button className="ghost-action catalog-row-compact-action" type="button" onClick={() => editItem(item)}>Editar</button>
+                        <button className="ghost-action catalog-row-compact-action" type="button" onClick={() => sendItem(item)}>Enviar</button>
                       </div>
                     </article>
                   );
@@ -721,7 +721,7 @@ export function CatalogHubWorkspace({ onSendToBudget, initialTab = 'items', enab
               <div className="catalog-field col-12 file-reference-field"><span>Enviar foto de referência</span><input accept="image/*" type="file" onChange={(event) => handleOnlineImageFile(event.target.files?.[0])} /></div>
             </div>
             
-            <div className="online-result-box" style={{ marginTop: '20px' }}>
+            <div className="online-result-box catalog-online-spacing">
               <span>Consulta preparada</span>
               <strong>{sanitizeCatalogDisplayText(onlineSupplier?.name ?? 'Fornecedor')}</strong>
               <small>{onlineUrl || 'Cadastre um fornecedor com site/catálogo.'}</small>
@@ -735,7 +735,7 @@ export function CatalogHubWorkspace({ onSendToBudget, initialTab = 'items', enab
               <article className="catalog-step-card"><span className="catalog-step-number">3</span><div><strong>Revisão manual</strong><p>Nada entra sem conferir dados.</p></div></article>
             </div>
 
-            <div className="online-results-list" style={{ marginTop: '20px' }}>
+            <div className="online-results-list catalog-online-spacing">
               {visibleOnlineResults.map((result) => (
                 <article className="online-result-card" key={result.id}>
                   {result.imageUrl && <img src={result.imageUrl} alt={`Referência de ${result.title}`} />}
@@ -756,13 +756,13 @@ export function CatalogHubWorkspace({ onSendToBudget, initialTab = 'items', enab
             </div>
 
             {onlineImageUrl && (
-              <div className="catalog-reference-preview" style={{ marginTop: '20px' }}>
+              <div className="catalog-reference-preview catalog-online-spacing">
                 <img src={onlineImageUrl} alt={`Referência de ${onlineQuery}`} />
                 <span><strong>Imagem pronta para referência</strong><small>Ao usar como referência, esta imagem será enviada para o cadastro do item.</small></span>
               </div>
             )}
 
-            <div className="catalog-hub-actions start-actions" style={{ marginTop: '20px' }}>
+            <div className="catalog-hub-actions start-actions catalog-online-spacing">
               {onlineUrl && <a className="primary-action inline-action" href={onlineUrl} target="_blank" rel="noreferrer">Abrir consulta online</a>}
               <button className="secondary-action inline-action" type="button" onClick={() => fillItemFromOnlineSearch()}>Usar como referência</button>
             </div>

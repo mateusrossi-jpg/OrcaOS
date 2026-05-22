@@ -7,7 +7,7 @@ import { refreshPlanEntitlement } from '../../core/access/planEntitlements';
 import { proPlanBenefits, proV1Priorities, futureProBacklog } from '../../core/access/planStrategy';
 import { isDevToolsEnabled } from '../../core/runtime/devTools';
 import { storePackages } from '../appData';
-import { MetricCard, PageHeader, PageShell, PlanCard, SectionHeader, BackButton } from '../components/ui';
+import { MetricCard, PageHeader, PageShell, PlanCard, BackButton, ListCard, ListItem, PanelCard, SecondaryButton } from '../components/ui';
 import { planStatusTitle, planStatusDescription } from '../utils/planHelpers';
 
 interface StoreScreenProps {
@@ -22,9 +22,12 @@ export function StoreScreen({ account, onAccountChange, onBack }: StoreScreenPro
   const [feedback, setFeedback] = useState<string | null>(null);
   const [isCheckingPlan, setIsCheckingPlan] = useState(false);
   const [isGooglePlayBusy, setIsGooglePlayBusy] = useState(false);
+  const [showAllProBenefits, setShowAllProBenefits] = useState(false);
   const billingReadiness = getBillingReadiness();
   const googlePlaySetup = getGooglePlayBillingSetup();
   const googlePlayMode = billingReadiness.channel === 'google-play';
+  const visibleProBenefits = showAllProBenefits ? proPlanBenefits : proPlanBenefits.slice(0, 5);
+  const hiddenProBenefitsCount = Math.max(proPlanBenefits.length - visibleProBenefits.length, 0);
 
   async function checkSubscription() {
     setIsCheckingPlan(true);
@@ -118,19 +121,20 @@ export function StoreScreen({ account, onAccountChange, onBack }: StoreScreenPro
           action={<button className="secondary-action inline-action" type="button" disabled>Planejado</button>}
         />
       </section>
-      <section className="aferix-panel-card store-comparison-card">
-        <SectionHeader title="Vantagens do Aferix Pro" />
-        <div className="continuous-list">
-          {proPlanBenefits.map((benefit) => (
-            <article className="continuous-list-item" key={benefit.title}>
-              <div className="client-col">
-                <strong>{benefit.title}</strong>
-                <small>{benefit.description}</small>
-              </div>
-            </article>
-          ))}
-        </div>
-      </section>
+      <ListCard title="Vantagens do Aferix Pro" className="store-comparison-card">
+        {visibleProBenefits.map((benefit) => (
+          <ListItem key={benefit.title} title={benefit.title} subtitle={benefit.description} />
+        ))}
+        {proPlanBenefits.length > 5 && (
+          <button
+            type="button"
+            className="list-expand-toggle"
+            onClick={() => setShowAllProBenefits((current) => !current)}
+          >
+            {showAllProBenefits ? "Ver menos" : `Ver mais (${hiddenProBenefitsCount})`}
+          </button>
+        )}
+      </ListCard>
       <div className="settings-group account-settings-panel billing-readiness-panel">
         <div className="settings-panel-title">
           <span className="orca-kicker">Pagamentos</span>
@@ -164,7 +168,7 @@ export function StoreScreen({ account, onAccountChange, onBack }: StoreScreenPro
         {!account.userId && <p className="general-helper-text">Entre com e-mail ou Google antes de comprar/restaurar Pro.</p>}
         {!googlePlaySetup.bridgeAvailable && <p className="general-helper-text">Bridge nativo pendente no Android/Capacitor antes da venda real.</p>}
       </div>}
-      <div className="aferix-panel-card">
+      <PanelCard>
         <header>
           <div>
             <span className="orca-kicker">Assinatura</span>
@@ -176,9 +180,9 @@ export function StoreScreen({ account, onAccountChange, onBack }: StoreScreenPro
           <MetricCard label="ID" value={account.installationId.slice(0, 8)} />
         </div>
         <div className="local-backup-actions store-account-actions">
-          <button className="ghost-action" type="button" onClick={checkSubscription}>Verificar</button>
+          <SecondaryButton onClick={checkSubscription}>Verificar</SecondaryButton>
         </div>
-      </div>
+      </PanelCard>
       <details className="aferix-panel-card store-detail-section">
         <summary>Estratégia e comparativo</summary>
         <div className="store-detail-content">

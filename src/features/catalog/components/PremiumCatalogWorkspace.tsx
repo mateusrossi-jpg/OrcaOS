@@ -1,5 +1,22 @@
 import { useMemo, useState, useEffect } from 'react';
-import { Button, Select, EmptyState, BackButton, TextArea, MonetaryInput, Modal } from '../../../app/components/ui';
+import { 
+  Button, 
+  Select, 
+  EmptyState, 
+  BackButton, 
+  TextArea, 
+  MonetaryInput, 
+  Modal,
+  ListCard,
+  ListItem,
+  SearchInput,
+  FilterChips,
+  ActionMenu,
+  Input,
+  PrimaryButton,
+  SecondaryButton,
+  PanelCard
+} from '../../../app/components/ui';
 import { loadCatalogHubItems, saveCatalogHubItems, type CatalogHubItem, type CatalogHubItemKind, createCatalogId } from '../storage/catalogHubStorage';
 import './PremiumCatalogWorkspace.css';
 
@@ -8,14 +25,14 @@ function money(value: number): string {
   return currencyFormatter.format(Number.isFinite(value) ? value : 0);
 }
 
-const CATEGORY_CHIPS: Array<{ id: string; label: string; kind?: CatalogHubItemKind }> = [
+const CATEGORY_CHIPS: Array<{ id: string; label: string }> = [
   { id: 'all', label: 'Todos' },
-  { id: 'material', label: 'Materiais', kind: 'material' },
-  { id: 'labor', label: 'Mão de obra', kind: 'labor' },
-  { id: 'service', label: 'Serviços compostos', kind: 'service' },
-  { id: 'travel', label: 'Deslocamento', kind: 'travel' },
-  { id: 'fee', label: 'Taxas', kind: 'fee' },
-  { id: 'custom', label: 'Personalizados', kind: 'custom' },
+  { id: 'material', label: 'Materiais' },
+  { id: 'labor', label: 'Mão de obra' },
+  { id: 'service', label: 'Serviços compostos' },
+  { id: 'travel', label: 'Deslocamento' },
+  { id: 'fee', label: 'Taxas' },
+  { id: 'custom', label: 'Personalizados' },
 ];
 
 function itemKindLabel(kind: CatalogHubItemKind): string {
@@ -26,6 +43,8 @@ function itemKindLabel(kind: CatalogHubItemKind): string {
   if (kind === 'fee') return 'Taxa';
   return 'Item';
 }
+
+const CATALOG_VISIBLE_LIMIT = 5;
 
 const emptyItem = (kind: CatalogHubItemKind = 'material'): CatalogHubItem => ({
   id: '',
@@ -48,6 +67,7 @@ export function PremiumCatalogWorkspace() {
   const [view, setView] = useState<'list' | 'form'>('list');
   const [editingItem, setEditingItem] = useState<CatalogHubItem | null>(null);
   const [itemPendingDelete, setItemPendingDelete] = useState<CatalogHubItem | null>(null);
+  const [showAllItems, setShowAllItems] = useState(false);
 
   useEffect(() => {
     saveCatalogHubItems(items);
@@ -62,6 +82,9 @@ export function PremiumCatalogWorkspace() {
       return chipMatch && textMatch;
     });
   }, [items, activeChip, query]);
+
+  const visibleItems = showAllItems ? filteredItems : filteredItems.slice(0, CATALOG_VISIBLE_LIMIT);
+  const hiddenItemsCount = Math.max(filteredItems.length - visibleItems.length, 0);
 
   function handleEdit(item: CatalogHubItem) {
     setEditingItem({ ...item });
@@ -112,24 +135,21 @@ export function PremiumCatalogWorkspace() {
       <div className="premium-catalog-workspace form-view">
         <BackButton onClick={() => setView('list')} label="Voltar para a Biblioteca" />
 
-        <div className="aferix-panel-card catalog-edit-card">
-          <header>
+        <PanelCard className="catalog-edit-card">
+          <header className="panel-list-header">
             <h2>{editingItem.id ? 'Editar Item' : 'Novo Item'}</h2>
             <p>Configure os detalhes técnicos e comerciais.</p>
           </header>
 
           <div className="catalog-form-grid">
-            <label className="catalog-field">
-              <span>Título do Item</span>
-              <input
-                value={editingItem.title}
-                onChange={(e) => setEditingItem({ ...editingItem, title: e.target.value })}
-                placeholder="Ex: Disjuntor Din 20A"
-              />
-            </label>
+            <Input 
+              label="Título do Item"
+              value={editingItem.title}
+              onChange={(e) => setEditingItem({ ...editingItem, title: e.target.value })}
+              placeholder="Ex: Disjuntor Din 20A"
+            />
 
             <Select
-              className="catalog-field"
               label="Tipo"
               value={editingItem.kind}
               onChange={(val) => setEditingItem({ ...editingItem, kind: val as CatalogHubItemKind, itemType: val === 'labor' ? 'service' : 'material' })}
@@ -142,55 +162,52 @@ export function PremiumCatalogWorkspace() {
               <option value="custom">Item personalizado</option>
             </Select>
 
-            <label className="catalog-field">
-              <span>Marca / Fabricante</span>
-              <input
-                value={editingItem.brand || ''}
-                onChange={(e) => setEditingItem({ ...editingItem, brand: e.target.value })}
-                placeholder="Opcional"
-              />
-            </label>
+            <Input 
+              label="Marca / Fabricante"
+              value={editingItem.brand || ''}
+              onChange={(e) => setEditingItem({ ...editingItem, brand: e.target.value })}
+              placeholder="Opcional"
+            />
 
             <MonetaryInput
-              className="catalog-field"
               label="Preço"
               value={editingItem.defaultUnitValue}
               onChange={(val) => setEditingItem({ ...editingItem, defaultUnitValue: val })}
             />
 
-            <label className="catalog-field">
-              <span>Unidade</span>
-              <input
-                value={editingItem.unit}
-                onChange={(e) => setEditingItem({ ...editingItem, unit: e.target.value })}
-                placeholder="un, m, kg..."
-              />
-            </label>
+            <Input 
+              label="Unidade"
+              value={editingItem.unit}
+              onChange={(e) => setEditingItem({ ...editingItem, unit: e.target.value })}
+              placeholder="un, m, kg..."
+            />
 
-            <label className="catalog-field">
-              <span>Notas Internas</span>
-              <TextArea
-                value={editingItem.notes || ''}
-                onChange={(val) => setEditingItem({ ...editingItem, notes: val })}
-                placeholder="Observações de uso..."
-              />
-            </label>
+            <div className="catalog-field-wide">
+              <label className="aferix-input-field">
+                <span>Notas Internas</span>
+                <TextArea
+                  value={editingItem.notes || ''}
+                  onChange={(val) => setEditingItem({ ...editingItem, notes: val })}
+                  placeholder="Observações de uso..."
+                />
+              </label>
+            </div>
           </div>
 
-          <div className="catalog-actions-row" style={{ marginTop: '24px', display: 'grid', gap: '10px' }}>
-            <Button variant="primary" onClick={handleSave} style={{ width: '100%' }}>
+          <div className="catalog-actions-row-standardized premium-catalog-actions-spacing">
+            <PrimaryButton onClick={handleSave}>
               Salvar Alterações
-            </Button>
+            </PrimaryButton>
             {editingItem.id && (
-              <Button variant="danger" onClick={() => requestDelete(editingItem)} style={{ width: '100%' }}>
+              <Button variant="danger" onClick={() => requestDelete(editingItem)}>
                 Excluir Item
               </Button>
             )}
-            <Button variant="ghost" onClick={() => setView('list')} style={{ width: '100%' }}>
+            <SecondaryButton onClick={() => setView('list')}>
               Cancelar
-            </Button>
+            </SecondaryButton>
           </div>
-        </div>
+        </PanelCard>
 
         <Modal
           isOpen={Boolean(itemPendingDelete)}
@@ -210,66 +227,62 @@ export function PremiumCatalogWorkspace() {
 
   return (
     <div className="premium-catalog-workspace">
-      <Button variant="primary" className="new-item-cta full-page-cta" onClick={handleNew}>+ Novo Item</Button>
+      <PrimaryButton className="new-item-cta" onClick={handleNew}>+ Novo Item</PrimaryButton>
 
-      <div className="catalog-search-area">
-        <input
-          className="catalog-main-search"
-          placeholder="Buscar no catálogo..."
+      <PanelCard className="catalog-search-area">
+        <SearchInput
+          placeholder="Buscar no catálogo por título, marca ou categoria..."
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={(value) => { setQuery(value); setShowAllItems(false); }}
         />
-      </div>
+        <div className="premium-catalog-top-spacing-sm">
+          <FilterChips 
+            items={CATEGORY_CHIPS}
+            active={[activeChip]}
+            onChange={(active) => { setActiveChip(active[0] || 'all'); setShowAllItems(false); }}
+            ariaLabel="Filtrar catálogo por categoria"
+          />
+        </div>
+      </PanelCard>
 
-      <div className="catalog-category-chips">
-        {CATEGORY_CHIPS.map((chip) => (
-          <button
-            key={chip.id}
-            className={`category-chip ${activeChip === chip.id ? 'active' : ''}`}
-            onClick={() => setActiveChip(chip.id)}
-          >
-            {chip.label}
-          </button>
-        ))}
-      </div>
-
-      <div className="premium-catalog-list">
+      <ListCard>
         {filteredItems.length === 0 ? (
           <EmptyState
             title="Nenhum item encontrado"
             description={query ? 'Tente buscar por outro termo ou categoria.' : 'Sua biblioteca está vazia. Adicione seu primeiro item.'}
           />
         ) : (
-          filteredItems.map((item) => (
-            <article key={item.id} className="premium-catalog-item">
-              <div className="item-info">
-                <span className="item-kind">{itemKindLabel(item.kind)}</span>
-                <strong className="item-title">{item.title}</strong>
-                <small className="item-meta">{item.category} {item.brand && `· ${item.brand}`}</small>
-              </div>
-              <div className="item-price-action">
-                <span className="item-price">{money(item.defaultUnitValue)}</span>
-                <button
-                  className="item-action-btn edit"
-                  onClick={() => handleEdit(item)}
-                  aria-label="Editar item"
-                  title="Editar item"
-                >
-                  <span className="item-action-icon" aria-hidden="true">✎</span>
-                </button>
-                <button
-                  className="item-action-btn danger"
-                  onClick={() => requestDelete(item)}
-                  aria-label="Excluir item"
-                  title="Excluir item"
-                >
-                  <span className="item-action-icon" aria-hidden="true">✕</span>
-                </button>
-              </div>
-            </article>
+          visibleItems.map((item) => (
+            <ListItem 
+              key={item.id}
+              title={item.title}
+              subtitle={
+                <div className="premium-catalog-item-meta-grid">
+                  <span>{itemKindLabel(item.kind)} · {item.category} {item.brand && `· ${item.brand}`}</span>
+                </div>
+              }
+              value={<span className="item-price">{money(item.defaultUnitValue)}</span>}
+              action={
+                <ActionMenu
+                  label="Ações do item"
+                  items={[
+                    { id: 'edit', label: 'Editar', onSelect: () => handleEdit(item) },
+                    { id: 'delete', label: 'Excluir', tone: 'danger', onSelect: () => requestDelete(item) },
+                  ]}
+                />
+              }
+            />
           ))
         )}
-      </div>
+
+        {filteredItems.length > CATALOG_VISIBLE_LIMIT && (
+          <div className="premium-catalog-top-spacing-sm">
+            <Button variant="ghost" className="density-toggle-cta" onClick={() => setShowAllItems((current) => !current)}>
+              {showAllItems ? 'Ver menos' : `Ver mais (${hiddenItemsCount})`}
+            </Button>
+          </div>
+        )}
+      </ListCard>
 
       <Modal
         isOpen={Boolean(itemPendingDelete)}

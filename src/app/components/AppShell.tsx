@@ -1,9 +1,8 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import type { Client, Service as WorkOrder } from '../../core/types/business';
 import './AppShell.css';
 
 const AFERIX_WORDMARK = '/icons/aferix-wordmark-premium.svg';
-// Branding compatibility token retained for QA guardrails (asset not rendered): /icons/aferix-mark-premium.svg;
 
 export function statusLabel(status: WorkOrder['status']): string {
   const labels: Record<WorkOrder['status'], string> = {
@@ -35,27 +34,67 @@ function NavGlyph({ path }: { path: string }) {
 export function AppShell({ children, activeTab, navItems, onNavigate, activeClient }: AppShellProps) {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [isBudgetGroupOpen, setIsBudgetGroupOpen] = useState(false);
+  const [isBaseGroupOpen, setIsBaseGroupOpen] = useState(false);
+  const lastMenuActionAtRef = useRef(0);
+
+  const canRunMenuAction = () => {
+    const now = Date.now();
+    if (now - lastMenuActionAtRef.current < 180) {
+      return false;
+    }
+    lastMenuActionAtRef.current = now;
+    return true;
+  };
 
   useEffect(() => {
     setIsSidebarCollapsed(true);
     setIsDrawerOpen(false);
+    setIsBudgetGroupOpen(false);
+    setIsBaseGroupOpen(false);
   }, [activeTab]);
 
   useEffect(() => {
     function handlePointerDown(e: PointerEvent) {
-      if (!(e.target as Element).closest('.top-nav-menu-container')) {
+      if (!(e.target as Element).closest('.app-sidebar, .mobile-top-bar')) {
         setIsDrawerOpen(false);
+        setIsSidebarCollapsed(true);
+        setIsBudgetGroupOpen(false);
+        setIsBaseGroupOpen(false);
       }
     }
     document.addEventListener('pointerdown', handlePointerDown);
     return () => document.removeEventListener('pointerdown', handlePointerDown);
   }, []);
 
-  const mainNavItems = navItems.filter(item => item.id !== 'settings' && item.id !== 'store');
+  const mainNavItems = navItems.filter((item) => item.id !== 'settings' && item.id !== 'store');
+
+  const budgetNewItem = mainNavItems.find((item) => item.id === 'budgets');
+  const budgetHistoryItem = mainNavItems.find((item) => item.id === 'budget-history');
+
+  const pulseItem = mainNavItems.find((item) => item.id === 'home');
+  const moneyItem = mainNavItems.find((item) => item.id === 'financial');
+
+  const baseClientsItem = mainNavItems.find((item) => item.id === 'clients');
+  const baseCatalogItem = mainNavItems.find((item) => item.id === 'catalog');
+  const baseReportsItem = mainNavItems.find((item) => item.id === 'reports');
+
+  const baseSubItems = [baseClientsItem, baseCatalogItem, baseReportsItem].filter(Boolean) as Array<{
+    id: string;
+    label: string;
+    description: string;
+    icon: string;
+    section?: string;
+    primary?: boolean;
+  }>;
+
   const accountNavItems = [
     { id: 'settings', label: 'Configurações', icon: 'settings' },
     { id: 'store', label: 'Licença Pro', icon: 'store' },
   ];
+
+  const baseActive = activeTab === 'clients' || activeTab === 'catalog' || activeTab === 'reports';
+  const workActive = activeTab === 'budgets' || activeTab === 'budget-history';
 
   const iconMap: Record<string, ReactNode> = {
     home: <NavGlyph path="M3 10.5 12 3l9 7.5M6.5 9.5V21h11V9.5" />,
@@ -75,7 +114,15 @@ export function AppShell({ children, activeTab, navItems, onNavigate, activeClie
           type="button"
           aria-label="Abrir menu"
           onClick={() => {
-            setIsSidebarCollapsed((current) => !current);
+            if (!canRunMenuAction()) return;
+            setIsSidebarCollapsed((current) => {
+              const nextCollapsed = !current;
+              if (!nextCollapsed) {
+                setIsBudgetGroupOpen(false);
+                setIsBaseGroupOpen(false);
+              }
+              return nextCollapsed;
+            });
             setIsDrawerOpen((current) => !current);
           }}
           onKeyDown={(e) => {
@@ -99,7 +146,12 @@ export function AppShell({ children, activeTab, navItems, onNavigate, activeClie
         <div
           className={`drawer-backdrop ${isDrawerOpen ? 'open' : ''}`}
           onMouseDown={() => setIsSidebarCollapsed(true)}
-          onClick={() => setIsDrawerOpen(false)}
+          onClick={() => {
+            setIsSidebarCollapsed(true);
+            setIsDrawerOpen(false);
+            setIsBudgetGroupOpen(false);
+            setIsBaseGroupOpen(false);
+          }}
           aria-hidden="true"
         />
       )}
@@ -116,6 +168,8 @@ export function AppShell({ children, activeTab, navItems, onNavigate, activeClie
             onClick={() => {
               setIsSidebarCollapsed(true);
               setIsDrawerOpen(false);
+              setIsBudgetGroupOpen(false);
+              setIsBaseGroupOpen(false);
             }}
           >
             ✕
@@ -126,20 +180,106 @@ export function AppShell({ children, activeTab, navItems, onNavigate, activeClie
           <div className="nav-section">
             <span className="nav-section-title">Principal</span>
             <div className="nav-items-stack">
-              {mainNavItems.map((item) => {
-                const isActive = activeTab === item.id;
-                return (
+              {pulseItem && (
+                <button
+                  className={`nav-item ${activeTab === 'home' ? 'active' : ''}`}
+                  onClick={() => onNavigate(pulseItem.id)}
+                >
+                  <span className="nav-icon icon-home">{iconMap.home}</span>
+                  <strong className="nav-label">Pulse</strong>
+                  {activeTab === 'home' && <span className="active-indicator" />}
+                </button>
+              )}
+
+              {budgetNewItem && budgetHistoryItem && (
+                <div className={`nav-group ${workActive ? 'active' : ''}`}>
                   <button
-                    key={item.id}
-                    className={`nav-item ${isActive ? 'active' : ''}`}
-                    onClick={() => onNavigate(item.id)}
+                    type="button"
+                    className={`nav-item nav-parent ${workActive ? 'active' : ''}`}
+                    onClick={() => {
+                      if (!canRunMenuAction()) return;
+                      setIsBudgetGroupOpen((current) => !current);
+                    }}
                   >
-                    <span className={`nav-icon icon-${item.icon}`}>{iconMap[item.icon] ?? iconMap.home}</span>
-                    <strong className="nav-label">{item.label}</strong>
-                    {isActive && <span className="active-indicator" />}
+                    <span className="nav-icon icon-document">{iconMap.document}</span>
+                    <strong className="nav-label">Work</strong>
+                    <span className={`nav-group-caret ${isBudgetGroupOpen ? 'open' : ''}`}>▾</span>
+                    {workActive && <span className="active-indicator" />}
                   </button>
-                );
-              })}
+
+                  {isBudgetGroupOpen && (
+                    <div className="nav-subitems">
+                      <button
+                        type="button"
+                        className={`nav-subitem ${activeTab === 'budgets' ? 'active' : ''}`}
+                        onClick={() => {
+                          if (!canRunMenuAction()) return;
+                          onNavigate('budgets');
+                        }}
+                      >
+                        Novo orçamento
+                      </button>
+                      <button
+                        type="button"
+                        className={`nav-subitem ${activeTab === 'budget-history' ? 'active' : ''}`}
+                        onClick={() => {
+                          if (!canRunMenuAction()) return;
+                          onNavigate('budget-history');
+                        }}
+                      >
+                        Histórico
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {moneyItem && (
+                <button
+                  className={`nav-item ${activeTab === 'financial' ? 'active' : ''}`}
+                  onClick={() => onNavigate(moneyItem.id)}
+                >
+                  <span className="nav-icon icon-finance">{iconMap.finance}</span>
+                  <strong className="nav-label">Money</strong>
+                  {activeTab === 'financial' && <span className="active-indicator" />}
+                </button>
+              )}
+
+              {baseSubItems.length > 0 && (
+                <div className={`nav-group ${baseActive ? 'active' : ''}`}>
+                  <button
+                    type="button"
+                    className={`nav-item nav-parent ${baseActive ? 'active' : ''}`}
+                    onClick={() => {
+                      if (!canRunMenuAction()) return;
+                      setIsBaseGroupOpen((current) => !current);
+                    }}
+                  >
+                    <span className="nav-icon icon-clients">{iconMap.clients}</span>
+                    <strong className="nav-label">Base</strong>
+                    <span className={`nav-group-caret ${isBaseGroupOpen ? 'open' : ''}`}>▾</span>
+                    {baseActive && <span className="active-indicator" />}
+                  </button>
+
+                  {isBaseGroupOpen && (
+                    <div className="nav-subitems">
+                      {baseSubItems.map((item) => (
+                        <button
+                          key={item.id}
+                          type="button"
+                          className={`nav-subitem ${activeTab === item.id ? 'active' : ''}`}
+                          onClick={() => {
+                            if (!canRunMenuAction()) return;
+                            onNavigate(item.id);
+                          }}
+                        >
+                          {item.label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
 

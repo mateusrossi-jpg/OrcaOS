@@ -6,6 +6,16 @@ import { loadSimpleFinanceRecords, type SimpleFinanceRecord } from '../../financ
 import { loadProfessionalProfile } from '../../settings/storage/professionalProfileStorage';
 import { calculateServiceProfit } from '../../../core/finance/serviceProfit';
 import { calculateBudgetTotal } from '../../../core/pricing/budget';
+import { 
+  MetricCard, 
+  PanelCard, 
+  ListCard, 
+  ListItem, 
+  FilterChips, 
+  EmptyState,
+  MoneyValue,
+  Button
+} from '../../../app/components/ui';
 import './ReportWorkspace.css';
 
 interface ReportWorkspaceProps {
@@ -16,30 +26,21 @@ interface ReportWorkspaceProps {
 
 type ReportCategory = 'financeiro' | 'clientes' | 'serviços' | 'desempenho';
 
+const CATEGORIES: Array<{ id: ReportCategory; label: string }> = [
+  { id: 'financeiro', label: 'Financeiro' },
+  { id: 'clientes', label: 'Clientes' },
+  { id: 'serviços', label: 'Serviços' },
+  { id: 'desempenho', label: 'Desempenho' }
+];
+
 const moneyFormatter = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
 
 function money(value: number): string {
   return moneyFormatter.format(Number.isFinite(value) ? value : 0);
 }
 
-function budgetRecordTotal(record: SavedBudgetRecord): number {
-  const budget: Budget = {
-    id: record.id,
-    title: record.title,
-    status: record.status,
-    discount: record.discount,
-    travelCost: record.travelCost,
-    additionalFees: record.additionalFees,
-    items: record.items,
-  };
-  try {
-    return calculateBudgetTotal(budget);
-  } catch {
-    return 0;
-  }
-}
-
 export function ReportWorkspace({ captures, activeClient = null, activeWorkOrder = null }: ReportWorkspaceProps) {
+  const [showAllClientStats, setShowAllClientStats] = useState(false);
   const [activeCategory, setActiveCategory] = useState<ReportCategory>('financeiro');
   
   const savedBudgets = useMemo(() => loadSavedBudgets(), []);
@@ -72,8 +73,8 @@ export function ReportWorkspace({ captures, activeClient = null, activeWorkOrder
       const p = calculateServiceProfit(r);
       return sum + p.directCosts;
     }, 0);
-    const avgMargin = realized.length > 0 
-      ? realized.reduce((sum, r) => sum + calculateServiceProfit(r).netMarginPercent, 0) / realized.length 
+    const avgMargin = realized.length > 0
+      ? realized.reduce((sum, r) => sum + calculateServiceProfit(r).netMarginPercent, 0) / realized.length
       : 0;
 
     return { totalRevenue, totalCosts, avgMargin };
@@ -87,13 +88,16 @@ export function ReportWorkspace({ captures, activeClient = null, activeWorkOrder
       entry.total += r.receivedAmount;
       clientMap.set(r.clientName, entry);
     });
-    return Array.from(clientMap.values()).sort((a, b) => b.total - a.total).slice(0, 5);
+    return Array.from(clientMap.values()).sort((a, b) => b.total - a.total);
   }, [financeRecords]);
+
+  const visibleClientStats = showAllClientStats ? clientStats : clientStats.slice(0, 5);
+  const hiddenClientStatsCount = Math.max(clientStats.length - visibleClientStats.length, 0);
 
   return (
     <div className="report-workspace-container">
       {/* Hero Card: Planned vs Actual */}
-      <section className="report-hero-card">
+      <PanelCard className="report-hero-card">
         <div className="hero-main-metric">
           <span>Lucro Realizado (Mês)</span>
           <strong>{money(heroData.actualProfit)}</strong>
@@ -111,100 +115,88 @@ export function ReportWorkspace({ captures, activeClient = null, activeWorkOrder
             <small className="comparison-note">{heroData.isPositive ? 'Acima do orçado' : 'Abaixo do orçado'}</small>
           </div>
         </div>
-      </section>
+      </PanelCard>
 
       {/* Category Selector */}
-      <nav className="report-category-selector">
-        {[
-          { id: 'financeiro', label: 'Financeiro' },
-          { id: 'clientes', label: 'Clientes' },
-          { id: 'serviços', label: 'Serviços' },
-          { id: 'desempenho', label: 'Desempenho' }
-        ].map((cat) => (
-          <button 
-            key={cat.id} 
-            className={`category-chip ${activeCategory === cat.id ? 'active' : ''}`}
-            onClick={() => setActiveCategory(cat.id as ReportCategory)}
-          >
-            <span>{cat.label}</span>
-          </button>
-        ))}
-      </nav>
+      <PanelCard className="report-category-nav">
+        <FilterChips 
+          items={CATEGORIES}
+          active={[activeCategory]}
+          onChange={(active) => setActiveCategory(active[0] || 'financeiro')}
+          ariaLabel="Selecionar categoria de relatório"
+        />
+      </PanelCard>
 
       {/* Category Content */}
       <section className="report-category-content">
         {activeCategory === 'financeiro' && (
-          <>
-            <article className="report-stat-card">
-              <div className="report-stat-info">
-                <span>Faturamento Bruto</span>
-                <strong>{money(financeStats.totalRevenue)}</strong>
-              </div>
-            </article>
-            <article className="report-stat-card">
-              <div className="report-stat-info">
-                <span>Custos Operacionais</span>
-                <strong className="tone-danger">{money(financeStats.totalCosts)}</strong>
-              </div>
-            </article>
-            <article className="report-stat-card">
-              <div className="report-stat-info">
-                <span>Margem Média Líquida</span>
-                <strong>{financeStats.avgMargin.toFixed(1)}%</strong>
-              </div>
-            </article>
-          </>
-        )}
-
-        {activeCategory === 'clientes' && (
-          <div className="aferix-panel-card">
-            <header><h3>Maiores Clientes (Faturamento)</h3></header>
-            <div className="ranking-list">
-              {clientStats.length === 0 ? (
-                <p className="report-empty-copy">Nenhum dado de cliente disponível.</p>
-              ) : clientStats.map((c, i) => (
-                <div key={i} className="report-ranking-item">
-                  <div className="client-col">
-                    <strong>{c.name}</strong>
-                    <small>{c.count} atendimentos</small>
-                  </div>
-                  <div className="value-col">
-                    <strong>{money(c.total)}</strong>
-                  </div>
-                </div>
-              ))}
-            </div>
+          <div className="metric-grid">
+            <MetricCard 
+              label="Faturamento Bruto" 
+              value={money(financeStats.totalRevenue)} 
+            />
+            <MetricCard 
+              label="Custos Operacionais" 
+              value={money(financeStats.totalCosts)} 
+              tone="danger"
+            />
+            <MetricCard 
+              label="Margem Média Líquida" 
+              value={`${financeStats.avgMargin.toFixed(1)}%`} 
+              tone={financeStats.avgMargin >= 0 ? 'brand' : 'danger'}
+            />
           </div>
         )}
 
+        {activeCategory === 'clientes' && (
+          <ListCard title="Maiores Clientes (Faturamento)">
+            {clientStats.length === 0 ? (
+              <EmptyState title="Nenhum dado disponível" description="Nenhum dado de cliente disponível para exibição." />
+            ) : visibleClientStats.map((c, i) => (
+              <ListItem 
+                key={i}
+                title={c.name}
+                subtitle={`${c.count} atendimentos`}
+                value={<strong>{money(c.total)}</strong>}
+              />
+            ))}
+                      {clientStats.length > 5 && (
+              <div className="report-list-expand-wrap">
+                <Button
+                  variant="ghost"
+                  className="density-toggle-cta"
+                  onClick={() => setShowAllClientStats((current) => !current)}
+                >
+                  {showAllClientStats ? 'Ver menos' : `Ver mais (${hiddenClientStatsCount})`}
+                </Button>
+              </div>
+            )}
+          </ListCard>
+        )}
+
         {activeCategory === 'serviços' && (
-          <>
-            <article className="report-stat-card">
-              <div className="report-stat-info">
-                <span>Serviços Concluídos</span>
-                <strong>{financeRecords.filter(r => r.status === 'realized').length}</strong>
-              </div>
-            </article>
-            <article className="report-stat-card">
-              <div className="report-stat-info">
-                <span>Orçamentos Enviados</span>
-                <strong>{savedBudgets.filter(b => b.status === 'enviado').length}</strong>
-              </div>
-            </article>
-          </>
+          <div className="metric-grid">
+            <MetricCard 
+              label="Serviços Concluídos" 
+              value={financeRecords.filter(r => r.status === 'realized').length} 
+            />
+            <MetricCard 
+              label="Orçamentos Enviados" 
+              value={savedBudgets.filter(b => b.status === 'enviado').length} 
+              tone="brand"
+            />
+          </div>
         )}
 
         {activeCategory === 'desempenho' && (
-          <article className="report-stat-card">
-            <div className="report-stat-info">
-              <span>Taxa de Aprovação</span>
-              <strong>
-                {savedBudgets.length > 0 
-                  ? ((savedBudgets.filter(b => b.status === 'finalizado').length / savedBudgets.length) * 100).toFixed(0) 
-                  : 0}%
-              </strong>
-            </div>
-          </article>
+          <div className="metric-grid">
+            <MetricCard 
+              label="Taxa de Aprovação" 
+              value={`${savedBudgets.length > 0 ? ((savedBudgets.filter(b => b.status === 'finalizado').length / savedBudgets.length) * 100).toFixed(0) : 0}%`} 
+              tone="brand"
+              featured
+            />
+          </div>
         )}
       </section>
 
@@ -220,9 +212,7 @@ export function ReportWorkspace({ captures, activeClient = null, activeWorkOrder
             </div>
           )}
         </header>
-        <div className="report-empty-state">
-          <p>Selecione um período para gerar o documento completo.</p>
-        </div>
+        <EmptyState title="Relatório Completo" description="Selecione um período para gerar o documento completo." />
       </div>
     </div>
   );

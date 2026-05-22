@@ -872,3 +872,12 @@
     width: 100%;
   }
 }
+
+.catalog-row-compact-action {
+  min-height: 32px;
+  font-size: 0.7rem;
+}
+
+.catalog-online-spacing {
+  margin-top: 20px;
+}

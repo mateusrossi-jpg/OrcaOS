@@ -257,7 +257,7 @@ a {
 
 .module-plan-pill {
   width: fit-content;
-  border-radius: 4px;
+  border-radius: 10px;
   padding: 2px 6px;
   font-size: 0.65rem;
   font-weight: 800;

@@ -28,7 +28,22 @@ import {
 } from '../storage/savedBudgetsStorage';
 import { starterFinancialBudgetItems } from '../budgetTemplates';
 import { BudgetPrintPreview } from './BudgetPrintPreview';
-import { Modal, TextArea, MonetaryInput, Select, Button } from '../../../app/components/ui';
+import { 
+  Modal, 
+  TextArea, 
+  MonetaryInput, 
+  Select, 
+  Button, 
+  PanelCard, 
+  Input, 
+  PrimaryButton, 
+  SecondaryButton, 
+  StatusBadge, 
+  Badge,
+  ListCard,
+  ListItem,
+  EmptyState
+} from '../../../app/components/ui';
 import './BudgetWorkspace.css';
 
 const BudgetPdfDownloadButton = lazy(() => import('./BudgetPdfDownloadButton').then((module) => ({ default: module.BudgetPdfDownloadButton })));
@@ -645,7 +660,7 @@ export function BudgetWorkspace({
 
   function persistCurrentBudget(status: SavedBudgetStatus = budgetStatus): SavedBudgetRecord | null {
     if (isBudgetLocked && status === budgetStatus) {
-      setShareFeedback('Orçamento finalizado: edição bloqueada para preservar o histórico.');
+      setShareFeedback('Orçamento bloqueado para preservar o histórico.');
       return savedBudgets.find((record) => record.id === activeBudgetId) ?? null;
     }
     if (savedBudgetLimitReached) { setShareFeedback(proUpgradeMessage(`Mais de ${FREE_PLAN_LIMITS.savedBudgets} orçamentos salvos`)); return null; }
@@ -762,27 +777,23 @@ export function BudgetWorkspace({
   return (
     <div className="budget-workspace">
       {activeSection === 'revisão' && (
-        <div className="budget-profit-panel sticky-top no-print">
-          <div className="profit-sync-indicator"><div className={`led-indicator ${isSynced ? 'synced' : 'pending'}`}></div>{isSynced ? 'Salvo localmente' : 'Alterações pendentes'}</div>
+        <PanelCard className="budget-profit-panel sticky-top no-print">
+          <div className="profit-sync-indicator">
+            <div className={`led-indicator ${isSynced ? 'synced' : 'pending'}`}></div>
+            {isSynced ? 'Salvo localmente' : 'Alterações pendentes'}
+          </div>
           <div className="profit-data-grid">
             <div className="profit-item"><span>Investimento Materiais</span><strong>{formatCurrency(materialCost)}</strong></div>
             <div className="profit-item"><span>Custo Operacional</span><strong>{formatCurrency(operationalCost)}</strong></div>
             <div className="profit-item"><span>Impostos ({taxRate}%)</span><strong>{formatCurrency(summary.estimatedTaxes)}</strong></div>
             <div className="profit-item net-profit"><span>Lucro Líquido Real</span><strong>{formatCurrency(summary.netProfit)}</strong><small>{summary.profitMargin.toFixed(1)}% margem</small></div>
           </div>
-        </div>
+        </PanelCard>
       )}
 
       <div className="budget-save-status"><span>Auto save</span><strong>{formatSavedAt(lastSavedAt)}</strong></div>
 
       <div className="budget-workspace-stepper">
-        {/* QA guardrail compatibility:
-            label: 'Projeto'
-            label: 'Escopo'
-            label: 'Custos'
-            label: 'Comercial'
-            label: 'Orçamento'
-        */}
         {[
           { id: 'cliente' as const, label: 'Cliente' },
           { id: 'serviço' as const, label: 'Serviço' },
@@ -803,49 +814,57 @@ export function BudgetWorkspace({
       {isBudgetLocked && (
         <div className="budget-toast-banner">
           <span>{budgetStatus === 'finalizado' ? 'Orçamento finalizado e bloqueado para edição.' : budgetStatus === 'recusado' ? 'Orçamento recusado e bloqueado para edição.' : 'Orçamento cancelado e bloqueado para edição.'} Duplique para negociar novamente sem alterar histórico.</span>
-          <button type="button" onClick={duplicateActiveBudgetForRenegotiation}>Duplicar</button>
+          <Button variant="ghost" onClick={duplicateActiveBudgetForRenegotiation}>Duplicar</Button>
         </div>
       )}
 
       {activeSection === 'cliente' && (
         <section className="budget-section-panel">
-          <div className="budget-header-card compact-budget-card">
-            <label className="budget-field"><span>Cliente</span><input placeholder="Nome do cliente" value={clientName} onChange={(e) => setClientName(e.target.value)} /></label>
+          <PanelCard className="compact-budget-card">
+            <Input label="Cliente" placeholder="Nome do cliente" value={clientName} onChange={(e) => setClientName(e.target.value)} />
+          </PanelCard>
+          <div className="budget-actions">
+            <SecondaryButton onClick={confirmResetBudgetDraft}>Limpar e Novo</SecondaryButton>
+            <PrimaryButton onClick={() => setActiveSection('serviço')}>Próximo: Definir Serviço</PrimaryButton>
           </div>
-          <div className="budget-actions"><button type="button" className="secondary-action inline-action" onClick={confirmResetBudgetDraft}>Limpar e Novo</button><button type="button" className="primary-action highlight-next-step" onClick={() => setActiveSection('serviço')}>Próximo: Definir Serviço</button></div>
         </section>
       )}
 
       {activeSection === 'serviço' && (
         <section className="budget-section-panel">
-          <div className="budget-header-card compact-budget-card">
-            <label className="budget-field"><span>Título do Serviço</span><input placeholder="Ex.: Instalação de Ar Condicionado" value={budgetTitle} onChange={(e) => setBudgetTitle(e.target.value)} /></label>
-            <label className="budget-field">
-              <span>Status comercial</span>
-              <select value={budgetStatus} onChange={(e) => setBudgetStatus(e.target.value as SavedBudgetStatus)} disabled={isBudgetLocked}>
-                <option value="iniciado" disabled={budgetStatus !== 'iniciado' && !canBudgetTransitionTo(budgetStatus, 'iniciado')}>Orçamento iniciado</option>
-                <option value="em_revisao" disabled={budgetStatus !== 'em_revisao' && !canBudgetTransitionTo(budgetStatus, 'em_revisao')}>Em revisão</option>
-                <option value="enviado" disabled={budgetStatus !== 'enviado' && !canBudgetTransitionTo(budgetStatus, 'enviado')}>Orçamento enviado</option>
-                <option value="autorizado" disabled={budgetStatus !== 'autorizado' && !canBudgetTransitionTo(budgetStatus, 'autorizado')}>Autorizado</option>
-                <option value="em_execucao" disabled={budgetStatus !== 'em_execucao' && !canBudgetTransitionTo(budgetStatus, 'em_execucao')}>Em execução</option>
-                <option value="finalizado" disabled={budgetStatus !== 'finalizado' && !canBudgetTransitionTo(budgetStatus, 'finalizado')}>Finalizado</option>
-                <option value="recusado" disabled={budgetStatus !== 'recusado' && !canBudgetTransitionTo(budgetStatus, 'recusado')}>Recusado</option>
-                <option value="cancelado" disabled={budgetStatus !== 'cancelado' && !canBudgetTransitionTo(budgetStatus, 'cancelado')}>Cancelado</option>
-              </select>
-            </label>
+          <PanelCard className="compact-budget-card">
+            <Input label="Título do Serviço" placeholder="Ex.: Instalação de Ar Condicionado" value={budgetTitle} onChange={(e) => setBudgetTitle(e.target.value)} />
+            <Select label="Status do orçamento" value={budgetStatus} onChange={(value) => setBudgetStatus(value as SavedBudgetStatus)} disabled={isBudgetLocked}>
+              <option value="iniciado" disabled={budgetStatus !== 'iniciado' && !canBudgetTransitionTo(budgetStatus, 'iniciado')}>Orçamento iniciado</option>
+              <option value="em_revisao" disabled={budgetStatus !== 'em_revisao' && !canBudgetTransitionTo(budgetStatus, 'em_revisao')}>Em revisão</option>
+              <option value="enviado" disabled={budgetStatus !== 'enviado' && !canBudgetTransitionTo(budgetStatus, 'enviado')}>Orçamento enviado</option>
+              <option value="autorizado" disabled={budgetStatus !== 'autorizado' && !canBudgetTransitionTo(budgetStatus, 'autorizado')}>Autorizado</option>
+              <option value="em_execucao" disabled={budgetStatus !== 'em_execucao' && !canBudgetTransitionTo(budgetStatus, 'em_execucao')}>Em execução</option>
+              <option value="finalizado" disabled={budgetStatus !== 'finalizado' && !canBudgetTransitionTo(budgetStatus, 'finalizado')}>Finalizado</option>
+              <option value="recusado" disabled={budgetStatus !== 'recusado' && !canBudgetTransitionTo(budgetStatus, 'recusado')}>Recusado</option>
+              <option value="cancelado" disabled={budgetStatus !== 'cancelado' && !canBudgetTransitionTo(budgetStatus, 'cancelado')}>Cancelado</option>
+            </Select>
+          </PanelCard>
+          <div className="budget-actions">
+            <PrimaryButton onClick={() => setActiveSection('itens')}>Próximo: Adicionar Itens</PrimaryButton>
           </div>
-          <div className="budget-actions"><button type="button" className="primary-action highlight-next-step" onClick={() => setActiveSection('itens')}>Próximo: Adicionar Itens</button></div>
         </section>
       )}
 
       {activeSection === 'itens' && (
         <section className="budget-section-panel budget-items-layout">
-          
-          <div className="budget-editor compact-budget-card">
-            <div className="budget-editor-title"><h3>Adicionar item manual</h3></div>
+          <PanelCard className="budget-editor">
+            <header className="panel-list-header">
+              <h3>Adicionar item manual</h3>
+            </header>
             <div className="budget-form-grid">
-              <label className="budget-field budget-field-wide"><span>Descrição</span><TextArea placeholder="Ex.: Serviço recorrente" value={draft.description} onChange={(v) => updateDraft('description', v)} /></label>
-              <label className="budget-field"><span>Qtd.</span><input type="number" inputMode="decimal" value={draft.quantity} onFocus={handleNumericInputFocus} onChange={(e) => updateDraft('quantity', Number(e.target.value))} /></label>
+              <div className="budget-field-wide">
+                <label className="aferix-input-field">
+                  <span>Descrição</span>
+                  <TextArea placeholder="Ex.: Serviço recorrente" value={draft.description} onChange={(v) => updateDraft('description', v)} />
+                </label>
+              </div>
+              <Input label="Qtd." type="number" inputMode="decimal" value={draft.quantity} onFocus={handleNumericInputFocus} onChange={(e) => updateDraft('quantity', Number(e.target.value))} />
               <MonetaryInput label="Valor unitário" value={draft.unitPrice} onChange={(v) => updateDraft('unitPrice', v)} />
               <Select label="Categoria" value={draft.category} onChange={(value) => updateDraft('category', value as BudgetCategory)}>
                 <option value="labor">Mão de obra</option>
@@ -853,131 +872,167 @@ export function BudgetWorkspace({
                 <option value="other">Outro</option>
               </Select>
             </div>
-            <div className="budget-actions"><button type="button" className="primary-action inline-action" disabled={isBudgetLocked || !canAddItem} onClick={addItem}>Adicionar item</button><button type="button" className="secondary-action inline-action" onClick={confirmLoadStarterItems}>Carregar modelo</button></div>
-          </div>
+            <div className="budget-actions budget-top-spacing-md">
+              <PrimaryButton disabled={isBudgetLocked || !canAddItem} onClick={addItem}>Adicionar item</PrimaryButton>
+              <SecondaryButton onClick={confirmLoadStarterItems}>Carregar modelo</SecondaryButton>
+            </div>
+          </PanelCard>
+
           <div className="budget-item-manager">
-            {items.length === 0 ? <div className="empty-budget">Nenhum item adicionado ainda.</div> : (
+            {items.length === 0 ? (
+              <PanelCard><EmptyState title="Sem itens" description="Nenhum item adicionado ainda." /></PanelCard>
+            ) : (
               <div className="budget-item-manager-grid">
-                <div className="budget-item-table">
+                <ListCard className="budget-item-table">
                   {visibleBudgetItems.map((item) => (
-                    <button className={selectedBudgetItemId === item.id ? 'budget-item-table-row active' : 'budget-item-table-row'} key={item.id} type="button" onClick={() => setSelectedBudgetItemId(item.id)}>
-                      <span><strong>{item.description}</strong><small>{categoryLabel(item.category)} · Qtd. {item.quantity}</small></span>
-                      <em>{formatCurrency(safeBudgetItemTotal(item))}</em>
-                    </button>
+                    <ListItem 
+                      key={item.id}
+                      onClick={() => setSelectedBudgetItemId(item.id)}
+                      className={selectedBudgetItemId === item.id ? 'active' : ''}
+                      title={item.description}
+                      subtitle={`${categoryLabel(item.category)} · Qtd. ${item.quantity}`}
+                      value={<strong>{formatCurrency(safeBudgetItemTotal(item))}</strong>}
+                    />
                   ))}
-                </div>
+                </ListCard>
                 {selectedBudgetItem && (
-                  <article className="editable-budget-item-card budget-item-edit-panel">
+                  <PanelCard className="budget-item-edit-panel">
                     <div className="budget-form-grid">
-                      <label className="budget-field budget-field-wide"><span>Descrição</span><input value={selectedBudgetItem.description} onChange={(e) => updateBudgetItem(selectedBudgetItem.id, 'description', e.target.value)} /></label>
-                      <label className="budget-field"><span>Qtd.</span><input type="number" inputMode="decimal" value={selectedBudgetItem.quantity} onFocus={handleNumericInputFocus} onChange={(e) => updateBudgetItem(selectedBudgetItem.id, 'quantity', Number(e.target.value))} /></label>
+                      <Input className="budget-field-wide" label="Descrição" value={selectedBudgetItem.description} onChange={(e) => updateBudgetItem(selectedBudgetItem.id, 'description', e.target.value)} />
+                      <Input label="Qtd." type="number" inputMode="decimal" value={selectedBudgetItem.quantity} onFocus={handleNumericInputFocus} onChange={(e) => updateBudgetItem(selectedBudgetItem.id, 'quantity', Number(e.target.value))} />
                       <MonetaryInput label="Valor unitário" value={selectedBudgetItem.unitPrice} onChange={(v) => updateBudgetItem(selectedBudgetItem.id, 'unitPrice', v)} />
                     </div>
-                    <div className="editable-budget-item-footer"><button type="button" className="danger-action" disabled={isBudgetLocked} onClick={() => confirmRemoveItem(selectedBudgetItem.id)}>Remover</button></div>
-                  </article>
+                    <div className="editable-budget-item-footer budget-top-spacing-md">
+                      <Button variant="danger" disabled={isBudgetLocked} onClick={() => confirmRemoveItem(selectedBudgetItem.id)}>Remover</Button>
+                    </div>
+                  </PanelCard>
                 )}
               </div>
             )}
           </div>
-          <div className="budget-sticky-summary">
+          
+          <PanelCard className="budget-sticky-summary">
             <span>Subtotal de itens</span>
             <div><small>Soma parcial</small><strong>{formatCurrency(summary.subtotal)}</strong></div>
+          </PanelCard>
+          
+          <div className="budget-actions">
+            <PrimaryButton onClick={() => setActiveSection('custos')}>Próximo: Custos</PrimaryButton>
           </div>
-          <div className="budget-actions"><button type="button" className="primary-action highlight-next-step" onClick={() => setActiveSection('custos')}>Próximo: Custos</button></div>
         </section>
       )}
 
       {activeSection === 'custos' && (
         <section className="budget-section-panel">
-          <div className="budget-header-card compact-budget-card">
+          <PanelCard className="compact-budget-card">
             <MonetaryInput label="Investimento em Materiais (Custo)" value={materialCost} onChange={setMaterialCost} />
             <MonetaryInput label="Custos Operacionais" value={operationalCost} onChange={setOperationalCost} />
             <MonetaryInput label="Deslocamento / Frete" value={travelCost} onChange={setTravelCost} />
             <MonetaryInput label="Taxas adicionais" value={additionalFees} onChange={setAdditionalFees} />
-            <label className="budget-field"><span>Alíquota de Imposto (%)</span><input type="number" inputMode="decimal" value={taxRate} onFocus={handleNumericInputFocus} onChange={(e) => setTaxRate(Math.min(parseInputAmount(e.target.value), 100))} /></label>
+            <Input label="Alíquota de Imposto (%)" type="number" inputMode="decimal" value={taxRate} onFocus={handleNumericInputFocus} onChange={(e) => setTaxRate(Math.min(parseInputAmount(e.target.value), 100))} />
+          </PanelCard>
+          <div className="budget-actions">
+            <PrimaryButton disabled={isBudgetLocked} onClick={() => setActiveSection('revisão')}>Próximo: Orçamento</PrimaryButton>
           </div>
-          <div className="budget-actions"><button type="button" className="primary-action" disabled={isBudgetLocked} onClick={() => setActiveSection('revisão')}>Próximo: Orçamento</button></div>
         </section>
       )}
 
       {activeSection === 'revisão' && (
         <section className="budget-section-panel">
-          <div className="budget-header-card compact-budget-card">
+          <PanelCard className="compact-budget-card">
             <MonetaryInput label="Desconto Especial" value={discount} onChange={setDiscount} />
-            <label className="budget-field"><span>Validade do Orçamento</span><input value={validity} onChange={(e) => setValidity(e.target.value)} /></label>
-            <label className="budget-field"><span>Garantia</span><TextArea value={guarantee} onChange={setGuarantee} /></label>
-            <label className="budget-field"><span>Prazo de Execução</span><TextArea value={executionDeadline} onChange={setExecutionDeadline} /></label>
-            <label className="budget-field budget-field-wide"><span>Forma de Pagamento</span><TextArea value={paymentTerms} onChange={setPaymentTerms} /></label>
-            <label className="budget-field budget-field-wide"><span>Observações Internas</span><TextArea value={commercialNotes} onChange={setCommercialNotes} /></label>
+            <Input label="Validade do Orçamento" value={validity} onChange={(e) => setValidity(e.target.value)} />
+            <div className="budget-field-wide">
+              <label className="aferix-input-field">
+                <span>Garantia</span>
+                <TextArea value={guarantee} onChange={setGuarantee} />
+              </label>
+            </div>
+            <div className="budget-field-wide">
+              <label className="aferix-input-field">
+                <span>Prazo de Execução</span>
+                <TextArea value={executionDeadline} onChange={setExecutionDeadline} />
+              </label>
+            </div>
+            <div className="budget-field-wide">
+              <label className="aferix-input-field">
+                <span>Forma de Pagamento</span>
+                <TextArea value={paymentTerms} onChange={setPaymentTerms} />
+              </label>
+            </div>
+            <div className="budget-field-wide">
+              <label className="aferix-input-field">
+                <span>Observações Internas</span>
+                <TextArea value={commercialNotes} onChange={setCommercialNotes} />
+              </label>
+            </div>
+          </PanelCard>
+          <div className="budget-actions">
+            <PrimaryButton disabled={isBudgetLocked} onClick={() => { saveCurrentBudget(); setActiveSection('documento'); }}>Próximo: PDF</PrimaryButton>
           </div>
-          <div className="budget-actions"><button type="button" className="primary-action highlight-next-step" disabled={isBudgetLocked} onClick={() => { saveCurrentBudget(); setActiveSection('documento'); }}>Próximo: PDF</button></div>
         </section>
       )}
 
       {activeSection === 'documento' && (
         <section className="budget-section-panel preview-section-panel">
-
-          <div className="document-type-selector" style={{ display: 'grid', gap: '16px', margin: '10px 0' }}>
-            {/* Orçamento Simples - Standard */}
-            <article className={`aferix-panel-card doc-option ${selectedTemplate === 'simple' ? 'active' : ''}`} 
+          <div className="document-type-selector budget-document-selector-layout">
+            <PanelCard 
+              className={`doc-option ${selectedTemplate === 'simple' ? 'active' : ''}`} 
               onClick={() => setSelectedTemplate('simple')}
-              style={{ border: selectedTemplate === 'simple' ? '2px solid var(--aferix-primary)' : '1px solid #18181b', cursor: 'pointer' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            >
+              <div className="budget-template-row">
                 <div>
                   <strong>📄 Orçamento Simples</strong>
-                  <small>Foco comercial: preços, itens e condições.</small>
+                  <p className="budget-template-description">Foco comercial: preços, itens e condições.</p>
                 </div>
-                {selectedTemplate === 'simple' && <span style={{ color: 'var(--aferix-primary)' }}>●</span>}
+                {selectedTemplate === 'simple' && <StatusBadge tone="brand">Selecionado</StatusBadge>}
               </div>
-            </article>
+            </PanelCard>
 
-            {/* Relatório Premium - PRO Feature */}
-            <article className={`aferix-panel-card doc-option ${selectedTemplate === 'premiumDetailed' ? 'active' : ''} ${!isProPlan ? 'locked' : ''}`}
+            <PanelCard 
+              className={`doc-option ${selectedTemplate === 'premiumDetailed' ? 'active' : ''} ${!isProPlan ? 'locked' : ''}`}
               onClick={() => isProPlan ? setSelectedTemplate('premiumDetailed') : onUpgradeRequest?.()}
-              style={{ 
-                border: selectedTemplate === 'premiumDetailed' ? '2px solid #f59e0b' : '1px solid #18181b', 
-                cursor: 'pointer',
-                background: !isProPlan ? 'linear-gradient(145deg, #09090b 0%, #1a1a1d 100%)' : undefined,
-                opacity: !isProPlan ? 0.8 : 1
-              }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            >
+              <div className="budget-template-row">
                 <div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <div className="budget-template-title-row">
                     <strong>✨ Relatório Premium</strong>
-                    {!isProPlan && <span className="badge-pro">PRO</span>}
+                    {!isProPlan && <Badge tone="brand">PRO</Badge>}
                   </div>
-                  <small>Foco técnico: diagnóstico, evidências e acabamento luxo.</small>
+                  <p className="budget-template-description">Foco técnico: diagnóstico, evidências e acabamento luxo.</p>
                 </div>
-                {selectedTemplate === 'premiumDetailed' && <span style={{ color: '#f59e0b' }}>●</span>}
+                {selectedTemplate === 'premiumDetailed' && <StatusBadge tone="brand">Selecionado</StatusBadge>}
               </div>
-            </article>
+            </PanelCard>
           </div>
 
-          <div className="budget-flow-status-card">
-            <div><span>Status do Orçamento</span><strong>{statusLabel(budgetStatus)}</strong><small>{statusGuidance(budgetStatus)}</small></div>
-            <div className="budget-actions compact-actions">
-              {budgetStatus === 'iniciado' && <button type="button" className="primary-action inline-action" disabled={blockingProposalIssues} onClick={markBudgetInReview}>Enviar para revisão</button>}
-              {budgetStatus === 'em_revisao' && <button type="button" className="primary-action inline-action" disabled={blockingProposalIssues} onClick={markBudgetAsSent}>Marcar como enviado</button>}
-              {budgetStatus === 'enviado' && <button type="button" className="primary-action inline-action" disabled={blockingProposalIssues} onClick={markBudgetAuthorized}>Marcar como autorizado</button>}
-              {budgetStatus === 'autorizado' && <button type="button" className="primary-action inline-action" onClick={markBudgetInExecution}>Iniciar execução</button>}
-              {budgetStatus === 'em_execucao' && <button type="button" className="primary-action inline-action" onClick={markBudgetFinalized}>Finalizar serviço</button>}
-              {(budgetStatus === 'iniciado' || budgetStatus === 'em_revisao' || budgetStatus === 'enviado' || budgetStatus === 'autorizado' || budgetStatus === 'em_execucao') && <button type="button" className="secondary-action inline-action" onClick={markBudgetCancelled}>Cancelar</button>}
-              {(budgetStatus === 'enviado' || budgetStatus === 'autorizado' || budgetStatus === 'em_execucao') && <button type="button" className="danger-action inline-action" onClick={markBudgetRejected}>Marcar recusado</button>}
+          <PanelCard className="budget-flow-status-card">
+            <div>
+              <span>Status do Orçamento</span>
+              <strong>{statusLabel(budgetStatus)}</strong>
+              <p className="budget-template-description">{statusGuidance(budgetStatus)}</p>
             </div>
-          </div>
+            <div className="budget-actions compact-actions budget-top-spacing-md">
+              {budgetStatus === 'iniciado' && <PrimaryButton disabled={blockingProposalIssues} onClick={markBudgetInReview}>Enviar para revisão</PrimaryButton>}
+              {budgetStatus === 'em_revisao' && <PrimaryButton disabled={blockingProposalIssues} onClick={markBudgetAsSent}>Marcar como enviado</PrimaryButton>}
+              {budgetStatus === 'enviado' && <PrimaryButton disabled={blockingProposalIssues} onClick={markBudgetAuthorized}>Marcar como autorizado</PrimaryButton>}
+              {budgetStatus === 'autorizado' && <PrimaryButton onClick={markBudgetInExecution}>Iniciar execução</PrimaryButton>}
+              {budgetStatus === 'em_execucao' && <PrimaryButton onClick={markBudgetFinalized}>Finalizar serviço</PrimaryButton>}
+            </div>
+          </PanelCard>
 
-          <div className="budget-share-card">
+          <PanelCard className="budget-share-card">
             <div className="budget-actions compact-actions">
-              <button type="button" className="secondary-action inline-action" disabled={blockingProposalIssues} onClick={copyBudgetShareText}>Copiar Resumo</button>
-              <button type="button" className="primary-action inline-action" disabled={blockingProposalIssues} onClick={openBudgetWhatsApp}>Enviar via WhatsApp</button>
-              <Suspense fallback={<span className="primary-action inline-action pdf-download-btn">PDF</span>}>
+              <SecondaryButton disabled={blockingProposalIssues} onClick={copyBudgetShareText}>Copiar Resumo</SecondaryButton>
+              <PrimaryButton disabled={blockingProposalIssues} onClick={openBudgetWhatsApp}>Enviar via WhatsApp</PrimaryButton>
+              <Suspense fallback={<SecondaryButton>PDF</SecondaryButton>}>
                 <BudgetPdfDownloadButton budget={{ title: budgetTitle, items, discount, travelCost, additionalFees, paymentTerms, validity, commercialNotes }} businessProfile={businessProfile} total={summary.total} subtotal={summary.subtotal} clientName={clientName} fileName={`orcamento-aferix-${clientName || 'cliente'}.pdf`} label="Baixar PDF" />
               </Suspense>
             </div>
-          </div>
+          </PanelCard>
 
-          <div className="document-preview-wrapper" style={{ marginTop: '20px' }}>
-            <h3 style={{ marginBottom: '16px', color: '#f8fafc' }}>Prévia: {selectedTemplate === 'simple' ? 'Orçamento' : 'Relatório'}</h3>
+          <div className="document-preview-wrapper budget-top-spacing-xl">
+            <h3 className="budget-preview-title">Prévia: {selectedTemplate === 'simple' ? 'Orçamento' : 'Relatório'}</h3>
             <BudgetPrintPreview 
               clientName={clientName} 
               budgetTitle={budgetTitle} 
@@ -1009,7 +1064,7 @@ export function BudgetWorkspace({
       <Modal isOpen={modalType === 'loadStarter'} title="Carregar Modelo?" confirmLabel="Substituir" tone="brand" onClose={() => setModalType(null)} onConfirm={executeLoadStarterItems}><p>Substituir os itens atuais pelo modelo?</p></Modal>
       <Modal isOpen={modalType === 'clearItems'} title="Limpar Orçamento?" confirmLabel="Limpar Tudo" tone="danger" onClose={() => setModalType(null)} onConfirm={executeClearItems}><p>Deseja remover todos os itens?</p></Modal>
       <Modal isOpen={modalType === 'resetDraft'} title="Novo Orçamento?" confirmLabel="Criar Novo" tone="brand" onClose={() => setModalType(null)} onConfirm={executeResetBudgetDraft}><p>Limpar o rascunho atual e começar um novo?</p></Modal>
-      <Modal isOpen={modalType === 'convertOs'} title="Autorizar Execução?" confirmLabel="Autorizar" tone="brand" onClose={() => setModalType(null)} onConfirm={executeConvertApprovedBudgetToWorkOrder}><p>Confirmar conversão em atendimento?</p></Modal>
+      <Modal isOpen={modalType === 'convertOs'} title="Iniciar Execução?" confirmLabel="Iniciar execução" tone="brand" onClose={() => setModalType(null)} onConfirm={executeConvertApprovedBudgetToWorkOrder}><p>Confirmar início da execução deste orçamento?</p></Modal>
       <Modal isOpen={modalType === 'removeSaved'} title="Excluir Orçamento?" confirmLabel="Excluir" tone="danger" onClose={() => setModalType(null)} onConfirm={executeRemoveSavedBudget}><p>Deseja excluir permanentemente este orçamento?</p></Modal>
     </div>
   );
