@@ -388,7 +388,40 @@ export function BudgetWorkspace({
   }, [initialBudgetId, savedBudgets]);
 
   // Modals
-  const [modalType, setModalType] = useState<'removeCatalogItem' | 'removeItem' | 'loadStarter' | 'clearItems' | 'resetDraft' | 'convertOs' | 'removeSaved' | null>(null);
+  const [modalType, setModalType] = useState<'removeCatalogItem' | 'removeItem' | 'loadStarter' | 'clearItems' | 'resetDraft' | 'convertOs' | 'removeSaved' | 'confirmStatus' | null>(null);
+  const [targetStatus, setTargetStatus] = useState<SavedBudgetStatus>('iniciado');
+  const [confirmInput, setConfirmInput] = useState('');
+
+  function confirmStatusWord(status: SavedBudgetStatus) {
+    if (status === 'finalizado') return 'FINALIZAR';
+    if (status === 'cancelado') return 'CANCELAR';
+    if (status === 'recusado') return 'RECUSAR';
+    return '';
+  }
+
+  function handleStatusSelect(nextStatus: SavedBudgetStatus) {
+    if (['finalizado', 'cancelado', 'recusado'].includes(nextStatus)) {
+      setTargetStatus(nextStatus);
+      setConfirmInput('');
+      setModalType('confirmStatus');
+    } else {
+      setBudgetStatus(nextStatus);
+    }
+  }
+
+  function executeStatusChange() {
+    const required = confirmStatusWord(targetStatus);
+    if (required && confirmInput.trim().toUpperCase() !== required) return;
+    setBudgetStatus(targetStatus);
+    transitionBudgetStatus(targetStatus, `Status alterado para ${targetStatus}.`);
+    setModalType(null);
+  }
+
+  function markBudgetFinalized() {
+    setTargetStatus('finalizado');
+    setConfirmInput('');
+    setModalType('confirmStatus');
+  }
   const [itemToRemove, setItemToRemove] = useState<string | null>(null);
 
   const availableTechnicalCaptures = technicalCaptures.length > 0 ? technicalCaptures : storedTechnicalCaptures;
@@ -623,9 +656,8 @@ export function BudgetWorkspace({
   function markBudgetInReview() { transitionBudgetStatus('em_revisao', 'Orçamento enviado para revisão.'); }
   function markBudgetAuthorized() { transitionBudgetStatus('autorizado', 'Orçamento autorizado.'); }
   function markBudgetInExecution() { transitionBudgetStatus('em_execucao', 'Execução iniciada.'); }
-  function markBudgetFinalized() { transitionBudgetStatus('finalizado', 'Serviço finalizado. Resultado lançado no financeiro.'); }
-  function markBudgetRejected() { transitionBudgetStatus('recusado', 'Orçamento marcado como recusado.'); }
-  function markBudgetCancelled() { transitionBudgetStatus('cancelado', 'Orçamento cancelado.'); }
+  function markBudgetRejected() { handleStatusSelect('recusado'); }
+  function markBudgetCancelled() { handleStatusSelect('cancelado'); }
 
   function duplicateActiveBudgetForRenegotiation() {
     if (!activeBudgetId) return;
@@ -843,7 +875,7 @@ export function BudgetWorkspace({
                 className="aferix-form-grid-wide"
                 label="Status do orçamento" 
                 value={budgetStatus} 
-                onChange={(value) => setBudgetStatus(value as SavedBudgetStatus)} 
+                onChange={(value) => handleStatusSelect(value as SavedBudgetStatus)} 
                 disabled={isBudgetLocked}
               >
                 <option value="iniciado" disabled={budgetStatus !== 'iniciado' && !canBudgetTransitionTo(budgetStatus, 'iniciado')}>Orçamento iniciado</option>
@@ -931,7 +963,7 @@ export function BudgetWorkspace({
                 onChange={(v) => updateDraft('description', v)} 
                 disabled={isBudgetLocked} 
               />
-              <Input label="Qtd." type="number" inputMode="decimal" value={draft.quantity} onFocus={handleNumericInputFocus} onChange={(e) => updateDraft('quantity', Number(e.target.value))} disabled={isBudgetLocked} />
+              <Input label="Qtd." type="number" inputMode="decimal" value={draft.quantity} onFocus={handleNumericInputFocus} onChange={(e) => updateDraft('quantity', Math.max(0, Number(e.target.value)))} disabled={isBudgetLocked} />
               <MonetaryInput label="Valor unitário" value={draft.unitPrice} onChange={(v) => updateDraft('unitPrice', v)} disabled={isBudgetLocked} />
               <Select label="Categoria" value={draft.category} onChange={(value) => updateDraft('category', value as BudgetCategory)} disabled={isBudgetLocked}>
                 <option value="labor">Mão de obra</option>
@@ -966,7 +998,7 @@ export function BudgetWorkspace({
                   <PanelCard className="budget-item-edit-panel">
                     <div className="aferix-form-grid">
                       <Input className="aferix-form-grid-wide" label="Descrição" value={selectedBudgetItem.description} onChange={(e) => updateBudgetItem(selectedBudgetItem.id, 'description', e.target.value)} disabled={isBudgetLocked} />
-                      <Input label="Qtd." type="number" inputMode="decimal" value={selectedBudgetItem.quantity} onFocus={handleNumericInputFocus} onChange={(e) => updateBudgetItem(selectedBudgetItem.id, 'quantity', Number(e.target.value))} disabled={isBudgetLocked} />
+                      <Input label="Qtd." type="number" inputMode="decimal" value={selectedBudgetItem.quantity} onFocus={handleNumericInputFocus} onChange={(e) => updateBudgetItem(selectedBudgetItem.id, 'quantity', Math.max(0, Number(e.target.value)))} disabled={isBudgetLocked} />
                       <MonetaryInput label="Valor unitário" value={selectedBudgetItem.unitPrice} onChange={(v) => updateBudgetItem(selectedBudgetItem.id, 'unitPrice', v)} disabled={isBudgetLocked} />
                     </div>
                     <div className="aferix-form-actions aferix-form-actions-row budget-top-spacing-md">
@@ -1003,7 +1035,7 @@ export function BudgetWorkspace({
               <MonetaryInput label="Custos Operacionais" value={operationalCost} onChange={setOperationalCost} disabled={isBudgetLocked} />
               <MonetaryInput label="Deslocamento / Frete" value={travelCost} onChange={setTravelCost} disabled={isBudgetLocked} />
               <MonetaryInput label="Taxas adicionais" value={additionalFees} onChange={setAdditionalFees} disabled={isBudgetLocked} />
-              <Input label="Alíquota de Imposto (%)" type="number" inputMode="decimal" value={taxRate} onFocus={handleNumericInputFocus} onChange={(e) => setTaxRate(Math.min(parseInputAmount(e.target.value), 100))} disabled={isBudgetLocked} />
+              <Input label="Alíquota de Imposto (%)" type="number" inputMode="decimal" value={taxRate} onFocus={handleNumericInputFocus} onChange={(e) => setTaxRate(Math.max(0, Math.min(parseInputAmount(e.target.value), 100)))} disabled={isBudgetLocked} />
             </div>
           </PanelCard>
           <div className="aferix-form-actions aferix-form-actions-row">
@@ -1153,6 +1185,31 @@ export function BudgetWorkspace({
       <Modal isOpen={modalType === 'resetDraft'} title="Novo Orçamento?" confirmLabel="Criar Novo" tone="brand" onClose={() => setModalType(null)} onConfirm={executeResetBudgetDraft}><p>Limpar o rascunho atual e começar um novo?</p></Modal>
       <Modal isOpen={modalType === 'convertOs'} title="Iniciar Execução?" confirmLabel="Iniciar execução" tone="brand" onClose={() => setModalType(null)} onConfirm={executeConvertApprovedBudgetToWorkOrder}><p>Confirmar início da execução deste orçamento?</p></Modal>
       <Modal isOpen={modalType === 'removeSaved'} title="Excluir Orçamento?" confirmLabel="Excluir" tone="danger" onClose={() => setModalType(null)} onConfirm={executeRemoveSavedBudget}><p>Deseja excluir permanentemente este orçamento?</p></Modal>
+      <Modal 
+        isOpen={modalType === 'confirmStatus'} 
+        title={`Confirmar ${targetStatus}`} 
+        confirmLabel="Confirmar" 
+        tone={targetStatus === 'finalizado' ? 'success' : 'danger'} 
+        onClose={() => setModalType(null)} 
+        onConfirm={executeStatusChange}
+      >
+        <div className="aferix-form-grid">
+          <p className="aferix-form-grid-wide">
+            Esta ação altera o status do orçamento para <strong>{targetStatus}</strong>.
+            Isso irá bloquear futuras edições.
+          </p>
+          <label className="budget-field aferix-form-grid-wide">
+            <span>Digite {confirmStatusWord(targetStatus)} para confirmar</span>
+            <input 
+              value={confirmInput} 
+              onChange={(e) => setConfirmInput(e.target.value)} 
+              placeholder={`Digite ${confirmStatusWord(targetStatus)}`} 
+              className="aferix-input" 
+              autoFocus 
+            />
+          </label>
+        </div>
+      </Modal>
     </div>
   );
 }

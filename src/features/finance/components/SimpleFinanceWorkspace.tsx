@@ -57,7 +57,7 @@ function money(value: number): string {
 
 function parseAmount(value: string): number {
   const parsed = Number(value.replace(',', '.').trim());
-  return Number.isFinite(parsed) ? parsed : 0;
+  return Number.isFinite(parsed) ? Math.max(0, parsed) : 0;
 }
 
 function budgetTotal(record: SavedBudgetRecord): number {

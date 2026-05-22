@@ -59,12 +59,14 @@ export function HomeScreen({
     .filter((b) => isBudgetRevenueRecognized(b.status))
     .reduce((acc, b) => acc + calculateSavedBudgetValue(b), 0);
 
-  const expenses = currentMonthBudgets.reduce((total, budget) => {
-    const materialEstimate = budget.materialCost ?? budget.items
-      .filter((item) => item.category === 'material')
-      .reduce((itemTotal, item) => itemTotal + item.quantity * item.unitPrice, 0);
-    return total + materialEstimate + (budget.operationalCost ?? 0) + budget.travelCost + budget.additionalFees;
-  }, 0);
+  const expenses = currentMonthBudgets
+    .filter((b) => isBudgetRevenueRecognized(b.status))
+    .reduce((total, budget) => {
+      const materialEstimate = budget.materialCost ?? budget.items
+        .filter((item) => item.category === 'material')
+        .reduce((itemTotal, item) => itemTotal + item.quantity * item.unitPrice, 0);
+      return total + materialEstimate + (budget.operationalCost ?? 0) + budget.travelCost + budget.additionalFees;
+    }, 0);
 
   const profit = revenue - expenses;
   const averageMargin = revenue > 0 ? (profit / revenue) * 100 : 0;
