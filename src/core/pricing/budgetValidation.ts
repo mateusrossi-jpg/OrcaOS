@@ -97,7 +97,7 @@ export function validateBudgetForProposal(budget: Budget): BudgetValidationIssue
   }
 
   if (budget.status === 'cancelado') {
-    issues.push({ code: 'status-canceled', message: 'Este orçamento está cancelado.', severity: 'warning' });
+    issues.push({ code: 'status-cancelled', message: 'Este orçamento está cancelado.', severity: 'warning' });
   }
 
   return issues;

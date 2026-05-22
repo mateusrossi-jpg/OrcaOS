@@ -64,6 +64,24 @@
   font-weight: 700;
 }
 
+.budget-locked-badge {
+  background: var(--aferix-danger, #ef4444);
+  color: white;
+  padding: 2px 8px;
+  border-radius: var(--aferix-radius-sm);
+  font-size: 0.65rem;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  margin-right: 4px;
+  animation: pulse-locked 2s infinite;
+}
+
+@keyframes pulse-locked {
+  0% { opacity: 1; }
+  50% { opacity: 0.7; }
+  100% { opacity: 1; }
+}
+
 .budget-quick-mode-card {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;

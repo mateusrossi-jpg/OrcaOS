@@ -127,7 +127,7 @@ export function HomeScreen({
       />
 
       <PanelCard className="home-finance-overview">
-        <SectionTitle title="Diagnóstico rápido" eyebrow="Saúde do negócio" />
+        <SectionTitle title="Diagnóstico rápido" eyebrow="Pulse" />
         <div className="metric-grid dashboard-metric-grid">
           <MetricCard 
             label="Lucro atual" 
@@ -165,7 +165,7 @@ export function HomeScreen({
           </div>
         </PanelCard>
 
-        <ListCard title="Alertas operacionais" subtitle="Prioridades">
+        <ListCard title="Alertas operacionais" subtitle="Pulse">
           {alerts.length === 0 ? (
             <EmptyState 
               title="Sem alertas críticos" 

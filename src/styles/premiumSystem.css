@@ -1463,7 +1463,7 @@ textarea {
   gap: 10px !important;
 }
 
- (max-width: 767px) {
+@media (max-width: 767px) {
   .menu-overview-screen .aferix-panel-card,
   .settings-screen-premium .aferix-panel-card,
   .store-screen .aferix-panel-card,

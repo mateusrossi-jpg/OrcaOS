@@ -7,7 +7,7 @@ export function FinancialScreen() {
   return (
     <PageShell className="wide-screen">
       <PageHeader
-        title="Financeiro"
+        title="Money"
         description="Resultados automáticos baseados em orçamentos finalizados."
       />
       <SimpleFinanceWorkspace />

@@ -1148,6 +1148,12 @@ button.secondary {
   word-break: normal !important;
 }
 
+.benefit-check {
+  color: var(--aferix-primary) !important;
+  margin-right: 8px !important;
+}
+
+
 .plan-card li::before {
   content: "";
   display: inline-block;
@@ -3108,6 +3114,8 @@ button.secondary {
 .aferix-textarea {
   min-height: 88px !important;
   line-height: 1.45 !important;
+  resize: none !important;
+  overflow: hidden !important;
 }
 
 .aferix-select-field {

@@ -172,7 +172,6 @@ export function App() {
               goTo={goTo} 
               onRemove={removeCalculationCapture} 
               onUpdate={updateCalculationCapture} 
-              onConvertApprovedBudgetToWorkOrder={convertActiveBudgetToWorkOrder} 
               forceNewBudget={budgetResetKey > 0}
               initialBudgetId={selectedBudgetId}
             />

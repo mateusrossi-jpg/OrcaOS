@@ -14,7 +14,6 @@ interface BudgetsScreenProps {
   goTo: (tab: AppTab) => void;
   onRemove: (id: string) => void;
   onUpdate: (id: string, patch: Partial<CalculationCapture>) => void;
-  onConvertApprovedBudgetToWorkOrder: () => void;
   forceNewBudget?: boolean;
   initialBudgetId?: string | null;
 }
@@ -23,7 +22,6 @@ export function BudgetsScreen({
   context,
   userPlan: activeUserPlan,
   goTo,
-  onConvertApprovedBudgetToWorkOrder,
   forceNewBudget: initialForceNewBudget = false,
   initialBudgetId = null
 }: BudgetsScreenProps) {
@@ -38,8 +36,8 @@ export function BudgetsScreen({
   return (
     <PageShell className="wide-screen budgets-screen-premium">
       <PageHeader 
-        title="Orçamentos" 
-        description="Crie e gerencie orçamentos comerciais para seus clientes." 
+        title="Work · Novo orçamento" 
+        description="Produza e edite orçamentos no fluxo operacional principal." 
       />
       
       <BudgetWorkspaceClientBridge 
@@ -50,7 +48,6 @@ export function BudgetsScreen({
         userPlan={activeUserPlan} 
         onUpgradeRequest={() => goTo('store')} 
         onTechnicalCaptureConverted={() => {}} 
-        onConvertApprovedBudgetToWorkOrder={onConvertApprovedBudgetToWorkOrder} 
         forceNewBudget={initialForceNewBudget || resetKey > 0}
         initialBudgetId={initialBudgetId}
       />

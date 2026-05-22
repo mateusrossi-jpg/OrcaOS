@@ -189,7 +189,7 @@ export function SimpleFinanceWorkspace() {
   return (
     <section className="simple-finance-workspace">
       <div className="dashboard-finance-tiles">
-        <MetricCard label="Receita realizada" value={<MoneyValue value={monthSummary.realized} tone="success" />} tone="success" />
+        <MetricCard label="Receita realizada · Money" value={<MoneyValue value={monthSummary.realized} tone="success" />} tone="success" />
         <MetricCard label="Custos diretos" value={<MoneyValue value={monthSummary.directCosts} tone="danger" />} tone="danger" />
         <MetricCard label="Lucro líquido" value={<MoneyValue value={monthSummary.net} tone={monthSummary.net >= 0 ? 'success' : 'danger'} />} tone={monthSummary.net >= 0 ? 'success' : 'danger'} />
       </div>
@@ -205,7 +205,7 @@ export function SimpleFinanceWorkspace() {
           <div className="finance-form-grid finance-form-grid-spaced">
             <Input className="wide" label="Título" value={editingDraft.title} onChange={(event) => setEditingDraft((current) => current ? { ...current, title: event.target.value } : current)} />
             <Input label="Cliente" value={editingDraft.clientName} onChange={(event) => setEditingDraft((current) => current ? { ...current, clientName: event.target.value } : current)} />
-            <Input label="Receita realizada" inputMode="decimal" value={editingDraft.receivedAmount} onChange={(event) => setEditingDraft((current) => current ? { ...current, receivedAmount: event.target.value } : current)} />
+            <Input label="Receita realizada · Money" inputMode="decimal" value={editingDraft.receivedAmount} onChange={(event) => setEditingDraft((current) => current ? { ...current, receivedAmount: event.target.value } : current)} />
             <Input label="Custo material" inputMode="decimal" value={editingDraft.materialCost} onChange={(event) => setEditingDraft((current) => current ? { ...current, materialCost: event.target.value } : current)} />
             <Input label="Deslocamento" inputMode="decimal" value={editingDraft.travelCost} onChange={(event) => setEditingDraft((current) => current ? { ...current, travelCost: event.target.value } : current)} />
             <Input label="Outros custos" inputMode="decimal" value={editingDraft.otherCosts} onChange={(event) => setEditingDraft((current) => current ? { ...current, otherCosts: event.target.value } : current)} />

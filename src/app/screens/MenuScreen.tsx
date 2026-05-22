@@ -129,7 +129,7 @@ export function MenuScreen({ account, onAccountChange, goTo }: MenuScreenProps) 
               <BackButton label="Voltar ao Menu" onClick={() => setActiveSection('main')} />
               <LegalCompliancePanel />
               <PanelCard>
-                <SectionTitle title="Sobre o Aferix" eyebrow="Informação" />
+                <SectionTitle title="Sobre o Aferix" eyebrow="Base" />
                 <p className="menu-about-note menu-about-note-spaced">Versão MVP · Local-first</p>
               </PanelCard>
             </PanelCard>
@@ -142,11 +142,11 @@ export function MenuScreen({ account, onAccountChange, goTo }: MenuScreenProps) 
   return (
     <PageShell className="menu-overview-screen">
       <PageHeader 
-        title="Configurações" 
+        title="Base · Configurações" 
         description="Gerencie seu perfil, conta e preferências do aplicativo." 
       />
 
-      <ListCard title="Sistema" subtitle="Ajustes">
+      <ListCard title="Sistema" subtitle="Base">
         {visibleSystemItems.map((item) => (
           <ListItem
             key={item.title}

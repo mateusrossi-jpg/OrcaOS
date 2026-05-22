@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import type { Client, Service as WorkOrder } from '../../core/types/business';
 import './AppShell.css';
+import type { AppNavItem, AppTab } from '../appTypes';
 
 const AFERIX_WORDMARK = '/icons/aferix-wordmark-premium.svg';
 
@@ -16,9 +17,9 @@ export function statusLabel(status: WorkOrder['status']): string {
 
 interface AppShellProps {
   children: ReactNode;
-  activeTab: string;
-  navItems: Array<{ id: string; label: string; description: string; icon: string; section?: string; primary?: boolean }>;
-  onNavigate: (id: any) => void;
+  activeTab: AppTab;
+  navItems: AppNavItem[];
+  onNavigate: (id: AppTab) => void;
   activeClient: Client | null;
   activeWorkOrder: WorkOrder | null;
 }
@@ -69,31 +70,25 @@ export function AppShell({ children, activeTab, navItems, onNavigate, activeClie
 
   const mainNavItems = navItems.filter((item) => item.id !== 'settings' && item.id !== 'store');
 
-  const budgetNewItem = mainNavItems.find((item) => item.id === 'budgets');
-  const budgetHistoryItem = mainNavItems.find((item) => item.id === 'budget-history');
-
   const pulseItem = mainNavItems.find((item) => item.id === 'home');
+  const workItem = mainNavItems.find((item) => item.id === 'budget-history');
   const moneyItem = mainNavItems.find((item) => item.id === 'financial');
+  const baseItem = mainNavItems.find((item) => item.id === 'clients');
 
-  const baseClientsItem = mainNavItems.find((item) => item.id === 'clients');
-  const baseCatalogItem = mainNavItems.find((item) => item.id === 'catalog');
-  const baseReportsItem = mainNavItems.find((item) => item.id === 'reports');
-
-  const baseSubItems = [baseClientsItem, baseCatalogItem, baseReportsItem].filter(Boolean) as Array<{
-    id: string;
-    label: string;
-    description: string;
-    icon: string;
-    section?: string;
-    primary?: boolean;
-  }>;
-
-  const accountNavItems = [
-    { id: 'settings', label: 'Configurações', icon: 'settings' },
-    { id: 'store', label: 'Licença Pro', icon: 'store' },
+  const baseSubItems = [
+    { id: 'clients', label: 'Clientes', description: 'Gestão da base de clientes', icon: 'clients' },
+    { id: 'catalog', label: 'Catálogo', description: 'Catálogo de itens e serviços', icon: 'document' },
+    { id: 'reports', label: 'Relatórios', description: 'Análises e métricas', icon: 'chart' },
+    { id: 'settings', label: 'Configurações', description: 'Preferências do app', icon: 'settings' },
+    { id: 'store', label: 'Licença Pro', description: 'Plano e assinatura', icon: 'store' }
   ];
 
-  const baseActive = activeTab === 'clients' || activeTab === 'catalog' || activeTab === 'reports';
+  const baseActive =
+    activeTab === 'clients' ||
+    activeTab === 'catalog' ||
+    activeTab === 'reports' ||
+    activeTab === 'settings' ||
+    activeTab === 'store';
   const workActive = activeTab === 'budgets' || activeTab === 'budget-history';
 
   const iconMap: Record<string, ReactNode> = {
@@ -178,7 +173,7 @@ export function AppShell({ children, activeTab, navItems, onNavigate, activeClie
 
         <nav className="sidebar-nav desktop-sidebar-nav">
           <div className="nav-section">
-            <span className="nav-section-title">Principal</span>
+            <span className="nav-section-title">Navegação</span>
             <div className="nav-items-stack">
               {pulseItem && (
                 <button
@@ -191,7 +186,7 @@ export function AppShell({ children, activeTab, navItems, onNavigate, activeClie
                 </button>
               )}
 
-              {budgetNewItem && budgetHistoryItem && (
+              {workItem && (
                 <div className={`nav-group ${workActive ? 'active' : ''}`}>
                   <button
                     type="button"
@@ -245,7 +240,7 @@ export function AppShell({ children, activeTab, navItems, onNavigate, activeClie
                 </button>
               )}
 
-              {baseSubItems.length > 0 && (
+              {baseItem && (
                 <div className={`nav-group ${baseActive ? 'active' : ''}`}>
                   <button
                     type="button"
@@ -270,7 +265,7 @@ export function AppShell({ children, activeTab, navItems, onNavigate, activeClie
                           className={`nav-subitem ${activeTab === item.id ? 'active' : ''}`}
                           onClick={() => {
                             if (!canRunMenuAction()) return;
-                            onNavigate(item.id);
+                            onNavigate(item.id as any);
                           }}
                         >
                           {item.label}
@@ -283,25 +278,6 @@ export function AppShell({ children, activeTab, navItems, onNavigate, activeClie
             </div>
           </div>
 
-          <div className="nav-section" style={{ marginTop: 'auto', paddingTop: '2rem' }}>
-            <span className="nav-section-title">Conta</span>
-            <div className="nav-items-stack top-nav-menu-container">
-              {accountNavItems.map((item) => {
-                const isActive = activeTab === item.id;
-                return (
-                  <button
-                    key={item.id}
-                    className={`nav-item ${isActive ? 'active' : ''}`}
-                    onClick={() => onNavigate(item.id)}
-                  >
-                    <span className={`nav-icon icon-${item.icon}`}>{iconMap[item.icon] ?? iconMap.settings}</span>
-                    <strong className="nav-label">{item.label}</strong>
-                    {isActive && <span className="active-indicator" />}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
         </nav>
       </aside>
 

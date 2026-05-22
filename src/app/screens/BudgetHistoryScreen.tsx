@@ -258,8 +258,8 @@ export function BudgetHistoryScreen({
   return (
     <PageShell className="wide-screen">
       <PageHeader
-        title="Histórico de Orçamentos"
-        description="Consulte, filtre e reabra orçamentos salvos."
+        title="Work · Histórico de orçamentos"
+        description="Pipeline operacional com busca, filtros e reabertura segura."
         action={<PrimaryButton onClick={onNewBudget}>Novo orçamento</PrimaryButton>}
       />
 

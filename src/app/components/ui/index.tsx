@@ -404,12 +404,14 @@ export function TextArea({
   placeholder,
   rows = 1,
   className = '',
+  disabled = false,
 }: {
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
   rows?: number;
   className?: string;
+  disabled?: boolean;
 }) {
   const ref = useRef<HTMLTextAreaElement>(null);
   useAutoResizeTextArea(ref, value);
@@ -422,7 +424,7 @@ export function TextArea({
       placeholder={placeholder}
       rows={rows}
       onChange={(e) => onChange(e.target.value)}
-      style={{ overflow: 'hidden', resize: 'none' }}
+      disabled={disabled}
     />
   );
 }
@@ -444,12 +446,14 @@ export function MonetaryInput({
   placeholder,
   label,
   className = '',
+  disabled = false,
 }: {
   value: number;
   onChange: (value: number) => void;
   placeholder?: string;
   label?: string;
   className?: string;
+  disabled?: boolean;
 }) {
   const displayValue = value === 0 ? '' : new Intl.NumberFormat('pt-BR', {
     minimumFractionDigits: 2,
@@ -473,6 +477,7 @@ export function MonetaryInput({
           value={displayValue}
           placeholder={placeholder || '0,00'}
           onChange={handleChange}
+          disabled={disabled}
         />
       </div>
     </label>
@@ -512,7 +517,7 @@ export function Modal({
         <footer className="aferix-modal-footer">
           <SecondaryButton onClick={onClose}>{cancelLabel}</SecondaryButton>
           {onConfirm && (
-            <Button variant={tone === 'danger' ? 'danger' : 'primary'} onClick={() => { onConfirm(); onClose(); }}>
+            <Button variant={tone === 'danger' ? 'danger' : 'primary'} onClick={onConfirm}>
               {confirmLabel}
             </Button>
           )}
@@ -563,17 +568,17 @@ export function PlanCard({
   return (
     <PanelCard className={`plan-card ${featured ? 'featured' : ''} ${className}`.trim()}>
       {badge && <Badge tone={featured ? 'brand' : 'default'}>{badge}</Badge>}
-      <header style={{ marginTop: 12, marginBottom: 12 }}>
-        <h2 style={{ fontSize: '1.25rem', margin: 0 }}>{title}</h2>
-        <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--aferix-text-secondary)' }}>{subtitle}</p>
+      <header className="plan-card-heading">
+        <h2>{title}</h2>
+        <p>{subtitle}</p>
       </header>
-      {price && <strong style={{ fontSize: '1.5rem', display: 'block', marginBottom: 8 }}>{price}</strong>}
-      {description && <p style={{ fontSize: '0.85rem', marginBottom: 16 }}>{description}</p>}
+      {price && <strong className="plan-card-price">{price}</strong>}
+      {description && <p className="plan-card-description">{description}</p>}
       {benefits.length > 0 && (
-        <ul style={{ padding: 0, listStyle: 'none', fontSize: '0.85rem', marginBottom: 20, display: 'grid', gap: 8 }}>
+        <ul>
           {benefits.map((benefit) => (
-            <li key={benefit} style={{ display: 'flex', gap: 8 }}>
-              <span style={{ color: 'var(--aferix-primary)' }}>✓</span>
+            <li key={benefit}>
+              <span className="benefit-check">✓</span>
               {benefit}
             </li>
           ))}
@@ -591,14 +596,12 @@ export function SectionHeader(props: { title: string; eyebrow?: string; classNam
 
 export function InfoCard({ title, description, action, className = '' }: { title: string; description?: string; action?: ReactNode; className?: string }) {
   return (
-    <PanelCard className={className}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div>
-          <strong>{title}</strong>
-          {description && <div style={{ fontSize: '0.85rem', color: 'var(--aferix-text-secondary)' }}>{description}</div>}
-        </div>
-        {action}
+    <PanelCard className={`info-card ${className}`.trim()}>
+      <div className="info-card-content">
+        <strong>{title}</strong>
+        {description && <small>{description}</small>}
       </div>
+      {action && <div className="info-card-action">{action}</div>}
     </PanelCard>
   );
 }
@@ -625,7 +628,7 @@ export function ContextBanner({
       {icon && <span className="context-banner-icon">{icon}</span>}
       <div className="context-banner-content">
         <strong>{title}</strong>
-        <p style={{ margin: 0, fontSize: '0.85rem' }}>{description}</p>
+        <small>{description}</small>
       </div>
       {actionLabel && <Button className="context-banner-action" onClick={onAction}>{actionLabel}</Button>}
     </aside>

@@ -65,7 +65,7 @@ describe('budget validation', () => {
   });
 
   it('warns for expired and cancelled status', () => {
-    expect(validateBudgetForProposal({ ...validBudget, status: 'recusado' }).map((issue) => issue.code)).toContain('status-expired');
+    expect(validateBudgetForProposal({ ...validBudget, status: 'recusado' }).map((issue) => issue.code)).toContain('status-refused');
     expect(validateBudgetForProposal({ ...validBudget, status: 'cancelado' }).map((issue) => issue.code)).toContain('status-cancelled');
   });
 });

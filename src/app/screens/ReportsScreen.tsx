@@ -14,8 +14,8 @@ export function ReportsScreen({ captures, context }: ReportsScreenProps) {
   return (
     <PageShell className="wide-screen reports-screen-harmonized">
       <PageHeader
-        title="Relatórios e Performance"
-        description="Visão geral da sua saúde financeira e operacional."
+        title="Base · Relatórios"
+        description="Análises da operação e desempenho da base comercial."
       />
       <ReportWorkspace
         captures={captures}
