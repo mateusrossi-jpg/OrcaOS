@@ -866,13 +866,15 @@ svg {
 .primary-action.inline-action,
 button.primary {
   min-height: 44px !important;
+  border: 1px solid var(--aferix-brand) !important;
   border-radius: var(--aferix-radius-sm) !important;
-  color: #111214 !important;
+  color: var(--aferix-bg) !important;
   background: var(--aferix-brand) !important;
-  box-shadow: none !important;
+  font-weight: 800 !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
 }
 
-.ghost-action,
 .secondary-action,
 .secondary-action.inline-action,
 button.secondary {
@@ -880,14 +882,70 @@ button.secondary {
   border: 1px solid var(--aferix-border) !important;
   border-radius: var(--aferix-radius-sm) !important;
   color: var(--aferix-text) !important;
-  background: var(--aferix-bg-soft) !important;
-  box-shadow: none !important;
+  background: var(--aferix-surface-raised) !important;
+  font-weight: 650 !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
 }
 
-.primary-action:hover,
-.ghost-action:hover,
-.secondary-action:hover {
+.danger-action,
+button.danger {
+  min-height: 44px !important;
+  border: 1px solid var(--aferix-danger) !important;
+  border-radius: var(--aferix-radius-sm) !important;
+  color: white !important;
+  background: var(--aferix-danger) !important;
+  font-weight: 750 !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+
+.ghost-action,
+button.ghost {
+  min-height: 44px !important;
+  border: 1px solid transparent !important;
+  border-radius: var(--aferix-radius-sm) !important;
+  color: var(--aferix-text-soft) !important;
+  background: transparent !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+
+.primary-action:hover:not(:disabled),
+button.primary:hover:not(:disabled) {
+  background: var(--aferix-primary) !important;
+  border-color: var(--aferix-primary) !important;
   transform: translateY(-1px) !important;
+}
+
+.secondary-action:hover:not(:disabled),
+button.secondary:hover:not(:disabled) {
+  background: var(--aferix-surface) !important;
+  border-color: var(--aferix-primary) !important;
+  transform: translateY(-1px) !important;
+}
+
+.danger-action:hover:not(:disabled),
+button.danger:hover:not(:disabled) {
+  filter: brightness(1.1) !important;
+  transform: translateY(-1px) !important;
+}
+
+.ghost-action:hover:not(:disabled),
+button.ghost:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.05) !important;
+  color: var(--aferix-text) !important;
+}
+
+button:disabled,
+.primary-action:disabled,
+.secondary-action:disabled,
+.ghost-action:disabled,
+.danger-action:disabled {
+  opacity: 0.5 !important;
+  cursor: not-allowed !important;
+  transform: none !important;
 }
 
 .section-mode-tabs,
