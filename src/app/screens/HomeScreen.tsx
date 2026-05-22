@@ -69,6 +69,21 @@ export function HomeScreen({
   const profit = revenue - expenses;
   const averageMargin = revenue > 0 ? (profit / revenue) * 100 : 0;
 
+  // Novos indicadores BI (Pulse Advanced)
+  const finalizedMonth = currentMonthBudgets.filter((b) => b.status === 'finalizado');
+  const authorizedMonth = currentMonthBudgets.filter((b) => b.status === 'autorizado');
+  const sentMonth = currentMonthBudgets.filter((b) => b.status === 'enviado');
+  
+  const successCount = finalizedMonth.length + authorizedMonth.length;
+  const opportunityCount = successCount + sentMonth.length;
+  const conversionRate = opportunityCount > 0 ? (successCount / opportunityCount) * 100 : 0;
+
+  const averageTicket = finalizedMonth.length > 0 ? revenue / finalizedMonth.length : 0;
+  
+  const pipelineTotal = savedBudgets
+    .filter((b) => ['iniciado', 'em_revisao', 'enviado', 'autorizado', 'em_execucao'].includes(b.status))
+    .reduce((acc, b) => acc + calculateSavedBudgetValue(b), 0);
+
   const awaitingReplyBudgets = savedBudgets.filter((b) => b.status === 'enviado');
   const inExecutionBudgets = savedBudgets.filter((b) => b.status === 'em_execucao');
   const authorizedBudgets = savedBudgets.filter((b) => b.status === 'autorizado');
@@ -133,15 +148,32 @@ export function HomeScreen({
             label="Lucro atual" 
             value={<MoneyValue value={profit} tone={profit >= 0 ? 'success' : 'danger'} />} 
             tone={profit >= 0 ? 'success' : 'danger'} 
+            featured
           />
           <MetricCard 
             label="Margem média" 
             value={`${averageMargin.toFixed(1)}%`} 
-            tone={averageMargin >= 0 ? 'brand' : 'danger'} 
+            tone={averageMargin >= 20 ? 'success' : averageMargin > 0 ? 'brand' : 'danger'} 
           />
           <MetricCard 
-            label="Recebimentos pendentes" 
+            label="Ticket médio" 
+            value={<MoneyValue value={averageTicket} compact />} 
+          />
+          <MetricCard 
+            label="Taxa de conversão" 
+            value={`${conversionRate.toFixed(0)}%`} 
+            helper={`${successCount} fechados`}
+            tone={conversionRate >= 50 ? 'success' : 'brand'}
+          />
+          <MetricCard 
+            label="Pipeline (Em aberto)" 
+            value={<MoneyValue value={pipelineTotal} compact />} 
+            tone="brand"
+          />
+          <MetricCard 
+            label="Recebimentos" 
             value={pendingPayments.length} 
+            helper="pendentes"
           />
         </div>
       </PanelCard>

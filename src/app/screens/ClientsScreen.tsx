@@ -6,6 +6,7 @@ const ClientWorkOrderWorkspace = lazy(() => import('../../features/clients/compo
 
 interface ClientsScreenProps {
   initialSection?: 'dashboard' | 'newClient' | 'newWorkOrder' | 'clients' | 'workOrders';
+  initialClientId?: string | null;
   sectionRequestKey?: number;
   onContextChange: (clients: Client[], workOrders: WorkOrder[], activeWorkOrderId: string | null) => void;
   onOpenBudgets: () => void;
@@ -13,6 +14,7 @@ interface ClientsScreenProps {
 
 export function ClientsScreen({
   initialSection,
+  initialClientId,
   sectionRequestKey,
   onContextChange,
   onOpenBudgets
@@ -32,6 +34,7 @@ export function ClientsScreen({
       />
       <ClientWorkOrderWorkspace
         initialSection={initialSection}
+        initialClientId={initialClientId}
         sectionRequestKey={sectionRequestKey}
         onContextChange={onContextChange}
         onOpenBudgets={onOpenBudgets}

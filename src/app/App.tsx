@@ -38,6 +38,7 @@ function LazyWorkspaceFallback() {
 export function App() {
   const [activeTab, setActiveTab] = useState<AppTab>('pulse');
   const [selectedBudgetId, setSelectedBudgetId] = useState<string | null>(null);
+  const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
   const [clientInitialSection, setClientInitialSection] = useState<'dashboard' | 'newClient' | 'newWorkOrder' | 'clients' | 'workOrders'>('dashboard');
   const [clientSectionRequestKey, setClientSectionRequestKey] = useState(0);
   const [budgetResetKey, setBudgetResetKey] = useState(0);
@@ -106,6 +107,8 @@ export function App() {
     if (tab === 'base') {
       setClientInitialSection('clients');
       setClientSectionRequestKey((current) => current + 1);
+    } else {
+      setSelectedClientId(null);
     }
     setActiveTab(tab);
   }
@@ -122,6 +125,14 @@ export function App() {
   function openClientSection(section: 'dashboard' | 'newClient' | 'clients') {
     if (!canNavigate()) return;
     setClientInitialSection(section);
+    setClientSectionRequestKey((current) => current + 1);
+    setActiveTab('base');
+  }
+
+  function viewClientProfile(clientId: string) {
+    if (!canNavigate()) return;
+    setSelectedClientId(clientId);
+    setClientInitialSection('newClient'); 
     setClientSectionRequestKey((current) => current + 1);
     setActiveTab('base');
   }
@@ -149,6 +160,7 @@ export function App() {
           {activeTab === 'base' && (
             <ClientsScreen 
               initialSection={clientInitialSection as any} 
+              initialClientId={selectedClientId}
               sectionRequestKey={clientSectionRequestKey} 
               onOpenBudgets={() => goTo('budgets')} 
               onContextChange={(nextClients, nextWorkOrders, nextActiveWorkOrderId) => { 
@@ -169,6 +181,7 @@ export function App() {
               context={context} 
               userPlan={activeUserPlan} 
               onNavigate={goTo} 
+              onViewClient={viewClientProfile}
               onRemove={removeCalculationCapture} 
               onUpdate={updateCalculationCapture} 
               forceNewBudget={budgetResetKey > 0}

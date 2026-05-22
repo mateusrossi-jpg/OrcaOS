@@ -9,6 +9,7 @@ interface BudgetWorkspaceClientBridgeProps {
   activeWorkOrder?: WorkOrder | null;
   userPlan?: UserPlan;
   onUpgradeRequest?: () => void;
+  onViewClient?: (clientId: string) => void;
   onTechnicalCaptureConverted?: (id: string) => void;
   forceNewBudget?: boolean;
   initialBudgetId?: string | null;

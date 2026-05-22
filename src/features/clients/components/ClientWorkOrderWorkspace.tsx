@@ -33,6 +33,7 @@ type ClientOsSection = 'dashboard' | 'newClient' | 'newWorkOrder' | 'clients' | 
 
 interface ClientWorkOrderWorkspaceProps {
   initialSection?: ClientOsSection;
+  initialClientId?: string | null;
   sectionRequestKey?: number;
   onContextChange?: (clients: Client[], workOrders: WorkOrder[], activeWorkOrderId: string | null) => void;
   onOpenBudgets?: () => void;
@@ -93,7 +94,7 @@ function createId(prefix: string): string {
   return typeof crypto !== 'undefined' && 'randomUUID' in crypto ? crypto.randomUUID() : `${prefix}-${Date.now()}-${Math.round(Math.random() * 1000)}`;
 }
 
-export function ClientWorkOrderWorkspace({ initialSection, sectionRequestKey, onContextChange, onNewClientRequest }: ClientWorkOrderWorkspaceProps) {
+export function ClientWorkOrderWorkspace({ initialSection, initialClientId, sectionRequestKey, onContextChange, onNewClientRequest }: ClientWorkOrderWorkspaceProps) {
   const [clients, setClients] = useState<Client[]>(() => loadClients());
   const [workOrders, setWorkOrders] = useState<WorkOrder[]>(() => loadWorkOrders());
   const [activeWorkOrderId, setActiveWorkOrderId] = useState<string | null>(() => loadActiveWorkOrderId());
@@ -109,8 +110,15 @@ export function ClientWorkOrderWorkspace({ initialSection, sectionRequestKey, on
   const [clientDraft, setClientDraft] = useState<ClientDraft>(emptyClientDraft);
 
   useEffect(() => {
-    if (initialSection) setActiveSection(initialSection);
-  }, [initialSection, sectionRequestKey]);
+    if (initialClientId) {
+      const client = clients.find(c => c.id === initialClientId);
+      if (client) {
+        openClientForEdit(client);
+      }
+    } else if (initialSection) {
+      setActiveSection(initialSection);
+    }
+  }, [initialSection, initialClientId, sectionRequestKey, clients]);
 
   useEffect(() => {
     if (onNewClientRequest) {

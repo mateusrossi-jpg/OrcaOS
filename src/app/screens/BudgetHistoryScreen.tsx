@@ -204,7 +204,8 @@ export function BudgetHistoryScreen({
       });
   }, [archivedIds, budgets, query, statusFilter]);
 
-  const visibleRecords = showAll ? filtered : filtered.slice(0, HISTORY_VISIBLE_LIMIT);
+  const isSearching = query.trim().length > 0;
+  const visibleRecords = (showAll || isSearching) ? filtered : filtered.slice(0, HISTORY_VISIBLE_LIMIT);
   const hiddenCount = Math.max(filtered.length - visibleRecords.length, 0);
 
   function persistStatus(record: SavedBudgetRecord, nextStatus: BudgetStatus) {
@@ -312,7 +313,6 @@ export function BudgetHistoryScreen({
                 value={<strong>{money(budgetTotal(record))}</strong>}
                 action={
                   <div className="budget-history-record-actions">
-                    <SecondaryButton onClick={() => onOpenBudget(record.id)}>Abrir</SecondaryButton>
                     <ActionMenu 
                       items={[
                         { id: 'open', label: 'Abrir', onSelect: () => onOpenBudget(record.id) },
@@ -358,7 +358,7 @@ export function BudgetHistoryScreen({
           })
         )}
 
-        {filtered.length > HISTORY_VISIBLE_LIMIT && (
+        {!isSearching && filtered.length > HISTORY_VISIBLE_LIMIT && (
           <div className="budget-history-top-spacing-sm">
             <Button variant="ghost" className="density-toggle-cta" onClick={() => setShowAll((current) => !current)}>
               {showAll ? 'Ver menos' : `Ver mais (${hiddenCount})`}

@@ -12,7 +12,7 @@ import { roundTechnical } from '../../../core/format/number';
 import { handleNumericInputFocus } from '../../../core/ui/numericInputFocus';
 import { clearBudgetDraft, loadBudgetDraft, saveBudgetDraft } from '../storage/budgetDraftStorage';
 import { loadBusinessProfile, saveBusinessProfile } from '../storage/businessProfileStorage';
-import { loadCatalogItems, saveCatalogItems } from '../storage/catalogStorage';
+import { loadCatalogHubItems, type CatalogHubItem } from '../../catalog/storage/catalogHubStorage';
 import {
   createGuidedLaborTemplate,
   loadGuidedLaborTemplates,
@@ -42,7 +42,9 @@ import {
   Badge,
   ListCard,
   ListItem,
-  EmptyState
+  EmptyState,
+  SearchInput,
+  FilterChips
 } from '../../../app/components/ui';
 import './BudgetWorkspace.css';
 
@@ -57,6 +59,7 @@ interface BudgetWorkspaceProps {
   activeWorkOrder?: WorkOrder | null;
   userPlan?: UserPlan;
   onUpgradeRequest?: () => void;
+  onViewClient?: (clientId: string) => void;
   onTechnicalCaptureConverted?: (id: string) => void;
   forceNewBudget?: boolean;
   initialBudgetId?: string | null;
@@ -67,14 +70,6 @@ interface DraftBudgetItem {
   quantity: number;
   unitPrice: number;
   category: BudgetCategory;
-}
-
-interface DraftCatalogItem {
-  description: string;
-  quantity: number;
-  unitPrice: number;
-  category: BudgetCategory;
-  notes: string;
 }
 
 interface ServiceTemplateDraft {
@@ -96,14 +91,6 @@ const emptyDraftItem: DraftBudgetItem = {
   quantity: 1,
   unitPrice: 0,
   category: 'labor',
-};
-
-const emptyCatalogDraft: DraftCatalogItem = {
-  description: '',
-  quantity: 1,
-  unitPrice: 0,
-  category: 'labor',
-  notes: '',
 };
 
 const emptyServiceTemplateDraft: ServiceTemplateDraft = {
@@ -204,37 +191,6 @@ function createBudgetItem(draft: DraftBudgetItem): BudgetItem {
     quantity: draft.quantity,
     unitPrice: draft.unitPrice,
     category: draft.category,
-  };
-}
-
-function createBudgetItemFromCatalog(item: CatalogItem): BudgetItem {
-  return {
-    id: createId(`catalog-${item.id}`),
-    description: item.description,
-    quantity: item.defaultQuantity,
-    unitPrice: item.unitPrice,
-    category: item.category,
-  };
-}
-
-function createCatalogItem(draft: DraftCatalogItem): CatalogItem {
-  return {
-    id: createId('catalog'),
-    description: draft.description.trim(),
-    category: draft.category,
-    unitPrice: draft.unitPrice,
-    defaultQuantity: draft.quantity,
-    notes: draft.notes.trim() || undefined,
-  };
-}
-
-function catalogItemToDraft(item: CatalogItem): DraftCatalogItem {
-  return {
-    description: item.description,
-    quantity: item.defaultQuantity,
-    unitPrice: item.unitPrice,
-    category: item.category,
-    notes: item.notes ?? '',
   };
 }
 
@@ -361,6 +317,7 @@ export function BudgetWorkspace({
   activeWorkOrder = null,
   userPlan = 'free',
   onUpgradeRequest,
+  onViewClient,
   onTechnicalCaptureConverted,
   forceNewBudget,
   initialBudgetId = null
@@ -381,12 +338,10 @@ export function BudgetWorkspace({
 
   const [businessProfile, setBusinessProfile] = useState<BusinessProfile>(initialBusinessProfile);
   const [selectedTemplate, setSelectedTemplate] = useState<BudgetTemplateId>(() => budgetTemplateForPlan(initialBusinessProfile.defaultBudgetTemplateId, userPlan));
-  const [catalogItems, setCatalogItems] = useState<CatalogItem[]>(() => loadCatalogItems());
+  const [catalogItems, setCatalogItems] = useState<CatalogHubItem[]>(() => loadCatalogHubItems());
   const [serviceTemplates, setServiceTemplates] = useState<GuidedLaborTemplate[]>(() => loadGuidedLaborTemplates());
-  const [catalogDraft, setCatalogDraft] = useState<DraftCatalogItem>(emptyCatalogDraft);
-  const [editingCatalogItemId, setEditingCatalogItemId] = useState<string | null>(null);
   const [catalogSearch, setCatalogSearch] = useState('');
-  const [catalogCategoryFilter, setCatalogCategoryFilter] = useState<BudgetCategory | 'all'>('all');
+  const [catalogCategoryFilter, setCatalogCategoryFilter] = useState<'all' | CatalogHubItem['kind']>('all');
   const [serviceTemplateSearch, setServiceTemplateSearch] = useState('');
   const [serviceTemplateDraft, setServiceTemplateDraft] = useState<ServiceTemplateDraft>(emptyServiceTemplateDraft);
   const [editingServiceTemplateId, setEditingServiceTemplateId] = useState<string | null>(null);
@@ -448,7 +403,6 @@ export function BudgetWorkspace({
   );
 
   useEffect(() => { saveBusinessProfile(businessProfile); }, [businessProfile]);
-  useEffect(() => { saveCatalogItems(catalogItems); }, [catalogItems]);
   useEffect(() => { saveGuidedLaborTemplates(serviceTemplates); }, [serviceTemplates]);
 
   useEffect(() => {
@@ -548,7 +502,6 @@ export function BudgetWorkspace({
   }
 
   function updateDraft<K extends keyof DraftBudgetItem>(key: K, value: DraftBudgetItem[K]) { setDraft((current) => ({ ...current, [key]: value })); }
-  function updateCatalogDraft<K extends keyof DraftCatalogItem>(key: K, value: DraftCatalogItem[K]) { setCatalogDraft((current) => ({ ...current, [key]: value })); }
   function updateServiceTemplateDraft<K extends keyof ServiceTemplateDraft>(key: K, value: ServiceTemplateDraft[K]) { setServiceTemplateDraft((current) => ({ ...current, [key]: value })); }
   function updateBudgetItem<K extends keyof BudgetItem>(itemId: string, key: K, value: BudgetItem[K]) { setItems((current) => current.map((item) => (item.id === itemId ? { ...item, [key]: value } : item))); }
 
@@ -569,20 +522,6 @@ export function BudgetWorkspace({
     setSelectedBudgetItemId(newItem.id);
     setDraft(emptyDraftItem);
     setShareFeedback('Item adicionado ao orçamento.');
-  }
-
-  function addCatalogItem() {
-    if (!catalogDraft.description.trim() || catalogDraft.quantity <= 0 || catalogDraft.unitPrice < 0) return;
-    if (catalogLimitReached && !editingCatalogItemId) { setShareFeedback(proUpgradeMessage(`Catálogo com mais de ${FREE_PLAN_LIMITS.catalogItems} itens`)); return; }
-    if (editingCatalogItemId) {
-      setCatalogItems((current) => current.map((item) => (item.id === editingCatalogItemId ? { ...createCatalogItem(catalogDraft), id: item.id } : item)));
-      setEditingCatalogItemId(null);
-      setCatalogDraft(emptyCatalogDraft);
-      setShareFeedback('Item do catálogo simples atualizado.');
-      return;
-    }
-    setCatalogItems((current) => [...current, createCatalogItem(catalogDraft)]);
-    setCatalogDraft(emptyCatalogDraft);
   }
 
   function confirmRemoveCatalogItem(itemId: string) { setItemToRemove(itemId); setModalType('removeCatalogItem'); }
@@ -765,7 +704,6 @@ export function BudgetWorkspace({
   function deleteActiveBudget() { if (activeBudgetId) confirmRemoveSavedBudget(activeBudgetId); }
 
   const canAddItem = draft.description.trim().length > 0 && draft.quantity > 0 && draft.unitPrice >= 0;
-  const canAddCatalogItem = catalogDraft.description.trim().length > 0 && catalogDraft.quantity > 0 && catalogDraft.unitPrice >= 0;
   const canAddServiceTemplate = serviceTemplateDraft.title.trim().length > 0;
   const isProPlan = userPlan === 'pro';
   const savedBudgetLimitReached = !isProPlan && !activeBudgetId && savedBudgets.length >= FREE_PLAN_LIMITS.savedBudgets;
@@ -774,7 +712,25 @@ export function BudgetWorkspace({
     const isBudgetLocked = Boolean(activeBudgetId && isBudgetClosedStatus(budgetStatus));
 
   const visibleServiceTemplates = serviceTemplates.filter((t) => t.visible && (!serviceTemplateSearch.trim() || [t.title, t.description].join(' ').toLowerCase().includes(serviceTemplateSearch.toLowerCase()))).sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
-  const visibleCatalogItems = catalogItems.filter((item) => (catalogSearch.trim().length > 0 || catalogCategoryFilter !== 'all') && (catalogCategoryFilter === 'all' || item.category === catalogCategoryFilter) && (!catalogSearch.trim() || item.description.toLowerCase().includes(catalogSearch.toLowerCase())));
+  const visibleCatalogItems = catalogItems.filter((item) => {
+    const q = catalogSearch.trim().toLowerCase();
+    const kindMatch = catalogCategoryFilter === 'all' || item.kind === catalogCategoryFilter;
+    const textMatch = !q || [item.title, item.category, item.brand, item.model, item.reference].filter(Boolean).join(' ').toLowerCase().includes(q);
+    return kindMatch && textMatch;
+  });
+
+  function addCatalogHubItemToBudget(hubItem: CatalogHubItem) {
+    const newItem: BudgetItem = {
+      id: createId('item'),
+      description: hubItem.title,
+      quantity: hubItem.defaultQuantity || 1,
+      unitPrice: hubItem.defaultUnitValue,
+      category: hubItem.kind === 'material' ? 'material' : hubItem.kind === 'labor' ? 'labor' : 'other',
+    };
+    setItems((current) => [...current, newItem]);
+    setSelectedBudgetItemId(newItem.id);
+    setShareFeedback(`${hubItem.title} adicionado ao orçamento.`);
+  }
 
   return (
     <div className="budget-workspace">
@@ -828,6 +784,19 @@ export function BudgetWorkspace({
         <section className="budget-section-panel">
           <PanelCard className="compact-budget-card">
             <Input label="Cliente" placeholder="Nome do cliente" value={clientName} onChange={(e) => setClientName(e.target.value)} disabled={isBudgetLocked} />
+            {activeBudgetId && savedBudgets.find(b => b.id === activeBudgetId)?.clientId && (
+              <div className="budget-context-link-row">
+                <Button 
+                  variant="ghost" 
+                  onClick={() => {
+                    const cid = savedBudgets.find(b => b.id === activeBudgetId)?.clientId;
+                    if (cid) onViewClient?.(cid);
+                  }}
+                >
+                  🔍 Ver ficha do cliente na Base
+                </Button>
+              </div>
+            )}
           </PanelCard>
           <div className="budget-actions">
             <SecondaryButton onClick={confirmResetBudgetDraft}>Limpar e Novo</SecondaryButton>
@@ -859,6 +828,56 @@ export function BudgetWorkspace({
 
       {activeSection === 'itens' && (
         <section className="budget-section-panel budget-items-layout">
+          <PanelCard className="budget-catalog-integration">
+            <header className="panel-list-header">
+              <h3>Biblioteca do Catálogo</h3>
+              <p>Adicione itens rápidos da sua base profissional.</p>
+            </header>
+            
+            <div className="budget-catalog-search-row">
+              <SearchInput 
+                placeholder="Buscar no catálogo..." 
+                value={catalogSearch} 
+                onChange={setCatalogSearch} 
+                disabled={isBudgetLocked}
+              />
+              <FilterChips 
+                items={[
+                  { id: 'all', label: 'Todos' },
+                  { id: 'material', label: 'Material' },
+                  { id: 'labor', label: 'Mão de obra' }
+                ]}
+                active={[catalogCategoryFilter]}
+                onChange={(active) => setCatalogCategoryFilter(active[0] as any || 'all')}
+                disabled={isBudgetLocked}
+              />
+            </div>
+
+            <div className="budget-catalog-quick-list">
+              {visibleCatalogItems.length === 0 ? (
+                <EmptyState title="Catálogo vazio ou sem resultados" description="Cadastre itens no pilar Base para usá-los aqui." />
+              ) : (
+                <div className="budget-catalog-grid">
+                  {visibleCatalogItems.slice(0, 8).map((item) => (
+                    <button 
+                      key={item.id} 
+                      className="budget-catalog-item-btn" 
+                      type="button" 
+                      onClick={() => addCatalogHubItemToBudget(item)}
+                      disabled={isBudgetLocked}
+                    >
+                      <div className="catalog-btn-info">
+                        <strong>{item.title}</strong>
+                        <span>{item.kind === 'material' ? 'Material' : 'Mão de obra'} · {formatCurrency(item.defaultUnitValue)}</span>
+                      </div>
+                      <span className="add-plus">+</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </PanelCard>
+
           <PanelCard className="budget-editor">
             <header className="panel-list-header">
               <h3>Adicionar item manual</h3>

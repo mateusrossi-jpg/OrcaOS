@@ -280,11 +280,13 @@ export function SearchInput({
   onChange,
   placeholder = 'Buscar...',
   className = '',
+  disabled = false,
 }: {
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
   className?: string;
+  disabled?: boolean;
 }) {
   return (
     <div className={`search-input-wrapper ${className}`.trim()}>
@@ -294,6 +296,7 @@ export function SearchInput({
         placeholder={placeholder}
         onChange={(e) => onChange(e.target.value)}
         className="aferix-search-input"
+        disabled={disabled}
       />
     </div>
   );
@@ -317,12 +320,14 @@ export function FilterChips<T extends string>({
   onChange,
   className = '',
   ariaLabel = 'Filtros',
+  disabled = false,
 }: {
   items: Array<{ id: T; label: string }>;
   active: T | T[];
   onChange: (active: T[]) => void;
   className?: string;
   ariaLabel?: string;
+  disabled?: boolean;
 }) {
   const selected = Array.isArray(active) ? active : [active];
 
@@ -333,7 +338,9 @@ export function FilterChips<T extends string>({
           key={item.id}
           type="button"
           className={`filter-chip ${selected.includes(item.id) ? 'active' : ''}`}
+          disabled={disabled}
           onClick={() => {
+            if (disabled) return;
             if (selected.includes(item.id)) {
               onChange(selected.filter((id) => id !== item.id));
             } else {
