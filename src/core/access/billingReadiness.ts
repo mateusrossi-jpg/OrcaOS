@@ -15,25 +15,25 @@ export interface BillingReadiness {
 }
 
 function billingChannel(): BillingChannel {
-  const value = String(import.meta.env.VITE_ORCAOS_BILLING_CHANNEL ?? '').trim();
+  const value = String(import.meta.env.VITE_AFERIX_BILLING_CHANNEL ?? '').trim();
   if (value === 'google-play' || value === 'external-checkout') return value;
   return 'beta-assisted';
 }
 
 function packageName(): string {
-  return String(import.meta.env.VITE_ORCAOS_ANDROID_PACKAGE_NAME ?? '').trim();
+  return String(import.meta.env.VITE_AFERIX_ANDROID_PACKAGE_NAME ?? '').trim();
 }
 
 function proProductId(): string {
-  return String(import.meta.env.VITE_ORCAOS_PLAY_PRO_PRODUCT_ID ?? '').trim();
+  return String(import.meta.env.VITE_AFERIX_PLAY_PRO_PRODUCT_ID ?? '').trim();
 }
 
 function checkoutUrl(): string {
-  return String(import.meta.env.VITE_ORCAOS_PRO_CHECKOUT_URL ?? '').trim();
+  return String(import.meta.env.VITE_AFERIX_PRO_CHECKOUT_URL ?? '').trim();
 }
 
 function entitlementEndpoint(): string {
-  return String(import.meta.env.VITE_ORCAOS_ENTITLEMENTS_ENDPOINT ?? '').trim();
+  return String(import.meta.env.VITE_AFERIX_ENTITLEMENTS_ENDPOINT ?? '').trim();
 }
 
 export function getBillingReadiness(): BillingReadiness {

@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { Button, Select } from '../../../app/components/ui';
 import {
-  collectOrcaLocalBackup,
-  restoreOrcaBackup,
-  summarizeOrcaBackup,
+  collectAferixLocalBackup,
+  restoreAferixBackup,
+  summarizeAferixBackup,
 } from '../storage/localBackup';
 import {
   findGoogleDriveBackup,
@@ -61,8 +61,8 @@ export function GoogleDriveBackupPanel() {
     setIsBusy(true);
     try {
       const token = await ensureToken();
-      const localBackup = collectOrcaLocalBackup();
-      const summary = summarizeOrcaBackup(localBackup);
+      const localBackup = collectAferixLocalBackup();
+      const summary = summarizeAferixBackup(localBackup);
       const saved = await saveBackupToGoogleDrive(token, localBackup);
       setDriveBackup(saved);
       setFeedback(`Backup salvo no Drive: ${summary.keyCount} grupo(s), aproximadamente ${summary.estimatedSizeKb} KB.`);
@@ -82,7 +82,7 @@ export function GoogleDriveBackupPanel() {
     try {
       const token = await ensureToken();
       const backup = await loadBackupFromGoogleDrive(token);
-      const restoredCount = restoreOrcaBackup(backup, restoreMode);
+      const restoredCount = restoreAferixBackup(backup, restoreMode);
       setDriveBackup(await findGoogleDriveBackup(token));
       setFeedback(`${restoredCount} grupo(s) restaurado(s) do Drive. Recarregue o app para garantir leitura completa.`);
       setCanReload(true);

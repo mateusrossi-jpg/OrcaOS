@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import type { OrcaLocalBackup } from './localBackup';
+import type { AferixLocalBackup } from './localBackup';
 import {
   findGoogleDriveBackup,
   isGoogleDriveBackupConfigured,
@@ -25,7 +25,7 @@ function textResponse(value: string, ok = true, status = 200): Response {
   } as Response;
 }
 
-const backup: OrcaLocalBackup = {
+const backup: AferixLocalBackup = {
   app: 'Aferix',
   version: 1,
   exportedAt: '2026-05-02T00:00:00.000Z',

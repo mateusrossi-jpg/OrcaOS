@@ -1,4 +1,4 @@
-export interface OrcaLocalBackup {
+export interface AferixLocalBackup {
   app: string;
   version: 1;
   exportedAt: string;
@@ -6,20 +6,20 @@ export interface OrcaLocalBackup {
   keys: Record<string, string>;
 }
 
-export interface OrcaBackupSummary {
+export interface AferixBackupSummary {
   keyCount: number;
   estimatedSizeKb: number;
   exportedAt?: string;
   version?: number;
 }
 
-export interface OrcaBackupDataSummaryItem {
+export interface AferixBackupDataSummaryItem {
   label: string;
   count: number;
 }
 
-const ORCA_PREFIX = 'orcaos:';
-const AFERIX_PREFIX = 'aferix:';
+const ORCA_PREFIX = 'orcaos';
+const AFERIX_PREFIX = 'aferix';
 const LEGACY_APP_MARKER = 'Or\u00e7aOS';
 
 function parseJsonValue(value: string | undefined): unknown {
@@ -40,7 +40,7 @@ function countPresentValue(value: string | undefined): number {
   return value ? 1 : 0;
 }
 
-export function collectOrcaLocalBackup(): OrcaLocalBackup {
+export function collectAferixLocalBackup(): AferixLocalBackup {
   const keys: Record<string, string> = {};
 
   if (typeof window !== 'undefined') {
@@ -62,12 +62,12 @@ export function collectOrcaLocalBackup(): OrcaLocalBackup {
   };
 }
 
-export function stringifyOrcaBackup(backup: OrcaLocalBackup): string {
+export function stringifyAferixBackup(backup: AferixLocalBackup): string {
   return JSON.stringify(backup, null, 2);
 }
 
-export function summarizeOrcaBackup(backup: OrcaLocalBackup): OrcaBackupSummary {
-  const serialized = stringifyOrcaBackup(backup);
+export function summarizeAferixBackup(backup: AferixLocalBackup): AferixBackupSummary {
+  const serialized = stringifyAferixBackup(backup);
   return {
     keyCount: Object.keys(backup.keys).length,
     estimatedSizeKb: Math.max(1, Math.ceil(new Blob([serialized]).size / 1024)),
@@ -76,29 +76,60 @@ export function summarizeOrcaBackup(backup: OrcaLocalBackup): OrcaBackupSummary 
   };
 }
 
-export function summarizeOrcaBackupData(backup: OrcaLocalBackup): OrcaBackupDataSummaryItem[] {
+export function summarizeAferixBackupData(backup: AferixLocalBackup): AferixBackupDataSummaryItem[] {
   const keys = backup.keys;
   const catalogCount = countArrayValue(keys['orcaos:catalog-hub-items:v1']) + countArrayValue(keys['orcaos:catalog-items:v1']);
   const supplierCount = countArrayValue(keys['orcaos:catalog-suppliers:v1']) + countArrayValue(keys['orcaos:supplier-profiles:v1']);
   const surveyCount = countArrayValue(keys['orcaos:calculation-captures:v1']) + countArrayValue(keys['orcaos:guided-rooms:v1']) + countArrayValue(keys['orcaos:guided-labor-templates:v1']);
-  const settingsCount = countPresentValue(keys['orcaos:access-lock:v1']) + countPresentValue(keys['orcaos:purchase-tax-records:v1']);
+  const settingsCount = countPresentValue(keys['orcaos:access-lock:v1']) + countPresentValue(keys['orcaos:purchase-tax-records:v1']) + countPresentValue(keys['orcaos.hasSeenFirstOpenIntro.v1']);
   const profileCount = countPresentValue(keys['orcaos:business-profile:v1']) + countPresentValue(keys['orcaos:professional-profile:v1']);
-  const accountCount = countPresentValue(keys['aferix:account-plan:v1']) + countPresentValue(keys['orcaos:user-plan']);
+  const accountCount = countPresentValue(keys['aferix:account-plan:v1']) + countPresentValue(keys['orcaos:user-plan']) + countPresentValue(keys['orcaos:installation-id:v1']);
+  const financeCount = countArrayValue(keys['orcaos:simple-finance-records:v1']);
+  const draftCount = countPresentValue(keys['orcaos:budget-draft:v1']);
+
+  const mappedKeys = [
+    'orcaos:clients:v1',
+    'orcaos:work-orders:v1',
+    'orcaos:saved-budgets:v1',
+    'orcaos:catalog-hub-items:v1',
+    'orcaos:catalog-items:v1',
+    'orcaos:catalog-suppliers:v1',
+    'orcaos:supplier-profiles:v1',
+    'orcaos:calculation-captures:v1',
+    'orcaos:guided-rooms:v1',
+    'orcaos:guided-labor-templates:v1',
+    'orcaos:access-lock:v1',
+    'orcaos:purchase-tax-records:v1',
+    'orcaos.hasSeenFirstOpenIntro.v1',
+    'orcaos.hasSeenFirstOpenIntro',
+    'orcaos:business-profile:v1',
+    'orcaos:professional-profile:v1',
+    'aferix:account-plan:v1',
+    'orcaos:user-plan',
+    'orcaos:installation-id:v1',
+    'orcaos:simple-finance-records:v1',
+    'orcaos:budget-draft:v1',
+  ];
+
+  const otherCount = Object.keys(keys).filter((key) => !mappedKeys.includes(key)).length;
 
   return [
     { label: 'Clientes', count: countArrayValue(keys['orcaos:clients:v1']) },
     { label: 'Execução / Work', count: countArrayValue(keys['orcaos:work-orders:v1']) },
     { label: 'Orçamentos', count: countArrayValue(keys['orcaos:saved-budgets:v1']) },
+    { label: 'Financeiro / Money', count: financeCount },
     { label: 'Catálogo / Base', count: catalogCount },
     { label: 'Fornecedores', count: supplierCount },
     { label: 'Configurações', count: settingsCount },
     { label: 'Diagnósticos / Pulse', count: surveyCount },
     { label: 'Perfil profissional', count: profileCount },
     { label: 'Conta e Licença', count: accountCount },
+    { label: 'Rascunhos ativos', count: draftCount },
+    { label: 'Outros dados', count: otherCount },
   ];
 }
 
-export function parseOrcaBackup(value: string): OrcaLocalBackup {
+export function parseAferixBackup(value: string): AferixLocalBackup {
   let parsed: unknown;
   try {
     parsed = JSON.parse(value);
@@ -107,7 +138,7 @@ export function parseOrcaBackup(value: string): OrcaLocalBackup {
   }
   if (!parsed || typeof parsed !== 'object') throw new Error('Arquivo de backup inválido.');
 
-  const backup = parsed as Partial<OrcaLocalBackup>;
+  const backup = parsed as Partial<AferixLocalBackup>;
   if (backup.app !== 'Aferix' && backup.app !== LEGACY_APP_MARKER) throw new Error('Este arquivo não parece ser um backup do Aferix.');
   if (backup.version !== 1) throw new Error('Versão de backup não suportada.');
   if (!backup.keys || typeof backup.keys !== 'object') throw new Error('Backup sem dados restauráveis.');
@@ -128,7 +159,7 @@ export function parseOrcaBackup(value: string): OrcaLocalBackup {
   };
 }
 
-export function restoreOrcaBackup(backup: OrcaLocalBackup, mode: 'merge' | 'replace'): number {
+export function restoreAferixBackup(backup: AferixLocalBackup, mode: 'merge' | 'replace'): number {
   if (typeof window === 'undefined') return 0;
 
   if (mode === 'replace') {

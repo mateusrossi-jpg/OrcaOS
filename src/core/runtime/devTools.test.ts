@@ -7,15 +7,15 @@ describe('dev tools runtime flag', () => {
   });
 
   it('is disabled by default', () => {
-    vi.stubEnv('VITE_ORCAOS_DEV_TOOLS', '');
+    vi.stubEnv('VITE_AFERIX_DEV_TOOLS', '');
     expect(isDevToolsEnabled()).toBe(false);
   });
 
   it('is enabled only when explicitly true', () => {
-    vi.stubEnv('VITE_ORCAOS_DEV_TOOLS', 'true');
+    vi.stubEnv('VITE_AFERIX_DEV_TOOLS', 'true');
     expect(isDevToolsEnabled()).toBe(true);
 
-    vi.stubEnv('VITE_ORCAOS_DEV_TOOLS', 'false');
+    vi.stubEnv('VITE_AFERIX_DEV_TOOLS', 'false');
     expect(isDevToolsEnabled()).toBe(false);
   });
 });

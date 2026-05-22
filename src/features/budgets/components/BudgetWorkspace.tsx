@@ -617,8 +617,14 @@ export function BudgetWorkspace({
 
   function confirmLoadStarterItems() { if (items.length === 0) executeLoadStarterItems(); else setModalType('loadStarter'); }
   function executeLoadStarterItems() { setItems(starterFinancialBudgetItems); setSelectedBudgetItemId(starterFinancialBudgetItems[0]?.id ?? null); setShareFeedback('Modelo de orçamento carregado.'); setModalType(null); }
-  function confirmClearItems() { setModalType('clearItems'); }
-  function executeClearItems() { setItems([]); setSelectedBudgetItemId(null); setShareFeedback('Todos os itens foram removidos.'); setModalType(null); }
+  function confirmClearItems() { setConfirmInput(''); setModalType('clearItems'); }
+  function executeClearItems() {
+    if (confirmInput.trim().toUpperCase() !== 'LIMPAR') return;
+    setItems([]); 
+    setSelectedBudgetItemId(null); 
+    setShareFeedback('Todos os itens foram removidos.'); 
+    setModalType(null); 
+  }
 
   function clearBudgetForm() {
     setActiveBudgetId(null); setBudgetStatus('iniciado'); setClientName(activeClient?.name ?? ''); setBudgetTitle(activeWorkOrder?.title ?? '');
@@ -725,9 +731,10 @@ export function BudgetWorkspace({
     setDraft(emptyDraftItem); setActiveSection('documento');
   }
 
-  function confirmRemoveSavedBudget(recordId: string) { setItemToRemove(recordId); setModalType('removeSaved'); }
+  function confirmRemoveSavedBudget(recordId: string) { setItemToRemove(recordId); setConfirmInput(''); setModalType('removeSaved'); }
   function executeRemoveSavedBudget() {
     if (!itemToRemove) return;
+    if (confirmInput.trim().toUpperCase() !== 'EXCLUIR') return;
     setSavedBudgets(deleteSavedBudget(itemToRemove));
     if (itemToRemove === activeBudgetId) { clearBudgetDraft(); clearBudgetForm(); }
     setShareFeedback('Orçamento excluído.');
@@ -1181,10 +1188,26 @@ export function BudgetWorkspace({
       <Modal isOpen={modalType === 'removeCatalogItem'} title="Remover do Catálogo?" confirmLabel="Remover" tone="danger" onClose={() => setModalType(null)} onConfirm={executeRemoveCatalogItem}><p>Deseja remover este item do catálogo?</p></Modal>
       <Modal isOpen={modalType === 'removeItem'} title="Remover Item?" confirmLabel="Remover" tone="danger" onClose={() => setModalType(null)} onConfirm={executeRemoveItem}><p>Deseja remover este item do orçamento?</p></Modal>
       <Modal isOpen={modalType === 'loadStarter'} title="Carregar Modelo?" confirmLabel="Substituir" tone="brand" onClose={() => setModalType(null)} onConfirm={executeLoadStarterItems}><p>Substituir os itens atuais pelo modelo?</p></Modal>
-      <Modal isOpen={modalType === 'clearItems'} title="Limpar Orçamento?" confirmLabel="Limpar Tudo" tone="danger" onClose={() => setModalType(null)} onConfirm={executeClearItems}><p>Deseja remover todos os itens?</p></Modal>
+      <Modal isOpen={modalType === 'clearItems'} title="Limpar Orçamento?" confirmLabel="Limpar Tudo" tone="danger" onClose={() => setModalType(null)} onConfirm={executeClearItems}>
+        <div className="aferix-form-grid">
+          <p className="aferix-form-grid-wide">Deseja remover todos os itens? Esta ação não pode ser desfeita.</p>
+          <label className="budget-field aferix-form-grid-wide">
+            <span>Digite LIMPAR para confirmar</span>
+            <input value={confirmInput} onChange={(e) => setConfirmInput(e.target.value)} placeholder="Digite LIMPAR" className="aferix-input" autoFocus />
+          </label>
+        </div>
+      </Modal>
       <Modal isOpen={modalType === 'resetDraft'} title="Novo Orçamento?" confirmLabel="Criar Novo" tone="brand" onClose={() => setModalType(null)} onConfirm={executeResetBudgetDraft}><p>Limpar o rascunho atual e começar um novo?</p></Modal>
       <Modal isOpen={modalType === 'convertOs'} title="Iniciar Execução?" confirmLabel="Iniciar execução" tone="brand" onClose={() => setModalType(null)} onConfirm={executeConvertApprovedBudgetToWorkOrder}><p>Confirmar início da execução deste orçamento?</p></Modal>
-      <Modal isOpen={modalType === 'removeSaved'} title="Excluir Orçamento?" confirmLabel="Excluir" tone="danger" onClose={() => setModalType(null)} onConfirm={executeRemoveSavedBudget}><p>Deseja excluir permanentemente este orçamento?</p></Modal>
+      <Modal isOpen={modalType === 'removeSaved'} title="Excluir Orçamento?" confirmLabel="Excluir" tone="danger" onClose={() => setModalType(null)} onConfirm={executeRemoveSavedBudget}>
+        <div className="aferix-form-grid">
+          <p className="aferix-form-grid-wide">Deseja excluir permanentemente este orçamento do histórico?</p>
+          <label className="budget-field aferix-form-grid-wide">
+            <span>Digite EXCLUIR para confirmar</span>
+            <input value={confirmInput} onChange={(e) => setConfirmInput(e.target.value)} placeholder="Digite EXCLUIR" className="aferix-input" autoFocus />
+          </label>
+        </div>
+      </Modal>
       <Modal 
         isOpen={modalType === 'confirmStatus'} 
         title={`Confirmar ${targetStatus}`} 

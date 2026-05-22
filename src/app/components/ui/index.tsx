@@ -24,7 +24,7 @@ export function PageHeader({
   return (
     <header className={`page-header screen-header ${className}`.trim()}>
       <div className="header-content">
-        {eyebrow && <span className="orca-kicker">{eyebrow}</span>}
+        {eyebrow && <span className="aferix-kicker">{eyebrow}</span>}
         <h1>{title}</h1>
         {description && <p className="header-description">{description}</p>}
       </div>
@@ -571,7 +571,7 @@ export function SectionTitle({
   return (
     <header className={`section-title ${className}`.trim()}>
       <div className="section-title-main">
-        {eyebrow && <span className="orca-kicker">{eyebrow}</span>}
+        {eyebrow && <span className="aferix-kicker">{eyebrow}</span>}
         <h2>{title}</h2>
         {description && <p className="section-description">{description}</p>}
       </div>

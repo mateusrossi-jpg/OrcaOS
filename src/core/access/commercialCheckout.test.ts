@@ -21,13 +21,13 @@ beforeEach(() => {
 
 describe('commercial checkout', () => {
   it('detects configured checkout URL', () => {
-    vi.stubEnv('VITE_ORCAOS_PRO_CHECKOUT_URL', 'https://checkout.example.com/pro');
+    vi.stubEnv('VITE_AFERIX_PRO_CHECKOUT_URL', 'https://checkout.example.com/pro');
 
     expect(isProCheckoutConfigured()).toBe(true);
   });
 
   it('builds checkout URL with account context but no secrets', () => {
-    vi.stubEnv('VITE_ORCAOS_PRO_CHECKOUT_URL', 'https://checkout.example.com/pro?plan=pro');
+    vi.stubEnv('VITE_AFERIX_PRO_CHECKOUT_URL', 'https://checkout.example.com/pro?plan=pro');
 
     const url = new URL(buildProCheckoutUrl(account));
 

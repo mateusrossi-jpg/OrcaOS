@@ -1,7 +1,7 @@
 import { createEntitlement, resolveEntitlement } from './subscriptionStore.js';
 
 const DEFAULT_HEADERS = {
-  'Access-Control-Allow-Origin': process.env.ORCAOS_ALLOWED_ORIGIN || '*',
+  'Access-Control-Allow-Origin': process.env.AFERIX_ALLOWED_ORIGIN || '*',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type, Authorization',
   'Content-Type': 'application/json; charset=utf-8',
@@ -15,7 +15,7 @@ function sendJson(res, statusCode, payload) {
 }
 
 function isAuthorized(req, env = process.env) {
-  const expectedKey = String(env.ORCAOS_ENTITLEMENTS_API_KEY || '').trim();
+  const expectedKey = String(env.AFERIX_ENTITLEMENTS_API_KEY || '').trim();
   if (!expectedKey) return true;
   const authorization = String(req.headers.authorization || '');
   return authorization === `Bearer ${expectedKey}`;

@@ -1,25 +1,25 @@
-import { loadAccountState, saveAccountState, type AferixAccountState, type OrcaPlanSource, type OrcaPlanStatus } from './accountPlanStorage';
+import { loadAccountState, saveAccountState, type AferixAccountState, type AferixPlanSource, type AferixPlanStatus } from './accountPlanStorage';
 import type { UserPlan } from './featureAccess';
 
 export interface PlanEntitlementResponse {
   plan?: UserPlan;
-  planSource?: OrcaPlanSource;
+  planSource?: AferixPlanSource;
   status?: 'active' | 'inactive' | 'trial' | 'past_due' | 'expired' | 'canceled';
   expiresAt?: string | null;
 }
 
 export interface PlanEntitlementResult {
   account: AferixAccountState;
-  status: OrcaPlanStatus;
+  status: AferixPlanStatus;
   expiresAt: string | null;
 }
 
 function getEntitlementsEndpoint(): string {
-  return import.meta.env.VITE_ORCAOS_ENTITLEMENTS_ENDPOINT ?? '';
+  return import.meta.env.VITE_AFERIX_ENTITLEMENTS_ENDPOINT ?? '';
 }
 
 function getEntitlementsApiKey(): string {
-  return import.meta.env.VITE_ORCAOS_ENTITLEMENTS_API_KEY ?? '';
+  return import.meta.env.VITE_AFERIX_ENTITLEMENTS_API_KEY ?? '';
 }
 
 export function isPlanEntitlementSyncConfigured(): boolean {
@@ -30,13 +30,13 @@ function normalizePlan(value: unknown): UserPlan {
   return value === 'pro' ? 'pro' : 'free';
 }
 
-function normalizePlanSource(value: unknown, plan: UserPlan): OrcaPlanSource {
+function normalizePlanSource(value: unknown, plan: UserPlan): AferixPlanSource {
   if (value === 'subscription') return 'subscription';
   if (value === 'local-test') return 'local-test';
   return plan === 'pro' ? 'subscription' : 'free';
 }
 
-function normalizeStatus(value: unknown, plan: UserPlan): OrcaPlanStatus {
+function normalizeStatus(value: unknown, plan: UserPlan): AferixPlanStatus {
   if (value === 'active' || value === 'trial' || value === 'past_due' || value === 'inactive' || value === 'expired') {
     return value;
   }
@@ -44,7 +44,7 @@ function normalizeStatus(value: unknown, plan: UserPlan): OrcaPlanStatus {
   return plan === 'pro' ? 'active' : 'inactive';
 }
 
-function resolveEffectivePlan(plan: UserPlan, status: OrcaPlanStatus): UserPlan {
+function resolveEffectivePlan(plan: UserPlan, status: AferixPlanStatus): UserPlan {
   return plan === 'pro' && (status === 'active' || status === 'trial') ? 'pro' : 'free';
 }
 
@@ -72,7 +72,7 @@ export function applyPlanEntitlementResponse(account: AferixAccountState, entitl
 
 export async function refreshPlanEntitlement(account = loadAccountState()): Promise<PlanEntitlementResult> {
   const endpoint = getEntitlementsEndpoint().trim();
-  if (!endpoint) throw new Error('Configure VITE_ORCAOS_ENTITLEMENTS_ENDPOINT para verificar a liberação Pro.');
+  if (!endpoint) throw new Error('Configure VITE_AFERIX_ENTITLEMENTS_ENDPOINT para verificar a liberação Pro.');
   if (!account.userId) throw new Error('Entre com uma conta antes de verificar a liberação Pro.');
 
   const headers: Record<string, string> = { 'Content-Type': 'application/json' };

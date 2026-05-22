@@ -47,9 +47,9 @@ describe('google play billing bridge contract', () => {
   });
 
   it('exposes setup expected by the native Android bridge', () => {
-    vi.stubEnv('VITE_ORCAOS_PLAY_PRO_PRODUCT_ID', 'orcaos_pro_monthly');
-    vi.stubEnv('VITE_ORCAOS_ANDROID_PACKAGE_NAME', 'com.orcaos.app');
-    vi.stubEnv('VITE_ORCAOS_ENTITLEMENTS_ENDPOINT', 'https://api.example.com/entitlements');
+    vi.stubEnv('VITE_AFERIX_PLAY_PRO_PRODUCT_ID', 'orcaos_pro_monthly');
+    vi.stubEnv('VITE_AFERIX_ANDROID_PACKAGE_NAME', 'com.orcaos.app');
+    vi.stubEnv('VITE_AFERIX_ENTITLEMENTS_ENDPOINT', 'https://api.example.com/entitlements');
 
     expect(getGooglePlayBillingSetup()).toEqual({
       bridgeName: 'AferixGooglePlayBilling',
@@ -61,8 +61,8 @@ describe('google play billing bridge contract', () => {
   });
 
   it('asks the native bridge to purchase the configured Pro product', async () => {
-    vi.stubEnv('VITE_ORCAOS_PLAY_PRO_PRODUCT_ID', 'orcaos_pro_monthly');
-    vi.stubEnv('VITE_ORCAOS_ANDROID_PACKAGE_NAME', 'com.orcaos.app');
+    vi.stubEnv('VITE_AFERIX_PLAY_PRO_PRODUCT_ID', 'orcaos_pro_monthly');
+    vi.stubEnv('VITE_AFERIX_ANDROID_PACKAGE_NAME', 'com.orcaos.app');
     window.AferixGooglePlayBilling = {
       purchase: vi.fn().mockResolvedValue({ platform: 'google-play', productId: 'orcaos_pro_monthly', purchaseToken: 'token-123' }),
       restorePurchases: vi.fn(),
@@ -76,7 +76,7 @@ describe('google play billing bridge contract', () => {
   });
 
   it('restores only purchases for the configured Pro product', async () => {
-    vi.stubEnv('VITE_ORCAOS_PLAY_PRO_PRODUCT_ID', 'orcaos_pro_monthly');
+    vi.stubEnv('VITE_AFERIX_PLAY_PRO_PRODUCT_ID', 'orcaos_pro_monthly');
     window.AferixGooglePlayBilling = {
       purchase: vi.fn(),
       restorePurchases: vi.fn().mockResolvedValue([
@@ -93,7 +93,7 @@ describe('google play billing bridge contract', () => {
   });
 
   it('sends purchase token to backend and applies returned entitlement', async () => {
-    vi.stubEnv('VITE_ORCAOS_ENTITLEMENTS_ENDPOINT', 'https://api.example.com/entitlements');
+    vi.stubEnv('VITE_AFERIX_ENTITLEMENTS_ENDPOINT', 'https://api.example.com/entitlements');
     const fetchMock = vi.fn().mockResolvedValue(jsonResponse({ plan: 'pro', status: 'active', planSource: 'subscription' }));
     vi.stubGlobal('fetch', fetchMock);
 

@@ -1,4 +1,4 @@
-import { parseOrcaBackup, stringifyOrcaBackup, type OrcaLocalBackup } from './localBackup';
+import { parseAferixBackup, stringifyAferixBackup, type AferixLocalBackup } from './localBackup';
 
 const GOOGLE_IDENTITY_SCRIPT_ID = 'orcaos-google-identity-script';
 const GOOGLE_IDENTITY_SCRIPT_SRC = 'https://accounts.google.com/gsi/client';
@@ -156,9 +156,9 @@ function createMultipartBody(metadata: Record<string, unknown>, content: string)
   return { body, contentType: `multipart/related; boundary=${boundary}` };
 }
 
-export async function saveBackupToGoogleDrive(accessToken: string, backup: OrcaLocalBackup): Promise<GoogleDriveBackupMetadata> {
+export async function saveBackupToGoogleDrive(accessToken: string, backup: AferixLocalBackup): Promise<GoogleDriveBackupMetadata> {
   const existingBackup = await findGoogleDriveBackup(accessToken);
-  const serializedBackup = stringifyOrcaBackup(backup);
+  const serializedBackup = stringifyAferixBackup(backup);
   const metadata = existingBackup ? { name: DRIVE_BACKUP_FILENAME } : { name: DRIVE_BACKUP_FILENAME, parents: ['appDataFolder'] };
   const multipart = createMultipartBody(metadata, serializedBackup);
   const endpoint = existingBackup
@@ -173,7 +173,7 @@ export async function saveBackupToGoogleDrive(accessToken: string, backup: OrcaL
   });
 }
 
-export async function loadBackupFromGoogleDrive(accessToken: string): Promise<OrcaLocalBackup> {
+export async function loadBackupFromGoogleDrive(accessToken: string): Promise<AferixLocalBackup> {
   const backupFile = await findGoogleDriveBackup(accessToken);
   if (!backupFile) throw new Error('Nenhum backup do Aferix encontrado no Google Drive.');
 
@@ -186,5 +186,5 @@ export async function loadBackupFromGoogleDrive(accessToken: string): Promise<Or
     throw new Error(errorText || 'Não foi possível baixar o backup do Google Drive.');
   }
 
-  return parseOrcaBackup(await response.text());
+  return parseAferixBackup(await response.text());
 }

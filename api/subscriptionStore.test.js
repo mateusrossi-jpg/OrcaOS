@@ -2,8 +2,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { resolveEntitlement, upsertSubscription } from './subscriptionStore.js';
 
 const supabaseEnv = {
-  ORCAOS_SUPABASE_URL: 'https://orcaos.supabase.co',
-  ORCAOS_SUPABASE_SERVICE_ROLE_KEY: 'service-role-key',
+  AFERIX_SUPABASE_URL: 'https://orcaos.supabase.co',
+  AFERIX_SUPABASE_SERVICE_ROLE_KEY: 'service-role-key',
 };
 
 afterEach(() => {
@@ -65,7 +65,7 @@ describe('subscription store', () => {
   it('falls back to the beta allowlist when Supabase is not configured', async () => {
     const result = await resolveEntitlement(
       { email: 'cliente@example.com' },
-      { ORCAOS_PRO_USERS: 'cliente@example.com' },
+      { AFERIX_PRO_USERS: 'cliente@example.com' },
     );
 
     expect(result.plan).toBe('pro');

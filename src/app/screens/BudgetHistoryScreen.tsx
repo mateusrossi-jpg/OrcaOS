@@ -18,7 +18,7 @@ import {
   PrimaryButton
 } from '../components/ui';
 
-import { loadSavedBudgets, saveBudgetRecord, type SavedBudgetRecord } from '../../features/budgets/storage/savedBudgetsStorage';
+import { deleteSavedBudget, loadSavedBudgets, saveBudgetRecord, type SavedBudgetRecord } from '../../features/budgets/storage/savedBudgetsStorage';
 import { calculateBudgetTotal } from '../../core/pricing/budget';
 import { canBudgetTransitionTo } from '../../core/finance/budgetLifecycle';
 import type { Budget, BudgetStatus } from '../../core/types/business';
@@ -34,7 +34,7 @@ type CanonicalBudgetStatus =
   | 'recusado'
   | 'cancelado';
 
-type ActionMenuState = 'none' | 'alterar_status';
+type ActionMenuState = 'none' | 'alterar_status' | 'excluir';
 
 const STATUS_FILTERS: Array<{ id: CanonicalBudgetStatus; label: string }> = [
   { id: 'all', label: 'Todos' },
@@ -139,10 +139,11 @@ function duplicateBudget(record: SavedBudgetRecord): SavedBudgetRecord | null {
   });
 }
 
-function confirmWordForStatus(status: BudgetStatus): string {
-  if (status === 'finalizado') return 'FINALIZAR';
-  if (status === 'cancelado') return 'CANCELAR';
-  if (status === 'recusado') return 'RECUSAR';
+function confirmWordForAction(action: string): string {
+  if (action === 'finalizado') return 'FINALIZAR';
+  if (action === 'cancelado') return 'CANCELAR';
+  if (action === 'recusado') return 'RECUSAR';
+  if (action === 'excluir') return 'EXCLUIR';
   return 'CONFIRMAR';
 }
 
@@ -237,7 +238,13 @@ export function BudgetHistoryScreen({
     setMenuAction('alterar_status');
   }
 
-  function closeStatusDialog() {
+  function openDeleteDialog(record: SavedBudgetRecord) {
+    setSelectedRecordId(record.id);
+    setConfirmInput('');
+    setMenuAction('excluir');
+  }
+
+  function closeDialog() {
     setMenuAction('none');
     setConfirmInput('');
   }
@@ -248,12 +255,21 @@ export function BudgetHistoryScreen({
     if (!canBudgetTransitionTo(current, targetStatus)) return;
 
     if (CRITICAL_STATUSES.includes(targetStatus)) {
-      const required = confirmWordForStatus(targetStatus);
+      const required = confirmWordForAction(targetStatus);
       if (confirmInput.trim().toUpperCase() !== required) return;
     }
 
     persistStatus(selectedRecord, targetStatus);
-    closeStatusDialog();
+    closeDialog();
+  }
+
+  function submitDeletion() {
+    if (!selectedRecordId) return;
+    if (confirmInput.trim().toUpperCase() !== 'EXCLUIR') return;
+
+    deleteSavedBudget(selectedRecordId);
+    setSyncTick((current) => current + 1);
+    closeDialog();
   }
 
   return (
@@ -350,7 +366,7 @@ export function BudgetHistoryScreen({
                           },
                         },
                         { id: 'cancel', label: 'Cancelar', tone: 'danger', onSelect: () => openStatusDialog(record, 'cancelado') },
-                        { id: 'archive', label: 'Arquivar', onSelect: () => setArchivedIds((current) => [...current, record.id]) },
+                        { id: 'delete', label: 'Excluir', tone: 'danger', onSelect: () => openDeleteDialog(record) },
                       ]}
                     />
                   </div>
@@ -372,7 +388,7 @@ export function BudgetHistoryScreen({
       <Modal
         isOpen={menuAction === 'alterar_status'}
         title="Alterar status do orçamento"
-        onClose={closeStatusDialog}
+        onClose={closeDialog}
         onConfirm={submitStatusChange}
         confirmLabel="Confirmar status"
         tone={CRITICAL_STATUSES.includes(targetStatus) ? 'danger' : 'brand'}
@@ -405,12 +421,33 @@ export function BudgetHistoryScreen({
                   label="Confirmação de segurança"
                   value={confirmInput}
                   onChange={(e) => setConfirmInput(e.target.value)}
-                  placeholder={`Digite ${confirmWordForStatus(targetStatus)} para confirmar`}
+                  placeholder={`Digite ${confirmWordForAction(targetStatus)} para confirmar`}
                   helper="Edição e alterações financeiras ficam bloqueadas após esta ação."
                 />
               )}
             </>
           )}
+        </div>
+      </Modal>
+
+      <Modal
+        isOpen={menuAction === 'excluir'}
+        title="Excluir orçamento permanentemente?"
+        onClose={closeDialog}
+        onConfirm={submitDeletion}
+        confirmLabel="Excluir permanentemente"
+        tone="danger"
+      >
+        <div className="budget-history-grid-gap-md">
+          <p>Esta ação não pode ser desfeita e removerá o orçamento do histórico e dos relatórios financeiros.</p>
+          <Input
+            label="Confirmação de segurança"
+            value={confirmInput}
+            onChange={(e) => setConfirmInput(e.target.value)}
+            placeholder="Digite EXCLUIR para confirmar"
+            helper="O registro será removido definitivamente deste dispositivo."
+            autoFocus
+          />
         </div>
       </Modal>
     </PageShell>

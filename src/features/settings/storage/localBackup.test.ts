@@ -1,13 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createMemoryStorage } from '../../../test/createMemoryStorage';
 import {
-  collectOrcaLocalBackup,
+  collectAferixLocalBackup,
   createBackupFilename,
-  parseOrcaBackup,
-  restoreOrcaBackup,
-  stringifyOrcaBackup,
-  summarizeOrcaBackup,
-  summarizeOrcaBackupData,
+  parseAferixBackup,
+  restoreAferixBackup,
+  stringifyAferixBackup,
+  summarizeAferixBackup,
+  summarizeAferixBackupData,
 } from './localBackup';
 
 describe('local backup storage', () => {
@@ -26,7 +26,7 @@ describe('local backup storage', () => {
     window.localStorage.setItem('orcaos:clients:v1', '[{"id":"c1","name":"Cliente"}]');
     window.localStorage.setItem('other-app:key', 'ignore-me');
 
-    const backup = collectOrcaLocalBackup();
+    const backup = collectAferixLocalBackup();
 
     expect(backup.app).toBe('Aferix');
     expect(backup.version).toBe(1);
@@ -36,10 +36,10 @@ describe('local backup storage', () => {
   });
 
   it('stringifies, parses and summarizes backups safely', () => {
-    const backup = collectOrcaLocalBackup();
-    const serialized = stringifyOrcaBackup(backup);
-    const parsed = parseOrcaBackup(serialized);
-    const summary = summarizeOrcaBackup(parsed);
+    const backup = collectAferixLocalBackup();
+    const serialized = stringifyAferixBackup(backup);
+    const parsed = parseAferixBackup(serialized);
+    const summary = summarizeAferixBackup(parsed);
 
     expect(parsed.app).toBe('Aferix');
     expect(parsed.version).toBe(1);
@@ -48,7 +48,7 @@ describe('local backup storage', () => {
   });
 
   it('summarizes business data groups from backup keys', () => {
-    const backup = parseOrcaBackup(JSON.stringify({
+    const backup = parseAferixBackup(JSON.stringify({
       app: 'Aferix',
       version: 1,
       exportedAt: '2026-05-02T00:00:00.000Z',
@@ -65,27 +65,56 @@ describe('local backup storage', () => {
       },
     }));
 
-    expect(summarizeOrcaBackupData(backup)).toEqual(expect.arrayContaining([
+    expect(summarizeAferixBackupData(backup)).toEqual(expect.arrayContaining([
       { label: 'Clientes', count: 2 },
       { label: 'Execução / Work', count: 1 },
       { label: 'Orçamentos', count: 1 },
+      { label: 'Financeiro / Money', count: 0 },
       { label: 'Catálogo / Base', count: 2 },
       { label: 'Fornecedores', count: 1 },
       { label: 'Configurações', count: 0 },
       { label: 'Diagnósticos / Pulse', count: 1 },
       { label: 'Perfil profissional', count: 2 },
       { label: 'Conta e Licença', count: 1 },
+      { label: 'Rascunhos ativos', count: 0 },
+      { label: 'Outros dados', count: 0 },
     ]));
   });
 
+  it('preserves high precision decimals during backup and restore', () => {
+    const highPrecisionValue = '123456789.0123456789';
+    const jsonValue = JSON.stringify({ amount: 123456789.0123456789 });
+    window.localStorage.setItem('orcaos:finance:v1', jsonValue);
+
+    const backup = collectAferixLocalBackup();
+    const serialized = stringifyAferixBackup(backup);
+    const parsed = parseAferixBackup(serialized);
+    
+    restoreAferixBackup(parsed, 'replace');
+
+    const restoredJson = window.localStorage.getItem('orcaos:finance:v1');
+    const restoredObj = JSON.parse(restoredJson!);
+    
+    // JSON.stringify/parse for numbers in JS uses 64-bit floats.
+    // We expect the exact same number back if it's within float64 precision.
+    expect(restoredObj.amount).toBe(123456789.0123456789);
+    expect(restoredJson).toBe(jsonValue);
+  });
+
+  it('collects keys with dot separators (e.g. orcaos.intro)', () => {
+    window.localStorage.setItem('orcaos.intro.v1', 'true');
+    const backup = collectAferixLocalBackup();
+    expect(backup.keys['orcaos.intro.v1']).toBe('true');
+  });
+
   it('rejects backups from other apps or unsupported versions', () => {
-    expect(() => parseOrcaBackup(JSON.stringify({ app: 'Outro', version: 1, keys: {} }))).toThrow('backup do Aferix');
-    expect(() => parseOrcaBackup(JSON.stringify({ app: 'Aferix', version: 2, keys: {} }))).toThrow('Versão de backup');
-    expect(() => parseOrcaBackup('{invalid-json')).toThrow('JSON inválido');
+    expect(() => parseAferixBackup(JSON.stringify({ app: 'Outro', version: 1, keys: {} }))).toThrow('backup do Aferix');
+    expect(() => parseAferixBackup(JSON.stringify({ app: 'Aferix', version: 2, keys: {} }))).toThrow('Versão de backup');
+    expect(() => parseAferixBackup('{invalid-json')).toThrow('JSON inválido');
   });
 
   it('ignores unsafe keys while parsing backups', () => {
-    const parsed = parseOrcaBackup(JSON.stringify({
+    const parsed = parseAferixBackup(JSON.stringify({
       app: 'Aferix',
       version: 1,
       exportedAt: '2026-05-02T00:00:00.000Z',
@@ -103,7 +132,7 @@ describe('local backup storage', () => {
     window.localStorage.setItem('orcaos:old:v1', 'old');
     window.localStorage.setItem('external:key', 'keep');
 
-    const restoredMerge = restoreOrcaBackup({
+    const restoredMerge = restoreAferixBackup({
       app: 'Aferix',
       version: 1,
       exportedAt: '2026-05-02T00:00:00.000Z',
@@ -115,7 +144,7 @@ describe('local backup storage', () => {
     expect(window.localStorage.getItem('orcaos:old:v1')).toBe('old');
     expect(window.localStorage.getItem('orcaos:new:v1')).toBe('new');
 
-    const restoredReplace = restoreOrcaBackup({
+    const restoredReplace = restoreAferixBackup({
       app: 'Aferix',
       version: 1,
       exportedAt: '2026-05-02T00:00:00.000Z',
@@ -135,7 +164,7 @@ describe('local backup storage', () => {
   });
 
   it('accepts legacy app markers for existing local-first backups', () => {
-    const parsed = parseOrcaBackup(JSON.stringify({
+    const parsed = parseAferixBackup(JSON.stringify({
       app: 'Or\u00e7aOS',
       version: 1,
       exportedAt: '2026-05-02T00:00:00.000Z',

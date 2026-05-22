@@ -15,9 +15,9 @@ describe('billing readiness', () => {
   });
 
   it('marks external checkout ready only with checkout and entitlement endpoint', () => {
-    vi.stubEnv('VITE_ORCAOS_BILLING_CHANNEL', 'external-checkout');
-    vi.stubEnv('VITE_ORCAOS_PRO_CHECKOUT_URL', 'https://checkout.example.com/pro');
-    vi.stubEnv('VITE_ORCAOS_ENTITLEMENTS_ENDPOINT', 'https://api.example.com/entitlements');
+    vi.stubEnv('VITE_AFERIX_BILLING_CHANNEL', 'external-checkout');
+    vi.stubEnv('VITE_AFERIX_PRO_CHECKOUT_URL', 'https://checkout.example.com/pro');
+    vi.stubEnv('VITE_AFERIX_ENTITLEMENTS_ENDPOINT', 'https://api.example.com/entitlements');
 
     const readiness = getBillingReadiness();
 
@@ -27,10 +27,10 @@ describe('billing readiness', () => {
   });
 
   it('marks Google Play ready only when package, product and entitlement endpoint are configured', () => {
-    vi.stubEnv('VITE_ORCAOS_BILLING_CHANNEL', 'google-play');
-    vi.stubEnv('VITE_ORCAOS_ANDROID_PACKAGE_NAME', 'com.orcaos.app');
-    vi.stubEnv('VITE_ORCAOS_PLAY_PRO_PRODUCT_ID', 'orcaos_pro_monthly');
-    vi.stubEnv('VITE_ORCAOS_ENTITLEMENTS_ENDPOINT', 'https://api.example.com/entitlements');
+    vi.stubEnv('VITE_AFERIX_BILLING_CHANNEL', 'google-play');
+    vi.stubEnv('VITE_AFERIX_ANDROID_PACKAGE_NAME', 'com.orcaos.app');
+    vi.stubEnv('VITE_AFERIX_PLAY_PRO_PRODUCT_ID', 'orcaos_pro_monthly');
+    vi.stubEnv('VITE_AFERIX_ENTITLEMENTS_ENDPOINT', 'https://api.example.com/entitlements');
 
     const readiness = getBillingReadiness();
 

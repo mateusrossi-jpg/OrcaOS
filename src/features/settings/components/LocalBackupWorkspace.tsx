@@ -1,14 +1,14 @@
 import { useMemo, useState } from 'react';
 import {
-  collectOrcaLocalBackup,
+  collectAferixLocalBackup,
   createBackupFilename,
   downloadBackupFile,
-  parseOrcaBackup,
-  restoreOrcaBackup,
-  stringifyOrcaBackup,
-  summarizeOrcaBackup,
-  summarizeOrcaBackupData,
-  type OrcaLocalBackup,
+  parseAferixBackup,
+  restoreAferixBackup,
+  stringifyAferixBackup,
+  summarizeAferixBackup,
+  summarizeAferixBackupData,
+  type AferixLocalBackup,
 } from '../storage/localBackup';
 import { Button, Select } from '../../../app/components/ui';
 import { AppSecurityPanel } from './AppSecurityPanel';
@@ -20,21 +20,21 @@ export function LocalBackupWorkspace({ includeLinkedSettings = true }: { include
   const [backupText, setBackupText] = useState('');
   const [restoreMode, setRestoreMode] = useState<'merge' | 'replace'>('merge');
   const [feedback, setFeedback] = useState<string | null>(null);
-  const [importPreview, setImportPreview] = useState<OrcaLocalBackup | null>(null);
+  const [importPreview, setImportPreview] = useState<AferixLocalBackup | null>(null);
   const [replaceConfirmation, setReplaceConfirmation] = useState('');
   const [canReload, setCanReload] = useState(false);
-  const currentBackup = useMemo(() => collectOrcaLocalBackup(), []);
-  const summary = summarizeOrcaBackup(currentBackup);
-  const currentDataSummary = summarizeOrcaBackupData(currentBackup);
-  const importDataSummary = importPreview ? summarizeOrcaBackupData(importPreview) : [];
+  const currentBackup = useMemo(() => collectAferixLocalBackup(), []);
+  const summary = summarizeAferixBackup(currentBackup);
+  const currentDataSummary = summarizeAferixBackupData(currentBackup);
+  const importDataSummary = importPreview ? summarizeAferixBackupData(importPreview) : [];
 
   function refreshBackupText() {
-    setBackupText(stringifyOrcaBackup(collectOrcaLocalBackup()));
+    setBackupText(stringifyAferixBackup(collectAferixLocalBackup()));
     setFeedback('Backup gerado na caixa de texto.');
   }
 
   async function copyBackup() {
-    const text = stringifyOrcaBackup(collectOrcaLocalBackup());
+    const text = stringifyAferixBackup(collectAferixLocalBackup());
     setBackupText(text);
     try {
       await navigator.clipboard.writeText(text);
@@ -45,7 +45,7 @@ export function LocalBackupWorkspace({ includeLinkedSettings = true }: { include
   }
 
   function downloadBackup() {
-    const text = stringifyOrcaBackup(collectOrcaLocalBackup());
+    const text = stringifyAferixBackup(collectAferixLocalBackup());
     downloadBackupFile(createBackupFilename(), text);
     setBackupText(text);
     setFeedback('Arquivo de backup gerado para download.');
@@ -53,9 +53,9 @@ export function LocalBackupWorkspace({ includeLinkedSettings = true }: { include
 
   function previewImport() {
     try {
-      const parsed = parseOrcaBackup(backupText);
+      const parsed = parseAferixBackup(backupText);
       setImportPreview(parsed);
-      const importedSummary = summarizeOrcaBackup(parsed);
+      const importedSummary = summarizeAferixBackup(parsed);
       setCanReload(false);
       setFeedback(`Backup válido: ${importedSummary.keyCount} grupo(s) de dados, aproximadamente ${importedSummary.estimatedSizeKb} KB.`);
     } catch (error) {
@@ -66,12 +66,12 @@ export function LocalBackupWorkspace({ includeLinkedSettings = true }: { include
 
   function restoreImport() {
     try {
-      const parsed = importPreview ?? parseOrcaBackup(backupText);
+      const parsed = importPreview ?? parseAferixBackup(backupText);
       if (restoreMode === 'replace' && replaceConfirmation.trim() !== 'SUBSTITUIR') {
         setFeedback('Isso substituirá os dados locais do Aferix neste navegador. Digite SUBSTITUIR para confirmar.');
         return;
       }
-      const restoredCount = restoreOrcaBackup(parsed, restoreMode);
+      const restoredCount = restoreAferixBackup(parsed, restoreMode);
       setFeedback(`${restoredCount} grupo(s) restaurado(s). Recarregue o app para garantir que todas as telas leiam os dados atualizados.`);
       setImportPreview(parsed);
       setCanReload(true);
@@ -91,7 +91,7 @@ export function LocalBackupWorkspace({ includeLinkedSettings = true }: { include
       const result = typeof reader.result === 'string' ? reader.result : '';
       setBackupText(result);
       try {
-        const parsed = parseOrcaBackup(result);
+        const parsed = parseAferixBackup(result);
         setImportPreview(parsed);
         setFeedback(`Arquivo carregado: ${Object.keys(parsed.keys).length} grupo(s) de dados encontrados.`);
       } catch (error) {

@@ -1,8 +1,8 @@
 import type { UserPlan } from './featureAccess';
 
-export type OrcaAccountStatus = 'guest' | 'email' | 'local' | 'google';
-export type OrcaPlanSource = 'free' | 'local-test' | 'subscription';
-export type OrcaPlanStatus = 'free' | 'active' | 'trial' | 'expired' | 'inactive' | 'past_due';
+export type AferixAccountStatus = 'guest' | 'email' | 'local' | 'google';
+export type AferixPlanSource = 'free' | 'local-test' | 'subscription';
+export type AferixPlanStatus = 'free' | 'active' | 'trial' | 'expired' | 'inactive' | 'past_due';
 
 export interface GoogleAccountProfile {
   sub: string;
@@ -11,19 +11,19 @@ export interface GoogleAccountProfile {
 }
 
 export interface AferixAccountState {
-  status: OrcaAccountStatus;
+  status: AferixAccountStatus;
   userId: string | null;
   installationId: string;
   displayName: string;
   email: string;
   plan: UserPlan;
-  planSource: OrcaPlanSource;
-  planStatus: OrcaPlanStatus;
+  planSource: AferixPlanSource;
+  planStatus: AferixPlanStatus;
   planExpiresAt: string | null;
   updatedAt: string;
 }
 
-export const AFERIX_ACCOUNT_CHANGED_EVENT = 'orcaos:account-plan-changed';
+export const AFERIX_ACCOUNT_CHANGED_EVENT = 'aferix:account-plan-changed';
 
 const STORAGE_KEY = 'aferix:account-plan:v1';
 const LEGACY_PLAN_KEY = 'orcaos:user-plan';
@@ -62,7 +62,7 @@ function emitChanged(): void {
   window.dispatchEvent(new CustomEvent(AFERIX_ACCOUNT_CHANGED_EVENT));
 }
 
-export function createGuestAccount(plan: UserPlan = 'free', planSource: OrcaPlanSource = plan === 'pro' ? 'local-test' : 'free'): AferixAccountState {
+export function createGuestAccount(plan: UserPlan = 'free', planSource: AferixPlanSource = plan === 'pro' ? 'local-test' : 'free'): AferixAccountState {
   return {
     status: 'guest',
     userId: null,
@@ -77,8 +77,8 @@ export function createGuestAccount(plan: UserPlan = 'free', planSource: OrcaPlan
   };
 }
 
-function normalizePlanStatus(value: unknown, plan: UserPlan): OrcaPlanStatus {
-  if (value === 'active' || value === 'trial' || value === 'expired' || value === 'inactive' || value === 'past_due') return value;
+function normalizePlanStatus(value: unknown, plan: UserPlan): AferixPlanStatus {
+  if (value === 'active' || value === 'trial' || value === 'expired' || value === 'inactive' || value === 'past_due') return value as AferixPlanStatus;
   return plan === 'pro' ? 'active' : 'free';
 }
 

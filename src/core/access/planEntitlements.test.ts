@@ -34,23 +34,23 @@ describe('plan entitlements', () => {
   });
 
   it('reports whether entitlement sync is configured', () => {
-    vi.stubEnv('VITE_ORCAOS_ENTITLEMENTS_ENDPOINT', '');
+    vi.stubEnv('VITE_AFERIX_ENTITLEMENTS_ENDPOINT', '');
     expect(isPlanEntitlementSyncConfigured()).toBe(false);
 
-    vi.stubEnv('VITE_ORCAOS_ENTITLEMENTS_ENDPOINT', 'https://api.example.com/entitlements');
+    vi.stubEnv('VITE_AFERIX_ENTITLEMENTS_ENDPOINT', 'https://api.example.com/entitlements');
     expect(isPlanEntitlementSyncConfigured()).toBe(true);
   });
 
   it('requires an endpoint and an account', async () => {
     await expect(refreshPlanEntitlement()).rejects.toThrow('ENTITLEMENTS_ENDPOINT');
 
-    vi.stubEnv('VITE_ORCAOS_ENTITLEMENTS_ENDPOINT', 'https://api.example.com/entitlements');
+    vi.stubEnv('VITE_AFERIX_ENTITLEMENTS_ENDPOINT', 'https://api.example.com/entitlements');
     await expect(refreshPlanEntitlement()).rejects.toThrow('Entre com uma conta');
   });
 
   it('updates the account plan from an entitlement response', async () => {
-    vi.stubEnv('VITE_ORCAOS_ENTITLEMENTS_ENDPOINT', 'https://api.example.com/entitlements');
-    vi.stubEnv('VITE_ORCAOS_ENTITLEMENTS_API_KEY', 'secret');
+    vi.stubEnv('VITE_AFERIX_ENTITLEMENTS_ENDPOINT', 'https://api.example.com/entitlements');
+    vi.stubEnv('VITE_AFERIX_ENTITLEMENTS_API_KEY', 'secret');
     const account = signInGoogleAccount({ sub: '123', name: 'Profissional', email: 'profissional@example.com' });
     const fetchMock = vi.fn().mockResolvedValue(jsonResponse({ plan: 'pro', status: 'active', planSource: 'subscription', expiresAt: '2026-06-01T00:00:00.000Z' }));
     vi.stubGlobal('fetch', fetchMock);
@@ -72,7 +72,7 @@ describe('plan entitlements', () => {
   });
 
   it('preserves expired subscription status from the entitlement endpoint', async () => {
-    vi.stubEnv('VITE_ORCAOS_ENTITLEMENTS_ENDPOINT', 'https://api.example.com/entitlements');
+    vi.stubEnv('VITE_AFERIX_ENTITLEMENTS_ENDPOINT', 'https://api.example.com/entitlements');
     const account = signInGoogleAccount({ sub: '123', name: 'Profissional', email: 'profissional@example.com' });
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({ plan: 'free', status: 'expired', expiresAt: '2026-01-01T00:00:00.000Z' })));
 
@@ -85,7 +85,7 @@ describe('plan entitlements', () => {
   });
 
   it('allows trial subscriptions as Pro', async () => {
-    vi.stubEnv('VITE_ORCAOS_ENTITLEMENTS_ENDPOINT', 'https://api.example.com/entitlements');
+    vi.stubEnv('VITE_AFERIX_ENTITLEMENTS_ENDPOINT', 'https://api.example.com/entitlements');
     const account = signInGoogleAccount({ sub: '123', email: 'profissional@example.com' });
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({ plan: 'pro', status: 'trial', planSource: 'subscription' })));
 
@@ -96,7 +96,7 @@ describe('plan entitlements', () => {
   });
 
   it('does not release Pro when subscription is past due', async () => {
-    vi.stubEnv('VITE_ORCAOS_ENTITLEMENTS_ENDPOINT', 'https://api.example.com/entitlements');
+    vi.stubEnv('VITE_AFERIX_ENTITLEMENTS_ENDPOINT', 'https://api.example.com/entitlements');
     const account = signInGoogleAccount({ sub: '123', email: 'profissional@example.com' });
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({ plan: 'pro', status: 'past_due', planSource: 'subscription' })));
 
@@ -107,7 +107,7 @@ describe('plan entitlements', () => {
   });
 
   it('keeps inactive subscription users on free plan', async () => {
-    vi.stubEnv('VITE_ORCAOS_ENTITLEMENTS_ENDPOINT', 'https://api.example.com/entitlements');
+    vi.stubEnv('VITE_AFERIX_ENTITLEMENTS_ENDPOINT', 'https://api.example.com/entitlements');
     const account = signInGoogleAccount({ sub: '123', email: 'profissional@example.com' });
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({ plan: 'pro', status: 'inactive', planSource: 'subscription' })));
 
@@ -118,7 +118,7 @@ describe('plan entitlements', () => {
   });
 
   it('fails clearly when the entitlement endpoint rejects the request', async () => {
-    vi.stubEnv('VITE_ORCAOS_ENTITLEMENTS_ENDPOINT', 'https://api.example.com/entitlements');
+    vi.stubEnv('VITE_AFERIX_ENTITLEMENTS_ENDPOINT', 'https://api.example.com/entitlements');
     const account = signInGoogleAccount({ sub: '123' });
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse('not allowed', false, 403)));
 

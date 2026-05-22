@@ -10,8 +10,8 @@ function splitList(value) {
 }
 
 function supabaseConfig(env = process.env) {
-  const url = String(env.ORCAOS_SUPABASE_URL || '').replace(/\/$/, '');
-  const serviceKey = String(env.ORCAOS_SUPABASE_SERVICE_ROLE_KEY || '').trim();
+  const url = String(env.AFERIX_SUPABASE_URL || '').replace(/\/$/, '');
+  const serviceKey = String(env.AFERIX_SUPABASE_SERVICE_ROLE_KEY || '').trim();
   return { url, serviceKey, configured: Boolean(url && serviceKey) };
 }
 
@@ -47,7 +47,7 @@ function rowToEntitlement(row) {
 function allowlistEntitlement(payload, env = process.env) {
   const userId = normalize(payload?.userId);
   const email = normalize(payload?.email);
-  const proUsers = new Set(splitList(env.ORCAOS_PRO_USERS));
+  const proUsers = new Set(splitList(env.AFERIX_PRO_USERS));
   const isPro = Boolean((userId && proUsers.has(userId)) || (email && proUsers.has(email)));
 
   return {
@@ -102,7 +102,7 @@ export function isSupabaseSubscriptionStoreConfigured(env = process.env) {
 
 export async function upsertSubscription(input, env = process.env) {
   const { url, serviceKey, configured } = supabaseConfig(env);
-  if (!configured) throw new Error('Configure ORCAOS_SUPABASE_URL e ORCAOS_SUPABASE_SERVICE_ROLE_KEY.');
+  if (!configured) throw new Error('Configure AFERIX_SUPABASE_URL e AFERIX_SUPABASE_SERVICE_ROLE_KEY.');
 
   const email = normalize(input?.email);
   if (!email || !email.includes('@')) throw new Error('Informe um e-mail válido.');

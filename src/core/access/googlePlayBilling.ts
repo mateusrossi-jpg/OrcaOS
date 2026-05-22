@@ -29,15 +29,15 @@ declare global {
 const LEGACY_GOOGLE_PLAY_BRIDGE_NAME = `Orca${'OS'}GooglePlayBilling`;
 
 function getProProductId(): string {
-  return String(import.meta.env.VITE_ORCAOS_PLAY_PRO_PRODUCT_ID ?? '').trim();
+  return String(import.meta.env.VITE_AFERIX_PLAY_PRO_PRODUCT_ID ?? '').trim();
 }
 
 function getPackageName(): string {
-  return String(import.meta.env.VITE_ORCAOS_ANDROID_PACKAGE_NAME ?? '').trim();
+  return String(import.meta.env.VITE_AFERIX_ANDROID_PACKAGE_NAME ?? '').trim();
 }
 
 function getEntitlementsEndpoint(): string {
-  return String(import.meta.env.VITE_ORCAOS_ENTITLEMENTS_ENDPOINT ?? '').trim();
+  return String(import.meta.env.VITE_AFERIX_ENTITLEMENTS_ENDPOINT ?? '').trim();
 }
 
 function getBridge(): GooglePlayBillingBridge | null {
@@ -48,7 +48,7 @@ function getBridge(): GooglePlayBillingBridge | null {
 
 function assertGooglePlayConfigured(): string {
   const productId = getProProductId();
-  if (!productId) throw new Error('Configure VITE_ORCAOS_PLAY_PRO_PRODUCT_ID com o produto/assinatura Pro do Google Play.');
+  if (!productId) throw new Error('Configure VITE_AFERIX_PLAY_PRO_PRODUCT_ID com o produto/assinatura Pro do Google Play.');
   return productId;
 }
 
@@ -93,7 +93,7 @@ export async function restoreGooglePlayPurchases(): Promise<GooglePlayPurchase[]
 
 export async function syncGooglePlayPurchaseEntitlement(account: AferixAccountState, purchase: GooglePlayPurchase, action: 'purchase' | 'restore' = 'purchase'): Promise<PlanEntitlementResult> {
   const endpoint = getEntitlementsEndpoint();
-  if (!endpoint) throw new Error('Configure VITE_ORCAOS_ENTITLEMENTS_ENDPOINT para validar compras Google Play no backend.');
+  if (!endpoint) throw new Error('Configure VITE_AFERIX_ENTITLEMENTS_ENDPOINT para validar compras Google Play no backend.');
   if (!account.userId) throw new Error('Entre com Google ou e-mail antes de validar a compra Pro.');
 
   const response = await fetch(endpoint, {
