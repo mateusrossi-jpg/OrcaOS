@@ -677,6 +677,7 @@ export function CatalogHubWorkspace({ onSendToBudget, initialTab = 'items', enab
                       <div className="value-col">{money(item.defaultUnitValue)}</div>
                       <div className="catalog-row-actions">
                         <button className="ghost-action catalog-row-compact-action" type="button" onClick={() => editItem(item)}>Editar</button>
+                        <button className="ghost-action catalog-row-compact-action" type="button" onClick={() => duplicateItem(item)}>Duplicar</button>
                         <button className="ghost-action catalog-row-compact-action" type="button" onClick={() => sendItem(item)}>Enviar</button>
                       </div>
                     </article>

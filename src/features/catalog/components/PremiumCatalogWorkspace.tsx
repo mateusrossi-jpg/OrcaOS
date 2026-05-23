@@ -91,6 +91,18 @@ export function PremiumCatalogWorkspace() {
     setView('form');
   }
 
+  function handleDuplicate(item: CatalogHubItem) {
+    const now = new Date().toISOString();
+    const duplicatedItem: CatalogHubItem = {
+      ...item,
+      id: createCatalogId('item'),
+      title: `${item.title} (cópia)`,
+      createdAt: now,
+      updatedAt: now,
+    };
+    setItems((prev) => [duplicatedItem, ...prev]);
+  }
+
   function handleNew() {
     setEditingItem(emptyItem(activeChip !== 'all' ? activeChip as CatalogHubItemKind : 'material'));
     setView('form');
@@ -267,6 +279,7 @@ export function PremiumCatalogWorkspace() {
                   label="Ações do item"
                   items={[
                     { id: 'edit', label: 'Editar', onSelect: () => handleEdit(item) },
+                    { id: 'duplicate', label: 'Duplicar', onSelect: () => handleDuplicate(item) },
                     { id: 'delete', label: 'Excluir', tone: 'danger', onSelect: () => requestDelete(item) },
                   ]}
                 />

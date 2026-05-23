@@ -224,6 +224,19 @@ export function CatalogHubWorkspace({ onSendToBudget }: CatalogHubWorkspaceProps
     setItems((current) => current.filter((item) => item.id !== id));
   }
 
+  function duplicateItem(item: CatalogHubItem) {
+    const now = new Date().toISOString();
+    const copy: CatalogHubItem = {
+      ...item,
+      id: createCatalogId('catalog-hub-item-copy'),
+      title: `${item.title} cópia`,
+      createdAt: now,
+      updatedAt: now,
+    };
+    setItems((current) => [copy, ...current]);
+    setFeedback(`${copy.title} foi duplicado.`);
+  }
+
   function removeSupplier(id: string) {
     setSuppliers((current) => current.filter((supplier) => supplier.id !== id));
   }
@@ -300,6 +313,7 @@ export function CatalogHubWorkspace({ onSendToBudget }: CatalogHubWorkspaceProps
                   <div className="catalog-hub-actions">
                     {item.sourceUrl && <a className="secondary-action inline-action" href={item.sourceUrl} target="_blank" rel="noreferrer">Fonte</a>}
                     <button className="primary-action inline-action" type="button" onClick={() => sendItem(item)}>Adicionar ao fluxo</button>
+                    <button className="secondary-action inline-action" type="button" onClick={() => duplicateItem(item)}>Duplicar</button>
                     <button className="danger-action" type="button" onClick={() => removeItem(item.id)}>Remover</button>
                   </div>
                 </article>
