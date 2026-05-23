@@ -866,13 +866,14 @@ svg {
 .primary-action.inline-action,
 button.primary {
   min-height: 44px !important;
-  border: 1px solid var(--aferix-brand) !important;
+  border: 1px solid rgba(255, 210, 31, 0.4) !important;
   border-radius: var(--aferix-radius-sm) !important;
   color: var(--aferix-bg) !important;
-  background: var(--aferix-brand) !important;
+  background: linear-gradient(135deg, #FCD34D 0%, #D97706 100%) !important;
   font-weight: 800 !important;
   cursor: pointer !important;
   transition: all 0.2s ease !important;
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.16) !important;
 }
 
 .secondary-action,
@@ -914,8 +915,8 @@ button.ghost {
 
 .primary-action:hover:not(:disabled),
 button.primary:hover:not(:disabled) {
-  background: var(--aferix-primary) !important;
-  border-color: var(--aferix-primary) !important;
+  background: linear-gradient(135deg, #FDE68A 0%, #F59E0B 100%) !important;
+  border-color: rgba(255, 210, 31, 0.7) !important;
   transform: translateY(-1px) !important;
 }
 
@@ -3104,13 +3105,11 @@ body,
 .catalog-stat-card,
 .catalog-summary-card,
 .catalog-metric-card {
-  min-height: 78px !important;
-  padding: 12px 14px !important;
-  border: 1px solid rgba(255, 255, 255, 0.07) !important;
+  min-height: 74px !important;
+  padding: 11px 13px !important;
+  border: 1px solid rgba(255, 255, 255, 0.04) !important;
   border-radius: var(--aferix-radius-md) !important;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.032), rgba(255, 255, 255, 0.004)),
-    var(--aferix-surface) !important;
+  background: rgba(255, 255, 255, 0.012) !important;
   box-shadow: none !important;
   align-content: center !important;
 }
@@ -3198,20 +3197,20 @@ button.secondary {
 .finance-field :where(input, select, textarea),
 .general-form-field :where(input, select, textarea) {
   min-height: 48px !important;
-  border: 1px solid var(--aferix-border) !important;
+  border: 1px solid rgba(255, 255, 255, 0.07) !important;
   border-radius: var(--aferix-radius-sm) !important;
   padding: 11px 13px !important;
   color: var(--aferix-text) !important;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.018), transparent),
-    var(--aferix-bg-soft) !important;
+  background: rgba(255, 255, 255, 0.025) !important;
   font-size: 0.93rem !important;
   line-height: 1.25 !important;
+  transition: all 0.2s ease !important;
 }
 
 .app-screen :where(input:focus, select:focus, textarea:focus) {
-  border-color: rgba(245, 164, 0, 0.58) !important;
-  box-shadow: 0 0 0 3px rgba(245, 164, 0, 0.12) !important;
+  border-color: rgba(255, 210, 31, 0.6) !important;
+  background: rgba(255, 255, 255, 0.04) !important;
+  box-shadow: 0 0 0 3px rgba(255, 210, 31, 0.12) !important;
 }
 
 .continuous-list {
@@ -3289,7 +3288,25 @@ button.secondary {
 
   .screen-header,
   .page-header {
+    margin-bottom: 2px !important;
+    gap: 4px !important;
+  }
+
+  .budget-workspace-stepper {
     margin-bottom: 4px !important;
+    padding: 6px 2px !important;
+  }
+
+  .budget-workspace-stepper button {
+    min-height: 32px !important;
+    padding: 2px 10px !important;
+    font-size: 0.75rem !important;
+  }
+
+  .budget-workspace-stepper .step-num {
+    width: 16px !important;
+    height: 16px !important;
+    font-size: 0.6rem !important;
   }
 
   .aferix-panel-card,
@@ -3365,13 +3382,14 @@ button.secondary {
   width: 100% !important;
   min-width: 0 !important;
   min-height: 46px !important;
-  border: 1px solid var(--aferix-border) !important;
+  border: 1px solid rgba(255, 255, 255, 0.07) !important;
   border-radius: 12px !important;
-  background: var(--aferix-bg-soft) !important;
+  background: rgba(255, 255, 255, 0.025) !important;
   color: var(--aferix-text) !important;
   padding: 11px 13px !important;
   font-size: 0.94rem !important;
   line-height: 1.25 !important;
+  transition: all 0.2s ease !important;
 }
 
 .app-screen textarea,
