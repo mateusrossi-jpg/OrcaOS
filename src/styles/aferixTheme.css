@@ -938,6 +938,17 @@ button.ghost:hover:not(:disabled) {
   color: var(--aferix-text) !important;
 }
 
+.primary-action:active:not(:disabled),
+button.primary:active:not(:disabled),
+.secondary-action:active:not(:disabled),
+button.secondary:active:not(:disabled),
+.danger-action:active:not(:disabled),
+button.danger:active:not(:disabled),
+.ghost-action:active:not(:disabled),
+button.ghost:active:not(:disabled) {
+  transform: scale(0.96) !important;
+}
+
 button:disabled,
 .primary-action:disabled,
 .secondary-action:disabled,
