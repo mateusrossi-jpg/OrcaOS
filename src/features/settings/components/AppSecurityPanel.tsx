@@ -56,7 +56,7 @@ export function AppSecurityPanel() {
     <section className="local-backup-workspace settings-security-panel app-security-panel">
       <div className="local-backup-header">
         <div>
-          <span className="orca-kicker">Segurança</span>
+          <span className="aferix-kicker">Segurança</span>
           <h2>Bloqueio de acesso</h2>
           <p>Proteja o app neste dispositivo com um PIN antes de abrir dados de clientes, atendimentos e orçamentos.</p>
         </div>

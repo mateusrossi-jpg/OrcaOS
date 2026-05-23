@@ -29,7 +29,9 @@ describe('service profit', () => {
     expect(calculatePercentAmount(780, 6)).toBe(46.8);
   });
 
-  it('rejects invalid negative values', () => {
-    expect(() => calculateServiceProfit({ receivedAmount: 100, materialCost: -1 })).toThrow('Material');
+  it('sanitizes invalid negative values to zero instead of throwing', () => {
+    const result = calculateServiceProfit({ receivedAmount: 100, materialCost: -1 });
+    expect(result.directCosts).toBe(0);
+    expect(result.netProfit).toBe(100);
   });
 });

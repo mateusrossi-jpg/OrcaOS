@@ -27,7 +27,7 @@ export function ProfessionalIdentityCard({ compact = false, contextLabel = 'Iden
       <div className="professional-identity-main">
         <span className="app-icon tone-blue">ID</span>
         <div>
-          <span className="orca-kicker">{contextLabel}</span>
+          <span className="aferix-kicker">{contextLabel}</span>
           <strong>{displayName}</strong>
           {responsibleName && <small>Responsável: {responsibleName}</small>}
           {!hasData && <small>Configure seus dados em Configurações para aparecerem em orçamentos e relatórios.</small>}

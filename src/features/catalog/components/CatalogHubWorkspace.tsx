@@ -246,7 +246,7 @@ export function CatalogHubWorkspace({ onSendToBudget }: CatalogHubWorkspaceProps
     <section className="catalog-hub-workspace">
       <div className="catalog-hub-header">
         <div>
-          <span className="orca-kicker">Cadastro profissional</span>
+          <span className="aferix-kicker">Cadastro profissional</span>
           <h2>Catálogo, serviços e fornecedores</h2>
           <p>Cadastre materiais, serviços, fornecedores e use consultas online como apoio para montar orçamentos rápidos.</p>
         </div>

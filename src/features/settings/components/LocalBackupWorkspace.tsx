@@ -116,7 +116,7 @@ export function LocalBackupWorkspace({ includeLinkedSettings = true }: { include
       <div className="aferix-panel-card">
         <header>
           <div>
-            <span className="orca-kicker">Segurança</span>
+            <span className="aferix-kicker">Segurança</span>
             <h2>Exportar e Restaurar</h2>
             <p>Salve uma cópia local dos seus dados antes de trocar de dispositivo.</p>
             <small>{summary.keyCount} grupo(s) locais, aproximadamente {summary.estimatedSizeKb} KB.</small>

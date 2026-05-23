@@ -134,7 +134,7 @@ export function ClientProposalWorkspace({ technicalCaptures = [], activeClient =
     <section className="client-proposal-workspace">
       <div className="client-proposal-header">
         <div>
-          <span className="orca-kicker">Aferix Cliente</span>
+          <span className="aferix-kicker">Aferix Cliente</span>
           <h2>Orçamentos públicos do cliente</h2>
           <p>Base inicial para gerar visão simplificada do cliente, com preço final, materiais que ele compra, status e aceite.</p>
         </div>

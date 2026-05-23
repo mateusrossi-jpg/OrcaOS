@@ -82,7 +82,7 @@ export function SettingsScreen({ account, onAccountChange }: SettingsScreenProps
         {activeTab === 'account' && (
           <PanelCard className="settings-group account-settings-panel">
             <div className="settings-panel-title">
-              <span className="orca-kicker">Acesso e Identidade</span>
+              <span className="aferix-kicker">Acesso e Identidade</span>
               <h2>Sua Conta</h2>
               <p>Gerencie seu acesso e identificação no Aferix.</p>
             </div>
@@ -132,7 +132,7 @@ export function SettingsScreen({ account, onAccountChange }: SettingsScreenProps
             <LegalCompliancePanel />
             <PanelCard className="settings-group account-settings-panel">
               <div className="settings-panel-title">
-                <span className="orca-kicker">Evolução planejada</span>
+                <span className="aferix-kicker">Evolução planejada</span>
                 <h2>Roteiro do produto</h2>
                 <p>O Aferix está em desenvolvimento ativo. Confira as fases previstas.</p>
               </div>

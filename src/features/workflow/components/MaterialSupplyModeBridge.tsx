@@ -104,7 +104,7 @@ export function MaterialSupplyModeBridge({ onSendToBudget, mode = 'all' }: Mater
     <section className="material-supply-bridge">
       <div className="material-supply-header">
         <div>
-          <span className="orca-kicker">Materiais do orçamento</span>
+          <span className="aferix-kicker">Materiais do orçamento</span>
           <h2>Quem vai comprar os materiais?</h2>
           <p>Defina como os materiais lançados no orçamento serão tratados no orçamento.</p>
         </div>

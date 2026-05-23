@@ -114,7 +114,7 @@ export function GoogleDriveBackupPanel() {
   return (
     <section className="google-drive-backup-premium">
       <div className="backup-panel-header">
-        <span className="orca-kicker">Google Drive</span>
+        <span className="aferix-kicker">Google Drive</span>
         <h2>Backup Privado</h2>
         <p>Sincronize seus dados com o Google Drive para segurança e backup.</p>
       </div>

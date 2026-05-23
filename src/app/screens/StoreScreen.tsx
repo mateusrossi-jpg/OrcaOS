@@ -141,7 +141,7 @@ export function StoreScreen({ account, onAccountChange, onBack }: StoreScreenPro
       </ListCard>
       <div className="settings-group account-settings-panel billing-readiness-panel">
         <div className="settings-panel-title">
-          <span className="orca-kicker">Pagamentos</span>
+          <span className="aferix-kicker">Pagamentos</span>
           <h2>{billingReadiness.statusTitle}</h2>
           </div>
         <div className="billing-readiness-grid">
@@ -157,7 +157,7 @@ export function StoreScreen({ account, onAccountChange, onBack }: StoreScreenPro
       </div>
       {googlePlayMode && <div className="settings-group account-settings-panel commercial-checkout-panel">
         <div className="settings-panel-title">
-          <span className="orca-kicker">Google Play</span>
+          <span className="aferix-kicker">Google Play</span>
           <h2>Compra pela conta Google</h2>
           </div>
         <div className="billing-readiness-grid">
@@ -175,7 +175,7 @@ export function StoreScreen({ account, onAccountChange, onBack }: StoreScreenPro
       <PanelCard>
         <header>
           <div>
-            <span className="orca-kicker">Assinatura</span>
+            <span className="aferix-kicker">Assinatura</span>
             <h2>{activeUserPlan === 'pro' ? 'Aferix Pro Ativo' : 'Plano Aferix Pro'}</h2>
           </div>
         </header>

@@ -160,7 +160,7 @@ export function GuidedRoomManager() {
     <section className="guided-room-manager">
       <div className="guided-room-header">
         <div>
-          <span className="orca-kicker">Ambientes da visita</span>
+          <span className="aferix-kicker">Ambientes da visita</span>
           <h2>Cômodos e setores</h2>
           <p>Organize a visita por ambiente para lançar serviços, peças, kits e revisar o orçamento por local.</p>
         </div>

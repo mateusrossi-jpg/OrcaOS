@@ -1037,7 +1037,7 @@ export function BudgetWorkspace({
           </div>
           
           <PanelCard className="budget-sticky-summary">
-            <span className="orca-kicker">Resumo Financeiro</span>
+            <span className="aferix-kicker">Resumo Financeiro</span>
             <div><small>Subtotal de itens</small><strong>{formatCurrency(summary.subtotal)}</strong></div>
           </PanelCard>
           

@@ -101,7 +101,7 @@ export function ProfessionalProfileWorkspace({ onBack }: { onBack?: () => void }
       <section className="professional-profile-header-card">
         <header>
           <div>
-            <span className="orca-kicker">Perfil</span>
+            <span className="aferix-kicker">Perfil</span>
             <h2>Perfil Profissional</h2>
             <p>Dados usados em orçamentos e relatórios.</p>
           </div>
@@ -112,7 +112,7 @@ export function ProfessionalProfileWorkspace({ onBack }: { onBack?: () => void }
       <section className="professional-profile-section">
         <header>
           <div>
-            <span className="orca-kicker">Identidade</span>
+            <span className="aferix-kicker">Identidade</span>
             <h2>Logo da empresa</h2>
             <p>Aparece em orçamentos e relatórios.</p>
           </div>
@@ -134,7 +134,7 @@ export function ProfessionalProfileWorkspace({ onBack }: { onBack?: () => void }
       <section className="professional-profile-section">
         <header>
           <div>
-            <span className="orca-kicker">Comercial</span>
+            <span className="aferix-kicker">Comercial</span>
             <h2>Dados da Empresa</h2>
           </div>
         </header>
@@ -151,7 +151,7 @@ export function ProfessionalProfileWorkspace({ onBack }: { onBack?: () => void }
       <section className="professional-profile-section">
         <header>
           <div>
-            <span className="orca-kicker">Segurança</span>
+            <span className="aferix-kicker">Segurança</span>
             <h2>Identificadores Locais</h2>
             <p>IDs únicos para sincronização de dados entre dispositivos.</p>
           </div>
@@ -175,7 +175,7 @@ export function ProfessionalProfileWorkspace({ onBack }: { onBack?: () => void }
       <section className="professional-profile-section">
         <header>
           <div>
-            <span className="orca-kicker">Documentos</span>
+            <span className="aferix-kicker">Documentos</span>
             <h2>Padrões de Orçamentos</h2>
           </div>
         </header>
