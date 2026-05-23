@@ -55,10 +55,16 @@ function money(value: number): string {
   return moneyFormatter.format(Number.isFinite(value) ? value : 0);
 }
 
+function safeNonNegative(value: number | undefined): number {
+  if (typeof value !== "number" || !Number.isFinite(value)) return 0;
+  return Math.max(0, value);
+}
+
 function parseAmount(value: string): number {
-  const parsed = Number(value.replace(',', '.').trim());
+  const parsed = Number(value.replace(",", ".").trim());
   return Number.isFinite(parsed) ? Math.max(0, parsed) : 0;
 }
+
 
 function budgetTotal(record: SavedBudgetRecord): number {
   const budget: Budget = {
@@ -77,8 +83,13 @@ function budgetTotal(record: SavedBudgetRecord): number {
   }
 }
 
+function safeDate(value: string): string {
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? new Date(0).toISOString() : date.toISOString();
+}
+
 function formatDate(value: string): string {
-  return new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(new Date(value));
+  return new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(new Date(safeDate(value)));
 }
 
 export function SimpleFinanceWorkspace() {
@@ -111,11 +122,11 @@ export function SimpleFinanceWorkspace() {
         title: budget.title,
         clientName: budget.clientName,
         status: budget.status,
-        updatedAt: budget.updatedAt,
-        receivedAmount: budgetTotal(budget),
-        materialCost: baseMaterialCost,
-        travelCost: budget.travelCost || 0,
-        otherCosts: (budget.additionalFees || 0) + (budget.operationalCost || 0),
+        updatedAt: safeDate(budget.updatedAt),
+        receivedAmount: safeNonNegative(budgetTotal(budget)),
+        materialCost: safeNonNegative(baseMaterialCost),
+        travelCost: safeNonNegative(budget.travelCost),
+        otherCosts: safeNonNegative((budget.additionalFees ?? 0) + (budget.operationalCost ?? 0)),
         cardFee: 0,
         estimatedTax: 0,
       };
@@ -124,12 +135,12 @@ export function SimpleFinanceWorkspace() {
 
       return {
         ...baseRow,
-        receivedAmount: adjustment.receivedAmount,
-        materialCost: adjustment.materialCost,
-        travelCost: adjustment.travelCost,
-        otherCosts: adjustment.otherCosts,
-        cardFee: adjustment.cardFee,
-        estimatedTax: adjustment.estimatedTax,
+        receivedAmount: safeNonNegative(adjustment.receivedAmount),
+        materialCost: safeNonNegative(adjustment.materialCost),
+        travelCost: safeNonNegative(adjustment.travelCost),
+        otherCosts: safeNonNegative(adjustment.otherCosts),
+        cardFee: safeNonNegative(adjustment.cardFee),
+        estimatedTax: safeNonNegative(adjustment.estimatedTax),
       };
     });
   }, [finalizedBudgets, adjustmentsByBudgetId]);

@@ -55,12 +55,6 @@ function statusLabel(status: SavedBudgetStatus): string {
     finalizado: 'Finalizado',
     recusado: 'Orçamento recusado',
     cancelado: 'Cancelado',
-    draft: 'Orçamento iniciado',
-    sent: 'Orçamento enviado',
-    approved: 'Autorizado',
-    rejected: 'Orçamento recusado',
-    expired: 'Orçamento recusado',
-    cancelled: 'Cancelado',
   };
 
   return labels[status] ?? 'Orçamento iniciado';

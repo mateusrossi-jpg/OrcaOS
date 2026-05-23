@@ -63,6 +63,21 @@ export interface SaveBudgetRecordInput {
   lucro_liquido?: number;
 }
 
+function sanitizeNonNegative(value: number | undefined, fallback = 0): number {
+  if (typeof value !== "number" || !Number.isFinite(value)) {
+    return fallback;
+  }
+  return Math.max(0, value);
+}
+
+function cloneBudgetItems(items: BudgetItem[]): BudgetItem[] {
+  return items.map((item) => ({
+    ...item,
+    quantity: sanitizeNonNegative(item.quantity),
+    unitPrice: sanitizeNonNegative(item.unitPrice),
+  }));
+}
+
 function isBrowserStorageAvailable(): boolean {
   return typeof window !== 'undefined' && typeof window.localStorage !== 'undefined';
 }
@@ -172,22 +187,24 @@ export function loadSavedBudgets(): SavedBudgetRecord[] {
     return parsed.filter(isSavedBudgetRecord).map((record) => ({
       ...record,
       status: normalizeBudgetStatus(record.status) ?? 'iniciado',
-      travelCost: record.travelCost ?? 0,
-      additionalFees: record.additionalFees ?? 0,
+      discount: sanitizeNonNegative(record.discount),
+      travelCost: sanitizeNonNegative(record.travelCost),
+      additionalFees: sanitizeNonNegative(record.additionalFees),
       paymentTerms: record.paymentTerms ?? '',
       validity: record.validity ?? '',
       guarantee: record.guarantee ?? '',
       executionDeadline: record.executionDeadline ?? '',
       commercialNotes: record.commercialNotes ?? '',
       technicalNotes: record.technicalNotes ?? '',
-      materialCost: record.materialCost ?? 0,
-      operationalCost: record.operationalCost ?? 0,
-      taxRate: record.taxRate ?? record.aliquota_imposto ?? 6,
-      total_servicos: record.total_servicos ?? 0,
-      custo_materiais: record.custo_materiais ?? record.materialCost ?? 0,
-      custos_operacionais: record.custos_operacionais ?? record.operationalCost ?? 0,
-      aliquota_imposto: record.aliquota_imposto ?? record.taxRate ?? 6,
-      lucro_liquido: record.lucro_liquido ?? 0,
+      materialCost: sanitizeNonNegative(record.materialCost),
+      operationalCost: sanitizeNonNegative(record.operationalCost),
+      taxRate: sanitizeNonNegative(record.taxRate ?? record.aliquota_imposto, 6),
+      total_servicos: sanitizeNonNegative(record.total_servicos),
+      custo_materiais: sanitizeNonNegative(record.custo_materiais ?? record.materialCost),
+      custos_operacionais: sanitizeNonNegative(record.custos_operacionais ?? record.operationalCost),
+      aliquota_imposto: sanitizeNonNegative(record.aliquota_imposto ?? record.taxRate, 6),
+      lucro_liquido: sanitizeNonNegative(record.lucro_liquido),
+      items: cloneBudgetItems(record.items),
     })).sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
   } catch {
     return [];
@@ -218,25 +235,25 @@ export function saveBudgetRecord(input: SaveBudgetRecordInput): SavedBudgetRecor
     clientName: input.clientName,
     title: input.title,
     status: normalizeBudgetStatus(input.status) ?? 'iniciado',
-    discount: input.discount,
-    travelCost: input.travelCost ?? 0,
-    additionalFees: input.additionalFees ?? 0,
+    discount: sanitizeNonNegative(input.discount),
+    travelCost: sanitizeNonNegative(input.travelCost),
+    additionalFees: sanitizeNonNegative(input.additionalFees),
     paymentTerms: input.paymentTerms ?? '',
     validity: input.validity ?? '',
     guarantee: input.guarantee ?? '',
     executionDeadline: input.executionDeadline ?? '',
     commercialNotes: input.commercialNotes ?? '',
     technicalNotes: input.technicalNotes ?? '',
-    materialCost: input.materialCost ?? 0,
-    operationalCost: input.operationalCost ?? 0,
-    taxRate: input.taxRate ?? input.aliquota_imposto ?? 6,
-    total_servicos: input.total_servicos ?? 0,
-    custo_materiais: input.custo_materiais ?? input.materialCost ?? 0,
-    custos_operacionais: input.custos_operacionais ?? input.operationalCost ?? 0,
-    aliquota_imposto: input.aliquota_imposto ?? input.taxRate ?? 6,
-    lucro_liquido: input.lucro_liquido ?? 0,
+    materialCost: sanitizeNonNegative(input.materialCost),
+    operationalCost: sanitizeNonNegative(input.operationalCost),
+    taxRate: sanitizeNonNegative(input.taxRate ?? input.aliquota_imposto, 6),
+    total_servicos: sanitizeNonNegative(input.total_servicos),
+    custo_materiais: sanitizeNonNegative(input.custo_materiais ?? input.materialCost),
+    custos_operacionais: sanitizeNonNegative(input.custos_operacionais ?? input.operationalCost),
+    aliquota_imposto: sanitizeNonNegative(input.aliquota_imposto ?? input.taxRate, 6),
+    lucro_liquido: sanitizeNonNegative(input.lucro_liquido),
     templateId: input.templateId,
-    items: input.items,
+    items: cloneBudgetItems(input.items),
     createdAt: existingRecord?.createdAt ?? now,
     updatedAt: now,
   };

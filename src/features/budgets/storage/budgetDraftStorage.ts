@@ -29,6 +29,21 @@ export interface BudgetDraftStorageState {
 type BudgetDraftSaveInput = Pick<BudgetDraftStorageState, 'clientName' | 'budgetTitle' | 'discount' | 'items'> &
   Partial<Omit<BudgetDraftStorageState, 'clientName' | 'budgetTitle' | 'discount' | 'items' | 'updatedAt'>>;
 
+function sanitizeNonNegative(value: number | undefined, fallback = 0): number {
+  if (typeof value !== "number" || !Number.isFinite(value)) {
+    return fallback;
+  }
+  return Math.max(0, value);
+}
+
+function cloneBudgetItems(items: BudgetItem[]): BudgetItem[] {
+  return items.map((item) => ({
+    ...item,
+    quantity: sanitizeNonNegative(item.quantity),
+    unitPrice: sanitizeNonNegative(item.unitPrice),
+  }));
+}
+
 function isBrowserStorageAvailable(): boolean {
   return typeof window !== 'undefined' && typeof window.localStorage !== 'undefined';
 }
@@ -73,24 +88,24 @@ export function loadBudgetDraft(): BudgetDraftStorageState | null {
     return {
       clientName: typeof parsed.clientName === 'string' ? parsed.clientName : '',
       budgetTitle: typeof parsed.budgetTitle === 'string' ? parsed.budgetTitle : '',
-      discount: typeof parsed.discount === 'number' && Number.isFinite(parsed.discount) ? parsed.discount : 0,
-      travelCost: typeof parsed.travelCost === 'number' && Number.isFinite(parsed.travelCost) ? parsed.travelCost : 0,
-      additionalFees: typeof parsed.additionalFees === 'number' && Number.isFinite(parsed.additionalFees) ? parsed.additionalFees : 0,
+      discount: sanitizeNonNegative(typeof parsed.discount === 'number' ? parsed.discount : undefined),
+      travelCost: sanitizeNonNegative(typeof parsed.travelCost === 'number' ? parsed.travelCost : undefined),
+      additionalFees: sanitizeNonNegative(typeof parsed.additionalFees === 'number' ? parsed.additionalFees : undefined),
       paymentTerms: typeof parsed.paymentTerms === 'string' ? parsed.paymentTerms : '',
       validity: typeof parsed.validity === 'string' ? parsed.validity : '',
       guarantee: typeof parsed.guarantee === 'string' ? parsed.guarantee : '',
       executionDeadline: typeof parsed.executionDeadline === 'string' ? parsed.executionDeadline : '',
       commercialNotes: typeof parsed.commercialNotes === 'string' ? parsed.commercialNotes : '',
       technicalNotes: typeof parsed.technicalNotes === 'string' ? parsed.technicalNotes : '',
-      items: parsed.items,
-      materialCost: typeof parsed.materialCost === 'number' && Number.isFinite(parsed.materialCost) ? parsed.materialCost : 0,
-      operationalCost: typeof parsed.operationalCost === 'number' && Number.isFinite(parsed.operationalCost) ? parsed.operationalCost : 0,
-      taxRate: typeof parsed.taxRate === 'number' && Number.isFinite(parsed.taxRate) ? parsed.taxRate : typeof parsed.aliquota_imposto === 'number' && Number.isFinite(parsed.aliquota_imposto) ? parsed.aliquota_imposto : 6,
-      total_servicos: typeof parsed.total_servicos === 'number' && Number.isFinite(parsed.total_servicos) ? parsed.total_servicos : 0,
-      custo_materiais: typeof parsed.custo_materiais === 'number' && Number.isFinite(parsed.custo_materiais) ? parsed.custo_materiais : typeof parsed.materialCost === 'number' && Number.isFinite(parsed.materialCost) ? parsed.materialCost : 0,
-      custos_operacionais: typeof parsed.custos_operacionais === 'number' && Number.isFinite(parsed.custos_operacionais) ? parsed.custos_operacionais : typeof parsed.operationalCost === 'number' && Number.isFinite(parsed.operationalCost) ? parsed.operationalCost : 0,
-      aliquota_imposto: typeof parsed.aliquota_imposto === 'number' && Number.isFinite(parsed.aliquota_imposto) ? parsed.aliquota_imposto : typeof parsed.taxRate === 'number' && Number.isFinite(parsed.taxRate) ? parsed.taxRate : 6,
-      lucro_liquido: typeof parsed.lucro_liquido === 'number' && Number.isFinite(parsed.lucro_liquido) ? parsed.lucro_liquido : 0,
+      items: cloneBudgetItems(parsed.items),
+      materialCost: sanitizeNonNegative(typeof parsed.materialCost === 'number' ? parsed.materialCost : undefined),
+      operationalCost: sanitizeNonNegative(typeof parsed.operationalCost === 'number' ? parsed.operationalCost : undefined),
+      taxRate: sanitizeNonNegative(typeof parsed.taxRate === 'number' ? parsed.taxRate : (typeof parsed.aliquota_imposto === 'number' ? parsed.aliquota_imposto : undefined), 6),
+      total_servicos: sanitizeNonNegative(typeof parsed.total_servicos === 'number' ? parsed.total_servicos : undefined),
+      custo_materiais: sanitizeNonNegative(typeof parsed.custo_materiais === 'number' ? parsed.custo_materiais : (typeof parsed.materialCost === 'number' ? parsed.materialCost : undefined)),
+      custos_operacionais: sanitizeNonNegative(typeof parsed.custos_operacionais === 'number' ? parsed.custos_operacionais : (typeof parsed.operationalCost === 'number' ? parsed.operationalCost : undefined)),
+      aliquota_imposto: sanitizeNonNegative(typeof parsed.aliquota_imposto === 'number' ? parsed.aliquota_imposto : (typeof parsed.taxRate === 'number' ? parsed.taxRate : undefined), 6),
+      lucro_liquido: sanitizeNonNegative(typeof parsed.lucro_liquido === 'number' ? parsed.lucro_liquido : undefined),
       updatedAt: typeof parsed.updatedAt === 'string' ? parsed.updatedAt : new Date().toISOString(),
     };
   } catch {
@@ -106,24 +121,24 @@ export function saveBudgetDraft(state: BudgetDraftSaveInput): BudgetDraftStorage
   const payload: BudgetDraftStorageState = {
     clientName: state.clientName,
     budgetTitle: state.budgetTitle,
-    discount: state.discount,
-    travelCost: state.travelCost ?? 0,
-    additionalFees: state.additionalFees ?? 0,
+    discount: sanitizeNonNegative(state.discount),
+    travelCost: sanitizeNonNegative(state.travelCost),
+    additionalFees: sanitizeNonNegative(state.additionalFees),
     paymentTerms: state.paymentTerms ?? '',
     validity: state.validity ?? '',
     guarantee: state.guarantee ?? '',
     executionDeadline: state.executionDeadline ?? '',
     commercialNotes: state.commercialNotes ?? '',
     technicalNotes: state.technicalNotes ?? '',
-    items: state.items,
-    materialCost: state.materialCost ?? 0,
-    operationalCost: state.operationalCost ?? 0,
-    taxRate: state.taxRate ?? state.aliquota_imposto ?? 6,
-    total_servicos: state.total_servicos ?? 0,
-    custo_materiais: state.custo_materiais ?? state.materialCost ?? 0,
-    custos_operacionais: state.custos_operacionais ?? state.operationalCost ?? 0,
-    aliquota_imposto: state.aliquota_imposto ?? state.taxRate ?? 6,
-    lucro_liquido: state.lucro_liquido ?? 0,
+    items: cloneBudgetItems(state.items),
+    materialCost: sanitizeNonNegative(state.materialCost),
+    operationalCost: sanitizeNonNegative(state.operationalCost),
+    taxRate: sanitizeNonNegative(state.taxRate ?? state.aliquota_imposto, 6),
+    total_servicos: sanitizeNonNegative(state.total_servicos),
+    custo_materiais: sanitizeNonNegative(state.custo_materiais ?? state.materialCost),
+    custos_operacionais: sanitizeNonNegative(state.custos_operacionais ?? state.operationalCost),
+    aliquota_imposto: sanitizeNonNegative(state.aliquota_imposto ?? state.taxRate, 6),
+    lucro_liquido: sanitizeNonNegative(state.lucro_liquido),
     updatedAt: new Date().toISOString(),
   };
 

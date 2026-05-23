@@ -43,7 +43,7 @@ export function App() {
   const [clientSectionRequestKey, setClientSectionRequestKey] = useState(0);
   const [budgetResetKey, setBudgetResetKey] = useState(0);
   const [captures, setCaptures] = useState<CalculationCapture[]>(() => {
-    cleanupRuntimeValidationData();
+    // cleanupRuntimeValidationData(); // Desativado para segurança operacional (Beta)
     return loadStoredCaptures();
   });
   const [clients, setClients] = useState<Client[]>(() => loadClients());

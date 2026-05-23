@@ -201,21 +201,21 @@ export const StatusBadge = memo(function StatusBadge({
   if (children) return <Badge tone={tone}>{children}</Badge>;
 
   const normalized = (status ?? '').toLowerCase();
-  if (normalized === 'finalizado' || normalized === 'done' || normalized === 'concluído') 
+  if (normalized === 'finalizado') 
     return <Badge tone="success">🔒 Finalizado</Badge>;
-  if (normalized === 'cancelado' || normalized === 'cancelled') 
+  if (normalized === 'cancelado') 
     return <Badge tone="danger">🔒 Cancelado</Badge>;
-  if (normalized === 'recusado' || normalized === 'rejected') 
+  if (normalized === 'recusado') 
     return <Badge tone="danger">🔒 Recusado</Badge>;
-  if (normalized === 'em_revisao' || normalized === 'review') 
+  if (normalized === 'em_revisao') 
     return <Badge tone="brand">● Em revisão</Badge>;
-  if (normalized === 'enviado' || normalized === 'sent') 
+  if (normalized === 'enviado') 
     return <Badge tone="brand">● Enviado</Badge>;
-  if (normalized === 'autorizado' || normalized === 'approved') 
+  if (normalized === 'autorizado') 
     return <Badge tone="success">● Autorizado</Badge>;
-  if (normalized === 'em_execucao' || normalized === 'in-progress' || normalized === 'in_progress') 
+  if (normalized === 'em_execucao') 
     return <Badge tone="success">● Em execução</Badge>;
-  if (normalized === 'iniciado' || normalized === 'started') 
+  if (normalized === 'iniciado') 
     return <Badge tone="default">● Iniciado</Badge>;
   
   return <Badge tone="muted">● {status || 'Status'}</Badge>;

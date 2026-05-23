@@ -107,6 +107,7 @@ export function ClientWorkOrderWorkspace({ initialSection, initialClientId, sect
   const [editingClientId, setEditingClientId] = useState<string | null>(null);
   const [modalType, setModalType] = useState<'removeClient' | null>(null);
   const [itemToRemove, setItemToRemove] = useState<string | null>(null);
+  const [confirmInput, setConfirmInput] = useState('');
 
   const [clientDraft, setClientDraft] = useState<ClientDraft>(emptyClientDraft);
 
@@ -144,6 +145,12 @@ export function ClientWorkOrderWorkspace({ initialSection, initialClientId, sect
   const visibleClients = showAllClients ? filteredClients : filteredClients.slice(0, CLIENT_OS_VISIBLE_LIMIT);
   const hiddenClientsCount = Math.max(filteredClients.length - visibleClients.length, 0);
   
+  const isDuplicateName = useMemo(() => {
+    const name = clientDraft.name.trim().toLowerCase();
+    if (!name) return false;
+    return clients.some((c) => c.id !== editingClientId && c.name.toLowerCase() === name);
+  }, [clientDraft.name, clients, editingClientId]);
+
   function updateClientDraft<K extends keyof ClientDraft>(key: K, value: ClientDraft[K]) {
     setClientDraft((current) => ({ ...current, [key]: value }));
   }
@@ -210,11 +217,14 @@ export function ClientWorkOrderWorkspace({ initialSection, initialClientId, sect
 
   function confirmRemoveClient(clientId: string) {
     setItemToRemove(clientId);
+    setConfirmInput('');
     setModalType('removeClient');
   }
 
   function executeRemoveClient() {
     if (!itemToRemove) return;
+    if (confirmInput.trim().toUpperCase() !== 'EXCLUIR') return;
+    
     const clientId = itemToRemove;
     setClients((current) => current.filter((c) => c.id !== clientId));
     setWorkOrders((current) => current.map((w) => (w.clientId === clientId ? { ...w, clientId: undefined } : w)));
@@ -313,13 +323,20 @@ export function ClientWorkOrderWorkspace({ initialSection, initialClientId, sect
                 <small>Dados para localizar cliente e orçamento.</small>
               </div>
             </div>
-            <Input 
-              className="aferix-form-grid-wide"
-              label="Nome / razão social"
-              value={clientDraft.name} 
-              placeholder="Ex: João da Silva" 
-              onChange={(event) => updateClientDraft('name', event.target.value)} 
-            />
+            <div className="aferix-form-grid-wide">
+              <Input 
+                className="aferix-form-grid-wide"
+                label="Nome / razão social"
+                value={clientDraft.name} 
+                placeholder="Ex: João da Silva" 
+                onChange={(event) => updateClientDraft('name', event.target.value)} 
+              />
+              {isDuplicateName && (
+                <small className="aferix-input-warning" style={{ color: 'var(--color-orange-600)', marginTop: '0.25rem', display: 'block' }}>
+                  ⚠️ Já existe um cliente com este nome.
+                </small>
+              )}
+            </div>
             <Input 
               label="CPF / CNPJ"
               value={clientDraft.documentNumber} 
@@ -414,7 +431,19 @@ export function ClientWorkOrderWorkspace({ initialSection, initialClientId, sect
         onClose={() => setModalType(null)}
         onConfirm={executeRemoveClient}
       >
-        <p>Os atendimentos vinculados continuam salvos, mas ficarão sem cliente associado. Esta ação não pode ser desfeita.</p>
+        <div className="budget-history-status-confirm-wrap">
+          <p>Os atendimentos vinculados continuam salvos, mas ficarão sem cliente associado. Esta ação não pode ser desfeita.</p>
+          <div className="aferix-confirm-input-field">
+            <span>Digite EXCLUIR para confirmar</span>
+            <input 
+              value={confirmInput} 
+              onChange={(e) => setConfirmInput(e.target.value)} 
+              placeholder="Digite EXCLUIR" 
+              className="aferix-input" 
+              autoFocus 
+            />
+          </div>
+        </div>
       </Modal>
     </div>
   );

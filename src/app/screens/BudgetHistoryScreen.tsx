@@ -58,12 +58,7 @@ function money(value: number): string {
 }
 
 function normalizeStatus(status: SavedBudgetRecord['status']): Exclude<CanonicalBudgetStatus, 'all'> {
-  if (status === 'draft') return 'iniciado';
-  if (status === 'sent') return 'enviado';
-  if (status === 'approved') return 'autorizado';
-  if (status === 'rejected' || status === 'expired') return 'recusado';
-  if (status === 'cancelled') return 'cancelado';
-  return status;
+  return status as Exclude<CanonicalBudgetStatus, 'all'>;
 }
 
 function statusLabel(status: SavedBudgetRecord['status']): string {
@@ -218,6 +213,7 @@ export function BudgetHistoryScreen({
   }
 
   function openStatusDialog(record: SavedBudgetRecord, suggested?: BudgetStatus) {
+    if (isLockedStatus(record.status)) return;
     setSelectedRecordId(record.id);
     const firstAllowed = (() => {
       const current = normalizeStatus(record.status) as BudgetStatus;
@@ -334,7 +330,7 @@ export function BudgetHistoryScreen({
                     <ActionMenu 
                       items={[
                         { id: 'open', label: 'Abrir', onSelect: () => onOpenBudget(record.id) },
-                        { id: 'edit', label: 'Editar', onSelect: () => onOpenBudget(record.id) },
+                        { id: 'edit', label: 'Editar', onSelect: () => { if (isLocked) return; onOpenBudget(record.id); } },
                         {
                           id: 'duplicate',
                           label: 'Duplicar',
@@ -343,7 +339,7 @@ export function BudgetHistoryScreen({
                             setSyncTick((current) => current + 1);
                           },
                         },
-                        { id: 'status', label: 'Alterar status', onSelect: () => openStatusDialog(record) },
+                        { id: 'status', label: 'Alterar status', onSelect: () => { if (isLocked) return; openStatusDialog(record); } },
                         { id: 'pdf', label: 'Gerar PDF', onSelect: () => onOpenBudget(record.id) },
                         {
                           id: 'share',
@@ -365,7 +361,7 @@ export function BudgetHistoryScreen({
                             }
                           },
                         },
-                        { id: 'cancel', label: 'Cancelar', tone: 'danger', onSelect: () => openStatusDialog(record, 'cancelado') },
+                        { id: 'cancel', label: 'Cancelar', tone: 'danger', onSelect: () => { if (isLocked) return; openStatusDialog(record, 'cancelado'); } },
                         { id: 'delete', label: 'Excluir', tone: 'danger', onSelect: () => openDeleteDialog(record) },
                       ]}
                     />

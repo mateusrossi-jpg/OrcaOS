@@ -147,12 +147,6 @@ function statusLabel(status: SavedBudgetStatus): string {
     finalizado: 'Finalizado',
     recusado: 'Recusado',
     cancelado: 'Cancelado',
-    draft: 'Orçamento iniciado',
-    sent: 'Enviado ao cliente',
-    approved: 'Autorizado',
-    rejected: 'Recusado',
-    expired: 'Recusado',
-    cancelled: 'Cancelado',
   };
   return labels[status] ?? 'Orçamento iniciado';
 }
@@ -602,6 +596,12 @@ export function BudgetWorkspace({
   function confirmRemoveItem(itemId: string) { setItemToRemove(itemId); setModalType('removeItem'); }
   function executeRemoveItem() {
     if (!itemToRemove) return;
+    if (isBudgetLocked) {
+      setShareFeedback('Orçamento bloqueado para preservar o histórico.');
+      setItemToRemove(null);
+      setModalType(null);
+      return;
+    }
     setItems((current) => current.filter((item) => item.id !== itemToRemove));
     if (selectedBudgetItemId === itemToRemove) setSelectedBudgetItemId(null);
     setShareFeedback('Item removido do orçamento.');
@@ -609,6 +609,10 @@ export function BudgetWorkspace({
   }
 
   function duplicateItem(item: BudgetItem) {
+    if (isBudgetLocked) {
+      setShareFeedback('Orçamento bloqueado para preservar o histórico.');
+      return;
+    }
     const duplicatedItem = { ...item, id: createId(`copy-${item.id}`) };
     setItems((current) => [...current, duplicatedItem]);
     setSelectedBudgetItemId(duplicatedItem.id);
@@ -616,9 +620,24 @@ export function BudgetWorkspace({
   }
 
   function confirmLoadStarterItems() { if (items.length === 0) executeLoadStarterItems(); else setModalType('loadStarter'); }
-  function executeLoadStarterItems() { setItems(starterFinancialBudgetItems); setSelectedBudgetItemId(starterFinancialBudgetItems[0]?.id ?? null); setShareFeedback('Modelo de orçamento carregado.'); setModalType(null); }
+  function executeLoadStarterItems() {
+    if (isBudgetLocked) {
+      setShareFeedback('Orçamento bloqueado para preservar o histórico.');
+      setModalType(null);
+      return;
+    }
+    setItems(starterFinancialBudgetItems);
+    setSelectedBudgetItemId(starterFinancialBudgetItems[0]?.id ?? null);
+    setShareFeedback('Modelo de orçamento carregado.');
+    setModalType(null);
+  }
   function confirmClearItems() { setConfirmInput(''); setModalType('clearItems'); }
   function executeClearItems() {
+    if (isBudgetLocked) {
+      setShareFeedback('Orçamento bloqueado para preservar o histórico.');
+      setModalType(null);
+      return;
+    }
     if (confirmInput.trim().toUpperCase() !== 'LIMPAR') return;
     setItems([]); 
     setSelectedBudgetItemId(null); 
