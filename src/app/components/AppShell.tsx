@@ -5,15 +5,6 @@ import type { AppNavItem, AppTab, AppIconGlyph } from '../appTypes';
 
 const AFERIX_WORDMARK = '/icons/aferix-wordmark-premium.svg';
 
-export function statusLabel(status: WorkOrder['status']): string {
-  const labels: Record<WorkOrder['status'], string> = {
-    'in-progress': 'Em execução',
-    done: 'Concluído',
-    cancelled: 'Cancelado',
-  };
-
-  return labels[status];
-}
 
 interface AppShellProps {
   children: ReactNode;

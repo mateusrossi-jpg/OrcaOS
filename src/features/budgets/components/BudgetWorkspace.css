@@ -1658,20 +1658,6 @@
   margin-bottom: 12px;
 }
 
-.status-sent {
-  color: var(--aferix-primary);
-  background: rgba(245, 158, 11, 0.10);
-}
-
-.status-approved {
-  color: var(--aferix-primary);
-  background: rgba(245, 158, 11, 0.10);
-}
-
-.status-rejected {
-  color: var(--aferix-danger, #ef4444);
-  background: rgba(239, 68, 68, 0.10);
-}
 
 .summary-lines {
   display: grid;
