@@ -1,5 +1,5 @@
 import { useEffect, useRef, memo, type ButtonHTMLAttributes, type HTMLAttributes, type ReactNode } from 'react';
-import { CompactActionMenu, type CompactActionItem } from '../CompactActionMenu';
+import { CompactActionMenu, MobileActionMenu, type CompactActionItem } from '../CompactActionMenu';
 import { useAutoResizeTextArea } from '../../hooks/useAutoResizeTextArea';
 import { PageShell } from '../PageShell';
 
@@ -311,6 +311,10 @@ export function ActionMenu({
   label?: string;
   align?: 'left' | 'right';
 }) {
+  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
+  if (isMobile) {
+    return <MobileActionMenu items={items} label={label} />;
+  }
   return <CompactActionMenu items={items} label={label} align={align} />;
 }
 

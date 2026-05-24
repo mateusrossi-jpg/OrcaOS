@@ -1,0 +1,231 @@
+
+> aferix@0.1.0-rc.1 visual:qa
+> node scripts/visual-qa.mjs
+
+
+[1m=====================================================[0m
+[1m  AFERIX VISUAL & STRUCTURAL QA CHECKLIST[0m
+[1m=====================================================[0m
+
+[36m➤ Validando: Preferências do App (ProfessionalProfileWorkspace)[0m
+  [32m✔ Encontrou estrutura correta: professional-profile-workspace[0m
+  [32m✔ Encontrou estrutura correta: professional-profile-header-card[0m
+  [32m✔ Encontrou estrutura correta: professional-profile-section[0m
+  [32m✔ Encontrou estrutura correta: professional-profile-grid[0m
+  [32m✔ Encontrou estrutura correta: professional-logo-editor[0m
+  [32m✔ Encontrou estrutura correta: professional-profile-id-grid[0m
+  [32m✔ Encontrou estrutura correta: professional-profile-id-card[0m
+  [32m✔ Encontrou estrutura correta: professional-profile-save-row[0m
+  [32m✔ Livre de padrão legado: aferix-panel-card[0m
+  [32m✔ Livre de padrão legado: dashboard-finance-tiles[0m
+  [32m✔ Livre de padrão legado: finance-tile[0m
+  [32m✔ Livre de padrão legado: action-button-container[0m
+  [32m✔ Livre de padrão legado: style={[0m
+  [32m✔ Encontrou regra CSS correta: .professional-profile-workspac[0m
+  [32m✔ Encontrou regra CSS correta: display: grid[0m
+  [32m✔ Encontrou regra CSS correta: width: 100%[0m
+  [32m✔ Encontrou regra CSS correta: .professional-profile-workspac[0m
+  [32m✔ Encontrou regra CSS correta: .professional-profile-workspac[0m
+  [32m✔ Encontrou regra CSS correta: .professional-profile-grid[0m
+  [32m✔ Encontrou regra CSS correta: grid-template-columns: repeat([0m
+  [32m✔ Encontrou regra CSS correta: @media (max-width: 760px)[0m
+  [32m✔ Encontrou regra CSS correta: grid-template-columns: 1fr[0m
+
+[36m➤ Validando: Configurações / Tabs (global.css)[0m
+  [32m✔ Encontrou regra global correta: overflow-x: auto[0m
+  [32m✔ Encontrou regra global correta: flex-wrap: nowrap[0m
+  [32m✔ Encontrou regra global correta: scrollbar-width: none[0m
+  [32m✔ Encontrou regra global correta: @media (min-width: 900px)[0m
+  [32m✔ Encontrou regra global correta: grid-template-columns: repeat(5[0m
+  [32m✔ Livre de quebra flex-wrap indevida[0m
+  [32m✔ Livre de overflow hidden indevido[0m
+
+[36m➤ Validando: Relatórios (ReportWorkspace.css)[0m
+  [32m✔ Regra de relatório encontrada: .report-document,[0m
+  [32m✔ Regra de relatório encontrada: color-scheme: light[0m
+  [32m✔ Regra de relatório encontrada: background: #fcfbf8[0m
+  [32m✔ Regra de relatório encontrada: color: #111827[0m
+  [32m✔ Regra de relatório encontrada: .report-document :where(h1, h2, h3, strong)[0m
+  [32m✔ Regra de relatório encontrada: .report-empty-state[0m
+  [32m✔ Regra de relatório encontrada: @media (max-width: 640px)[0m
+  [32m✔ Regra de relatório encontrada: @media print[0m
+  [32m✔ Livre de comentário legado[0m
+  [32m✔ ReportWorkspace.tsx trata condicionalmente o branding para não duplicar AFERIX e Aferix[0m
+  [32m✔ ReportWorkspace.tsx utiliza a marca oficial aferix-wordmark-document.svg para documentos impressos/PDF[0m
+
+[36m➤ Validando: Propostas / Orçamento (BudgetWorkspace.css)[0m
+  [32m✔ Regra de orçamento encontrada: .budget-workspace[0m
+  [32m✔ Regra de orçamento encontrada: overflow-x: hidden[0m
+  [32m✔ Regra de orçamento encontrada: .budget-workspace-tabs[0m
+  [32m✔ Regra de orçamento encontrada: .budget-workspace-stepper[0m
+  [32m✔ Regra de orçamento encontrada: overflow-x: auto[0m
+  [32m✔ Regra de orçamento encontrada: .budget-workspace-tabs button.active[0m
+  [32m✔ Regra de orçamento encontrada: .budget-sticky-summary[0m
+  [32m✔ Regra de orçamento encontrada: .highlight-profit[0m
+  [32m✔ Regra de orçamento encontrada: @media (max-width: 760px)[0m
+  [32m✔ Fluxo de orçamento preservado: Cliente[0m
+  [32m✔ Fluxo de orçamento preservado: Serviço[0m
+  [32m✔ Fluxo de orçamento preservado: Itens[0m
+  [32m✔ Fluxo de orçamento preservado: Custos[0m
+  [32m✔ Fluxo de orçamento preservado: PDF[0m
+  [32m✔ Livre de variável orca legada: var(--orca-text[0m
+  [32m✔ Livre de variável orca legada: var(--orca-muted[0m
+  [32m✔ Livre de variável orca legada: var(--orca-accent[0m
+  [32m✔ Livre de variável orca legada: var(--orca-primary[0m
+  [33m⚠ AVISO: Fallback visual/legado encontrado em BudgetWorkspace.css: #000000[0m
+  [33m⚠ AVISO: Fallback visual/legado encontrado em BudgetWorkspace.css: border-radius: 4px[0m
+  [33m⚠ AVISO: Fallback visual/legado encontrado em BudgetWorkspace.css: text-transform: uppercase[0m
+
+[36m➤ Validando: Licença (StoreScreen.tsx)[0m
+  [32m✔ Token da licença encontrado: PageShell[0m
+  [32m✔ Token da licença encontrado: PageHeader[0m
+  [32m✔ Token da licença encontrado: PlanCard[0m
+  [32m✔ Token da licença encontrado: plan-card-grid[0m
+  [32m✔ Token da licença encontrado: details[0m
+  [32m✔ Token da licença encontrado: FREE[0m
+  [32m✔ Token da licença encontrado: PRO[0m
+  [32m✔ Token da licença encontrado: VITALÍCIO[0m
+  [32m✔ Livre de texto colado antigo: GrátisBásico[0m
+  [32m✔ Livre de texto colado antigo: validaçãoProfissional[0m
+  [32m✔ Livre de texto colado antigo: sugeridoRecursos[0m
+  [32m✔ Licença sem CTA duplicado de assinatura fora do card do plano[0m
+  [32m✔ Plano vitalício comunica estado planejado sem competir com CTA Pro[0m
+
+[36m➤ Validando: Financeiro / ação principal[0m
+  [32m✔ Financeiro segue o fluxo automático por orçamentos finalizados[0m
+  [32m✔ Financeiro sem CTA legado de fechamento/apuração manual[0m
+
+[36m➤ Validando: Simulador / Precificação (CalculationsScreen.tsx)[0m
+  [32m✔ Token de simulação encontrado: Simulador de Preços[0m
+  [32m✔ Token de simulação encontrado: AferixTabs[0m
+  [32m✔ Token de simulação encontrado: calculation-context-card[0m
+  [32m✔ Token de simulação encontrado: metric-grid[0m
+  [32m✔ Token de simulação encontrado: compact-metric-grid[0m
+  [32m✔ Token de simulação encontrado: Ferramentas disponíveis[0m
+  [32m✔ Livre de texto colado legado: Cálculo avulsoSem atendimento ativo[0m
+  [32m✔ Livre de texto colado legado: Cálculos comerciaisFree para testar[0m
+  [32m✔ Livre de texto colado legado: 13livres[0m
+  [32m✔ Livre de texto colado legado: 17Pro[0m
+  [32m✔ Livre de texto colado legado: OrçamentoProdutividadePercentuais[0m
+
+[36m➤ Validando: ContextBanner / Atendimentos (aferixTheme.css)[0m
+  [32m✔ Encontrou classe do banner de contexto: .context-banner[0m
+  [32m✔ Encontrou classe do banner de contexto: .context-banner-action[0m
+  [32m✔ Encontrou regra de segurança no CSS: grid-template-columns: auto minmax(0, 1fr) auto[0m
+  [32m✔ Encontrou regra de segurança no CSS: @media (max-width: 760px)[0m
+  [32m✔ Encontrou regra de segurança no CSS: grid-column: 1 / -1[0m
+  [32m✔ Encontrou regra de segurança no CSS: width: 100%[0m
+  [32m✔ Encontrou regra de segurança no CSS: min-width: 0[0m
+  [32m✔ Livre de position: absolute indevido no botão de contexto[0m
+  [32m✔ Livre de transform indevido no botão de contexto[0m
+  [32m✔ Livre de margin-top negativo indevido no botão de contexto[0m
+
+[36m➤ Validando: Clientes / Atendimentos sem redundância[0m
+  [32m✔ Clientes removeu submenus internos redundantes: Painel, Clientes e Histórico[0m
+  [32m✔ Fluxo de clientes preserva criação de cliente e atendimento[0m
+  [32m✔ Clientes mantém ação de abrir novo cliente[0m
+  [32m✔ Clientes mantém fluxo de novo atendimento[0m
+
+[36m➤ Validando: UX redundancy guardrails[0m
+  [32m✔ Guia de redundância UX encontrado em docs/UX_REDUNDANCY_GUIDE.md[0m
+  [32m✔ Clientes/Atendimentos sem toolbar interna redundante[0m
+  [32m✔ Clientes livre de submenu: Painel[0m
+  [32m✔ Clientes livre de submenu: Histórico[0m
+  [32m✔ Simulador mantém detalhe de cálculo sem overlay/modal fixo[0m
+  [32m✔ Catálogo sem retorno de var(--orca-*) no CSS principal[0m
+  [32m✔ Guardrail de Orçamentos preserva etapa: Cliente[0m
+  [32m✔ Guardrail de Orçamentos preserva etapa: Serviço[0m
+  [32m✔ Guardrail de Orçamentos preserva etapa: Itens[0m
+  [32m✔ Guardrail de Orçamentos preserva etapa: Custos[0m
+  [32m✔ Guardrail de Orçamentos preserva etapa: PDF[0m
+
+[36m➤ Validando: Release Candidate guardrails[0m
+  [32m✔ Checklist de Release Candidate documentado[0m
+  [32m✔ LegalCompliancePanel.css alinhado aos tokens Aferix[0m
+  [32m✔ ProfessionalIdentityCard.css alinhado aos tokens Aferix[0m
+  [32m✔ BudgetPrintPreview.css alinhado aos tokens Aferix[0m
+
+[36m➤ Validando: Branding, Logo e Intro[0m
+  [32m✔ Encontrou componente AferixIntro importado e renderizado no App.tsx[0m
+  [32m✔ Encontrou os novos SVGs de branding premium mapeados no AppShell.tsx[0m
+  [32m✔ Estrutura e copy da Intro validadas no AferixIntro.tsx[0m
+
+[36m➤ Validando: Brand assets / Publication readiness[0m
+  [32m✔ aferix-app-icon.svg validado: viewBox 0 0 512 512, sem texto pequeno ilegível[0m
+  [32m✔ manifest.webmanifest validado: aponta para aferix-app-icon.svg e tem o nome correto[0m
+  [32m✔ manifest.webmanifest usa cores dark premium para instalação/PWA[0m
+  [32m✔ Manifest PWA validado com purpose any maskable e size 512x512[0m
+  [32m✔ AppShell.tsx usa o wordmark premium no header, e não o ícone do launcher[0m
+  [32m✔ AppAccessGate usa splash-mark sem estilos inline de placeholder[0m
+  [32m✔ Splash/gate livre de acento ciano e tokens Orca legados[0m
+  [32m✔ Cores Android nativas alinhadas ao dark premium Aferix[0m
+  [32m✔ Recursos PNG/adaptive icon Android existem no projeto[0m
+  [32m✔ SVG do wordmark validado: palavra AFERIX completa, integrada e sem fundo branco[0m
+  [32m✔ AppShell.tsx utiliza o wordmark premium no header principal[0m
+
+[36m➤ Validando: Dropdowns Desktop Estáveis e Acessíveis[0m
+  [32m✔ AppShell.tsx livre de listeners de hover (onMouseEnter/onMouseLeave) nos dropdowns[0m
+  [32m✔ AppShell.tsx utiliza pointerdown com closest para fechamento seguro fora do menu[0m
+  [32m✔ AppShell.tsx implementa acessibilidade básica com tecla ArrowDown nos botões[0m
+
+[36m➤ Validando: Drawer / Overlay Premium[0m
+
+[36m➤ Validando: Drawer Brand Clean Check[0m
+  [32m✔ Drawer brand card is clean and transparent[0m
+  [32m✔ Encontrou regras de overlay translúcido e filtro de desfoque (blur)[0m
+  [32m✔ Filtro de blur está dentro do limite premium e seguro de até 8px[0m
+  [32m✔ Fallback cross-browser para backdrop-filter configurado corretamente[0m
+  [32m✔ Side-drawer utiliza gradiente escuro premium ao invés de cor chapada[0m
+  [32m✔ Drawer overlay/backdrop para fechamento validado com sucesso[0m
+  [32m✔ Menu lateral/drawer esconde subtítulos pesados (small) para navegação limpa[0m
+  [32m✔ Item ativo no menu possui cores e contraste adequados sem cards pesados[0m
+
+[36m➤ Validando: Simulador / Precificação Cards Check[0m
+  [32m✔ Cards de produtividade normatizados com o design system Aferix[0m
+  [32m✔ Livre de fundo esverdeado legado (#101713) nos cards de produtividade/cálculo[0m
+
+[36m➤ Validando: Simulador / Orçamento Técnico Detalhes[0m
+  [32m✔ TechnicalBudgetHumanWorkspace.tsx não contém className="general-calculator-overlay"[0m
+  [32m✔ TechnicalBudgetHumanWorkspace.tsx não contém aria-modal="true"[0m
+  [32m✔ TechnicalBudgetHumanWorkspace.tsx não renderiza general-overlay-backdrop[0m
+  [32m✔ GeneralCalculatorWorkspace.css possui classe .general-calculator-detail-panel[0m
+  [32m✔ GeneralCalculatorWorkspace.css possui classe .general-calculator-detail-header[0m
+  [32m✔ GeneralCalculatorWorkspace.css possui classe .general-calculator-detail-back[0m
+
+[36m➤ Validando: Refinamentos Visuais Aferix[0m
+  [32m✔ StoreScreen.tsx implementa proteção e atributos title de acessibilidade contra estouro de texto[0m
+  [32m✔ aferixTheme.css define classes utilitárias para truncamento com reticências (.long-token, .android-package)[0m
+  [32m✔ aferixTheme.css define estilo glassmorphic premium para dropdown superior desktop[0m
+  [32m✔ aferixTheme.css define layout de 2 colunas no mobile e 6 no desktop para estatísticas do Catálogo[0m
+  [32m✔ CatalogHubWorkspaceEditable.tsx utiliza a classe catalog-stats-grid para exibição móvel aprimorada[0m
+  [32m✔ aferixTheme.css define estilo de rolagem estético e fino para o side drawer / menu lateral[0m
+
+[36m➤ Validando: Numeric input spinner cleanup[0m
+  [32m✔ Regras CSS globais para ocultar spinners de inputs numéricos validadas com sucesso[0m
+  [32m✔ Padding de proteção para campos com sufixo validado com sucesso[0m
+
+[36m➤ Validando: Catalog legacy CSS cleanup[0m
+  [32m✔ Livre de token legado / fallback em Catálogo: var(--orca-[0m
+  [32m✔ Livre de token legado / fallback em Catálogo: #000000[0m
+  [32m✔ Livre de token legado / fallback em Catálogo: #111111[0m
+  [32m✔ Livre de token legado / fallback em Catálogo: #222222[0m
+  [32m✔ Livre de token legado / fallback em Catálogo: #666666[0m
+  [32m✔ Livre de token legado / fallback em Catálogo: border-radius: 4px[0m
+  [32m✔ Livre de token legado / fallback em Catálogo: rgba(3, 9, 8[0m
+  [32m✔ Livre de token legado / fallback em Catálogo: rgba(4, 12, 10[0m
+  [32m✔ Livre de token legado / fallback em Catálogo: rgba(8, 18, 16[0m
+  [32m✔ Livre de token legado / fallback em Catálogo: rgba(148, 214, 218[0m
+
+[36m➤ Validando: Design Tokens (aferixTheme.css)[0m
+  [32m✔ Token essencial encontrado: --aferix-bg[0m
+  [32m✔ Token essencial encontrado: --aferix-surface[0m
+  [32m✔ Token essencial encontrado: --aferix-surface-2[0m
+  [32m✔ Token essencial encontrado: --aferix-border[0m
+  [32m✔ Token essencial encontrado: --aferix-text[0m
+  [32m✔ Token essencial encontrado: --aferix-text-secondary[0m
+  [32m✔ Token essencial encontrado: --aferix-primary[0m
+  [32m✔ Token essencial encontrado: --aferix-danger[0m
+  [32m✔ Token de sucesso encontrado (--aferix-success/green)[0m
+
+[1m=====================================================[0m
+[32m✔ QA Visual Passou com sucesso![0m (3 warnings encontrados)

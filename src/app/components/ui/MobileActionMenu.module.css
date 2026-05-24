@@ -1,0 +1,57 @@
+/* Mobile ActionMenu styling */
+
+/* Overlay backdrop */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5); /* dark translucent */
+  z-index: 999;
+}
+
+/* Bottom sheet container */
+.sheet {
+  position: fixed;
+  left: 50%;
+  bottom: calc(env(safe-area-inset-bottom) + 16px);
+  transform: translateX(-50%);
+  width: min(360px, calc(100vw - 32px));
+  max-width: calc(100vw - 32px);
+  border-radius: 18px;
+  padding: 12px;
+  background: var(--aferix-bg-elevated, #1f2937);
+  color: #f9fafb;
+  border: 1px solid rgba(255,255,255,.08);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+  box-sizing: border-box;
+  z-index: 1000;
+}
+
+/* Menu container */
+.menu {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Button/item styling */
+.itemButton {
+  width: 100%;
+  min-height: 48px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  padding: 0 14px;
+  background: transparent;
+  color: #f9fafb;
+  border: none;
+  white-space: nowrap;
+  word-break: normal;
+  overflow-wrap: normal;
+  text-align: left;
+}
+
+.itemButton:hover {
+  background: rgba(255,255,255,0.08);
+}

@@ -19,6 +19,7 @@ import {
 } from '../components/ui';
 
 import { deleteSavedBudget, loadSavedBudgets, saveBudgetRecord, type SavedBudgetRecord } from '../../features/budgets/storage/savedBudgetsStorage';
+import { duplicateBudget } from '../../features/budgets/utils/duplicateBudget';
 import { calculateBudgetTotal } from '../../core/pricing/budget';
 import { canBudgetTransitionTo } from '../../core/finance/budgetLifecycle';
 import type { Budget, BudgetStatus } from '../../core/types/business';
@@ -105,34 +106,9 @@ function budgetTotal(record: SavedBudgetRecord): number {
   }
 }
 
-function duplicateBudget(record: SavedBudgetRecord): SavedBudgetRecord | null {
-  return saveBudgetRecord({
-    clientId: record.clientId,
-    workOrderId: record.workOrderId,
-    clientName: record.clientName,
-    title: `${record.title || 'Orçamento'} (cópia)`,
-    status: 'iniciado',
-    discount: record.discount,
-    travelCost: record.travelCost,
-    additionalFees: record.additionalFees,
-    paymentTerms: record.paymentTerms,
-    validity: record.validity,
-    guarantee: record.guarantee,
-    executionDeadline: record.executionDeadline,
-    commercialNotes: record.commercialNotes,
-    technicalNotes: record.technicalNotes,
-    templateId: record.templateId,
-    items: record.items,
-    materialCost: record.materialCost,
-    operationalCost: record.operationalCost,
-    taxRate: record.taxRate,
-    total_servicos: record.total_servicos,
-    custo_materiais: record.custo_materiais,
-    custos_operacionais: record.custos_operacionais,
-    aliquota_imposto: record.aliquota_imposto,
-    lucro_liquido: record.lucro_liquido,
-  });
-}
+
+
+
 
 function confirmWordForAction(action: string): string {
   if (action === 'finalizado') return 'FINALIZAR';
