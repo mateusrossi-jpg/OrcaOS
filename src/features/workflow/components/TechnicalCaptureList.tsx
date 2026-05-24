@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { EmptyState } from '../../../app/components/ui';
+import { EmptyState, Input, Select, TextArea, Button } from '../../../app/components/ui';
 import type { CalculationCapture, MaterialSupplyMode, TechnicalItemType } from '../../../core/types/workflow';
 import { handleNumericInputFocus } from '../../../core/ui/numericInputFocus';
 import {
@@ -89,7 +89,7 @@ export function TechnicalCaptureList({ captures, emptyText, onRemove, onUpdate }
     const totalLabel = clientPurchase ? `Referência ${formatCurrency(referenceTotal)}` : `Orçamento ${formatCurrency(commercialTotal)}`;
 
     return (
-      <article className={clientPurchase ? 'technical-capture-card client-purchase-card' : 'technical-capture-card'} key={capture.id}>
+      <article className={clientPurchase ? 'technical-capture-card client-purchase-card aferix-card-surface' : 'technical-capture-card aferix-card-surface'} key={capture.id}>
         <header className="technical-capture-header">
           <span>
             <strong>{capture.calculatorLabel}</strong>
@@ -114,40 +114,33 @@ export function TechnicalCaptureList({ captures, emptyText, onRemove, onUpdate }
               </div>
             )}
 
-            <label className="technical-edit-field">
-              <span>Tipo do item</span>
-              <select value={itemType} onChange={(event) => onUpdate(capture.id, { itemType: event.target.value as TechnicalItemType })}>
-                {itemTypeOptions.map((option) => (
-                  <option key={option.value} value={option.value}>{option.label}</option>
-                ))}
-              </select>
-            </label>
+            <Select label="Tipo do item" value={itemType} onChange={(val) => onUpdate(capture.id, { itemType: val as TechnicalItemType })}>
+              {itemTypeOptions.map((option) => (
+                <option key={option.value} value={option.value}>{option.label}</option>
+              ))}
+            </Select>
 
             {itemType === 'material' && (
-              <label className="technical-edit-field material-supply-field">
-                <span>Quem compra este material?</span>
-                <select value={supplyMode} onChange={(event) => onUpdate(capture.id, buildMaterialSupplyPatch(capture, event.target.value as MaterialSupplyMode))}>
-                  {materialSupplyOptions.map((option) => (
-                    <option key={option.value} value={option.value}>{option.label}</option>
-                  ))}
-                </select>
-                <small>{materialSupplyOptions.find((option) => option.value === supplyMode)?.helper}</small>
-              </label>
+              <Select label="Quem compra este material?" value={supplyMode} onChange={(val) => onUpdate(capture.id, buildMaterialSupplyPatch(capture, val as MaterialSupplyMode))}>
+                {materialSupplyOptions.map((option) => (
+                  <option key={option.value} value={option.value}>{option.label}</option>
+                ))}
+              </Select>
+            )}
+            {itemType === 'material' && (
+              <small className="material-supply-helper" style={{ display: 'block', marginTop: '-4px', marginBottom: '8px', color: 'var(--aferix-text-secondary)', fontSize: '0.76rem' }}>
+                {materialSupplyOptions.find((option) => option.value === supplyMode)?.helper}
+              </small>
             )}
 
-            <label className="technical-edit-field">
-              <span>Descrição editável</span>
-              <textarea value={description} onChange={(event) => onUpdate(capture.id, { editableDescription: event.target.value })} />
-            </label>
+            <TextArea label="Descrição editável" value={description} onChange={(val) => onUpdate(capture.id, { editableDescription: val })} />
 
-            <label className="technical-edit-field">
-              <span>Observação técnica</span>
-              <textarea
-                value={capture.technicalNote ?? ''}
-                placeholder="Ex.: revisar seção do cabo, confirmar caminho em campo, validar proteção existente..."
-                onChange={(event) => onUpdate(capture.id, { technicalNote: event.target.value })}
-              />
-            </label>
+            <TextArea
+              label="Observação técnica"
+              value={capture.technicalNote ?? ''}
+              placeholder="Ex.: revisar seção do cabo, confirmar caminho em campo, validar proteção existente..."
+              onChange={(val) => onUpdate(capture.id, { technicalNote: val })}
+            />
 
             <details className="technical-capture-details">
               <summary>Ver resultados / detalhes</summary>
@@ -170,26 +163,27 @@ export function TechnicalCaptureList({ captures, emptyText, onRemove, onUpdate }
               </label>
             </div>
 
-            <div className="technical-commercial-grid">
-              <label className="technical-edit-field">
-                <span>Quantidade</span>
-                <input inputMode="decimal" value={quantity} onFocus={handleNumericInputFocus} onChange={(event) => onUpdate(capture.id, { quantity: event.target.value })} />
-              </label>
-              <label className="technical-edit-field">
-                <span>{clientPurchase ? 'Valor referência unitário' : 'Valor unitário'}</span>
-                <input
-                  inputMode="decimal"
-                  value={clientPurchase ? (capture.materialReferenceUnitValue ?? '') : unitValue}
-                  placeholder="0,00"
-                  onFocus={handleNumericInputFocus}
-                  onChange={(event) => onUpdate(capture.id, clientPurchase ? { materialReferenceUnitValue: event.target.value } : { unitValue: event.target.value })}
-                />
-              </label>
+            <div className="technical-commercial-grid" style={{ display: 'flex', gap: '12px' }}>
+              <Input
+                label="Quantidade"
+                inputMode="decimal"
+                value={quantity}
+                onFocus={handleNumericInputFocus}
+                onChange={(event) => onUpdate(capture.id, { quantity: event.target.value })}
+              />
+              <Input
+                label={clientPurchase ? 'Valor referência unitário' : 'Valor unitário'}
+                inputMode="decimal"
+                value={clientPurchase ? (capture.materialReferenceUnitValue ?? '') : unitValue}
+                placeholder="0,00"
+                onFocus={handleNumericInputFocus}
+                onChange={(event) => onUpdate(capture.id, clientPurchase ? { materialReferenceUnitValue: event.target.value } : { unitValue: event.target.value })}
+              />
             </div>
 
             <div className="technical-capture-actions">
               <strong>{clientPurchase ? `Total referência: ${formatCurrency(referenceTotal)}` : `Total opcional: ${formatCurrency(commercialTotal)}`}</strong>
-              <button className="danger-action" type="button" onClick={() => confirmRemoveCapture(capture)}>Remover</button>
+              <Button variant="danger" onClick={() => confirmRemoveCapture(capture)}>Remover</Button>
             </div>
           </div>
         </details>

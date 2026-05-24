@@ -16,6 +16,7 @@ import { formatCurrency, createId, parseDecimal, guidedLineKey, mergeLineInto, p
 import type { CalculationDestination, TechnicalItemType } from '../../../core/types/workflow';
 import type { GuidedCartMode, GuidedLine, KitId, GuidedBudgetCartProps } from '../types/guidedBudget';
 import { GuidedBudgetCartHeader } from './guidedBudget/GuidedBudgetCartHeader';
+import { Input, Select, TextArea, Button } from '../../../app/components/ui';
 
 const emptyManualPart = {
   title: '',
@@ -236,24 +237,31 @@ export function GuidedBudgetCart({ onSendToBudget, mode = 'all' }: GuidedBudgetC
   return (
     <section className="guided-cart-panel">
       <GuidedBudgetCartHeader lines={lines} />
-      <div className="guided-manual-block-card">
+      <div className="guided-manual-block-card aferix-card-surface">
         <div>
           <strong>Ambiente atual</strong>
           <small>Os próximos serviços e peças serão lançados neste ambiente.</small>
         </div>
-        <div className="guided-manual-grid">
-          <label className="technical-edit-field">
-            <span>Ambiente cadastrado</span>
-            <select value={environment} onChange={(event) => setEnvironment(event.target.value)}>
-              {savedRoomNames.map((name) => <option key={name} value={name}>{name}</option>)}
-            </select>
-          </label>
-          <label className="technical-edit-field guided-wide-field">
-            <span>Ou digite outro ambiente</span>
-            <input value={customEnvironment} placeholder="Ex.: Corredor superior, suíte, área gourmet..." onChange={(event) => setCustomEnvironment(event.target.value)} />
-          </label>
+        <div className="guided-manual-grid" style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', marginTop: '12px' }}>
+          <Select
+            className="technical-edit-field"
+            label="Ambiente cadastrado"
+            value={environment}
+            onChange={(val) => setEnvironment(val)}
+          >
+            {savedRoomNames.map((name) => <option key={name} value={name}>{name}</option>)}
+          </Select>
+          <Input
+            className="technical-edit-field guided-wide-field"
+            label="Ou digite outro ambiente"
+            value={customEnvironment}
+            placeholder="Ex.: Corredor superior, suíte, área gourmet..."
+            onChange={(event) => setCustomEnvironment(event.target.value)}
+          />
         </div>
-        <button className="secondary-action inline-action" type="button" onClick={() => setSavedRoomsRefreshKey((current) => current + 1)}>Atualizar cômodos</button>
+        <Button variant="secondary" className="inline-action" style={{ marginTop: '12px' }} onClick={() => setSavedRoomsRefreshKey((current) => current + 1)}>
+          Atualizar cômodos
+        </Button>
       </div>
 
       {showCatalog && (
@@ -263,57 +271,41 @@ export function GuidedBudgetCart({ onSendToBudget, mode = 'all' }: GuidedBudgetC
               <strong>Mão de obra</strong>
               <small>Cadastre serviços, defina valores base e deixe visível só o que vai usar no campo.</small>
             </div>
-            <div className="guided-labor-actions">
+             <div className="guided-labor-actions">
               <span>{visibleLaborTemplates.length} de {laborTemplates.length} visíveis</span>
-              <button className="secondary-action inline-action" type="button" onClick={() => setShowLaborManager((current) => !current)}>
+              <Button variant="secondary" className="inline-action" onClick={() => setShowLaborManager((current) => !current)}>
                 {showLaborManager ? 'Fechar ajustes' : 'Gerenciar serviços'}
-              </button>
+              </Button>
             </div>
           </div>
-          <label className="technical-edit-field guided-wide-field">
-            <span>Buscar serviço para adicionar</span>
-            <input value={laborManagerQuery} placeholder="Digite tomada, luminária, quadro..." onChange={(event) => setLaborManagerQuery(event.target.value)} />
-          </label>
+          <Input className="guided-wide-field" label="Buscar serviço para adicionar" value={laborManagerQuery} placeholder="Digite tomada, luminária, quadro..." onChange={(event) => setLaborManagerQuery(event.target.value)} />
 
           {showLaborManager && (
             <div className="guided-labor-manager">
-              <div className="guided-labor-new">
+              <div className="guided-labor-new aferix-card-surface" style={{ marginBottom: '16px' }}>
                 <div>
                   <strong>Novo tipo de trabalho</strong>
                   <small>O valor padrão entra no card, mas pode ser ajustado antes de adicionar ao orçamento.</small>
                 </div>
-                <div className="guided-manual-grid">
-                  <label className="technical-edit-field guided-wide-field">
-                    <span>Serviço</span>
-                    <input value={newLaborTemplate.title} placeholder="Ex.: Instalação de ventilador de teto" onChange={(event) => setNewLaborTemplate((current) => ({ ...current, title: event.target.value }))} />
-                  </label>
-                  <label className="technical-edit-field">
-                    <span>Unidade</span>
-                    <input value={newLaborTemplate.unit} placeholder="ponto, un., m, serviço..." onChange={(event) => setNewLaborTemplate((current) => ({ ...current, unit: event.target.value }))} />
-                  </label>
-                  <label className="technical-edit-field">
-                    <span>Valor padrão</span>
-                    <input inputMode="decimal" onFocus={handleNumericInputFocus} value={newLaborTemplate.defaultUnitValue} placeholder="0,00" onChange={(event) => setNewLaborTemplate((current) => ({ ...current, defaultUnitValue: event.target.value }))} />
-                  </label>
-                  <label className="technical-edit-field guided-wide-field">
-                    <span>Observação</span>
-                    <textarea value={newLaborTemplate.note} placeholder="Ex.: validar altura, fixação, acesso e acabamento." onChange={(event) => setNewLaborTemplate((current) => ({ ...current, note: event.target.value }))} />
-                  </label>
+                <div className="guided-manual-grid" style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', marginTop: '12px' }}>
+                  <Input className="guided-wide-field" style={{ flex: '1 1 100%' }} label="Serviço" value={newLaborTemplate.title} placeholder="Ex.: Instalação de ventilador de teto" onChange={(event) => setNewLaborTemplate((current) => ({ ...current, title: event.target.value }))} />
+                  <Input style={{ flex: '1' }} label="Unidade" value={newLaborTemplate.unit} placeholder="ponto, un., m, serviço..." onChange={(event) => setNewLaborTemplate((current) => ({ ...current, unit: event.target.value }))} />
+                  <Input style={{ flex: '1' }} label="Valor padrão" inputMode="decimal" onFocus={handleNumericInputFocus} value={newLaborTemplate.defaultUnitValue} placeholder="0,00" onChange={(event) => setNewLaborTemplate((current) => ({ ...current, defaultUnitValue: event.target.value }))} />
+                  <div className="guided-wide-field" style={{ flex: '1 1 100%' }}>
+                    <TextArea label="Observação" value={newLaborTemplate.note} placeholder="Ex.: validar altura, fixação, acesso e acabamento." onChange={(val) => setNewLaborTemplate((current) => ({ ...current, note: val }))} />
+                  </div>
                 </div>
-                <button className="primary-action inline-action" type="button" onClick={addLaborTemplate}>Cadastrar serviço</button>
+                <Button variant="primary" className="inline-action" style={{ marginTop: '12px' }} onClick={addLaborTemplate}>Cadastrar serviço</Button>
               </div>
 
               <div className="guided-labor-editor-list">
                 <div className="guided-labor-manager-controls">
-                  <label className="technical-edit-field guided-wide-field">
-                    <span>Buscar serviço cadastrado</span>
-                    <input value={laborManagerQuery} placeholder="Ex.: tomada, quadro, luminária..." onChange={(event) => setLaborManagerQuery(event.target.value)} />
-                  </label>
-                  <div className="guided-labor-visibility-actions">
-                    <button className="secondary-action inline-action" type="button" onClick={() => setAllLaborVisibility(true)}>Mostrar todos</button>
-                    <button className="secondary-action inline-action" type="button" onClick={() => setAllLaborVisibility(false)}>Ocultar todos</button>
+                  <Input className="guided-wide-field" label="Buscar serviço cadastrado" value={laborManagerQuery} placeholder="Ex.: tomada, quadro, luminária..." onChange={(event) => setLaborManagerQuery(event.target.value)} />
+                  <div className="guided-labor-visibility-actions" style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
+                    <Button variant="secondary" className="inline-action" onClick={() => setAllLaborVisibility(true)}>Mostrar todos</Button>
+                    <Button variant="secondary" className="inline-action" onClick={() => setAllLaborVisibility(false)}>Ocultar todos</Button>
                   </div>
-                  <small>Marque como visível apenas os serviços que devem aparecer nos cards de seleção do campo.</small>
+                  <small style={{ display: 'block', marginTop: '8px', color: 'var(--aferix-text-secondary)' }}>Marque como visível apenas os serviços que devem aparecer nos cards de seleção do campo.</small>
                 </div>
 
                 {!hasLaborLookup ? (
@@ -334,27 +326,15 @@ export function GuidedBudgetCart({ onSendToBudget, mode = 'all' }: GuidedBudgetC
                       <input checked={template.visible} type="checkbox" onChange={(event) => updateLaborTemplate(template.id, { visible: event.target.checked })} />
                       <span>{template.visible ? 'Visível' : 'Oculto'}</span>
                     </label>
-                    <label className="technical-edit-field guided-wide-field">
-                      <span>Serviço</span>
-                      <input value={template.title} onChange={(event) => updateLaborTemplate(template.id, { title: event.target.value })} />
-                    </label>
-                    <label className="technical-edit-field">
-                      <span>Unidade</span>
-                      <input value={template.unit} onChange={(event) => updateLaborTemplate(template.id, { unit: event.target.value })} />
-                    </label>
-                    <label className="technical-edit-field">
-                      <span>Valor</span>
-                      <input inputMode="decimal" onFocus={handleNumericInputFocus} value={String(template.defaultUnitValue)} onChange={(event) => updateLaborTemplate(template.id, { defaultUnitValue: parseDecimal(event.target.value, 0) })} />
-                    </label>
-                    <label className="technical-edit-field guided-wide-field">
-                      <span>Observação</span>
-                      <textarea value={template.note} onChange={(event) => updateLaborTemplate(template.id, { note: event.target.value })} />
-                    </label>
+                    <Input className="guided-wide-field" label="Serviço" value={template.title} onChange={(event) => updateLaborTemplate(template.id, { title: event.target.value })} />
+                    <Input label="Unidade" value={template.unit} onChange={(event) => updateLaborTemplate(template.id, { unit: event.target.value })} />
+                    <Input label="Valor" inputMode="decimal" onFocus={handleNumericInputFocus} value={String(template.defaultUnitValue)} onChange={(event) => updateLaborTemplate(template.id, { defaultUnitValue: parseDecimal(event.target.value, 0) })} />
+                    <TextArea className="guided-wide-field" label="Observação" value={template.note} onChange={(val) => updateLaborTemplate(template.id, { note: val })} />
                   </article>
                 ))}
               </div>
 
-              <button className="secondary-action inline-action" type="button" onClick={restoreStarterLaborTemplates}>Restaurar lista padrão</button>
+              <Button variant="secondary" className="inline-action" onClick={restoreStarterLaborTemplates}>Restaurar lista padrão</Button>
             </div>
           )}
 
@@ -373,17 +353,17 @@ export function GuidedBudgetCart({ onSendToBudget, mode = 'all' }: GuidedBudgetC
               {filteredLaborTemplates.filter((template) => template.visible).map((template) => {
               const addedQuantity = quantityInCurrentEnvironment(template.title, 'service');
               return (
-                <article className="guided-service-card" key={template.id}>
+                <article className="guided-service-card aferix-card-compact-list" key={template.id}>
                   <div>
                     <strong>{template.title}</strong>
                     <small>{formatCurrency(template.defaultUnitValue)} / {template.unit}</small>
                     <small>{template.note}</small>
                     {addedQuantity > 0 && <span className="guided-cart-count">{addedQuantity} lançado(s) neste ambiente</span>}
                   </div>
-                  <div className="guided-service-controls">
-                    <label className="guided-typed-quantity"><span>Qtd.</span><input inputMode="decimal" onFocus={handleNumericInputFocus} value={laborQuantityById[template.id] ?? '1'} onChange={(event) => setLaborQuantityById((current) => ({ ...current, [template.id]: event.target.value }))} /></label>
-                    <label className="guided-typed-quantity"><span>Valor</span><input inputMode="decimal" onFocus={handleNumericInputFocus} value={laborValueById[template.id] ?? String(template.defaultUnitValue)} onChange={(event) => setLaborValueById((current) => ({ ...current, [template.id]: event.target.value }))} /></label>
-                    <button className="primary-action inline-action" type="button" onClick={() => addLabor(template)}>Adicionar</button>
+                  <div className="guided-service-controls" style={{ display: 'flex', gap: '8px', alignItems: 'flex-end', marginTop: '12px' }}>
+                    <Input label="Qtd." inputMode="decimal" onFocus={handleNumericInputFocus} value={laborQuantityById[template.id] ?? '1'} onChange={(event) => setLaborQuantityById((current) => ({ ...current, [template.id]: event.target.value }))} />
+                    <Input label="Valor" inputMode="decimal" onFocus={handleNumericInputFocus} value={laborValueById[template.id] ?? String(template.defaultUnitValue)} onChange={(event) => setLaborValueById((current) => ({ ...current, [template.id]: event.target.value }))} />
+                    <Button variant="primary" className="inline-action" onClick={() => addLabor(template)}>Adicionar</Button>
                   </div>
                 </article>
               );
@@ -395,35 +375,207 @@ export function GuidedBudgetCart({ onSendToBudget, mode = 'all' }: GuidedBudgetC
 
       {showParts && (
         <>
-          <div className="guided-manual-block-card">
+          <div className="guided-manual-block-card aferix-card-surface">
             <div><strong>Kits automáticos</strong><small>Escolha o kit, informe a quantidade e gere materiais + serviços sugeridos no ambiente atual.</small></div>
-            <div className="guided-manual-grid">
-              <label className="technical-edit-field guided-wide-field"><span>Kit</span><select value={selectedKitId} onChange={(event) => { const id = event.target.value as KitId; setSelectedKitId(id); setKitQuantity(kitTemplates.find((kit) => kit.id === id)?.defaultQuantity ?? '1'); }}>{kitTemplates.map((kit) => <option key={kit.id} value={kit.id}>{kit.title}</option>)}</select></label>
-              <label className="technical-edit-field"><span>Quantidade</span><input inputMode="decimal" onFocus={handleNumericInputFocus} value={kitQuantity} onChange={(event) => setKitQuantity(event.target.value)} /></label>
-              <label className="technical-edit-field"><span>Marca desejada</span><select value={kitBrand} onChange={(event) => setKitBrand(event.target.value)}>{kitBrands.map((brand) => <option key={brand} value={brand}>{brand}</option>)}</select></label>
-              <label className="technical-edit-field"><span>Destino</span><select value={kitDestination} onChange={(event) => setKitDestination(event.target.value as CalculationDestination)}><option value="survey">Atendimento</option><option value="budget">Orçamento</option><option value="both">Ambos</option></select></label>
+            <div className="guided-manual-grid" style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', marginTop: '12px' }}>
+              <div className="guided-wide-field" style={{ flex: '1 1 100%' }}>
+                <Select label="Kit" value={selectedKitId} onChange={(val) => { const id = val as KitId; setSelectedKitId(id); setKitQuantity(kitTemplates.find((kit) => kit.id === id)?.defaultQuantity ?? '1'); }}>{kitTemplates.map((kit) => <option key={kit.id} value={kit.id}>{kit.title}</option>)}</Select>
+              </div>
+              <Input style={{ flex: '1' }} label="Quantidade" inputMode="decimal" onFocus={handleNumericInputFocus} value={kitQuantity} onChange={(event) => setKitQuantity(event.target.value)} />
+              <div style={{ flex: '1' }}>
+                <Select label="Marca desejada" value={kitBrand} onChange={(val) => setKitBrand(val)}>{kitBrands.map((brand) => <option key={brand} value={brand}>{brand}</option>)}</Select>
+              </div>
+              <div style={{ flex: '1' }}>
+                <Select label="Destino" value={kitDestination} onChange={(val) => setKitDestination(val as CalculationDestination)}><option value="survey">Atendimento</option><option value="budget">Orçamento</option><option value="both">Ambos</option></Select>
+              </div>
             </div>
-            <div className="guided-cart-summary"><strong>{selectedKit.title}</strong><small>{selectedKit.description}</small></div>
-            <button className="primary-action inline-action" type="button" onClick={addSelectedKit}>Gerar kit selecionado</button>
+            <div className="guided-cart-summary" style={{ marginTop: '12px', padding: '12px', background: 'rgba(255, 255, 255, 0.02)', borderRadius: '8px' }}><strong>{selectedKit.title}</strong><small>{selectedKit.description}</small></div>
+            <Button variant="primary" className="inline-action" style={{ marginTop: '12px' }} onClick={addSelectedKit}>Gerar kit selecionado</Button>
           </div>
 
-          <div className="guided-manual-block-card">
+          <div className="guided-manual-block-card aferix-card-surface" style={{ marginTop: '16px' }}>
             <div><strong>Peça/material manual</strong><small>Digite qualquer material, marca, modelo, quantidade e valor.</small></div>
-            <div className="guided-manual-grid"><label className="technical-edit-field guided-wide-field"><span>Descrição da peça</span><input value={manualPart.title} placeholder="Ex.: chassis 4x2, tomada 20A, placa dupla..." onChange={(event) => setManualPart((current) => ({ ...current, title: event.target.value }))} /></label><label className="technical-edit-field"><span>Marca</span><input value={manualPart.brand} placeholder="Ex.: Fabricante B" onChange={(event) => setManualPart((current) => ({ ...current, brand: event.target.value }))} /></label><label className="technical-edit-field"><span>Modelo/ref.</span><input value={manualPart.model} placeholder="Opcional" onChange={(event) => setManualPart((current) => ({ ...current, model: event.target.value }))} /></label><label className="technical-edit-field"><span>Quantidade</span><input inputMode="decimal" onFocus={handleNumericInputFocus} value={manualPart.quantity} onChange={(event) => setManualPart((current) => ({ ...current, quantity: event.target.value }))} /></label><label className="technical-edit-field"><span>Valor unitário</span><input inputMode="decimal" onFocus={handleNumericInputFocus} value={manualPart.unitValue} placeholder="0,00" onChange={(event) => setManualPart((current) => ({ ...current, unitValue: event.target.value }))} /></label><label className="technical-edit-field"><span>Destino</span><select value={manualPart.destination} onChange={(event) => setManualPart((current) => ({ ...current, destination: event.target.value as CalculationDestination }))}><option value="survey">Atendimento</option><option value="budget">Orçamento</option><option value="both">Ambos</option></select></label><label className="technical-edit-field guided-wide-field"><span>Observação</span><textarea value={manualPart.note} placeholder="Ex.: confirmar disponibilidade, usar 20A na cozinha..." onChange={(event) => setManualPart((current) => ({ ...current, note: event.target.value }))} /></label></div>
-            <button className="primary-action inline-action" type="button" onClick={addManualPart}>Adicionar peça manual</button>
+            <div className="guided-manual-grid" style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', marginTop: '12px' }}>
+              <Input className="guided-wide-field" style={{ flex: '1 1 100%' }} label="Descrição da peça" value={manualPart.title} placeholder="Ex.: chassis 4x2, tomada 20A, placa dupla..." onChange={(event) => setManualPart((current) => ({ ...current, title: event.target.value }))} />
+              <Input style={{ flex: '1' }} label="Marca" value={manualPart.brand} placeholder="Ex.: Fabricante B" onChange={(event) => setManualPart((current) => ({ ...current, brand: event.target.value }))} />
+              <Input style={{ flex: '1' }} label="Modelo/ref." value={manualPart.model} placeholder="Opcional" onChange={(event) => setManualPart((current) => ({ ...current, model: event.target.value }))} />
+              <Input style={{ flex: '1' }} label="Quantidade" inputMode="decimal" onFocus={handleNumericInputFocus} value={manualPart.quantity} onChange={(event) => setManualPart((current) => ({ ...current, quantity: event.target.value }))} />
+              <Input style={{ flex: '1' }} label="Valor unitário" inputMode="decimal" onFocus={handleNumericInputFocus} value={manualPart.unitValue} placeholder="0,00" onChange={(event) => setManualPart((current) => ({ ...current, unitValue: event.target.value }))} />
+              <div style={{ flex: '1' }}>
+                <Select label="Destino" value={manualPart.destination} onChange={(val) => setManualPart((current) => ({ ...current, destination: val as CalculationDestination }))}><option value="survey">Atendimento</option><option value="budget">Orçamento</option><option value="both">Ambos</option></Select>
+              </div>
+              <div className="guided-wide-field" style={{ flex: '1 1 100%' }}>
+                <TextArea label="Observação" value={manualPart.note} placeholder="Ex.: confirmar disponibilidade, usar 20A na cozinha..." onChange={(val) => setManualPart((current) => ({ ...current, note: val }))} />
+              </div>
+            </div>
+            <Button variant="primary" className="inline-action" style={{ marginTop: '12px' }} onClick={addManualPart}>
+              Adicionar peça manual
+            </Button>
           </div>
 
-          <div className="parts-catalog-panel"><div className="parts-search-grid"><label className="technical-edit-field parts-search-wide"><span>Buscar na base interna</span><input value={partQuery} placeholder="Ex.: tomada 20A, disjuntor bipolar..." onChange={(event) => setPartQuery(event.target.value)} /></label><label className="technical-edit-field"><span>Marca</span><select value={partBrand} onChange={(event) => setPartBrand(event.target.value)}><option value="">Todas</option>{catalogPartBrands.map((brand) => <option key={brand} value={brand}>{brand}</option>)}</select></label><label className="technical-edit-field"><span>Categoria</span><select value={partCategory} onChange={(event) => setPartCategory(event.target.value)}><option value="">Todas</option>{catalogPartCategories.map((category) => <option key={category} value={category}>{category}</option>)}</select></label></div><div className="parts-results-header"><strong>{hasPartLookup ? `${partResults.length} peça(s) encontrada(s)` : 'Pesquise para exibir peças'}</strong><small>Resultados aparecem apenas após busca ou filtro.</small></div><div className="parts-result-list">{partResults.map((part) => { const addedQuantity = quantityInCurrentEnvironment(part.title, 'material'); return <article className="part-result-card" key={part.id}><div className="part-result-main"><span>{part.brand}</span><strong>{part.title}</strong><small>{[part.line, part.category, part.subcategory, part.current, part.voltage].filter(Boolean).join(' · ')}</small>{addedQuantity > 0 && <span className="guided-cart-count">{addedQuantity} lançado(s) neste ambiente</span>}</div><div className="part-result-controls"><button className="primary-action inline-action" type="button" onClick={() => addCatalogPart(part)}>Adicionar</button></div></article>; })}</div></div>
+          <div className="parts-catalog-panel aferix-card-surface" style={{ marginTop: '16px' }}>
+            <div className="parts-search-grid" style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
+              <Input
+                className="technical-edit-field parts-search-wide"
+                style={{ flex: '1 1 100%' }}
+                label="Buscar na base interna"
+                value={partQuery}
+                placeholder="Ex.: tomada 20A, disjuntor bipolar..."
+                onChange={(event) => setPartQuery(event.target.value)}
+              />
+              <div className="technical-edit-field" style={{ flex: '1' }}>
+                <Select
+                  label="Marca"
+                  value={partBrand}
+                  onChange={(val) => setPartBrand(val)}
+                >
+                  <option value="">Todas</option>
+                  {catalogPartBrands.map((brand) => (
+                    <option key={brand} value={brand}>{brand}</option>
+                  ))}
+                </Select>
+              </div>
+              <div className="technical-edit-field" style={{ flex: '1' }}>
+                <Select
+                  label="Categoria"
+                  value={partCategory}
+                  onChange={(val) => setPartCategory(val)}
+                >
+                  <option value="">Todas</option>
+                  {catalogPartCategories.map((category) => (
+                    <option key={category} value={category}>{category}</option>
+                  ))}
+                </Select>
+              </div>
+            </div>
+            <div className="parts-results-header" style={{ marginTop: '16px' }}>
+              <strong>{hasPartLookup ? `${partResults.length} peça(s) encontrada(s)` : 'Pesquise para exibir peças'}</strong>
+              <small>Resultados aparecem apenas após busca ou filtro.</small>
+            </div>
+            <div className="parts-result-list" style={{ marginTop: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {partResults.map((part) => {
+                const addedQuantity = quantityInCurrentEnvironment(part.title, 'material');
+                return (
+                  <article className="part-result-card aferix-card-compact-list" key={part.id}>
+                    <div className="part-result-main">
+                      <span>{part.brand}</span>
+                      <strong>{part.title}</strong>
+                      <small>{[part.line, part.category, part.subcategory, part.current, part.voltage].filter(Boolean).join(' · ')}</small>
+                      {addedQuantity > 0 && <span className="guided-cart-count">{addedQuantity} lançado(s) neste ambiente</span>}
+                    </div>
+                    <div className="part-result-controls">
+                      <Button
+                        variant="primary"
+                        className="inline-action"
+                        onClick={() => addCatalogPart(part)}
+                      >
+                        Adicionar
+                      </Button>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          </div>
         </>
       )}
 
       {showManual && mode === 'manual' && <div className="guided-manual-block-card"><div><strong>Bloco manual rápido</strong><small>Para observações livres, use a aba Peças com descrição personalizada.</small></div></div>}
 
-      <div className="guided-cart-summary grouped-summary"><strong>Resumo por ambiente</strong>{environmentGroups.length === 0 ? <small>Nenhum item adicionado ainda.</small> : <div className="environment-summary-list">{environmentGroups.map((group) => <article className="environment-summary-card" key={group.name}><header><div><strong>{group.name}</strong><small>{group.itemCount} tipo(s) · {group.totalQuantity} unidade(s)</small></div><b>{formatCurrency(group.subtotal)}</b></header><div className="environment-subtotals"><span>Materiais: {formatCurrency(group.materialSubtotal)}</span><span>Serviços: {formatCurrency(group.serviceSubtotal)}</span></div><div className="environment-line-preview">{group.lines.slice(0, 5).map((line) => <span key={line.id}>{line.quantity}× {line.description}</span>)}{group.lines.length > 5 && <span>+ {group.lines.length - 5} item(ns)</span>}</div></article>)}</div>}</div>
+      <div className="guided-cart-summary grouped-summary">
+        <strong>Resumo por ambiente</strong>
+        {environmentGroups.length === 0 ? (
+          <small>Nenhum item adicionado ainda.</small>
+        ) : (
+          <div className="environment-summary-list">
+            {environmentGroups.map((group) => (
+              <article className="environment-summary-card aferix-card-surface" key={group.name}>
+                <header>
+                  <div>
+                    <strong>{group.name}</strong>
+                    <small>{group.itemCount} tipo(s) · {group.totalQuantity} unidade(s)</small>
+                  </div>
+                  <b>{formatCurrency(group.subtotal)}</b>
+                </header>
+                <div className="environment-subtotals">
+                  <span>Materiais: {formatCurrency(group.materialSubtotal)}</span>
+                  <span>Serviços: {formatCurrency(group.serviceSubtotal)}</span>
+                </div>
+                <div className="environment-line-preview">
+                  {group.lines.slice(0, 5).map((line) => (
+                    <span key={line.id}>{line.quantity}× {line.description}</span>
+                  ))}
+                  {group.lines.length > 5 && <span>+ {group.lines.length - 5} item(ns)</span>}
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
+      </div>
 
-      {environmentGroups.length > 0 && <div className="environment-grouped-editor">{environmentGroups.map((group) => <section className="environment-editor-group" key={group.name}><header><div><span>Ambiente</span><strong>{group.name}</strong></div><div className="environment-header-right"><b>{formatCurrency(group.subtotal)}</b><button className="primary-action inline-action env-send-btn" type="button" onClick={() => sendEnvironment(group.name)}>Enviar este ambiente</button></div></header><div className="parts-result-list">{group.lines.map((line) => <article className="part-result-card active" key={line.id}><div className="part-result-main"><span>{kindLabel(line.kind)} · {line.itemType === 'material' ? 'Material' : 'Serviço'}</span><strong>{line.description}</strong><small>{line.brand ? `${line.brand}${line.model ? ` · ${line.model}` : ''}` : line.note}</small></div><div className="part-result-controls"><label className="guided-typed-quantity"><span>Qtd.</span><input inputMode="decimal" onFocus={handleNumericInputFocus} value={String(line.quantity)} onChange={(event) => updateLineQuantity(line.id, event.target.value)} /></label><label className="guided-typed-quantity"><span>Valor</span><input inputMode="decimal" onFocus={handleNumericInputFocus} value={String(line.unitValue)} onChange={(event) => updateLineUnitValue(line.id, event.target.value)} /></label><button className="secondary-action inline-action" type="button" onClick={() => duplicateLine(line)}>Duplicar</button><button className="danger-action" type="button" onClick={() => removeLine(line.id)}>Remover</button></div></article>)}</div></section>)}</div>}
+      {environmentGroups.length > 0 && (
+        <div className="environment-grouped-editor">
+          {environmentGroups.map((group) => (
+            <section className="environment-editor-group" key={group.name}>
+              <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <span>Ambiente</span>
+                  <strong>{group.name}</strong>
+                </div>
+                <div className="environment-header-right" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <b>{formatCurrency(group.subtotal)}</b>
+                  <Button variant="primary" className="inline-action env-send-btn" onClick={() => sendEnvironment(group.name)}>
+                    Enviar este ambiente
+                  </Button>
+                </div>
+              </header>
+              <div className="parts-result-list">
+                {group.lines.map((line) => (
+                  <article className="part-result-card active aferix-card-compact-list" key={line.id}>
+                    <div className="part-result-main">
+                      <span>{kindLabel(line.kind)} · {line.itemType === 'material' ? 'Material' : 'Serviço'}</span>
+                      <strong>{line.description}</strong>
+                      <small>{line.brand ? `${line.brand}${line.model ? ` · ${line.model}` : ''}` : line.note}</small>
+                    </div>
+                    <div className="part-result-controls" style={{ display: 'flex', gap: '8px', alignItems: 'flex-end' }}>
+                      <Input
+                        label="Qtd."
+                        inputMode="decimal"
+                        onFocus={handleNumericInputFocus}
+                        value={String(line.quantity)}
+                        onChange={(event) => updateLineQuantity(line.id, event.target.value)}
+                      />
+                      <Input
+                        label="Valor"
+                        inputMode="decimal"
+                        onFocus={handleNumericInputFocus}
+                        value={String(line.unitValue)}
+                        onChange={(event) => updateLineUnitValue(line.id, event.target.value)}
+                      />
+                      <Button variant="secondary" className="inline-action" onClick={() => duplicateLine(line)}>
+                        Duplicar
+                      </Button>
+                      <Button variant="danger" onClick={() => removeLine(line.id)}>
+                        Remover
+                      </Button>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </section>
+          ))}
+        </div>
+      )}
 
-      <div className="guided-cart-actions"><button className="primary-action inline-action" type="button" disabled={lines.length === 0} onClick={sendAll}>Enviar itens ao fluxo</button><button className="secondary-action inline-action" type="button" disabled={lines.length === 0} onClick={() => setLines([])}>Limpar itens</button></div>{feedback && <div className="guided-cart-feedback">{feedback}</div>}
+      <div className="guided-cart-actions" style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
+        <Button variant="primary" className="inline-action" disabled={lines.length === 0} onClick={sendAll}>
+          Enviar itens ao fluxo
+        </Button>
+        <Button variant="secondary" className="inline-action" disabled={lines.length === 0} onClick={() => setLines([])}>
+          Limpar itens
+        </Button>
+      </div>
+      {feedback && <div className="guided-cart-feedback">{feedback}</div>}
     </section>
   );
 }

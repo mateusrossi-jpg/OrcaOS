@@ -8,6 +8,7 @@ import {
   type GuidedRoom,
   type GuidedRoomType,
 } from '../storage/guidedRoomsStorage';
+import { Input, Select, TextArea, Button } from '../../../app/components/ui';
 import './GuidedRoomManager.css';
 
 const roomTypeOptions: GuidedRoomType[] = ['sala', 'quarto', 'cozinha', 'banheiro', 'area-externa', 'garagem', 'escritorio', 'comercial', 'outro'];
@@ -167,49 +168,58 @@ export function GuidedRoomManager() {
         <strong>{rooms.length} ambiente(s)</strong>
       </div>
 
-      <div className="guided-room-card guided-room-edit-card">
+      <div className="guided-room-card guided-room-edit-card aferix-card-surface">
         <div className="guided-room-card-title">
           <strong>{editingRoomId ? 'Editar cômodo' : 'Adicionar cômodo'}</strong>
           <small>{editingRoomId ? 'Atualize o nome, tipo ou observação do ambiente selecionado.' : 'Cadastre o ambiente antes de lançar os próximos itens.'}</small>
         </div>
 
         <div className="guided-room-grid">
-          <label>
-            <span>Nome do cômodo/setor</span>
-            <input value={draft.name} placeholder="Ex.: Quarto 1, Banheiro suíte, Hall..." onChange={(event) => updateDraft('name', event.target.value)} />
-          </label>
-          <label>
-            <span>Tipo</span>
-            <select value={draft.type} onChange={(event) => updateDraft('type', event.target.value as GuidedRoomType)}>
-              {roomTypeOptions.map((type) => <option key={type} value={type}>{guidedRoomTypeLabel(type)}</option>)}
-            </select>
-          </label>
-          <label className="wide">
-            <span>Observação</span>
-            <textarea value={draft.notes} placeholder="Ex.: parede de alvenaria, forro de gesso, cliente quer linha preta..." onChange={(event) => updateDraft('notes', event.target.value)} />
-          </label>
+          <Input
+            label="Nome do cômodo/setor"
+            value={draft.name}
+            placeholder="Ex.: Quarto 1, Banheiro suíte, Hall..."
+            onChange={(event) => updateDraft('name', event.target.value)}
+          />
+          <Select
+            label="Tipo"
+            value={draft.type}
+            onChange={(val) => updateDraft('type', val as GuidedRoomType)}
+          >
+            {roomTypeOptions.map((type) => <option key={type} value={type}>{guidedRoomTypeLabel(type)}</option>)}
+          </Select>
+          <div className="wide">
+            <TextArea
+              label="Observação"
+              value={draft.notes}
+              placeholder="Ex.: parede de alvenaria, forro de gesso, cliente quer linha preta..."
+              onChange={(val) => updateDraft('notes', val)}
+            />
+          </div>
         </div>
 
         <div className="guided-room-form-actions">
-          <button className="primary-action inline-action" type="button" onClick={editingRoomId ? saveEditedRoom : addRoom}>
+          <Button variant="primary" className="inline-action" onClick={editingRoomId ? saveEditedRoom : addRoom}>
             {editingRoomId ? 'Salvar alterações' : 'Adicionar e usar cômodo'}
-          </button>
-          {editingRoomId && <button className="secondary-action inline-action" type="button" onClick={cancelEditRoom}>Cancelar edição</button>}
+          </Button>
+          {editingRoomId && <Button variant="secondary" className="inline-action" onClick={cancelEditRoom}>Cancelar edição</Button>}
         </div>
 
         {!editingRoomId && <p className="guided-room-helper">Depois de adicionar, o cômodo fica selecionado para os próximos lançamentos do orçamento.</p>}
       </div>
 
-      <div className="guided-room-card guided-room-select-card">
+      <div className="guided-room-card guided-room-select-card aferix-card-surface">
         <div className="guided-room-card-title">
           <strong>Cômodos cadastrados</strong>
           <small>Selecione um ambiente para usar, editar, duplicar ou remover.</small>
         </div>
 
-        <label className="guided-room-search">
-          <span>Buscar cômodo</span>
-          <input value={query} placeholder="Sala, suíte, banheiro, área externa..." onChange={(event) => setQuery(event.target.value)} />
-        </label>
+        <Input
+          label="Buscar cômodo"
+          value={query}
+          placeholder="Sala, suíte, banheiro, área externa..."
+          onChange={(event) => setQuery(event.target.value)}
+        />
 
         {!query.trim() ? (
           <div className="guided-room-empty">{rooms.length} cômodo(s) cadastrado(s). Pesquise para exibir.</div>
@@ -226,17 +236,17 @@ export function GuidedRoomManager() {
             </div>
 
             {selectedRoom && (
-              <article className="guided-room-selected">
+              <article className="guided-room-selected aferix-card-compact-list">
                 <div>
                   <span>{guidedRoomTypeLabel(selectedRoom.type)}</span>
                   <strong>{selectedRoom.name}</strong>
                   <small>{selectedRoom.notes || 'Sem observação'}</small>
                 </div>
                 <div className="guided-room-actions">
-                  <button className="primary-action inline-action" type="button" onClick={() => useRoomAsCurrent(selectedRoom)}>Usar este cômodo</button>
-                  <button className="secondary-action inline-action" type="button" onClick={() => startEditRoom(selectedRoom)}>Editar</button>
-                  <button className="secondary-action inline-action" type="button" onClick={() => duplicateRoom(selectedRoom)}>Duplicar</button>
-                  <button className="danger-action" type="button" onClick={() => removeRoom(selectedRoom.id)}>Remover</button>
+                  <Button variant="primary" className="inline-action" onClick={() => useRoomAsCurrent(selectedRoom)}>Usar este cômodo</Button>
+                  <Button variant="secondary" className="inline-action" onClick={() => startEditRoom(selectedRoom)}>Editar</Button>
+                  <Button variant="secondary" className="inline-action" onClick={() => duplicateRoom(selectedRoom)}>Duplicar</Button>
+                  <Button variant="danger" onClick={() => removeRoom(selectedRoom.id)}>Remover</Button>
                 </div>
               </article>
             )}
