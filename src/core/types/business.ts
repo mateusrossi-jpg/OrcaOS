@@ -58,6 +58,8 @@ export interface BudgetItem {
   quantity: number;
   unitPrice: number;
   category: 'labor' | 'material' | 'other';
+  sourceId?: string;
+  catalogId?: string;
 }
 
 export type CoreBudgetStatus =

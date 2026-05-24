@@ -263,6 +263,15 @@ function technicalCaptureToBudgetItem(capture: CalculationCapture): BudgetItem {
   };
 }
 
+function normalizeDescription(desc: string): string {
+  return desc
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\s+/g, ' ');
+}
+
 function createBudgetItemFromServiceTemplate(template: GuidedLaborTemplate, quantity: number, unitValue: number): BudgetItem {
   const details = [
     template.description,
@@ -276,6 +285,8 @@ function createBudgetItemFromServiceTemplate(template: GuidedLaborTemplate, quan
     quantity,
     unitPrice: unitValue,
     category: 'labor',
+    sourceId: template.id,
+    catalogId: template.id,
   };
 }
 
@@ -348,6 +359,8 @@ export function BudgetWorkspace({
   const [budgetItemSearch, setBudgetItemSearch] = useState('');
   const [budgetItemCategoryFilter, setBudgetItemCategoryFilter] = useState<BudgetCategory | 'all'>('all');
   const [selectedBudgetItemId, setSelectedBudgetItemId] = useState<string | null>(savedDraft?.items?.[0]?.id ?? null);
+  const [isManualFormExpanded, setIsManualFormExpanded] = useState(false);
+  const [expandedBudgetItemId, setExpandedBudgetItemId] = useState<string | null>(null);
   const [discount, setDiscount] = useState(savedDraft?.discount ?? 0);
   const [travelCost, setTravelCost] = useState(savedDraft?.travelCost ?? 0);
   const [additionalFees, setAdditionalFees] = useState(savedDraft?.additionalFees ?? 0);
@@ -371,6 +384,23 @@ export function BudgetWorkspace({
   const [lastSavedAt, setLastSavedAt] = useState<string | null>(savedDraft?.updatedAt ?? null);
   const [storedTechnicalCaptures, setStoredTechnicalCaptures] = useState<CalculationCapture[]>(() => loadStoredTechnicalCaptures());
   const [shareFeedback, setShareFeedback] = useState<string | null>(null);
+  const [highlightedItemId, setHighlightedItemId] = useState<string | null>(null);
+
+  function triggerCartFeedback(itemId: string) {
+    setHighlightedItemId(itemId);
+    setTimeout(() => {
+      setHighlightedItemId((current) => current === itemId ? null : current);
+    }, 1000);
+  }
+
+  useEffect(() => {
+    if (shareFeedback) {
+      const timer = setTimeout(() => {
+        setShareFeedback(null);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [shareFeedback]);
   
   useEffect(() => {
     if (initialBudgetId) {
@@ -542,14 +572,59 @@ export function BudgetWorkspace({
     });
   }
 
+  function addOrMergeItem(newItem: BudgetItem) {
+    if (isBudgetLocked) {
+      setShareFeedback('Orçamento bloqueado para preservar o histórico.');
+      return;
+    }
+    setItems((current) => {
+      const existingIndex = current.findIndex((item) => {
+        // 1. Normalized description matching
+        if (normalizeDescription(item.description) !== normalizeDescription(newItem.description)) {
+          return false;
+        }
+        // 2. Category matching
+        if (item.category !== newItem.category) {
+          return false;
+        }
+        // 3. Unit price matching
+        if (Math.abs(item.unitPrice - newItem.unitPrice) > 0.01) {
+          return false;
+        }
+        // 4. Source / Catalog ID matching
+        const id1 = item.sourceId || item.catalogId;
+        const id2 = newItem.sourceId || newItem.catalogId;
+        if (id1 || id2) {
+          return id1 === id2;
+        }
+        return true;
+      });
+
+      if (existingIndex > -1) {
+        const updated = [...current];
+        const existingItem = updated[existingIndex];
+        updated[existingIndex] = {
+          ...existingItem,
+          quantity: existingItem.quantity + newItem.quantity,
+        };
+        setSelectedBudgetItemId(existingItem.id);
+        setShareFeedback(`Incrementado: ${existingItem.description} (+${newItem.quantity})`);
+        triggerCartFeedback(existingItem.id);
+        return updated;
+      } else {
+        setSelectedBudgetItemId(newItem.id);
+        setShareFeedback(`${newItem.description} adicionado ao orçamento.`);
+        return [...current, newItem];
+      }
+    });
+  }
+
   function addItem() {
     const newItem = createBudgetItem(draft);
     const issues = validateBudgetItem(newItem);
     if (hasBlockingBudgetIssues(issues)) { setShareFeedback(issues[0]?.message ?? 'Revise os dados do item.'); return; }
-    setItems((current) => [...current, newItem]);
-    setSelectedBudgetItemId(newItem.id);
+    addOrMergeItem(newItem);
     setDraft(emptyDraftItem);
-    setShareFeedback('Item adicionado ao orçamento.');
   }
 
   function confirmRemoveCatalogItem(itemId: string) { setItemToRemove(itemId); setModalType('removeCatalogItem'); }
@@ -588,9 +663,7 @@ export function BudgetWorkspace({
     const unitValue = parseCommercialNumber(serviceTemplateValues[template.id], template.defaultUnitValue);
     if (quantity <= 0) return;
     const newItem = createBudgetItemFromServiceTemplate(template, quantity, unitValue);
-    setItems((current) => [...current, newItem]);
-    setSelectedBudgetItemId(newItem.id);
-    setShareFeedback(`${template.title} adicionado ao orçamento.`);
+    addOrMergeItem(newItem);
   }
 
   function confirmRemoveItem(itemId: string) { setItemToRemove(itemId); setModalType('removeItem'); }
@@ -770,25 +843,116 @@ export function BudgetWorkspace({
   const serviceTemplateLimitReached = !isProPlan && serviceTemplates.length >= FREE_PLAN_LIMITS.serviceTemplates;
     const isBudgetLocked = Boolean(activeBudgetId && isBudgetClosedStatus(budgetStatus));
 
-  const visibleServiceTemplates = serviceTemplates.filter((t) => t.visible && (!serviceTemplateSearch.trim() || [t.title, t.description].join(' ').toLowerCase().includes(serviceTemplateSearch.toLowerCase()))).sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
-  const visibleCatalogItems = catalogItems.filter((item) => {
+  const unifiedCatalogItems = useMemo(() => {
     const q = catalogSearch.trim().toLowerCase();
-    const kindMatch = catalogCategoryFilter === 'all' || item.kind === catalogCategoryFilter;
-    const textMatch = !q || [item.title, item.category, item.brand, item.model, item.reference].filter(Boolean).join(' ').toLowerCase().includes(q);
-    return kindMatch && textMatch;
-  });
+    
+    // Filtered catalogItems
+    const filteredCatalog = catalogItems.filter((item) => {
+      const kindMatch = catalogCategoryFilter === 'all' || item.kind === catalogCategoryFilter;
+      const textMatch = !q || [item.title, item.category, item.brand, item.model, item.reference].filter(Boolean).join(' ').toLowerCase().includes(q);
+      return kindMatch && textMatch;
+    }).map(item => ({
+      id: item.id,
+      title: item.title,
+      price: item.defaultUnitValue,
+      category: item.kind === 'material' ? 'material' : 'labor' as 'labor' | 'material',
+      raw: item,
+      isTemplate: false as const
+    }));
+
+    // Filtered serviceTemplates
+    const filteredTemplates = serviceTemplates.filter((t) => {
+      const kindMatch = catalogCategoryFilter === 'all' || catalogCategoryFilter === 'labor';
+      const textMatch = !q || [t.title, t.description].join(' ').toLowerCase().includes(q);
+      return t.visible && kindMatch && textMatch;
+    }).map(t => ({
+      id: t.id,
+      title: t.title,
+      price: t.defaultUnitValue,
+      category: 'labor' as const,
+      raw: t,
+      isTemplate: true as const
+    }));
+
+    return [...filteredTemplates, ...filteredCatalog];
+  }, [catalogItems, serviceTemplates, catalogSearch, catalogCategoryFilter]);
+
+  function findMatchingCartItem(catalogItem: { id: string; title: string; price: number; category: string; isTemplate: boolean; raw: any }) {
+    return items.find(cartItem => {
+      const itemSourceId = catalogItem.id;
+      const cartItemSourceId = cartItem.sourceId || cartItem.catalogId;
+      
+      // Match source ID if present in both
+      if (cartItemSourceId && itemSourceId && cartItemSourceId !== itemSourceId) {
+        return false;
+      }
+
+      // Or match by normalized description, category, and unitPrice
+      const targetDesc = catalogItem.isTemplate
+        ? createBudgetItemFromServiceTemplate(catalogItem.raw as GuidedLaborTemplate, 1, catalogItem.price).description
+        : catalogItem.title;
+      
+      return normalizeDescription(cartItem.description) === normalizeDescription(targetDesc) &&
+             cartItem.category === catalogItem.category &&
+             Math.abs(cartItem.unitPrice - catalogItem.price) < 0.01;
+    });
+  }
+
+  function decrementCatalogItem(catalogItem: { id: string; title: string; price: number; category: string; isTemplate: boolean; raw: any }) {
+    if (isBudgetLocked) {
+      setShareFeedback('Orçamento bloqueado para preservar o histórico.');
+      return;
+    }
+    const matchingItem = findMatchingCartItem(catalogItem);
+    if (!matchingItem) return;
+
+    if (matchingItem.quantity > 1) {
+      updateBudgetItem(matchingItem.id, 'quantity', matchingItem.quantity - 1);
+      setShareFeedback(`Decrementado: ${matchingItem.description} (${matchingItem.quantity - 1})`);
+    } else {
+      setItems((current) => current.filter((item) => item.id !== matchingItem.id));
+      if (selectedBudgetItemId === matchingItem.id) setSelectedBudgetItemId(null);
+      setShareFeedback(`Removido: ${matchingItem.description}`);
+    }
+  }
+
+  function incrementCatalogItem(catalogItem: { id: string; title: string; price: number; category: string; isTemplate: boolean; raw: any }) {
+    if (isBudgetLocked) {
+      setShareFeedback('Orçamento bloqueado para preservar o histórico.');
+      return;
+    }
+    const matchingItem = findMatchingCartItem(catalogItem);
+    if (!matchingItem) return;
+
+    updateBudgetItem(matchingItem.id, 'quantity', matchingItem.quantity + 1);
+    setShareFeedback(`Incrementado: ${matchingItem.description} (${matchingItem.quantity + 1})`);
+    triggerCartFeedback(matchingItem.id);
+  }
 
   function addCatalogHubItemToBudget(hubItem: CatalogHubItem) {
+    if (isBudgetLocked) {
+      setShareFeedback('Orçamento bloqueado para preservar o histórico.');
+      return;
+    }
     const newItem: BudgetItem = {
       id: createId('item'),
       description: hubItem.title,
       quantity: hubItem.defaultQuantity || 1,
       unitPrice: hubItem.defaultUnitValue,
       category: hubItem.kind === 'material' ? 'material' : hubItem.kind === 'labor' ? 'labor' : 'other',
+      sourceId: hubItem.id,
+      catalogId: hubItem.id,
     };
-    setItems((current) => [...current, newItem]);
-    setSelectedBudgetItemId(newItem.id);
-    setShareFeedback(`${hubItem.title} adicionado ao orçamento.`);
+    addOrMergeItem(newItem);
+  }
+
+  function addServiceTemplateDirectlyToBudget(template: GuidedLaborTemplate) {
+    if (isBudgetLocked) {
+      setShareFeedback('Orçamento bloqueado para preservar o histórico.');
+      return;
+    }
+    const newItem = createBudgetItemFromServiceTemplate(template, 1, template.defaultUnitValue);
+    addOrMergeItem(newItem);
   }
 
   return (
@@ -923,126 +1087,323 @@ export function BudgetWorkspace({
 
       {activeSection === 'itens' && (
         <section className="budget-section-panel budget-items-layout">
-          <PanelCard className="budget-catalog-integration">
-            <header className="panel-list-header">
-              <SectionTitle 
-                title="Biblioteca do Catálogo" 
-                eyebrow="Base"
-                description="Adicione itens rápidos da sua base profissional."
-              />
-            </header>
+          <div className="budget-main-column">
             
-            <div className="budget-catalog-search-row">
-              <SearchInput 
-                placeholder="Buscar no catálogo..." 
-                value={catalogSearch} 
-                onChange={setCatalogSearch} 
-                disabled={isBudgetLocked}
-              />
-              <FilterChips 
-                items={[
-                  { id: 'all', label: 'Todos' },
-                  { id: 'material', label: 'Material' },
-                  { id: 'labor', label: 'Mão de obra' }
-                ]}
-                active={[catalogCategoryFilter]}
-                onChange={(active) => setCatalogCategoryFilter(active[0] as any || 'all')}
-                disabled={isBudgetLocked}
-              />
-            </div>
+            {/* 1. Biblioteca / Catálogo */}
+            <PanelCard className="compact-catalog-section">
+              <header className="catalog-header-compact">
+                <SectionTitle 
+                  title="Biblioteca do Catálogo" 
+                  eyebrow="Base profissional"
+                  description="Adicione itens rápidos da sua base profissional de forma instantânea."
+                />
+              </header>
 
-            <div className="budget-catalog-quick-list">
-              {visibleCatalogItems.length === 0 ? (
-                <EmptyState title="Catálogo vazio ou sem resultados" description="Cadastre itens no pilar Base para usá-los aqui." />
+              <div className="catalog-search-filter-row">
+                <SearchInput 
+                  placeholder="Buscar serviços ou materiais..." 
+                  value={catalogSearch} 
+                  onChange={setCatalogSearch} 
+                  disabled={isBudgetLocked}
+                />
+                <FilterChips 
+                  items={[
+                    { id: 'all', label: 'Todos' },
+                    { id: 'labor', label: 'Serviços' },
+                    { id: 'material', label: 'Materiais' }
+                  ]}
+                  active={[catalogCategoryFilter]}
+                  onChange={(active) => setCatalogCategoryFilter(active[0] as any || 'all')}
+                  disabled={isBudgetLocked}
+                />
+              </div>
+
+              {unifiedCatalogItems.length === 0 ? (
+                <EmptyState 
+                  title="Nenhum item encontrado" 
+                  description="Ajuste os filtros ou busque por outro termo." 
+                />
               ) : (
-                <div className="budget-catalog-grid">
-                  {visibleCatalogItems.slice(0, 8).map((item) => (
-                    <button 
-                      key={item.id} 
-                      className="budget-catalog-item-btn" 
-                      type="button" 
-                      onClick={() => addCatalogHubItemToBudget(item)}
-                      disabled={isBudgetLocked}
-                    >
-                      <div className="catalog-btn-info">
-                        <strong>{item.title}</strong>
-                        <span>{item.kind === 'material' ? 'Material' : 'Mão de obra'} · {formatCurrency(item.defaultUnitValue)}</span>
+                <div className="catalog-compact-list">
+                  {unifiedCatalogItems.slice(0, 12).map((item) => {
+                    const matchingItems = items.filter(cartItem => {
+                      const itemSourceId = item.id;
+                      const cartItemSourceId = cartItem.sourceId || cartItem.catalogId;
+                      
+                      // Match source ID if present in both
+                      if (cartItemSourceId && itemSourceId && cartItemSourceId !== itemSourceId) {
+                        return false;
+                      }
+
+                      // Or match by normalized description, category, and unitPrice
+                      const targetDesc = item.isTemplate
+                        ? createBudgetItemFromServiceTemplate(item.raw as GuidedLaborTemplate, 1, item.price).description
+                        : item.title;
+                      
+                      return normalizeDescription(cartItem.description) === normalizeDescription(targetDesc) &&
+                             cartItem.category === item.category &&
+                             Math.abs(cartItem.unitPrice - item.price) < 0.01;
+                    });
+                    
+                    const inCartQuantity = matchingItems.reduce((acc, currentItem) => acc + currentItem.quantity, 0);
+
+                    return (
+                      <div key={item.id} className="catalog-item-compact-card">
+                        <div className="catalog-item-compact-details">
+                          <div className="catalog-item-compact-header-row" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <span className={`catalog-item-icon-tag ${item.category}`}>
+                              {item.category === 'labor' ? '🛠️ Serviço' : '📦 Material'}
+                            </span>
+                            {inCartQuantity > 0 && (
+                              <span key={inCartQuantity} className="catalog-item-cart-badge animate-badge">
+                                x{inCartQuantity}
+                              </span>
+                            )}
+                          </div>
+                          <strong className="catalog-item-compact-title" title={item.title}>{item.title}</strong>
+                          <span className="catalog-item-compact-price">{formatCurrency(item.price)}</span>
+                        </div>
+                        {inCartQuantity > 0 ? (
+                          <div className="catalog-item-quantity-selector">
+                            <button
+                              type="button"
+                              className="catalog-quantity-btn"
+                              onClick={() => decrementCatalogItem(item)}
+                              disabled={isBudgetLocked}
+                              title="Reduzir quantidade"
+                            >
+                              −
+                            </button>
+                            <span className="catalog-quantity-val">{inCartQuantity}</span>
+                            <button
+                              type="button"
+                              className="catalog-quantity-btn"
+                              onClick={() => incrementCatalogItem(item)}
+                              disabled={isBudgetLocked}
+                              title="Aumentar quantidade"
+                            >
+                              +
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            className="catalog-item-add-btn"
+                            type="button"
+                            onClick={() => {
+                              if (item.isTemplate) {
+                                addServiceTemplateDirectlyToBudget(item.raw as GuidedLaborTemplate);
+                              } else {
+                                addCatalogHubItemToBudget(item.raw as CatalogHubItem);
+                              }
+                            }}
+                            disabled={isBudgetLocked}
+                            title="Adicionar ao carrinho"
+                          >
+                            Adicionar
+                          </button>
+                        )}
                       </div>
-                      <span className="add-plus">+</span>
-                    </button>
-                  ))}
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* Accordion para Cadastro Manual */}
+              <div className="manual-add-accordion">
+                <button
+                  type="button"
+                  className="manual-add-trigger"
+                  onClick={() => setIsManualFormExpanded(!isManualFormExpanded)}
+                  disabled={isBudgetLocked}
+                >
+                  <span>{isManualFormExpanded ? '− Fechar item personalizado' : '＋ Criar item personalizado manual'}</span>
+                  <span>{isManualFormExpanded ? '▲' : '▼'}</span>
+                </button>
+
+                {isManualFormExpanded && (
+                  <div className="manual-add-content">
+                    <div className="aferix-form-grid aferix-form-grid-3">
+                      <TextArea 
+                        className="aferix-form-grid-wide"
+                        label="Descrição do item"
+                        placeholder="Ex.: Serviço elétrico adicional..." 
+                        value={draft.description} 
+                        onChange={(v) => updateDraft('description', v)} 
+                        disabled={isBudgetLocked} 
+                      />
+                      <Input label="Quantidade" type="number" inputMode="decimal" value={draft.quantity} onFocus={handleNumericInputFocus} onChange={(e) => updateDraft('quantity', Math.max(1, Number(e.target.value)))} disabled={isBudgetLocked} />
+                      <MonetaryInput label="Valor unitário" value={draft.unitPrice} onChange={(v) => updateDraft('unitPrice', v)} disabled={isBudgetLocked} />
+                      <Select label="Categoria" value={draft.category} onChange={(value) => updateDraft('category', value as BudgetCategory)} disabled={isBudgetLocked}>
+                        <option value="labor">Mão de obra</option>
+                        <option value="material">Material</option>
+                        <option value="other">Outro</option>
+                      </Select>
+                    </div>
+                    <div className="aferix-form-actions aferix-form-actions-row budget-top-spacing-md">
+                      <PrimaryButton disabled={isBudgetLocked || !canAddItem} onClick={() => { addItem(); setIsManualFormExpanded(false); }}>
+                        Adicionar ao Carrinho
+                      </PrimaryButton>
+                      <SecondaryButton onClick={confirmLoadStarterItems} disabled={isBudgetLocked}>
+                        Carregar modelo pronto
+                      </SecondaryButton>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </PanelCard>
+
+            {/* 2. Carrinho do Orçamento */}
+            <div className="premium-cart-container">
+              <header className="cart-header-row">
+                <div className="cart-header-title">
+                  <span>🛒 Carrinho de Itens</span>
+                  {items.length > 0 && <span className="cart-header-badge">{items.length} {items.length === 1 ? 'item' : 'itens'}</span>}
+                </div>
+                {items.length > 0 && (
+                  <button
+                    type="button"
+                    className="cart-clear-all-btn"
+                    onClick={confirmClearItems}
+                    disabled={isBudgetLocked}
+                  >
+                    Limpar tudo
+                  </button>
+                )}
+              </header>
+
+              {items.length === 0 ? (
+                <PanelCard>
+                  <EmptyState 
+                    title="Carrinho vazio" 
+                    description="Utilize a biblioteca acima ou adicione um item manual para começar a montar o orçamento." 
+                  />
+                </PanelCard>
+              ) : (
+                <div className="premium-cart-list budget-top-spacing-sm" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  {items.map((item) => {
+                    const isExpanded = expandedBudgetItemId === item.id;
+                    const itemTotal = safeBudgetItemTotal(item);
+                    return (
+                      <div key={item.id} className={`cart-item-premium ${highlightedItemId === item.id ? 'highlight-pulse' : ''}`}>
+                        <div className="cart-item-horizontal-content">
+                          
+                          <div className="cart-item-left-col">
+                            <div className="cart-item-title-row">
+                              <span className={`cart-item-badge-dot ${item.category}`} title={item.category === 'labor' ? 'Mão de obra' : 'Material'}></span>
+                              <strong className="cart-item-title">{item.description}</strong>
+                            </div>
+                            <div className="cart-item-meta-row">
+                              <span className="cart-item-price-each">{formatCurrency(item.unitPrice)} cada</span>
+                              <span className="cart-item-price-separator">·</span>
+                              <span className="cart-item-subtotal-inline">Subtotal: <strong>{formatCurrency(itemTotal)}</strong></span>
+                            </div>
+                          </div>
+
+                          <div className="cart-item-right-col">
+                            {/* Quantity Selector */}
+                            <div className="quantity-selector-group compact">
+                              <button
+                                type="button"
+                                className="quantity-btn"
+                                onClick={() => {
+                                  if (item.quantity > 1) {
+                                    updateBudgetItem(item.id, 'quantity', item.quantity - 1);
+                                  } else {
+                                    confirmRemoveItem(item.id);
+                                  }
+                                }}
+                                disabled={isBudgetLocked}
+                                title="Reduzir quantidade"
+                              >
+                                −
+                              </button>
+                              <span className="quantity-value-display">{item.quantity}</span>
+                              <button
+                                type="button"
+                                className="quantity-btn"
+                                onClick={() => updateBudgetItem(item.id, 'quantity', item.quantity + 1)}
+                                disabled={isBudgetLocked}
+                                title="Aumentar quantidade"
+                              >
+                                +
+                              </button>
+                            </div>
+
+                            {/* Action Buttons */}
+                            <div className="cart-item-quick-actions">
+                              <button
+                                type="button"
+                                className={`cart-quick-action-btn ${isExpanded ? 'active' : ''}`}
+                                onClick={() => setExpandedBudgetItemId(isExpanded ? null : item.id)}
+                                title="Ajustar detalhes"
+                              >
+                                ✏️ Editar
+                              </button>
+                              <button
+                                type="button"
+                                className="cart-quick-action-btn danger"
+                                onClick={() => confirmRemoveItem(item.id)}
+                                disabled={isBudgetLocked}
+                                title="Remover"
+                              >
+                                🗑️
+                              </button>
+                            </div>
+                          </div>
+
+                        </div>
+
+                        {/* Edição Avançada Inline */}
+                        {isExpanded && (
+                          <div className="cart-inline-editor">
+                            <div className="aferix-form-grid">
+                              <Input 
+                                className="aferix-form-grid-wide" 
+                                label="Descrição detalhada" 
+                                value={item.description} 
+                                onChange={(e) => updateBudgetItem(item.id, 'description', e.target.value)} 
+                                disabled={isBudgetLocked} 
+                              />
+                              <Input 
+                                label="Qtd. operacional" 
+                                type="number" 
+                                inputMode="decimal" 
+                                value={item.quantity} 
+                                onFocus={handleNumericInputFocus} 
+                                onChange={(e) => updateBudgetItem(item.id, 'quantity', Math.max(1, Number(e.target.value)))} 
+                                disabled={isBudgetLocked} 
+                              />
+                              <MonetaryInput 
+                                label="Preço unitário customizado" 
+                                value={item.unitPrice} 
+                                onChange={(v) => updateBudgetItem(item.id, 'unitPrice', v)} 
+                                disabled={isBudgetLocked} 
+                              />
+                              <Select 
+                                label="Categoria técnica" 
+                                value={item.category} 
+                                onChange={(value) => updateBudgetItem(item.id, 'category', value as BudgetCategory)} 
+                                disabled={isBudgetLocked}
+                              >
+                                <option value="labor">Mão de obra</option>
+                                <option value="material">Material</option>
+                                <option value="other">Outro</option>
+                              </Select>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </div>
-          </PanelCard>
 
-          <PanelCard className="budget-editor">
-            <header className="panel-list-header">
-              <SectionTitle title="Adicionar item manual" eyebrow="Personalizado" />
-            </header>
-            <div className="aferix-form-grid aferix-form-grid-3">
-              <TextArea 
-                className="aferix-form-grid-wide"
-                label="Descrição"
-                placeholder="Ex.: Serviço recorrente" 
-                value={draft.description} 
-                onChange={(v) => updateDraft('description', v)} 
-                disabled={isBudgetLocked} 
-              />
-              <Input label="Qtd." type="number" inputMode="decimal" value={draft.quantity} onFocus={handleNumericInputFocus} onChange={(e) => updateDraft('quantity', Math.max(0, Number(e.target.value)))} disabled={isBudgetLocked} />
-              <MonetaryInput label="Valor unitário" value={draft.unitPrice} onChange={(v) => updateDraft('unitPrice', v)} disabled={isBudgetLocked} />
-              <Select label="Categoria" value={draft.category} onChange={(value) => updateDraft('category', value as BudgetCategory)} disabled={isBudgetLocked}>
-                <option value="labor">Mão de obra</option>
-                <option value="material">Material</option>
-                <option value="other">Outro</option>
-              </Select>
+            <div className="aferix-form-actions aferix-form-actions-row budget-top-spacing-md" style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '24px' }}>
+              <PrimaryButton onClick={() => setActiveSection('custos')}>
+                Próximo: Definir Custos →
+              </PrimaryButton>
             </div>
-            <div className="aferix-form-actions aferix-form-actions-row budget-top-spacing-md">
-              <PrimaryButton disabled={isBudgetLocked || !canAddItem} onClick={addItem}>Adicionar item</PrimaryButton>
-              <SecondaryButton onClick={confirmLoadStarterItems} disabled={isBudgetLocked}>Carregar modelo</SecondaryButton>
-            </div>
-          </PanelCard>
-
-          <div className="budget-item-manager">
-            {items.length === 0 ? (
-              <PanelCard><EmptyState title="Sem itens" description="Nenhum item adicionado ainda." /></PanelCard>
-            ) : (
-              <div className="budget-item-manager-grid">
-                <ListCard className="budget-item-table">
-                  {visibleBudgetItems.map((item) => (
-                    <ListItem 
-                      key={item.id}
-                      onClick={() => setSelectedBudgetItemId(item.id)}
-                      className={selectedBudgetItemId === item.id ? 'active' : ''}
-                      title={item.description}
-                      subtitle={`${categoryLabel(item.category)} · Qtd. ${item.quantity}`}
-                      value={<strong>{formatCurrency(safeBudgetItemTotal(item))}</strong>}
-                    />
-                  ))}
-                </ListCard>
-                {selectedBudgetItem && (
-                  <PanelCard className="budget-item-edit-panel">
-                    <div className="aferix-form-grid">
-                      <Input className="aferix-form-grid-wide" label="Descrição" value={selectedBudgetItem.description} onChange={(e) => updateBudgetItem(selectedBudgetItem.id, 'description', e.target.value)} disabled={isBudgetLocked} />
-                      <Input label="Qtd." type="number" inputMode="decimal" value={selectedBudgetItem.quantity} onFocus={handleNumericInputFocus} onChange={(e) => updateBudgetItem(selectedBudgetItem.id, 'quantity', Math.max(0, Number(e.target.value)))} disabled={isBudgetLocked} />
-                      <MonetaryInput label="Valor unitário" value={selectedBudgetItem.unitPrice} onChange={(v) => updateBudgetItem(selectedBudgetItem.id, 'unitPrice', v)} disabled={isBudgetLocked} />
-                    </div>
-                    <div className="aferix-form-actions aferix-form-actions-row budget-top-spacing-md">
-                      <Button variant="danger" disabled={isBudgetLocked} onClick={() => confirmRemoveItem(selectedBudgetItemId!)}>Remover</Button>
-                    </div>
-                  </PanelCard>
-                )}
-              </div>
-            )}
-          </div>
-          
-          <PanelCard className="budget-sticky-summary">
-            <span className="aferix-kicker">Resumo Financeiro</span>
-            <div><small>Subtotal de itens</small><strong>{formatCurrency(summary.subtotal)}</strong></div>
-          </PanelCard>
-          
-          <div className="aferix-form-actions aferix-form-actions-row">
-            <PrimaryButton onClick={() => setActiveSection('custos')}>Próximo: Custos</PrimaryButton>
           </div>
         </section>
       )}

@@ -1,34 +1,87 @@
 :root {
-  --aferix-bg: #070A0F;
-  --aferix-bg-soft: #070A0F;
-  --aferix-surface: #10141B;
-  --aferix-surface-raised: #151A22;
+  /* AFERIX DESIGN SYSTEM V1 — GLOBAL VISUAL FOUNDATION TOKENS */
+  /* --- COLORS --- */
+  --aferix-bg-primary: #070A0F;
+  --aferix-bg-surface: #10141B;
+  --aferix-bg-elevated: #151A22;
+  --aferix-border: rgba(255, 255, 255, 0.06);
+  --aferix-border-strong: rgba(255, 255, 255, 0.12);
+  --aferix-text-primary: #F8FAFC;
+  --aferix-text-secondary: #A1A1AA;
+  --aferix-yellow: #FFD21F;
+  --aferix-red: #EF4444;
+  --aferix-green: #22C55E;
+
+  /* Color mappings for theme variables */
+  --aferix-bg: var(--aferix-bg-primary);
+  --aferix-bg-soft: var(--aferix-bg-primary);
+  --aferix-surface: var(--aferix-bg-surface);
+  --aferix-surface-raised: var(--aferix-bg-elevated);
   --aferix-surface-active: #1e2430;
   --aferix-surface-2: var(--aferix-surface-raised);
   --aferix-surface-3: var(--aferix-surface-active);
   --aferix-surface-hover: #1e2430;
-  --aferix-border: rgba(255,255,255,0.06);
-  --aferix-border-strong: rgba(255,255,255,0.12);
-  --aferix-text: #F8FAFC;
-  --aferix-text-primary: #F8FAFC;
+  --aferix-text: var(--aferix-text-primary);
   --aferix-text-muted: #71717A;
-  --aferix-text-soft: #A1A1AA;
+  --aferix-text-soft: var(--aferix-text-secondary);
   --aferix-muted: var(--aferix-text-muted);
-  --aferix-text-secondary: var(--aferix-text-soft);
-  --aferix-brand: #FFD21F;
+  --aferix-brand: var(--aferix-yellow);
   --aferix-brand-soft: #8a5d08;
   --aferix-brand-hover: #EAB308;
   --aferix-primary: var(--aferix-brand);
   --aferix-primary-strong: var(--aferix-brand-hover);
   --aferix-primary-soft: rgba(250, 204, 21, 0.11);
-  --aferix-success: #22C55E;
-  --aferix-danger: #EF4444;
+  --aferix-success: var(--aferix-green);
+  --aferix-danger: var(--aferix-red);
   --aferix-warning: #FACC15;
   --aferix-accent: var(--aferix-brand);
+
+  /* --- SPACING --- */
+  --aferix-spacing-xs: 4px;
+  --aferix-spacing-sm: 8px;
+  --aferix-spacing-md: 12px;
+  --aferix-spacing-lg: 16px;
+  --aferix-spacing-xl: 24px;
+
+  /* Spacing mapping for internal compatibility */
+  --aferix-space-1: var(--aferix-spacing-xs);
+  --aferix-space-2: var(--aferix-spacing-sm);
+  --aferix-space-3: var(--aferix-spacing-md);
+  --aferix-space-4: var(--aferix-spacing-lg);
+  --aferix-space-5: var(--aferix-spacing-xl);
+  --aferix-space-6: 32px;
+
+  /* --- RADIUS --- */
   --aferix-radius-sm: 8px;
   --aferix-radius-md: 12px;
   --aferix-radius-lg: 16px;
+  --aferix-radius-xl: 24px;
   --aferix-radius: var(--aferix-radius-md);
+
+  /* --- SHADOWS --- */
+  --aferix-shadow-soft: 0 4px 12px rgba(0, 0, 0, 0.1);
+  --aferix-shadow-elevated: 0 10px 30px rgba(0, 0, 0, 0.3);
+  --aferix-shadow-modal: 0 20px 25px -5px rgba(0, 0, 0, 0.6), 0 10px 10px -5px rgba(0, 0, 0, 0.6);
+  --aferix-shadow-sm: var(--aferix-shadow-soft);
+  --aferix-shadow: var(--aferix-shadow-elevated);
+
+  /* --- TYPOGRAPHY --- */
+  --aferix-font-size-xs: 0.75rem;
+  --aferix-font-size-sm: 0.875rem;
+  --aferix-font-size-base: 1rem;
+  --aferix-font-size-lg: 1.125rem;
+  --aferix-font-size-xl: 1.25rem;
+  --aferix-font-size-2xl: 1.5rem;
+
+  --aferix-line-height-tight: 1.2;
+  --aferix-line-height-snug: 1.4;
+  --aferix-line-height-normal: 1.5;
+  --aferix-line-height-relaxed: 1.6;
+
+  --aferix-font-weight-regular: 400;
+  --aferix-font-weight-medium: 500;
+  --aferix-font-weight-semibold: 600;
+  --aferix-font-weight-bold: 700;
   --aferix-space-1: 4px;
   --aferix-space-2: 8px;
   --aferix-space-3: 12px;
@@ -3880,3 +3933,151 @@ p {
   border: 1px solid rgba(255, 255, 255, 0.06) !important;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3) !important;
 }
+
+/* 10. P10.9 - IPHONE VISUAL QA & DENSITY OPTIMIZATIONS (Work / Novo Orçamento) */
+.budget-section-panel > .compact-budget-card {
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+}
+
+/* Inputs monetários elegantes de alta fidelidade */
+.monetary-input-wrapper {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  width: 100% !important;
+  min-height: var(--aferix-control-h) !important;
+  background: #10141B !important;
+  border: 1px solid var(--aferix-border) !important;
+  border-radius: var(--aferix-control-radius) !important;
+  padding: 0 var(--aferix-control-px) !important;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+  box-sizing: border-box !important;
+}
+
+.monetary-input-wrapper:focus-within {
+  border-color: rgba(255, 210, 31, 0.5) !important;
+  box-shadow: 0 0 0 3px rgba(255, 210, 31, 0.14) !important;
+}
+
+.monetary-input-wrapper input {
+  flex: 1 1 auto !important;
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  outline: none !important;
+  color: var(--aferix-text) !important;
+  font: inherit !important;
+  font-size: var(--aferix-control-font) !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: auto !important;
+}
+
+.monetary-input-wrapper .currency-prefix {
+  color: var(--aferix-text-muted) !important;
+  font-weight: 700 !important;
+  font-size: var(--aferix-control-font) !important;
+  flex-shrink: 0 !important;
+  user-select: none !important;
+}
+
+/* Suavização de botões amarelos pesados */
+button.primary,
+.full-page-cta,
+.aferix-fab {
+  box-shadow: 0 4px 14px rgba(255, 210, 31, 0.14) !important;
+}
+
+button.primary:hover,
+.full-page-cta:hover,
+.aferix-fab:hover {
+  box-shadow: 0 6px 18px rgba(255, 210, 31, 0.22) !important;
+  transform: translateY(-0.5px) !important;
+}
+
+/* Ajustes finos adicionais no mobile (iPhone) */
+@media (max-width: 767px) {
+  :root {
+    --aferix-control-h: 46px !important;
+  }
+
+  /* Maior densidade vertical */
+  .aferix-form-grid,
+  .aferix-form-grid-3,
+  .aferix-form-grid-4 {
+    gap: 12px !important;
+  }
+
+  .aferix-form-section {
+    gap: 10px !important;
+    padding: 4px 0 !important;
+  }
+
+  .aferix-form-actions {
+    margin-top: 16px !important;
+    padding-top: 12px !important;
+    gap: 10px !important;
+  }
+
+  .aferix-form-actions-row {
+    flex-direction: column-reverse !important;
+  }
+
+  /* Botão primário com altura menor e mais refinada no mobile */
+  button.primary,
+  .full-page-cta {
+    min-height: 42px !important;
+    font-size: 0.88rem !important;
+  }
+
+  /* Stepper mobile premium estilo Segmented Control (iOS nativo) */
+  .budget-workspace-stepper {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    gap: 4px !important;
+    background: rgba(255, 255, 255, 0.02) !important;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    border-radius: 12px !important;
+    padding: 4px !important;
+    margin-bottom: 12px !important;
+    overflow-x: auto !important;
+    scrollbar-width: none !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  .budget-workspace-stepper::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  .budget-workspace-stepper button {
+    flex: 1 0 auto !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 4px !important;
+    min-height: 32px !important;
+    padding: 4px 8px !important;
+    border: none !important;
+    border-radius: 8px !important;
+    background: transparent !important;
+    color: var(--aferix-text-muted) !important;
+    font-size: 0.72rem !important;
+    font-weight: 600 !important;
+    box-shadow: none !important;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  }
+
+  .budget-workspace-stepper button.active {
+    background: var(--aferix-primary) !important;
+    color: var(--aferix-bg) !important;
+    box-shadow: 0 2px 8px rgba(255, 210, 31, 0.22) !important;
+  }
+
+  .budget-workspace-stepper .step-num {
+    display: none !important; /* Esconder número no mobile para focar no texto e economizar espaço horizontal */
+  }
+}
+
