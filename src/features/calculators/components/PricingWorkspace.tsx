@@ -4,6 +4,7 @@ import type { CalculationCapture } from '../../../core/types/workflow';
 import { calculateFinalPrice, calculateSalePriceByMarkup, calculateSalePriceByTargetMargin, type MarginMode } from '../../../core/calculations/trade';
 import { roundTechnical } from '../../../core/format/number';
 import { formatCurrency } from '../../../core/format/currency';
+import { AferixTabs, Input, Button } from '../../../app/components/ui';
 
 interface PricingWorkspaceProps {
   userPlan: UserPlan;
@@ -62,62 +63,97 @@ export function PricingWorkspace({
 
   return (
     <div className="pricing-workspace">
-      <nav className="tab-nav">
-        <button className={activeTab === 'quick' ? 'active' : ''} onClick={() => setActiveTab('quick')}>Preço Rápido</button>
-        <button className={activeTab === 'margin' ? 'active' : ''} onClick={() => setActiveTab('margin')}>Margem Real</button>
-        <button className={activeTab === 'markup' ? 'active' : ''} onClick={() => setActiveTab('markup')}>Markup</button>
-      </nav>
+      <AferixTabs
+        items={[
+          { id: 'quick', label: 'Preço Rápido' },
+          { id: 'margin', label: 'Margem Real' },
+          { id: 'markup', label: 'Markup' }
+        ]}
+        activeId={activeTab}
+        onChange={(id) => setActiveTab(id)}
+      />
 
-      <div className="pricing-content aferix-panel-card">
-        <div className="settings-form-grid">
-          <label className="general-form-field">
-            <span>Custo do serviço/material (R$)</span>
-            <input inputMode="decimal" value={cost} onChange={(e) => setCost(e.target.value)} />
-          </label>
-          <label className="general-form-field">
-            <span>{activeTab === 'markup' ? 'Markup (%)' : 'Margem (%)'}</span>
-            <input inputMode="decimal" value={margin} onChange={(e) => setMargin(e.target.value)} />
-          </label>
-          <label className="general-form-field">
-            <span>Impostos e Taxas (%)</span>
-            <input inputMode="decimal" value={tax} onChange={(e) => setTax(e.target.value)} />
-          </label>
+      <div className="pricing-content aferix-panel-card" style={{ marginTop: '16px' }}>
+        <div className="settings-form-grid" style={{ marginBottom: '16px' }}>
+          <Input
+            className="general-form-field"
+            label="Custo do serviço/material (R$)"
+            inputMode="decimal"
+            value={cost}
+            onChange={(e) => setCost(e.target.value)}
+          />
+          <Input
+            className="general-form-field"
+            label={activeTab === 'markup' ? 'Markup (%)' : 'Margem (%)'}
+            inputMode="decimal"
+            value={margin}
+            onChange={(e) => setMargin(e.target.value)}
+          />
+          <Input
+            className="general-form-field"
+            label="Impostos e Taxas (%)"
+            inputMode="decimal"
+            value={tax}
+            onChange={(e) => setTax(e.target.value)}
+          />
         </div>
 
         {activeTab === 'quick' && (
-          <div className="pricing-result-card">
-            <header>
-              <span>Preço sugerido</span>
-              <strong>{formatCurrency(quickResult.total)}</strong>
+          <div className="pricing-result-card aferix-card-kpi" style={{ marginTop: '16px' }}>
+            <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+              <span style={{ color: 'var(--aferix-text-secondary)', fontSize: '0.86rem' }}>Preço sugerido</span>
+              <strong style={{ fontSize: '1.4rem', color: 'var(--aferix-yellow)' }}>{formatCurrency(quickResult.total)}</strong>
             </header>
-            <div className="pricing-stats">
-              <div><span>Lucro bruto</span><strong>{formatCurrency(quickResult.profit)}</strong></div>
-              <div><span>Margem real</span><strong>{roundTechnical(quickResult.effectiveMarginPercent)}%</strong></div>
+            <div className="pricing-stats" style={{ display: 'flex', gap: '24px', marginBottom: '16px' }}>
+              <div>
+                <span style={{ display: 'block', color: 'var(--aferix-text-secondary)', fontSize: '0.78rem' }}>Lucro bruto</span>
+                <strong style={{ color: 'var(--aferix-green)' }}>{formatCurrency(quickResult.profit)}</strong>
+              </div>
+              <div>
+                <span style={{ display: 'block', color: 'var(--aferix-text-secondary)', fontSize: '0.78rem' }}>Margem real</span>
+                <strong>{roundTechnical(quickResult.effectiveMarginPercent)}%</strong>
+              </div>
             </div>
-            <button className="primary-action" onClick={() => handleCapture('Preço Sugerido', quickResult)}>Usar este preço</button>
+            <Button variant="primary" style={{ width: '100%' }} onClick={() => handleCapture('Preço Sugerido', quickResult)}>
+              Usar este preço
+            </Button>
           </div>
         )}
 
         {(activeTab === 'margin' || activeTab === 'markup') && !isPro && (
-          <div className="pro-lock-overlay">
-            <strong>Recurso do Aferix Pro</strong>
-            <p>Cálculos avançados de margem real e markup estão disponíveis na versão Pro.</p>
-            <button className="primary-action" onClick={onUpgradeRequest}>Conhecer Planos</button>
+          <div className="pro-lock-overlay aferix-card-elevated" style={{ marginTop: '16px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', padding: '24px' }}>
+            <strong style={{ color: 'var(--aferix-yellow)', fontSize: '1.1rem' }}>🔒 Recurso do Aferix Pro</strong>
+            <p style={{ color: 'var(--aferix-text-secondary)', fontSize: '0.9rem', maxWidth: '320px', margin: '0' }}>
+              Cálculos avançados de margem real e markup estão disponíveis na versão Pro.
+            </p>
+            <Button variant="primary" onClick={onUpgradeRequest} style={{ marginTop: '8px' }}>
+              Conhecer Planos
+            </Button>
           </div>
         )}
 
         {activeTab === 'margin' && isPro && (
-           <div className="pricing-result-card">
-             {/* Lógica simplificada de margem Pro */}
-             <button className="primary-action" onClick={() => handleCapture('Margem Real', quickResult)}>Capturar</button>
-           </div>
+          <div className="pricing-result-card aferix-card-kpi" style={{ marginTop: '16px' }}>
+            <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+              <span style={{ color: 'var(--aferix-text-secondary)', fontSize: '0.86rem' }}>Margem Real Pro</span>
+              <strong style={{ fontSize: '1.4rem', color: 'var(--aferix-yellow)' }}>{formatCurrency(quickResult.total)}</strong>
+            </header>
+            <Button variant="primary" style={{ width: '100%' }} onClick={() => handleCapture('Margem Real', quickResult)}>
+              Capturar preço de margem
+            </Button>
+          </div>
         )}
 
         {activeTab === 'markup' && isPro && (
-           <div className="pricing-result-card">
-             {/* Lógica simplificada de markup Pro */}
-             <button className="primary-action" onClick={() => handleCapture('Markup Comercial', quickResult)}>Capturar</button>
-           </div>
+          <div className="pricing-result-card aferix-card-kpi" style={{ marginTop: '16px' }}>
+            <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+              <span style={{ color: 'var(--aferix-text-secondary)', fontSize: '0.86rem' }}>Markup Comercial Pro</span>
+              <strong style={{ fontSize: '1.4rem', color: 'var(--aferix-yellow)' }}>{formatCurrency(quickResult.total)}</strong>
+            </header>
+            <Button variant="primary" style={{ width: '100%' }} onClick={() => handleCapture('Markup Comercial', quickResult)}>
+              Capturar preço de markup
+            </Button>
+          </div>
         )}
       </div>
     </div>
