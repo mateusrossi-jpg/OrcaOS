@@ -188,3 +188,12 @@
     white-space: normal;
   }
 }
+
+.material-supply-helper {
+  display: block;
+  margin-top: -4px;
+  margin-bottom: 8px;
+  color: var(--aferix-text-secondary);
+  font-size: 0.76rem;
+}
+

@@ -608,3 +608,133 @@ input[type='number'] {
 strong:has(.money-value) {
   font-variant-numeric: tabular-nums !important;
 }
+
+/* --- Aferix DS V1 Utility Spacing & Layout Tokens --- */
+.aferix-d-flex {
+  display: flex !important;
+}
+.aferix-flex-column {
+  flex-direction: column !important;
+}
+.aferix-flex-row {
+  flex-direction: row !important;
+}
+.aferix-flex-wrap {
+  flex-wrap: wrap !important;
+}
+.aferix-flex-1 {
+  flex: 1 1 0% !important;
+}
+.aferix-flex-wide {
+  flex: 1 1 100% !important;
+}
+.aferix-flex-half {
+  flex: 1 1 50% !important;
+}
+.aferix-flex-third {
+  flex: 1 1 33.333% !important;
+}
+.aferix-align-end {
+  align-items: flex-end !important;
+}
+.aferix-align-center {
+  align-items: center !important;
+}
+.aferix-justify-between {
+  justify-content: space-between !important;
+}
+.aferix-justify-end {
+  justify-content: flex-end !important;
+}
+
+/* Gaps (using V1 spacing tokens) */
+.aferix-gap-xs {
+  gap: var(--aferix-spacing-xs) !important; /* 4px */
+}
+.aferix-gap-sm {
+  gap: var(--aferix-spacing-sm) !important; /* 8px */
+}
+.aferix-gap-md {
+  gap: var(--aferix-spacing-md) !important; /* 12px */
+}
+.aferix-gap-lg {
+  gap: var(--aferix-spacing-lg) !important; /* 16px */
+}
+.aferix-gap-xl {
+  gap: var(--aferix-spacing-xl) !important; /* 24px */
+}
+
+/* Margins (using V1 spacing tokens) */
+.aferix-mt-xs {
+  margin-top: var(--aferix-spacing-xs) !important;
+}
+.aferix-mt-sm {
+  margin-top: var(--aferix-spacing-sm) !important;
+}
+.aferix-mt-md {
+  margin-top: var(--aferix-spacing-md) !important;
+}
+.aferix-mt-lg {
+  margin-top: var(--aferix-spacing-lg) !important;
+}
+.aferix-mt-xl {
+  margin-top: var(--aferix-spacing-xl) !important;
+}
+
+.aferix-mb-xs {
+  margin-bottom: var(--aferix-spacing-xs) !important;
+}
+.aferix-mb-sm {
+  margin-bottom: var(--aferix-spacing-sm) !important;
+}
+.aferix-mb-md {
+  margin-bottom: var(--aferix-spacing-md) !important;
+}
+.aferix-mb-lg {
+  margin-bottom: var(--aferix-spacing-lg) !important;
+}
+.aferix-mb-xl {
+  margin-bottom: var(--aferix-spacing-xl) !important;
+}
+
+/* Width and alignment utilities */
+.aferix-w-full {
+  width: 100% !important;
+}
+.aferix-text-center {
+  text-align: center !important;
+}
+
+/* Typography and display helper tokens */
+.aferix-d-block {
+  display: block !important;
+}
+.aferix-text-muted {
+  color: var(--aferix-text-secondary) !important;
+}
+.aferix-font-xs {
+  font-size: var(--aferix-font-size-xs) !important;
+}
+.aferix-font-sm {
+  font-size: var(--aferix-font-size-sm) !important;
+}
+.aferix-font-md {
+  font-size: var(--aferix-font-size-md) !important;
+}
+.aferix-font-lg {
+  font-size: var(--aferix-font-size-lg) !important;
+}
+.aferix-font-xl {
+  font-size: var(--aferix-font-size-xl) !important;
+}
+.aferix-font-bold {
+  font-weight: var(--aferix-font-weight-bold) !important;
+}
+.aferix-text-yellow {
+  color: var(--aferix-yellow) !important;
+}
+.aferix-text-green {
+  color: var(--aferix-green) !important;
+}
+
+

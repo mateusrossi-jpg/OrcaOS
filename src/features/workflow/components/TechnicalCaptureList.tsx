@@ -128,7 +128,7 @@ export function TechnicalCaptureList({ captures, emptyText, onRemove, onUpdate }
               </Select>
             )}
             {itemType === 'material' && (
-              <small className="material-supply-helper" style={{ display: 'block', marginTop: '-4px', marginBottom: '8px', color: 'var(--aferix-text-secondary)', fontSize: '0.76rem' }}>
+              <small className="material-supply-helper">
                 {materialSupplyOptions.find((option) => option.value === supplyMode)?.helper}
               </small>
             )}
@@ -163,7 +163,7 @@ export function TechnicalCaptureList({ captures, emptyText, onRemove, onUpdate }
               </label>
             </div>
 
-            <div className="technical-commercial-grid" style={{ display: 'flex', gap: '12px' }}>
+            <div className="technical-commercial-grid">
               <Input
                 label="Quantidade"
                 inputMode="decimal"

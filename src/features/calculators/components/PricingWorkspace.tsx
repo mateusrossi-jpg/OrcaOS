@@ -73,8 +73,8 @@ export function PricingWorkspace({
         onChange={(id) => setActiveTab(id)}
       />
 
-      <div className="pricing-content aferix-panel-card" style={{ marginTop: '16px' }}>
-        <div className="settings-form-grid" style={{ marginBottom: '16px' }}>
+      <div className="pricing-content aferix-panel-card aferix-mt-lg">
+        <div className="settings-form-grid aferix-mb-lg">
           <Input
             className="general-form-field"
             label="Custo do serviço/material (R$)"
@@ -99,58 +99,58 @@ export function PricingWorkspace({
         </div>
 
         {activeTab === 'quick' && (
-          <div className="pricing-result-card aferix-card-kpi" style={{ marginTop: '16px' }}>
-            <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-              <span style={{ color: 'var(--aferix-text-secondary)', fontSize: '0.86rem' }}>Preço sugerido</span>
-              <strong style={{ fontSize: '1.4rem', color: 'var(--aferix-yellow)' }}>{formatCurrency(quickResult.total)}</strong>
+          <div className="pricing-result-card aferix-card-kpi aferix-mt-lg">
+            <header className="aferix-d-flex aferix-justify-between aferix-align-center aferix-mb-md">
+              <span className="aferix-text-muted aferix-font-sm">Preço sugerido</span>
+              <strong className="aferix-text-yellow aferix-font-xl">{formatCurrency(quickResult.total)}</strong>
             </header>
-            <div className="pricing-stats" style={{ display: 'flex', gap: '24px', marginBottom: '16px' }}>
+            <div className="pricing-stats aferix-d-flex aferix-gap-xl aferix-mb-lg">
               <div>
-                <span style={{ display: 'block', color: 'var(--aferix-text-secondary)', fontSize: '0.78rem' }}>Lucro bruto</span>
-                <strong style={{ color: 'var(--aferix-green)' }}>{formatCurrency(quickResult.profit)}</strong>
+                <span className="aferix-d-block aferix-text-muted aferix-font-xs">Lucro bruto</span>
+                <strong className="aferix-text-green">{formatCurrency(quickResult.profit)}</strong>
               </div>
               <div>
-                <span style={{ display: 'block', color: 'var(--aferix-text-secondary)', fontSize: '0.78rem' }}>Margem real</span>
+                <span className="aferix-d-block aferix-text-muted aferix-font-xs">Margem real</span>
                 <strong>{roundTechnical(quickResult.effectiveMarginPercent)}%</strong>
               </div>
             </div>
-            <Button variant="primary" style={{ width: '100%' }} onClick={() => handleCapture('Preço Sugerido', quickResult)}>
+            <Button variant="primary" className="aferix-w-full" onClick={() => handleCapture('Preço Sugerido', quickResult)}>
               Usar este preço
             </Button>
           </div>
         )}
 
         {(activeTab === 'margin' || activeTab === 'markup') && !isPro && (
-          <div className="pro-lock-overlay aferix-card-elevated" style={{ marginTop: '16px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', padding: '24px' }}>
-            <strong style={{ color: 'var(--aferix-yellow)', fontSize: '1.1rem' }}>🔒 Recurso do Aferix Pro</strong>
-            <p style={{ color: 'var(--aferix-text-secondary)', fontSize: '0.9rem', maxWidth: '320px', margin: '0' }}>
+          <div className="pro-lock-overlay aferix-card-elevated aferix-mt-lg aferix-text-center aferix-d-flex aferix-flex-column aferix-align-center aferix-gap-md" style={{ padding: '24px' }}>
+            <strong className="aferix-text-yellow aferix-font-md">🔒 Recurso do Aferix Pro</strong>
+            <p className="aferix-text-muted aferix-font-sm" style={{ maxWidth: '320px', margin: '0' }}>
               Cálculos avançados de margem real e markup estão disponíveis na versão Pro.
             </p>
-            <Button variant="primary" onClick={onUpgradeRequest} style={{ marginTop: '8px' }}>
+            <Button variant="primary" className="aferix-mt-sm" onClick={onUpgradeRequest}>
               Conhecer Planos
             </Button>
           </div>
         )}
 
         {activeTab === 'margin' && isPro && (
-          <div className="pricing-result-card aferix-card-kpi" style={{ marginTop: '16px' }}>
-            <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-              <span style={{ color: 'var(--aferix-text-secondary)', fontSize: '0.86rem' }}>Margem Real Pro</span>
-              <strong style={{ fontSize: '1.4rem', color: 'var(--aferix-yellow)' }}>{formatCurrency(quickResult.total)}</strong>
+          <div className="pricing-result-card aferix-card-kpi aferix-mt-lg">
+            <header className="aferix-d-flex aferix-justify-between aferix-align-center aferix-mb-md">
+              <span className="aferix-text-muted aferix-font-sm">Margem Real Pro</span>
+              <strong className="aferix-text-yellow aferix-font-xl">{formatCurrency(quickResult.total)}</strong>
             </header>
-            <Button variant="primary" style={{ width: '100%' }} onClick={() => handleCapture('Margem Real', quickResult)}>
+            <Button variant="primary" className="aferix-w-full" onClick={() => handleCapture('Margem Real', quickResult)}>
               Capturar preço de margem
             </Button>
           </div>
         )}
 
         {activeTab === 'markup' && isPro && (
-          <div className="pricing-result-card aferix-card-kpi" style={{ marginTop: '16px' }}>
-            <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-              <span style={{ color: 'var(--aferix-text-secondary)', fontSize: '0.86rem' }}>Markup Comercial Pro</span>
-              <strong style={{ fontSize: '1.4rem', color: 'var(--aferix-yellow)' }}>{formatCurrency(quickResult.total)}</strong>
+          <div className="pricing-result-card aferix-card-kpi aferix-mt-lg">
+            <header className="aferix-d-flex aferix-justify-between aferix-align-center aferix-mb-md">
+              <span className="aferix-text-muted aferix-font-sm">Markup Comercial Pro</span>
+              <strong className="aferix-text-yellow aferix-font-xl">{formatCurrency(quickResult.total)}</strong>
             </header>
-            <Button variant="primary" style={{ width: '100%' }} onClick={() => handleCapture('Markup Comercial', quickResult)}>
+            <Button variant="primary" className="aferix-w-full" onClick={() => handleCapture('Markup Comercial', quickResult)}>
               Capturar preço de markup
             </Button>
           </div>

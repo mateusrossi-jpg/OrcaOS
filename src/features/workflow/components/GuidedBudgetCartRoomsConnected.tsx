@@ -242,7 +242,7 @@ export function GuidedBudgetCart({ onSendToBudget, mode = 'all' }: GuidedBudgetC
           <strong>Ambiente atual</strong>
           <small>Os próximos serviços e peças serão lançados neste ambiente.</small>
         </div>
-        <div className="guided-manual-grid" style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', marginTop: '12px' }}>
+        <div className="guided-manual-grid aferix-d-flex aferix-flex-wrap aferix-gap-md aferix-mt-md">
           <Select
             className="technical-edit-field"
             label="Ambiente cadastrado"
@@ -259,7 +259,7 @@ export function GuidedBudgetCart({ onSendToBudget, mode = 'all' }: GuidedBudgetC
             onChange={(event) => setCustomEnvironment(event.target.value)}
           />
         </div>
-        <Button variant="secondary" className="inline-action" style={{ marginTop: '12px' }} onClick={() => setSavedRoomsRefreshKey((current) => current + 1)}>
+        <Button variant="secondary" className="inline-action aferix-mt-md" onClick={() => setSavedRoomsRefreshKey((current) => current + 1)}>
           Atualizar cômodos
         </Button>
       </div>
@@ -282,30 +282,30 @@ export function GuidedBudgetCart({ onSendToBudget, mode = 'all' }: GuidedBudgetC
 
           {showLaborManager && (
             <div className="guided-labor-manager">
-              <div className="guided-labor-new aferix-card-surface" style={{ marginBottom: '16px' }}>
+              <div className="guided-labor-new aferix-card-surface aferix-mb-lg">
                 <div>
                   <strong>Novo tipo de trabalho</strong>
                   <small>O valor padrão entra no card, mas pode ser ajustado antes de adicionar ao orçamento.</small>
                 </div>
-                <div className="guided-manual-grid" style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', marginTop: '12px' }}>
-                  <Input className="guided-wide-field" style={{ flex: '1 1 100%' }} label="Serviço" value={newLaborTemplate.title} placeholder="Ex.: Instalação de ventilador de teto" onChange={(event) => setNewLaborTemplate((current) => ({ ...current, title: event.target.value }))} />
-                  <Input style={{ flex: '1' }} label="Unidade" value={newLaborTemplate.unit} placeholder="ponto, un., m, serviço..." onChange={(event) => setNewLaborTemplate((current) => ({ ...current, unit: event.target.value }))} />
-                  <Input style={{ flex: '1' }} label="Valor padrão" inputMode="decimal" onFocus={handleNumericInputFocus} value={newLaborTemplate.defaultUnitValue} placeholder="0,00" onChange={(event) => setNewLaborTemplate((current) => ({ ...current, defaultUnitValue: event.target.value }))} />
-                  <div className="guided-wide-field" style={{ flex: '1 1 100%' }}>
+                <div className="guided-manual-grid aferix-d-flex aferix-flex-wrap aferix-gap-md aferix-mt-md">
+                  <Input className="guided-wide-field aferix-flex-wide" label="Serviço" value={newLaborTemplate.title} placeholder="Ex.: Instalação de ventilador de teto" onChange={(event) => setNewLaborTemplate((current) => ({ ...current, title: event.target.value }))} />
+                  <Input className="aferix-flex-1" label="Unidade" value={newLaborTemplate.unit} placeholder="ponto, un., m, serviço..." onChange={(event) => setNewLaborTemplate((current) => ({ ...current, unit: event.target.value }))} />
+                  <Input className="aferix-flex-1" label="Valor padrão" inputMode="decimal" onFocus={handleNumericInputFocus} value={newLaborTemplate.defaultUnitValue} placeholder="0,00" onChange={(event) => setNewLaborTemplate((current) => ({ ...current, defaultUnitValue: event.target.value }))} />
+                  <div className="guided-wide-field aferix-flex-wide">
                     <TextArea label="Observação" value={newLaborTemplate.note} placeholder="Ex.: validar altura, fixação, acesso e acabamento." onChange={(val) => setNewLaborTemplate((current) => ({ ...current, note: val }))} />
                   </div>
                 </div>
-                <Button variant="primary" className="inline-action" style={{ marginTop: '12px' }} onClick={addLaborTemplate}>Cadastrar serviço</Button>
+                <Button variant="primary" className="inline-action aferix-mt-md" onClick={addLaborTemplate}>Cadastrar serviço</Button>
               </div>
 
               <div className="guided-labor-editor-list">
                 <div className="guided-labor-manager-controls">
                   <Input className="guided-wide-field" label="Buscar serviço cadastrado" value={laborManagerQuery} placeholder="Ex.: tomada, quadro, luminária..." onChange={(event) => setLaborManagerQuery(event.target.value)} />
-                  <div className="guided-labor-visibility-actions" style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
+                  <div className="guided-labor-visibility-actions aferix-d-flex aferix-gap-sm aferix-mt-sm">
                     <Button variant="secondary" className="inline-action" onClick={() => setAllLaborVisibility(true)}>Mostrar todos</Button>
                     <Button variant="secondary" className="inline-action" onClick={() => setAllLaborVisibility(false)}>Ocultar todos</Button>
                   </div>
-                  <small style={{ display: 'block', marginTop: '8px', color: 'var(--aferix-text-secondary)' }}>Marque como visível apenas os serviços que devem aparecer nos cards de seleção do campo.</small>
+                  <small className="aferix-d-block aferix-mt-sm aferix-text-muted">Marque como visível apenas os serviços que devem aparecer nos cards de seleção do campo.</small>
                 </div>
 
                 {!hasLaborLookup ? (
@@ -360,7 +360,7 @@ export function GuidedBudgetCart({ onSendToBudget, mode = 'all' }: GuidedBudgetC
                     <small>{template.note}</small>
                     {addedQuantity > 0 && <span className="guided-cart-count">{addedQuantity} lançado(s) neste ambiente</span>}
                   </div>
-                  <div className="guided-service-controls" style={{ display: 'flex', gap: '8px', alignItems: 'flex-end', marginTop: '12px' }}>
+                  <div className="guided-service-controls aferix-d-flex aferix-gap-sm aferix-align-end aferix-mt-md">
                     <Input label="Qtd." inputMode="decimal" onFocus={handleNumericInputFocus} value={laborQuantityById[template.id] ?? '1'} onChange={(event) => setLaborQuantityById((current) => ({ ...current, [template.id]: event.target.value }))} />
                     <Input label="Valor" inputMode="decimal" onFocus={handleNumericInputFocus} value={laborValueById[template.id] ?? String(template.defaultUnitValue)} onChange={(event) => setLaborValueById((current) => ({ ...current, [template.id]: event.target.value }))} />
                     <Button variant="primary" className="inline-action" onClick={() => addLabor(template)}>Adicionar</Button>
@@ -377,53 +377,52 @@ export function GuidedBudgetCart({ onSendToBudget, mode = 'all' }: GuidedBudgetC
         <>
           <div className="guided-manual-block-card aferix-card-surface">
             <div><strong>Kits automáticos</strong><small>Escolha o kit, informe a quantidade e gere materiais + serviços sugeridos no ambiente atual.</small></div>
-            <div className="guided-manual-grid" style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', marginTop: '12px' }}>
-              <div className="guided-wide-field" style={{ flex: '1 1 100%' }}>
+            <div className="guided-manual-grid aferix-d-flex aferix-flex-wrap aferix-gap-md aferix-mt-md">
+              <div className="guided-wide-field aferix-flex-wide">
                 <Select label="Kit" value={selectedKitId} onChange={(val) => { const id = val as KitId; setSelectedKitId(id); setKitQuantity(kitTemplates.find((kit) => kit.id === id)?.defaultQuantity ?? '1'); }}>{kitTemplates.map((kit) => <option key={kit.id} value={kit.id}>{kit.title}</option>)}</Select>
               </div>
-              <Input style={{ flex: '1' }} label="Quantidade" inputMode="decimal" onFocus={handleNumericInputFocus} value={kitQuantity} onChange={(event) => setKitQuantity(event.target.value)} />
-              <div style={{ flex: '1' }}>
+              <Input className="aferix-flex-1" label="Quantidade" inputMode="decimal" onFocus={handleNumericInputFocus} value={kitQuantity} onChange={(event) => setKitQuantity(event.target.value)} />
+              <div className="aferix-flex-1">
                 <Select label="Marca desejada" value={kitBrand} onChange={(val) => setKitBrand(val)}>{kitBrands.map((brand) => <option key={brand} value={brand}>{brand}</option>)}</Select>
               </div>
-              <div style={{ flex: '1' }}>
+              <div className="aferix-flex-1">
                 <Select label="Destino" value={kitDestination} onChange={(val) => setKitDestination(val as CalculationDestination)}><option value="survey">Atendimento</option><option value="budget">Orçamento</option><option value="both">Ambos</option></Select>
               </div>
             </div>
-            <div className="guided-cart-summary" style={{ marginTop: '12px', padding: '12px', background: 'rgba(255, 255, 255, 0.02)', borderRadius: '8px' }}><strong>{selectedKit.title}</strong><small>{selectedKit.description}</small></div>
-            <Button variant="primary" className="inline-action" style={{ marginTop: '12px' }} onClick={addSelectedKit}>Gerar kit selecionado</Button>
+            <div className="guided-cart-summary aferix-mt-md"><strong>{selectedKit.title}</strong><small>{selectedKit.description}</small></div>
+            <Button variant="primary" className="inline-action aferix-mt-md" onClick={addSelectedKit}>Gerar kit selecionado</Button>
           </div>
 
-          <div className="guided-manual-block-card aferix-card-surface" style={{ marginTop: '16px' }}>
+          <div className="guided-manual-block-card aferix-card-surface aferix-mt-lg">
             <div><strong>Peça/material manual</strong><small>Digite qualquer material, marca, modelo, quantidade e valor.</small></div>
-            <div className="guided-manual-grid" style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', marginTop: '12px' }}>
-              <Input className="guided-wide-field" style={{ flex: '1 1 100%' }} label="Descrição da peça" value={manualPart.title} placeholder="Ex.: chassis 4x2, tomada 20A, placa dupla..." onChange={(event) => setManualPart((current) => ({ ...current, title: event.target.value }))} />
-              <Input style={{ flex: '1' }} label="Marca" value={manualPart.brand} placeholder="Ex.: Fabricante B" onChange={(event) => setManualPart((current) => ({ ...current, brand: event.target.value }))} />
-              <Input style={{ flex: '1' }} label="Modelo/ref." value={manualPart.model} placeholder="Opcional" onChange={(event) => setManualPart((current) => ({ ...current, model: event.target.value }))} />
-              <Input style={{ flex: '1' }} label="Quantidade" inputMode="decimal" onFocus={handleNumericInputFocus} value={manualPart.quantity} onChange={(event) => setManualPart((current) => ({ ...current, quantity: event.target.value }))} />
-              <Input style={{ flex: '1' }} label="Valor unitário" inputMode="decimal" onFocus={handleNumericInputFocus} value={manualPart.unitValue} placeholder="0,00" onChange={(event) => setManualPart((current) => ({ ...current, unitValue: event.target.value }))} />
-              <div style={{ flex: '1' }}>
+            <div className="guided-manual-grid aferix-d-flex aferix-flex-wrap aferix-gap-md aferix-mt-md">
+              <Input className="guided-wide-field aferix-flex-wide" label="Descrição da peça" value={manualPart.title} placeholder="Ex.: chassis 4x2, tomada 20A, placa dupla..." onChange={(event) => setManualPart((current) => ({ ...current, title: event.target.value }))} />
+              <Input className="aferix-flex-1" label="Marca" value={manualPart.brand} placeholder="Ex.: Fabricante B" onChange={(event) => setManualPart((current) => ({ ...current, brand: event.target.value }))} />
+              <Input className="aferix-flex-1" label="Modelo/ref." value={manualPart.model} placeholder="Opcional" onChange={(event) => setManualPart((current) => ({ ...current, model: event.target.value }))} />
+              <Input className="aferix-flex-1" label="Quantidade" inputMode="decimal" onFocus={handleNumericInputFocus} value={manualPart.quantity} onChange={(event) => setManualPart((current) => ({ ...current, quantity: event.target.value }))} />
+              <Input className="aferix-flex-1" label="Valor unitário" inputMode="decimal" onFocus={handleNumericInputFocus} value={manualPart.unitValue} placeholder="0,00" onChange={(event) => setManualPart((current) => ({ ...current, unitValue: event.target.value }))} />
+              <div className="aferix-flex-1">
                 <Select label="Destino" value={manualPart.destination} onChange={(val) => setManualPart((current) => ({ ...current, destination: val as CalculationDestination }))}><option value="survey">Atendimento</option><option value="budget">Orçamento</option><option value="both">Ambos</option></Select>
               </div>
-              <div className="guided-wide-field" style={{ flex: '1 1 100%' }}>
+              <div className="guided-wide-field aferix-flex-wide">
                 <TextArea label="Observação" value={manualPart.note} placeholder="Ex.: confirmar disponibilidade, usar 20A na cozinha..." onChange={(val) => setManualPart((current) => ({ ...current, note: val }))} />
               </div>
             </div>
-            <Button variant="primary" className="inline-action" style={{ marginTop: '12px' }} onClick={addManualPart}>
+            <Button variant="primary" className="inline-action aferix-mt-md" onClick={addManualPart}>
               Adicionar peça manual
             </Button>
           </div>
 
-          <div className="parts-catalog-panel aferix-card-surface" style={{ marginTop: '16px' }}>
-            <div className="parts-search-grid" style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
+          <div className="parts-catalog-panel aferix-card-surface aferix-mt-lg">
+            <div className="parts-search-grid aferix-d-flex aferix-flex-wrap aferix-gap-md">
               <Input
-                className="technical-edit-field parts-search-wide"
-                style={{ flex: '1 1 100%' }}
+                className="technical-edit-field parts-search-wide aferix-flex-wide"
                 label="Buscar na base interna"
                 value={partQuery}
                 placeholder="Ex.: tomada 20A, disjuntor bipolar..."
                 onChange={(event) => setPartQuery(event.target.value)}
               />
-              <div className="technical-edit-field" style={{ flex: '1' }}>
+              <div className="technical-edit-field aferix-flex-1">
                 <Select
                   label="Marca"
                   value={partBrand}
@@ -435,7 +434,7 @@ export function GuidedBudgetCart({ onSendToBudget, mode = 'all' }: GuidedBudgetC
                   ))}
                 </Select>
               </div>
-              <div className="technical-edit-field" style={{ flex: '1' }}>
+              <div className="technical-edit-field aferix-flex-1">
                 <Select
                   label="Categoria"
                   value={partCategory}
@@ -448,11 +447,11 @@ export function GuidedBudgetCart({ onSendToBudget, mode = 'all' }: GuidedBudgetC
                 </Select>
               </div>
             </div>
-            <div className="parts-results-header" style={{ marginTop: '16px' }}>
+            <div className="parts-results-header aferix-mt-lg">
               <strong>{hasPartLookup ? `${partResults.length} peça(s) encontrada(s)` : 'Pesquise para exibir peças'}</strong>
               <small>Resultados aparecem apenas após busca ou filtro.</small>
             </div>
-            <div className="parts-result-list" style={{ marginTop: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <div className="parts-result-list aferix-mt-md aferix-d-flex aferix-flex-column aferix-gap-sm">
               {partResults.map((part) => {
                 const addedQuantity = quantityInCurrentEnvironment(part.title, 'material');
                 return (
@@ -517,12 +516,12 @@ export function GuidedBudgetCart({ onSendToBudget, mode = 'all' }: GuidedBudgetC
         <div className="environment-grouped-editor">
           {environmentGroups.map((group) => (
             <section className="environment-editor-group" key={group.name}>
-              <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <header className="aferix-d-flex aferix-justify-between aferix-align-center">
                 <div>
                   <span>Ambiente</span>
                   <strong>{group.name}</strong>
                 </div>
-                <div className="environment-header-right" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div className="environment-header-right aferix-d-flex aferix-align-center aferix-gap-md">
                   <b>{formatCurrency(group.subtotal)}</b>
                   <Button variant="primary" className="inline-action env-send-btn" onClick={() => sendEnvironment(group.name)}>
                     Enviar este ambiente
@@ -537,7 +536,7 @@ export function GuidedBudgetCart({ onSendToBudget, mode = 'all' }: GuidedBudgetC
                       <strong>{line.description}</strong>
                       <small>{line.brand ? `${line.brand}${line.model ? ` · ${line.model}` : ''}` : line.note}</small>
                     </div>
-                    <div className="part-result-controls" style={{ display: 'flex', gap: '8px', alignItems: 'flex-end' }}>
+                    <div className="part-result-controls aferix-d-flex aferix-gap-sm aferix-align-end">
                       <Input
                         label="Qtd."
                         inputMode="decimal"
@@ -567,7 +566,7 @@ export function GuidedBudgetCart({ onSendToBudget, mode = 'all' }: GuidedBudgetC
         </div>
       )}
 
-      <div className="guided-cart-actions" style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
+      <div className="guided-cart-actions aferix-d-flex aferix-gap-md aferix-mt-xl">
         <Button variant="primary" className="inline-action" disabled={lines.length === 0} onClick={sendAll}>
           Enviar itens ao fluxo
         </Button>
