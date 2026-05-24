@@ -1,5 +1,6 @@
 import { useEffect, useRef, memo, type ButtonHTMLAttributes, type HTMLAttributes, type ReactNode } from 'react';
-import { CompactActionMenu, MobileActionMenu, type CompactActionItem } from '../CompactActionMenu';
+import { CompactActionMenu, type CompactActionItem } from '../CompactActionMenu';
+import { MobileActionMenu } from './MobileActionMenu';
 import { useAutoResizeTextArea } from '../../hooks/useAutoResizeTextArea';
 import { PageShell } from '../PageShell';
 
@@ -685,6 +686,7 @@ export function ContextBanner({
 
 
 export { PageShell };
+export { ConfirmModal } from './ConfirmModal';
 
 export function AferixTabs<T extends string>({
   items,

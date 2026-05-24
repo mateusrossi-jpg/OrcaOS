@@ -2,7 +2,9 @@
 /* Premium glass‑morphism container */
 .container {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
   padding: 2rem;
   background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
   backdrop-filter: blur(12px);
@@ -60,11 +62,6 @@
   flex-wrap: wrap;
 }
 
-.deleteBtn {
-  background: var(--color-danger);
-  color: #fff;
-}
-
 .error {
   background: var(--color-danger);
   color: #fff;
@@ -81,7 +78,77 @@
   margin-top: 4rem;
 }
 
-/* Mobile‑friendly item container */
+/* Header bar */
+.headerBar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+.pageTitle {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  margin: 0;
+}
+
+.cardTitle {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.cardId {
+  font-size: 0.9rem;
+  color: var(--color-muted);
+  margin-bottom: 1rem;
+}
+
+.totalValue {
+  color: var(--color-success);
+  font-weight: 600;
+}
+
+/* Item table layout */
+.itemTable {
+  display: grid;
+  width: 100%;
+  max-width: 100%;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.itemHeader {
+  font-weight: 600;
+  padding-bottom: 0.25rem;
+  border-bottom: 1px solid var(--color-muted);
+}
+
+.itemDescription {
+  min-width: 0;
+  white-space: normal;
+  word-break: normal;
+  overflow-wrap: normal;
+}
+
+.itemQuantity,
+.itemValue {
+  white-space: nowrap;
+  text-align: right;
+}
+
+.itemActions {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+  margin-top: 0.25rem;
+}
+
+/* Mobile‑friendly item container fallback (kept for legacy) */
 .itemContainer {
   display: flex;
   flex-direction: column;

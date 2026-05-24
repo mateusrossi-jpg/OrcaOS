@@ -120,9 +120,11 @@ function confirmWordForAction(action: string): string {
 
 export function BudgetHistoryScreen({
   onOpenBudget,
+  onEditBudget,
   onNewBudget,
 }: {
   onOpenBudget: (budgetId: string) => void;
+  onEditBudget?: (budgetId: string) => void;
   onNewBudget: () => void;
 }) {
   const [query, setQuery] = useState('');
@@ -306,7 +308,7 @@ export function BudgetHistoryScreen({
                     <ActionMenu 
                       items={[
                         { id: 'open', label: 'Abrir', onSelect: () => onOpenBudget(record.id) },
-                        { id: 'edit', label: 'Editar', onSelect: () => { if (isLocked) return; onOpenBudget(record.id); } },
+                        { id: 'edit', label: 'Editar', onSelect: () => { if (isLocked) return; (onEditBudget ?? onOpenBudget)(record.id); } },
                         {
                           id: 'duplicate',
                           label: 'Duplicar',

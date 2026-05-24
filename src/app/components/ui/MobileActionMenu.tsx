@@ -1,7 +1,8 @@
 import React from 'react';
 import { SecondaryButton } from './index';
-import type { CompactActionItem } from './index';
+import type { CompactActionItem } from '../CompactActionMenu';
 import styles from './MobileActionMenu.module.css';
+import { ActionSheet } from './ActionSheet';
 
 /**
  * Mobile‑only action menu displayed as a small bottom sheet.
@@ -14,32 +15,25 @@ export function MobileActionMenu({
   items: CompactActionItem[];
   label?: string;
 }) {
-  const [open, setOpen] = React.useState(true);
+  const [open, setOpen] = React.useState(false);
 
   const close = () => setOpen(false);
 
   return (
-    open && (
-      <div className={styles.overlay} onClick={close}>
-        <div className={styles.sheet} onClick={e => e.stopPropagation()}>
-          {label && <h3 className={styles.title}>{label}</h3>}
-          <div className={styles.menu}>
-            {items.map(it => (
-              <SecondaryButton
-                key={it.id}
-                onClick={() => {
-                  it.onSelect?.();
-                  close();
-                }}
-                className={styles.itemButton}
-                tone={it.tone}
-              >
-                {it.label}
-              </SecondaryButton>
-            ))}
-          </div>
-        </div>
-      </div>
-    )
+    <>
+      {/* Trigger button */}
+      <button className={styles.trigger} onClick={() => setOpen(true)} aria-label="Open action menu">⋮</button>
+      <ActionSheet isOpen={open} onClose={close} label={label}>
+        {items.map(it => (
+          <SecondaryButton
+            key={it.id}
+            onClick={() => { it.onSelect?.(); close(); }}
+            className={styles.itemButton}
+          >
+            {it.label}
+          </SecondaryButton>
+        ))}
+      </ActionSheet>
+    </>
   );
 }

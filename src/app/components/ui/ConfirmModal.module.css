@@ -1,0 +1,65 @@
+.confirm-modal-card {
+  background: var(--aferix-surface-2);
+  color: var(--aferix-text);
+  border-radius: 12px;
+  max-width: min(420px, calc(100vw - 32px));
+  width: 100%;
+  padding: 1.5rem;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(4px);
+  animation: scaleIn 0.2s ease-out forwards;
+}
+
+.confirm-modal-header {
+  margin-bottom: 1rem;
+}
+
+.confirm-modal-header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--aferix-text);
+}
+
+.confirm-modal-body {
+  margin-bottom: 1.5rem;
+}
+
+.confirm-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+.confirm-modal-footer button {
+  min-width: 80px;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.confirm-modal-footer .cancel {
+  background: transparent;
+  color: var(--aferix-text-secondary);
+}
+
+.confirm-modal-footer .cancel:hover {
+  background: rgba(255,255,255,0.08);
+}
+
+.confirm-modal-footer .confirm {
+  background: var(--aferix-danger);
+  color: #fff;
+}
+
+.confirm-modal-footer .confirm:hover {
+  background: var(--aferix-danger-dark);
+}
+
+@keyframes scaleIn {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}

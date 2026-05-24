@@ -1,5 +1,19 @@
+// src/features/budgets/components/BudgetDetailWorkspace.tsx
 import React, { useEffect, useState } from 'react';
-import { PanelCard, EmptyState, PrimaryButton, SecondaryButton, Input, TextArea, ListItem, Modal, Select } from '../../../app/components/ui';
+import {
+  PanelCard,
+  EmptyState,
+  PrimaryButton,
+  SecondaryButton,
+  DangerButton,
+  Input,
+  TextArea,
+  Modal,
+  Select,
+  ConfirmModal,
+  StatusBadge,
+  BackButton,
+} from '../../../app/components/ui';
 import { loadSavedBudgets, saveBudgetRecord } from '../storage/savedBudgetsStorage';
 import { duplicateBudget } from '../utils/duplicateBudget';
 import type { SavedBudgetRecord } from '../storage/savedBudgetsStorage';
@@ -7,50 +21,46 @@ import type { AppTab } from '../../../app/appTypes';
 import styles from './BudgetDetailWorkspace.module.css';
 import { calculateBudgetTotal } from '../../../core/pricing/budget';
 
-/**
- * UI shell for the internal Budget Detail screen (Rodada 3.1).
- * Adds controlled editing for costs and notes while keeping the rest read‑only.
- */
-export function BudgetDetailWorkspace({ budgetId, onNavigate }: { budgetId: string; onNavigate: (tab: AppTab) => void }) {
+/** UI for Budget Detail (premium redesign) */
+export function BudgetDetailWorkspace({
+  budgetId,
+  onNavigate,
+}: {
+  budgetId: string;
+  onNavigate: (tab: AppTab) => void;
+}) {
   const [budget, setBudget] = useState<SavedBudgetRecord | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [editMode, setEditMode] = useState(false);
 
-  // Temporary edit fields
+  // Temp edit fields
   const [editDiscount, setEditDiscount] = useState('');
   const [editTravelCost, setEditTravelCost] = useState('');
   const [editAdditionalFees, setEditAdditionalFees] = useState('');
   const [editCommercialNotes, setEditCommercialNotes] = useState('');
   const [editTechnicalNotes, setEditTechnicalNotes] = useState('');
 
-  // Load the budget when the component mounts or the id changes
+  // Load budget
   useEffect(() => {
     const all = loadSavedBudgets();
     const found = all.find((b) => b.id === budgetId) || null;
     setBudget(found);
   }, [budgetId]);
 
-  // Money formatter used across the app
   const money = (value: number) =>
     new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
 
-  // Compute total if we have a budget
-  const total = budget
-    ? money(
-        calculateBudgetTotal({
-          id: budget.id,
-          title: budget.title,
-          status: budget.status,
-          discount: budget.discount,
-          travelCost: budget.travelCost,
-          additionalFees: budget.additionalFees,
-          items: budget.items,
-        })
-      )
-    : money(0);
+  const total = budget ? money(calculateBudgetTotal({
+    id: budget.id,
+    title: budget.title,
+    status: budget.status,
+    discount: budget.discount,
+    travelCost: budget.travelCost,
+    additionalFees: budget.additionalFees,
+    items: budget.items,
+  })) : money(0);
 
-  // When entering edit mode, populate temporary fields
   const startEdit = () => {
     if (!budget) return;
     setEditDiscount(String(budget.discount));
@@ -61,23 +71,17 @@ export function BudgetDetailWorkspace({ budgetId, onNavigate }: { budgetId: stri
     setEditMode(true);
   };
 
-  const cancelEdit = () => {
-    setEditMode(false);
-  };
+  const cancelEdit = () => setEditMode(false);
 
   const saveEdit = () => {
     if (!budget) return;
     const updated = saveBudgetRecord({
-      id: budget.id,
-      clientName: budget.clientName,
-      title: budget.title,
-      status: budget.status,
+      ...budget,
       discount: Number(editDiscount) || 0,
       travelCost: Number(editTravelCost) || 0,
       additionalFees: Number(editAdditionalFees) || 0,
       commercialNotes: editCommercialNotes,
       technicalNotes: editTechnicalNotes,
-      items: budget.items,
     });
     if (updated) {
       setBudget(updated);
@@ -87,29 +91,33 @@ export function BudgetDetailWorkspace({ budgetId, onNavigate }: { budgetId: stri
     }
   };
 
-  // Handle duplication of the current budget
   const handleDuplicate = () => {
     if (!budget) return;
     const newRecord = duplicateBudget(budget);
     if (newRecord) {
-      // Show success feedback and navigate to the new budget detail if possible
-      // For now, we simply alert and navigate back to the list
       setToastMessage('Cópia criada com sucesso.');
-      // Optionally navigate to the list of budgets
-      if (onNavigate) {
-        onNavigate('budgets');
-      }
+      onNavigate('budgets');
     } else {
       setError('Falha ao duplicar o orçamento.');
     }
   };
 
-  // State for editing a single item
+  // Item editing state
   const [editingItem, setEditingItem] = useState<SavedBudgetRecord['items'][0] | null>(null);
   const [editDescription, setEditDescription] = useState('');
   const [editCategory, setEditCategory] = useState('');
   const [editQuantity, setEditQuantity] = useState('');
   const [editUnitPrice, setEditUnitPrice] = useState('');
+
+  // Adding item state
+  const [addingItem, setAddingItem] = useState(false);
+  const [addDescription, setAddDescription] = useState('');
+  const [addCategory, setAddCategory] = useState('');
+  const [addQuantity, setAddQuantity] = useState('');
+  const [addUnitPrice, setAddUnitPrice] = useState('');
+
+  // Delete confirmation
+  const [deletingItem, setDeletingItem] = useState<SavedBudgetRecord['items'][0] | null>(null);
 
   const startEditItem = (item: SavedBudgetRecord['items'][0]) => {
     setEditingItem(item);
@@ -118,11 +126,7 @@ export function BudgetDetailWorkspace({ budgetId, onNavigate }: { budgetId: stri
     setEditQuantity(String(item.quantity));
     setEditUnitPrice(String(item.unitPrice));
   };
-
-  const cancelEditItem = () => {
-    setEditingItem(null);
-  };
-
+  const cancelEditItem = () => setEditingItem(null);
   const saveEditItem = () => {
     if (!budget || !editingItem) return;
     const updatedItems = budget.items.map((it) =>
@@ -134,20 +138,9 @@ export function BudgetDetailWorkspace({ budgetId, onNavigate }: { budgetId: stri
             quantity: Number(editQuantity) || 0,
             unitPrice: Number(editUnitPrice) || 0,
           }
-        : it
+        : it,
     );
-    const updated = saveBudgetRecord({
-      id: budget.id,
-      clientName: budget.clientName,
-      title: budget.title,
-      status: budget.status,
-      discount: budget.discount,
-      travelCost: budget.travelCost,
-      additionalFees: budget.additionalFees,
-      commercialNotes: budget.commercialNotes,
-      technicalNotes: budget.technicalNotes,
-      items: updatedItems,
-    });
+    const updated = saveBudgetRecord({ ...budget, items: updatedItems });
     if (updated) {
       setBudget(updated);
       setEditingItem(null);
@@ -155,7 +148,49 @@ export function BudgetDetailWorkspace({ budgetId, onNavigate }: { budgetId: stri
       setError('Falha ao salvar o item.');
     }
   };
-  // Render an empty state when the budget cannot be found
+
+  const startAddItem = () => {
+    setAddDescription('');
+    setAddCategory('');
+    setAddQuantity('');
+    setAddUnitPrice('');
+    setAddingItem(true);
+  };
+  const cancelAddItem = () => setAddingItem(false);
+  const saveAddItem = () => {
+    if (!budget) return;
+    const newItem = {
+      id: Date.now().toString(),
+      description: addDescription,
+      category: addCategory as any,
+      quantity: Number(addQuantity) || 0,
+      unitPrice: Number(addUnitPrice) || 0,
+    };
+    const updated = saveBudgetRecord({ ...budget, items: [...budget.items, newItem] });
+    if (updated) {
+      setBudget(updated);
+      setAddingItem(false);
+    } else {
+      setError('Falha ao adicionar o item.');
+    }
+  };
+
+  const startDeleteItem = (item: SavedBudgetRecord['items'][0]) => setDeletingItem(item);
+  const cancelDeleteItem = () => setDeletingItem(null);
+  const confirmDeleteItem = () => {
+    if (!budget || !deletingItem) return;
+    const updated = saveBudgetRecord({
+      ...budget,
+      items: budget.items.filter((it) => it.id !== deletingItem.id),
+    });
+    if (updated) {
+      setBudget(updated);
+      setDeletingItem(null);
+    } else {
+      setError('Falha ao remover o item.');
+    }
+  };
+
   if (!budget) {
     return (
       <EmptyState
@@ -165,15 +200,22 @@ export function BudgetDetailWorkspace({ budgetId, onNavigate }: { budgetId: stri
     );
   }
 
-  // Determine if editing should be blocked based on status
   const isLocked = ['finalizado', 'cancelado', 'recusado'].includes(budget.status);
 
   return (
     <div className={styles.container}>
+      {/* Header */}
+      <div className={styles.headerBar}>
+        <BackButton
+          label="Voltar"
+          onClick={() => onNavigate('budgets')}
+        />
+        <h1 className={styles.pageTitle}>Detalhe do orçamento</h1>
+      </div>
+
       <PanelCard className={styles.card}>
-        <h2 className={styles.title}>Detalhe do Orçamento #{budget.id}</h2>
-        {error && <div className={styles.error}>{error}</div>}
-        {/* Header – compact, read‑only */}
+        <h2 className={styles.cardTitle}>Detalhe do Orçamento</h2>
+        <p className={styles.cardId}>ID: {budget.id}</p>
         <div className={styles.fieldGroup}>
           <label>Título</label>
           <span>{budget.title || 'Sem título'}</span>
@@ -184,32 +226,41 @@ export function BudgetDetailWorkspace({ budgetId, onNavigate }: { budgetId: stri
         </div>
         <div className={styles.fieldGroup}>
           <label>Status</label>
-          <span>{budget.status}</span>
+          <StatusBadge status={budget.status} />
         </div>
         <div className={styles.fieldGroup}>
           <label>Total</label>
-          <strong>{total}</strong>
+          <strong className={styles.totalValue}>{total}</strong>
         </div>
         <hr className={styles.divider} />
-        {/* Costs and Notes – possibly editable */}
-        {/* Items list */}
+        {/* Items Table */}
         <h3 className={styles.sectionTitle}>Itens</h3>
-            {budget.items.map((item) => (
-              <div key={item.id} className={styles.itemContainer}>
-                <ListItem
-                  title={item.description}
-                  subtitle={item.category}
-                  value={money(item.unitPrice)}
-                  status={money(item.unitPrice * item.quantity)}
-                  action={!isLocked && (
-                    <SecondaryButton onClick={() => startEditItem(item)}>
-                      Editar
-                    </SecondaryButton>
-                  )}
-                />
-              </div>
-            ))}
+        <div className={styles.itemTable}>
+          <div className={styles.itemHeader}>Descrição</div>
+          <div className={styles.itemHeader}>Qtd.</div>
+          <div className={styles.itemHeader}>Valor</div>
+          {budget.items.map((item) => (
+            <React.Fragment key={item.id}>
+              <div className={styles.itemDescription}>{item.description}</div>
+              <div className={styles.itemQuantity}>{item.quantity}</div>
+              <div className={styles.itemValue}>{money(item.unitPrice * item.quantity)}</div>
+              {/* Action row */}
+              {!isLocked && (
+                <div className={styles.itemActions}>
+                  <SecondaryButton onClick={() => startEditItem(item)}>Editar</SecondaryButton>
+                  <DangerButton onClick={() => startDeleteItem(item)}>Remover</DangerButton>
+                </div>
+              )}
+            </React.Fragment>
+          ))}
+        </div>
+        {!isLocked && (
+          <div className={styles.addItemContainer}>
+            <PrimaryButton onClick={startAddItem}>Adicionar item</PrimaryButton>
+          </div>
+        )}
         <hr className={styles.divider} />
+        {/* Costs and notes */}
         <div className={styles.fieldGroup}>
           <label>Desconto (%)</label>
           {editMode ? (
@@ -273,21 +324,19 @@ export function BudgetDetailWorkspace({ budgetId, onNavigate }: { budgetId: stri
         </div>
         {/* Action buttons */}
         <div className={styles.actions}>
-        {editMode ? (
-          <>
-            <SecondaryButton onClick={cancelEdit}>Cancelar</SecondaryButton>
-            <PrimaryButton onClick={saveEdit}>Salvar</PrimaryButton>
-          </>
-        ) : (
-          <>
-            {/* Edit button only when not locked */}
-            {!isLocked && <PrimaryButton onClick={startEdit}>Editar</PrimaryButton>}
-            {/* Duplicate button always visible */}
-            <SecondaryButton onClick={handleDuplicate}>Duplicar</SecondaryButton>
-          </>
-        )}
-      </div>
-        {/* Edit Item Modal */}
+          {editMode ? (
+            <>
+              <SecondaryButton onClick={cancelEdit}>Cancelar</SecondaryButton>
+              <PrimaryButton onClick={saveEdit}>Salvar</PrimaryButton>
+            </>
+          ) : (
+            <>
+              {!isLocked && <PrimaryButton onClick={startEdit}>Editar</PrimaryButton>}
+              <SecondaryButton onClick={handleDuplicate}>Duplicar</SecondaryButton>
+            </>
+          )}
+        </div>
+        {/* Modals */}
         {editingItem && (
           <Modal
             isOpen={!!editingItem}
@@ -303,10 +352,7 @@ export function BudgetDetailWorkspace({ budgetId, onNavigate }: { budgetId: stri
             </div>
             <div className={styles.fieldGroup}>
               <label>Categoria</label>
-              <Select
-                value={editCategory}
-                onChange={(v) => setEditCategory(v)}
-              >
+              <Select value={editCategory} onChange={(v) => setEditCategory(v)}>
                 <option value="labor">Labor</option>
                 <option value="material">Material</option>
                 <option value="other">Other</option>
@@ -321,6 +367,49 @@ export function BudgetDetailWorkspace({ budgetId, onNavigate }: { budgetId: stri
               <Input type="number" value={editUnitPrice} onChange={(e) => setEditUnitPrice(e.target.value)} />
             </div>
           </Modal>
+        )}
+        {addingItem && (
+          <Modal
+            isOpen={addingItem}
+            title="Adicionar Item"
+            onClose={cancelAddItem}
+            onConfirm={saveAddItem}
+            confirmLabel="Salvar"
+            cancelLabel="Cancelar"
+          >
+            <div className={styles.fieldGroup}>
+              <label>Descrição</label>
+              <Input value={addDescription} onChange={(e) => setAddDescription(e.target.value)} />
+            </div>
+            <div className={styles.fieldGroup}>
+              <label>Categoria</label>
+              <Select value={addCategory} onChange={(v) => setAddCategory(v)}>
+                <option value="labor">Labor</option>
+                <option value="material">Material</option>
+                <option value="other">Other</option>
+              </Select>
+            </div>
+            <div className={styles.fieldGroup}>
+              <label>Quantidade</label>
+              <Input type="number" value={addQuantity} onChange={(e) => setAddQuantity(e.target.value)} />
+            </div>
+            <div className={styles.fieldGroup}>
+              <label>Valor unitário</label>
+              <Input type="number" value={addUnitPrice} onChange={(e) => setAddUnitPrice(e.target.value)} />
+            </div>
+          </Modal>
+        )}
+        {deletingItem && (
+          <ConfirmModal
+            isOpen={!!deletingItem}
+            title="Remover Item"
+            onClose={cancelDeleteItem}
+            onConfirm={confirmDeleteItem}
+            confirmLabel="Remover"
+            cancelLabel="Cancelar"
+          >
+            <p>Remover este item do orçamento?</p>
+          </ConfirmModal>
         )}
       </PanelCard>
     </div>

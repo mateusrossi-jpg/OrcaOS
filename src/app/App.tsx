@@ -200,6 +200,7 @@ export function App() {
             <BudgetHistoryScreen
               onNewBudget={() => goTo('budgets')}
               onOpenBudget={(budgetId) => openBudgetDetail(budgetId)}
+              onEditBudget={(budgetId) => openBudgetDetail(budgetId)}
             />
           )}
           {activeTab === 'budgetDetail' && (
