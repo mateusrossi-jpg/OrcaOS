@@ -16,6 +16,7 @@ import {
   productSearchDisclaimer,
   type ProductSearchResult,
 } from '../storage/productSearchProviders';
+import { Input, Select, TextArea, Button } from '../../../app/components/ui';
 import './CatalogHubWorkspace.css';
 
 interface CatalogHubWorkspaceProps {
@@ -598,7 +599,7 @@ export function CatalogHubWorkspace({ onSendToBudget, initialTab = 'items', enab
           </div>
 
           {itemsView === 'form' && (
-            <div className="catalog-form-card">
+            <div className="catalog-form-card aferix-card-surface">
               <header>
                 <div>
                   <h4>{isEditingItem ? 'Editar Item' : 'Novo Item'}</h4>
@@ -606,32 +607,52 @@ export function CatalogHubWorkspace({ onSendToBudget, initialTab = 'items', enab
                 </div>
               </header>
               <div className="catalog-form-grid">
-                <div className="catalog-field col-4"><span>Tipo</span><select value={itemDraft.kind} onChange={(event) => updateItemDraft('kind', event.target.value as CatalogHubItemKind)}><option value="material">Material</option><option value="labor">Mão de obra</option><option value="service">Serviço composto</option><option value="travel">Deslocamento</option><option value="fee">Taxa</option><option value="custom">Item personalizado</option></select></div>
-                <div className="catalog-field col-8"><span>Descrição</span><input value={itemDraft.title} placeholder="Ex.: Módulo tomada 2P+T 20A branco" onChange={(event) => updateItemDraft('title', event.target.value)} /></div>
-                <div className="catalog-field col-4"><span>Nome popular</span><input value={itemDraft.popularName} placeholder="Ex.: tomada 20A" onChange={(event) => updateItemDraft('popularName', event.target.value)} /></div>
-                <div className="catalog-field col-4"><span>Categoria</span><input list="catalog-categories" value={itemDraft.category} placeholder="Ex.: Tomadas e módulos" onChange={(event) => updateItemDraft('category', event.target.value)} /><datalist id="catalog-categories">{categories.map((category) => <option key={category} value={category} />)}</datalist></div>
-                <div className="catalog-field col-4"><span>Área/profissão</span><input value={itemDraft.professionArea} placeholder="Ex.: Elétrica" onChange={(event) => updateItemDraft('professionArea', event.target.value)} /></div>
-                <div className="catalog-field col-12"><span>Descrição técnica</span><input value={itemDraft.technicalDescription} placeholder="Ex.: módulo 20A 2P+T para placa modular compatível" onChange={(event) => updateItemDraft('technicalDescription', event.target.value)} /></div>
-                <div className="catalog-field col-3"><span>Marca</span><input value={itemDraft.brand} placeholder="Ex.: Fabricante" onChange={(event) => updateItemDraft('brand', event.target.value)} /></div>
-                <div className="catalog-field col-3"><span>Fornecedor</span><select value={itemDraft.supplierId} onChange={(event) => updateItemDraft('supplierId', event.target.value)}><option value="">Sem fornecedor</option>{suppliers.map((supplier) => <option key={supplier.id} value={supplier.id}>{supplier.name}</option>)}</select></div>
-                <div className="catalog-field col-3"><span>Modelo</span><input value={itemDraft.model} placeholder="Opcional" onChange={(event) => updateItemDraft('model', event.target.value)} /></div>
-                <div className="catalog-field col-3"><span>Referência/SKU</span><input value={itemDraft.reference} placeholder="Opcional" onChange={(event) => updateItemDraft('reference', event.target.value)} /></div>
-                <div className="catalog-field col-4"><span>Unidade</span><input value={itemDraft.unit} placeholder="un, m, cx, ponto..." onChange={(event) => updateItemDraft('unit', event.target.value)} /></div>
-                <div className="catalog-field col-4"><span>Qtd. padrão</span><input inputMode="decimal" value={itemDraft.defaultQuantity} onChange={(event) => updateItemDraft('defaultQuantity', event.target.value)} /></div>
-                <div className="catalog-field col-4"><span>Valor unitário</span><input inputMode="decimal" value={itemDraft.defaultUnitValue} onChange={(event) => updateItemDraft('defaultUnitValue', event.target.value)} /></div>
-                <div className="catalog-field col-4"><span>Origem do dado</span><select value={itemDraft.dataOrigin} onChange={(event) => updateItemDraft('dataOrigin', event.target.value as NonNullable<CatalogHubItem['dataOrigin']>)}><option value="manual">Manual</option><option value="local-catalog">Catálogo local</option><option value="online-reference">Referência online</option><option value="supplier">Fornecedor</option></select></div>
-                <div className="catalog-field col-4"><span>Preço atualizado em</span><input type="date" value={itemDraft.priceUpdatedAt ? itemDraft.priceUpdatedAt.slice(0, 10) : ''} onChange={(event) => updateItemDraft('priceUpdatedAt', event.target.value ? new Date(`${event.target.value}T12:00:00`).toISOString() : '')} /></div>
-                <div className="catalog-field col-4"><span>Destino</span><select value={itemDraft.destination} onChange={(event) => updateItemDraft('destination', event.target.value as CalculationDestination)}><option value="survey">Atendimento</option><option value="budget">Orçamento</option><option value="both">Ambos</option></select></div>
-                <div className="catalog-field col-12"><span>Link fonte/catálogo</span><input value={itemDraft.sourceUrl} placeholder="https://..." onChange={(event) => updateItemDraft('sourceUrl', event.target.value)} /></div>
-                <div className="catalog-field col-12"><span>Foto ou URL da imagem</span><input value={itemDraft.imageUrl} placeholder="Cole uma URL de imagem ou envie uma foto abaixo" onChange={(event) => updateItemDraft('imageUrl', event.target.value)} /></div>
+                <Select className="col-4" label="Tipo" value={itemDraft.kind} onChange={(val) => updateItemDraft('kind', val as CatalogHubItemKind)}>
+                  <option value="material">Material</option>
+                  <option value="labor">Mão de obra</option>
+                  <option value="service">Serviço composto</option>
+                  <option value="travel">Deslocamento</option>
+                  <option value="fee">Taxa</option>
+                  <option value="custom">Item personalizado</option>
+                </Select>
+                <Input className="col-8" label="Descrição" value={itemDraft.title} placeholder="Ex.: Módulo tomada 2P+T 20A branco" onChange={(event) => updateItemDraft('title', event.target.value)} />
+                <Input className="col-4" label="Nome popular" value={itemDraft.popularName} placeholder="Ex.: tomada 20A" onChange={(event) => updateItemDraft('popularName', event.target.value)} />
+                <Input className="col-4" label="Categoria" list="catalog-categories" value={itemDraft.category} placeholder="Ex.: Tomadas e módulos" onChange={(event) => updateItemDraft('category', event.target.value)} />
+                <datalist id="catalog-categories">{categories.map((category) => <option key={category} value={category} />)}</datalist>
+                <Input className="col-4" label="Área/profissão" value={itemDraft.professionArea} placeholder="Ex.: Elétrica" onChange={(event) => updateItemDraft('professionArea', event.target.value)} />
+                <Input className="col-12" label="Descrição técnica" value={itemDraft.technicalDescription} placeholder="Ex.: módulo 20A 2P+T para placa modular compatível" onChange={(event) => updateItemDraft('technicalDescription', event.target.value)} />
+                <Input className="col-3" label="Marca" value={itemDraft.brand} placeholder="Ex.: Fabricante" onChange={(event) => updateItemDraft('brand', event.target.value)} />
+                <Select className="col-3" label="Fornecedor" value={itemDraft.supplierId} onChange={(val) => updateItemDraft('supplierId', val)}>
+                  <option value="">Sem fornecedor</option>
+                  {suppliers.map((supplier) => <option key={supplier.id} value={supplier.id}>{supplier.name}</option>)}
+                </Select>
+                <Input className="col-3" label="Modelo" value={itemDraft.model} placeholder="Opcional" onChange={(event) => updateItemDraft('model', event.target.value)} />
+                <Input className="col-3" label="Referência/SKU" value={itemDraft.reference} placeholder="Opcional" onChange={(event) => updateItemDraft('reference', event.target.value)} />
+                <Input className="col-4" label="Unidade" value={itemDraft.unit} placeholder="un, m, cx, ponto..." onChange={(event) => updateItemDraft('unit', event.target.value)} />
+                <Input className="col-4" label="Qtd. padrão" inputMode="decimal" value={itemDraft.defaultQuantity} onChange={(event) => updateItemDraft('defaultQuantity', event.target.value)} />
+                <Input className="col-4" label="Valor unitário" inputMode="decimal" value={itemDraft.defaultUnitValue} onChange={(event) => updateItemDraft('defaultUnitValue', event.target.value)} />
+                <Select className="col-4" label="Origem do dado" value={itemDraft.dataOrigin} onChange={(val) => updateItemDraft('dataOrigin', val as NonNullable<CatalogHubItem['dataOrigin']>)}>
+                  <option value="manual">Manual</option>
+                  <option value="local-catalog">Catálogo local</option>
+                  <option value="online-reference">Referência online</option>
+                  <option value="supplier">Fornecedor</option>
+                </Select>
+                <Input className="col-4" label="Preço atualizado em" type="date" value={itemDraft.priceUpdatedAt ? itemDraft.priceUpdatedAt.slice(0, 10) : ''} onChange={(event) => updateItemDraft('priceUpdatedAt', event.target.value ? new Date(`${event.target.value}T12:00:00`).toISOString() : '')} />
+                <Select className="col-4" label="Destino" value={itemDraft.destination} onChange={(val) => updateItemDraft('destination', val as CalculationDestination)}>
+                  <option value="survey">Atendimento</option>
+                  <option value="budget">Orçamento</option>
+                  <option value="both">Ambos</option>
+                </Select>
+                <Input className="col-12" label="Link fonte/catálogo" value={itemDraft.sourceUrl} placeholder="https://..." onChange={(event) => updateItemDraft('sourceUrl', event.target.value)} />
+                <Input className="col-12" label="Foto ou URL da imagem" value={itemDraft.imageUrl} placeholder="Cole uma URL de imagem ou envie uma foto abaixo" onChange={(event) => updateItemDraft('imageUrl', event.target.value)} />
                 <div className="catalog-field col-12 file-reference-field"><span>Enviar foto de referência</span><input accept="image/*" type="file" onChange={(event) => handleItemImageFile(event.target.files?.[0])} /></div>
-                <div className="catalog-field col-12"><span>Compatibilidades</span><textarea value={itemDraft.compatibility} placeholder="Ex.: compatível com placa e suporte da mesma linha modular." onChange={(event) => updateItemDraft('compatibility', event.target.value)} /></div>
-                <div className="catalog-field col-12"><span>Alternativas aceitas</span><textarea value={itemDraft.acceptedAlternatives} placeholder="Ex.: pode ser equivalente se for módulo 20A 2P+T da mesma linha." onChange={(event) => updateItemDraft('acceptedAlternatives', event.target.value)} /></div>
-                <div className="catalog-field col-12"><span>Alternativas proibidas</span><textarea value={itemDraft.forbiddenAlternatives} placeholder="Ex.: não substituir por tomada 10A." onChange={(event) => updateItemDraft('forbiddenAlternatives', event.target.value)} /></div>
-                <div className="catalog-field col-12"><span>Observação para o cliente</span><textarea value={itemDraft.clientNote} placeholder="Ex.: comprar tomada 20A 2P+T padrão brasileiro. Não substituir por 10A." onChange={(event) => updateItemDraft('clientNote', event.target.value)} /></div>
-                <div className="catalog-field col-12"><span>Observação técnica profissional</span><textarea value={itemDraft.professionalNote} placeholder="Ex.: conferir circuito, proteção e seção do cabo antes da execução." onChange={(event) => updateItemDraft('professionalNote', event.target.value)} /></div>
-                <div className="catalog-field col-12"><span>Orientação para compra</span><textarea value={itemDraft.purchaseGuidance} placeholder="Ex.: comprar exatamente este modelo ou equivalente validado; conferir tensão, cor, linha e encaixe..." onChange={(event) => updateItemDraft('purchaseGuidance', event.target.value)} /></div>
-                <div className="catalog-field col-12"><span>Observação</span><textarea value={itemDraft.notes} placeholder="Ex.: confirmar disponibilidade, linha compatível, preço aproximado..." onChange={(event) => updateItemDraft('notes', event.target.value)} /></div>
+                <TextArea className="col-12" label="Compatibilidades" value={itemDraft.compatibility} placeholder="Ex.: compatível com placa e suporte da mesma linha modular." onChange={(val) => updateItemDraft('compatibility', val)} />
+                <TextArea className="col-12" label="Alternativas aceitas" value={itemDraft.acceptedAlternatives} placeholder="Ex.: pode ser equivalente se for módulo 20A 2P+T da mesma linha." onChange={(val) => updateItemDraft('acceptedAlternatives', val)} />
+                <TextArea className="col-12" label="Alternativas proibidas" value={itemDraft.forbiddenAlternatives} placeholder="Ex.: não substituir por tomada 10A." onChange={(val) => updateItemDraft('forbiddenAlternatives', val)} />
+                <TextArea className="col-12" label="Observação para o cliente" value={itemDraft.clientNote} placeholder="Ex.: comprar tomada 20A 2P+T padrão brasileiro. Não substituir por 10A." onChange={(val) => updateItemDraft('clientNote', val)} />
+                <TextArea className="col-12" label="Observação técnica profissional" value={itemDraft.professionalNote} placeholder="Ex.: conferir circuito, proteção e seção do cabo antes da execução." onChange={(val) => updateItemDraft('professionalNote', val)} />
+                <TextArea className="col-12" label="Orientação para compra" value={itemDraft.purchaseGuidance} placeholder="Ex.: comprar exatamente este modelo ou equivalente validado; conferir tensão, cor, linha e encaixe..." onChange={(val) => updateItemDraft('purchaseGuidance', val)} />
+                <TextArea className="col-12" label="Observação" value={itemDraft.notes} placeholder="Ex.: confirmar disponibilidade, linha compatível, preço aproximado..." onChange={(val) => updateItemDraft('notes', val)} />
               </div>
               {itemDraft.imageUrl && (
                 <div className="catalog-reference-preview">
@@ -640,9 +661,9 @@ export function CatalogHubWorkspace({ onSendToBudget, initialTab = 'items', enab
                 </div>
               )}
               <div className="catalog-hub-actions start-actions">
-                <button className="primary-action inline-action" type="button" onClick={saveItem}>{isEditingItem ? 'Salvar alterações' : 'Cadastrar item'}</button>
-                {isEditingItem && <button className="secondary-action inline-action" type="button" onClick={() => { resetItemForm(); setItemsView('list'); }}>Cancelar edição</button>}
-                {!isEditingItem && <button className="secondary-action inline-action" type="button" onClick={() => setItemsView('list')}>Voltar para lista</button>}
+                <Button variant="primary" className="inline-action" onClick={saveItem}>{isEditingItem ? 'Salvar alterações' : 'Cadastrar item'}</Button>
+                {isEditingItem && <Button variant="secondary" className="inline-action" onClick={() => { resetItemForm(); setItemsView('list'); }}>Cancelar edição</Button>}
+                {!isEditingItem && <Button variant="secondary" className="inline-action" onClick={() => setItemsView('list')}>Voltar para lista</Button>}
               </div>
             </div>
           )}
@@ -655,14 +676,37 @@ export function CatalogHubWorkspace({ onSendToBudget, initialTab = 'items', enab
                 </div>
               </header>
               <div className="catalog-hub-grid compact catalog-filter-grid">
-                <label className="wide"><span>Buscar</span><input value={query} placeholder="tomada, disjuntor, serviço, marca..." onChange={(event) => setQuery(event.target.value)} /></label>
-                <label><span>Tipo</span><select value={kindFilter} onChange={(event) => setKindFilter(event.target.value as 'all' | CatalogHubItemKind)}><option value="all">Todos</option><option value="material">Materiais</option><option value="labor">Mão de obra</option><option value="service">Serviços compostos</option><option value="travel">Deslocamento</option><option value="fee">Taxas</option><option value="custom">Personalizados</option></select></label>
-                <label><span>Fornecedor</span><select value={supplierFilter} onChange={(event) => setSupplierFilter(event.target.value)}><option value="">Todos</option>{suppliers.map((supplier) => <option key={supplier.id} value={supplier.id}>{supplier.name}</option>)}</select></label>
-                <label><span>Fabricante</span><select value={brandFilter} onChange={(event) => setBrandFilter(event.target.value)}><option value="">Todos</option>{brands.map((brand) => <option key={brand} value={brand}>{brand}</option>)}</select></label>
-                <label><span>Categoria</span><select value={categoryFilter} onChange={(event) => setCategoryFilter(event.target.value)}><option value="">Todas</option>{categories.map((category) => <option key={category} value={category}>{category}</option>)}</select></label>
-                <label><span>Origem</span><select value={originFilter} onChange={(event) => setOriginFilter(event.target.value as 'all' | NonNullable<CatalogHubItem['dataOrigin']>)}><option value="all">Todas</option><option value="manual">Manual</option><option value="local-catalog">Catálogo local</option><option value="online-reference">Referência online</option><option value="supplier">Fornecedor</option></select></label>
+                <Input className="wide" label="Buscar" value={query} placeholder="tomada, disjuntor, serviço, marca..." onChange={(event) => setQuery(event.target.value)} />
+                <Select label="Tipo" value={kindFilter} onChange={(val) => setKindFilter(val as 'all' | CatalogHubItemKind)}>
+                  <option value="all">Todos</option>
+                  <option value="material">Materiais</option>
+                  <option value="labor">Mão de obra</option>
+                  <option value="service">Serviços compostos</option>
+                  <option value="travel">Deslocamento</option>
+                  <option value="fee">Taxas</option>
+                  <option value="custom">Personalizados</option>
+                </Select>
+                <Select label="Fornecedor" value={supplierFilter} onChange={(val) => setSupplierFilter(val)}>
+                  <option value="">Todos</option>
+                  {suppliers.map((supplier) => <option key={supplier.id} value={supplier.id}>{supplier.name}</option>)}
+                </Select>
+                <Select label="Fabricante" value={brandFilter} onChange={(val) => setBrandFilter(val)}>
+                  <option value="">Todos</option>
+                  {brands.map((brand) => <option key={brand} value={brand}>{brand}</option>)}
+                </Select>
+                <Select label="Categoria" value={categoryFilter} onChange={(val) => setCategoryFilter(val)}>
+                  <option value="">Todas</option>
+                  {categories.map((category) => <option key={category} value={category}>{category}</option>)}
+                </Select>
+                <Select label="Origem" value={originFilter} onChange={(val) => setOriginFilter(val as 'all' | NonNullable<CatalogHubItem['dataOrigin']>)}>
+                  <option value="all">Todas</option>
+                  <option value="manual">Manual</option>
+                  <option value="local-catalog">Catálogo local</option>
+                  <option value="online-reference">Referência online</option>
+                  <option value="supplier">Fornecedor</option>
+                </Select>
               </div>
-              <div className="catalog-list-meta"><span>{hasItemLookup ? `${filteredItems.length} de ${items.length} item(ns) · mostrando ${visibleFilteredItems.length}${hiddenFilteredItemCount > 0 ? ` · ${hiddenFilteredItemCount} oculto(s)` : ''}` : `${items.length} item(ns) cadastrados. Pesquise ou filtre para exibir.`}</span><button type="button" onClick={() => { setQuery(''); setKindFilter('all'); setSupplierFilter(''); setCategoryFilter(''); setBrandFilter(''); setOriginFilter('all'); }}>Limpar filtros</button></div>
+              <div className="catalog-list-meta"><span>{hasItemLookup ? `${filteredItems.length} de ${items.length} item(ns) · mostrando ${visibleFilteredItems.length}${hiddenFilteredItemCount > 0 ? ` · ${hiddenFilteredItemCount} oculto(s)` : ''}` : `${items.length} item(ns) cadastrados. Pesquise ou filtre para exibir.`}</span><Button variant="secondary" onClick={() => { setQuery(''); setKindFilter('all'); setSupplierFilter(''); setCategoryFilter(''); setBrandFilter(''); setOriginFilter('all'); }}>Limpar filtros</Button></div>
               <div className="continuous-list">
                 {!hasItemLookup && <div className="continuous-list-empty">Pesquise para listar os itens.</div>}
                 {hasItemLookup && filteredItems.length === 0 && <div className="continuous-list-empty">Nenhum item encontrado.</div>}
@@ -676,9 +720,9 @@ export function CatalogHubWorkspace({ onSendToBudget, initialTab = 'items', enab
                       </div>
                       <div className="value-col">{money(item.defaultUnitValue)}</div>
                       <div className="catalog-row-actions">
-                        <button className="ghost-action catalog-row-compact-action" type="button" onClick={() => editItem(item)}>Editar</button>
-                        <button className="ghost-action catalog-row-compact-action" type="button" onClick={() => duplicateItem(item)}>Duplicar</button>
-                        <button className="ghost-action catalog-row-compact-action" type="button" onClick={() => sendItem(item)}>Enviar</button>
+                        <Button variant="ghost" className="catalog-row-compact-action" onClick={() => editItem(item)}>Editar</Button>
+                        <Button variant="ghost" className="catalog-row-compact-action" onClick={() => duplicateItem(item)}>Duplicar</Button>
+                        <Button variant="ghost" className="catalog-row-compact-action" onClick={() => sendItem(item)}>Enviar</Button>
                       </div>
                     </article>
                   );
@@ -705,7 +749,7 @@ export function CatalogHubWorkspace({ onSendToBudget, initialTab = 'items', enab
         </div>
 
         <div className="catalog-tab-content">
-          <div className="catalog-form-card online-card">
+          <div className="catalog-form-card online-card aferix-card-surface">
             <header>
               <div>
                 <h4>Assistente de Busca</h4>
@@ -713,12 +757,14 @@ export function CatalogHubWorkspace({ onSendToBudget, initialTab = 'items', enab
               </div>
             </header>
             <div className="catalog-form-grid">
-              <div className="catalog-field col-12"><span>O que pesquisar?</span><input value={onlineQuery} placeholder="Ex.: tomada 20A branca 2P+T" onChange={(event) => setOnlineQuery(event.target.value)} /></div>
-              <div className="catalog-field col-6"><span>Fornecedor/fabricante</span><select value={onlineSupplierId} onChange={(event) => setOnlineSupplierId(event.target.value)}>{suppliers.map((supplier) => <option key={supplier.id} value={supplier.id}>{supplier.name}</option>)}</select></div>
-              <div className="catalog-field col-6"><span>Preço observado</span><input inputMode="decimal" value={onlineObservedPrice} placeholder="Ex.: 18,90" onChange={(event) => setOnlineObservedPrice(event.target.value)} /></div>
-              <div className="catalog-field col-12"><span>Referência escolhida</span><input value={onlineReference} placeholder="Ex.: SKU, modelo, código do fabricante ou link do produto" onChange={(event) => setOnlineReference(event.target.value)} /></div>
-              <div className="catalog-field col-12"><span>Link do produto escolhido</span><input value={onlineProductUrl} placeholder="Cole aqui o link real do produto após abrir a consulta" onChange={(event) => setOnlineProductUrl(event.target.value)} /></div>
-              <div className="catalog-field col-12"><span>Imagem do produto</span><input value={onlineImageUrl} placeholder="Cole uma URL de imagem ou envie uma foto abaixo" onChange={(event) => setOnlineImageUrl(event.target.value)} /></div>
+              <Input className="col-12" label="O que pesquisar?" value={onlineQuery} placeholder="Ex.: tomada 20A branca 2P+T" onChange={(event) => setOnlineQuery(event.target.value)} />
+              <Select className="col-6" label="Fornecedor/fabricante" value={onlineSupplierId} onChange={(val) => setOnlineSupplierId(val)}>
+                {suppliers.map((supplier) => <option key={supplier.id} value={supplier.id}>{supplier.name}</option>)}
+              </Select>
+              <Input className="col-6" label="Preço observado" inputMode="decimal" value={onlineObservedPrice} placeholder="Ex.: 18,90" onChange={(event) => setOnlineObservedPrice(event.target.value)} />
+              <Input className="col-12" label="Referência escolhida" value={onlineReference} placeholder="Ex.: SKU, modelo, código do fabricante ou link do produto" onChange={(event) => setOnlineReference(event.target.value)} />
+              <Input className="col-12" label="Link do produto escolhido" value={onlineProductUrl} placeholder="Cole aqui o link real do produto após abrir a consulta" onChange={(event) => setOnlineProductUrl(event.target.value)} />
+              <Input className="col-12" label="Imagem do produto" value={onlineImageUrl} placeholder="Cole uma URL de imagem ou envie uma foto abaixo" onChange={(event) => setOnlineImageUrl(event.target.value)} />
               <div className="catalog-field col-12 file-reference-field"><span>Enviar foto de referência</span><input accept="image/*" type="file" onChange={(event) => handleOnlineImageFile(event.target.files?.[0])} /></div>
             </div>
             
@@ -738,7 +784,7 @@ export function CatalogHubWorkspace({ onSendToBudget, initialTab = 'items', enab
 
             <div className="online-results-list catalog-online-spacing">
               {visibleOnlineResults.map((result) => (
-                <article className="online-result-card" key={result.id}>
+                <article className="online-result-card aferix-card-compact-list" key={result.id}>
                   {result.imageUrl && <img src={result.imageUrl} alt={`Referência de ${result.title}`} />}
                   <div>
                     <span>{searchResultSourceLabel(result)}</span>
@@ -748,8 +794,8 @@ export function CatalogHubWorkspace({ onSendToBudget, initialTab = 'items', enab
                     <small>Consulta: {new Intl.DateTimeFormat('pt-BR').format(new Date(result.checkedAt))}</small>
                   </div>
                   <div className="catalog-hub-actions">
-                    {result.link && <a className="secondary-action inline-action" href={result.link} target="_blank" rel="noreferrer">Abrir</a>}
-                    <button className="primary-action inline-action" type="button" onClick={() => fillItemFromOnlineSearch(result)}>Revisar e adicionar</button>
+                    {result.link && <a className="secondary-action inline-action ui-button" href={result.link} target="_blank" rel="noreferrer">Abrir</a>}
+                    <Button variant="primary" className="inline-action" onClick={() => fillItemFromOnlineSearch(result)}>Revisar e adicionar</Button>
                   </div>
                 </article>
               ))}
@@ -764,8 +810,8 @@ export function CatalogHubWorkspace({ onSendToBudget, initialTab = 'items', enab
             )}
 
             <div className="catalog-hub-actions start-actions catalog-online-spacing">
-              {onlineUrl && <a className="primary-action inline-action" href={onlineUrl} target="_blank" rel="noreferrer">Abrir consulta online</a>}
-              <button className="secondary-action inline-action" type="button" onClick={() => fillItemFromOnlineSearch()}>Usar como referência</button>
+              {onlineUrl && <a className="primary-action inline-action ui-button" href={onlineUrl} target="_blank" rel="noreferrer">Abrir consulta online</a>}
+              <Button variant="secondary" className="inline-action" onClick={() => fillItemFromOnlineSearch()}>Usar como referência</Button>
             </div>
           </div>
         </div>

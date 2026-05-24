@@ -11,6 +11,7 @@ import {
   type CatalogHubItemKind,
   type CatalogSupplier,
 } from '../storage/catalogHubStorage';
+import { Input, Select, TextArea, Button } from '../../../app/components/ui';
 import './CatalogHubWorkspace.css';
 
 interface CatalogHubWorkspaceProps {
@@ -274,36 +275,62 @@ export function CatalogHubWorkspace({ onSendToBudget }: CatalogHubWorkspaceProps
 
       {activeTab === 'items' && (
         <>
-          <div className="catalog-hub-card">
+          <div className="catalog-hub-card aferix-card-surface">
             <div><strong>Novo item de catálogo</strong><small>Cadastre peças, materiais ou serviços recorrentes para enviar ao orçamento.</small></div>
             <div className="catalog-hub-grid">
-              <label><span>Tipo</span><select value={itemDraft.kind} onChange={(event) => updateItemDraft('kind', event.target.value as CatalogHubItemKind)}><option value="material">Material</option><option value="labor">Mão de obra</option><option value="service">Serviço composto</option><option value="travel">Deslocamento</option><option value="fee">Taxa</option><option value="custom">Item personalizado</option></select></label>
-              <label className="wide"><span>Descrição</span><input value={itemDraft.title} placeholder="Ex.: Módulo tomada 2P+T 20A branco" onChange={(event) => updateItemDraft('title', event.target.value)} /></label>
-              <label><span>Categoria</span><input list="catalog-categories" value={itemDraft.category} placeholder="Ex.: Tomadas e módulos" onChange={(event) => updateItemDraft('category', event.target.value)} /><datalist id="catalog-categories">{categories.map((category) => <option key={category} value={category} />)}</datalist></label>
-              <label><span>Marca</span><input value={itemDraft.brand} placeholder="Ex.: Fabricante" onChange={(event) => updateItemDraft('brand', event.target.value)} /></label>
-              <label><span>Fornecedor</span><select value={itemDraft.supplierId} onChange={(event) => updateItemDraft('supplierId', event.target.value)}><option value="">Sem fornecedor</option>{suppliers.map((supplier) => <option key={supplier.id} value={supplier.id}>{supplier.name}</option>)}</select></label>
-              <label><span>Modelo</span><input value={itemDraft.model} placeholder="Opcional" onChange={(event) => updateItemDraft('model', event.target.value)} /></label>
-              <label><span>Referência/SKU</span><input value={itemDraft.reference} placeholder="Opcional" onChange={(event) => updateItemDraft('reference', event.target.value)} /></label>
-              <label><span>Unidade</span><input value={itemDraft.unit} placeholder="un, m, cx, ponto..." onChange={(event) => updateItemDraft('unit', event.target.value)} /></label>
-              <label><span>Qtd. padrão</span><input inputMode="decimal" value={itemDraft.defaultQuantity} onChange={(event) => updateItemDraft('defaultQuantity', event.target.value)} /></label>
-              <label><span>Valor unitário</span><input inputMode="decimal" value={itemDraft.defaultUnitValue} onChange={(event) => updateItemDraft('defaultUnitValue', event.target.value)} /></label>
-              <label><span>Destino</span><select value={itemDraft.destination} onChange={(event) => updateItemDraft('destination', event.target.value as CalculationDestination)}><option value="survey">Atendimento</option><option value="budget">Orçamento</option><option value="both">Ambos</option></select></label>
-              <label className="wide"><span>Link fonte/catálogo</span><input value={itemDraft.sourceUrl} placeholder="https://..." onChange={(event) => updateItemDraft('sourceUrl', event.target.value)} /></label>
-              <label className="wide"><span>Observação</span><textarea value={itemDraft.notes} placeholder="Ex.: confirmar disponibilidade, linha compatível, preço aproximado..." onChange={(event) => updateItemDraft('notes', event.target.value)} /></label>
+              <Select label="Tipo" value={itemDraft.kind} onChange={(val) => updateItemDraft('kind', val as CatalogHubItemKind)}>
+                <option value="material">Material</option>
+                <option value="labor">Mão de obra</option>
+                <option value="service">Serviço composto</option>
+                <option value="travel">Deslocamento</option>
+                <option value="fee">Taxa</option>
+                <option value="custom">Item personalizado</option>
+              </Select>
+              <Input className="wide" label="Descrição" value={itemDraft.title} placeholder="Ex.: Módulo tomada 2P+T 20A branco" onChange={(event) => updateItemDraft('title', event.target.value)} />
+              <Input label="Categoria" list="catalog-categories" value={itemDraft.category} placeholder="Ex.: Tomadas e módulos" onChange={(event) => updateItemDraft('category', event.target.value)} />
+              <datalist id="catalog-categories">{categories.map((category) => <option key={category} value={category} />)}</datalist>
+              <Input label="Marca" value={itemDraft.brand} placeholder="Ex.: Fabricante" onChange={(event) => updateItemDraft('brand', event.target.value)} />
+              <Select label="Fornecedor" value={itemDraft.supplierId} onChange={(val) => updateItemDraft('supplierId', val)}>
+                <option value="">Sem fornecedor</option>
+                {suppliers.map((supplier) => <option key={supplier.id} value={supplier.id}>{supplier.name}</option>)}
+              </Select>
+              <Input label="Modelo" value={itemDraft.model} placeholder="Opcional" onChange={(event) => updateItemDraft('model', event.target.value)} />
+              <Input label="Referência/SKU" value={itemDraft.reference} placeholder="Opcional" onChange={(event) => updateItemDraft('reference', event.target.value)} />
+              <Input label="Unidade" value={itemDraft.unit} placeholder="un, m, cx, ponto..." onChange={(event) => updateItemDraft('unit', event.target.value)} />
+              <Input label="Qtd. padrão" inputMode="decimal" value={itemDraft.defaultQuantity} onChange={(event) => updateItemDraft('defaultQuantity', event.target.value)} />
+              <Input label="Valor unitário" inputMode="decimal" value={itemDraft.defaultUnitValue} onChange={(event) => updateItemDraft('defaultUnitValue', event.target.value)} />
+              <Select label="Destino" value={itemDraft.destination} onChange={(val) => updateItemDraft('destination', val as CalculationDestination)}>
+                <option value="survey">Atendimento</option>
+                <option value="budget">Orçamento</option>
+                <option value="both">Ambos</option>
+              </Select>
+              <Input className="wide" label="Link fonte/catálogo" value={itemDraft.sourceUrl} placeholder="https://..." onChange={(event) => updateItemDraft('sourceUrl', event.target.value)} />
+              <TextArea className="wide" label="Observação" value={itemDraft.notes} placeholder="Ex.: confirmar disponibilidade, linha compatível, preço aproximado..." onChange={(val) => updateItemDraft('notes', val)} />
             </div>
-            <button className="primary-action inline-action" type="button" onClick={addItem}>Cadastrar item</button>
+            <Button variant="primary" className="inline-action" onClick={addItem}>Cadastrar item</Button>
           </div>
 
-          <div className="catalog-hub-card">
+          <div className="catalog-hub-card aferix-card-surface">
             <div><strong>Consultar itens cadastrados</strong><small>Filtre e envie itens diretamente para campo, orçamento ou ambos.</small></div>
             <div className="catalog-hub-grid compact">
-              <label className="wide"><span>Buscar</span><input value={query} placeholder="tomada, disjuntor, serviço, marca..." onChange={(event) => setQuery(event.target.value)} /></label>
-              <label><span>Tipo</span><select value={kindFilter} onChange={(event) => setKindFilter(event.target.value as 'all' | CatalogHubItemKind)}><option value="all">Todos</option><option value="material">Materiais</option><option value="labor">Mão de obra</option><option value="service">Serviços compostos</option><option value="travel">Deslocamento</option><option value="fee">Taxas</option><option value="custom">Personalizados</option></select></label>
-              <label><span>Fornecedor</span><select value={supplierFilter} onChange={(event) => setSupplierFilter(event.target.value)}><option value="">Todos</option>{suppliers.map((supplier) => <option key={supplier.id} value={supplier.id}>{supplier.name}</option>)}</select></label>
+              <Input className="wide" label="Buscar" value={query} placeholder="tomada, disjuntor, serviço, marca..." onChange={(event) => setQuery(event.target.value)} />
+              <Select label="Tipo" value={kindFilter} onChange={(val) => setKindFilter(val as 'all' | CatalogHubItemKind)}>
+                <option value="all">Todos</option>
+                <option value="material">Materiais</option>
+                <option value="labor">Mão de obra</option>
+                <option value="service">Serviços compostos</option>
+                <option value="travel">Deslocamento</option>
+                <option value="fee">Taxas</option>
+                <option value="custom">Personalizados</option>
+              </Select>
+              <Select label="Fornecedor" value={supplierFilter} onChange={(val) => setSupplierFilter(val)}>
+                <option value="">Todos</option>
+                {suppliers.map((supplier) => <option key={supplier.id} value={supplier.id}>{supplier.name}</option>)}
+              </Select>
             </div>
             <div className="catalog-hub-list">
               {filteredItems.map((item) => (
-                <article className="catalog-hub-item-card" key={item.id}>
+                <article className="catalog-hub-item-card aferix-card-compact-list" key={item.id}>
                   <div>
                     <span>{itemKindLabel(item.kind)} · {destinationLabel(item.destination)}</span>
                     <strong>{item.title}</strong>
@@ -311,10 +338,10 @@ export function CatalogHubWorkspace({ onSendToBudget }: CatalogHubWorkspaceProps
                     <small>{item.defaultQuantity} {item.unit} × {money(item.defaultUnitValue)}</small>
                   </div>
                   <div className="catalog-hub-actions">
-                    {item.sourceUrl && <a className="secondary-action inline-action" href={item.sourceUrl} target="_blank" rel="noreferrer">Fonte</a>}
-                    <button className="primary-action inline-action" type="button" onClick={() => sendItem(item)}>Adicionar ao fluxo</button>
-                    <button className="secondary-action inline-action" type="button" onClick={() => duplicateItem(item)}>Duplicar</button>
-                    <button className="danger-action" type="button" onClick={() => removeItem(item.id)}>Remover</button>
+                    {item.sourceUrl && <a className="secondary-action inline-action ui-button" href={item.sourceUrl} target="_blank" rel="noreferrer">Fonte</a>}
+                    <Button variant="primary" className="inline-action" onClick={() => sendItem(item)}>Adicionar ao fluxo</Button>
+                    <Button variant="secondary" className="inline-action" onClick={() => duplicateItem(item)}>Duplicar</Button>
+                    <Button variant="danger" onClick={() => removeItem(item.id)}>Remover</Button>
                   </div>
                 </article>
               ))}
@@ -325,27 +352,27 @@ export function CatalogHubWorkspace({ onSendToBudget }: CatalogHubWorkspaceProps
 
       {activeTab === 'suppliers' && (
         <>
-          <div className="catalog-hub-card">
+          <div className="catalog-hub-card aferix-card-surface">
             <div><strong>Novo fornecedor/empresa</strong><small>Cadastre fabricantes, lojas, distribuidores ou fornecedores locais.</small></div>
             <div className="catalog-hub-grid">
-              <label><span>Nome</span><input value={supplierDraft.name} placeholder="Ex.: Fornecedor principal" onChange={(event) => updateSupplierDraft('name', event.target.value)} /></label>
-              <label><span>Segmento</span><input value={supplierDraft.segment} placeholder="Ex.: Materiais elétricos" onChange={(event) => updateSupplierDraft('segment', event.target.value)} /></label>
-              <label><span>Site</span><input value={supplierDraft.websiteUrl} placeholder="https://..." onChange={(event) => updateSupplierDraft('websiteUrl', event.target.value)} /></label>
-              <label><span>Catálogo</span><input value={supplierDraft.catalogUrl} placeholder="https://..." onChange={(event) => updateSupplierDraft('catalogUrl', event.target.value)} /></label>
-              <label className="wide"><span>Busca online com {'{query}'}</span><input value={supplierDraft.searchUrlTemplate} placeholder="https://www.google.com/search?q=site:fornecedor.com {query}" onChange={(event) => updateSupplierDraft('searchUrlTemplate', event.target.value)} /></label>
-              <label><span>Telefone/WhatsApp</span><input value={supplierDraft.phone} placeholder="Opcional" onChange={(event) => updateSupplierDraft('phone', event.target.value)} /></label>
-              <label className="wide"><span>Observações</span><textarea value={supplierDraft.notes} placeholder="Condições, região, prazo, observações de compra..." onChange={(event) => updateSupplierDraft('notes', event.target.value)} /></label>
+              <Input label="Nome" value={supplierDraft.name} placeholder="Ex.: Fornecedor principal" onChange={(event) => updateSupplierDraft('name', event.target.value)} />
+              <Input label="Segmento" value={supplierDraft.segment} placeholder="Ex.: Materiais elétricos" onChange={(event) => updateSupplierDraft('segment', event.target.value)} />
+              <Input label="Site" value={supplierDraft.websiteUrl} placeholder="https://..." onChange={(event) => updateSupplierDraft('websiteUrl', event.target.value)} />
+              <Input label="Catálogo" value={supplierDraft.catalogUrl} placeholder="https://..." onChange={(event) => updateSupplierDraft('catalogUrl', event.target.value)} />
+              <Input className="wide" label="Busca online com {query}" value={supplierDraft.searchUrlTemplate} placeholder="https://www.google.com/search?q=site:fornecedor.com {query}" onChange={(event) => updateSupplierDraft('searchUrlTemplate', event.target.value)} />
+              <Input label="Telefone/WhatsApp" value={supplierDraft.phone} placeholder="Opcional" onChange={(event) => updateSupplierDraft('phone', event.target.value)} />
+              <TextArea className="wide" label="Observações" value={supplierDraft.notes} placeholder="Condições, região, prazo, observações de compra..." onChange={(val) => updateSupplierDraft('notes', val)} />
             </div>
-            <button className="primary-action inline-action" type="button" onClick={addSupplier}>Cadastrar fornecedor</button>
+            <Button variant="primary" className="inline-action" onClick={addSupplier}>Cadastrar fornecedor</Button>
           </div>
           <div className="catalog-hub-list">
             {suppliers.map((supplier) => (
-              <article className="catalog-hub-item-card" key={supplier.id}>
+              <article className="catalog-hub-item-card aferix-card-compact-list" key={supplier.id}>
                 <div><span>{supplier.segment}</span><strong>{supplier.name}</strong><small>{supplier.notes || 'Sem observações'}</small></div>
                 <div className="catalog-hub-actions">
-                  {supplier.websiteUrl && <a className="secondary-action inline-action" href={supplier.websiteUrl} target="_blank" rel="noreferrer">Site</a>}
-                  {supplier.catalogUrl && <a className="secondary-action inline-action" href={supplier.catalogUrl} target="_blank" rel="noreferrer">Catálogo</a>}
-                  <button className="danger-action" type="button" onClick={() => removeSupplier(supplier.id)}>Remover</button>
+                  {supplier.websiteUrl && <a className="secondary-action inline-action ui-button" href={supplier.websiteUrl} target="_blank" rel="noreferrer">Site</a>}
+                  {supplier.catalogUrl && <a className="secondary-action inline-action ui-button" href={supplier.catalogUrl} target="_blank" rel="noreferrer">Catálogo</a>}
+                  <Button variant="danger" onClick={() => removeSupplier(supplier.id)}>Remover</Button>
                 </div>
               </article>
             ))}
@@ -354,11 +381,13 @@ export function CatalogHubWorkspace({ onSendToBudget }: CatalogHubWorkspaceProps
       )}
 
       {activeTab === 'online' && (
-        <div className="catalog-hub-card online-card">
+        <div className="catalog-hub-card online-card aferix-card-surface">
           <div><strong>Consulta online de catálogo</strong><small>Use como apoio para pesquisar referência, modelo e preço. Depois envie a busca para cadastro de item.</small></div>
           <div className="catalog-hub-grid">
-            <label className="wide"><span>O que pesquisar?</span><input value={onlineQuery} placeholder="Ex.: tomada 20A branca 2P+T" onChange={(event) => setOnlineQuery(event.target.value)} /></label>
-            <label><span>Fornecedor/fabricante</span><select value={onlineSupplierId} onChange={(event) => setOnlineSupplierId(event.target.value)}>{suppliers.map((supplier) => <option key={supplier.id} value={supplier.id}>{supplier.name}</option>)}</select></label>
+            <Input className="wide" label="O que pesquisar?" value={onlineQuery} placeholder="Ex.: tomada 20A branca 2P+T" onChange={(event) => setOnlineQuery(event.target.value)} />
+            <Select label="Fornecedor/fabricante" value={onlineSupplierId} onChange={(val) => setOnlineSupplierId(val)}>
+              {suppliers.map((supplier) => <option key={supplier.id} value={supplier.id}>{supplier.name}</option>)}
+            </Select>
           </div>
           <div className="online-result-box">
             <span>Link preparado</span>
@@ -366,8 +395,8 @@ export function CatalogHubWorkspace({ onSendToBudget }: CatalogHubWorkspaceProps
             <small>{onlineUrl || 'Cadastre um fornecedor com site/catálogo.'}</small>
           </div>
           <div className="catalog-hub-actions start-actions">
-            {onlineUrl && <a className="primary-action inline-action" href={onlineUrl} target="_blank" rel="noreferrer">Abrir consulta online</a>}
-            <button className="secondary-action inline-action" type="button" onClick={fillItemFromOnlineSearch}>Usar busca no cadastro</button>
+            {onlineUrl && <a className="primary-action inline-action ui-button" href={onlineUrl} target="_blank" rel="noreferrer">Abrir consulta online</a>}
+            <Button variant="secondary" className="inline-action" onClick={fillItemFromOnlineSearch}>Usar busca no cadastro</Button>
           </div>
         </div>
       )}
