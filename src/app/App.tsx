@@ -17,6 +17,7 @@ import { cleanupRuntimeValidationData } from './storage/runtimeValidationCleanup
 import { HomeScreen } from './screens/HomeScreen';
 import { BudgetsScreen } from './screens/BudgetsScreen';
 import { BudgetHistoryScreen } from './screens/BudgetHistoryScreen';
+import { BudgetDetailScreen } from './screens/BudgetDetailScreen';
 import { CatalogScreen } from './screens/CatalogScreen';
 import { ReportsScreen } from './screens/ReportsScreen';
 import { FinancialScreen } from './screens/FinancialScreen';
@@ -122,6 +123,13 @@ export function App() {
     setActiveTab('budgets');
   }
 
+  // Open detail view (hidden tab) – does not appear in navigation menu
+  function openBudgetDetail(budgetId: string) {
+    if (!canNavigate()) return;
+    setSelectedBudgetId(budgetId);
+    setActiveTab('budgetDetail');
+  }
+
   function openClientSection(section: 'dashboard' | 'newClient' | 'clients') {
     if (!canNavigate()) return;
     setClientInitialSection(section);
@@ -191,7 +199,17 @@ export function App() {
           {activeTab === 'work-history' && (
             <BudgetHistoryScreen
               onNewBudget={() => goTo('budgets')}
-              onOpenBudget={(budgetId) => openBudgetForEdit(budgetId)}
+              onOpenBudget={(budgetId) => openBudgetDetail(budgetId)}
+            />
+          )}
+          {activeTab === 'budgetDetail' && (
+            <BudgetDetailScreen
+              budgetId={selectedBudgetId}
+              onBack={() => {
+                setSelectedBudgetId(null);
+                setActiveTab('work-history');
+              }}
+              onNavigate={goTo}
             />
           )}
           {activeTab === 'catalog' && <CatalogScreen onAddMany={addManyCalculationCaptures} context={context} />}
