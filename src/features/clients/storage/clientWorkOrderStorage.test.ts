@@ -1,18 +1,18 @@
-import { describe, expect, it, beforeAll, afterEach } from 'vitest';
+import { describe, expect, it, beforeEach, afterEach, vi } from 'vitest';
 import { loadClients, saveClients, loadWorkOrders, saveWorkOrders, loadActiveWorkOrderId, saveActiveWorkOrderId } from './clientWorkOrderStorage';
 import type { Client, Service as WorkOrder } from '../../../core/types/business';
 
 describe('clientWorkOrderStorage', () => {
   let store: Record<string, string> = {};
 
-  beforeAll(() => {
-    (globalThis as any).window = {
+  beforeEach(() => {
+    vi.stubGlobal('window', {
       localStorage: {
         getItem: (key: string) => store[key] || null,
         setItem: (key: string, value: string) => { store[key] = value.toString(); },
         removeItem: (key: string) => { delete store[key]; },
       }
-    } as any;
+    });
   });
 
   afterEach(() => {

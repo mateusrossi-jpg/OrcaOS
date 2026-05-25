@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+// eslint-disable-next-line no-restricted-imports -- TODO: Refactor legacy storage access
 import {
   createSupplierProfileId,
   loadSupplierProfiles,

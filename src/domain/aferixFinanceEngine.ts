@@ -1,54 +1,16 @@
 import { Budget } from './budget';
+import { budgetCalculator, BudgetCalculationResult } from '../services/BudgetCalculatorService';
 
-export interface BudgetInputs {
-  chargedValue: number;
-  materialCost: number;
-  travelCost: number;
-  helperCost: number;
-  fees: number;
-  discounts: number;
-  otherCosts: number;
+/**
+ * Domain Facade for Budget Calculations.
+ * Consolidates all finance engine logic into a single entry point.
+ */
+
+export interface BudgetInputs extends Partial<Budget> {
+  // Add specific input overrides here if needed in the future
+  _dummy?: never;
 }
 
-export interface BudgetCalculationResult {
-  totalCost: number;
-  grossProfit: number;
-  marginPercent: number;
-  statusLucro: 'saudavel' | 'atencao' | 'prejuizo';
-}
-
-export function calculateBudget(inputs: BudgetInputs): BudgetCalculationResult {
-  const {
-    chargedValue,
-    materialCost,
-    travelCost,
-    helperCost,
-    fees,
-    discounts,
-    otherCosts,
-  } = inputs;
-
-  const totalCost = materialCost + travelCost + helperCost + otherCosts + fees;
-  const netChargedValue = chargedValue - discounts;
-  const grossProfit = netChargedValue - totalCost;
-  
-  let marginPercent = 0;
-  if (netChargedValue > 0) {
-    marginPercent = (grossProfit / netChargedValue) * 100;
-  }
-
-  let statusLucro: 'saudavel' | 'atencao' | 'prejuizo' = 'saudavel';
-  
-  if (grossProfit < 0) {
-    statusLucro = 'prejuizo';
-  } else if (marginPercent < 20) {
-    statusLucro = 'atencao';
-  }
-
-  return {
-    totalCost,
-    grossProfit,
-    marginPercent,
-    statusLucro,
-  };
+export function calculateBudget(budget: Partial<Budget>): BudgetCalculationResult {
+  return budgetCalculator.calculateBudget(budget as Budget);
 }

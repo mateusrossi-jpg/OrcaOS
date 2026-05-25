@@ -16,6 +16,7 @@ function isCalculationCapture(value: unknown): value is CalculationCapture {
 export function loadStoredCaptures(): CalculationCapture[] {
   if (typeof window === 'undefined') return [];
   try {
+    // eslint-disable-next-line no-restricted-syntax -- TODO: Refactor legacy storage access
     const stored = window.localStorage.getItem(CAPTURES_STORAGE_KEY);
     if (!stored) return [];
     const parsed: unknown = JSON.parse(stored);
@@ -27,5 +28,6 @@ export function loadStoredCaptures(): CalculationCapture[] {
 
 export function saveStoredCaptures(captures: CalculationCapture[]): void {
   if (typeof window === 'undefined') return;
+  // eslint-disable-next-line no-restricted-syntax -- TODO: Refactor legacy storage access
   window.localStorage.setItem(CAPTURES_STORAGE_KEY, JSON.stringify(captures));
 }

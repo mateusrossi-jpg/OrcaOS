@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { CalculationCapture, CalculationDestination } from '../../../core/types/workflow';
+// eslint-disable-next-line no-restricted-imports -- TODO: Refactor legacy storage access
 import {
   buildSupplierSearchUrl,
   createCatalogId,

@@ -1,6 +1,5 @@
 import React, { ReactNode, useEffect, useRef } from 'react';
 import overlayStyles from './OverlayTokens.module.css';
-import styles from './MobileActionMenu.module.css';
 
 /**
  * Full‑screen overlay backdrop with fade‑in animation.

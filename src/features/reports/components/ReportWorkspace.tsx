@@ -3,8 +3,8 @@ import type { Client, WorkOrder } from '../../../core/types/business';
 import type { CalculationCapture } from '../../../core/types/workflow';
 import { useBudgetHistory } from '../../../hooks/useBudgetHistory';
 import { BUDGET_STATUS } from '../../../domain/budget';
-import { loadSimpleFinanceRecords } from '../../finance/storage/simpleFinanceStorage';
-import { loadProfessionalProfile } from '../../settings/storage/professionalProfileStorage';
+import { FinanceFacade } from '../../finance/financeFacade';
+import { ProfileFacade } from '../../settings/profileFacade';
 import { calculateServiceProfit } from '../../../core/finance/serviceProfit';
 import { 
   MetricCard, 
@@ -38,13 +38,13 @@ function money(value: number): string {
   return moneyFormatter.format(Number.isFinite(value) ? value : 0);
 }
 
-export function ReportWorkspace({ captures, activeClient = null, activeWorkOrder = null }: ReportWorkspaceProps) {
+export function ReportWorkspace({ captures: _captures, activeClient: _activeClient = null, activeWorkOrder: _activeWorkOrder = null }: ReportWorkspaceProps) {
   const [showAllClientStats, setShowAllClientStats] = useState(false);
   const [activeCategory, setActiveCategory] = useState<ReportCategory>('financeiro');
   
   const { budgets: savedBudgets, isLoading } = useBudgetHistory();
-  const financeRecords = useMemo(() => loadSimpleFinanceRecords(), []);
-  const profile = useMemo(() => loadProfessionalProfile(), []);
+  const financeRecords = useMemo(() => FinanceFacade.getRealizedRecords(), []);
+  const profile = useMemo(() => ProfileFacade.getProfile(), []);
 
   const profileName = profile.businessName || profile.professionalName || 'Profissional';
 
@@ -226,4 +226,3 @@ export function ReportWorkspace({ captures, activeClient = null, activeWorkOrder
     </div>
   );
 }
-

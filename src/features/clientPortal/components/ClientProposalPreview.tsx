@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-restricted-imports -- TODO: Refactor legacy storage access
 import type { ClientProposal } from '../storage/clientProposalStorage';
 import './ClientProposalPreview.css';
 

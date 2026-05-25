@@ -1,5 +1,6 @@
 import { useState, useMemo, useCallback } from 'react';
 import type { Client, WorkOrder } from '../../core/types/business';
+// eslint-disable-next-line no-restricted-imports -- TODO: Refactor legacy storage access
 import { loadActiveWorkOrderId, loadClients, loadWorkOrders, saveWorkOrders } from '../../features/clients/storage/clientWorkOrderStorage';
 
 export function useAppClients() {

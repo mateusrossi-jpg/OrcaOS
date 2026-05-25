@@ -1,5 +1,7 @@
+import { budgetCalculator } from '../../../services/BudgetCalculatorService';
 import type { Client, WorkOrder } from '../../../core/types/business';
 import type { CalculationCapture } from '../../../core/types/workflow';
+import type { Budget, BudgetItem } from '../../../domain/budget';
 import { loadProfessionalProfile } from '../../settings/storage/professionalProfileStorage';
 import { createClientProposalDraft, type ClientProposal, type ClientProposalPublicItem, type ClientPurchaseMaterialItem } from './clientProposalStorage';
 
@@ -29,7 +31,7 @@ function isBudgetChargedItem(capture: CalculationCapture): boolean {
 function buildPublicItem(capture: CalculationCapture): ClientProposalPublicItem {
   const quantity = parseDecimal(capture.quantity, 1);
   const unitPrice = parseDecimal(capture.unitValue, 0);
-  const totalPrice = quantity * unitPrice;
+  const totalPrice = budgetCalculator.calculateItemTotal({ quantity, unitPrice } as BudgetItem);
   const category = capture.itemType === 'service' ? 'service' : capture.itemType === 'material' ? 'material' : 'other';
 
   return {
@@ -48,7 +50,7 @@ function buildPublicItem(capture: CalculationCapture): ClientProposalPublicItem 
 function buildClientMaterial(capture: CalculationCapture): ClientPurchaseMaterialItem {
   const quantity = parseDecimal(capture.quantity, 1);
   const referenceUnitValue = parseDecimal(capture.materialReferenceUnitValue ?? capture.unitValue, 0);
-  const referenceTotalValue = quantity * referenceUnitValue;
+  const referenceTotalValue = budgetCalculator.calculateItemTotal({ quantity, unitPrice: referenceUnitValue } as BudgetItem);
 
   return {
     id: capture.id,
@@ -69,7 +71,10 @@ export function buildClientProposalFromCaptures(input: {
   const profile = loadProfessionalProfile();
   const chargedItems = input.captures.filter(isBudgetChargedItem).map(buildPublicItem);
   const clientPurchaseMaterials = input.captures.filter(isClientPurchaseMaterial).map(buildClientMaterial);
-  const subtotal = chargedItems.reduce((sum, item) => sum + (item.totalPrice ?? 0), 0);
+  
+  // Usar BudgetCalculatorService para subtotal
+  const subtotal = budgetCalculator.calculateBudget({ items: chargedItems } as unknown as Budget).subtotal;
+  
   const title = input.activeWorkOrder?.title ? `Orçamento - ${input.activeWorkOrder.title}` : 'Orçamento de serviço';
   const clientName = input.activeClient?.name ?? 'Cliente não vinculado';
   const professionalDisplayName = profile.businessName || profile.professionalName || 'Profissional Aferix';

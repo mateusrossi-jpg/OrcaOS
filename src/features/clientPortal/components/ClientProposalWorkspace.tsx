@@ -1,9 +1,13 @@
 import { useMemo, useState } from 'react';
 import type { Client, WorkOrder } from '../../../core/types/business';
 import type { CalculationCapture } from '../../../core/types/workflow';
+// eslint-disable-next-line no-restricted-imports -- TODO: Refactor legacy storage access
 import { loadProfessionalProfile } from '../../settings/storage/professionalProfileStorage';
+// eslint-disable-next-line no-restricted-imports -- TODO: Refactor legacy storage access
 import { buildClientProposalFromCaptures } from '../storage/buildClientProposalFromCaptures';
+// eslint-disable-next-line no-restricted-imports -- TODO: Refactor legacy storage access
 import { buildClientProposalShareText, buildClientProposalWhatsAppUrl } from '../storage/clientProposalShareText';
+// eslint-disable-next-line no-restricted-imports -- TODO: Refactor legacy storage access
 import {
   clientProposalStatusLabel,
   createClientProposalDraft,

@@ -1,8 +1,7 @@
 import { useState, type ChangeEvent } from 'react';
-import { BackButton, TextArea, Button } from '../../../app/components/ui';
-import type { BudgetTemplateId, ReportTemplateId } from '../../../core/types/business';
-import { budgetTemplateOptions } from '../../budgets/budgetTemplatesVisual';
-import { loadBusinessProfile, saveBusinessProfile } from '../../budgets/storage/businessProfileStorage';
+import { BackButton } from '../../../app/components/ui';
+import { loadBusinessProfile, saveBusinessProfile } from '../../../legacy/businessProfileStorage';
+// eslint-disable-next-line no-restricted-imports -- TODO: Refactor legacy storage access
 import {
   loadProfessionalProfile,
   resetProfessionalProfileIds,
@@ -10,25 +9,6 @@ import {
   type ProfessionalProfile,
 } from '../storage/professionalProfileStorage';
 import './ProfessionalProfileWorkspace.css';
-
-const professionalAreas = [
-  'Elétrica',
-  'Hidráulica',
-  'Pintura',
-  'Construção civil',
-  'Refrigeração',
-  'Automação',
-  'Eletrônica',
-  'Manutenção técnica',
-  'Multisserviços',
-  'Outro',
-];
-
-const reportTemplateOptions: Array<{ id: ReportTemplateId; title: string; description: string; plan: 'free' | 'pro' }> = [
-  { id: 'technicalSimple', title: 'Relatório técnico simples', description: 'Documento limpo para diagnóstico, observações e itens técnicos essenciais.', plan: 'free' },
-  { id: 'technicalDetailed', title: 'Relatório técnico detalhado', description: 'Medições, recomendações, riscos, itens inclusos e histórico técnico.', plan: 'pro' },
-  { id: 'managerial', title: 'Relatório gerencial', description: 'Visão de aprovação, ticket médio, recorrência e indicadores do profissional.', plan: 'pro' },
-];
 
 function syncProfileToBusinessProfile(profile: ProfessionalProfile) {
   const currentBusinessProfile = loadBusinessProfile();
@@ -57,7 +37,6 @@ function syncProfileToBusinessProfile(profile: ProfessionalProfile) {
 
 export function ProfessionalProfileWorkspace({ onBack }: { onBack?: () => void } = {}) {
   const [profile, setProfile] = useState<ProfessionalProfile>(() => loadProfessionalProfile());
-  const [feedback, setFeedback] = useState<string | null>(null);
 
   function updateProfile<K extends keyof ProfessionalProfile>(key: K, value: ProfessionalProfile[K]) {
     setProfile((current) => ({ ...current, [key]: value }));
@@ -66,7 +45,6 @@ export function ProfessionalProfileWorkspace({ onBack }: { onBack?: () => void }
   function saveProfile() {
     saveProfessionalProfile(profile);
     syncProfileToBusinessProfile(profile);
-    setFeedback('Perfil salvo e sincronizado com a identidade do orçamento/PDF.');
   }
 
   function handleLogoFileChange(event: ChangeEvent<HTMLInputElement>) {
@@ -91,7 +69,6 @@ export function ProfessionalProfileWorkspace({ onBack }: { onBack?: () => void }
     setProfile(nextProfile);
     saveProfessionalProfile(nextProfile);
     syncProfileToBusinessProfile(nextProfile);
-    setFeedback('Novos IDs locais foram gerados para profissional e empresa.');
   }
 
   return (

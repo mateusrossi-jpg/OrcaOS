@@ -1,16 +1,14 @@
 import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
-import type { Budget, BusinessProfile } from '../../../core/types/business';
-import { calculateBudgetItemTotal } from '../../../core/pricing/budget';
+import type { Budget, BusinessProfile, BudgetItem } from '../../../core/types/business';
+import { budgetCalculator } from '../../../services/BudgetCalculatorService';
 
 const formatCurrency = (value: number) => {
   const safeValue = Number.isFinite(value) ? value : 0;
   return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(safeValue);
 };
 
-const safeCalculateItemTotal = (item: any) => {
-  const qty = Number.isFinite(item.quantity) ? item.quantity : 0;
-  const price = Number.isFinite(item.unitPrice) ? item.unitPrice : 0;
-  return qty * price;
+const safeCalculateItemTotal = (item: Partial<BudgetItem>) => {
+  return budgetCalculator.calculateItemTotal(item as BudgetItem);
 };
 
 interface BudgetPdfProps {
@@ -65,8 +63,8 @@ const SimplePdfTemplate = ({ budget, businessProfile, total, subtotal, clientNam
         <View style={stylesSimple.summarySection}>
           <View style={stylesSimple.summaryRow}><Text>Subtotal</Text><Text>{formatCurrency(subtotal)}</Text></View>
           {!!budget.travelCost && <View style={stylesSimple.summaryRow}><Text>Deslocamento</Text><Text>{formatCurrency(budget.travelCost)}</Text></View>}
-          {!!budget.additionalFees && <View style={stylesSimple.summaryRow}><Text>Taxas</Text><Text>{formatCurrency(budget.additionalFees)}</Text></View>}
-          {!!budget.discount && <View style={stylesSimple.summaryRow}><Text>Desconto</Text><Text>-{formatCurrency(budget.discount)}</Text></View>}
+          {!!budget.fees && <View style={stylesSimple.summaryRow}><Text>Taxas</Text><Text>{formatCurrency(budget.fees)}</Text></View>}
+          {!!budget.discounts && <View style={stylesSimple.summaryRow}><Text>Desconto</Text><Text>-{formatCurrency(budget.discounts)}</Text></View>}
           <View style={stylesSimple.grandTotal}><Text style={{ fontWeight: 'bold' }}>TOTAL</Text><Text style={{ fontWeight: 'bold' }}>{formatCurrency(total)}</Text></View>
         </View>
         <View style={stylesSimple.notes}>
@@ -144,8 +142,8 @@ const ProfessionalPdfTemplate = ({ budget, businessProfile, total, subtotal, cli
           <View style={stylesProf.summaryBlock}>
             <View style={stylesProf.summaryRow}><Text style={stylesProf.summaryLabel}>Subtotal</Text><Text style={stylesProf.summaryValue}>{formatCurrency(subtotal)}</Text></View>
             {!!budget.travelCost && <View style={stylesProf.summaryRow}><Text style={stylesProf.summaryLabel}>Deslocamento</Text><Text style={stylesProf.summaryValue}>{formatCurrency(budget.travelCost)}</Text></View>}
-            {!!budget.additionalFees && <View style={stylesProf.summaryRow}><Text style={stylesProf.summaryLabel}>Taxas</Text><Text style={stylesProf.summaryValue}>{formatCurrency(budget.additionalFees)}</Text></View>}
-            {!!budget.discount && <View style={stylesProf.summaryRow}><Text style={stylesProf.summaryLabel}>Desconto</Text><Text style={stylesProf.summaryValue}>-{formatCurrency(budget.discount)}</Text></View>}
+            {!!budget.fees && <View style={stylesProf.summaryRow}><Text style={stylesProf.summaryLabel}>Taxas</Text><Text style={stylesProf.summaryValue}>{formatCurrency(budget.fees)}</Text></View>}
+            {!!budget.discounts && <View style={stylesProf.summaryRow}><Text style={stylesProf.summaryLabel}>Desconto</Text><Text style={stylesProf.summaryValue}>-{formatCurrency(budget.discounts)}</Text></View>}
             <View style={stylesProf.grandTotalRow}><Text style={stylesProf.grandTotalLabel}>TOTAL</Text><Text style={stylesProf.grandTotalValue}>{formatCurrency(total)}</Text></View>
           </View>
         </View>
@@ -166,7 +164,6 @@ const ProfessionalPdfTemplate = ({ budget, businessProfile, total, subtotal, cli
 // ==========================================
 // MODELO 3: COMERCIAL / APRESENTÁVEL
 // ==========================================
-// Similar ao Profissional por enquanto, será evoluído para ter capas ou layouts de orçamento completos.
 const CommercialPdfTemplate = ProfessionalPdfTemplate;
 
 

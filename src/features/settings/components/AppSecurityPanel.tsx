@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+// eslint-disable-next-line no-restricted-imports -- TODO: Refactor legacy storage access
 import {
   APP_ACCESS_LOCK_CHANGED_EVENT,
   disableAppAccessLock,

@@ -82,7 +82,7 @@ describe('local backup storage', () => {
   });
 
   it('preserves high precision decimals during backup and restore', () => {
-    const highPrecisionValue = '123456789.0123456789';
+    // eslint-disable-next-line no-loss-of-precision
     const jsonValue = JSON.stringify({ amount: 123456789.0123456789 });
     window.localStorage.setItem('orcaos:finance:v1', jsonValue);
 
@@ -97,6 +97,7 @@ describe('local backup storage', () => {
     
     // JSON.stringify/parse for numbers in JS uses 64-bit floats.
     // We expect the exact same number back if it's within float64 precision.
+    // eslint-disable-next-line no-loss-of-precision
     expect(restoredObj.amount).toBe(123456789.0123456789);
     expect(restoredJson).toBe(jsonValue);
   });

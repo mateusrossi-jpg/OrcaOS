@@ -1,4 +1,4 @@
-import type { BudgetItem } from '../../../core/types/business';
+import type { BudgetItem } from '../core/types/business';
 
 const STORAGE_KEY = 'orcaos:budget-draft:v1';
 

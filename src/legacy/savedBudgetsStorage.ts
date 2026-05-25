@@ -3,8 +3,8 @@
  * OFFICIAL ARCHITECTURE: DO NOT USE FOR NEW DATA.
  * Only use for LegacyBudgetMigrationService.
  */
-import type { BudgetItem, BudgetStatus } from '../../../core/types/business';
-import { Budget as NewBudget } from '../../../domain/budget';
+import type { BudgetItem } from '../core/types/business';
+import { Budget as NewBudget } from '../domain/budget';
 
 const STORAGE_KEY = 'orcaos:saved-budgets:v1';
 
@@ -36,9 +36,9 @@ export interface SavedBudgetRecord {
   lucro_liquido: number;
   createdAt: string;
   updatedAt: string;
-  timeline?: any[];
-  snapshots?: any[];
-  financialSnapshot?: any;
+  timeline?: unknown[];
+  snapshots?: unknown[];
+  financialSnapshot?: unknown;
 }
 
 function isBrowserStorageAvailable(): boolean {
@@ -76,7 +76,7 @@ export function mapToNewBudget(record: SavedBudgetRecord): NewBudget {
     clientId: record.clientId,
     clientName: record.clientName,
     title: record.title,
-    status: record.status as any,
+    status: record.status as unknown as NewBudget['status'],
     chargedValue: record.total_servicos,
     materialCost: record.materialCost,
     travelCost: record.travelCost,
@@ -94,7 +94,7 @@ export function mapToNewBudget(record: SavedBudgetRecord): NewBudget {
     createdAt: record.createdAt,
     updatedAt: record.updatedAt,
     finalizedAt: record.status === 'finalizado' ? record.updatedAt : undefined,
-    financialSnapshot: record.financialSnapshot,
+    financialSnapshot: record.financialSnapshot as NewBudget['financialSnapshot'],
     notes: record.commercialNotes,
     paymentTerms: record.paymentTerms,
     validity: record.validity,

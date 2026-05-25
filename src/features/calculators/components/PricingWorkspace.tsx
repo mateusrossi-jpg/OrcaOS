@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import type { UserPlan } from '../../../core/access/featureAccess';
 import type { CalculationCapture } from '../../../core/types/workflow';
-import { calculateFinalPrice, calculateSalePriceByMarkup, calculateSalePriceByTargetMargin, type MarginMode } from '../../../core/calculations/trade';
+import { calculateFinalPrice } from '../../../core/calculations/trade';
 import { roundTechnical } from '../../../core/format/number';
 import { formatCurrency } from '../../../core/format/currency';
 import { AferixTabs, Input, Button } from '../../../app/components/ui';
@@ -24,7 +24,7 @@ export function PricingWorkspace({
   
   const isPro = userPlan === 'pro';
 
-  function handleCapture(title: string, result: any) {
+  function handleCapture(title: string, result: Record<string, number>) {
     onCaptureCalculation({
       id: `price-${Date.now()}`,
       module: 'orcamentoTecnico',
@@ -70,7 +70,7 @@ export function PricingWorkspace({
           { id: 'markup', label: 'Markup' }
         ]}
         activeId={activeTab}
-        onChange={(id) => setActiveTab(id)}
+        onChange={(id) => setActiveTab(id as 'quick' | 'margin' | 'markup')}
       />
 
       <div className="pricing-content aferix-panel-card aferix-mt-lg">

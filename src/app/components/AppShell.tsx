@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, memo, type ReactNode } from 'react';
+import { useEffect, useState, memo, type ReactNode } from 'react';
 import type { Client, Service as WorkOrder } from '../../core/types/business';
 import './AppShell.css';
 import type { AppNavItem, AppTab, AppIconGlyph } from '../appTypes';

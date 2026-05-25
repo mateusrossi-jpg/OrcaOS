@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { Client, Service as WorkOrder } from '../../../core/types/business';
+// eslint-disable-next-line no-restricted-imports -- TODO: Refactor legacy storage access
 import {
   loadActiveWorkOrderId,
   loadClients,
@@ -98,7 +99,7 @@ function createId(prefix: string): string {
 export function ClientWorkOrderWorkspace({ initialSection, initialClientId, sectionRequestKey, onContextChange, onNewClientRequest }: ClientWorkOrderWorkspaceProps) {
   const [clients, setClients] = useState<Client[]>(() => loadClients());
   const [workOrders, setWorkOrders] = useState<WorkOrder[]>(() => loadWorkOrders());
-  const [activeWorkOrderId, setActiveWorkOrderId] = useState<string | null>(() => loadActiveWorkOrderId());
+  const [activeWorkOrderId] = useState<string | null>(() => loadActiveWorkOrderId());
   const [activeSection, setActiveSection] = useState<ClientOsSection>(initialSection ?? 'clients');
 
   const [clientSearch, setClientSearch] = useState('');
@@ -264,8 +265,8 @@ export function ClientWorkOrderWorkspace({ initialSection, initialClientId, sect
           <ListCard>
             {visibleClients.length === 0 ? (
               <QueueEmptyState 
-                title="Nenhum cliente encontrado" 
-                meta={clientSearch ? "Tente buscar por outro termo." : "Sua lista de clientes está vazia."}
+                title="Nenhum cliente"
+
               />
             ) : (
               visibleClients.map((client) => (
@@ -312,7 +313,6 @@ export function ClientWorkOrderWorkspace({ initialSection, initialClientId, sect
           <header className="client-form-header">
             <SectionTitle 
               title={editingClientId ? 'Editar Cliente' : 'Novo Cliente'} 
-              eyebrow="Ficha de cadastro"
             />
           </header>
 

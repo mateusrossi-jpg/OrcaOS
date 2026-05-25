@@ -3,6 +3,7 @@ import { useBudgetForm } from '../hooks/useBudgetForm';
 import { formatCurrencyBRL, formatPercent } from '../utils/formatters';
 import { useClients } from '../hooks/useClients';
 import { Client } from '../domain/client';
+import { Budget } from '../domain/budget';
 
 
 interface BudgetFormProps {
@@ -40,7 +41,7 @@ export const BudgetForm: React.FC<BudgetFormProps> = ({ id, onBack }) => {
 
   const handleNumericChange = (field: string, value: string) => {
     const numValue = parseFloat(value.replace(',', '.')) || 0;
-    updateField(field as any, numValue);
+    updateField(field as unknown as keyof Budget, numValue);
   };
 
   const getStatusColor = (status: string) => {

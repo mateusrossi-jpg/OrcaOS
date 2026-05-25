@@ -1,4 +1,5 @@
-import { loadBusinessProfile } from '../../budgets/storage/businessProfileStorage';
+import { loadBusinessProfile } from '../../../legacy/businessProfileStorage';
+// eslint-disable-next-line no-restricted-imports -- TODO: Refactor legacy storage access
 import { loadProfessionalProfile } from '../storage/professionalProfileStorage';
 import './ProfessionalIdentityCard.css';
 

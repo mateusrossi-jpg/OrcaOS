@@ -15,7 +15,7 @@ const service = new BudgetService();
 const generateId = () => {
   try {
     return crypto.randomUUID();
-  } catch (e) {
+  } catch {
     return Math.random().toString(36).substring(2) + Date.now().toString(36);
   }
 };
@@ -33,6 +33,7 @@ export function useBudgetForm(initialBudgetId?: string | null) {
     fees: 0,
     discounts: 0,
     otherCosts: 0,
+    items: [],
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   });
@@ -54,9 +55,10 @@ export function useBudgetForm(initialBudgetId?: string | null) {
           } else {
             setError('Orçamento não encontrado no banco de dados.');
           }
-        } catch (e: any) {
+        } catch (e) {
           console.error('Failed to load budget:', e);
-          setError(e.message || 'Erro ao carregar o orçamento do banco de dados.');
+          const message = e instanceof Error ? e.message : 'Erro ao carregar o orçamento do banco de dados.';
+          setError(message);
         } finally {
           setIsLoading(false);
         }
@@ -77,7 +79,7 @@ export function useBudgetForm(initialBudgetId?: string | null) {
     });
   }, [budget]);
 
-  const updateField = useCallback((field: keyof Budget, value: any) => {
+  const updateField = useCallback(<K extends keyof Budget>(field: K, value: Budget[K]) => {
     if (budget.status === BUDGET_STATUS.FINALIZADO) return;
     setBudget(prev => ({ ...prev, [field]: value }));
   }, [budget.status]);
@@ -90,9 +92,10 @@ export function useBudgetForm(initialBudgetId?: string | null) {
       await persistenceService.saveDraft(budget);
       const updated = await persistenceService.getBudget(budget.id);
       if (updated) setBudget(updated);
-    } catch (e: any) {
+    } catch (e) {
       console.error('Failed to save draft:', e);
-      setError(e.message || 'Erro ao salvar o rascunho do orçamento.');
+      const message = e instanceof Error ? e.message : 'Erro ao salvar o rascunho do orçamento.';
+      setError(message);
     } finally {
       setIsSaving(false);
     }
@@ -106,9 +109,10 @@ export function useBudgetForm(initialBudgetId?: string | null) {
       await service.changeStatus(budget, newStatus);
       const updated = await persistenceService.getBudget(budget.id);
       if (updated) setBudget(updated);
-    } catch (e: any) {
+    } catch (e) {
       console.error('Failed to change status:', e);
-      setError(e.message || 'Erro ao alterar o status do orçamento.');
+      const message = e instanceof Error ? e.message : 'Erro ao alterar o status do orçamento.';
+      setError(message);
     } finally {
       setIsSaving(false);
     }
@@ -129,9 +133,10 @@ export function useBudgetForm(initialBudgetId?: string | null) {
       await service.finalizeBudget(budget);
       const finalized = await persistenceService.getBudget(budget.id);
       if (finalized) setBudget(finalized);
-    } catch (e: any) {
+    } catch (e) {
       console.error('Failed to finalize budget:', e);
-      setError(e.message || 'Erro ao finalizar o orçamento.');
+      const message = e instanceof Error ? e.message : 'Erro ao finalizar o orçamento.';
+      setError(message);
     } finally {
       setIsSaving(false);
       setShowFinalizeModal(false);

@@ -1,14 +1,13 @@
 import { useState } from 'react';
 import type { AferixAccountState } from '../../core/access/accountPlanStorage';
 import { getBillingReadiness } from '../../core/access/billingReadiness';
-import { buildProCheckoutUrl, buildProManageUrl } from '../../core/access/commercialCheckout';
+import { buildProCheckoutUrl } from '../../core/access/commercialCheckout';
 import { purchaseGooglePlayPro, restoreGooglePlayPurchases, syncGooglePlayPurchaseEntitlement, getGooglePlayBillingSetup } from '../../core/access/googlePlayBilling';
 import { refreshPlanEntitlement } from '../../core/access/planEntitlements';
 import { proPlanBenefits, proV1Priorities, futureProBacklog } from '../../core/access/planStrategy';
-import { isDevToolsEnabled } from '../../core/runtime/devTools';
 import { storePackages } from '../appData';
 import { MetricCard, PageHeader, PageShell, PlanCard, BackButton, ListCard, ListItem, PanelCard, SecondaryButton } from '../components/ui';
-import { planStatusTitle, planStatusDescription } from '../utils/planHelpers';
+import { planStatusTitle } from '../utils/planHelpers';
 
 interface StoreScreenProps {
   account: AferixAccountState;
@@ -18,9 +17,6 @@ interface StoreScreenProps {
 
 export function StoreScreen({ account, onAccountChange, onBack }: StoreScreenProps) {
   const activeUserPlan = account.plan;
-  const devToolsEnabled = isDevToolsEnabled();
-  const [feedback, setFeedback] = useState<string | null>(null);
-  const [isCheckingPlan, setIsCheckingPlan] = useState(false);
   const [isGooglePlayBusy, setIsGooglePlayBusy] = useState(false);
   const [showAllProBenefits, setShowAllProBenefits] = useState(false);
   const billingReadiness = getBillingReadiness();
@@ -30,39 +26,30 @@ export function StoreScreen({ account, onAccountChange, onBack }: StoreScreenPro
   const hiddenProBenefitsCount = Math.max(proPlanBenefits.length - visibleProBenefits.length, 0);
 
   async function checkSubscription() {
-    setIsCheckingPlan(true);
-    setFeedback(null);
     try {
       const result = await refreshPlanEntitlement(account);
       onAccountChange(result.account);
-      setFeedback(planStatusDescription(result.account, 'verificação Pro'));
-    } catch (error) {
-      setFeedback(error instanceof Error ? error.message : 'Falha ao verificar a liberação Pro.');
-    } finally {
-      setIsCheckingPlan(false);
+    } catch {
+      // Error handled by not updating state as feedback is removed
     }
   }
 
   function openCheckout() {
-    setFeedback(null);
     try {
       window.open(buildProCheckoutUrl(account), '_blank', 'noopener,noreferrer');
-      setFeedback('Checkout aberto. Depois do pagamento, volte aqui e clique em Verificar assinatura.');
-    } catch (error) {
-      setFeedback(error instanceof Error ? error.message : 'Falha ao abrir o checkout Pro.');
+    } catch {
+      // Error handled by not updating state as feedback is removed
     }
   }
 
   async function buyWithGooglePlay() {
     setIsGooglePlayBusy(true);
-    setFeedback(null);
     try {
       const purchase = await purchaseGooglePlayPro();
       const result = await syncGooglePlayPurchaseEntitlement(account, purchase, 'purchase');
       onAccountChange(result.account);
-      setFeedback(planStatusDescription(result.account, 'Google Play'));
-    } catch (error) {
-      setFeedback(error instanceof Error ? error.message : 'Falha ao concluir a compra pelo Google Play.');
+    } catch {
+      // Error handled by not updating state as feedback is removed
     } finally {
       setIsGooglePlayBusy(false);
     }
@@ -70,18 +57,15 @@ export function StoreScreen({ account, onAccountChange, onBack }: StoreScreenPro
 
   async function restoreWithGooglePlay() {
     setIsGooglePlayBusy(true);
-    setFeedback(null);
     try {
       const purchases = await restoreGooglePlayPurchases();
       if (purchases.length === 0) {
-        setFeedback('Nenhuma compra Pro restaurável foi encontrada nesta conta Google Play.');
         return;
       }
       const result = await syncGooglePlayPurchaseEntitlement(account, purchases[0], 'restore');
       onAccountChange(result.account);
-      setFeedback(planStatusDescription(result.account, 'restauração Google Play'));
-    } catch (error) {
-      setFeedback(error instanceof Error ? error.message : 'Falha ao restaurar compras pelo Google Play.');
+    } catch {
+      // Error handled by not updating state as feedback is removed
     } finally {
       setIsGooglePlayBusy(false);
     }

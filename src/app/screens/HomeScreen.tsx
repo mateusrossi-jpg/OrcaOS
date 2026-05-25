@@ -11,15 +11,16 @@ import {
   ListItem,
   StatusBadge,
 } from '../components/ui';
+import { calculateBudget } from '../../domain/aferixFinanceEngine';
+import type { Budget } from '../../domain/budget';
 
-import type { Budget, BUDGET_STATUS } from '../../domain/budget';
 interface HomeScreenProps {
   onNavigate: (tab: AppTab) => void;
   onSelectBudget?: (budget: Budget) => void;
 }
 
 export function HomeScreen({ onNavigate, onSelectBudget }: HomeScreenProps) {
-  const { budgets, isLoading } = useBudgetHistory();
+  const { budgets } = useBudgetHistory();
 
   const now = new Date();
   const currentMonthBudgets = budgets.filter((b) => {
@@ -34,17 +35,9 @@ export function HomeScreen({ onNavigate, onSelectBudget }: HomeScreenProps) {
   const finalizedThisMonth = currentMonthBudgets.filter((b) => b.status === 'finalizado');
   const finalizedCount = finalizedThisMonth.length;
 
-  const calculateSavedBudgetValue = (budget: Budget) => {
-    const subtotal = (budget.items ?? []).reduce((total, item) => total + item.quantity * item.unitPrice, 0);
-    return Math.max(0, subtotal + (budget.travelCost ?? 0) + (budget.fees ?? 0) - (budget.discounts ?? 0));
-  };
-
   const profitThisMonth = finalizedThisMonth.reduce((acc, b) => {
-    const revenue = calculateSavedBudgetValue(b);
-    const material = b.materialCost ?? (b.items ?? []).filter((i) => i.category === 'material')
-      .reduce((t, i) => t + i.quantity * i.unitPrice, 0);
-    const expenses = material + (b.helperCost ?? 0) + (b.travelCost ?? 0) + (b.fees ?? 0);
-    return acc + (revenue - expenses);
+    const result = calculateBudget(b);
+    return acc + result.lucroBruto;
   }, 0);
 
   const recentBudgets = budgets.slice(0, 3);
@@ -78,7 +71,7 @@ export function HomeScreen({ onNavigate, onSelectBudget }: HomeScreenProps) {
               onClick={() => onSelectBudget?.(budget)}
               title={budget.title || 'Sem título'}
               context={<StatusBadge status={budget.status} />}
-              value={<MoneyValue value={calculateSavedBudgetValue(budget)} compact />}
+              value={<MoneyValue value={calculateBudget(budget).totalComercial} compact />}
             />
           ))}
         </ListCard>

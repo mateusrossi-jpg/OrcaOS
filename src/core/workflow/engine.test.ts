@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { validateTransition, getActionBlockReason, ALLOWED_TRANSITIONS } from './engine';
+import { validateTransition, getActionBlockReason } from './engine';
 
 describe('Workflow Engine', () => {
   describe('validateTransition', () => {

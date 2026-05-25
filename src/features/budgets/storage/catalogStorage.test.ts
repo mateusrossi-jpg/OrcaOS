@@ -4,7 +4,7 @@ import {
   loadCatalogItems,
   saveCatalogItems,
   starterCatalogItems,
-} from './catalogStorage';
+} from '../../../legacy/catalogStorage';
 
 describe('budget catalog storage', () => {
   beforeEach(() => {

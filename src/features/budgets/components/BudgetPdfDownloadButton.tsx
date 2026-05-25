@@ -3,7 +3,7 @@ import type { Budget, BusinessProfile } from '../../../core/types/business';
 import { AferixBudgetPdf } from './AferixBudgetPdf';
 
 interface BudgetPdfDownloadButtonProps {
-  budget: Pick<Budget, 'title' | 'items' | 'discount' | 'travelCost' | 'additionalFees' | 'paymentTerms' | 'validity' | 'commercialNotes'>;
+  budget: Pick<Budget, 'title' | 'items' | 'discounts' | 'travelCost' | 'fees' | 'paymentTerms' | 'validity' | 'commercialNotes'>;
   businessProfile: BusinessProfile;
   total: number;
   subtotal: number;

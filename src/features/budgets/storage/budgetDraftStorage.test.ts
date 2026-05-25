@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createMemoryStorage } from '../../../test/createMemoryStorage';
-import { clearBudgetDraft, loadBudgetDraft, saveBudgetDraft } from './budgetDraftStorage';
+import { clearBudgetDraft, loadBudgetDraft, saveBudgetDraft } from '../../../legacy/budgetDraftStorage';
 
 describe('budget draft storage', () => {
   beforeEach(() => {

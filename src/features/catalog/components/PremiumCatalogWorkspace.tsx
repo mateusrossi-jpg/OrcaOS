@@ -17,6 +17,7 @@ import {
   SecondaryButton,
   PanelCard
 } from '../../../app/components/ui';
+// eslint-disable-next-line no-restricted-imports -- TODO: Refactor legacy storage access
 import { loadCatalogHubItems, saveCatalogHubItems, type CatalogHubItem, type CatalogHubItemKind, createCatalogId } from '../storage/catalogHubStorage';
 import './PremiumCatalogWorkspace.css';
 
@@ -261,7 +262,6 @@ export function PremiumCatalogWorkspace() {
         {filteredItems.length === 0 ? (
           <QueueEmptyState
             title="Nenhum item encontrado"
-            meta={query ? 'Tente buscar por outro termo ou categoria.' : 'Sua biblioteca está vazia. Adicione seu primeiro item.'}
           />
         ) : (
           visibleItems.map((item) => (

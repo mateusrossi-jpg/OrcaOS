@@ -1,4 +1,4 @@
-import type { CatalogItem } from '../../../core/types/business';
+import type { CatalogItem } from '../core/types/business';
 
 const CATALOG_STORAGE_KEY = 'orcaos:catalog-items:v1';
 

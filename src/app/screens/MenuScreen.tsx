@@ -4,17 +4,9 @@ import {
   PageHeader, 
   PageShell, 
   PanelCard, 
-  ListCard, 
-  ListItem, 
   SectionTitle 
 } from '../components/ui';
 import type { AferixAccountState } from '../../core/access/accountPlanStorage';
-import {
-  signInEmailAccount,
-  signInGoogleAccount,
-  signOutLocalAccount,
-} from '../../core/access/accountPlanStorage';
-import { isGoogleAccountLoginConfigured, requestGoogleAccountProfile } from '../../core/access/googleAccountAuth';
 import { planStatusTitle } from '../utils/planHelpers';
 import type { AppTab } from '../appTypes';
 
@@ -32,14 +24,9 @@ interface MenuScreenProps {
 
 type MenuSection = 'main' | 'profile' | 'security' | 'backup' | 'about';
 
-export function MenuScreen({ account, onAccountChange, onNavigate }: MenuScreenProps) {
+export function MenuScreen({ account, onNavigate }: MenuScreenProps) {
   const [activeSection, setActiveSection] = useState<MenuSection>('main');
-  const [feedback, setFeedback] = useState<string | null>(null);
-  const [isSigningIn, setIsSigningIn] = useState(false);
   const [showAllSystemItems, setShowAllSystemItems] = useState(false);
-  const [emailDraft, setEmailDraft] = useState(account.email);
-  const [nameDraft, setNameDraft] = useState(account.displayName === 'Visitante' ? '' : account.displayName);
-  const googleReady = isGoogleAccountLoginConfigured();
   
   const accountLabel = account.status === 'google' || account.status === 'email' || account.status === 'local' ? account.displayName : 'Sem login';
   const systemItems = [
@@ -72,31 +59,6 @@ export function MenuScreen({ account, onAccountChange, onNavigate }: MenuScreenP
   const visibleSystemItems = showAllSystemItems ? systemItems : systemItems.slice(0, 5);
   const hiddenSystemItemsCount = Math.max(systemItems.length - visibleSystemItems.length, 0);
   
-  function registerEmailAccount() {
-    try {
-      const nextAccount = signInEmailAccount(emailDraft, nameDraft);
-      onAccountChange(nextAccount);
-      setFeedback('Conta por e-mail cadastrada.');
-    } catch (error) {
-      setFeedback(error instanceof Error ? error.message : 'Falha ao cadastrar e-mail.');
-    }
-  }
-
-  async function connectGoogle() {
-    setIsSigningIn(true);
-    setFeedback(null);
-    try {
-      const profile = await requestGoogleAccountProfile();
-      const nextAccount = signInGoogleAccount(profile);
-      onAccountChange(nextAccount);
-      setFeedback('Conta Google conectada.');
-    } catch (error) {
-      setFeedback(error instanceof Error ? error.message : 'Falha ao entrar com Google.');
-    } finally {
-      setIsSigningIn(false);
-    }
-  }
-
   if (activeSection !== 'main') {
     return (
       <PageShell className="wide-screen">

@@ -1,4 +1,4 @@
-import type { BusinessProfile } from '../../../core/types/business';
+import type { BusinessProfile } from '../core/types/business';
 
 const BUSINESS_PROFILE_STORAGE_KEY = 'orcaos:business-profile:v1';
 

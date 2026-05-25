@@ -12,13 +12,11 @@ type Tone = 'default' | 'brand' | 'success' | 'danger' | 'muted';
 export function PageHeader({ 
   title, 
   sourceLabel, 
-  eyebrow, 
   action, 
   className = '' 
 }: { 
   title: string; 
   sourceLabel?: string; 
-  eyebrow?: string; 
   action?: ReactNode; 
   className?: string 
 }) {
@@ -89,14 +87,12 @@ export function PanelCard({ children, className = '', ...props }: { children: Re
  */
 export function ListCard({ 
   title, 
-  context, 
   children, 
   action, 
   className = '',
   ...props
 }: { 
   title?: string; 
-  context?: string; 
   children: ReactNode; 
   action?: ReactNode; 
   className?: string;
@@ -230,13 +226,13 @@ export const Badge = memo(function Badge({ children, tone = 'default' }: { child
  */
 export function QueueEmptyState({ 
   title, 
-  meta, 
+  meta,
   icon, 
   action, 
   className = '' 
 }: { 
   title: string; 
-  meta?: string; 
+  meta?: ReactNode;
   icon?: ReactNode;
   action?: ReactNode;
   className?: string;
@@ -245,7 +241,7 @@ export function QueueEmptyState({
     <div className={`premium-empty-state ${className}`.trim()}>
       {icon && <div className="empty-state-icon">{icon}</div>}
       <strong>{title}</strong>
-      {meta && <p>{meta}</p>}
+      {meta && <small className="empty-state-meta">{meta}</small>}
       {action && <div className="empty-state-action">{action}</div>}
     </div>
   );
@@ -256,12 +252,10 @@ export function QueueEmptyState({
  */
 export function BackButton({ 
   label = 'Voltar', 
-  onClick, 
-  to 
+  onClick 
 }: { 
   label?: string; 
   onClick?: () => void; 
-  to?: string; 
 }) {
   return (
     <button 
@@ -561,21 +555,19 @@ export function Modal({
 
 export function SectionTitle({ 
   title, 
-  eyebrow, 
-  meta,
+  eyebrow,
   action,
   className = '' 
 }: { 
   title: string; 
-  eyebrow?: string; 
-  meta?: string;
+  eyebrow?: string;
   action?: ReactNode;
   className?: string 
 }) {
   return (
     <header className={`section-title ${className}`.trim()}>
       <div className="section-title-main">
-
+        {eyebrow && <span className="section-eyebrow">{eyebrow}</span>}
         <h3>{title}</h3>
       </div>
       {action && <div className="section-title-action">{action}</div>}
@@ -594,9 +586,7 @@ export function FAB({ label, onClick }: { label: string; onClick: () => void }) 
 export function PlanCard({
   badge,
   title,
-  subtitle,
   price,
-  meta,
   benefits = [],
   featured = false,
   action,
@@ -604,9 +594,7 @@ export function PlanCard({
 }: {
   badge: string;
   title: string;
-  subtitle?: string;
   price?: string;
-  meta?: string;
   benefits?: string[];
   featured?: boolean;
   action?: ReactNode;

@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import type { BudgetItem, BudgetTemplateId, BusinessProfile } from '../../../core/types/business';
-import { calculateBudgetItemTotal } from '../../../core/pricing/budget';
+import { budgetCalculator } from '../../../services/BudgetCalculatorService';
 import { hasBlockingBudgetIssues, type BudgetValidationIssue } from '../../../core/pricing/budgetValidation';
 import { roundTechnical } from '../../../core/format/number';
 import type { BudgetStatus } from '../../../core/types/business';
@@ -66,7 +66,7 @@ function printBudget() {
 
 function safeBudgetItemTotal(item: BudgetItem): number {
   try {
-    return calculateBudgetItemTotal(item);
+    return budgetCalculator.calculateItemTotal(item);
   } catch {
     return 0;
   }
@@ -81,7 +81,6 @@ export function BudgetPrintPreview({
   travelCost,
   additionalFees,
   subtotal,
-  commercialSubtotal,
   total,
   businessProfile,
   paymentTerms,

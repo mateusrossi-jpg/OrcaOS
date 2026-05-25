@@ -23,9 +23,10 @@ export function useBudgetHistory() {
     try {
       const domainBudgets = await persistence.listBudgets();
       setBudgets(domainBudgets);
-    } catch (e: any) {
-      console.error('Failed to load budgets:', e);
-      setError(e.message || 'Erro ao carregar o histórico de orçamentos.');
+    } catch (e) {
+      const err = e as Error;
+      console.error('Failed to load budgets:', err);
+      setError(err.message || 'Erro ao carregar o histórico de orçamentos.');
     } finally {
       setIsLoading(false);
     }
@@ -39,9 +40,10 @@ export function useBudgetHistory() {
     try {
       await persistence.deleteBudget(id);
       await loadBudgets();
-    } catch (e: any) {
-      console.error('Failed to delete budget:', e);
-      setError(e.message || 'Erro ao excluir o orçamento.');
+    } catch (e) {
+      const err = e as Error;
+      console.error('Failed to delete budget:', err);
+      setError(err.message || 'Erro ao excluir o orçamento.');
     } finally {
       setIsLoading(false);
     }

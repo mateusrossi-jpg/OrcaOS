@@ -8,7 +8,7 @@ const __dirname = dirname(__filename);
 const readFile = (relativePath) => {
   try {
     return readFileSync(resolve(__dirname, '../', relativePath), 'utf-8');
-  } catch (error) {
+  } catch {
     return '';
   }
 };
@@ -192,7 +192,6 @@ if (!themeCSS.match(/\.context-banner-action[^}]*margin-top:\s*-\d+/)) {
 logStep('Clientes / Atendimentos sem redundância');
 const clientWorkspaceTSX = readFile('src/features/clients/components/ClientWorkOrderWorkspace.tsx');
 const hasClientToolbar = clientWorkspaceTSX.includes('className="home-action-toolbar"');
-const clientToolbar = '';
 
 if (!hasClientToolbar && !clientWorkspaceTSX.includes('>Painel<') && !clientWorkspaceTSX.includes('>Histórico<')) {
   logSuccess('Clientes removeu submenus internos redundantes: Painel, Clientes e Histórico');

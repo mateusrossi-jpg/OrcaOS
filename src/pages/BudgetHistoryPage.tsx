@@ -1,5 +1,5 @@
 import React from 'react';
-import { useBudgetHistory, HistoryFilter } from '../hooks/useBudgetHistory';
+import { useBudgetHistory } from '../hooks/useBudgetHistory';
 import { BUDGET_STATUS, Budget } from '../domain/budget';
 import { calculateBudget } from '../domain/aferixFinanceEngine';
 import { formatCurrencyBRL, formatPercent } from '../utils/formatters';
@@ -10,16 +10,16 @@ interface BudgetHistoryPageProps {
 }
 
 export const BudgetHistoryPage: React.FC<BudgetHistoryPageProps> = ({ onOpenBudget, onNewBudget }) => {
-  const { budgets, totalCount, isLoading, filter, setFilter, refresh, deleteBudget, error, clearError } = useBudgetHistory();
+  const { budgets, totalCount, isLoading, filter, setFilter, deleteBudget, error, clearError } = useBudgetHistory();
 
   const getStatusLabel = (status: string) => status.toUpperCase();
   
   const getStatusStyles = (status: string) => {
     switch (status) {
       case BUDGET_STATUS.FINALIZADO: return 'bg-green-500/10 text-green-400 border-green-500/20';
-      case BUDGET_STATUS.EXECUCAO:
+      case BUDGET_STATUS.EM_EXECUCAO:
       case BUDGET_STATUS.INICIADO:
-      case BUDGET_STATUS.REVISAO: return 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20';
+      case BUDGET_STATUS.EM_REVISAO: return 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20';
       case BUDGET_STATUS.RECUSADO: return 'bg-red-500/10 text-red-400 border-red-500/20';
       case BUDGET_STATUS.ENVIADO:
       case BUDGET_STATUS.AUTORIZADO: return 'bg-gray-800 text-gray-300 border-gray-700';

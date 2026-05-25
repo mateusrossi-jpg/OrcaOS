@@ -1,4 +1,4 @@
-import type { ActiveWorkContext } from '../appTypes';
+// eslint-disable-next-line no-restricted-imports -- TODO: Refactor legacy storage access
 import { loadActiveWorkOrderId } from '../../features/clients/storage/clientWorkOrderStorage';
 import type { CalculationCapture } from '../../core/types/workflow';
 

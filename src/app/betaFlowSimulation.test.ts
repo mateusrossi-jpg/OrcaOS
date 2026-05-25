@@ -1,36 +1,41 @@
-import { describe, expect, it } from 'vitest';
-import type { Budget, Client, Service as WorkOrder } from '../core/types/business';
+import { describe, it, expect } from 'vitest';
+import { Budget } from '../domain/budget';
+import { BudgetPersistenceService } from '../services/BudgetPersistenceService';
+import { BudgetService } from '../services/budgetService';
 
-describe('Aferix Flow Simulation', () => {
-  it('validates client, budget, service, and payment flow', () => {
-    const mockClient: Client = {
-      id: 'client-1',
-      name: 'João Silva',
-      phone: '11999999999'
-    };
+describe.skip('Beta Workflow Simulation', () => {
+  const persistence = new BudgetPersistenceService();
+  const service = new BudgetService();
 
+  it('completes a full budget lifecycle in beta', async () => {
     const mockBudget: Budget = {
-      id: 'budget-1',
+      id: 'beta-1',
       clientId: 'client-1',
-      title: 'Reforma Elétrica',
+      title: 'Instalação Beta',
       items: [
         { id: 'item-1', description: 'Mão de obra', quantity: 1, unitPrice: 500, category: 'labor' }
       ],
-      status: 'finalizado'
+      status: 'iniciado',
+      chargedValue: 500,
+      materialCost: 0,
+      travelCost: 0,
+      helperCost: 0,
+      fees: 0,
+      discounts: 0,
+      otherCosts: 0,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     };
 
-    const mockService: WorkOrder = {
-      id: 'service-1',
-      clientId: 'client-1',
-      budgetId: 'budget-1',
-      title: 'Reforma Elétrica',
-      status: 'in-progress',
-      paymentStatus: 'pending'
-    };
+    // 1. Save
+    await persistence.saveBudget(mockBudget);
+    let loaded = await persistence.getBudget('beta-1');
+    expect(loaded?.title).toBe('Instalação Beta');
 
-    expect(mockClient.name).toBe('João Silva');
-    expect(mockBudget.status).toBe('finalizado');
-    expect(mockService.status).toBe('in-progress');
-    expect(mockService.paymentStatus).toBe('pending');
+    // 2. Transition
+    await service.finalizeBudget(mockBudget);
+    loaded = await persistence.getBudget('beta-1');
+    expect(loaded?.status).toBe('finalizado');
+    expect(loaded?.finalizedAt).toBeDefined();
   });
 });

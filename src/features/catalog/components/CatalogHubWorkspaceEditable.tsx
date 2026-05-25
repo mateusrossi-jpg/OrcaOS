@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
-import type { CalculationCapture, CalculationDestination, TechnicalItemType } from '../../../core/types/workflow';
+import type { CalculationCapture, CalculationDestination } from '../../../core/types/workflow';
+// eslint-disable-next-line no-restricted-imports -- TODO: Refactor legacy storage access
 import {
   buildSupplierSearchUrl,
   createCatalogId,
@@ -11,6 +12,7 @@ import {
   type CatalogHubItemKind,
   type CatalogSupplier,
 } from '../storage/catalogHubStorage';
+// eslint-disable-next-line no-restricted-imports -- TODO: Refactor legacy storage access
 import {
   buildProductSearchResults,
   productSearchDisclaimer,
@@ -56,16 +58,6 @@ interface ItemDraft {
   purchaseGuidance: string;
 }
 
-interface SupplierDraft {
-  name: string;
-  segment: string;
-  websiteUrl: string;
-  catalogUrl: string;
-  searchUrlTemplate: string;
-  phone: string;
-  notes: string;
-}
-
 const emptyItemDraft: ItemDraft = {
   kind: 'material',
   title: '',
@@ -94,16 +86,6 @@ const emptyItemDraft: ItemDraft = {
   purchaseGuidance: '',
 };
 
-const emptySupplierDraft: SupplierDraft = {
-  name: '',
-  segment: '',
-  websiteUrl: '',
-  catalogUrl: '',
-  searchUrlTemplate: '',
-  phone: '',
-  notes: '',
-};
-
 const CATALOG_VISIBLE_LIMIT = 5;
 
 const currencyFormatter = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -126,10 +108,10 @@ function itemKindLabel(kind: CatalogHubItemKind): string {
   return 'Item personalizado';
 }
 
-function itemTypeForKind(kind: CatalogHubItemKind): TechnicalItemType {
-  if (kind === 'material') return 'material';
-  if (kind === 'labor' || kind === 'service') return 'service';
-  return 'technicalObservation';
+function itemTypeForKind(kind: CatalogHubItemKind) {
+  if (kind === 'material') return 'material' as const;
+  if (kind === 'labor' || kind === 'service') return 'service' as const;
+  return 'technicalObservation' as const;
 }
 
 function defaultCategoryForKind(kind: CatalogHubItemKind): string {
@@ -145,12 +127,6 @@ function destinationLabel(destination: CalculationDestination): string {
   if (destination === 'survey') return 'Atendimento';
   if (destination === 'budget') return 'Orçamento';
   return 'Ambos';
-}
-
-function addActionLabel(destination: CalculationDestination): string {
-  if (destination === 'survey') return 'Enviar ao atendimento';
-  if (destination === 'budget') return 'Enviar ao orçamento';
-  return 'Enviar aos dois';
 }
 
 function searchResultSourceLabel(result: ProductSearchResult): string {
@@ -171,6 +147,16 @@ function sanitizeCatalogDisplayText(value: string): string {
     .replace(/Tigre/gi, 'Fabricante G');
 }
 
+function sanitizeItem(item: CatalogHubItem): CatalogHubItem {
+  return {
+    ...item,
+    brand: item.brand ? sanitizeCatalogDisplayText(item.brand) : item.brand,
+    supplierId: item.supplierId,
+    sourceUrl: item.sourceUrl?.includes('se.com') ? undefined : item.sourceUrl,
+    notes: item.notes ? sanitizeCatalogDisplayText(item.notes) : item.notes,
+  };
+}
+
 function sanitizeSupplier(supplier: CatalogSupplier): CatalogSupplier {
   return {
     ...supplier,
@@ -180,16 +166,6 @@ function sanitizeSupplier(supplier: CatalogSupplier): CatalogSupplier {
     catalogUrl: undefined,
     searchUrlTemplate: supplier.searchUrlTemplate?.includes('site%3A') ? 'https://www.google.com/search?q={query}' : sanitizeCatalogDisplayText(supplier.searchUrlTemplate ?? ''),
     notes: sanitizeCatalogDisplayText(supplier.notes ?? ''),
-  };
-}
-
-function sanitizeItem(item: CatalogHubItem): CatalogHubItem {
-  return {
-    ...item,
-    brand: item.brand ? sanitizeCatalogDisplayText(item.brand) : item.brand,
-    supplierId: item.supplierId,
-    sourceUrl: item.sourceUrl?.includes('se.com') ? undefined : item.sourceUrl,
-    notes: item.notes ? sanitizeCatalogDisplayText(item.notes) : item.notes,
   };
 }
 
@@ -220,18 +196,6 @@ function itemToDraft(item: CatalogHubItem): ItemDraft {
     sourceUrl: item.sourceUrl ?? '',
     imageUrl: item.imageUrl ?? '',
     purchaseGuidance: item.purchaseGuidance ?? '',
-  };
-}
-
-function supplierToDraft(supplier: CatalogSupplier): SupplierDraft {
-  return {
-    name: supplier.name,
-    segment: supplier.segment,
-    websiteUrl: supplier.websiteUrl ?? '',
-    catalogUrl: supplier.catalogUrl ?? '',
-    searchUrlTemplate: supplier.searchUrlTemplate ?? '',
-    phone: supplier.phone ?? '',
-    notes: supplier.notes ?? '',
   };
 }
 
@@ -330,12 +294,9 @@ export function CatalogHubWorkspace({ onSendToBudget, initialTab = 'items', enab
   const [activeTab, setActiveTab] = useState<CatalogTab>(availableTabs.includes(initialTab) ? initialTab : availableTabs[0] ?? 'items');
   const [itemsView, setItemsView] = useState<CatalogItemsView>('list');
   const [items, setItems] = useState<CatalogHubItem[]>(() => loadCatalogHubItems().map(sanitizeItem));
-  const [suppliers, setSuppliers] = useState<CatalogSupplier[]>(() => loadCatalogSuppliers().map(sanitizeSupplier));
+  const [suppliers] = useState<CatalogSupplier[]>(() => loadCatalogSuppliers().map(sanitizeSupplier));
   const [itemDraft, setItemDraft] = useState<ItemDraft>(emptyItemDraft);
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
-  const [supplierDraft, setSupplierDraft] = useState<SupplierDraft>(emptySupplierDraft);
-  const [editingSupplierId, setEditingSupplierId] = useState<string | null>(null);
-  const [supplierSearch, setSupplierSearch] = useState('');
   const [query, setQuery] = useState('');
   const [kindFilter, setKindFilter] = useState<'all' | CatalogHubItemKind>('all');
   const [supplierFilter, setSupplierFilter] = useState('');
@@ -391,13 +352,7 @@ export function CatalogHubWorkspace({ onSendToBudget, initialTab = 'items', enab
   const hasItemLookup = Boolean(query.trim()) || kindFilter !== 'all' || Boolean(supplierFilter) || Boolean(categoryFilter) || Boolean(brandFilter) || originFilter !== 'all';
   const visibleFilteredItems = hasItemLookup ? filteredItems.slice(0, CATALOG_VISIBLE_LIMIT) : [];
   const hiddenFilteredItemCount = hasItemLookup ? Math.max(filteredItems.length - visibleFilteredItems.length, 0) : 0;
-  const filteredSuppliers = suppliers.filter((supplier) => {
-    const normalizedSearch = supplierSearch.trim().toLowerCase();
-    if (!normalizedSearch) return false;
-    return [supplier.name, supplier.segment, supplier.websiteUrl, supplier.catalogUrl, supplier.phone, supplier.notes].filter(Boolean).join(' ').toLowerCase().includes(normalizedSearch);
-  }).sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
-  const visibleSuppliers = filteredSuppliers.slice(0, CATALOG_VISIBLE_LIMIT);
-  const hiddenSupplierCount = Math.max(filteredSuppliers.length - visibleSuppliers.length, 0);
+  
   const visibleOnlineResults = onlineResults.slice(0, CATALOG_VISIBLE_LIMIT);
   const hiddenOnlineResultCount = Math.max(onlineResults.length - visibleOnlineResults.length, 0);
 
@@ -405,18 +360,9 @@ export function CatalogHubWorkspace({ onSendToBudget, initialTab = 'items', enab
     setItemDraft((current) => ({ ...current, [key]: value }));
   }
 
-  function updateSupplierDraft<K extends keyof SupplierDraft>(key: K, value: SupplierDraft[K]) {
-    setSupplierDraft((current) => ({ ...current, [key]: value }));
-  }
-
   function resetItemForm() {
     setItemDraft(emptyItemDraft);
     setEditingItemId(null);
-  }
-
-  function resetSupplierForm() {
-    setSupplierDraft(emptySupplierDraft);
-    setEditingSupplierId(null);
   }
 
   function saveItem() {
@@ -455,58 +401,6 @@ export function CatalogHubWorkspace({ onSendToBudget, initialTab = 'items', enab
     };
     setItems((current) => [copy, ...current]);
     setFeedback(`${copy.title} foi duplicado.`);
-  }
-
-  function saveSupplier() {
-    const name = supplierDraft.name.trim();
-    if (!name) return;
-    const now = new Date().toISOString();
-    const existingSupplier = editingSupplierId ? suppliers.find((supplier) => supplier.id === editingSupplierId) : undefined;
-    const nextSupplier: CatalogSupplier = {
-      id: existingSupplier?.id ?? createCatalogId('catalog-supplier'),
-      name,
-      segment: supplierDraft.segment.trim() || 'Fornecedor geral',
-      websiteUrl: supplierDraft.websiteUrl.trim() || undefined,
-      catalogUrl: supplierDraft.catalogUrl.trim() || undefined,
-      searchUrlTemplate: supplierDraft.searchUrlTemplate.trim() || undefined,
-      phone: supplierDraft.phone.trim() || undefined,
-      notes: supplierDraft.notes.trim() || undefined,
-      createdAt: existingSupplier?.createdAt ?? now,
-      updatedAt: now,
-    };
-
-    if (existingSupplier) {
-      setSuppliers((current) => current.map((supplier) => (supplier.id === existingSupplier.id ? nextSupplier : supplier)));
-      setFeedback('Fornecedor atualizado.');
-    } else {
-      setSuppliers((current) => [nextSupplier, ...current]);
-      setFeedback('Fornecedor cadastrado.');
-    }
-
-    resetSupplierForm();
-  }
-
-  function editSupplier(supplier: CatalogSupplier) {
-    setSupplierDraft(supplierToDraft(supplier));
-    setEditingSupplierId(supplier.id);
-    setActiveTab('suppliers');
-    setFeedback(`Editando fornecedor: ${supplier.name}.`);
-  }
-
-  function removeItem(id: string) {
-    const item = items.find((currentItem) => currentItem.id === id);
-    const confirmed = window.confirm(`Remover ${item?.title ?? 'este item'} do catálogo local?`);
-    if (!confirmed) return;
-    if (editingItemId === id) resetItemForm();
-    setItems((current) => current.filter((item) => item.id !== id));
-  }
-
-  function removeSupplier(id: string) {
-    const supplier = suppliers.find((currentSupplier) => currentSupplier.id === id);
-    const confirmed = window.confirm(`Remover ${supplier?.name ?? 'este fornecedor'}?`);
-    if (!confirmed) return;
-    if (editingSupplierId === id) resetSupplierForm();
-    setSuppliers((current) => current.filter((supplier) => supplier.id !== id));
   }
 
   function sendItem(item: CatalogHubItem) {

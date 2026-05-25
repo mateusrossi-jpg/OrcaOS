@@ -6,6 +6,7 @@
 import { BudgetRepository } from '../repositories/budgetRepository';
 import { DexieBudgetRepository } from '../repositories/dexieBudgetRepository';
 import { Budget } from '../domain/budget';
+import { invariant, assertValidBudgetStatus, assertValidDateString } from '../core/validation/invariant';
 
 /**
  * Service encapsulating persistence of Budget entities.
@@ -20,8 +21,16 @@ export class BudgetPersistenceService {
     this.repository = repository ?? new DexieBudgetRepository();
   }
 
+  private validateBudget(budget: Budget): void {
+    invariant(budget.id, 'Budget must have a valid ID');
+    invariant(budget.title, 'Budget must have a title');
+    assertValidBudgetStatus(budget.status);
+    assertValidDateString(budget.createdAt, 'createdAt');
+  }
+
   /** Save or update a draft budget (non‑finalized). */
   async saveDraft(budget: Budget): Promise<void> {
+    this.validateBudget(budget);
     const existing = await this.repository.getBudgetById(budget.id);
     if (existing) {
       await this.repository.updateBudget({
@@ -50,11 +59,20 @@ export class BudgetPersistenceService {
 
   /** Update an existing budget (e.g., status change). */
   async updateBudget(budget: Budget): Promise<void> {
-    await this.repository.updateBudget(budget);
+    this.validateBudget(budget);
+    await this.repository.updateBudget({
+      ...budget,
+      updatedAt: new Date().toISOString(),
+    });
   }
 
   /** Delete a budget by id. */
   async deleteBudget(id: string): Promise<void> {
     await this.repository.delete(id);
+  }
+
+  /** Official method for general save (alias for saveDraft/upsert). */
+  async saveBudget(budget: Budget): Promise<void> {
+    return this.saveDraft(budget);
   }
 }

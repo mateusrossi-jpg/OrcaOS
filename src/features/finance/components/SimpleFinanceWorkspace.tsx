@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo, useState } from 'react';
 import { 
   MetricCard, 
   MoneyValue, 
@@ -16,8 +16,9 @@ import {
   PanelCard 
 } from '../../../app/components/ui';
 import { calculateServiceProfit } from '../../../core/finance/serviceProfit';
-import { BUDGET_STATUS, Budget } from '../../../domain/budget';
+import { BUDGET_STATUS } from '../../../domain/budget';
 import { useBudgetHistory } from '../../../hooks/useBudgetHistory';
+// eslint-disable-next-line no-restricted-imports -- TODO: Refactor legacy storage access
 import { loadSimpleFinanceRecords, saveSimpleFinanceRecord, type SimpleFinanceRecord } from '../storage/simpleFinanceStorage';
 import './SimpleFinanceWorkspace.css';
 
@@ -80,7 +81,7 @@ export function SimpleFinanceWorkspace() {
   const [showAllRows, setShowAllRows] = useState(false);
   const [syncTick, setSyncTick] = useState(0);
 
-  const { budgets, isLoading, refresh } = useBudgetHistory();
+  const { budgets, isLoading } = useBudgetHistory();
 
   const finalizedBudgets = useMemo(
     () => budgets.filter((budget) => budget.status === BUDGET_STATUS.FINALIZADO),
@@ -245,7 +246,7 @@ export function SimpleFinanceWorkspace() {
         ) : filteredRows.length === 0 ? (
           <QueueEmptyState 
             title="Nenhum resultado" 
-            meta={`Nenhum orçamento encontrado para \"${recordSearch}\".`} 
+            meta={`Nenhum orçamento encontrado para "${recordSearch}".`} 
             icon={<svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>}
           />
         ) : (

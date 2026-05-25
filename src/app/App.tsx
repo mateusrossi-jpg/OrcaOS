@@ -1,4 +1,4 @@
-import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
+import { Suspense, useEffect, useMemo, useState } from 'react';
 import {
   loadAccountState,
   AFERIX_ACCOUNT_CHANGED_EVENT,
@@ -6,13 +6,14 @@ import {
 } from '../core/access/accountPlanStorage';
 import type { Client, WorkOrder } from '../core/types/business';
 import type { CalculationCapture } from '../core/types/workflow';
+// eslint-disable-next-line no-restricted-imports -- TODO: Refactor legacy storage access
 import { loadActiveWorkOrderId, loadClients, loadWorkOrders } from '../features/clients/storage/clientWorkOrderStorage';
 import { AppShell } from './components/AppShell';
 import { AferixIntro } from './components/AferixIntro';
-import { navItems, userPlan } from './appData';
+import { navItems } from './appData';
 import type { AppTab, ActiveWorkContext } from './appTypes';
+// eslint-disable-next-line no-restricted-imports -- TODO: Refactor legacy storage access
 import { loadStoredCaptures, saveStoredCaptures } from './storage/calculationCapturesStorage';
-import { cleanupRuntimeValidationData } from './storage/runtimeValidationCleanup';
 import { HomeScreen } from './screens/HomeScreen';
 import { CatalogScreen } from './screens/CatalogScreen';
 import { ReportsScreen } from './screens/ReportsScreen';
@@ -23,7 +24,7 @@ import { MenuScreen } from './screens/MenuScreen';
 import { BudgetForm } from '../pages/BudgetForm';
 import { BudgetHistoryPage } from '../pages/BudgetHistoryPage';
 import { RuntimeErrorBoundary } from './components/RuntimeErrorBoundary';
-import { LegacyBudgetMigrationService } from '../services/LegacyBudgetMigrationService';
+import { LegacyBudgetMigrationService } from '../legacy/LegacyBudgetMigrationService';
 
 function LazyWorkspaceFallback() {
   return (
@@ -51,9 +52,6 @@ export function App() {
   const [workOrders, setWorkOrders] = useState<WorkOrder[]>(() => loadWorkOrders());
   const [activeWorkOrderId, setActiveWorkOrderId] = useState<string | null>(() => loadActiveWorkOrderId());
   const [account, setAccount] = useState<AferixAccountState>(() => loadAccountState());
-  const activeUserPlan = account.plan ?? userPlan;
-
-  const lastMenuActionAtRef = useRef(0);
 
   const canNavigate = () => {
     return true;
@@ -89,20 +87,8 @@ export function App() {
     return activeWorkOrderId && !capture.workOrderId ? { ...capture, workOrderId: activeWorkOrderId } : capture;
   }
 
-  function addCalculationCapture(capture: CalculationCapture) {
-    setCaptures((current) => [attachActiveWorkOrder(capture), ...current]);
-  }
-
   function addManyCalculationCaptures(items: CalculationCapture[]) {
     setCaptures((current) => [...items.map(attachActiveWorkOrder), ...current]);
-  }
-
-  function updateCalculationCapture(id: string, patch: Partial<CalculationCapture>) {
-    setCaptures((current) => current.map((capture) => (capture.id === id ? { ...capture, ...patch } : capture)));
-  }
-
-  function removeCalculationCapture(id: string) {
-    setCaptures((current) => current.filter((capture) => capture.id !== id));
   }
 
   function goTo(tab: AppTab) {
@@ -138,21 +124,6 @@ export function App() {
     openBudgetForEdit(budgetId);
   }
 
-  function openClientSection(section: 'dashboard' | 'newClient' | 'clients') {
-    if (!canNavigate()) return;
-    setClientInitialSection(section);
-    setClientSectionRequestKey((current) => current + 1);
-    setActiveTab('base');
-  }
-
-  function viewClientProfile(clientId: string) {
-    if (!canNavigate()) return;
-    setSelectedClientId(clientId);
-    setClientInitialSection('newClient'); 
-    setClientSectionRequestKey((current) => current + 1);
-    setActiveTab('base');
-  }
-
   return (
     <>
       <AferixIntro />
@@ -169,7 +140,7 @@ export function App() {
           
           {activeTab === 'base' && (
             <ClientsScreen 
-              initialSection={clientInitialSection as any} 
+              initialSection={clientInitialSection} 
               initialClientId={selectedClientId}
               sectionRequestKey={clientSectionRequestKey} 
               onOpenBudgets={() => goTo('budgets')} 

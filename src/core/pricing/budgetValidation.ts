@@ -1,3 +1,4 @@
+import { budgetCalculator } from '../../services/BudgetCalculatorService';
 import type { Budget, BudgetItem } from '../types/business';
 
 export type BudgetValidationSeverity = 'error' | 'warning';
@@ -54,7 +55,7 @@ export function validateBudgetForProposal(budget: Budget): BudgetValidationIssue
     issues.push(...itemIssues);
   });
 
-  if ((budget.discount ?? 0) < 0) {
+  if ((budget.discounts ?? 0) < 0) {
     issues.push({ code: 'discount-negative', message: 'O desconto não pode ser negativo.', severity: 'error' });
   }
 
@@ -62,7 +63,7 @@ export function validateBudgetForProposal(budget: Budget): BudgetValidationIssue
     issues.push({ code: 'travel-negative', message: 'O deslocamento não pode ser negativo.', severity: 'error' });
   }
 
-  if ((budget.additionalFees ?? 0) < 0) {
+  if ((budget.fees ?? 0) < 0) {
     issues.push({ code: 'fees-negative', message: 'As taxas adicionais não podem ser negativas.', severity: 'error' });
   }
 
@@ -70,8 +71,10 @@ export function validateBudgetForProposal(budget: Budget): BudgetValidationIssue
     ['item-quantity-invalid', 'item-price-negative', 'travel-negative', 'fees-negative', 'discount-negative'].includes(issue.code),
   );
   if (canCalculateSubtotal) {
-    const subtotal = budget.items.reduce((total, item) => total + item.quantity * item.unitPrice, 0) + (budget.travelCost ?? 0) + (budget.additionalFees ?? 0);
-    if ((budget.discount ?? 0) > subtotal) {
+    const calc = budgetCalculator.calculateBudget(budget);
+    // No calculator, subtotal é apenas itens. baseComercialBruta é subtotal + travel + fees
+    const baseTotal = calc.subtotal + (budget.travelCost ?? 0) + (budget.fees ?? 0);
+    if ((budget.discounts ?? 0) > baseTotal) {
       issues.push({ code: 'discount-too-high', message: 'O desconto não pode ser maior que o subtotal.', severity: 'error' });
     }
   }

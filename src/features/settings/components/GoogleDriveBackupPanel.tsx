@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { Button, Select } from '../../../app/components/ui';
+// eslint-disable-next-line no-restricted-imports -- TODO: Refactor legacy storage access
 import {
   collectAferixLocalBackup,
   restoreAferixBackup,
   summarizeAferixBackup,
 } from '../storage/localBackup';
+// eslint-disable-next-line no-restricted-imports -- TODO: Refactor legacy storage access
 import {
   findGoogleDriveBackup,
   isGoogleDriveBackupConfigured,
@@ -95,20 +97,6 @@ export function GoogleDriveBackupPanel() {
 
   function reloadAppNow() {
     window.location.reload();
-  }
-
-  async function refreshDriveStatus() {
-    setIsBusy(true);
-    try {
-      const token = await ensureToken();
-      const backup = await findGoogleDriveBackup(token);
-      setDriveBackup(backup);
-      setFeedback(backup ? `Backup encontrado: ${formatDriveDate(backup.modifiedTime)}.` : 'Nenhum backup do Aferix encontrado no Drive.');
-    } catch (error) {
-      setFeedback(error instanceof Error ? error.message : 'Falha ao consultar o Google Drive.');
-    } finally {
-      setIsBusy(false);
-    }
   }
 
   return (

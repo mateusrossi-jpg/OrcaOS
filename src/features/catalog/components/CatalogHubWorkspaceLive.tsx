@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { CalculationCapture } from '../../../core/types/workflow';
+// eslint-disable-next-line no-restricted-imports -- TODO: Refactor legacy storage access
 import { CATALOG_HUB_ITEMS_CHANGED_EVENT } from '../storage/catalogHubSync';
 import { CatalogHubWorkspace as CatalogHubWorkspaceEditable } from './CatalogHubWorkspaceEditable';
 

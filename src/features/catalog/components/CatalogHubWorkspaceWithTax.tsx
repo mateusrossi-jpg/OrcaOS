@@ -6,7 +6,7 @@ interface CatalogHubWorkspaceWithTaxProps {
   onSendToBudget: (items: CalculationCapture[]) => void;
 }
 
-export function CatalogHubWorkspace({ onSendToBudget }: CatalogHubWorkspaceWithTaxProps) {
+export function CatalogHubWorkspace({ onSendToBudget: _onSendToBudget }: CatalogHubWorkspaceWithTaxProps) {
   return (
     <section className="catalog-hub-organized">
       <p className="catalog-beta-context">Itens e serviços já validados para reutilizar no campo e no orçamento.</p>

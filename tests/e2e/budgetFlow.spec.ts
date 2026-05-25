@@ -11,7 +11,7 @@ test('runtime budget flow verification', async ({ page }) => {
     await dialog.accept();
   });
   // 1. Navigate to app and open navigation menu
-  await page.goto('http://localhost:5175/');
+  await page.goto('http://localhost:5173/');
   
   const menuToggle = page.locator('button.menu-toggle');
   await expect(menuToggle).toBeVisible({ timeout: 10000 }).catch(() => {});
@@ -162,7 +162,6 @@ test('runtime budget flow verification', async ({ page }) => {
   await page.waitForSelector('h1:has-text("Histórico")', { timeout: 5000 });
 
   // Verify that three budgets appear
-  const budgetCards = page.locator('[data-test-id="budget-card"]');
   // Since no data-test-id, fallback to locating by title text
   const cards = page.locator('div[role="button"]').filter({ hasText: /Orçamento [123]/ });
   await expect(cards).toHaveCount(3);

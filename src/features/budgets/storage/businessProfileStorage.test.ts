@@ -4,7 +4,7 @@ import {
   defaultBusinessProfile,
   loadBusinessProfile,
   saveBusinessProfile,
-} from './businessProfileStorage';
+} from '../../../legacy/businessProfileStorage';
 
 describe('business profile storage', () => {
   beforeEach(() => {

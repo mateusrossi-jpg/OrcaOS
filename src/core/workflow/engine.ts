@@ -77,7 +77,7 @@ export interface WorkflowEvent {
   operatorRole: WorkflowRole;
   previousState?: WorkflowState;
   newState?: WorkflowState;
-  changes?: Record<string, { old: any; new: any }>;
+  changes?: Record<string, { old: unknown; new: unknown }>;
 }
 
 export interface WorkflowAuditTrail {

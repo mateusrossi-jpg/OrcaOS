@@ -73,8 +73,8 @@ describe('Professional Profile Functional Protection', () => {
     const profile = loadProfessionalProfile();
     const corruptProfile = {
       ...profile,
-      logoUrl: undefined as any,
-      logoDataUrl: null as any,
+      logoUrl: undefined as unknown as string,
+      logoDataUrl: null as unknown as string,
     };
 
     saveProfessionalProfile(corruptProfile);

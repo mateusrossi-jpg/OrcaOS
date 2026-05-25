@@ -1,3 +1,5 @@
+import type { Budget, BudgetItem, BudgetStatus } from '../../domain/budget';
+
 export interface Client {
   id: string;
   name: string;
@@ -52,30 +54,8 @@ export interface CatalogItem {
   notes?: string;
 }
 
-export interface BudgetItem {
-  id: string;
-  description: string;
-  quantity: number;
-  unitPrice: number;
-  category: 'labor' | 'material' | 'other';
-  sourceId?: string;
-  catalogId?: string;
-}
-
-export type CoreBudgetStatus =
-  | 'iniciado'
-  | 'em_revisao'
-  | 'enviado'
-  | 'autorizado'
-  | 'em_execucao'
-  | 'finalizado'
-  | 'arquivado'
-  | 'recusado'
-  | 'cancelado';
-
-export type LegacyBudgetStatus = 'draft' | 'sent' | 'approved' | 'rejected' | 'expired' | 'cancelled';
-
-export type BudgetStatus = CoreBudgetStatus | LegacyBudgetStatus;
+// Re-export core budget types for convenience
+export type { Budget, BudgetItem, BudgetStatus };
 
 export interface OperationalSnapshot {
   snapshotId: string;
@@ -92,14 +72,14 @@ export interface OperationalSnapshot {
   };
   items: BudgetItem[];
   totals: {
-    total_servicos: number;
-    custo_materiais: number;
-    custos_operacionais: number;
-    discount: number;
+    chargedValue: number;
+    materialCost: number;
+    operationalCost: number;
+    discounts: number;
     subtotal: number;
     finalTotal: number;
     taxRate: number;
-    lucro_liquido: number;
+    grossProfit: number;
   };
   notes?: {
     commercial?: string;
@@ -109,33 +89,6 @@ export interface OperationalSnapshot {
   paymentTerms?: string;
   timelineEventId?: string;
   fingerprint: string;
-}
-
-export interface Budget {
-  id: string;
-  clientId?: string;
-  title: string;
-  items: BudgetItem[];
-  discount?: number;
-  travelCost?: number;
-  additionalFees?: number;
-  notes?: string;
-  paymentTerms?: string;
-  validity?: string;
-  guarantee?: string;
-  executionDeadline?: string;
-  commercialNotes?: string;
-  technicalNotes?: string;
-  materialCost?: number;
-  operationalCost?: number;
-  taxRate?: number;
-  total_servicos?: number;
-  custo_materiais?: number;
-  custos_operacionais?: number;
-  aliquota_imposto?: number;
-  lucro_liquido?: number;
-  status: BudgetStatus;
-  templateId?: BudgetTemplateId;
 }
 
 export type ServiceStatus = 'in-progress' | 'done' | 'cancelled';

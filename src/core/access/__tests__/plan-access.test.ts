@@ -2,7 +2,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createMemoryStorage } from '../../../test/createMemoryStorage';
 import {
   loadAccountState,
-  saveAccountState,
   createGuestAccount,
   resolveUserPlan,
   signInLocalAccount,

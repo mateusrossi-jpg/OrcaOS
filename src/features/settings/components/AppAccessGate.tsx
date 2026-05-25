@@ -1,32 +1,23 @@
 import { useEffect, useState, type ReactNode } from 'react';
+// eslint-disable-next-line no-restricted-imports -- TODO: Refactor legacy storage access
 import {
   APP_ACCESS_LOCK_CHANGED_EVENT,
   isAppAccessLockEnabled,
   isAppAccessUnlocked,
   verifyAppAccessPin,
 } from '../storage/appAccessLock';
+// eslint-disable-next-line no-restricted-imports -- TODO: Refactor legacy storage access
+import { hasSeenFirstOpenIntro, markFirstOpenIntroSeen } from '../storage/appIntroStorage';
 import './AppAccessGate.css';
 
 interface AppAccessGateProps {
   children: ReactNode;
 }
 
-// LEGACY: Old OrcaOS keys for intro tracking
-const FIRST_OPEN_INTRO_KEY = 'orcaos.hasSeenFirstOpenIntro.v1';
-const LEGACY_FIRST_OPEN_INTRO_KEY = 'orcaos.hasSeenFirstOpenIntro';
 const FIRST_OPEN_INTRO_DURATION_MS = 1450;
 
 export function AppAccessGate({ children }: AppAccessGateProps) {
-  const [isStarting, setIsStarting] = useState(() => {
-    try {
-      return (
-        window.localStorage.getItem(FIRST_OPEN_INTRO_KEY) !== 'true'
-        && window.localStorage.getItem(LEGACY_FIRST_OPEN_INTRO_KEY) !== 'true'
-      );
-    } catch {
-      return true;
-    }
-  });
+  const [isStarting, setIsStarting] = useState(() => !hasSeenFirstOpenIntro());
   const [isLocked, setIsLocked] = useState(() => isAppAccessLockEnabled() && !isAppAccessUnlocked());
   const [pin, setPin] = useState('');
   const [feedback, setFeedback] = useState<string | null>(null);
@@ -34,12 +25,7 @@ export function AppAccessGate({ children }: AppAccessGateProps) {
   useEffect(() => {
     if (!isStarting) return undefined;
     const startupTimer = window.setTimeout(() => {
-      try {
-        window.localStorage.setItem(FIRST_OPEN_INTRO_KEY, 'true');
-        window.localStorage.setItem(LEGACY_FIRST_OPEN_INTRO_KEY, 'true');
-      } catch {
-        // Local storage can be unavailable in restricted browser modes.
-      }
+      markFirstOpenIntroSeen();
       setIsStarting(false);
     }, FIRST_OPEN_INTRO_DURATION_MS);
     return () => window.clearTimeout(startupTimer);
