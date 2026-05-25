@@ -1,12 +1,13 @@
+// LEGACY - This file is a legacy bridge for migration, will be removed after migration
 import { createId } from '../../../app/utils/idHelpers';
-import type { Budget, BudgetItem, BudgetStatus, OperationalSnapshot } from '../../../core/types/business';
+import type { BudgetItem, BudgetStatus, OperationalSnapshot } from '../../../core/types/business';
 import { type OperationalTimelineEntry, appendWorkflowEvent, createTimelineEntry, type WorkflowEventType, type WorkflowMutation } from '../../../core/workflow/timeline';
 import { validateTransition, getActionBlockReason } from '../../../core/workflow/engine';
-
+import { Budget as NewBudget } from '../../../domain/budget';
 const STORAGE_KEY = 'orcaos:saved-budgets:v1';
 const MAX_TIMELINE_EVENTS = 80;
 
-export type SavedBudgetStatus = Budget['status'];
+export type SavedBudgetStatus = BudgetStatus;
 
 export interface SavedBudgetRecord {
   id: string;
@@ -38,6 +39,8 @@ export interface SavedBudgetRecord {
   updatedAt: string;
   timeline?: OperationalTimelineEntry[];
   snapshots?: OperationalSnapshot[];
+  // P30 integration
+  financialSnapshot?: any;
 }
 
 export interface SaveBudgetRecordInput {
@@ -238,6 +241,40 @@ function generateFingerprint(data: any): string {
     hash |= 0;
   }
   return `v1:${Math.abs(hash).toString(16)}`;
+}
+
+export function mapToNewBudget(record: SavedBudgetRecord): NewBudget {
+  const finalCharged = record.total_servicos - record.discount;
+  return {
+    id: record.id,
+    clientId: record.clientId,
+    clientName: record.clientName,
+    title: record.title,
+    status: record.status as any,
+    chargedValue: record.total_servicos,
+    materialCost: record.materialCost,
+    travelCost: record.travelCost,
+    helperCost: record.operationalCost, // mapping operacional to helper for MVP
+    fees: record.additionalFees,
+    discounts: record.discount,
+    otherCosts: 0,
+    items: record.items.map(i => ({
+      id: i.id,
+      description: i.description,
+      quantity: i.quantity,
+      unitPrice: i.unitPrice,
+      category: i.category
+    })),
+    createdAt: record.createdAt,
+    updatedAt: record.updatedAt,
+    finalizedAt: record.status === 'finalizado' ? record.updatedAt : undefined,
+    financialSnapshot: record.financialSnapshot,
+    notes: record.commercialNotes,
+    paymentTerms: record.paymentTerms,
+    validity: record.validity,
+    guarantee: record.guarantee,
+    executionDeadline: record.executionDeadline
+  };
 }
 
 export function saveBudgetRecord(input: SaveBudgetRecordInput): SavedBudgetRecord | null {
@@ -459,6 +496,18 @@ export function saveBudgetRecord(input: SaveBudgetRecordInput): SavedBudgetRecor
           };
 
           record.snapshots = [...(record.snapshots || []), snapshot];
+
+          // P30 Integration: financialSnapshot
+          if (currentStatus === 'finalizado') {
+            const finalCharged = record.total_servicos - record.discount;
+            record.financialSnapshot = {
+              custoTotal: record.custo_materiais + record.custos_operacionais + (record.total_servicos * record.aliquota_imposto / 100),
+              lucroBruto: record.lucro_liquido,
+              margemPercentual: finalCharged > 0 ? (record.lucro_liquido / finalCharged) * 100 : 0,
+              statusLucro: record.lucro_liquido < 0 ? 'prejuizo' : (finalCharged > 0 && record.lucro_liquido / finalCharged <= 0.15) ? 'atencao' : 'saudavel',
+              createdAt: now
+            };
+          }
         }
       }
     } else if (mutations.length > 0) {
@@ -487,6 +536,7 @@ export function saveBudgetRecord(input: SaveBudgetRecordInput): SavedBudgetRecor
 export function deleteSavedBudget(id: string): SavedBudgetRecord[] {
   const nextRecords = loadSavedBudgets().filter((record) => record.id !== id);
   persistSavedBudgets(nextRecords);
+
   return nextRecords;
 }
 

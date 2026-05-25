@@ -34,8 +34,10 @@
     "@capacitor/android": "^8.3.1",
     "@capacitor/cli": "^8.3.1",
     "@capacitor/core": "^8.3.1",
+    "@playwright/test": "^1.60.0",
     "@types/react": "latest",
     "@types/react-dom": "latest",
+    "playwright": "^1.60.0",
     "vitest": "latest"
   },
   "keywords": [

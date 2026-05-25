@@ -86,7 +86,7 @@ export function AppShell({ children, activeTab, navItems, onNavigate, activeClie
 
   return (
     <main className={`app-main-layout ${isSidebarCollapsed ? 'sidebar-collapsed' : 'sidebar-expanded'}`}>
-      <header className="mobile-top-bar">
+      <div className="mobile-top-bar" role="banner">
         <button
           className="menu-toggle"
           type="button"
@@ -117,7 +117,7 @@ export function AppShell({ children, activeTab, navItems, onNavigate, activeClie
         <div className="mobile-context-info">
           {activeClient && <span className="client-initials" title={activeClient.name}>{activeClient.name.charAt(0).toUpperCase()}</span>}
         </div>
-      </header>
+      </div>
 
       {!isSidebarCollapsed && (
         <div
@@ -134,7 +134,7 @@ export function AppShell({ children, activeTab, navItems, onNavigate, activeClie
       )}
 
       <aside className="app-sidebar side-drawer">
-        <header className="sidebar-header">
+        <div className="sidebar-header">
           <div className="sidebar-brand-group">
             <img className="sidebar-wordmark-img" src={AFERIX_WORDMARK} alt="Aferix" />
           </div>
@@ -151,7 +151,7 @@ export function AppShell({ children, activeTab, navItems, onNavigate, activeClie
           >
             ✕
           </button>
-        </header>
+        </div>
 
         <nav className="sidebar-nav desktop-sidebar-nav">
           <div className="nav-section">

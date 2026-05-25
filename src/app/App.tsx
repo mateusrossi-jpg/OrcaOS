@@ -15,15 +15,17 @@ import type { AppTab, ActiveWorkContext } from './appTypes';
 import { loadStoredCaptures, saveStoredCaptures } from './storage/calculationCapturesStorage';
 import { cleanupRuntimeValidationData } from './storage/runtimeValidationCleanup';
 import { HomeScreen } from './screens/HomeScreen';
-import { BudgetsScreen } from './screens/BudgetsScreen';
-import { BudgetHistoryScreen } from './screens/BudgetHistoryScreen';
-import { BudgetDetailScreen } from './screens/BudgetDetailScreen';
 import { CatalogScreen } from './screens/CatalogScreen';
 import { ReportsScreen } from './screens/ReportsScreen';
 import { FinancialScreen } from './screens/FinancialScreen';
 import { ClientsScreen } from './screens/ClientsScreen';
 import { StoreScreen } from './screens/StoreScreen';
 import { MenuScreen } from './screens/MenuScreen';
+import { BudgetsScreen } from './screens/BudgetsScreen';
+import { BudgetDetailScreen } from './screens/BudgetDetailScreen';
+import { BudgetForm } from '../pages/BudgetForm';
+import { BudgetHistoryPage } from '../pages/BudgetHistoryPage';
+import { RuntimeErrorBoundary } from './components/RuntimeErrorBoundary';
 
 function LazyWorkspaceFallback() {
   return (
@@ -56,9 +58,6 @@ export function App() {
   const lastMenuActionAtRef = useRef(0);
 
   const canNavigate = () => {
-    const now = Date.now();
-    if (now - lastMenuActionAtRef.current < 200) return false;
-    lastMenuActionAtRef.current = now;
     return true;
   };
 
@@ -151,16 +150,10 @@ export function App() {
       <AppShell activeTab={activeTab} navItems={navItems} activeClient={activeClient} activeWorkOrder={activeWorkOrder} onNavigate={goTo}>
         <Suspense fallback={<LazyWorkspaceFallback />}>
           {activeTab === 'pulse' && (
-            <HomeScreen 
-              onNavigate={goTo} 
-              captures={captures} 
-              clients={clients} 
-              workOrders={workOrders} 
-              savedBudgets={loadSavedBudgets()} 
-              context={context} 
-              onStartNewAttendance={() => goTo('new-budget')} 
+            <HomeScreen
+              onNavigate={goTo}
               onSelectBudget={(budget) => {
-                openBudgetForEdit(budget.id, budget.workOrderId);
+                openBudgetForEdit(budget.id);
               }}
             />
           )}
@@ -182,35 +175,54 @@ export function App() {
           {activeTab === 'money' && <FinancialScreen />}
           {activeTab === 'settings' && <MenuScreen account={account} onAccountChange={setAccount} onNavigate={goTo} />}
           
-          {activeTab === 'budgets' && (
-            <BudgetsScreen 
-              key={budgetResetKey}
-              captures={captures} 
-              context={context} 
-              userPlan={activeUserPlan} 
-              onNavigate={goTo} 
-              onViewClient={viewClientProfile}
-              onRemove={removeCalculationCapture} 
-              onUpdate={updateCalculationCapture} 
-              forceNewBudget={budgetResetKey > 0}
-              initialBudgetId={selectedBudgetId}
-            />
-          )}
-          {activeTab === 'work-history' && (
-            <BudgetHistoryScreen
-              onNewBudget={() => goTo('budgets')}
-              onOpenBudget={(budgetId) => openBudgetDetail(budgetId)}
-              onEditBudget={(budgetId) => openBudgetDetail(budgetId)}
-            />
-          )}
           {activeTab === 'budgetDetail' && (
-            <BudgetDetailScreen
-              budgetId={selectedBudgetId}
-              onBack={() => {
-                setSelectedBudgetId(null);
-                setActiveTab('work-history');
-              }}
-              onNavigate={goTo}
+            <RuntimeErrorBoundary>
+              <BudgetDetailScreen
+                budgetId={selectedBudgetId}
+                onBack={() => {
+                  setSelectedBudgetId(null);
+                  goTo('work-history');
+                }}
+                onNavigate={(tab) => {
+                  if (tab === 'budgets') {
+                    setActiveTab('budgets');
+                  } else {
+                    goTo(tab);
+                  }
+                }}
+              />
+            </RuntimeErrorBoundary>
+          )}
+
+          {activeTab === 'budgets' && (
+            <RuntimeErrorBoundary>
+              <BudgetForm 
+                key={`${selectedBudgetId || 'new'}-${budgetResetKey}`}
+                id={selectedBudgetId}
+                onBack={() => {
+                  setSelectedBudgetId(null);
+                  goTo('work-history');
+                }}
+              />
+            </RuntimeErrorBoundary>
+          )}
+
+          {activeTab === 'new-budget' && (
+            <RuntimeErrorBoundary>
+              <BudgetForm 
+                key={budgetResetKey + 1}
+                id={null}
+                onBack={() => {
+                  goTo('work-history');
+                }}
+              />
+            </RuntimeErrorBoundary>
+          )}
+
+          {activeTab === 'work-history' && (
+            <BudgetHistoryPage 
+              onNewBudget={() => goTo('new-budget')}
+              onOpenBudget={(budgetId) => openBudgetDetail(budgetId)}
             />
           )}
           {activeTab === 'catalog' && <CatalogScreen onAddMany={addManyCalculationCaptures} context={context} />}

@@ -18,6 +18,39 @@ import type { AppTab } from '../../../app/appTypes';
 import styles from './BudgetDetailWorkspace.module.css';
 import { calculateBudgetTotal } from '../../../core/pricing/budget';
 import { getActionBlockReason } from '../../../core/workflow/engine';
+import { BudgetPersistenceService } from '../../../services/BudgetPersistenceService';
+import { Budget as NewBudget } from '../../../domain/budget';
+
+function mapToSavedBudgetRecord(budget: NewBudget): SavedBudgetRecord {
+  return {
+    id: budget.id,
+    clientId: budget.clientId,
+    clientName: budget.clientName || '',
+    title: budget.title,
+    status: budget.status as any,
+    discount: budget.discounts || 0,
+    travelCost: budget.travelCost || 0,
+    additionalFees: budget.fees || 0,
+    paymentTerms: budget.paymentTerms || '',
+    validity: budget.validity || '',
+    guarantee: budget.guarantee || '',
+    executionDeadline: budget.executionDeadline || '',
+    commercialNotes: budget.notes || '',
+    technicalNotes: '',
+    items: budget.items || [],
+    materialCost: budget.materialCost || 0,
+    operationalCost: budget.helperCost || 0,
+    taxRate: 0,
+    total_servicos: budget.chargedValue || 0,
+    custo_materiais: budget.materialCost || 0,
+    custos_operacionais: budget.helperCost || 0,
+    aliquota_imposto: 0,
+    lucro_liquido: budget.financialSnapshot?.lucroBruto || 0,
+    createdAt: budget.createdAt,
+    updatedAt: budget.updatedAt,
+    financialSnapshot: budget.financialSnapshot,
+  };
+}
 
 // Extracted components
 import { BudgetHeaderCard } from './BudgetHeaderCard';
@@ -44,12 +77,20 @@ export function BudgetDetailWorkspace({
   const [editCommercialNotes, setEditCommercialNotes] = useState('');
   const [editTechnicalNotes, setEditTechnicalNotes] = useState('');
 
+  const persistence = React.useMemo(() => new BudgetPersistenceService(), []);
+
   // Load budget on mount / id change
   useEffect(() => {
-    const all = loadSavedBudgets();
-    const found = all.find((b) => b.id === budgetId) || null;
-    setBudget(found);
-  }, [budgetId]);
+    async function load() {
+      const found = await persistence.getBudget(budgetId);
+      if (found) {
+        setBudget(mapToSavedBudgetRecord(found));
+      } else {
+        setBudget(null);
+      }
+    }
+    load();
+  }, [budgetId, persistence]);
 
   const money = (value: number) =>
     new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
@@ -66,18 +107,7 @@ export function BudgetDetailWorkspace({
 
   // ----- Budget level edit -----
   const startEdit = () => {
-    if (!budget) return;
-    const blockReason = getActionBlockReason(budget.status, 'canEditCriticalValues');
-    if (blockReason) {
-      setError(blockReason);
-      return;
-    }
-    setEditDiscount(String(budget.discount));
-    setEditTravelCost(String(budget.travelCost));
-    setEditAdditionalFees(String(budget.additionalFees));
-    setEditCommercialNotes(budget.commercialNotes ?? '');
-    setEditTechnicalNotes(budget.technicalNotes ?? '');
-    setEditMode(true);
+    onNavigate('budgets');
   };
 
   const cancelEdit = () => setEditMode(false);
