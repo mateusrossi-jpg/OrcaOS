@@ -1,63 +1,21 @@
-# Aferix — Índice dos documentos de IA
+# AFERIX — Índice de Contexto para Inteligência Artificial
 
-Este diretório guarda os documentos de estratégia, validação e prompts de trabalho usados para consolidar o Aferix até o MVP publicável.
-
-A partir desta fase, considere este `README.md` como o índice oficial. Nenhum documento importante foi removido; o objetivo é evitar confusão e deixar claro qual arquivo usar em cada etapa.
+Este diretório contém os guias e referências consolidadas para suporte a agentes IA e Copilots atuando no Aferix ERP.
 
 ---
 
-## Documento mestre atual
+## 1. Fonte Única de Verdade (SSOT Contextual)
 
-Use primeiro:
+Para qualquer tarefa de engenharia, arquitetura, design ou regras de negócio, consulte primeiro o arquivo de contexto oficial:
 
-```txt
-docs/ai/ORCAOS_MVP_PUBLICATION_MASTER_PLAN.md
-```
+* [docs/AFERIX_CONTEXT.md](file:///home/remoto/OrcaOS/docs/AFERIX_CONTEXT.md)
 
-Ele contém o passo a passo vigente até a publicação do MVP na Play Store.
+Ele contém as diretrizes atualizadas do produto, fluxo de orçamentos Dexie SSOT, arquivos fundamentais e restrições de arquitetura local-first.
 
 ---
 
-## Documentos oficiais de base
+## 2. Diretrizes de Organização
 
-Estes documentos continuam válidos como base do produto:
-
-```txt
-docs/ai/ORCAOS_PLATFORM_MODULAR_STRATEGY.md
-docs/ai/ORCAOS_PLAY_STORE_PUBLICATION_PHASES.md
-docs/ai/ORCAOS_CALCULATION_TAXONOMY_V1.md
-docs/ai/ORCAOS_CALCULATION_UX_CRITERIA.md
-docs/ai/ORCAOS_ID_BACKUP_DATA_STRATEGY.md
-docs/ai/ORCAOS_ELECTRICAL_FOUNDATIONS_AUDIT.md
-```
-
----
-
-## Documentos operacionais recentes
-
-Use para validação com Copilot e checklist da fase atual:
-
-```txt
-docs/ai/ORCAOS_COPILOT_VALIDATION_PROMPT.md
-docs/ai/ORCAOS_MVP_POLISH_CHECKLIST.md
-```
-
----
-
-## Regra de organização daqui em diante
-
-1. Não criar vários documentos concorrentes para a mesma decisão.
-2. Atualizar o documento mestre quando a fase mudar.
-3. Manter documentos antigos como histórico, mas usar o índice para saber o que é vigente.
-4. Não apagar arquivos sem revisar se contêm decisão de arquitetura, taxonomia, UX ou publicação.
-5. Para o Copilot, sempre começar pelo documento mestre e depois pelo checklist específico da fase.
-
----
-
-## Ordem recomendada para qualquer agente
-
-1. Ler `ORCAOS_MVP_PUBLICATION_MASTER_PLAN.md`.
-2. Ler `ORCAOS_MVP_POLISH_CHECKLIST.md`.
-3. Rodar `npm run typecheck` e `npm run build`.
-4. Corrigir apenas erros reais.
-5. Evitar criar módulos novos até o MVP estar estável.
+1. **Evitar documentações redundantes**: Não crie arquivos de plano ou backlog concorrentes.
+2. **Priorizar Simplicidade**: Evite propor novas soluções arquiteturais (como DI, event bus ou containers).
+3. **Respeitar o fluxo SSOT**: Nenhuma escrita deve atingir o localStorage de forma direta; utilize o IndexedDB (via serviços baseados no Dexie).

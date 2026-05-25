@@ -21,7 +21,8 @@ O Aferix é um ERP financeiro Local-First focado em profissionais autônomos e p
 
 ### 3. Sincronização e Local-First [CONCLUÍDO]
 - [x] Indicador LED de Sincronização (Aferix Cloud).
-- [x] Persistência robusta em `localStorage` com suporte a drafts.
+- [x] Persistência robusta em IndexedDB (Dexie) como SSOT oficial.
+- [x] Suporte a migração automática de dados legados do localStorage.
 - [x] Arquitetura preparada para sincronização com Supabase.
 
 ### 4. Gestão de Orçamentos

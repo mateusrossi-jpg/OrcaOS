@@ -17,7 +17,7 @@ Este diretório contém o pacote de capturas de tela reais do aplicativo **Aferi
 | **[01-pulse-top.png](01-pulse-top.png)** | Dashboard / Pulse (Mobile) | Indicadores de faturamento, margem real média de lucro, taxa de conversão comercial e KPIs unificados com tema OLED e tipografia tabular monospaced. |
 | **[02-work-new-budget-top.png](02-work-new-budget-top.png)** | Novo Orçamento / Work (Mobile) | Stepper linear mostrando a primeira etapa de seleção de Cliente e dados do cabeçalho da proposta. |
 | **[03-work-new-budget-items.png](03-work-new-budget-items.png)** | Escopo de Itens / Work (Mobile) | Simulador integrado de precificação, markup e listagem de serviços técnicos detalhados sem overlay/modal fixo. |
-| **[04-work-history.png](04-work-history.png)** | Histórico / Work (Desktop) | Painel completo do histórico de orçamentos e propostas comerciais salvas localmente no localStorage. |
+| **[04-work-history.png](04-work-history.png)** | Histórico / Work (Desktop) | Painel completo do histórico de orçamentos e propostas comerciais salvas localmente. |
 | **[05-money.png](05-money.png)** | Financeiro / Money (Mobile) | Apuração automática de resultados financeiros consolidados a partir de orçamentos finalizados. |
 | **[06-base-clients.png](06-base-clients.png)** | Clientes / Base (Mobile) | CRM simplificado para gestão de contatos de clientes autônomos e novo atendimento. |
 | **[07-base-catalog.png](07-base-catalog.png)** | Catálogo / Base (Mobile) | Catálogo de itens e serviços recorrentes em visual de duas colunas mobile-first. |
