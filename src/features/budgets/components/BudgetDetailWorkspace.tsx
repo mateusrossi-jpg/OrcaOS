@@ -17,6 +17,7 @@ import type { SavedBudgetRecord } from '../storage/savedBudgetsStorage';
 import type { AppTab } from '../../../app/appTypes';
 import styles from './BudgetDetailWorkspace.module.css';
 import { calculateBudgetTotal } from '../../../core/pricing/budget';
+import { getActionBlockReason } from '../../../core/workflow/engine';
 
 // Extracted components
 import { BudgetHeaderCard } from './BudgetHeaderCard';
@@ -65,6 +66,11 @@ export function BudgetDetailWorkspace({
   // ----- Budget level edit -----
   const startEdit = () => {
     if (!budget) return;
+    const blockReason = getActionBlockReason(budget.status, 'canEditCriticalValues');
+    if (blockReason) {
+      setError(blockReason);
+      return;
+    }
     setEditDiscount(String(budget.discount));
     setEditTravelCost(String(budget.travelCost));
     setEditAdditionalFees(String(budget.additionalFees));
@@ -104,6 +110,20 @@ export function BudgetDetailWorkspace({
     }
   };
 
+  const handleTransition = (newStatus: string) => {
+    if (!budget) return;
+    const updated = saveBudgetRecord({
+      ...budget,
+      status: newStatus as any,
+    });
+    if (updated) {
+      setBudget(updated);
+      setToastMessage(`Status atualizado para ${newStatus}`);
+    } else {
+      setError('Falha ao atualizar o status.');
+    }
+  };
+
   // ----- Item edit state -----
   const [editingItem, setEditingItem] = useState<SavedBudgetRecord['items'][0] | null>(null);
   const [editDescription, setEditDescription] = useState('');
@@ -123,6 +143,12 @@ export function BudgetDetailWorkspace({
 
   // Item actions
   const startEditItem = (item: SavedBudgetRecord['items'][0]) => {
+    if (!budget) return;
+    const blockReason = getActionBlockReason(budget.status, 'canEditCriticalValues');
+    if (blockReason) {
+      setError(blockReason);
+      return;
+    }
     setEditingItem(item);
     setEditDescription(item.description);
     setEditCategory(item.category);
@@ -153,6 +179,12 @@ export function BudgetDetailWorkspace({
   };
 
   const startAddItem = () => {
+    if (!budget) return;
+    const blockReason = getActionBlockReason(budget.status, 'canEditCriticalValues');
+    if (blockReason) {
+      setError(blockReason);
+      return;
+    }
     setAddDescription('');
     setAddCategory('');
     setAddQuantity('');
@@ -178,7 +210,15 @@ export function BudgetDetailWorkspace({
     }
   };
 
-  const startDeleteItem = (item: SavedBudgetRecord['items'][0]) => setDeletingItem(item);
+  const startDeleteItem = (item: SavedBudgetRecord['items'][0]) => {
+    if (!budget) return;
+    const blockReason = getActionBlockReason(budget.status, 'canEditCriticalValues');
+    if (blockReason) {
+      setError(blockReason);
+      return;
+    }
+    setDeletingItem(item);
+  };
   const cancelDeleteItem = () => setDeletingItem(null);
   const confirmDeleteItem = () => {
     if (!budget || !deletingItem) return;
@@ -203,7 +243,7 @@ export function BudgetDetailWorkspace({
     );
   }
 
-  const isLocked = ['finalizado', 'cancelado', 'recusado'].includes(budget.status);
+  const isLocked = !!getActionBlockReason(budget.status, 'canEditCriticalValues');
 
   return (
     <div className={styles.container}>
@@ -239,7 +279,14 @@ export function BudgetDetailWorkspace({
       />
 
       {/* Actions Bar */}
-      <BudgetActionsBar onEdit={startEdit} onCreateVersion={handleDuplicate} disabled={isLocked} showCreateVersion={true} />
+      <BudgetActionsBar 
+        onEdit={startEdit} 
+        onCreateVersion={handleDuplicate} 
+        disabled={isLocked} 
+        showCreateVersion={true} 
+        budgetStatus={budget.status}
+        onTransition={handleTransition}
+      />
 
       {/* Operational Timeline */}
       <OperationalTimelinePanel budget={budget} />

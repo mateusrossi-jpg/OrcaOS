@@ -54,7 +54,7 @@ describe('saved budgets storage', () => {
       id: saved?.id,
       clientName: 'Cliente B',
       title: 'Orçamento atualizado',
-      status: 'autorizado',
+      status: 'iniciado', // normal update
       discount: 10,
       items: [],
     });
@@ -63,7 +63,7 @@ describe('saved budgets storage', () => {
 
     expect(records).toHaveLength(1);
     expect(records[0].clientName).toBe('Cliente B');
-    expect(records[0].status).toBe('autorizado');
+    expect(records[0].status).toBe('iniciado');
   });
 
   describe('timeline and mutations', () => {
@@ -232,6 +232,128 @@ describe('saved budgets storage', () => {
     expect(record.taxRate).toBe(6);
     expect(record.total_servicos).toBe(0);
     expect(record.lucro_liquido).toBe(0);
+  });
+
+  describe('workflow transitions and locking', () => {
+    it('persists valid transitions and creates timeline events', () => {
+      const saved = saveBudgetRecord({
+        clientName: 'Cliente A',
+        title: 'Orçamento Transition',
+        status: 'iniciado',
+        discount: 0,
+        items: [],
+      });
+
+      // iniciado -> enviado
+      let updated = saveBudgetRecord({ ...saved, status: 'enviado' } as any);
+      expect(updated?.status).toBe('enviado');
+      expect(updated?.timeline?.slice(-1)[0].type).toBe('sent');
+
+      // enviado -> autorizado
+      updated = saveBudgetRecord({ ...updated, status: 'autorizado' } as any);
+      expect(updated?.status).toBe('autorizado');
+      expect(updated?.timeline?.slice(-1)[0].type).toBe('authorized');
+
+      // autorizado -> em_execucao
+      updated = saveBudgetRecord({ ...updated, status: 'em_execucao' } as any);
+      expect(updated?.status).toBe('em_execucao');
+      expect(updated?.timeline?.slice(-1)[0].type).toBe('execution_started');
+
+      // em_execucao -> finalizado
+      updated = saveBudgetRecord({ ...updated, status: 'finalizado' } as any);
+      expect(updated?.status).toBe('finalizado');
+      expect(updated?.timeline?.slice(-1)[0].type).toBe('finished');
+
+      // finalizado -> arquivado
+      const finalizadoUpdate = saveBudgetRecord({ ...updated, status: 'arquivado' } as any);
+      if (!finalizadoUpdate) console.log("FAILED AT FINALIZADO -> ARQUIVADO. updated object was:", updated);
+      updated = finalizadoUpdate;
+      expect(updated?.status).toBe('arquivado');
+      expect(updated?.timeline?.slice(-1)[0].type).toBe('archived');
+    });
+
+    it('does not persist invalid direct transitions', () => {
+      const saved = saveBudgetRecord({
+        clientName: 'Cliente A',
+        title: 'Orçamento Invalid',
+        status: 'iniciado',
+        discount: 0,
+        items: [],
+      }) as any;
+
+      // invalid: iniciado -> finalizado
+      const fail1 = saveBudgetRecord({ ...saved, status: 'finalizado' } as any);
+      expect(fail1).toBeNull(); // Should be blocked
+
+      // valid: iniciado -> enviado
+      const enviado = saveBudgetRecord({ ...saved, status: 'enviado' } as any);
+      
+      // invalid: enviado -> iniciado
+      const fail2 = saveBudgetRecord({ ...enviado, status: 'iniciado' } as any);
+      expect(fail2).toBeNull();
+
+      // valid: enviado -> autorizado
+      const autorizado = saveBudgetRecord({ ...enviado, status: 'autorizado' } as any);
+
+      // invalid: autorizado -> enviado
+      const fail3 = saveBudgetRecord({ ...autorizado, status: 'enviado' } as any);
+      expect(fail3).toBeNull();
+
+      // valid: autorizado -> em_execucao -> finalizado
+      const execucao = saveBudgetRecord({ ...autorizado, status: 'em_execucao' } as any);
+      const finalizado = saveBudgetRecord({ ...execucao, status: 'finalizado' } as any);
+
+      // invalid: finalizado -> em_execucao
+      const fail4 = saveBudgetRecord({ ...finalizado, status: 'em_execucao' } as any);
+      expect(fail4).toBeNull();
+
+      // Verify rejected saves did not mutate record or append timelines
+      const records = loadSavedBudgets();
+      const current = records.find(r => r.id === saved.id);
+      expect(current?.status).toBe('finalizado');
+      // Timeline should have: created, sent, authorized, execution_started, finished (5 events)
+      expect(current?.timeline?.length).toBe(5);
+    });
+
+    it('blocks critical edits after being sent (locked)', () => {
+      let saved = saveBudgetRecord({
+        clientName: 'Cliente A',
+        title: 'Orçamento Block',
+        status: 'iniciado',
+        discount: 0,
+        items: [],
+      }) as any;
+
+      let currentDiscount = 50;
+      const attemptEdit = (record: any) => {
+        currentDiscount += 10;
+        return saveBudgetRecord({ ...record, discount: currentDiscount } as any);
+      };
+
+      // Can edit in iniciado
+      saved = attemptEdit(saved);
+      expect(saved).not.toBeNull();
+      expect(saved.discount).toBe(60);
+
+      // Verify locks across workflow states
+      saved = saveBudgetRecord({ ...saved, status: 'enviado' } as any);
+      expect(attemptEdit(saved)).toBeNull();
+
+      saved = saveBudgetRecord({ ...saved, status: 'autorizado' } as any);
+      expect(attemptEdit(saved)).toBeNull();
+
+      saved = saveBudgetRecord({ ...saved, status: 'em_execucao' } as any);
+      expect(attemptEdit(saved)).toBeNull();
+
+      saved = saveBudgetRecord({ ...saved, status: 'finalizado' } as any);
+      expect(attemptEdit(saved)).toBeNull();
+
+      // Verify preserved status and values
+      const records = loadSavedBudgets();
+      const current = records.find(r => r.id === saved.id);
+      expect(current?.discount).toBe(60);
+      expect(current?.status).toBe('finalizado');
+    });
   });
 
   it('supports expired and cancelled status', () => {

@@ -11,3 +11,38 @@
   flex: 1 1 auto;
   min-width: 8rem;
 }
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm, 0.5rem);
+}
+
+.lockIndicator {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-sm, 0.5rem);
+  padding: var(--spacing-sm, 0.5rem) var(--spacing-md, 1rem);
+  background: var(--aferix-surface-2, #18181b);
+  border: 1px solid var(--aferix-border, #27272a);
+  border-radius: 4px;
+  color: var(--aferix-text-secondary, #a1a1aa);
+  font-size: 0.85rem;
+}
+
+.lockIcon {
+  font-size: 1rem;
+  opacity: 0.8;
+}
+
+.lockText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.lockText strong {
+  color: var(--aferix-text, #f4f4f5);
+  font-weight: 600;
+  font-size: 0.9rem;
+}

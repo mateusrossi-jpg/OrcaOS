@@ -1,6 +1,7 @@
 import { createId } from '../../../app/utils/idHelpers';
 import type { Budget, BudgetItem, BudgetStatus } from '../../../core/types/business';
 import { type OperationalTimelineEntry, appendWorkflowEvent, createTimelineEntry, type WorkflowEventType, type WorkflowMutation } from '../../../core/workflow/timeline';
+import { validateTransition, getActionBlockReason } from '../../../core/workflow/engine';
 
 const STORAGE_KEY = 'orcaos:saved-budgets:v1';
 const MAX_TIMELINE_EVENTS = 80;
@@ -101,6 +102,7 @@ export function normalizeBudgetStatus(value: unknown): BudgetStatus | null {
     value === 'autorizado' ||
     value === 'em_execucao' ||
     value === 'finalizado' ||
+    value === 'arquivado' ||
     value === 'recusado' ||
     value === 'cancelado'
   ) {
@@ -267,11 +269,17 @@ export function saveBudgetRecord(input: SaveBudgetRecordInput): SavedBudgetRecor
   const currentStatus = record.status;
   const previousStatus = existingRecord?.status;
 
+  if (previousStatus && previousStatus !== currentStatus) {
+    if (!validateTransition(previousStatus, currentStatus, 'admin')) {
+      return null;
+    }
+  }
+
   function diffBudgetRecords(oldRecord: SavedBudgetRecord, newRecord: SavedBudgetRecord): WorkflowMutation[] {
     const mutations: WorkflowMutation[] = [];
     
     const fieldsToTrack: Array<keyof SavedBudgetRecord> = [
-      'title', 'clientName', 'status', 'discount', 'commercialNotes', 'technicalNotes', 
+      'title', 'clientName', 'discount', 'commercialNotes', 'technicalNotes', 
       'paymentTerms', 'validity', 'guarantee', 'executionDeadline',
       'total_servicos', 'custo_materiais', 'custos_operacionais'
     ];
@@ -355,6 +363,20 @@ export function saveBudgetRecord(input: SaveBudgetRecordInput): SavedBudgetRecor
   } else {
     const mutations = diffBudgetRecords(existingRecord, record);
 
+    // Enforce lock rules
+    if (mutations.length > 0 && previousStatus === currentStatus) {
+      const blockReason = getActionBlockReason(previousStatus, 'canEditCriticalValues');
+      if (blockReason) {
+        // Identify if any critical value changed. 
+        // For simplicity, we consider items and totals as critical values.
+        const criticalFields = ['items', 'total_servicos', 'custo_materiais', 'custos_operacionais', 'discount'];
+        const hasCriticalMutation = mutations.some(m => criticalFields.some(cf => m.field.startsWith(cf)));
+        if (hasCriticalMutation) {
+          return null;
+        }
+      }
+    }
+
     if (previousStatus !== currentStatus) {
       // Status changed
       let eventType: WorkflowEventType = 'updated';
@@ -364,7 +386,7 @@ export function saveBudgetRecord(input: SaveBudgetRecordInput): SavedBudgetRecor
       else if (currentStatus === 'autorizado') eventType = 'authorized';
       else if (currentStatus === 'em_execucao' || currentStatus === 'iniciado' && previousStatus === 'autorizado') eventType = 'execution_started';
       else if (currentStatus === 'finalizado') eventType = 'finished';
-      else if (currentStatus === 'cancelado' || currentStatus === 'recusado') eventType = 'archived';
+      else if (currentStatus === 'cancelado' || currentStatus === 'recusado' || currentStatus === 'arquivado') eventType = 'archived';
       
       record.timeline = appendWorkflowEvent(record.timeline || [], {
         workflowId: record.id,

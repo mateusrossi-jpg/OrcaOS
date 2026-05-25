@@ -42,8 +42,9 @@ const ALLOWED_BUDGET_TRANSITIONS: Record<BudgetStatus, BudgetStatus[]> = {
   enviado: ['autorizado', 'recusado', 'cancelado'],
   autorizado: ['em_execucao', 'cancelado'],
   em_execucao: ['finalizado', 'cancelado'],
-  finalizado: [],
-  recusado: [],
+  finalizado: ['arquivado'],
+  arquivado: ['iniciado'],
+  recusado: ['iniciado'],
   cancelado: [],
 
   // Compatibilidade legado

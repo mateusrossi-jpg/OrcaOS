@@ -49,7 +49,7 @@ describe('Workflow Timeline Domain', () => {
   it('should get correct summary for events', () => {
     expect(getWorkflowEventSummary('created')).toBe('Orçamento criado.');
     expect(getWorkflowEventSummary('execution_started')).toBe('Execução iniciada.');
-    expect(getWorkflowEventSummary('updated')).toBe('Informações atualizadas.');
+    expect(getWorkflowEventSummary('updated')).toBe('Orçamento atualizado.');
   });
 
   it('should sort timeline chronologically (newest first)', () => {

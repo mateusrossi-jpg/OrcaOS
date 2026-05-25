@@ -3,15 +3,10 @@
  * State-driven architecture for Aferix execution predictability and auditability.
  */
 
-// 1. Core States
-export type WorkflowState = 
-  | 'draft'       // Rascunho
-  | 'review'      // Revisão
-  | 'sent'        // Enviado
-  | 'authorized'  // Autorizado
-  | 'execution'   // Execução
-  | 'finalized'   // Finalizado
-  | 'archived';   // Arquivado
+import type { BudgetStatus } from '../types/business';
+
+// 1. Core States (Mapped to BudgetStatus)
+export type WorkflowState = BudgetStatus;
 
 // 2. Permission System (Future-proof structure)
 export type WorkflowRole = 
@@ -22,14 +17,22 @@ export type WorkflowRole =
   | 'client-view';
 
 // 3. Allowed Transitions (Deterministic State Machine)
-export const ALLOWED_TRANSITIONS: Record<WorkflowState, WorkflowState[]> = {
-  draft: ['review', 'sent', 'archived'],
-  review: ['draft', 'sent', 'authorized', 'archived'],
-  sent: ['authorized', 'review', 'archived'],
-  authorized: ['execution', 'archived'],
-  execution: ['finalized', 'archived'],
-  finalized: ['archived'], // Immutable operational state
-  archived: ['draft']      // Clone/re-open specific logic
+export const ALLOWED_TRANSITIONS: Record<string, string[]> = {
+  iniciado: ['em_revisao', 'enviado', 'arquivado', 'recusado', 'cancelado'],
+  em_revisao: ['iniciado', 'enviado', 'autorizado', 'arquivado', 'recusado', 'cancelado'],
+  enviado: ['autorizado', 'em_revisao', 'recusado', 'arquivado', 'cancelado'],
+  autorizado: ['em_execucao', 'arquivado', 'cancelado'],
+  em_execucao: ['finalizado', 'arquivado', 'cancelado'],
+  finalizado: ['arquivado'], // Immutable operational state
+  arquivado: ['iniciado'],   // Clone/re-open specific logic
+  recusado: ['iniciado'],
+  cancelado: ['iniciado'],
+  draft: ['sent', 'approved', 'rejected', 'expired', 'cancelled'], // legacy
+  sent: ['approved', 'rejected', 'expired', 'cancelled'],
+  approved: ['draft'],
+  rejected: ['draft'],
+  expired: ['draft'],
+  cancelled: ['draft'],
 };
 
 // 4. Action Authority & Locks (State Machine Rules)
@@ -40,14 +43,23 @@ export type OperationalLock = {
   canAccount: boolean;            // Faturamento/Financeiro
 };
 
-export const STATE_AUTHORITY: Record<WorkflowState, OperationalLock> = {
+export const STATE_AUTHORITY: Record<string, OperationalLock> = {
+  iniciado: { canEditCriticalValues: true, canEditOperational: true, canExport: true, canAccount: false },
+  em_revisao: { canEditCriticalValues: true, canEditOperational: true, canExport: true, canAccount: false },
+  enviado: { canEditCriticalValues: false, canEditOperational: true, canExport: true, canAccount: false },
+  autorizado: { canEditCriticalValues: false, canEditOperational: true, canExport: true, canAccount: false },
+  em_execucao: { canEditCriticalValues: false, canEditOperational: true, canExport: true, canAccount: false },
+  finalizado: { canEditCriticalValues: false, canEditOperational: false, canExport: true, canAccount: true },
+  arquivado: { canEditCriticalValues: false, canEditOperational: false, canExport: true, canAccount: false },
+  recusado: { canEditCriticalValues: false, canEditOperational: false, canExport: true, canAccount: false },
+  cancelado: { canEditCriticalValues: false, canEditOperational: false, canExport: true, canAccount: false },
+  // legacy
   draft: { canEditCriticalValues: true, canEditOperational: true, canExport: true, canAccount: false },
-  review: { canEditCriticalValues: true, canEditOperational: true, canExport: true, canAccount: false },
   sent: { canEditCriticalValues: false, canEditOperational: true, canExport: true, canAccount: false },
-  authorized: { canEditCriticalValues: false, canEditOperational: true, canExport: true, canAccount: false },
-  execution: { canEditCriticalValues: false, canEditOperational: true, canExport: true, canAccount: false },
-  finalized: { canEditCriticalValues: false, canEditOperational: false, canExport: true, canAccount: true },
-  archived: { canEditCriticalValues: false, canEditOperational: false, canExport: true, canAccount: false },
+  approved: { canEditCriticalValues: false, canEditOperational: true, canExport: true, canAccount: false },
+  rejected: { canEditCriticalValues: false, canEditOperational: false, canExport: true, canAccount: false },
+  expired: { canEditCriticalValues: false, canEditOperational: false, canExport: true, canAccount: false },
+  cancelled: { canEditCriticalValues: false, canEditOperational: false, canExport: true, canAccount: false },
 };
 
 // 5. Audit Trail & Event Sourcing Concepts
@@ -86,26 +98,28 @@ export interface QueueMetadata {
 }
 
 // Validation Logic
-export function validateTransition(from: WorkflowState, to: WorkflowState, role: WorkflowRole): boolean {
+export function validateTransition(from: string, to: string, role: WorkflowRole): boolean {
   // Check strict state machine paths
-  if (!ALLOWED_TRANSITIONS[from].includes(to)) {
+  if (!ALLOWED_TRANSITIONS[from]?.includes(to)) {
     return false;
   }
   
   // Example Role Locks (Architecture proof)
-  if (to === 'finalized' && role === 'technician') {
+  if (to === 'finalizado' && role === 'technician') {
     return false; // Only admin/operator/finance can finalize financial impacts
   }
   
   return true;
 }
 
-export function getActionBlockReason(state: WorkflowState, action: keyof OperationalLock): string | null {
+export function getActionBlockReason(state: string, action: keyof OperationalLock): string | null {
   const authority = STATE_AUTHORITY[state];
+  if (!authority) return 'Estado desconhecido.';
+  
   if (!authority[action]) {
     switch (action) {
-      case 'canEditCriticalValues': return 'Edição bloqueada. Orçamento não está em Rascunho/Revisão.';
-      case 'canEditOperational': return 'Orçamento finalizado. Edição bloqueada.';
+      case 'canEditCriticalValues': return 'Valores bloqueados. O orçamento já avançou no fluxo operacional.';
+      case 'canEditOperational': return 'Orçamento finalizado ou arquivado. Edição bloqueada.';
       case 'canAccount': return 'Aguardando finalização da OS para contabilizar.';
       default: return 'Ação bloqueada neste estágio do fluxo.';
     }

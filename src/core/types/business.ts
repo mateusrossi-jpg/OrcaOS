@@ -69,6 +69,7 @@ export type CoreBudgetStatus =
   | 'autorizado'
   | 'em_execucao'
   | 'finalizado'
+  | 'arquivado'
   | 'recusado'
   | 'cancelado';
 
