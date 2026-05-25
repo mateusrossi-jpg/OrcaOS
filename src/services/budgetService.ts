@@ -1,36 +1,13 @@
 import { Budget, BUDGET_STATUS, BudgetStatus } from '../domain/budget';
 import { BudgetRepository } from '../repositories/budgetRepository';
+import { DexieBudgetRepository } from '../repositories/dexieBudgetRepository';
 import { calculateBudget, BudgetInputs } from '../domain/aferixFinanceEngine';
 
 export class BudgetService {
-  constructor(private repository: BudgetRepository) {}
+  private repository: BudgetRepository;
 
-  async saveDraft(input: Budget): Promise<void> {
-    const now = new Date().toISOString();
-    const existing = await this.repository.getBudgetById(input.id);
-    
-    if (existing) {
-      await this.updateBudget(input);
-    } else {
-      await this.repository.createBudget({
-        ...input,
-        status: BUDGET_STATUS.INICIADO,
-        createdAt: now,
-        updatedAt: now,
-      });
-    }
-  }
-
-  async updateBudget(budget: Budget): Promise<void> {
-    if (budget.status === BUDGET_STATUS.FINALIZADO) {
-      console.warn("Attempted to update a finalized budget directly.");
-      return;
-    }
-    
-    await this.repository.updateBudget({
-      ...budget,
-      updatedAt: new Date().toISOString(),
-    });
+  constructor(repository?: BudgetRepository) {
+    this.repository = repository ?? new DexieBudgetRepository();
   }
 
   async changeStatus(budget: Budget, nextStatus: BudgetStatus): Promise<void> {

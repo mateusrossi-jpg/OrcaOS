@@ -28,6 +28,8 @@ export const BudgetForm: React.FC<BudgetFormProps> = ({ id, onBack }) => {
     requestFinalize,
     cancelFinalize,
     confirmFinalize,
+    error,
+    clearError,
   } = useBudgetForm(id);
 
   const handleSaveDraft = async () => {
@@ -78,6 +80,13 @@ export const BudgetForm: React.FC<BudgetFormProps> = ({ id, onBack }) => {
           {budget.status}
         </span>
       </header>
+
+      {error && (
+        <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-3 rounded-2xl text-xs font-bold flex justify-between items-center mb-6">
+          <span>{error}</span>
+          <button onClick={clearError} className="text-red-400 hover:text-red-300 ml-2 font-black text-sm">✕</button>
+        </div>
+      )}
 
       <div className="space-y-8">
         {/* 2. Dominant Field: Valor Cobrado (AHA MOMENT) */}

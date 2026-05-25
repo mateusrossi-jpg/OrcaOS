@@ -3,11 +3,9 @@ import { Budget, BUDGET_STATUS, BudgetStatus } from '../domain/budget';
 import { calculateBudget } from '../domain/aferixFinanceEngine';
 import { BudgetService } from '../services/budgetService';
 import { BudgetPersistenceService } from '../services/BudgetPersistenceService';
-import { DexieBudgetRepository } from '../repositories/dexieBudgetRepository';
 
 const persistenceService = new BudgetPersistenceService();
-const repository = new DexieBudgetRepository();
-const service = new BudgetService(repository);
+const service = new BudgetService();
 
 const generateId = () => {
   try {
@@ -37,16 +35,23 @@ export function useBudgetForm(initialBudgetId?: string | null) {
   const [isLoading, setIsLoading] = useState(!!initialBudgetId);
   const [isSaving, setIsSaving] = useState(false);
   const [showFinalizeModal, setShowFinalizeModal] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function load() {
       if (initialBudgetId) {
         setIsLoading(true);
+        setError(null);
         try {
           const existing = await persistenceService.getBudget(initialBudgetId);
           if (existing) {
             setBudget(existing);
+          } else {
+            setError('Orçamento não encontrado no banco de dados.');
           }
+        } catch (e: any) {
+          console.error('Failed to load budget:', e);
+          setError(e.message || 'Erro ao carregar o orçamento do banco de dados.');
         } finally {
           setIsLoading(false);
         }
@@ -73,22 +78,32 @@ export function useBudgetForm(initialBudgetId?: string | null) {
   }, [budget.status]);
 
   const saveDraft = async () => {
+    if (isSaving || isLoading) return;
     setIsSaving(true);
+    setError(null);
     try {
       await persistenceService.saveDraft(budget);
       const updated = await persistenceService.getBudget(budget.id);
       if (updated) setBudget(updated);
+    } catch (e: any) {
+      console.error('Failed to save draft:', e);
+      setError(e.message || 'Erro ao salvar o rascunho do orçamento.');
     } finally {
       setIsSaving(false);
     }
   };
 
   const handleStatusChange = async (newStatus: BudgetStatus) => {
+    if (isSaving || isLoading) return;
     setIsSaving(true);
+    setError(null);
     try {
       await service.changeStatus(budget, newStatus);
       const updated = await persistenceService.getBudget(budget.id);
       if (updated) setBudget(updated);
+    } catch (e: any) {
+      console.error('Failed to change status:', e);
+      setError(e.message || 'Erro ao alterar o status do orçamento.');
     } finally {
       setIsSaving(false);
     }
@@ -102,11 +117,16 @@ export function useBudgetForm(initialBudgetId?: string | null) {
   const cancelFinalize = () => setShowFinalizeModal(false);
 
   const confirmFinalize = async () => {
+    if (isSaving || isLoading) return;
     setIsSaving(true);
+    setError(null);
     try {
       await service.finalizeBudget(budget);
       const finalized = await persistenceService.getBudget(budget.id);
       if (finalized) setBudget(finalized);
+    } catch (e: any) {
+      console.error('Failed to finalize budget:', e);
+      setError(e.message || 'Erro ao finalizar o orçamento.');
     } finally {
       setIsSaving(false);
       setShowFinalizeModal(false);
@@ -128,5 +148,7 @@ export function useBudgetForm(initialBudgetId?: string | null) {
     requestFinalize,
     cancelFinalize,
     confirmFinalize,
+    error,
+    clearError: () => setError(null),
   };
 }

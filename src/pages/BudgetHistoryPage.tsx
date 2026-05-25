@@ -10,7 +10,7 @@ interface BudgetHistoryPageProps {
 }
 
 export const BudgetHistoryPage: React.FC<BudgetHistoryPageProps> = ({ onOpenBudget, onNewBudget }) => {
-  const { budgets, totalCount, isLoading, filter, setFilter, refresh, deleteBudget } = useBudgetHistory();
+  const { budgets, totalCount, isLoading, filter, setFilter, refresh, deleteBudget, error, clearError } = useBudgetHistory();
 
   const getStatusLabel = (status: string) => status.toUpperCase();
   
@@ -41,6 +41,13 @@ export const BudgetHistoryPage: React.FC<BudgetHistoryPageProps> = ({ onOpenBudg
           + Novo
         </button>
       </header>
+
+      {error && (
+        <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-3 rounded-2xl text-xs font-bold flex justify-between items-center mb-6">
+          <span>{error}</span>
+          <button onClick={clearError} className="text-red-400 hover:text-red-300 ml-2 font-black text-sm">✕</button>
+        </div>
+      )}
 
       {/* Filters */}
       <div className="flex gap-2 mb-6 overflow-x-auto pb-2 no-scrollbar">

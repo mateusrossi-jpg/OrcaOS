@@ -26,6 +26,7 @@ import { BudgetDetailScreen } from './screens/BudgetDetailScreen';
 import { BudgetForm } from '../pages/BudgetForm';
 import { BudgetHistoryPage } from '../pages/BudgetHistoryPage';
 import { RuntimeErrorBoundary } from './components/RuntimeErrorBoundary';
+import { LegacyBudgetMigrationService } from '../services/LegacyBudgetMigrationService';
 
 function LazyWorkspaceFallback() {
   return (
@@ -69,6 +70,18 @@ export function App() {
 
     window.addEventListener(AFERIX_ACCOUNT_CHANGED_EVENT, syncAccount);
     return () => window.removeEventListener(AFERIX_ACCOUNT_CHANGED_EVENT, syncAccount);
+  }, []);
+
+  useEffect(() => {
+    async function runMigration() {
+      try {
+        const migrationService = new LegacyBudgetMigrationService();
+        await migrationService.runIfNeeded();
+      } catch (err) {
+        console.error('Legacy budget migration failed on bootstrap:', err);
+      }
+    }
+    runMigration();
   }, []);
 
   const activeWorkOrder = useMemo(() => workOrders.find((workOrder) => workOrder.id === activeWorkOrderId) ?? null, [activeWorkOrderId, workOrders]);

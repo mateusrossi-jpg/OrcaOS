@@ -10,12 +10,17 @@ export function useBudgetHistory() {
   const [budgets, setBudgets] = useState<Budget[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [filter, setFilter] = useState<HistoryFilter>('todos');
+  const [error, setError] = useState<string | null>(null);
 
   const loadBudgets = useCallback(async () => {
     setIsLoading(true);
+    setError(null);
     try {
       const domainBudgets = await persistence.listBudgets();
       setBudgets(domainBudgets);
+    } catch (e: any) {
+      console.error('Failed to load budgets:', e);
+      setError(e.message || 'Erro ao carregar o histórico de orçamentos.');
     } finally {
       setIsLoading(false);
     }
@@ -23,14 +28,19 @@ export function useBudgetHistory() {
 
   // Delete a budget and refresh list
   const deleteBudget = useCallback(async (id: string) => {
+    if (isLoading) return;
     setIsLoading(true);
+    setError(null);
     try {
       await persistence.deleteBudget(id);
       await loadBudgets();
+    } catch (e: any) {
+      console.error('Failed to delete budget:', e);
+      setError(e.message || 'Erro ao excluir o orçamento.');
     } finally {
       setIsLoading(false);
     }
-  }, [loadBudgets]);
+  }, [loadBudgets, isLoading]);
 
   useEffect(() => {
     loadBudgets();
@@ -55,5 +65,7 @@ export function useBudgetHistory() {
     setFilter,
     refresh: loadBudgets,
     deleteBudget,
+    error,
+    clearError: () => setError(null),
   };
 }
