@@ -1,8 +1,6 @@
-// src/features/budgets/components/BudgetDetailWorkspace.tsx
 import React, { useEffect, useState } from 'react';
 import {
-  PanelCard,
-  EmptyState,
+  QueueEmptyState,
   PrimaryButton,
   SecondaryButton,
   DangerButton,
@@ -11,7 +9,6 @@ import {
   Modal,
   Select,
   ConfirmModal,
-  StatusBadge,
   BackButton,
 } from '../../../app/components/ui';
 import { loadSavedBudgets, saveBudgetRecord } from '../storage/savedBudgetsStorage';
@@ -21,27 +18,31 @@ import type { AppTab } from '../../../app/appTypes';
 import styles from './BudgetDetailWorkspace.module.css';
 import { calculateBudgetTotal } from '../../../core/pricing/budget';
 
-/** UI for Budget Detail (premium redesign) */
+// Extracted components
+import { BudgetHeaderCard } from './BudgetHeaderCard';
+import { BudgetItemsTable } from './BudgetItemsTable';
+import { BudgetTotalsCard } from './BudgetTotalsCard';
+import { BudgetActionsBar } from './BudgetActionsBar';
+import { OperationalTimelinePanel } from './OperationalTimelinePanel';
+
+/** BudgetDetailWorkspace – orchestrates state and renders extracted components */
 export function BudgetDetailWorkspace({
   budgetId,
   onNavigate,
-}: {
-  budgetId: string;
-  onNavigate: (tab: AppTab) => void;
-}) {
+}: { budgetId: string; onNavigate: (tab: AppTab) => void }) {
   const [budget, setBudget] = useState<SavedBudgetRecord | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [editMode, setEditMode] = useState(false);
 
-  // Temp edit fields
+  // Temp edit fields (for budget-level costs)
   const [editDiscount, setEditDiscount] = useState('');
   const [editTravelCost, setEditTravelCost] = useState('');
   const [editAdditionalFees, setEditAdditionalFees] = useState('');
   const [editCommercialNotes, setEditCommercialNotes] = useState('');
   const [editTechnicalNotes, setEditTechnicalNotes] = useState('');
 
-  // Load budget
+  // Load budget on mount / id change
   useEffect(() => {
     const all = loadSavedBudgets();
     const found = all.find((b) => b.id === budgetId) || null;
@@ -61,6 +62,7 @@ export function BudgetDetailWorkspace({
     items: budget.items,
   })) : money(0);
 
+  // ----- Budget level edit -----
   const startEdit = () => {
     if (!budget) return;
     setEditDiscount(String(budget.discount));
@@ -102,23 +104,24 @@ export function BudgetDetailWorkspace({
     }
   };
 
-  // Item editing state
+  // ----- Item edit state -----
   const [editingItem, setEditingItem] = useState<SavedBudgetRecord['items'][0] | null>(null);
   const [editDescription, setEditDescription] = useState('');
   const [editCategory, setEditCategory] = useState('');
   const [editQuantity, setEditQuantity] = useState('');
   const [editUnitPrice, setEditUnitPrice] = useState('');
 
-  // Adding item state
+  // ----- Adding item state -----
   const [addingItem, setAddingItem] = useState(false);
   const [addDescription, setAddDescription] = useState('');
   const [addCategory, setAddCategory] = useState('');
   const [addQuantity, setAddQuantity] = useState('');
   const [addUnitPrice, setAddUnitPrice] = useState('');
 
-  // Delete confirmation
+  // ----- Deleting item state -----
   const [deletingItem, setDeletingItem] = useState<SavedBudgetRecord['items'][0] | null>(null);
 
+  // Item actions
   const startEditItem = (item: SavedBudgetRecord['items'][0]) => {
     setEditingItem(item);
     setEditDescription(item.description);
@@ -193,9 +196,9 @@ export function BudgetDetailWorkspace({
 
   if (!budget) {
     return (
-      <EmptyState
+      <QueueEmptyState
         title="Orçamento não encontrado"
-        description="O orçamento solicitado não foi encontrado ou foi removido."
+        meta="O orçamento solicitado não foi encontrado ou foi removido."
       />
     );
   }
@@ -204,214 +207,120 @@ export function BudgetDetailWorkspace({
 
   return (
     <div className={styles.container}>
-      {/* Header */}
-      <div className={styles.headerBar}>
-        <BackButton
-          label="Voltar"
-          onClick={() => onNavigate('budgets')}
-        />
-        <h1 className={styles.pageTitle}>Detalhe do orçamento</h1>
-      </div>
+      {/* Header Card */}
+      <BudgetHeaderCard
+        budgetId={budget.id}
+        title={budget.title}
+        clientName={budget.clientName}
+        status={budget.status}
+        total={total}
+        onBack={() => onNavigate('budgets')}
+      />
 
-      <PanelCard className={styles.card}>
-        <h2 className={styles.cardTitle}>Detalhe do Orçamento</h2>
-        <p className={styles.cardId}>ID: {budget.id}</p>
-        <div className={styles.fieldGroup}>
-          <label>Título</label>
-          <span>{budget.title || 'Sem título'}</span>
-        </div>
-        <div className={styles.fieldGroup}>
-          <label>Cliente</label>
-          <span>{budget.clientName || 'Cliente não informado'}</span>
-        </div>
-        <div className={styles.fieldGroup}>
-          <label>Status</label>
-          <StatusBadge status={budget.status} />
-        </div>
-        <div className={styles.fieldGroup}>
-          <label>Total</label>
-          <strong className={styles.totalValue}>{total}</strong>
-        </div>
-        <hr className={styles.divider} />
-        {/* Items Table */}
-        <h3 className={styles.sectionTitle}>Itens</h3>
-        <div className={styles.itemTable}>
-          <div className={styles.itemHeader}>Descrição</div>
-          <div className={styles.itemHeader}>Qtd.</div>
-          <div className={styles.itemHeader}>Valor</div>
-          {budget.items.map((item) => (
-            <React.Fragment key={item.id}>
-              <div className={styles.itemDescription}>{item.description}</div>
-              <div className={styles.itemQuantity}>{item.quantity}</div>
-              <div className={styles.itemValue}>{money(item.unitPrice * item.quantity)}</div>
-              {/* Action row */}
-              {!isLocked && (
-                <div className={styles.itemActions}>
-                  <SecondaryButton onClick={() => startEditItem(item)}>Editar</SecondaryButton>
-                  <DangerButton onClick={() => startDeleteItem(item)}>Remover</DangerButton>
-                </div>
-              )}
-            </React.Fragment>
-          ))}
-        </div>
-        {!isLocked && (
-          <div className={styles.addItemContainer}>
-            <PrimaryButton onClick={startAddItem}>Adicionar item</PrimaryButton>
+      {/* Items Table */}
+      <BudgetItemsTable
+        items={budget.items}
+        onEditItem={startEditItem}
+        onDeleteItem={startDeleteItem}
+        isLocked={isLocked}
+      />
+
+      {/* Totals Card */}
+      <BudgetTotalsCard
+        budget={budget}
+        editMode={editMode}
+        editDiscount={editDiscount}
+        setEditDiscount={setEditDiscount}
+        editTravelCost={editTravelCost}
+        setEditTravelCost={setEditTravelCost}
+        editAdditionalFees={editAdditionalFees}
+        setEditAdditionalFees={setEditAdditionalFees}
+        money={money}
+      />
+
+      {/* Actions Bar */}
+      <BudgetActionsBar onEdit={startEdit} onCreateVersion={handleDuplicate} disabled={isLocked} showCreateVersion={true} />
+
+      {/* Operational Timeline */}
+      <OperationalTimelinePanel budget={budget} />
+
+      {/* Modals for item editing, adding, and delete confirmation */}
+      {editingItem && (
+        <Modal
+          isOpen={!!editingItem}
+          title="Editar Item"
+          onClose={cancelEditItem}
+          onConfirm={saveEditItem}
+          confirmLabel="Salvar"
+          cancelLabel="Cancelar"
+        >
+          <div className={styles.fieldGroup}>
+            <label>Descrição</label>
+            <Input value={editDescription} onChange={(e) => setEditDescription(e.target.value)} />
           </div>
-        )}
-        <hr className={styles.divider} />
-        {/* Costs and notes */}
-        <div className={styles.fieldGroup}>
-          <label>Desconto (%)</label>
-          {editMode ? (
-            <Input
-              type="number"
-              value={editDiscount}
-              onChange={(e) => setEditDiscount(e.target.value)}
-            />
-          ) : (
-            <span>{budget.discount}%</span>
-          )}
-        </div>
-        <div className={styles.fieldGroup}>
-          <label>Custo de Viagem</label>
-          {editMode ? (
-            <Input
-              type="number"
-              value={editTravelCost}
-              onChange={(e) => setEditTravelCost(e.target.value)}
-            />
-          ) : (
-            <span>{money(budget.travelCost)}</span>
-          )}
-        </div>
-        <div className={styles.fieldGroup}>
-          <label>Taxas Adicionais</label>
-          {editMode ? (
-            <Input
-              type="number"
-              value={editAdditionalFees}
-              onChange={(e) => setEditAdditionalFees(e.target.value)}
-            />
-          ) : (
-            <span>{money(budget.additionalFees)}</span>
-          )}
-        </div>
-        <hr className={styles.divider} />
-        <div className={styles.fieldGroup}>
-          <label>Notas Comerciais</label>
-          {editMode ? (
-            <TextArea
-              value={editCommercialNotes}
-              onChange={(v) => setEditCommercialNotes(v)}
-              placeholder="Notas comerciais..."
-            />
-          ) : (
-            <span>{budget.commercialNotes || '—'}</span>
-          )}
-        </div>
-        <div className={styles.fieldGroup}>
-          <label>Notas Técnicas</label>
-          {editMode ? (
-            <TextArea
-              value={editTechnicalNotes}
-              onChange={(v) => setEditTechnicalNotes(v)}
-              placeholder="Notas técnicas..."
-            />
-          ) : (
-            <span>{budget.technicalNotes || '—'}</span>
-          )}
-        </div>
-        {/* Action buttons */}
-        <div className={styles.actions}>
-          {editMode ? (
-            <>
-              <SecondaryButton onClick={cancelEdit}>Cancelar</SecondaryButton>
-              <PrimaryButton onClick={saveEdit}>Salvar</PrimaryButton>
-            </>
-          ) : (
-            <>
-              {!isLocked && <PrimaryButton onClick={startEdit}>Editar</PrimaryButton>}
-              <SecondaryButton onClick={handleDuplicate}>Duplicar</SecondaryButton>
-            </>
-          )}
-        </div>
-        {/* Modals */}
-        {editingItem && (
-          <Modal
-            isOpen={!!editingItem}
-            title="Editar Item"
-            onClose={cancelEditItem}
-            onConfirm={saveEditItem}
-            confirmLabel="Salvar"
-            cancelLabel="Cancelar"
-          >
-            <div className={styles.fieldGroup}>
-              <label>Descrição</label>
-              <Input value={editDescription} onChange={(e) => setEditDescription(e.target.value)} />
-            </div>
-            <div className={styles.fieldGroup}>
-              <label>Categoria</label>
-              <Select value={editCategory} onChange={(v) => setEditCategory(v)}>
-                <option value="labor">Labor</option>
-                <option value="material">Material</option>
-                <option value="other">Other</option>
-              </Select>
-            </div>
-            <div className={styles.fieldGroup}>
-              <label>Quantidade</label>
-              <Input type="number" value={editQuantity} onChange={(e) => setEditQuantity(e.target.value)} />
-            </div>
-            <div className={styles.fieldGroup}>
-              <label>Valor unitário</label>
-              <Input type="number" value={editUnitPrice} onChange={(e) => setEditUnitPrice(e.target.value)} />
-            </div>
-          </Modal>
-        )}
-        {addingItem && (
-          <Modal
-            isOpen={addingItem}
-            title="Adicionar Item"
-            onClose={cancelAddItem}
-            onConfirm={saveAddItem}
-            confirmLabel="Salvar"
-            cancelLabel="Cancelar"
-          >
-            <div className={styles.fieldGroup}>
-              <label>Descrição</label>
-              <Input value={addDescription} onChange={(e) => setAddDescription(e.target.value)} />
-            </div>
-            <div className={styles.fieldGroup}>
-              <label>Categoria</label>
-              <Select value={addCategory} onChange={(v) => setAddCategory(v)}>
-                <option value="labor">Labor</option>
-                <option value="material">Material</option>
-                <option value="other">Other</option>
-              </Select>
-            </div>
-            <div className={styles.fieldGroup}>
-              <label>Quantidade</label>
-              <Input type="number" value={addQuantity} onChange={(e) => setAddQuantity(e.target.value)} />
-            </div>
-            <div className={styles.fieldGroup}>
-              <label>Valor unitário</label>
-              <Input type="number" value={addUnitPrice} onChange={(e) => setAddUnitPrice(e.target.value)} />
-            </div>
-          </Modal>
-        )}
-        {deletingItem && (
-          <ConfirmModal
-            isOpen={!!deletingItem}
-            title="Remover Item"
-            onClose={cancelDeleteItem}
-            onConfirm={confirmDeleteItem}
-            confirmLabel="Remover"
-            cancelLabel="Cancelar"
-          >
-            <p>Remover este item do orçamento?</p>
-          </ConfirmModal>
-        )}
-      </PanelCard>
+          <div className={styles.fieldGroup}>
+            <label>Categoria</label>
+            <Select label="Categoria" value={editCategory} onChange={setEditCategory}>
+              <option value="labor">Labor</option>
+              <option value="material">Material</option>
+              <option value="other">Other</option>
+            </Select>
+          </div>
+          <div className={styles.fieldGroup}>
+            <label>Quantidade</label>
+            <Input type="number" value={editQuantity} onChange={(e) => setEditQuantity(e.target.value)} />
+          </div>
+          <div className={styles.fieldGroup}>
+            <label>Valor unitário</label>
+            <Input type="number" value={editUnitPrice} onChange={(e) => setEditUnitPrice(e.target.value)} />
+          </div>
+        </Modal>
+      )}
+
+      {addingItem && (
+        <Modal
+          isOpen={addingItem}
+          title="Adicionar Item"
+          onClose={cancelAddItem}
+          onConfirm={saveAddItem}
+          confirmLabel="Salvar"
+          cancelLabel="Cancelar"
+        >
+          <div className={styles.fieldGroup}>
+            <label>Descrição</label>
+            <Input value={addDescription} onChange={(e) => setAddDescription(e.target.value)} />
+          </div>
+          <div className={styles.fieldGroup}>
+            <label>Categoria</label>
+            <Select label="Categoria" value={addCategory} onChange={setAddCategory}>
+              <option value="labor">Labor</option>
+              <option value="material">Material</option>
+              <option value="other">Other</option>
+            </Select>
+          </div>
+          <div className={styles.fieldGroup}>
+            <label>Quantidade</label>
+            <Input type="number" value={addQuantity} onChange={(e) => setAddQuantity(e.target.value)} />
+          </div>
+          <div className={styles.fieldGroup}>
+            <label>Valor unitário</label>
+            <Input type="number" value={addUnitPrice} onChange={(e) => setAddUnitPrice(e.target.value)} />
+          </div>
+        </Modal>
+      )}
+
+      {deletingItem && (
+        <ConfirmModal
+          isOpen={!!deletingItem}
+          title="Remover Item"
+          onClose={cancelDeleteItem}
+          onConfirm={confirmDeleteItem}
+          confirmLabel="Remover"
+          cancelLabel="Cancelar"
+        >
+          <p>Remover este item do orçamento?</p>
+        </ConfirmModal>
+      )}
     </div>
   );
 }

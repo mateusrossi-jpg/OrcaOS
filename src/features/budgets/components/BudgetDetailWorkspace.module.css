@@ -3,15 +3,17 @@
 .container {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: stretch;
   justify-content: flex-start;
-  padding: 2rem;
+  padding: 1rem 0.5rem; /* reduce horizontal padding for better width utilization */
+  width: 100%;
+  max-width: none;
+  box-sizing: border-box;
   background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
   backdrop-filter: blur(12px);
   border-radius: 12px;
   min-height: 80vh;
   min-width: 0;
-  max-width: 100%;
   overflow-wrap: normal;
   word-break: normal;
   white-space: normal;
@@ -19,18 +21,13 @@
 
 .card {
   width: 100%;
-  max-width: 720px;
+  max-width: none;
   background: rgba(255,255,255,0.12);
   border: 1px solid rgba(255,255,255,0.2);
   border-radius: 12px;
   box-shadow: 0 4px 30px rgba(0,0,0,0.2);
   padding: 2rem;
   backdrop-filter: blur(8px);
-  min-width: 0;
-  max-width: 100%;
-  overflow-wrap: normal;
-  word-break: normal;
-  white-space: normal;
 }
 
 .title {

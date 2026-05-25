@@ -60,7 +60,7 @@ export function LocalBackupWorkspace({ includeLinkedSettings = true }: { include
       setFeedback(`Backup válido: ${importedSummary.keyCount} grupo(s) de dados, aproximadamente ${importedSummary.estimatedSizeKb} KB.`);
     } catch (error) {
       setImportPreview(null);
-      setFeedback(error instanceof Error ? error.message : 'Não foi possível ler o backup.');
+      setFeedback(error instanceof Error ? error.message : 'Falha ao ler o backup.');
     }
   }
 
@@ -76,7 +76,7 @@ export function LocalBackupWorkspace({ includeLinkedSettings = true }: { include
       setImportPreview(parsed);
       setCanReload(true);
     } catch (error) {
-      setFeedback(error instanceof Error ? error.message : 'Não foi possível restaurar o backup.');
+      setFeedback(error instanceof Error ? error.message : 'Falha ao restaurar o backup.');
     }
   }
 

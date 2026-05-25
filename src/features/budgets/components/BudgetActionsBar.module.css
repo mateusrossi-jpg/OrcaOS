@@ -1,0 +1,13 @@
+/* BudgetActionsBar.module.css */
+
+.container {
+  display: flex;
+  gap: var(--spacing-sm, 0.5rem);
+  margin-top: var(--spacing-md, 1rem);
+  flex-wrap: wrap;
+}
+
+.button {
+  flex: 1 1 auto;
+  min-width: 8rem;
+}

@@ -37,7 +37,7 @@ export function StoreScreen({ account, onAccountChange, onBack }: StoreScreenPro
       onAccountChange(result.account);
       setFeedback(planStatusDescription(result.account, 'verificação Pro'));
     } catch (error) {
-      setFeedback(error instanceof Error ? error.message : 'Não foi possível verificar a liberação Pro.');
+      setFeedback(error instanceof Error ? error.message : 'Falha ao verificar a liberação Pro.');
     } finally {
       setIsCheckingPlan(false);
     }
@@ -49,7 +49,7 @@ export function StoreScreen({ account, onAccountChange, onBack }: StoreScreenPro
       window.open(buildProCheckoutUrl(account), '_blank', 'noopener,noreferrer');
       setFeedback('Checkout aberto. Depois do pagamento, volte aqui e clique em Verificar assinatura.');
     } catch (error) {
-      setFeedback(error instanceof Error ? error.message : 'Não foi possível abrir o checkout Pro.');
+      setFeedback(error instanceof Error ? error.message : 'Falha ao abrir o checkout Pro.');
     }
   }
 
@@ -62,7 +62,7 @@ export function StoreScreen({ account, onAccountChange, onBack }: StoreScreenPro
       onAccountChange(result.account);
       setFeedback(planStatusDescription(result.account, 'Google Play'));
     } catch (error) {
-      setFeedback(error instanceof Error ? error.message : 'Não foi possível concluir a compra pelo Google Play.');
+      setFeedback(error instanceof Error ? error.message : 'Falha ao concluir a compra pelo Google Play.');
     } finally {
       setIsGooglePlayBusy(false);
     }
@@ -81,7 +81,7 @@ export function StoreScreen({ account, onAccountChange, onBack }: StoreScreenPro
       onAccountChange(result.account);
       setFeedback(planStatusDescription(result.account, 'restauração Google Play'));
     } catch (error) {
-      setFeedback(error instanceof Error ? error.message : 'Não foi possível restaurar compras pelo Google Play.');
+      setFeedback(error instanceof Error ? error.message : 'Falha ao restaurar compras pelo Google Play.');
     } finally {
       setIsGooglePlayBusy(false);
     }
@@ -90,27 +90,19 @@ export function StoreScreen({ account, onAccountChange, onBack }: StoreScreenPro
   return (
     <PageShell className="wide-screen store-screen">
       {onBack && <BackButton label="Voltar" onClick={onBack} />}
-      <PageHeader 
-        title="Licença" 
-        eyebrow="Base"
-        description="Escolha o plano ideal para o seu negócio." 
-      />
+      <PageHeader title="Licença" />
       <section className="plan-card-grid" aria-label="Planos Aferix">
         <PlanCard
           badge="FREE"
           title="Grátis"
-          subtitle="Básico"
           price="R$ 0/mês"
-          description="Para testar o fluxo local-first sem cobrança."
           benefits={['13 cálculos livres', 'Acesso aos cálculos avulsos', 'Relatórios básicos', 'Suporte limitado']}
           action={<button className="secondary-action inline-action" type="button" disabled>Plano atual</button>}
         />
         <PlanCard
           badge="PRO"
           title="Em validação"
-          subtitle="Profissional"
           price="R$ 29,90/mês"
-          description="Para vender com margem, histórico e apresentação."
           benefits={['17 cálculos Pro', 'Todos os cálculos', 'Relatórios completos', 'Suporte prioritário']}
           action={<button className="primary-action inline-action" type="button" disabled={activeUserPlan === 'pro'} onClick={openCheckout}>Quero este plano</button>}
           featured
@@ -118,16 +110,14 @@ export function StoreScreen({ account, onAccountChange, onBack }: StoreScreenPro
         <PlanCard
           badge="VITALÍCIO"
           title="Vitalício"
-          subtitle="Acesso vitalício"
           price="R$ 29,90"
-          description="Oferta planejada para fundadores."
           benefits={['Tudo do plano Pro', 'Sem mensalidades', 'Atualizações futuras', 'Suporte vitalício']}
           action={<button className="secondary-action inline-action" type="button" disabled>Planejado</button>}
         />
       </section>
       <ListCard title="Vantagens do Aferix Pro" className="store-comparison-card">
         {visibleProBenefits.map((benefit) => (
-          <ListItem key={benefit.title} title={benefit.title} subtitle={benefit.description} />
+          <ListItem key={benefit.title} title={benefit.title} />
         ))}
         {proPlanBenefits.length > 5 && (
           <button
@@ -196,7 +186,7 @@ export function StoreScreen({ account, onAccountChange, onBack }: StoreScreenPro
           </div>
           {storePackages.map((pack) => (
             <article className="store-card" key={pack.title}>
-              <span><strong>{pack.title}</strong><small>{pack.description}</small><b>{pack.price}</b></span>
+              <span><strong>{pack.title}</strong><b>{pack.price}</b></span>
               <em className="store-card-status">Planejado</em>
             </article>
           ))}
@@ -206,10 +196,10 @@ export function StoreScreen({ account, onAccountChange, onBack }: StoreScreenPro
         <summary>Prioridade V1 Pro e backlog</summary>
         <div className="store-detail-content">
           <div className="plan-priority-grid">
-            {proV1Priorities.map((benefit, index) => <article key={benefit.title}><span>{index + 1}</span><strong>{benefit.title}</strong><small>{benefit.description}</small></article>)}
+            {proV1Priorities.map((benefit, index) => <article key={benefit.title}><span>{index + 1}</span><strong>{benefit.title}</strong></article>)}
           </div>
           <div className="plan-future-list">
-            {futureProBacklog.map((benefit) => <span key={benefit.title}><strong>{benefit.title}</strong><small>{benefit.description}</small></span>)}
+            {futureProBacklog.map((benefit) => <span key={benefit.title}><strong>{benefit.title}</strong></span>)}
           </div>
         </div>
       </details>

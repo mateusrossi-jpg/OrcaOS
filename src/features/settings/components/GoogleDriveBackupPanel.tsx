@@ -44,7 +44,7 @@ export function GoogleDriveBackupPanel() {
       setDriveBackup(backup);
       setFeedback(backup ? `Conectado. Último backup: ${formatDriveDate(backup.modifiedTime)}.` : 'Conectado. Nenhum backup encontrado ainda.');
     } catch (error) {
-      setFeedback(error instanceof Error ? error.message : 'Não foi possível conectar ao Google Drive.');
+      setFeedback(error instanceof Error ? error.message : 'Falha ao conectar ao Google Drive.');
     } finally {
       setIsBusy(false);
     }
@@ -67,7 +67,7 @@ export function GoogleDriveBackupPanel() {
       setDriveBackup(saved);
       setFeedback(`Backup salvo no Drive: ${summary.keyCount} grupo(s), aproximadamente ${summary.estimatedSizeKb} KB.`);
     } catch (error) {
-      setFeedback(error instanceof Error ? error.message : 'Não foi possível salvar no Google Drive.');
+      setFeedback(error instanceof Error ? error.message : 'Falha ao salvar no Google Drive.');
     } finally {
       setIsBusy(false);
     }
@@ -87,7 +87,7 @@ export function GoogleDriveBackupPanel() {
       setFeedback(`${restoredCount} grupo(s) restaurado(s) do Drive. Recarregue o app para garantir leitura completa.`);
       setCanReload(true);
     } catch (error) {
-      setFeedback(error instanceof Error ? error.message : 'Não foi possível restaurar do Google Drive.');
+      setFeedback(error instanceof Error ? error.message : 'Falha ao restaurar do Google Drive.');
     } finally {
       setIsBusy(false);
     }
@@ -105,7 +105,7 @@ export function GoogleDriveBackupPanel() {
       setDriveBackup(backup);
       setFeedback(backup ? `Backup encontrado: ${formatDriveDate(backup.modifiedTime)}.` : 'Nenhum backup do Aferix encontrado no Drive.');
     } catch (error) {
-      setFeedback(error instanceof Error ? error.message : 'Não foi possível consultar o Google Drive.');
+      setFeedback(error instanceof Error ? error.message : 'Falha ao consultar o Google Drive.');
     } finally {
       setIsBusy(false);
     }

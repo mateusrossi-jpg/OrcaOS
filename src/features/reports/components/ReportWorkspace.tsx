@@ -12,7 +12,7 @@ import {
   ListCard, 
   ListItem, 
   FilterChips, 
-  EmptyState,
+  QueueEmptyState,
   MoneyValue,
   Button
 } from '../../../app/components/ui';
@@ -151,12 +151,12 @@ export function ReportWorkspace({ captures, activeClient = null, activeWorkOrder
         {activeCategory === 'clientes' && (
           <ListCard title="Maiores Clientes (Faturamento)">
             {clientStats.length === 0 ? (
-              <EmptyState title="Nenhum dado disponível" description="Nenhum dado de cliente disponível para exibição." />
+              <QueueEmptyState title="Nenhum dado disponível" meta="Nenhum dado de cliente disponível para exibição." />
             ) : visibleClientStats.map((c, i) => (
               <ListItem 
                 key={i}
                 title={c.name}
-                subtitle={`${c.count} atendimentos`}
+                context={`${c.count} atendimentos`}
                 value={<strong>{money(c.total)}</strong>}
               />
             ))}
@@ -212,7 +212,7 @@ export function ReportWorkspace({ captures, activeClient = null, activeWorkOrder
             </div>
           )}
         </header>
-        <EmptyState title="Relatório Completo" description="Selecione um período para gerar o documento completo." />
+        <QueueEmptyState title="Relatório Completo" meta="Selecione um período para gerar o documento completo." />
       </div>
     </div>
   );

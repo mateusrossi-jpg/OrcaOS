@@ -1,0 +1,7 @@
+/* BudgetStatusBadge.module.css */
+
+.wrapper {
+  display: inline-block;
+  padding: 0 var(--spacing-xs, 0.25rem);
+  border-radius: var(--badge-radius, 0.5rem);
+}

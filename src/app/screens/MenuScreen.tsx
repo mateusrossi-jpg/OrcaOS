@@ -45,32 +45,27 @@ export function MenuScreen({ account, onAccountChange, onNavigate }: MenuScreenP
   const systemItems = [
     {
       title: 'Catálogo',
-      subtitle: 'Meus itens e serviços',
       onClick: () => onNavigate('catalog'),
     },
     {
       title: 'Perfil e Conta',
-      subtitle: `${accountLabel} · ${planStatusTitle(account)}`,
+      context: `${accountLabel} · ${planStatusTitle(account)}`,
       onClick: () => setActiveSection('profile'),
     },
     {
       title: 'Licença Pro',
-      subtitle: 'Planos e recursos extras',
       onClick: () => onNavigate('store'),
     },
     {
       title: 'Backup e Sincronização',
-      subtitle: 'Drive e exportação local',
       onClick: () => setActiveSection('backup'),
     },
     {
       title: 'Segurança',
-      subtitle: 'PIN e proteção de acesso',
       onClick: () => setActiveSection('security'),
     },
     {
       title: 'Sobre o Aferix',
-      subtitle: 'Privacidade e termos',
       onClick: () => setActiveSection('about'),
     },
   ] as const;
@@ -83,7 +78,7 @@ export function MenuScreen({ account, onAccountChange, onNavigate }: MenuScreenP
       onAccountChange(nextAccount);
       setFeedback('Conta por e-mail cadastrada.');
     } catch (error) {
-      setFeedback(error instanceof Error ? error.message : 'Não foi possível cadastrar e-mail.');
+      setFeedback(error instanceof Error ? error.message : 'Falha ao cadastrar e-mail.');
     }
   }
 
@@ -96,7 +91,7 @@ export function MenuScreen({ account, onAccountChange, onNavigate }: MenuScreenP
       onAccountChange(nextAccount);
       setFeedback('Conta Google conectada.');
     } catch (error) {
-      setFeedback(error instanceof Error ? error.message : 'Não foi possível entrar com Google.');
+      setFeedback(error instanceof Error ? error.message : 'Falha ao entrar com Google.');
     } finally {
       setIsSigningIn(false);
     }
@@ -129,7 +124,7 @@ export function MenuScreen({ account, onAccountChange, onNavigate }: MenuScreenP
               <BackButton label="Voltar ao Menu" onClick={() => setActiveSection('main')} />
               <LegalCompliancePanel />
               <PanelCard>
-                <SectionTitle title="Sobre o Aferix" eyebrow="Base" />
+                <SectionTitle title="Sobre o Aferix" />
                 <p className="menu-about-note menu-about-note-spaced">Versão MVP · Local-first</p>
               </PanelCard>
             </PanelCard>
@@ -141,32 +136,29 @@ export function MenuScreen({ account, onAccountChange, onNavigate }: MenuScreenP
 
   return (
     <PageShell className="menu-overview-screen">
-      <PageHeader 
-        title="Configurações" 
-        eyebrow="Base"
-        description="Gerencie seu perfil, conta e preferências do aplicativo." 
-      />
+      <PageHeader title="Configurações" />
 
-      <ListCard title="Sistema" subtitle="Base">
-        {visibleSystemItems.map((item) => (
-          <ListItem
-            key={item.title}
-            title={item.title}
-            subtitle={item.subtitle}
-            onClick={item.onClick}
-            action={<span className="row-arrow">›</span>}
-          />
-        ))}
-        {systemItems.length > 5 && (
-          <button
-            type="button"
-            className="list-expand-toggle"
-            onClick={() => setShowAllSystemItems((current) => !current)}
-          >
-            {showAllSystemItems ? "Ver menos" : `Ver mais (${hiddenSystemItemsCount})`}
-          </button>
-        )}
-      </ListCard>
+      <PanelCard className="menu-utility-panel">
+        <div className="menu-utility-list">
+          {visibleSystemItems.map((item) => (
+            <button
+              key={item.title}
+              className="menu-utility-item"
+              type="button"
+              onClick={item.onClick}
+            >
+              <span className="utility-item-title">{item.title}</span>
+              {'context' in item && <span className="utility-meta">{item.context}</span>}
+              <span className="row-arrow">›</span>
+            </button>
+          ))}
+          {hiddenSystemItemsCount > 0 && (
+            <button className="menu-utility-item" type="button" onClick={() => setShowAllSystemItems(true)}>
+              <span className="utility-item-title">Ver todos ({hiddenSystemItemsCount})</span>
+            </button>
+          )}
+        </div>
+      </PanelCard>
     </PageShell>
   );
 }

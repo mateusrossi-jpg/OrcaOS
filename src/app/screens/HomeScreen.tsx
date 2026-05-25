@@ -5,7 +5,7 @@ import type { SavedBudgetRecord } from '../../features/budgets/storage/savedBudg
 import { calculateServiceProfit } from '../../core/finance/serviceProfit';
 import { isBudgetRevenueRecognized } from '../../core/finance/budgetLifecycle';
 import { 
-  EmptyState, 
+  QueueEmptyState, 
   MetricCard, 
   MoneyValue, 
   PageShell, 
@@ -134,126 +134,65 @@ export function HomeScreen({
     .sort((a, b) => severityRank[a.severity] - severityRank[b.severity])
     .slice(0, HOME_VISIBLE_LIMIT);
 
-  const recentFinalized = savedBudgets.filter((b) => b.status === 'finalizado').slice(0, HOME_VISIBLE_LIMIT);
+  const activeBudget = savedBudgets
+    .filter((b) => !isLockedStatus(b.status))
+    .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())[0];
+
+  const emAndamentoCount = savedBudgets.filter((b) => b.status === 'iniciado' || b.status === 'em_execucao').length;
+  const revisaoCount = savedBudgets.filter((b) => b.status === 'em_revisao').length;
+  const enviadoCount = savedBudgets.filter((b) => b.status === 'enviado').length;
+  const autorizadoCount = savedBudgets.filter((b) => b.status === 'autorizado').length;
+
+  const receitaPrevista = savedBudgets
+    .filter((b) => !isLockedStatus(b.status))
+    .reduce((acc, b) => acc + calculateSavedBudgetValue(b), 0);
 
   return (
-    <PageShell className="aferix-dashboard-screen">
-      <PageHeader
-        title="Pulse"
-        eyebrow="Diagnóstico"
-        description="Como está a saúde do seu negócio hoje?"
-      />
+    <PageShell className="aferix-operational-screen">
+      <PageHeader title="Central Operacional" />
 
-      <PanelCard className="home-finance-overview">
-        <SectionTitle 
-          title="Visão Geral" 
-          eyebrow="Money" 
-          description="Resultados baseados em orçamentos finalizados."
-        />
-        <div className="metric-grid dashboard-metric-grid">
-          <MetricCard 
-            label="Lucro atual" 
-            value={<MoneyValue value={profit} tone={profit >= 0 ? 'success' : 'danger'} />} 
-            tone={profit >= 0 ? 'success' : 'danger'} 
-            featured
-          />
-          <MetricCard 
-            label="Margem média" 
-            value={`${averageMargin.toFixed(1)}%`} 
-            tone={averageMargin >= 20 ? 'success' : averageMargin > 0 ? 'brand' : 'danger'} 
-          />
-          <MetricCard 
-            label="Ticket médio" 
-            value={<MoneyValue value={averageTicket} compact />} 
-          />
-          <MetricCard 
-            label="Taxa de conversão" 
-            value={`${conversionRate.toFixed(0)}%`} 
-            helper={`${successCount} fechados`}
-            tone={conversionRate >= 50 ? 'success' : 'brand'}
-          />
-          <MetricCard 
-            label="Pipeline (Em aberto)" 
-            value={<MoneyValue value={pipelineTotal} compact />} 
-            tone="brand"
-          />
-          <MetricCard 
-            label="Recebimentos" 
-            value={pendingPayments.length} 
-            helper="pendentes"
-          />
-        </div>
-      </PanelCard>
-
-      <section className="home-operations-grid">
-        <PanelCard className="home-command-panel">
-          <SectionTitle title="Fila operacional" eyebrow="Work" />
-          <div className="status-compact-list">
-            <button className="status-compact-item aferix-card-compact-list aferix-card-action" type="button" onClick={() => onNavigate('work-history')}>
-              <span className="status-label">Aguardando resposta</span>
-              <strong className="status-value">{awaitingReplyBudgets.length}</strong>
-            </button>
-            <button className="status-compact-item aferix-card-compact-list aferix-card-action" type="button" onClick={() => onNavigate('work-history')}>
-              <span className="status-label">Em execução</span>
-              <strong className="status-value">{inExecutionBudgets.length}</strong>
-            </button>
-            <button className="status-compact-item aferix-card-compact-list aferix-card-action" type="button" onClick={() => onNavigate('work-history')}>
-              <span className="status-label">Finalização pendente</span>
-              <strong className="status-value">{authorizedBudgets.length}</strong>
-            </button>
+      {activeBudget && (
+        <PanelCard className="operational-active-budget" onClick={() => onSelectBudget?.(activeBudget)}>
+          <div className="operational-active-budget-content">
+            <StatusBadge status={activeBudget.status} />
+            <span className="active-budget-client">{activeBudget.clientName || 'Cliente não informado'}</span>
+            <strong className="active-budget-title">{activeBudget.title || 'Sem título'}</strong>
+            <span className="active-budget-value-dominate">
+              <MoneyValue value={calculateSavedBudgetValue(activeBudget)} />
+            </span>
           </div>
         </PanelCard>
+      )}
 
-        <ListCard title="Alertas de Atenção" subtitle="Pulse">
-          {alerts.length === 0 ? (
-            <EmptyState 
-              title="Sem alertas críticos" 
-              description="Sua operação está estável neste momento." 
-              icon={<svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>}
-            />
-          ) : (
-            alerts.map((alert) => (
-              <ListItem 
-                key={alert.id}
-                title={alert.title}
-                subtitle={alert.description}
-                status={<StatusBadge tone={alert.severity === 'critical' ? 'danger' : alert.severity === 'attention' ? 'brand' : 'success'}>{alert.badge}</StatusBadge>}
-                onClick={alert.action}
-              />
-            ))
-          )}
-        </ListCard>
+      <ListCard title="Fila de Trabalho">
+        <div className="operational-queue-grid">
+          <button className="queue-item" type="button" onClick={() => onNavigate('work-history')}>
+            <span className="queue-label">Em andamento</span>
+            <strong className="queue-value">{emAndamentoCount}</strong>
+          </button>
+          <button className="queue-item" type="button" onClick={() => onNavigate('work-history')}>
+            <span className="queue-label">Revisão</span>
+            <strong className="queue-value">{revisaoCount}</strong>
+          </button>
+          <button className="queue-item" type="button" onClick={() => onNavigate('work-history')}>
+            <span className="queue-label">Enviado</span>
+            <strong className="queue-value">{enviadoCount}</strong>
+          </button>
+          <button className="queue-item" type="button" onClick={() => onNavigate('work-history')}>
+            <span className="queue-label">Autorizado</span>
+            <strong className="queue-value">{autorizadoCount}</strong>
+          </button>
+        </div>
+      </ListCard>
 
-        <ListCard title="Ganhos Recentes" subtitle="Money">
-          {recentFinalized.length === 0 ? (
-            <EmptyState 
-              title="Nenhum orçamento finalizado" 
-              description="Quando um orçamento for finalizado, o resultado aparecerá aqui automaticamente." 
-              icon={<svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10H7v-2h10v2z"/></svg>}
-            />
-          ) : (
-            recentFinalized.map((record) => {
-              const profitRecord = calculateServiceProfit({
-                receivedAmount: calculateSavedBudgetValue(record),
-                materialCost: record.materialCost ?? 0,
-                travelCost: record.travelCost,
-                cardFee: 0,
-                estimatedTax: 0,
-                otherCosts: (record.additionalFees || 0) + (record.operationalCost || 0),
-              });
-              return (
-                <ListItem 
-                  key={record.id}
-                  title={record.title}
-                  subtitle={record.clientName || 'Cliente final'}
-                  value={<MoneyValue value={profitRecord.netProfit} tone={profitRecord.netProfit >= 0 ? 'success' : 'danger'} compact />}
-                  status={<StatusBadge status="finalizado" />}
-                />
-              );
-            })
-          )}
-        </ListCard>
-      </section>
+      <PanelCard className="operational-finance-snapshot">
+        <SectionTitle title="Posição Financeira" />
+        <div className="metric-grid compact-metric-grid">
+          <MetricCard label="Receita prevista" value={<MoneyValue value={receitaPrevista} compact />} />
+          <MetricCard label="Receita realizada" value={<MoneyValue value={revenue} compact />} />
+          <MetricCard label="Lucro líquido" value={<MoneyValue value={profit} tone={profit >= 0 ? 'success' : 'danger'} compact />} tone={profit >= 0 ? 'success' : 'danger'} />
+        </div>
+      </PanelCard>
     </PageShell>
   );
 }

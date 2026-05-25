@@ -495,7 +495,7 @@ export function CatalogHubWorkspace({ onSendToBudget, initialTab = 'items', enab
 
   function removeItem(id: string) {
     const item = items.find((currentItem) => currentItem.id === id);
-    const confirmed = window.confirm(`Remover ${item?.title ?? 'este item'} do catálogo local? Essa ação não remove orçamentos já salvos.`);
+    const confirmed = window.confirm(`Remover ${item?.title ?? 'este item'} do catálogo local?`);
     if (!confirmed) return;
     if (editingItemId === id) resetItemForm();
     setItems((current) => current.filter((item) => item.id !== id));
@@ -503,7 +503,7 @@ export function CatalogHubWorkspace({ onSendToBudget, initialTab = 'items', enab
 
   function removeSupplier(id: string) {
     const supplier = suppliers.find((currentSupplier) => currentSupplier.id === id);
-    const confirmed = window.confirm(`Remover ${supplier?.name ?? 'este fornecedor'}? Os itens já cadastrados ficam no catálogo, mas perdem esse vínculo.`);
+    const confirmed = window.confirm(`Remover ${supplier?.name ?? 'este fornecedor'}?`);
     if (!confirmed) return;
     if (editingSupplierId === id) resetSupplierForm();
     setSuppliers((current) => current.filter((supplier) => supplier.id !== id));

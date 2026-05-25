@@ -13,11 +13,7 @@ interface ReportsScreenProps {
 export function ReportsScreen({ captures, context }: ReportsScreenProps) {
   return (
     <PageShell className="wide-screen reports-screen-harmonized">
-      <PageHeader
-        title="Relatórios"
-        eyebrow="Base"
-        description="Análises da operação e desempenho da base comercial."
-      />
+      <PageHeader title="Relatórios" />
       <ReportWorkspace
         captures={captures}
         activeClient={context.activeClient}

@@ -58,12 +58,12 @@ export function AppShell({ children, activeTab, navItems, onNavigate, activeClie
   const moneyItem = mainNavItems.find((item) => item.id === 'money');
   const baseItem = mainNavItems.find((item) => item.id === 'base');
 
-  const baseSubItems: Array<{ id: AppTab; label: string; description: string; icon: AppIconGlyph }> = [
-    { id: 'base', label: 'Clientes', description: 'Gestão da base de clientes', icon: 'clients' },
-    { id: 'catalog', label: 'Catálogo', description: 'Catálogo de itens e serviços', icon: 'document' },
-    { id: 'reports', label: 'Relatórios', description: 'Análises e métricas', icon: 'chart' },
-    { id: 'settings', label: 'Configurações', description: 'Preferências do app', icon: 'settings' },
-    { id: 'store', label: 'Licença Pro', description: 'Plano e assinatura', icon: 'store' }
+  const baseSubItems: Array<{ id: AppTab; label: string; description?: string; icon: AppIconGlyph }> = [
+    { id: 'base', label: 'Clientes', icon: 'clients' },
+    { id: 'catalog', label: 'Catálogo', icon: 'document' },
+    { id: 'reports', label: 'Relatórios', icon: 'chart' },
+    { id: 'settings', label: 'Configurações', icon: 'settings' },
+    { id: 'store', label: 'Licença Pro', icon: 'store' }
   ];
 
   const baseActive =

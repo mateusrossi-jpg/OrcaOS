@@ -3,7 +3,7 @@ import {
   PageHeader, 
   PageShell, 
   Button, 
-  EmptyState, 
+  QueueEmptyState, 
   PanelCard, 
   ListCard, 
   ListItem,
@@ -248,12 +248,13 @@ export function BudgetHistoryScreen({
 
   return (
     <PageShell className="wide-screen">
-      <PageHeader
-        title="Histórico de orçamentos"
-        eyebrow="Work"
-        description="Pipeline operacional com busca, filtros e reabertura segura."
-        action={<PrimaryButton onClick={onNewBudget}>Novo orçamento</PrimaryButton>}
-      />
+      <PageHeader title="Histórico de orçamentos" action={
+          <PrimaryButton onClick={onNewBudget}>Novo orçamento</PrimaryButton>
+        } />
+      
+      <QueueEmptyState
+          title="Nenhum orçamento encontrado"
+        />
 
       <PanelCard className="history-search-panel">
         <div className="budget-history-grid-gap-md">
@@ -280,9 +281,8 @@ export function BudgetHistoryScreen({
 
       <ListCard>
         {filtered.length === 0 ? (
-          <EmptyState
-            title="Nenhum orçamento encontrado"
-            description="Ajuste os filtros ou crie um novo orçamento."
+          <QueueEmptyState
+            title="Nenhum orçamento encontrado."
             icon={<svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>}
           />
         ) : (
@@ -292,7 +292,7 @@ export function BudgetHistoryScreen({
               <ListItem 
                 key={record.id}
                 title={record.title || 'Orçamento sem título'}
-                subtitle={
+                context={
                   <div className="budget-history-record-meta">
                     <span>{record.clientName || 'Cliente não informado'}</span>
                     <div className="budget-history-record-status-row">
@@ -396,7 +396,7 @@ export function BudgetHistoryScreen({
                   value={confirmInput}
                   onChange={(e) => setConfirmInput(e.target.value)}
                   placeholder={`Digite ${confirmWordForAction(targetStatus)} para confirmar`}
-                  helper="Edição e alterações financeiras ficam bloqueadas após esta ação."
+                  operationalHint="Edição e alterações financeiras ficam bloqueadas após esta ação."
                 />
               )}
             </>
@@ -419,7 +419,7 @@ export function BudgetHistoryScreen({
             value={confirmInput}
             onChange={(e) => setConfirmInput(e.target.value)}
             placeholder="Digite EXCLUIR para confirmar"
-            helper="O registro será removido definitivamente deste dispositivo."
+            operationalHint="O registro será removido definitivamente deste dispositivo."
             autoFocus
           />
         </div>

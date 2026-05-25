@@ -1,0 +1,31 @@
+/* BudgetTotalsCard.module.css */
+
+.container {
+  background: var(--aferix-surface-2);
+  border-radius: var(--card-radius, 0.75rem);
+  box-shadow: var(--card-shadow, 0 2px 8px rgba(0,0,0,0.1));
+  padding: var(--spacing-md, 1rem);
+  margin-top: var(--spacing-md, 1rem);
+}
+
+.fieldGroup {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-sm, 0.5rem);
+}
+
+.label {
+  font-weight: 500;
+  color: var(--aferix-text-secondary);
+}
+
+.value {
+  font-weight: 600;
+  color: var(--aferix-text);
+}
+
+.total {
+  font-size: 1.25rem;
+  color: var(--aferix-success);
+  font-weight: 700;
+}

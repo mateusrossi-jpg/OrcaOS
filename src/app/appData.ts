@@ -5,9 +5,9 @@ import type { AppNavItem, ModulePlan } from './appTypes';
 export const userPlan: UserPlan = 'free';
 
 export const navItems: AppNavItem[] = [
-  { id: 'pulse', label: 'Pulse', description: 'Diagnóstico rápido do negócio', icon: 'home' },
-  { id: 'work-history', label: 'Work', description: 'Fluxo operacional e orçamentos', icon: 'document' },
-  { id: 'money', label: 'Money', description: 'Resultados financeiros automáticos', icon: 'finance' },
+  { id: 'pulse', label: 'Resumo', description: 'Resumo geral do negócio', icon: 'home' },
+  { id: 'work-history', label: 'Operacional', description: 'Fluxo operacional e orçamentos', icon: 'document' },
+  { id: 'money', label: 'Financeiro', description: 'Resultados financeiros automáticos', icon: 'finance' },
   { id: 'base', label: 'Base', description: 'Clientes, Catálogo e Configurações', icon: 'clients' },
 ];
 

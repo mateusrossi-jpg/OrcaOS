@@ -39,7 +39,7 @@ export function SettingsScreen({ account, onAccountChange }: SettingsScreenProps
       onAccountChange(nextAccount);
       setFeedback('Conta por e-mail cadastrada.');
     } catch (error) {
-      setFeedback(error instanceof Error ? error.message : 'Não foi possível cadastrar e-mail.');
+      setFeedback(error instanceof Error ? error.message : 'Falha ao cadastrar e-mail.');
     }
   }
 
@@ -52,7 +52,7 @@ export function SettingsScreen({ account, onAccountChange }: SettingsScreenProps
       onAccountChange(nextAccount);
       setFeedback('Conta Google conectada.');
     } catch (error) {
-      setFeedback(error instanceof Error ? error.message : 'Não foi possível entrar com Google.');
+      setFeedback(error instanceof Error ? error.message : 'Falha ao entrar com Google.');
     } finally {
       setIsSigningIn(false);
     }
@@ -62,7 +62,6 @@ export function SettingsScreen({ account, onAccountChange }: SettingsScreenProps
     <PageShell className="wide-screen settings-screen-premium">
       <PageHeader 
         title="Configurações" 
-        description="Gerencie conta, perfil profissional e preferências." 
       />
 
       <AferixTabs
@@ -84,7 +83,6 @@ export function SettingsScreen({ account, onAccountChange }: SettingsScreenProps
             <div className="settings-panel-title">
               <span className="aferix-kicker">Acesso e Identidade</span>
               <h2>Sua Conta</h2>
-              <p>Gerencie seu acesso e identificação no Aferix.</p>
             </div>
 
             <div className="account-status-grid-compact">
@@ -134,7 +132,6 @@ export function SettingsScreen({ account, onAccountChange }: SettingsScreenProps
               <div className="settings-panel-title">
                 <span className="aferix-kicker">Evolução planejada</span>
                 <h2>Roteiro do produto</h2>
-                <p>O Aferix está em desenvolvimento ativo. Confira as fases previstas.</p>
               </div>
               <div className="plan-priority-grid">
                 <article><span>1</span><strong>Fase 1: Essencial</strong><small>Atendimento, cálculo, orçamento e relatório simples.</small></article>

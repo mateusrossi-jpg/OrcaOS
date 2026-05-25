@@ -145,7 +145,7 @@ export function signInLocalAccount(displayName = 'Profissional local', email = '
 
 export function signInEmailAccount(email: string, displayName = ''): AferixAccountState {
   const normalizedEmail = normalizeEmail(email);
-  if (!normalizedEmail || !normalizedEmail.includes('@')) throw new Error('Informe um e-mail válido para cadastrar a conta.');
+  if (!normalizedEmail || !normalizedEmail.includes('@')) throw new Error('E-mail inválido para cadastrar a conta.');
 
   const current = loadAccountState();
   const next: AferixAccountState = {

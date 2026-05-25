@@ -38,7 +38,7 @@ export function AppSecurityPanel() {
       setIsEnabled(true);
       setFeedback('Bloqueio de acesso ativado.');
     } catch (error) {
-      setFeedback(error instanceof Error ? error.message : 'Não foi possível ativar o bloqueio.');
+      setFeedback(error instanceof Error ? error.message : 'Falha ao ativar o bloqueio.');
     }
   }
 

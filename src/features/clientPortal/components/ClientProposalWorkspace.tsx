@@ -115,7 +115,7 @@ export function ClientProposalWorkspace({ technicalCaptures = [], activeClient =
       await navigator.clipboard.writeText(text);
       setFeedback('Texto do orçamento copiado para envio ao cliente.');
     } catch {
-      setFeedback('Não foi possível copiar automaticamente. Abra o WhatsApp ou selecione o texto manualmente em uma próxima etapa.');
+      setFeedback('Falha ao copiar automaticamente. Abra o WhatsApp ou selecione o texto manualmente em uma próxima etapa.');
     }
   }
 

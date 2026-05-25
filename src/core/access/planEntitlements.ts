@@ -92,7 +92,7 @@ export async function refreshPlanEntitlement(account = loadAccountState()): Prom
 
   if (!response.ok) {
     const errorText = await response.text();
-    throw new Error(errorText || `Não foi possível verificar a liberação Pro: ${response.status}`);
+    throw new Error(errorText || `Falha ao verificar a liberação Pro: ${response.status}`);
   }
 
   return applyPlanEntitlementResponse(account, await response.json() as PlanEntitlementResponse);

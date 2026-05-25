@@ -23,10 +23,8 @@ export function ClientsScreen({
 
   return (
     <PageShell className="wide-screen">
-      <PageHeader 
-        title="Clientes" 
-        eyebrow="Base"
-        description="Gerencie sua carteira de clientes e contatos comerciais."
+      <PageHeader
+        title="Clientes"
         action={
           <Button variant="primary" className="full-page-cta" onClick={() => triggerNewClientRef.current?.()}>
             + Novo Cliente

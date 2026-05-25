@@ -15,7 +15,7 @@ import {
   MonetaryInput, 
   Button, 
   Select, 
-  EmptyState, 
+  QueueEmptyState, 
   BackButton,
   ListCard,
   ListItem,
@@ -263,16 +263,16 @@ export function ClientWorkOrderWorkspace({ initialSection, initialClientId, sect
 
           <ListCard>
             {visibleClients.length === 0 ? (
-              <EmptyState 
+              <QueueEmptyState 
                 title="Nenhum cliente encontrado" 
-                description={clientSearch ? "Tente buscar por outro termo." : "Sua lista de clientes está vazia."}
+                meta={clientSearch ? "Tente buscar por outro termo." : "Sua lista de clientes está vazia."}
               />
             ) : (
               visibleClients.map((client) => (
                 <ListItem 
                   key={client.id}
                   title={client.name}
-                  subtitle={
+                  context={
                     <div className="client-row-meta-grid">
                       <span>{client.phone} · {client.email}</span>
                       {client.address && <small className="client-address-line">{client.address}</small>}

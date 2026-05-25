@@ -6,11 +6,7 @@ const SimpleFinanceWorkspace = lazy(() => import('../../features/finance/compone
 export function FinancialScreen() {
   return (
     <PageShell className="wide-screen">
-      <PageHeader
-        title="Fluxo de Caixa"
-        eyebrow="Money"
-        description="Resultados automáticos baseados em orçamentos finalizados."
-      />
+             <PageHeader title="Fluxo de Caixa" sourceLabel="Resultados automáticos baseados em orçamentos finalizados." />
       <SimpleFinanceWorkspace />
     </PageShell>
   );

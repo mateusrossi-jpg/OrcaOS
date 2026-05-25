@@ -11,13 +11,13 @@ type Tone = 'default' | 'brand' | 'success' | 'danger' | 'muted';
  */
 export function PageHeader({ 
   title, 
-  description, 
+  sourceLabel, 
   eyebrow, 
   action, 
   className = '' 
 }: { 
   title: string; 
-  description?: string; 
+  sourceLabel?: string; 
   eyebrow?: string; 
   action?: ReactNode; 
   className?: string 
@@ -25,9 +25,8 @@ export function PageHeader({
   return (
     <header className={`page-header screen-header ${className}`.trim()}>
       <div className="header-content">
-        {eyebrow && <span className="aferix-kicker">{eyebrow}</span>}
         <h1>{title}</h1>
-        {description && <p className="header-description">{description}</p>}
+        {sourceLabel && <span className="page-header-caption">{sourceLabel}</span>}
       </div>
       {action && <div className="page-header-action">{action}</div>}
     </header>
@@ -90,14 +89,14 @@ export function PanelCard({ children, className = '', ...props }: { children: Re
  */
 export function ListCard({ 
   title, 
-  subtitle, 
+  context, 
   children, 
   action, 
   className = '',
   ...props
 }: { 
   title?: string; 
-  subtitle?: string; 
+  context?: string; 
   children: ReactNode; 
   action?: ReactNode; 
   className?: string;
@@ -108,7 +107,7 @@ export function ListCard({
         <header className="card-header">
           <div>
             {title && <h3>{title}</h3>}
-            {subtitle && <p>{subtitle}</p>}
+
           </div>
           {action && <div className="card-header-action">{action}</div>}
         </header>
@@ -125,7 +124,7 @@ export function ListCard({
  */
 export const ListItem = memo(function ListItem({
   title,
-  subtitle,
+  context,
   value,
   status,
   action,
@@ -133,7 +132,7 @@ export const ListItem = memo(function ListItem({
   className = '',
 }: {
   title: ReactNode;
-  subtitle?: ReactNode;
+  context?: ReactNode;
   value?: ReactNode;
   status?: ReactNode;
   action?: ReactNode;
@@ -147,7 +146,7 @@ export const ListItem = memo(function ListItem({
     >
       <div className="client-col">
         <strong>{title}</strong>
-        {subtitle && <small>{subtitle}</small>}
+        {context && <small>{context}</small>}
       </div>
       <div className="value-col">
         {status && <div className="status-wrapper">{status}</div>}
@@ -164,7 +163,7 @@ export const ListItem = memo(function ListItem({
 export const MetricCard = memo(function MetricCard({
   label,
   value,
-  helper,
+  operationalHint,
   trend,
   tone = 'default',
   featured = false,
@@ -172,7 +171,7 @@ export const MetricCard = memo(function MetricCard({
 }: {
   label: string;
   value: ReactNode;
-  helper?: ReactNode;
+  operationalHint?: ReactNode;
   trend?: ReactNode;
   tone?: Tone;
   featured?: boolean;
@@ -182,7 +181,7 @@ export const MetricCard = memo(function MetricCard({
     <article className={`metric-card tone-${tone}${featured ? ' featured' : ''} ${className}`.trim()}>
       <span>{label}</span>
       <strong>{value}</strong>
-      {(helper || trend) && <small>{helper ?? trend}</small>}
+      {(operationalHint || trend) && <small>{operationalHint ?? trend}</small>}
     </article>
   );
 });
@@ -227,17 +226,17 @@ export const Badge = memo(function Badge({ children, tone = 'default' }: { child
 });
 
 /**
- * EmptyState: Estado vazio discreto e centralizado.
+ * QueueEmptyState: Estado vazio discreto e centralizado.
  */
-export function EmptyState({ 
+export function QueueEmptyState({ 
   title, 
-  description, 
+  meta, 
   icon, 
   action, 
   className = '' 
 }: { 
   title: string; 
-  description?: string; 
+  meta?: string; 
   icon?: ReactNode;
   action?: ReactNode;
   className?: string;
@@ -246,7 +245,7 @@ export function EmptyState({
     <div className={`premium-empty-state ${className}`.trim()}>
       {icon && <div className="empty-state-icon">{icon}</div>}
       <strong>{title}</strong>
-      {description && <p>{description}</p>}
+      {meta && <p>{meta}</p>}
       {action && <div className="empty-state-action">{action}</div>}
     </div>
   );
@@ -367,7 +366,7 @@ export function Select({
   onChange,
   children,
   className = '',
-  helper,
+  operationalHint,
   disabled = false,
 }: {
   label?: string;
@@ -375,7 +374,7 @@ export function Select({
   onChange: (value: string) => void;
   children: ReactNode;
   className?: string;
-  helper?: string;
+  operationalHint?: string;
   disabled?: boolean;
 }) {
   return (
@@ -386,7 +385,7 @@ export function Select({
           {children}
         </select>
       </div>
-      {helper && <small>{helper}</small>}
+      {operationalHint && <small>{operationalHint}</small>}
     </label>
   );
 }
@@ -394,18 +393,18 @@ export function Select({
 export function Input({
   label,
   className = '',
-  helper,
+  operationalHint,
   ...props
 }: {
   label?: string;
-  helper?: string;
+  operationalHint?: string;
   className?: string;
 } & React.InputHTMLAttributes<HTMLInputElement>) {
   return (
     <label className={`aferix-input-field ${className}`.trim()}>
       {label && <span>{label}</span>}
       <input {...props} />
-      {helper && <small>{helper}</small>}
+      {operationalHint && <small>{operationalHint}</small>}
     </label>
   );
 }
@@ -415,7 +414,7 @@ export function TextArea({
   onChange,
   placeholder,
   label,
-  helper,
+  operationalHint,
   rows = 1,
   className = '',
   disabled = false,
@@ -424,7 +423,7 @@ export function TextArea({
   onChange: (value: string) => void;
   placeholder?: string;
   label?: string;
-  helper?: string;
+  operationalHint?: string;
   rows?: number;
   className?: string;
   disabled?: boolean;
@@ -444,7 +443,7 @@ export function TextArea({
         onChange={(e) => onChange(e.target.value)}
         disabled={disabled}
       />
-      {helper && <small>{helper}</small>}
+      {operationalHint && <small>{operationalHint}</small>}
     </label>
   );
 }
@@ -563,22 +562,21 @@ export function Modal({
 export function SectionTitle({ 
   title, 
   eyebrow, 
-  description,
+  meta,
   action,
   className = '' 
 }: { 
   title: string; 
   eyebrow?: string; 
-  description?: string;
+  meta?: string;
   action?: ReactNode;
   className?: string 
 }) {
   return (
     <header className={`section-title ${className}`.trim()}>
       <div className="section-title-main">
-        {eyebrow && <span className="aferix-kicker">{eyebrow}</span>}
-        <h2>{title}</h2>
-        {description && <p className="section-description">{description}</p>}
+
+        <h3>{title}</h3>
       </div>
       {action && <div className="section-title-action">{action}</div>}
     </header>
@@ -598,7 +596,7 @@ export function PlanCard({
   title,
   subtitle,
   price,
-  description,
+  meta,
   benefits = [],
   featured = false,
   action,
@@ -606,9 +604,9 @@ export function PlanCard({
 }: {
   badge: string;
   title: string;
-  subtitle: string;
+  subtitle?: string;
   price?: string;
-  description?: string;
+  meta?: string;
   benefits?: string[];
   featured?: boolean;
   action?: ReactNode;
@@ -619,10 +617,9 @@ export function PlanCard({
       {badge && <Badge tone={featured ? 'brand' : 'default'}>{badge}</Badge>}
       <header className="plan-card-heading">
         <h2>{title}</h2>
-        <p>{subtitle}</p>
       </header>
       {price && <strong className="plan-card-price">{price}</strong>}
-      {description && <p className="plan-card-description">{description}</p>}
+      <div className="plan-card-benefits">
       {benefits.length > 0 && (
         <ul>
           {benefits.map((benefit) => (
@@ -633,6 +630,7 @@ export function PlanCard({
           ))}
         </ul>
       )}
+      </div>
       {action && <div className="plan-card-action">{action}</div>}
     </PanelCard>
   );
@@ -643,12 +641,12 @@ export function SectionHeader(props: { title: string; eyebrow?: string; classNam
   return <SectionTitle {...props} />;
 }
 
-export function InfoCard({ title, description, action, className = '' }: { title: string; description?: string; action?: ReactNode; className?: string }) {
+export function MetricPanel({ title, meta, action, className = '' }: { title: string; meta?: string; action?: ReactNode; className?: string }) {
   return (
     <PanelCard className={`info-card ${className}`.trim()}>
       <div className="info-card-content">
         <strong>{title}</strong>
-        {description && <small>{description}</small>}
+        {meta && <small>{meta}</small>}
       </div>
       {action && <div className="info-card-action">{action}</div>}
     </PanelCard>
@@ -661,13 +659,13 @@ export function PremiumCard({ children, className = '' }: { children: ReactNode;
 
 export function ContextBanner({
   title,
-  description,
+  meta,
   icon,
   actionLabel,
   onAction,
 }: {
   title: string;
-  description: string;
+  meta: string;
   icon?: ReactNode;
   actionLabel?: string;
   onAction?: () => void;
@@ -677,7 +675,7 @@ export function ContextBanner({
       {icon && <span className="context-banner-icon">{icon}</span>}
       <div className="context-banner-content">
         <strong>{title}</strong>
-        <small>{description}</small>
+        <small>{meta}</small>
       </div>
       {actionLabel && <Button className="context-banner-action" onClick={onAction}>{actionLabel}</Button>}
     </aside>

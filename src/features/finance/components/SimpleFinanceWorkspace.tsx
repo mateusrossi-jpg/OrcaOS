@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { 
   MetricCard, 
   MoneyValue, 
-  EmptyState, 
+  QueueEmptyState, 
   Button, 
   BackButton, 
   ListCard, 
@@ -243,15 +243,15 @@ export function SimpleFinanceWorkspace() {
 
       <ListCard>
         {rows.length === 0 ? (
-          <EmptyState 
+          <QueueEmptyState 
             title="Nenhum orçamento finalizado" 
-            description="Quando um orçamento for finalizado, o resultado aparecerá aqui automaticamente." 
+            meta="Quando um orçamento for finalizado, o resultado aparecerá aqui automaticamente." 
             icon={<svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10H7v-2h10v2z"/></svg>}
           />
         ) : filteredRows.length === 0 ? (
-          <EmptyState 
+          <QueueEmptyState 
             title="Nenhum resultado" 
-            description={`Nenhum orçamento encontrado para \"${recordSearch}\".`} 
+            meta={`Nenhum orçamento encontrado para \"${recordSearch}\".`} 
             icon={<svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>}
           />
         ) : (
@@ -261,7 +261,7 @@ export function SimpleFinanceWorkspace() {
               <ListItem 
                 key={row.budgetId}
                 title={row.title}
-                subtitle={
+                context={
                   <div className="finance-row-meta-grid">
                     <span>{row.clientName || 'Cliente final'} · {formatDate(row.updatedAt)}</span>
                     <StatusBadge status="finalizado" />

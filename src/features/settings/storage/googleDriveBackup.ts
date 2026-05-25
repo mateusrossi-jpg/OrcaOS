@@ -60,7 +60,7 @@ function loadGoogleIdentityScript(): Promise<void> {
   if (existingScript) {
     return new Promise((resolve, reject) => {
       existingScript.addEventListener('load', () => resolve(), { once: true });
-      existingScript.addEventListener('error', () => reject(new Error('Não foi possível carregar o login do Google.')), { once: true });
+      existingScript.addEventListener('error', () => reject(new Error('Falha ao carregar o login do Google.')), { once: true });
     });
   }
 
@@ -71,7 +71,7 @@ function loadGoogleIdentityScript(): Promise<void> {
     script.async = true;
     script.defer = true;
     script.onload = () => resolve();
-    script.onerror = () => reject(new Error('Não foi possível carregar o login do Google.'));
+    script.onerror = () => reject(new Error('Falha ao carregar o login do Google.'));
     document.head.appendChild(script);
   });
 }
@@ -183,7 +183,7 @@ export async function loadBackupFromGoogleDrive(accessToken: string): Promise<Af
 
   if (!response.ok) {
     const errorText = await response.text();
-    throw new Error(errorText || 'Não foi possível baixar o backup do Google Drive.');
+    throw new Error(errorText || 'Falha ao baixar o backup do Google Drive.');
   }
 
   return parseAferixBackup(await response.text());

@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { EmptyState, Input, Select, TextArea, Button } from '../../../app/components/ui';
+import { QueueEmptyState, Input, Select, TextArea, Button } from '../../../app/components/ui';
 import type { CalculationCapture, MaterialSupplyMode, TechnicalItemType } from '../../../core/types/workflow';
 import { handleNumericInputFocus } from '../../../core/ui/numericInputFocus';
 import {
@@ -61,9 +61,9 @@ export function TechnicalCaptureList({ captures, emptyText, onRemove, onUpdate }
 
   if (captures.length === 0) {
     return (
-      <EmptyState 
+      <QueueEmptyState 
         title="Nenhum item ainda" 
-        description={emptyText || "Os itens calculados aparecerão aqui."}
+        meta={emptyText || "Os itens calculados aparecerão aqui."}
       />
     );
   }
@@ -72,7 +72,7 @@ export function TechnicalCaptureList({ captures, emptyText, onRemove, onUpdate }
   const budgetableCaptures = filteredCaptures.filter((capture) => !isClientPurchaseMaterial(capture));
 
   function confirmRemoveCapture(capture: CalculationCapture) {
-    const confirmed = window.confirm(`Remover "${capture.editableDescription ?? capture.summary}" da base técnica deste orçamento?`);
+    const confirmed = window.confirm(`Remover "${capture.editableDescription ?? capture.summary}" ?`);
     if (!confirmed) return;
     onRemove(capture.id);
   }
@@ -200,9 +200,9 @@ export function TechnicalCaptureList({ captures, emptyText, onRemove, onUpdate }
           Há {captures.length} item(ns) salvo(s). Pesquise para exibir.
         </div>
       ) : filteredCaptures.length === 0 ? (
-        <EmptyState 
+        <QueueEmptyState 
           title="Sem resultados" 
-          description={`Nenhum item encontrado para "${query}".`}
+          meta={`Nenhum item encontrado para "${query}".`}
         />
       ) : null}
       {budgetableCaptures.length > 0 && (

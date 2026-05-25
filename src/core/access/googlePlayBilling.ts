@@ -117,7 +117,7 @@ export async function syncGooglePlayPurchaseEntitlement(account: AferixAccountSt
 
   if (!response.ok) {
     const errorText = await response.text();
-    throw new Error(errorText || `Não foi possível validar a compra Google Play: ${response.status}`);
+    throw new Error(errorText || `Falha ao validar a compra Google Play: ${response.status}`);
   }
 
   return applyPlanEntitlementResponse(account, await response.json() as PlanEntitlementResponse);

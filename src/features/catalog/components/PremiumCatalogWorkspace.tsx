@@ -2,7 +2,7 @@ import { useMemo, useState, useEffect } from 'react';
 import { 
   Button, 
   Select, 
-  EmptyState, 
+  QueueEmptyState, 
   BackButton, 
   TextArea, 
   MonetaryInput, 
@@ -259,16 +259,16 @@ export function PremiumCatalogWorkspace() {
 
       <ListCard>
         {filteredItems.length === 0 ? (
-          <EmptyState
+          <QueueEmptyState
             title="Nenhum item encontrado"
-            description={query ? 'Tente buscar por outro termo ou categoria.' : 'Sua biblioteca está vazia. Adicione seu primeiro item.'}
+            meta={query ? 'Tente buscar por outro termo ou categoria.' : 'Sua biblioteca está vazia. Adicione seu primeiro item.'}
           />
         ) : (
           visibleItems.map((item) => (
             <ListItem 
               key={item.id}
               title={item.title}
-              subtitle={
+              context={
                 <div className="premium-catalog-item-meta-grid">
                   <span>{itemKindLabel(item.kind)} · {item.category} {item.brand && `· ${item.brand}`}</span>
                 </div>

@@ -43,7 +43,7 @@ import {
   Badge,
   ListCard,
   ListItem,
-  EmptyState,
+  QueueEmptyState,
   SearchInput,
   FilterChips
 } from '../../../app/components/ui';
@@ -1095,7 +1095,7 @@ export function BudgetWorkspace({
                 <SectionTitle 
                   title="Biblioteca do Catálogo" 
                   eyebrow="Base profissional"
-                  description="Adicione itens rápidos da sua base profissional de forma instantânea."
+                  meta="Adicione itens rápidos da sua base profissional de forma instantânea."
                 />
               </header>
 
@@ -1119,9 +1119,9 @@ export function BudgetWorkspace({
               </div>
 
               {unifiedCatalogItems.length === 0 ? (
-                <EmptyState 
+                <QueueEmptyState 
                   title="Nenhum item encontrado" 
-                  description="Ajuste os filtros ou busque por outro termo." 
+                  meta="Ajuste os filtros ou busque por outro termo." 
                 />
               ) : (
                 <div className="catalog-compact-list">
@@ -1273,9 +1273,9 @@ export function BudgetWorkspace({
 
               {items.length === 0 ? (
                 <PanelCard>
-                  <EmptyState 
+                  <QueueEmptyState 
                     title="Carrinho vazio" 
-                    description="Utilize a biblioteca acima ou adicione um item manual para começar a montar o orçamento." 
+                    meta="Utilize a biblioteca acima ou adicione um item manual para começar a montar o orçamento." 
                   />
                 </PanelCard>
               ) : (

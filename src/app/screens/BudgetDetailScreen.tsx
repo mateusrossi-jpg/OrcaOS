@@ -19,7 +19,7 @@ export function BudgetDetailScreen({ budgetId, onBack, onNavigate }: BudgetDetai
   if (!budgetId) {
     return (
       <PageShell className="wide-screen">
-        <PageHeader title="Detalhe do orçamento" description="Nenhum orçamento selecionado" />
+<PageHeader title="Detalhe do orçamento" />
         <PrimaryButton onClick={onBack}>Voltar</PrimaryButton>
       </PageShell>
     );
@@ -27,8 +27,9 @@ export function BudgetDetailScreen({ budgetId, onBack, onNavigate }: BudgetDetai
 
   return (
     <PageShell className="wide-screen">
-      <PageHeader title="Detalhe do orçamento" description="" action={<PrimaryButton onClick={onBack}>Voltar</PrimaryButton>} />
-      <BudgetDetailWorkspace budgetId={budgetId} onNavigate={onNavigate} />
+        <PageHeader title="Detalhe do orçamento" action={
+          <PrimaryButton onClick={onBack}>Voltar</PrimaryButton>
+        } /> <BudgetDetailWorkspace budgetId={budgetId} onNavigate={onNavigate} />
     </PageShell>
   );
 }
