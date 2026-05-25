@@ -1,12 +1,38 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import type { Client, WorkOrder } from '../../core/types/business';
-// eslint-disable-next-line no-restricted-imports -- TODO: Refactor legacy storage access
-import { loadActiveWorkOrderId, loadClients, loadWorkOrders, saveWorkOrders } from '../../features/clients/storage/clientWorkOrderStorage';
+import { clientService } from '../../services/clientService';
+import { workOrderService } from '../../services/workOrderService';
+import { settingsService } from '../../services/settingsService';
+
+const ACTIVE_WORK_ORDER_KEY = 'activeWorkOrderId';
 
 export function useAppClients() {
-  const [clients, setClients] = useState<Client[]>(() => loadClients());
-  const [workOrders, setWorkOrders] = useState<WorkOrder[]>(() => loadWorkOrders());
-  const [activeWorkOrderId, setActiveWorkOrderId] = useState<string | null>(() => loadActiveWorkOrderId());
+  const [clients, setClients] = useState<Client[]>([]);
+  const [workOrders, setWorkOrders] = useState<WorkOrder[]>([]);
+  const [activeWorkOrderId, setActiveWorkOrderId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  const loadData = useCallback(async () => {
+    setLoading(true);
+    try {
+      const [c, w, activeId] = await Promise.all([
+        clientService.getAll(),
+        workOrderService.getAll(),
+        settingsService.get<string>(ACTIVE_WORK_ORDER_KEY)
+      ]);
+      setClients(c);
+      setWorkOrders(w);
+      setActiveWorkOrderId(activeId || null);
+    } catch (err) {
+      console.error('Failed to load clients/work orders:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   const activeWorkOrder = useMemo(() => 
     workOrders.find((workOrder) => workOrder.id === activeWorkOrderId) ?? null, 
@@ -20,23 +46,26 @@ export function useAppClients() {
   
   const context = useMemo(() => ({ activeClient, activeWorkOrder }), [activeClient, activeWorkOrder]);
 
-  const convertActiveBudgetToWorkOrder = useCallback(() => {
+  const convertActiveBudgetToWorkOrder = useCallback(async () => {
     if (!activeWorkOrderId) return;
-    setWorkOrders((current) => {
-      const updatedWorkOrders = current.map((workOrder) => (
-        workOrder.id === activeWorkOrderId
-          ? { ...workOrder, status: 'in-progress' as const, updatedAt: new Date().toISOString() }
-          : workOrder
-      ));
-      saveWorkOrders(updatedWorkOrders);
-      return updatedWorkOrders;
-    });
-  }, [activeWorkOrderId]);
+    const wo = workOrders.find(w => w.id === activeWorkOrderId);
+    if (!wo) return;
 
-  const updateContext = useCallback((nextClients: Client[], nextWorkOrders: WorkOrder[], nextActiveWorkOrderId: string | null) => {
+    const updatedWo: WorkOrder = { 
+      ...wo, 
+      status: 'in-progress', 
+      updatedAt: new Date().toISOString() 
+    };
+    
+    await workOrderService.update(updatedWo);
+    await loadData();
+  }, [activeWorkOrderId, workOrders, loadData]);
+
+  const updateContext = useCallback(async (nextClients: Client[], nextWorkOrders: WorkOrder[], nextActiveWorkOrderId: string | null) => {
     setClients(nextClients);
     setWorkOrders(nextWorkOrders);
     setActiveWorkOrderId(nextActiveWorkOrderId);
+    await settingsService.set(ACTIVE_WORK_ORDER_KEY, nextActiveWorkOrderId);
   }, []);
 
   return {
@@ -47,6 +76,8 @@ export function useAppClients() {
     activeClient,
     context,
     convertActiveBudgetToWorkOrder,
-    updateContext
+    updateContext,
+    loading,
+    refresh: loadData
   };
 }

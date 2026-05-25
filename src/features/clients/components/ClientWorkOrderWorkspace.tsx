@@ -1,14 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { Client, Service as WorkOrder } from '../../../core/types/business';
-// eslint-disable-next-line no-restricted-imports -- TODO: Refactor legacy storage access
-import {
-  loadActiveWorkOrderId,
-  loadClients,
-  loadWorkOrders,
-  saveActiveWorkOrderId,
-  saveClients,
-  saveWorkOrders,
-} from '../storage/clientWorkOrderStorage';
+import { clientService } from '../../../services/clientService';
+import { workOrderService } from '../../../services/workOrderService';
+import { settingsService } from '../../../services/settingsService';
+
+const ACTIVE_WORK_ORDER_KEY = 'activeWorkOrderId';
 import { 
   MetricCard, 
   Modal, 
@@ -97,10 +93,33 @@ function createId(prefix: string): string {
 }
 
 export function ClientWorkOrderWorkspace({ initialSection, initialClientId, sectionRequestKey, onContextChange, onNewClientRequest }: ClientWorkOrderWorkspaceProps) {
-  const [clients, setClients] = useState<Client[]>(() => loadClients());
-  const [workOrders, setWorkOrders] = useState<WorkOrder[]>(() => loadWorkOrders());
-  const [activeWorkOrderId] = useState<string | null>(() => loadActiveWorkOrderId());
+  const [clients, setClients] = useState<Client[]>([]);
+  const [workOrders, setWorkOrders] = useState<WorkOrder[]>([]);
+  const [activeWorkOrderId, setActiveWorkOrderId] = useState<string | null>(null);
   const [activeSection, setActiveSection] = useState<ClientOsSection>(initialSection ?? 'clients');
+
+  async function loadData() {
+    try {
+      const [c, w, activeId] = await Promise.all([
+        clientService.getAll(),
+        workOrderService.getAll(),
+        settingsService.get<string>(ACTIVE_WORK_ORDER_KEY),
+      ]);
+      setClients(c);
+      setWorkOrders(w);
+      setActiveWorkOrderId(activeId || null);
+    } catch (err) {
+      console.error('Failed to load data:', err);
+    }
+  }
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  useEffect(() => {
+    onContextChange?.(clients, workOrders, activeWorkOrderId);
+  }, [clients, workOrders, activeWorkOrderId, onContextChange]);
 
   const [clientSearch, setClientSearch] = useState('');
   const [showAllClients, setShowAllClients] = useState(false);
@@ -132,10 +151,6 @@ export function ClientWorkOrderWorkspace({ initialSection, initialClientId, sect
       });
     }
   }, [onNewClientRequest]);
-
-  useEffect(() => { saveClients(clients); onContextChange?.(clients, workOrders, activeWorkOrderId); }, [clients]);
-  useEffect(() => { saveWorkOrders(workOrders); onContextChange?.(clients, workOrders, activeWorkOrderId); }, [workOrders]);
-  useEffect(() => { saveActiveWorkOrderId(activeWorkOrderId); onContextChange?.(clients, workOrders, activeWorkOrderId); }, [activeWorkOrderId]);
 
   const filteredClients = useMemo(() => {
     const query = clientSearch.toLowerCase().trim();
@@ -179,7 +194,7 @@ export function ClientWorkOrderWorkspace({ initialSection, initialClientId, sect
     };
   }
 
-  function addClient() {
+  async function addClient() {
     const now = new Date().toISOString();
     const client: Client = {
       id: editingClientId ?? createId('client'),
@@ -206,11 +221,12 @@ export function ClientWorkOrderWorkspace({ initialSection, initialClientId, sect
     };
 
     if (editingClientId) {
-      setClients((current) => current.map((c) => (c.id === editingClientId ? client : c)));
+      await clientService.update(client);
     } else {
-      setClients((current) => [client, ...current]);
+      await clientService.add(client);
     }
 
+    await loadData();
     setEditingClientId(null);
     setClientDraft(emptyClientDraft);
     setActiveSection('clients');
@@ -222,13 +238,20 @@ export function ClientWorkOrderWorkspace({ initialSection, initialClientId, sect
     setModalType('removeClient');
   }
 
-  function executeRemoveClient() {
+  async function executeRemoveClient() {
     if (!itemToRemove) return;
     if (confirmInput.trim().toUpperCase() !== 'EXCLUIR') return;
     
     const clientId = itemToRemove;
-    setClients((current) => current.filter((c) => c.id !== clientId));
-    setWorkOrders((current) => current.map((w) => (w.clientId === clientId ? { ...w, clientId: undefined } : w)));
+    await clientService.delete(clientId);
+    
+    // Atualiza ordens de serviço vinculadas para remover o vínculo
+    const linkedWorkOrders = workOrders.filter(w => w.clientId === clientId);
+    for (const wo of linkedWorkOrders) {
+      await workOrderService.update({ ...wo, clientId: undefined });
+    }
+
+    await loadData();
     setItemToRemove(null);
     setModalType(null);
   }

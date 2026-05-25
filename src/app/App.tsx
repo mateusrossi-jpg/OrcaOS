@@ -1,17 +1,14 @@
-import { Suspense, useEffect, useMemo, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import {
   loadAccountState,
   AFERIX_ACCOUNT_CHANGED_EVENT,
   type AferixAccountState,
 } from '../core/access/accountPlanStorage';
-import type { Client, WorkOrder } from '../core/types/business';
 import type { CalculationCapture } from '../core/types/workflow';
-// eslint-disable-next-line no-restricted-imports -- TODO: Refactor legacy storage access
-import { loadActiveWorkOrderId, loadClients, loadWorkOrders } from '../features/clients/storage/clientWorkOrderStorage';
 import { AppShell } from './components/AppShell';
 import { AferixIntro } from './components/AferixIntro';
 import { navItems } from './appData';
-import type { AppTab, ActiveWorkContext } from './appTypes';
+import type { AppTab } from './appTypes';
 // eslint-disable-next-line no-restricted-imports -- TODO: Refactor legacy storage access
 import { loadStoredCaptures, saveStoredCaptures } from './storage/calculationCapturesStorage';
 import { HomeScreen } from './screens/HomeScreen';
@@ -25,6 +22,7 @@ import { BudgetForm } from '../pages/BudgetForm';
 import { BudgetHistoryPage } from '../pages/BudgetHistoryPage';
 import { RuntimeErrorBoundary } from './components/RuntimeErrorBoundary';
 import { LegacyBudgetMigrationService } from '../legacy/LegacyBudgetMigrationService';
+import { clientMigrationService } from '../services/ClientMigrationService';
 
 function LazyWorkspaceFallback() {
   return (
@@ -37,6 +35,8 @@ function LazyWorkspaceFallback() {
   );
 }
 
+import { useAppClients } from './hooks/useAppClients';
+
 export function App() {
   const [activeTab, setActiveTab] = useState<AppTab>('pulse');
   const [selectedBudgetId, setSelectedBudgetId] = useState<string | null>(null);
@@ -48,9 +48,18 @@ export function App() {
     // cleanupRuntimeValidationData(); // Desativado para segurança operacional (Beta)
     return loadStoredCaptures();
   });
-  const [clients, setClients] = useState<Client[]>(() => loadClients());
-  const [workOrders, setWorkOrders] = useState<WorkOrder[]>(() => loadWorkOrders());
-  const [activeWorkOrderId, setActiveWorkOrderId] = useState<string | null>(() => loadActiveWorkOrderId());
+  
+  const { 
+    clients,
+    workOrders,
+    activeWorkOrderId, 
+    activeClient, 
+    activeWorkOrder, 
+    context, 
+    updateContext,
+    refresh: refreshClients
+  } = useAppClients();
+
   const [account, setAccount] = useState<AferixAccountState>(() => loadAccountState());
 
   const canNavigate = () => {
@@ -72,16 +81,14 @@ export function App() {
       try {
         const migrationService = new LegacyBudgetMigrationService();
         await migrationService.runIfNeeded();
+        await clientMigrationService.runIfNeeded();
+        await refreshClients();
       } catch (err) {
-        console.error('Legacy budget migration failed on bootstrap:', err);
+        console.error('Migration failed on bootstrap:', err);
       }
     }
     runMigration();
-  }, []);
-
-  const activeWorkOrder = useMemo(() => workOrders.find((workOrder) => workOrder.id === activeWorkOrderId) ?? null, [activeWorkOrderId, workOrders]);
-  const activeClient = useMemo(() => (activeWorkOrder?.clientId ? clients.find((client) => client.id === activeWorkOrder.clientId) ?? null : null), [activeWorkOrder?.clientId, clients]);
-  const context: ActiveWorkContext = useMemo(() => ({ activeClient, activeWorkOrder }), [activeClient, activeWorkOrder]);
+  }, [refreshClients]);
 
   function attachActiveWorkOrder(capture: CalculationCapture): CalculationCapture {
     return activeWorkOrderId && !capture.workOrderId ? { ...capture, workOrderId: activeWorkOrderId } : capture;
@@ -113,7 +120,7 @@ export function App() {
     if (!canNavigate()) return;
     setSelectedBudgetId(budgetId);
     if (workOrderId) {
-      setActiveWorkOrderId(workOrderId);
+      updateContext(clients, workOrders, workOrderId);
     }
     setActiveTab('budgets');
   }
@@ -144,11 +151,7 @@ export function App() {
               initialClientId={selectedClientId}
               sectionRequestKey={clientSectionRequestKey} 
               onOpenBudgets={() => goTo('budgets')} 
-              onContextChange={(nextClients, nextWorkOrders, nextActiveWorkOrderId) => { 
-                setClients(nextClients); 
-                setWorkOrders(nextWorkOrders); 
-                setActiveWorkOrderId(nextActiveWorkOrderId); 
-              }} 
+              onContextChange={updateContext} 
             />
           )}
 

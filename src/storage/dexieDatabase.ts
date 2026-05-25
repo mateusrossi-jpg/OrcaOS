@@ -9,22 +9,29 @@ export interface MigrationRecord {
   done: boolean;
 }
 
+export interface SettingRecord {
+  key: string;
+  value: unknown;
+}
+
 export class AferixDatabase extends Dexie {
   budgets!: Table<Budget>;
   clients!: Table<Client>;
   workOrders!: Table<WorkOrder>;
   catalog!: Table<CatalogHubItem>;
   migrations!: Table<MigrationRecord>;
+  settings!: Table<SettingRecord>;
 
   constructor() {
     super('AferixDatabase');
-    // Version 3: Unified schema for all major entities
-    this.version(3).stores({
+    // Version 4: Added settings table
+    this.version(4).stores({
       budgets: 'id',
       clients: 'id',
       workOrders: 'id',
       catalog: 'id',
       migrations: 'key',
+      settings: 'key',
     });
   }
 }

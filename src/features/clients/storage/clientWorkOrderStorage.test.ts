@@ -23,7 +23,9 @@ describe('clientWorkOrderStorage', () => {
     id: 'client-1',
     name: 'Test Client',
     phone: '123456789',
-    email: 'test@example.com'
+    email: 'test@example.com',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
   };
 
   const mockWorkOrder: WorkOrder = {
@@ -32,7 +34,9 @@ describe('clientWorkOrderStorage', () => {
     title: 'Test Service',
     status: 'in-progress',
     priority: 'normal',
-    paymentStatus: 'pending'
+    paymentStatus: 'pending',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
   };
 
   it('correctly loads and saves clients', () => {

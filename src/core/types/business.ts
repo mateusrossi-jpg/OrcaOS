@@ -1,28 +1,7 @@
 import type { Budget, BudgetItem, BudgetStatus } from '../../domain/budget';
+import type { Client } from '../../domain/client';
 
-export interface Client {
-  id: string;
-  name: string;
-  documentNumber?: string;
-  phone?: string;
-  email?: string;
-  address?: string;
-  street?: string;
-  addressNumber?: string;
-  complement?: string;
-  district?: string;
-  city?: string;
-  state?: string;
-  postalCode?: string;
-  stateRegistration?: string;
-  contributorType?: 'not-informed' | 'individual' | 'taxpayer' | 'exempt' | 'non-taxpayer';
-  creditLimit?: string;
-  additionalContacts?: string;
-  salesHistoryNotes?: string;
-  notes?: string;
-  createdAt?: string;
-  updatedAt?: string;
-}
+export type { Client };
 
 export type BudgetTemplateId = 'professional' | 'technical' | 'simple' | 'premiumModern' | 'premiumDetailed';
 export type ReportTemplateId = 'technicalSimple' | 'technicalDetailed' | 'managerial';

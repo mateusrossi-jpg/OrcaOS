@@ -1,5 +1,3 @@
-// eslint-disable-next-line no-restricted-imports -- TODO: Refactor legacy storage access
-import { loadActiveWorkOrderId } from '../../features/clients/storage/clientWorkOrderStorage';
 import type { CalculationCapture } from '../../core/types/workflow';
 
 /**
@@ -11,9 +9,8 @@ export function useAppCaptures(
   setCaptures: React.Dispatch<React.SetStateAction<CalculationCapture[]>>
 ) {
   function attachActiveWorkOrder(capture: CalculationCapture): CalculationCapture {
-    const currentActiveId = activeWorkOrderId || loadActiveWorkOrderId();
-    return currentActiveId && !capture.workOrderId 
-      ? { ...capture, workOrderId: currentActiveId } 
+    return activeWorkOrderId && !capture.workOrderId 
+      ? { ...capture, workOrderId: activeWorkOrderId } 
       : capture;
   }
 

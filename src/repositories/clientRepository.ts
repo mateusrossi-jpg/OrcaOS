@@ -6,4 +6,5 @@ export interface ClientRepository {
   add(client: Omit<Client, 'id' | 'createdAt' | 'updatedAt'>): Promise<Client>;
   update(client: Client): Promise<void>;
   delete(id: string): Promise<void>;
+  bulkAdd(clients: Client[]): Promise<void>;
 }
