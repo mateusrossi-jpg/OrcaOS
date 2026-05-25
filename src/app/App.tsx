@@ -23,6 +23,7 @@ import { BudgetHistoryPage } from '../pages/BudgetHistoryPage';
 import { RuntimeErrorBoundary } from './components/RuntimeErrorBoundary';
 import { LegacyBudgetMigrationService } from '../legacy/LegacyBudgetMigrationService';
 import { clientMigrationService } from '../services/ClientMigrationService';
+import { catalogMigrationService } from '../services/CatalogMigrationService';
 
 function LazyWorkspaceFallback() {
   return (
@@ -82,6 +83,7 @@ export function App() {
         const migrationService = new LegacyBudgetMigrationService();
         await migrationService.runIfNeeded();
         await clientMigrationService.runIfNeeded();
+        await catalogMigrationService.runIfNeeded();
         await refreshClients();
       } catch (err) {
         console.error('Migration failed on bootstrap:', err);

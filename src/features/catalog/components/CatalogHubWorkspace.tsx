@@ -1,17 +1,14 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { CalculationCapture, CalculationDestination } from '../../../core/types/workflow';
-// eslint-disable-next-line no-restricted-imports -- TODO: Refactor legacy storage access
+import { catalogService } from '../../../services/catalogService';
+import { catalogSupplierService } from '../../../services/catalogSupplierService';
 import {
   buildSupplierSearchUrl,
   createCatalogId,
-  loadCatalogHubItems,
-  loadCatalogSuppliers,
-  saveCatalogHubItems,
-  saveCatalogSuppliers,
   type CatalogHubItem,
   type CatalogHubItemKind,
   type CatalogSupplier,
-} from '../storage/catalogHubStorage';
+} from '../types/catalogTypes';
 import { Input, Select, TextArea, Button } from '../../../app/components/ui';
 import './CatalogHubWorkspace.css';
 
@@ -136,8 +133,8 @@ function createCaptureFromCatalogItem(item: CatalogHubItem): CalculationCapture 
 
 export function CatalogHubWorkspace({ onSendToBudget }: CatalogHubWorkspaceProps) {
   const [activeTab, setActiveTab] = useState<CatalogTab>('items');
-  const [items, setItems] = useState<CatalogHubItem[]>(() => loadCatalogHubItems());
-  const [suppliers, setSuppliers] = useState<CatalogSupplier[]>(() => loadCatalogSuppliers());
+  const [items, setItems] = useState<CatalogHubItem[]>([]);
+  const [suppliers, setSuppliers] = useState<CatalogSupplier[]>([]);
   const [itemDraft, setItemDraft] = useState<ItemDraft>(emptyItemDraft);
   const [supplierDraft, setSupplierDraft] = useState<SupplierDraft>(emptySupplierDraft);
   const [query, setQuery] = useState('');
@@ -147,8 +144,22 @@ export function CatalogHubWorkspace({ onSendToBudget }: CatalogHubWorkspaceProps
   const [onlineSupplierId, setOnlineSupplierId] = useState('');
   const [feedback, setFeedback] = useState<string | null>(null);
 
-  useEffect(() => saveCatalogHubItems(items), [items]);
-  useEffect(() => saveCatalogSuppliers(suppliers), [suppliers]);
+  async function loadData() {
+    try {
+      const [i, s] = await Promise.all([
+        catalogService.getAll(),
+        catalogSupplierService.getAll(),
+      ]);
+      setItems(i);
+      setSuppliers(s);
+    } catch (err) {
+      console.error('Failed to load catalog data:', err);
+    }
+  }
+
+  useEffect(() => {
+    loadData();
+  }, []);
 
   const filteredItems = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
@@ -172,7 +183,7 @@ export function CatalogHubWorkspace({ onSendToBudget }: CatalogHubWorkspaceProps
     setSupplierDraft((current) => ({ ...current, [key]: value }));
   }
 
-  function addItem() {
+  async function addItem() {
     const title = itemDraft.title.trim();
     if (!title) return;
     const now = new Date().toISOString();
@@ -196,12 +207,13 @@ export function CatalogHubWorkspace({ onSendToBudget }: CatalogHubWorkspaceProps
       createdAt: now,
       updatedAt: now,
     };
-    setItems((current) => [newItem, ...current]);
+    await catalogService.save(newItem);
+    await loadData();
     setItemDraft(emptyItemDraft);
     setFeedback('Item cadastrado no catálogo profissional.');
   }
 
-  function addSupplier() {
+  async function addSupplier() {
     const name = supplierDraft.name.trim();
     if (!name) return;
     const now = new Date().toISOString();
@@ -217,16 +229,18 @@ export function CatalogHubWorkspace({ onSendToBudget }: CatalogHubWorkspaceProps
       createdAt: now,
       updatedAt: now,
     };
-    setSuppliers((current) => [newSupplier, ...current]);
+    await catalogSupplierService.save(newSupplier);
+    await loadData();
     setSupplierDraft(emptySupplierDraft);
     setFeedback('Fornecedor cadastrado.');
   }
 
-  function removeItem(id: string) {
-    setItems((current) => current.filter((item) => item.id !== id));
+  async function removeItem(id: string) {
+    await catalogService.delete(id);
+    await loadData();
   }
 
-  function duplicateItem(item: CatalogHubItem) {
+  async function duplicateItem(item: CatalogHubItem) {
     const now = new Date().toISOString();
     const copy: CatalogHubItem = {
       ...item,
@@ -235,12 +249,14 @@ export function CatalogHubWorkspace({ onSendToBudget }: CatalogHubWorkspaceProps
       createdAt: now,
       updatedAt: now,
     };
-    setItems((current) => [copy, ...current]);
+    await catalogService.save(copy);
+    await loadData();
     setFeedback(`${copy.title} foi duplicado.`);
   }
 
-  function removeSupplier(id: string) {
-    setSuppliers((current) => current.filter((supplier) => supplier.id !== id));
+  async function removeSupplier(id: string) {
+    await catalogSupplierService.delete(id);
+    await loadData();
   }
 
   function sendItem(item: CatalogHubItem) {

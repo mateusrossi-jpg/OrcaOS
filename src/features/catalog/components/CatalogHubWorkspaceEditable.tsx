@@ -4,14 +4,12 @@ import type { CalculationCapture, CalculationDestination } from '../../../core/t
 import {
   buildSupplierSearchUrl,
   createCatalogId,
-  loadCatalogHubItems,
-  loadCatalogSuppliers,
-  saveCatalogHubItems,
-  saveCatalogSuppliers,
   type CatalogHubItem,
   type CatalogHubItemKind,
   type CatalogSupplier,
 } from '../storage/catalogHubStorage';
+import { catalogService } from '../../../services/catalogService';
+import { catalogSupplierService } from '../../../services/catalogSupplierService';
 // eslint-disable-next-line no-restricted-imports -- TODO: Refactor legacy storage access
 import {
   buildProductSearchResults,
@@ -293,8 +291,8 @@ export function CatalogHubWorkspace({ onSendToBudget, initialTab = 'items', enab
   const availableTabs = enabledTabs ?? ['items', 'suppliers', 'online'];
   const [activeTab, setActiveTab] = useState<CatalogTab>(availableTabs.includes(initialTab) ? initialTab : availableTabs[0] ?? 'items');
   const [itemsView, setItemsView] = useState<CatalogItemsView>('list');
-  const [items, setItems] = useState<CatalogHubItem[]>(() => loadCatalogHubItems().map(sanitizeItem));
-  const [suppliers] = useState<CatalogSupplier[]>(() => loadCatalogSuppliers().map(sanitizeSupplier));
+  const [items, setItems] = useState<CatalogHubItem[]>([]);
+  const [suppliers, setSuppliers] = useState<CatalogSupplier[]>([]);
   const [itemDraft, setItemDraft] = useState<ItemDraft>(emptyItemDraft);
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
   const [query, setQuery] = useState('');
@@ -311,8 +309,22 @@ export function CatalogHubWorkspace({ onSendToBudget, initialTab = 'items', enab
   const [onlineImageUrl, setOnlineImageUrl] = useState('');
   const [feedback, setFeedback] = useState<string | null>(null);
 
-  useEffect(() => saveCatalogHubItems(items), [items]);
-  useEffect(() => saveCatalogSuppliers(suppliers), [suppliers]);
+  async function loadData() {
+    try {
+      const [loadedItems, loadedSuppliers] = await Promise.all([
+        catalogService.getAll(),
+        catalogSupplierService.getAll(),
+      ]);
+      setItems(loadedItems.map(sanitizeItem));
+      setSuppliers(loadedSuppliers.map(sanitizeSupplier));
+    } catch (err) {
+      console.error('Failed to load catalog workspace data:', err);
+    }
+  }
+
+  useEffect(() => {
+    loadData();
+  }, []);
 
   const filteredItems = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
@@ -365,16 +377,17 @@ export function CatalogHubWorkspace({ onSendToBudget, initialTab = 'items', enab
     setEditingItemId(null);
   }
 
-  function saveItem() {
+  async function saveItem() {
     const existingItem = editingItemId ? items.find((item) => item.id === editingItemId) : undefined;
     const nextItem = buildCatalogItemFromDraft(itemDraft, existingItem);
     if (!nextItem) return;
 
+    await catalogService.save(nextItem);
+    await loadData();
+
     if (editingItemId) {
-      setItems((current) => current.map((item) => (item.id === editingItemId ? nextItem : item)));
       setFeedback('Item atualizado no catálogo profissional.');
     } else {
-      setItems((current) => [nextItem, ...current]);
       setFeedback('Item cadastrado no catálogo profissional.');
     }
 
@@ -390,7 +403,7 @@ export function CatalogHubWorkspace({ onSendToBudget, initialTab = 'items', enab
     setFeedback(`Editando: ${item.title}.`);
   }
 
-  function duplicateItem(item: CatalogHubItem) {
+  async function duplicateItem(item: CatalogHubItem) {
     const timestamp = new Date().toISOString();
     const copy: CatalogHubItem = {
       ...item,
@@ -399,7 +412,8 @@ export function CatalogHubWorkspace({ onSendToBudget, initialTab = 'items', enab
       createdAt: timestamp,
       updatedAt: timestamp,
     };
-    setItems((current) => [copy, ...current]);
+    await catalogService.save(copy);
+    await loadData();
     setFeedback(`${copy.title} foi duplicado.`);
   }
 

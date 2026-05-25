@@ -1,11 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
-// eslint-disable-next-line no-restricted-imports -- TODO: Refactor legacy storage access
+import { supplierProfileService } from '../../../services/supplierProfileService';
 import {
   createSupplierProfileId,
-  loadSupplierProfiles,
-  saveSupplierProfiles,
   type SupplierProfile,
-} from '../storage/supplierProfileStorage';
+} from '../types/supplierProfileTypes';
 
 interface SupplierProfileDraft {
   name: string;
@@ -99,14 +97,25 @@ function profileToDraft(profile: SupplierProfile): SupplierProfileDraft {
 }
 
 export function SupplierProfileWorkspace() {
-  const [profiles, setProfiles] = useState<SupplierProfile[]>(() => loadSupplierProfiles());
+  const [profiles, setProfiles] = useState<SupplierProfile[]>([]);
   const [draft, setDraft] = useState<SupplierProfileDraft>(emptyDraft);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [query, setQuery] = useState('');
   const [feedback, setFeedback] = useState<string | null>(null);
   const [showAllProfiles, setShowAllProfiles] = useState(false);
 
-  useEffect(() => saveSupplierProfiles(profiles), [profiles]);
+  async function loadData() {
+    try {
+      const data = await supplierProfileService.getAll();
+      setProfiles(data);
+    } catch (err) {
+      console.error('Failed to load supplier profiles:', err);
+    }
+  }
+
+  useEffect(() => {
+    loadData();
+  }, []);
 
   const filteredProfiles = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
@@ -127,7 +136,7 @@ export function SupplierProfileWorkspace() {
     setEditingId(null);
   }
 
-  function saveProfile() {
+  async function saveProfile() {
     const existing = editingId ? profiles.find((profile) => profile.id === editingId) : undefined;
     const nextProfile = draftToProfile(draft, existing);
     if (!nextProfile) {
@@ -135,11 +144,12 @@ export function SupplierProfileWorkspace() {
       return;
     }
 
+    await supplierProfileService.save(nextProfile);
+    await loadData();
+    
     if (editingId) {
-      setProfiles((current) => current.map((profile) => (profile.id === editingId ? nextProfile : profile)));
       setFeedback('Fornecedor atualizado.');
     } else {
-      setProfiles((current) => [nextProfile, ...current]);
       setFeedback('Fornecedor cadastrado.');
     }
     resetForm();
@@ -151,7 +161,7 @@ export function SupplierProfileWorkspace() {
     setFeedback(`Editando ${profile.name}.`);
   }
 
-  function duplicateProfile(profile: SupplierProfile) {
+  async function duplicateProfile(profile: SupplierProfile) {
     const timestamp = new Date().toISOString();
     const copy: SupplierProfile = {
       ...profile,
@@ -161,12 +171,14 @@ export function SupplierProfileWorkspace() {
       createdAt: timestamp,
       updatedAt: timestamp,
     };
-    setProfiles((current) => [copy, ...current]);
+    await supplierProfileService.save(copy);
+    await loadData();
     setFeedback(`${copy.name} foi duplicado.`);
   }
 
-  function removeProfile(id: string) {
-    setProfiles((current) => current.filter((profile) => profile.id !== id));
+  async function removeProfile(id: string) {
+    await supplierProfileService.delete(id);
+    await loadData();
     if (editingId === id) resetForm();
   }
 

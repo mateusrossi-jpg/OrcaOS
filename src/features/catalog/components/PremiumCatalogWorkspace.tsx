@@ -1,11 +1,11 @@
 import { useMemo, useState, useEffect } from 'react';
-import { 
-  Button, 
-  Select, 
-  QueueEmptyState, 
-  BackButton, 
-  TextArea, 
-  MonetaryInput, 
+import {
+  Button,
+  Select,
+  QueueEmptyState,
+  BackButton,
+  TextArea,
+  MonetaryInput,
   Modal,
   ListCard,
   ListItem,
@@ -17,8 +17,8 @@ import {
   SecondaryButton,
   PanelCard
 } from '../../../app/components/ui';
-// eslint-disable-next-line no-restricted-imports -- TODO: Refactor legacy storage access
-import { loadCatalogHubItems, saveCatalogHubItems, type CatalogHubItem, type CatalogHubItemKind, createCatalogId } from '../storage/catalogHubStorage';
+import { catalogService } from '../../../services/catalogService';
+import { type CatalogHubItem, type CatalogHubItemKind, createCatalogId } from '../types/catalogTypes';
 import './PremiumCatalogWorkspace.css';
 
 const currencyFormatter = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -62,7 +62,7 @@ const emptyItem = (kind: CatalogHubItemKind = 'material'): CatalogHubItem => ({
 });
 
 export function PremiumCatalogWorkspace() {
-  const [items, setItems] = useState<CatalogHubItem[]>(() => loadCatalogHubItems());
+  const [items, setItems] = useState<CatalogHubItem[]>([]);
   const [query, setQuery] = useState('');
   const [activeChip, setActiveChip] = useState('all');
   const [view, setView] = useState<'list' | 'form'>('list');
@@ -70,9 +70,18 @@ export function PremiumCatalogWorkspace() {
   const [itemPendingDelete, setItemPendingDelete] = useState<CatalogHubItem | null>(null);
   const [showAllItems, setShowAllItems] = useState(false);
 
+  async function loadData() {
+    try {
+      const data = await catalogService.getAll();
+      setItems(data);
+    } catch (err) {
+      console.error('Failed to load catalog items:', err);
+    }
+  }
+
   useEffect(() => {
-    saveCatalogHubItems(items);
-  }, [items]);
+    loadData();
+  }, []);
 
   const filteredItems = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
@@ -92,7 +101,7 @@ export function PremiumCatalogWorkspace() {
     setView('form');
   }
 
-  function handleDuplicate(item: CatalogHubItem) {
+  async function handleDuplicate(item: CatalogHubItem) {
     const now = new Date().toISOString();
     const duplicatedItem: CatalogHubItem = {
       ...item,
@@ -101,7 +110,8 @@ export function PremiumCatalogWorkspace() {
       createdAt: now,
       updatedAt: now,
     };
-    setItems((prev) => [duplicatedItem, ...prev]);
+    await catalogService.save(duplicatedItem);
+    await loadData();
   }
 
   function handleNew() {
@@ -113,10 +123,11 @@ export function PremiumCatalogWorkspace() {
     setItemPendingDelete(item);
   }
 
-  function confirmDelete() {
+  async function confirmDelete() {
     if (!itemPendingDelete) return;
     const deletingId = itemPendingDelete.id;
-    setItems((prev) => prev.filter((item) => item.id !== deletingId));
+    await catalogService.delete(deletingId);
+    await loadData();
     if (editingItem?.id === deletingId) {
       setEditingItem(null);
       setView('list');
@@ -124,7 +135,7 @@ export function PremiumCatalogWorkspace() {
     setItemPendingDelete(null);
   }
 
-  function handleSave() {
+  async function handleSave() {
     if (!editingItem || !editingItem.title.trim()) return;
 
     const now = new Date().toISOString();
@@ -133,10 +144,9 @@ export function PremiumCatalogWorkspace() {
     if (!itemToSave.id) {
       itemToSave.id = createCatalogId('item');
       itemToSave.createdAt = now;
-      setItems((prev) => [itemToSave, ...prev]);
-    } else {
-      setItems((prev) => prev.map((it) => it.id === itemToSave.id ? itemToSave : it));
     }
+    await catalogService.save(itemToSave);
+    await loadData();
     setView('list');
     setEditingItem(null);
     setQuery('');
@@ -155,7 +165,7 @@ export function PremiumCatalogWorkspace() {
           </header>
 
           <div className="catalog-form-grid">
-            <Input 
+            <Input
               label="Título do Item"
               value={editingItem.title}
               onChange={(e) => setEditingItem({ ...editingItem, title: e.target.value })}
@@ -175,7 +185,7 @@ export function PremiumCatalogWorkspace() {
               <option value="custom">Item personalizado</option>
             </Select>
 
-            <Input 
+            <Input
               label="Marca / Fabricante"
               value={editingItem.brand || ''}
               onChange={(e) => setEditingItem({ ...editingItem, brand: e.target.value })}
@@ -188,7 +198,7 @@ export function PremiumCatalogWorkspace() {
               onChange={(val) => setEditingItem({ ...editingItem, defaultUnitValue: val })}
             />
 
-            <Input 
+            <Input
               label="Unidade"
               value={editingItem.unit}
               onChange={(e) => setEditingItem({ ...editingItem, unit: e.target.value })}
@@ -249,7 +259,7 @@ export function PremiumCatalogWorkspace() {
           onChange={(value) => { setQuery(value); setShowAllItems(false); }}
         />
         <div className="premium-catalog-top-spacing-sm">
-          <FilterChips 
+          <FilterChips
             items={CATEGORY_CHIPS}
             active={[activeChip]}
             onChange={(active) => { setActiveChip(active[0] || 'all'); setShowAllItems(false); }}
@@ -265,7 +275,7 @@ export function PremiumCatalogWorkspace() {
           />
         ) : (
           visibleItems.map((item) => (
-            <ListItem 
+            <ListItem
               key={item.id}
               title={item.title}
               context={
