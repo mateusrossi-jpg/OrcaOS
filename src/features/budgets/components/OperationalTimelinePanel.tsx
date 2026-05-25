@@ -237,6 +237,7 @@ export function OperationalTimelinePanel({ budget }: { budget: SavedBudgetRecord
             
             const mutations = event.meta?.mutations;
             const hasMutations = mutations && mutations.length > 0;
+            const snapshot = budget.snapshots?.find(s => s.timelineEventId === event.id);
 
             return (
               <div key={event.id} className={`operational-timeline-row ${getEventCategory(event.type)}`}>
@@ -252,6 +253,16 @@ export function OperationalTimelinePanel({ budget }: { budget: SavedBudgetRecord
                     <span className="operational-timeline-event">{getWorkflowEventSummary(event.type)}</span>
                     <span className="operational-timeline-meta">{event.operator || event.context || ''}</span>
                   </div>
+
+                  {snapshot && (
+                    <div className="operational-snapshot-badge">
+                      <span className="snapshot-label">SNAPSHOT</span>
+                      <span className="snapshot-hash">{snapshot.fingerprint}</span>
+                      <span className="snapshot-tag">
+                        {snapshot.workflowStatus} · {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(snapshot.totals.finalTotal)} · {snapshot.items.length} itens
+                      </span>
+                    </div>
+                  )}
                   
                   {hasMutations && (
                     <details className="operational-timeline-audit">

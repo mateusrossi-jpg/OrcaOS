@@ -77,6 +77,40 @@ export type LegacyBudgetStatus = 'draft' | 'sent' | 'approved' | 'rejected' | 'e
 
 export type BudgetStatus = CoreBudgetStatus | LegacyBudgetStatus;
 
+export interface OperationalSnapshot {
+  snapshotId: string;
+  timestamp: string;
+  workflowStatus: BudgetStatus;
+  operator: string;
+  context: string;
+  clientSnapshot?: {
+    id?: string;
+    name: string;
+    documentNumber?: string;
+    phone?: string;
+    email?: string;
+  };
+  items: BudgetItem[];
+  totals: {
+    total_servicos: number;
+    custo_materiais: number;
+    custos_operacionais: number;
+    discount: number;
+    subtotal: number;
+    finalTotal: number;
+    taxRate: number;
+    lucro_liquido: number;
+  };
+  notes?: {
+    commercial?: string;
+    technical?: string;
+    general?: string;
+  };
+  paymentTerms?: string;
+  timelineEventId?: string;
+  fingerprint: string;
+}
+
 export interface Budget {
   id: string;
   clientId?: string;

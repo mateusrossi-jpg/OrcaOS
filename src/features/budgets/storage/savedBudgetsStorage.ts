@@ -1,5 +1,5 @@
 import { createId } from '../../../app/utils/idHelpers';
-import type { Budget, BudgetItem, BudgetStatus } from '../../../core/types/business';
+import type { Budget, BudgetItem, BudgetStatus, OperationalSnapshot } from '../../../core/types/business';
 import { type OperationalTimelineEntry, appendWorkflowEvent, createTimelineEntry, type WorkflowEventType, type WorkflowMutation } from '../../../core/workflow/timeline';
 import { validateTransition, getActionBlockReason } from '../../../core/workflow/engine';
 
@@ -37,6 +37,7 @@ export interface SavedBudgetRecord {
   createdAt: string;
   updatedAt: string;
   timeline?: OperationalTimelineEntry[];
+  snapshots?: OperationalSnapshot[];
 }
 
 export interface SaveBudgetRecordInput {
@@ -66,6 +67,7 @@ export interface SaveBudgetRecordInput {
   aliquota_imposto?: number;
   lucro_liquido?: number;
   timeline?: OperationalTimelineEntry[];
+  snapshots?: OperationalSnapshot[];
 }
 
 function sanitizeNonNegative(value: number | undefined, fallback = 0): number {
@@ -212,6 +214,7 @@ export function loadSavedBudgets(): SavedBudgetRecord[] {
       lucro_liquido: sanitizeNonNegative(record.lucro_liquido),
       items: cloneBudgetItems(record.items),
       timeline: record.timeline,
+      snapshots: record.snapshots,
     })).sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
   } catch {
     return [];
@@ -224,6 +227,17 @@ function persistSavedBudgets(records: SavedBudgetRecord[]): void {
   }
 
   window.localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+}
+
+function generateFingerprint(data: any): string {
+  const str = JSON.stringify(data);
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash |= 0;
+  }
+  return `v1:${Math.abs(hash).toString(16)}`;
 }
 
 export function saveBudgetRecord(input: SaveBudgetRecordInput): SavedBudgetRecord | null {
@@ -264,6 +278,7 @@ export function saveBudgetRecord(input: SaveBudgetRecordInput): SavedBudgetRecor
     createdAt: existingRecord?.createdAt ?? now,
     updatedAt: now,
     timeline: existingRecord?.timeline ?? [],
+    snapshots: existingRecord?.snapshots ?? [],
   };
 
   const currentStatus = record.status;
@@ -388,13 +403,64 @@ export function saveBudgetRecord(input: SaveBudgetRecordInput): SavedBudgetRecor
       else if (currentStatus === 'finalizado') eventType = 'finished';
       else if (currentStatus === 'cancelado' || currentStatus === 'recusado' || currentStatus === 'arquivado') eventType = 'archived';
       
+      const newEventId = createId('ev');
       record.timeline = appendWorkflowEvent(record.timeline || [], {
+        id: newEventId,
         workflowId: record.id,
         type: eventType,
         operator: 'Operador local',
         context: `Status alterado de ${previousStatus} para ${currentStatus}.`,
         meta: { mutations }
       });
+
+      // SNAPSHOT LOGIC: Trigger on critical transitions
+      const snapshotTriggerStates: BudgetStatus[] = ['enviado', 'autorizado', 'em_execucao', 'finalizado'];
+      if (snapshotTriggerStates.includes(currentStatus)) {
+        // Ensure we only snapshot once per state (append-only rule)
+        const alreadyHasSnapshot = record.snapshots?.some(s => s.workflowStatus === currentStatus);
+        
+        if (!alreadyHasSnapshot) {
+          const snapshotItems = cloneBudgetItems(record.items);
+          const subtotal = record.total_servicos + record.custo_materiais + record.custos_operacionais;
+          const finalTotal = subtotal - record.discount;
+          
+          const snapshotData = {
+            items: snapshotItems,
+            totals: {
+              total_servicos: record.total_servicos,
+              custo_materiais: record.custo_materiais,
+              custos_operacionais: record.custos_operacionais,
+              discount: record.discount,
+              subtotal,
+              finalTotal,
+              taxRate: record.aliquota_imposto,
+              lucro_liquido: record.lucro_liquido
+            }
+          };
+
+          const snapshot: OperationalSnapshot = {
+            snapshotId: createId('snap'),
+            timestamp: now,
+            workflowStatus: currentStatus,
+            operator: 'Operador local',
+            context: `Snapshot automático na transição para ${currentStatus}`,
+            clientSnapshot: {
+              name: record.clientName
+            },
+            items: snapshotItems,
+            totals: snapshotData.totals,
+            notes: {
+              commercial: record.commercialNotes,
+              technical: record.technicalNotes
+            },
+            paymentTerms: record.paymentTerms,
+            timelineEventId: newEventId,
+            fingerprint: generateFingerprint(snapshotData)
+          };
+
+          record.snapshots = [...(record.snapshots || []), snapshot];
+        }
+      }
     } else if (mutations.length > 0) {
       // Just a normal update with actual mutations
       record.timeline = appendWorkflowEvent(record.timeline || [], {

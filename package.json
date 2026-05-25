@@ -24,6 +24,7 @@
     "@react-pdf/renderer": "^4.5.1",
     "@supabase/supabase-js": "^2.43.0",
     "@vitejs/plugin-react": "latest",
+    "dexie": "^4.4.2",
     "react": "latest",
     "react-dom": "latest",
     "typescript": "latest",

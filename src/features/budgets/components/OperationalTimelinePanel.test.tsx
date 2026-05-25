@@ -261,6 +261,28 @@ describe('OperationalTimelinePanel rendering & filters', () => {
     expect(text).toContain('Nenhum evento encontrado.');
   });
   
+  it('renders snapshot indicator with detail in timeline', () => {
+    const budgetWithSnap = {
+      ...mockBudget,
+      snapshots: [
+        {
+          snapshotId: 's1',
+          timelineEventId: 't1',
+          workflowStatus: 'created',
+          totals: { finalTotal: 5000 },
+          items: [1, 2, 3],
+          fingerprint: 'v1:xyz'
+        }
+      ]
+    } as any;
+    const el = OperationalTimelinePanel({ budget: budgetWithSnap });
+    const text = flattenChildrenText(el);
+    
+    expect(text).toContain('v1:xyz');
+    expect(text).toContain('5.000,00');
+    expect(text).toContain('3 itens');
+  });
+
   it('falls back to legacy event deduction when timeline array is missing', () => {
     const legacyBudget = {
       id: 'b2',

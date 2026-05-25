@@ -423,6 +423,217 @@ button:disabled,
   padding-top: 2px;
 }
 
+.operational-snapshot-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(46, 204, 113, 0.05);
+  border: 1px solid rgba(46, 204, 113, 0.15);
+  padding: 3px 8px;
+  border-radius: 4px;
+  width: fit-content;
+  margin: 2px 0;
+}
+
+/* Snapshot Inspector */
+.snapshot-inspector {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  background: var(--aferix-surface);
+  border: 1px solid var(--aferix-border);
+  border-radius: var(--aferix-radius-md);
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+
+.snapshot-inspector-header {
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.02);
+  border-bottom: 1px solid var(--aferix-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.snapshot-inspector-title {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--aferix-text-secondary);
+}
+
+.snapshot-selector {
+  display: flex;
+  gap: 8px;
+  padding: 8px 16px;
+  background: rgba(0, 0, 0, 0.1);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.snapshot-selector::-webkit-scrollbar {
+  display: none;
+}
+
+.snapshot-selector-item {
+  background: transparent;
+  border: 1px solid var(--aferix-border);
+  color: var(--aferix-text-muted);
+  padding: 6px 10px;
+  font-size: 11px;
+  border-radius: 4px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  align-items: flex-start;
+}
+
+.snapshot-selector-item.active {
+  background: rgba(52, 152, 219, 0.1);
+  border-color: var(--aferix-primary);
+  color: var(--aferix-text-primary);
+}
+
+.snapshot-selector-state {
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.snapshot-selector-hash {
+  font-family: monospace;
+  opacity: 0.6;
+}
+
+.snapshot-diff-panel {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.snapshot-diff-summary {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 600px) {
+  .snapshot-diff-summary {
+    grid-template-columns: 1fr;
+  }
+}
+
+.snapshot-diff-col {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.snapshot-diff-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--aferix-text-muted);
+  text-transform: uppercase;
+}
+
+.snapshot-diff-grid {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 12px;
+  font-family: monospace;
+  font-size: 12px;
+}
+
+.snapshot-diff-field {
+  color: var(--aferix-text-secondary);
+}
+
+.snapshot-diff-value {
+  color: var(--aferix-text-primary);
+  text-align: right;
+}
+
+.snapshot-diff-change {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: monospace;
+  font-size: 12px;
+}
+
+.snapshot-warning {
+  margin-top: 12px;
+  padding: 8px 12px;
+  background: rgba(231, 76, 60, 0.1);
+  border: 1px solid rgba(231, 76, 60, 0.2);
+  border-radius: 4px;
+  color: var(--aferix-danger);
+  font-size: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.snapshot-empty {
+  padding: 24px;
+  text-align: center;
+  color: var(--aferix-text-muted);
+  font-size: 13px;
+}
+
+.snapshot-detail-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.snapshot-detail-row:last-child {
+  border-bottom: none;
+}
+
+.snapshot-detail-label {
+  color: var(--aferix-text-secondary);
+}
+
+.snapshot-detail-value {
+  color: var(--aferix-text-primary);
+  font-weight: 500;
+}
+
+.snapshot-detail-value.changed {
+  color: #f1c40f;
+}
+
+.operational-timeline-header {
+  font-size: 9px;
+  font-weight: 800;
+  color: #2ecc71;
+  letter-spacing: 0.05em;
+}
+
+.snapshot-hash {
+  font-family: monospace;
+  font-size: 10px;
+  color: var(--aferix-text-secondary);
+}
+
+.snapshot-tag {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.05);
+  padding: 1px 4px;
+  border-radius: 2px;
+}
+
 .operational-timeline-header {
   display: flex;
   flex-wrap: wrap;

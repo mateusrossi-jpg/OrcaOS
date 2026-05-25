@@ -25,6 +25,7 @@ import { BudgetItemsTable } from './BudgetItemsTable';
 import { BudgetTotalsCard } from './BudgetTotalsCard';
 import { BudgetActionsBar } from './BudgetActionsBar';
 import { OperationalTimelinePanel } from './OperationalTimelinePanel';
+import { SnapshotInspector } from './SnapshotInspector';
 
 /** BudgetDetailWorkspace – orchestrates state and renders extracted components */
 export function BudgetDetailWorkspace({
@@ -287,6 +288,9 @@ export function BudgetDetailWorkspace({
         budgetStatus={budget.status}
         onTransition={handleTransition}
       />
+
+      {/* Snapshot Inspector */}
+      <SnapshotInspector budget={budget} />
 
       {/* Operational Timeline */}
       <OperationalTimelinePanel budget={budget} />

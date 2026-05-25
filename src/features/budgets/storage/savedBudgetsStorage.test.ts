@@ -266,7 +266,6 @@ describe('saved budgets storage', () => {
 
       // finalizado -> arquivado
       const finalizadoUpdate = saveBudgetRecord({ ...updated, status: 'arquivado' } as any);
-      if (!finalizadoUpdate) console.log("FAILED AT FINALIZADO -> ARQUIVADO. updated object was:", updated);
       updated = finalizadoUpdate;
       expect(updated?.status).toBe('arquivado');
       expect(updated?.timeline?.slice(-1)[0].type).toBe('archived');
@@ -374,6 +373,136 @@ describe('saved budgets storage', () => {
     });
 
     expect(loadSavedBudgets().map((record) => record.status)).toEqual(['cancelado', 'recusado']);
+  });
+
+  describe('operational snapshots', () => {
+    it('creates snapshots on critical transitions', () => {
+      let saved = saveBudgetRecord({
+        clientName: 'Snapshot Test',
+        title: 'Budget S1',
+        status: 'iniciado',
+        discount: 100,
+        total_servicos: 1000,
+        custo_materiais: 500,
+        custos_operacionais: 200,
+        aliquota_imposto: 6,
+        items: [{ id: 'i1', description: 'Item 1', quantity: 1, unitPrice: 1000, category: 'labor' }],
+      }) as any;
+
+      expect(saved.snapshots?.length).toBe(0);
+
+      // Transition to enviado -> Creates snapshot
+      saved = saveBudgetRecord({ ...saved, status: 'enviado' } as any);
+      expect(saved.snapshots?.length).toBe(1);
+      expect(saved.snapshots[0].workflowStatus).toBe('enviado');
+      expect(saved.snapshots[0].totals.finalTotal).toBe(1600); // (1000+500+200) - 100 = 1600
+
+      // Transition to autorizado -> Creates another snapshot
+      saved = saveBudgetRecord({ ...saved, status: 'autorizado' } as any);
+      expect(saved.snapshots?.length).toBe(2);
+      expect(saved.snapshots[1].workflowStatus).toBe('autorizado');
+
+      // Transition to em_execucao -> Creates another snapshot
+      saved = saveBudgetRecord({ ...saved, status: 'em_execucao' } as any);
+      expect(saved.snapshots?.length).toBe(3);
+      expect(saved.snapshots[2].workflowStatus).toBe('em_execucao');
+
+      // Transition to finalizado -> Creates another snapshot
+      saved = saveBudgetRecord({ ...saved, status: 'finalizado' } as any);
+      expect(saved.snapshots?.length).toBe(4);
+      expect(saved.snapshots[3].workflowStatus).toBe('finalizado');
+    });
+
+    it('preserves immutable state even if original record is edited (immutability check)', () => {
+      let saved = saveBudgetRecord({
+        clientName: 'Original Client',
+        title: 'Original Title',
+        status: 'iniciado',
+        discount: 50,
+        total_servicos: 500,
+        items: [{ id: 'i1', description: 'Original Item', quantity: 1, unitPrice: 500, category: 'labor' }],
+      }) as any;
+
+      // Create snapshot at 'enviado'
+      saved = saveBudgetRecord({ ...saved, status: 'enviado' } as any);
+      const snapshot = saved.snapshots[0];
+      expect(snapshot.clientSnapshot.name).toBe('Original Client');
+      expect(snapshot.totals.total_servicos).toBe(500);
+
+      // We need to bypass the lock to "simulate" a future edit if we wanted to test pure immutability 
+      // of the snapshot array itself, but our saveBudgetRecord already handles this by cloning.
+      // Let's just verify that saving again in 'enviado' (if it were allowed or if we change non-critical fields)
+      // does not change the snapshot.
+      
+      const updated = saveBudgetRecord({ 
+        ...saved, 
+        title: 'New Title' // Non-critical field
+      } as any);
+
+      expect(updated?.snapshots?.length).toBe(1);
+      expect(updated?.snapshots![0].timestamp).toBe(snapshot.timestamp);
+      expect(updated?.snapshots![0].fingerprint).toBe(snapshot.fingerprint);
+    });
+
+    it('does not create duplicate snapshots for the same state', () => {
+      let saved = saveBudgetRecord({
+        clientName: 'Dup Test',
+        title: 'Budget',
+        status: 'iniciado',
+        discount: 0,
+        items: [],
+      }) as any;
+
+      saved = saveBudgetRecord({ ...saved, status: 'enviado' } as any);
+      expect(saved.snapshots?.length).toBe(1);
+
+      // Save again in 'enviado' with a minor change
+      saved = saveBudgetRecord({ ...saved, title: 'Budget Updated' } as any);
+      expect(saved.snapshots?.length).toBe(1); // Still 1
+    });
+
+    it('does not create snapshots on non-critical or invalid transitions', () => {
+      let saved = saveBudgetRecord({
+        clientName: 'Invalid Test',
+        title: 'Budget',
+        status: 'iniciado',
+        discount: 0,
+        items: [],
+      }) as any;
+
+      // Transition to arquivado (not in trigger states)
+      // First need to go through a valid path or check if iniciado -> arquivado is valid
+      // Let's just use iniciado -> em_revisao (if valid)
+      saved = saveBudgetRecord({ ...saved, status: 'em_revisao' } as any);
+      expect(saved?.snapshots?.length).toBe(0);
+
+      // Invalid transition: em_revisao -> finalizado (blocked)
+      const invalid = saveBudgetRecord({ ...saved, status: 'finalizado' } as any);
+      expect(invalid).toBeNull();
+    });
+
+    it('handles legacy budgets without snapshots array safely', () => {
+      window.localStorage.setItem('orcaos:saved-budgets:v1', JSON.stringify([
+        {
+          id: 'legacy-no-snap',
+          clientName: 'Legacy',
+          title: 'Legacy',
+          status: 'iniciado',
+          discount: 0,
+          items: [],
+          createdAt: '2026-05-01T00:00:00.000Z',
+          updatedAt: '2026-05-01T00:00:00.000Z',
+          // snapshots missing
+        },
+      ]));
+
+      const [record] = loadSavedBudgets();
+      expect(record.snapshots).toBeUndefined(); // or empty array if load handles it
+      
+      // Saving it should initialize snapshots
+      const updated = saveBudgetRecord(record as any);
+      expect(updated?.snapshots).toEqual([]);
+    });
   });
 
   it('keeps saved budgets sorted by most recent update', () => {

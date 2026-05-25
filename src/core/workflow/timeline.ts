@@ -1,3 +1,5 @@
+import { createId } from '../../app/utils/idHelpers';
+
 export type WorkflowEventType =
   | 'created'
   | 'updated'
@@ -40,18 +42,18 @@ function safeGetTime(isoString: string): number {
 }
 
 export function createTimelineEntry(
-  args: Omit<OperationalTimelineEntry, 'id' | 'timestamp'>
+  args: Omit<OperationalTimelineEntry, 'id' | 'timestamp'> & { id?: string; timestamp?: string }
 ): OperationalTimelineEntry {
   return {
     ...args,
-    id: crypto.randomUUID(),
-    timestamp: new Date().toISOString(),
+    id: args.id || createId('ev'),
+    timestamp: args.timestamp || new Date().toISOString(),
   };
 }
 
 export function appendWorkflowEvent(
   entries: OperationalTimelineEntry[],
-  args: Omit<OperationalTimelineEntry, 'id' | 'timestamp'>
+  args: Omit<OperationalTimelineEntry, 'id' | 'timestamp'> & { id?: string; timestamp?: string }
 ): OperationalTimelineEntry[] {
   const newEntry = createTimelineEntry(args);
   return [...entries, newEntry];
