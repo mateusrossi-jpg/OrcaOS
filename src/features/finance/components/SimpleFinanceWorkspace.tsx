@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { 
   MetricCard, 
   MoneyValue, 
@@ -16,9 +16,8 @@ import {
   PanelCard 
 } from '../../../app/components/ui';
 import { calculateServiceProfit } from '../../../core/finance/serviceProfit';
-import { calculateBudgetTotal } from '../../../core/pricing/budget';
-import type { Budget } from '../../../core/types/business';
-import { loadSavedBudgets, type SavedBudgetRecord } from '../../budgets/storage/savedBudgetsStorage';
+import { BUDGET_STATUS, Budget } from '../../../domain/budget';
+import { useBudgetHistory } from '../../../hooks/useBudgetHistory';
 import { loadSimpleFinanceRecords, saveSimpleFinanceRecord, type SimpleFinanceRecord } from '../storage/simpleFinanceStorage';
 import './SimpleFinanceWorkspace.css';
 
@@ -65,25 +64,8 @@ function parseAmount(value: string): number {
   return Number.isFinite(parsed) ? Math.max(0, parsed) : 0;
 }
 
-
-function budgetTotal(record: SavedBudgetRecord): number {
-  const budget: Budget = {
-    id: record.id,
-    title: record.title,
-    status: record.status,
-    discount: record.discount,
-    travelCost: record.travelCost,
-    additionalFees: record.additionalFees,
-    items: record.items,
-  };
-  try {
-    return calculateBudgetTotal(budget);
-  } catch {
-    return 0;
-  }
-}
-
 function safeDate(value: string): string {
+  if (!value) return new Date(0).toISOString();
   const date = new Date(value);
   return Number.isNaN(date.getTime()) ? new Date(0).toISOString() : date.toISOString();
 }
@@ -98,9 +80,11 @@ export function SimpleFinanceWorkspace() {
   const [showAllRows, setShowAllRows] = useState(false);
   const [syncTick, setSyncTick] = useState(0);
 
+  const { budgets, isLoading, refresh } = useBudgetHistory();
+
   const finalizedBudgets = useMemo(
-    () => loadSavedBudgets().filter((budget) => budget.status === 'finalizado'),
-    [syncTick]
+    () => budgets.filter((budget) => budget.status === BUDGET_STATUS.FINALIZADO),
+    [budgets]
   );
 
   const adjustmentsByBudgetId = useMemo(() => {
@@ -114,19 +98,18 @@ export function SimpleFinanceWorkspace() {
   const rows = useMemo<BudgetFinanceRow[]>(() => {
     return finalizedBudgets.map((budget) => {
       const adjustment = adjustmentsByBudgetId.get(budget.id);
-      const baseMaterialCost = budget.materialCost || budget.items
-        .filter((item) => item.category === 'material')
-        .reduce((acc, item) => acc + item.quantity * item.unitPrice, 0);
+      
+      // Mapeamento oficial do domínio Aferix para a linha de finanças
       const baseRow: BudgetFinanceRow = {
         budgetId: budget.id,
         title: budget.title,
-        clientName: budget.clientName,
+        clientName: budget.clientName || 'Cliente final',
         status: budget.status,
-        updatedAt: safeDate(budget.updatedAt),
-        receivedAmount: safeNonNegative(budgetTotal(budget)),
-        materialCost: safeNonNegative(baseMaterialCost),
+        updatedAt: safeDate(budget.finalizedAt || budget.updatedAt),
+        receivedAmount: safeNonNegative(budget.chargedValue - budget.discounts),
+        materialCost: safeNonNegative(budget.materialCost),
         travelCost: safeNonNegative(budget.travelCost),
-        otherCosts: safeNonNegative((budget.additionalFees ?? 0) + (budget.operationalCost ?? 0)),
+        otherCosts: safeNonNegative(budget.helperCost + (budget.fees || 0) + (budget.otherCosts || 0)),
         cardFee: 0,
         estimatedTax: 0,
       };
@@ -195,6 +178,17 @@ export function SimpleFinanceWorkspace() {
     });
     setEditingDraft(null);
     setSyncTick((value) => value + 1);
+  }
+
+  if (isLoading && budgets.length === 0) {
+    return (
+      <section className="simple-finance-workspace">
+        <div className="empty-state-card">
+          <strong>Carregando dados financeiros</strong>
+          <p>Buscando orçamentos finalizados...</p>
+        </div>
+      </section>
+    );
   }
 
   return (

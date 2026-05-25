@@ -6,7 +6,6 @@ import {
 } from '../core/access/accountPlanStorage';
 import type { Client, WorkOrder } from '../core/types/business';
 import type { CalculationCapture } from '../core/types/workflow';
-import { loadSavedBudgets } from '../features/budgets/storage/savedBudgetsStorage';
 import { loadActiveWorkOrderId, loadClients, loadWorkOrders } from '../features/clients/storage/clientWorkOrderStorage';
 import { AppShell } from './components/AppShell';
 import { AferixIntro } from './components/AferixIntro';
