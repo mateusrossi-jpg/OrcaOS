@@ -133,15 +133,15 @@ export function OperationalTimelinePanel({ budget }: { budget: SavedBudgetRecord
       rawEvents.push({ id: `created-${budget.id}`, workflowId: budget.id, type: 'created', timestamp: budget.createdAt });
     }
 
-    if (status === 'sent' || status === 'approved' || status === 'authorized' || status === 'finished' || status === 'execution' || status === 'em_revisao' || status === 'enviado') {
+    if (status === 'sent' || status === 'approved' || status === 'authorized' || status === 'finished' || status === 'finalizado' || status === 'execution' || status === 'em_execucao' || status === 'em_revisao' || status === 'enviado') {
        rawEvents.push({ id: `sent-${budget.id}`, workflowId: budget.id, type: 'sent', timestamp: budget.updatedAt || budget.createdAt });
     }
 
-    if (status === 'approved' || status === 'authorized' || status === 'finished' || status === 'execution' || status === 'autorizado') {
+    if (status === 'approved' || status === 'authorized' || status === 'finished' || status === 'finalizado' || status === 'execution' || status === 'em_execucao' || status === 'autorizado') {
        rawEvents.push({ id: `authorized-${budget.id}`, workflowId: budget.id, type: 'authorized', timestamp: budget.updatedAt || budget.createdAt });
     }
 
-    if (status === 'execution' || status === 'em_execucao' || status === 'iniciado') {
+    if (status === 'execution' || status === 'em_execucao' || status === 'finished' || status === 'finalizado' || status === 'iniciado') {
        rawEvents.push({ id: `execution-${budget.id}`, workflowId: budget.id, type: 'execution_started', timestamp: budget.updatedAt || budget.createdAt });
     }
 
