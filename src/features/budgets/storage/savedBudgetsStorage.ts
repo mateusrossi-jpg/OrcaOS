@@ -1,7 +1,9 @@
 import { createId } from '../../../app/utils/idHelpers';
 import type { Budget, BudgetItem, BudgetStatus } from '../../../core/types/business';
+import { type OperationalTimelineEntry, appendWorkflowEvent, createTimelineEntry, type WorkflowEventType, type WorkflowMutation } from '../../../core/workflow/timeline';
 
 const STORAGE_KEY = 'orcaos:saved-budgets:v1';
+const MAX_TIMELINE_EVENTS = 80;
 
 export type SavedBudgetStatus = Budget['status'];
 
@@ -33,6 +35,7 @@ export interface SavedBudgetRecord {
   lucro_liquido: number;
   createdAt: string;
   updatedAt: string;
+  timeline?: OperationalTimelineEntry[];
 }
 
 export interface SaveBudgetRecordInput {
@@ -61,6 +64,7 @@ export interface SaveBudgetRecordInput {
   custos_operacionais?: number;
   aliquota_imposto?: number;
   lucro_liquido?: number;
+  timeline?: OperationalTimelineEntry[];
 }
 
 function sanitizeNonNegative(value: number | undefined, fallback = 0): number {
@@ -205,6 +209,7 @@ export function loadSavedBudgets(): SavedBudgetRecord[] {
       aliquota_imposto: sanitizeNonNegative(record.aliquota_imposto ?? record.taxRate, 6),
       lucro_liquido: sanitizeNonNegative(record.lucro_liquido),
       items: cloneBudgetItems(record.items),
+      timeline: record.timeline,
     })).sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
   } catch {
     return [];
@@ -256,7 +261,134 @@ export function saveBudgetRecord(input: SaveBudgetRecordInput): SavedBudgetRecor
     items: cloneBudgetItems(input.items),
     createdAt: existingRecord?.createdAt ?? now,
     updatedAt: now,
+    timeline: existingRecord?.timeline ?? [],
   };
+
+  const currentStatus = record.status;
+  const previousStatus = existingRecord?.status;
+
+  function diffBudgetRecords(oldRecord: SavedBudgetRecord, newRecord: SavedBudgetRecord): WorkflowMutation[] {
+    const mutations: WorkflowMutation[] = [];
+    
+    const fieldsToTrack: Array<keyof SavedBudgetRecord> = [
+      'title', 'clientName', 'status', 'discount', 'commercialNotes', 'technicalNotes', 
+      'paymentTerms', 'validity', 'guarantee', 'executionDeadline',
+      'total_servicos', 'custo_materiais', 'custos_operacionais'
+    ];
+
+    for (const field of fieldsToTrack) {
+      if (oldRecord[field] !== newRecord[field]) {
+        mutations.push({
+          field: field as string,
+          oldValue: oldRecord[field],
+          newValue: newRecord[field]
+        });
+      }
+    }
+
+    // Diff items safely (shallow level, tracking key properties)
+    const oldItems = oldRecord.items || [];
+    const newItems = newRecord.items || [];
+    
+    const oldItemsMap = new Map(oldItems.map((item, index) => [item.id || String(index), item]));
+    const newItemsMap = new Map(newItems.map((item, index) => [item.id || String(index), item]));
+
+    // Check for removed and changed items
+    for (const [id, oldItem] of oldItemsMap.entries()) {
+      const newItem = newItemsMap.get(id);
+      
+      if (!newItem) {
+        // Item removed
+        mutations.push({
+          field: `items[${id}].removed`,
+          oldValue: { 
+            id: oldItem.id, 
+            description: oldItem.description, 
+            category: oldItem.category, 
+            total: (oldItem.quantity * oldItem.unitPrice) 
+          },
+          newValue: null
+        });
+      } else {
+        // Item changed
+        const itemFieldsToTrack: Array<keyof BudgetItem> = ['description', 'quantity', 'unitPrice', 'category'];
+        for (const itemField of itemFieldsToTrack) {
+          if (oldItem[itemField] !== newItem[itemField]) {
+            mutations.push({
+              field: `items[${id}].${String(itemField)}`,
+              oldValue: oldItem[itemField],
+              newValue: newItem[itemField]
+            });
+          }
+        }
+      }
+    }
+
+    // Check for added items
+    for (const [id, newItem] of newItemsMap.entries()) {
+      if (!oldItemsMap.has(id)) {
+        mutations.push({
+          field: `items[${id}].added`,
+          oldValue: null,
+          newValue: { 
+            id: newItem.id, 
+            description: newItem.description, 
+            category: newItem.category, 
+            quantity: newItem.quantity, 
+            unitPrice: newItem.unitPrice 
+          }
+        });
+      }
+    }
+
+    return mutations;
+  }
+
+  if (!existingRecord) {
+    // New record
+    record.timeline = appendWorkflowEvent(record.timeline || [], {
+      workflowId: record.id,
+      type: 'created',
+      operator: 'Operador local',
+      context: 'Orçamento gerado.'
+    });
+  } else {
+    const mutations = diffBudgetRecords(existingRecord, record);
+
+    if (previousStatus !== currentStatus) {
+      // Status changed
+      let eventType: WorkflowEventType = 'updated';
+      
+      // Map status to workflow event
+      if (currentStatus === 'enviado') eventType = 'sent';
+      else if (currentStatus === 'autorizado') eventType = 'authorized';
+      else if (currentStatus === 'em_execucao' || currentStatus === 'iniciado' && previousStatus === 'autorizado') eventType = 'execution_started';
+      else if (currentStatus === 'finalizado') eventType = 'finished';
+      else if (currentStatus === 'cancelado' || currentStatus === 'recusado') eventType = 'archived';
+      
+      record.timeline = appendWorkflowEvent(record.timeline || [], {
+        workflowId: record.id,
+        type: eventType,
+        operator: 'Operador local',
+        context: `Status alterado de ${previousStatus} para ${currentStatus}.`,
+        meta: { mutations }
+      });
+    } else if (mutations.length > 0) {
+      // Just a normal update with actual mutations
+      record.timeline = appendWorkflowEvent(record.timeline || [], {
+        workflowId: record.id,
+        type: 'updated',
+        operator: 'Operador local',
+        context: 'Informações atualizadas.',
+        meta: { mutations }
+      });
+    }
+  }
+
+  // Apply retention logic to prevent unlimited growth
+  if (record.timeline && record.timeline.length > MAX_TIMELINE_EVENTS) {
+    record.timeline = record.timeline.slice(-MAX_TIMELINE_EVENTS);
+  }
 
   const nextRecords = [record, ...currentRecords.filter((saved) => saved.id !== record.id)];
   persistSavedBudgets(nextRecords);

@@ -59,7 +59,7 @@ describe('Plan Access and Account Strategy Protection', () => {
     expect(emailAccount.displayName).toBe('Aferix');
     expect(emailAccount.userId).toBe('email:contato@aferix.com.br');
 
-    expect(() => signInEmailAccount('invalid-email')).toThrow('e-mail válido');
+    expect(() => signInEmailAccount('invalid-email')).toThrow('E-mail inválido');
   });
 
   it('registers google account and handles email mappings', () => {

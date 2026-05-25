@@ -277,8 +277,9 @@ button:disabled,
   gap: 12px;
   align-items: center;
   min-height: 32px;
-  max-height: 40px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  padding-top: 4px;
+  padding-bottom: 4px;
 }
 
 .operational-timeline-row:last-child {
@@ -301,6 +302,64 @@ button:disabled,
   font-size: 11px;
   color: var(--aferix-text-secondary);
   text-align: right;
+}
+
+.operational-timeline-audit {
+  grid-column: 1 / -1;
+  margin-top: -8px;
+  margin-bottom: 8px;
+  padding-left: 72px;
+}
+
+.operational-timeline-audit-summary {
+  font-size: 11px;
+  color: var(--aferix-primary);
+  cursor: pointer;
+  list-style: none; /* removes native arrow in some browsers */
+  display: inline-flex;
+  align-items: center;
+}
+
+.operational-timeline-audit-summary::-webkit-details-marker {
+  display: none;
+}
+
+.operational-timeline-audit-summary::before {
+  content: '▶';
+  font-size: 8px;
+  margin-right: 4px;
+  transition: transform 0.2s;
+}
+
+details[open] > .operational-timeline-audit-summary::before {
+  transform: rotate(90deg);
+}
+
+.operational-timeline-mutation {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+  font-family: monospace;
+  font-size: 11px;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.operational-timeline-mutation-field {
+  color: var(--aferix-text-secondary);
+  min-width: 100px;
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-shrink: 0;
+}
+
+.operational-timeline-mutation-change {
+  color: var(--aferix-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-shrink: 1;
 }
 
 .active-budget-title {

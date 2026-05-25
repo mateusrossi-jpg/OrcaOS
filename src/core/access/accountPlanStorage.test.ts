@@ -72,7 +72,7 @@ describe('account plan storage', () => {
   });
 
   it('rejects invalid email registration', () => {
-    expect(() => signInEmailAccount('email-invalido')).toThrow('e-mail válido');
+    expect(() => signInEmailAccount('email-invalido')).toThrow('E-mail inválido');
   });
 
   it('stores a Google account without changing the current plan', () => {
