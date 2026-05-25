@@ -1,3 +1,4 @@
+// LEGACY: Storage key with orcaos prefix for backward compatibility.
 const STORAGE_KEY = 'orcaos:simple-finance-records:v1';
 
 export interface SimpleFinanceRecord {

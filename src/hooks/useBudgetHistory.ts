@@ -1,3 +1,8 @@
+/**
+ * OFFICIAL ARCHITECTURE: UI -> Hooks -> Services -> Repositories -> Dexie.
+ * Do not access storage/repository directly from UI/hooks.
+ */
+
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { BudgetPersistenceService } from '../services/BudgetPersistenceService';
 import { Budget, BUDGET_STATUS } from '../domain/budget';

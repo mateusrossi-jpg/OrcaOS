@@ -11,6 +11,7 @@ interface AppAccessGateProps {
   children: ReactNode;
 }
 
+// LEGACY: Old OrcaOS keys for intro tracking
 const FIRST_OPEN_INTRO_KEY = 'orcaos.hasSeenFirstOpenIntro.v1';
 const LEGACY_FIRST_OPEN_INTRO_KEY = 'orcaos.hasSeenFirstOpenIntro';
 const FIRST_OPEN_INTRO_DURATION_MS = 1450;

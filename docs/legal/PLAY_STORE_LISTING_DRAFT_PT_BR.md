@@ -123,7 +123,7 @@ ordem de serviço
 atendimento técnico
 levantamento técnico
 cálculos elétricos
-calculadora técnica
+ferramenta técnica
 prestador de serviço
 hidráulica
 pintura

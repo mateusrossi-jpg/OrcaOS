@@ -1,11 +1,11 @@
 import { useMemo, useState } from 'react';
-import type { Client, WorkOrder, Budget } from '../../../core/types/business';
+import type { Client, WorkOrder } from '../../../core/types/business';
 import type { CalculationCapture } from '../../../core/types/workflow';
-import { loadSavedBudgets, type SavedBudgetRecord } from '../../budgets/storage/savedBudgetsStorage';
-import { loadSimpleFinanceRecords, type SimpleFinanceRecord } from '../../finance/storage/simpleFinanceStorage';
+import { useBudgetHistory } from '../../../hooks/useBudgetHistory';
+import { BUDGET_STATUS } from '../../../domain/budget';
+import { loadSimpleFinanceRecords } from '../../finance/storage/simpleFinanceStorage';
 import { loadProfessionalProfile } from '../../settings/storage/professionalProfileStorage';
 import { calculateServiceProfit } from '../../../core/finance/serviceProfit';
-import { calculateBudgetTotal } from '../../../core/pricing/budget';
 import { 
   MetricCard, 
   PanelCard, 
@@ -13,7 +13,6 @@ import {
   ListItem, 
   FilterChips, 
   QueueEmptyState,
-  MoneyValue,
   Button
 } from '../../../app/components/ui';
 import './ReportWorkspace.css';
@@ -43,7 +42,7 @@ export function ReportWorkspace({ captures, activeClient = null, activeWorkOrder
   const [showAllClientStats, setShowAllClientStats] = useState(false);
   const [activeCategory, setActiveCategory] = useState<ReportCategory>('financeiro');
   
-  const savedBudgets = useMemo(() => loadSavedBudgets(), []);
+  const { budgets: savedBudgets, isLoading } = useBudgetHistory();
   const financeRecords = useMemo(() => loadSimpleFinanceRecords(), []);
   const profile = useMemo(() => loadProfessionalProfile(), []);
 
@@ -52,8 +51,8 @@ export function ReportWorkspace({ captures, activeClient = null, activeWorkOrder
   // Calculate Hero Data: Planned vs Actual
   const heroData = useMemo(() => {
     const plannedProfit = savedBudgets
-      .filter(b => b.status === 'finalizado')
-      .reduce((sum, b) => sum + (b.lucro_liquido || 0), 0);
+      .filter(b => b.status === BUDGET_STATUS.FINALIZADO)
+      .reduce((sum, b) => sum + (b.financialSnapshot?.lucroBruto || 0), 0);
     
     const actualProfit = financeRecords
       .filter(r => r.status === 'realized')
@@ -94,12 +93,22 @@ export function ReportWorkspace({ captures, activeClient = null, activeWorkOrder
   const visibleClientStats = showAllClientStats ? clientStats : clientStats.slice(0, 5);
   const hiddenClientStatsCount = Math.max(clientStats.length - visibleClientStats.length, 0);
 
+  if (isLoading) {
+    return (
+      <div className="report-workspace-container">
+        <PanelCard>
+          <div className="loading-state-placeholder">Carregando dados financeiros...</div>
+        </PanelCard>
+      </div>
+    );
+  }
+
   return (
     <div className="report-workspace-container">
       {/* Hero Card: Planned vs Actual */}
       <PanelCard className="report-hero-card">
         <div className="hero-main-metric">
-          <span>Lucro Realizado (Mês)</span>
+          <span>Lucro Realizado (Geral)</span>
           <strong>{money(heroData.actualProfit)}</strong>
         </div>
         <div className="hero-comparison-grid">
@@ -182,7 +191,7 @@ export function ReportWorkspace({ captures, activeClient = null, activeWorkOrder
             />
             <MetricCard 
               label="Orçamentos Enviados" 
-              value={savedBudgets.filter(b => b.status === 'enviado').length} 
+              value={savedBudgets.filter(b => b.status === BUDGET_STATUS.ENVIADO).length} 
               tone="brand"
             />
           </div>
@@ -192,7 +201,7 @@ export function ReportWorkspace({ captures, activeClient = null, activeWorkOrder
           <div className="metric-grid">
             <MetricCard 
               label="Taxa de Aprovação" 
-              value={`${savedBudgets.length > 0 ? ((savedBudgets.filter(b => b.status === 'finalizado').length / savedBudgets.length) * 100).toFixed(0) : 0}%`} 
+              value={`${savedBudgets.length > 0 ? ((savedBudgets.filter(b => b.status === BUDGET_STATUS.FINALIZADO).length / savedBudgets.length) * 100).toFixed(0) : 0}%`} 
               tone="brand"
               featured
             />
@@ -217,3 +226,4 @@ export function ReportWorkspace({ captures, activeClient = null, activeWorkOrder
     </div>
   );
 }
+

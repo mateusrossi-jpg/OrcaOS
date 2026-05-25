@@ -3,13 +3,13 @@ import type { BudgetItem, BudgetTemplateId, BusinessProfile } from '../../../cor
 import { calculateBudgetItemTotal } from '../../../core/pricing/budget';
 import { hasBlockingBudgetIssues, type BudgetValidationIssue } from '../../../core/pricing/budgetValidation';
 import { roundTechnical } from '../../../core/format/number';
-import type { SavedBudgetStatus } from '../storage/savedBudgetsStorage';
+import type { BudgetStatus } from '../../../core/types/business';
 import './BudgetPrintPreview.css';
 
 interface BudgetPrintPreviewProps {
   clientName: string;
   budgetTitle: string;
-  status: SavedBudgetStatus;
+  status: BudgetStatus;
   items: BudgetItem[];
   discount: number;
   travelCost: number;
@@ -45,8 +45,8 @@ function categoryLabel(category: BudgetItem['category']): string {
   return 'Outro';
 }
 
-function statusLabel(status: SavedBudgetStatus): string {
-  const labels: Partial<Record<SavedBudgetStatus, string>> = {
+function statusLabel(status: BudgetStatus): string {
+  const labels: Partial<Record<BudgetStatus, string>> = {
     iniciado: 'Orçamento iniciado',
     em_revisao: 'Em revisão',
     enviado: 'Orçamento enviado',

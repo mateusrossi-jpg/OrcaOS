@@ -1,3 +1,8 @@
+/**
+ * OFFICIAL ARCHITECTURE: UI -> Hooks -> Services -> Repositories -> Dexie.
+ * Do not access storage/repository directly from UI/hooks.
+ */
+
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import { Budget, BUDGET_STATUS, BudgetStatus } from '../domain/budget';
 import { calculateBudget } from '../domain/aferixFinanceEngine';

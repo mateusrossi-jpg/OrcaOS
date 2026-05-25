@@ -1,6 +1,6 @@
 import type { GoogleAccountProfile } from './accountPlanStorage';
 
-const GOOGLE_IDENTITY_SCRIPT_ID = 'orcaos-google-identity-script';
+const GOOGLE_IDENTITY_SCRIPT_ID = 'aferix-google-identity-script';
 const GOOGLE_IDENTITY_SCRIPT_SRC = 'https://accounts.google.com/gsi/client';
 const GOOGLE_PROFILE_SCOPE = 'openid email profile';
 

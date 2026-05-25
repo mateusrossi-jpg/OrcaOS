@@ -26,6 +26,7 @@ export interface AferixAccountState {
 export const AFERIX_ACCOUNT_CHANGED_EVENT = 'aferix:account-plan-changed';
 
 const STORAGE_KEY = 'aferix:account-plan:v1';
+// LEGACY: Old OrcaOS keys kept for backward compatibility and migration.
 const LEGACY_PLAN_KEY = 'orcaos:user-plan';
 const INSTALLATION_ID_KEY = 'orcaos:installation-id:v1';
 

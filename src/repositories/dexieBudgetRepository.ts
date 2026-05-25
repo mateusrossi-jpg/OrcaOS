@@ -1,3 +1,8 @@
+/**
+ * OFFICIAL ARCHITECTURE: UI -> Hooks -> Services -> Repositories -> Dexie.
+ * Do not access storage/repository directly from UI/hooks.
+ */
+
 import { Budget, BUDGET_STATUS } from '../domain/budget';
 import { BudgetRepository } from './budgetRepository';
 import { db } from '../storage/dexieDatabase';

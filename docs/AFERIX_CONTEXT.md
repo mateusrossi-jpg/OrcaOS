@@ -1,71 +1,51 @@
-# AFERIX — CONTEXTO OFICIAL DO PROJETO
+# AFERIX — CONTEXTO OFICIAL DO PROJETO E REGRAS PARA AGENTES IA
 
-Aferix é um ERP financeiro mobile-first projetado especificamente para autônomos e pequenos prestadores de serviço (como eletricistas, instaladores e técnicos de manutenção).
-
----
+Este documento é a ÚNICA fonte de verdade sobre a arquitetura e fluxo atual do Aferix. Qualquer informação contrária (em prompts antigos, documentação legada ou código morto) deve ser ignorada e reportada.
 
 ## 1. Visão do Produto
-* **Regra Principal**: Tudo gira em torno do orçamento.
-* **MVP Foco**: Orçamento, custos, lucro real, margem de projeto, clientes, histórico e controle financeiro simples.
-* **Identidade Visual**: Dark Premium com amarelo/dourado como accent principal. Sem teal/cyan como destaque.
-
----
+* **Produto**: Aferix.
+* **Foco atual**: Orçamento, gestão financeira e operação para prestadores de serviço / autônomos.
+* **Identidade Visual**: Dark Premium com amarelo/dourado como accent principal. Tema claro não existe. Sem teal/cyan como destaque.
 
 ## 2. Arquitetura Oficial
-A aplicação segue um fluxo local-first rigorosamente desacoplado. O React **nunca** acessa o banco de dados diretamente.
-
-```text
-React (Pages/Components) 
-  ──> Custom Hooks (useBudgetForm, useBudgetHistory)
-        ──> Services (BudgetService, BudgetPersistenceService)
-              ──> Repositories (BudgetRepository / DexieBudgetRepository)
-                    ──> Storage (Dexie / IndexedDB)
-```
-
----
+* O React **nunca** acessa o banco de dados/storage diretamente.
+* **Fluxo Oficial**: UI -> Hooks -> Services -> Repositories -> Storage.
+* **SSOT (Single Source of Truth)**: Dexie (IndexedDB) é a única fonte de verdade para orçamentos.
 
 ## 3. Fluxo Oficial de Orçamento e Persistência
-* **SSOT (Single Source of Truth)**: **Dexie (IndexedDB)** é a única e absoluta fonte de verdade oficial do projeto.
-* **localStorage**: Mantido apenas de forma **legada e somente-leitura** para migração inicial (`savedBudgetsStorage.ts`). Nenhum fluxo ativo grava no localStorage.
-* **Composição de Dependências**: Hooks oficiais consomem apenas os Serviços. Toda instanciação dos Repositórios é feita por padrão e de forma limpa nos construtores dos próprios Serviços (`new DexieBudgetRepository()`).
-
----
-
-## 4. Arquivos Principais do Fluxo
 * **Interface**:
-  * [BudgetForm.tsx](file:///home/remoto/OrcaOS/src/pages/BudgetForm.tsx) — Form de criação e edição.
-  * [BudgetHistoryPage.tsx](file:///home/remoto/OrcaOS/src/pages/BudgetHistoryPage.tsx) — Histórico oficial da aplicação.
+  * `src/pages/BudgetForm.tsx` (Form de criação/edição oficial)
+  * `src/pages/BudgetHistoryPage.tsx` (Lista/histórico oficial)
 * **Hooks**:
-  * [useBudgetForm.ts](file:///home/remoto/OrcaOS/src/hooks/useBudgetForm.ts) — Encapsula a lógica reativa do form, com controle reativo de erros e proteção de concorrência.
-  * [useBudgetHistory.ts](file:///home/remoto/OrcaOS/src/hooks/useBudgetHistory.ts) — Estado de listagem e controle de erros.
-* **Serviços**:
-  * [BudgetPersistenceService.ts](file:///home/remoto/OrcaOS/src/services/BudgetPersistenceService.ts) — CRUD puramente físico em IndexedDB.
-  * [budgetService.ts](file:///home/remoto/OrcaOS/src/services/budgetService.ts) — Execução de regras de negócio (cálculos de margens e transições de status).
-  * [LegacyBudgetMigrationService.ts](file:///home/remoto/OrcaOS/src/services/LegacyBudgetMigrationService.ts) — Roda uma vez no bootstrap do `App.tsx` para importar dados legados de localStorage sem apagar os mesmos.
-* **Repositórios e Storage**:
-  * [budgetRepository.ts](file:///home/remoto/OrcaOS/src/repositories/budgetRepository.ts) — Interface de acesso.
-  * [dexieBudgetRepository.ts](file:///home/remoto/OrcaOS/src/repositories/dexieBudgetRepository.ts) — Implementação concreta em Dexie.
-  * [dexieDatabase.ts](file:///home/remoto/OrcaOS/src/storage/dexieDatabase.ts) — Esquemas físicos IndexedDB.
+  * `src/hooks/useBudgetForm.ts`
+  * `src/hooks/useBudgetHistory.ts`
+* **Services**:
+  * `budgetService.ts`, `BudgetPersistenceService.ts`
+* **Repository/Storage**:
+  * `dexieBudgetRepository.ts`, `dexieDatabase.ts`
+* **Migração**:
+  * `LegacyBudgetMigrationService.ts` é o único local autorizado a ler o localStorage legado e persistir no Dexie. Roda no bootstrap.
 
----
+## 4. Arquivos e Padrões Proibidos no Fluxo Oficial
+* **Storage Antigo**: `localStorage` (`savedBudgetsStorage.ts`) é APENAS LEGACY (somente-leitura para migração). Proibido salvar novos dados.
+* **Telas Legadas Removidas**: `BudgetHistoryScreen.tsx`, `BudgetWorkspace.tsx`, `BudgetDetailWorkspace.tsx`, `BudgetDetailScreen.tsx`. Nenhum componente deve usar `saveBudgetRecord`.
+* **Sincronização**: Proibido bridges bi-direcionais ou sync silencioso "fire-and-forget" entre LocalStorage e Dexie.
+* **Complexidade**: Proibido overengineering (DI complexa, CQRS, event buses, factories gigantes).
 
-## 5. Proibições Absolutas
-* **PROIBIDO** criar contêineres de DI, providers ou factories para injeção de repositórios.
-* **PROIBIDO** reintroduzir sincronizações silenciosas (bridges) bidirecionais entre localStorage e Dexie.
-* **PROIBIDO** ler ou salvar orçamentos diretamente pelo repositório ou pelo `savedBudgetsStorage.ts` fora do fluxo legacy.
-* **PROIBIDO** o uso da tela antiga `BudgetHistoryScreen.tsx` (descontinuada/legada).
+## 5. Termos e Conceitos Banidos (NÃO USAR)
+* **Nomes antigos**: OrcaOS, OrçaOS, ORSLS, WarSLS.
+* **Contextos fora do ERP financeiro**: ENDAP, CLP, EasyCLP, bobinagem, calculadora técnica, automação residencial (como foco principal do software).
+* **Identidade antiga**: teal, cyan, verde neon, amber (como cor principal), tema claro.
+* **Planejamento antigo**: P30, P36, arquivos `task.md`, `implementation_plan.md`, `walkthrough`, `audit_report`.
 
----
+## 6. Regras para Agentes IA
+* Siga rigorosamente a Arquitetura e o Fluxo Oficial.
+* Não recrie fluxo de orçamento. O fluxo já está validado.
+* Não mexa na lógica financeira (a menos que seja correção de comentários/tipos).
+* Não tente criar bridges de sincronização entre Dexie e LocalStorage. Dexie é a fonte única.
 
-## 6. Termos Legados e Obsoletos (NÃO USAR)
-* **OrcaOS / OrçaOS / ORSLS / WarSLS**: Nomes de marca antigos do ERP. O nome oficial único do produto é **Aferix**.
-* **Calculadoras Técnicas / CLP / EasyCLP / ENDAP**: Conceitos descontinuados. Foco é ERP financeiro.
-* **Teal / Cyan**: Cores antigas da identidade visual. O accent principal agora é Amarelo/Dourado.
-
----
-
-## 7. Estado de Validação do Checkpoint
+## 7. Estado de Validação
 * `typecheck` ── **OK** (Compilador TSC sem falhas).
 * `build` ── **OK** (Compilação para produção Vite estável).
-* `Playwright` ── **OK** (Suite E2E mobile-first testada e 100% aprovada).
-* `Dexie SSOT` ── **OK** (Persistência unificada no IndexedDB).
+* `Playwright` ── **OK** (Suite E2E testada e aprovada).
+* `Dexie SSOT` ── **OK** (Persistência isolada e garantida).

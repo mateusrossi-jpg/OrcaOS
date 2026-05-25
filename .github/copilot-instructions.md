@@ -114,7 +114,6 @@ Current and planned modules:
 - iluminação;
 - refrigeração;
 - motores;
-- automação industrial;
 - construção civil;
 - pintura e acabamento;
 - hidráulica;
@@ -123,7 +122,6 @@ Current and planned modules:
 - eletrônica aplicada;
 - transformadores;
 - solar fotovoltaico;
-- rebobinagem.
 
 Do not mix unrelated calculations into random categories. If adding a calculation, place it in the correct module and ensure the module label and UI copy are coherent.
 

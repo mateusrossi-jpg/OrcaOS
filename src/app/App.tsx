@@ -21,8 +21,6 @@ import { FinancialScreen } from './screens/FinancialScreen';
 import { ClientsScreen } from './screens/ClientsScreen';
 import { StoreScreen } from './screens/StoreScreen';
 import { MenuScreen } from './screens/MenuScreen';
-import { BudgetsScreen } from './screens/BudgetsScreen';
-import { BudgetDetailScreen } from './screens/BudgetDetailScreen';
 import { BudgetForm } from '../pages/BudgetForm';
 import { BudgetHistoryPage } from '../pages/BudgetHistoryPage';
 import { RuntimeErrorBoundary } from './components/RuntimeErrorBoundary';
@@ -138,8 +136,7 @@ export function App() {
   // Open detail view (hidden tab) – does not appear in navigation menu
   function openBudgetDetail(budgetId: string) {
     if (!canNavigate()) return;
-    setSelectedBudgetId(budgetId);
-    setActiveTab('budgetDetail');
+    openBudgetForEdit(budgetId);
   }
 
   function openClientSection(section: 'dashboard' | 'newClient' | 'clients') {
@@ -187,25 +184,6 @@ export function App() {
 
           {activeTab === 'money' && <FinancialScreen />}
           {activeTab === 'settings' && <MenuScreen account={account} onAccountChange={setAccount} onNavigate={goTo} />}
-          
-          {activeTab === 'budgetDetail' && (
-            <RuntimeErrorBoundary>
-              <BudgetDetailScreen
-                budgetId={selectedBudgetId}
-                onBack={() => {
-                  setSelectedBudgetId(null);
-                  goTo('work-history');
-                }}
-                onNavigate={(tab) => {
-                  if (tab === 'budgets') {
-                    setActiveTab('budgets');
-                  } else {
-                    goTo(tab);
-                  }
-                }}
-              />
-            </RuntimeErrorBoundary>
-          )}
 
           {activeTab === 'budgets' && (
             <RuntimeErrorBoundary>

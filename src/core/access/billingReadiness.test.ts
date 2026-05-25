@@ -28,15 +28,15 @@ describe('billing readiness', () => {
 
   it('marks Google Play ready only when package, product and entitlement endpoint are configured', () => {
     vi.stubEnv('VITE_AFERIX_BILLING_CHANNEL', 'google-play');
-    vi.stubEnv('VITE_AFERIX_ANDROID_PACKAGE_NAME', 'com.orcaos.app');
-    vi.stubEnv('VITE_AFERIX_PLAY_PRO_PRODUCT_ID', 'orcaos_pro_monthly');
+    vi.stubEnv('VITE_AFERIX_ANDROID_PACKAGE_NAME', 'com.financial.aferix');
+    vi.stubEnv('VITE_AFERIX_PLAY_PRO_PRODUCT_ID', 'aferix_pro_monthly');
     vi.stubEnv('VITE_AFERIX_ENTITLEMENTS_ENDPOINT', 'https://api.example.com/entitlements');
 
     const readiness = getBillingReadiness();
 
     expect(readiness.channel).toBe('google-play');
     expect(readiness.isGooglePlayReady).toBe(true);
-    expect(readiness.packageName).toBe('com.orcaos.app');
-    expect(readiness.proProductId).toBe('orcaos_pro_monthly');
+    expect(readiness.packageName).toBe('com.financial.aferix');
+    expect(readiness.proProductId).toBe('aferix_pro_monthly');
   });
 });

@@ -36,6 +36,6 @@ describe('commercial checkout', () => {
     expect(url.searchParams.get('email')).toBe('cliente@example.com');
     expect(url.searchParams.get('userId')).toBe('email:cliente@example.com');
     expect(url.searchParams.get('installationId')).toBe('install-test-device');
-    expect(url.searchParams.get('source')).toBe('orcaos-app');
+    expect(url.searchParams.get('source')).toBe('aferix-app');
   });
 });

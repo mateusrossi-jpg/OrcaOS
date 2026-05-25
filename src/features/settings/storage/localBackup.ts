@@ -18,6 +18,7 @@ export interface AferixBackupDataSummaryItem {
   count: number;
 }
 
+// LEGACY: Old OrcaOS prefix kept to allow users to restore backups from previous versions.
 const ORCA_PREFIX = 'orcaos';
 const AFERIX_PREFIX = 'aferix';
 const LEGACY_APP_MARKER = 'Or\u00e7aOS';

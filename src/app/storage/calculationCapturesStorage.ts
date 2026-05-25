@@ -1,5 +1,6 @@
 import type { CalculationCapture, CalculationDestination } from '../../core/types/workflow';
 
+// LEGACY: Keep orcaos prefix for backward compatibility with existing user data.
 const CAPTURES_STORAGE_KEY = 'orcaos:calculation-captures:v1';
 
 function isCalculationDestination(value: unknown): value is CalculationDestination {

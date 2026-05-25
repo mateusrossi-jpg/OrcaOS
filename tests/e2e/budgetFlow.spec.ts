@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-test('P36.5 runtime budget flow verification', async ({ page }) => {
+test('runtime budget flow verification', async ({ page }) => {
   // Simulate mobile-first viewport
   await page.setViewportSize({ width: 375, height: 812 });
   // Surface browser logs in Playwright runner

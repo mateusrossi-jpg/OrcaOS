@@ -1,3 +1,8 @@
+/**
+ * OFFICIAL ARCHITECTURE: UI -> Hooks -> Services -> Repositories -> Dexie.
+ * Do not access storage/repository directly from UI/hooks.
+ */
+
 // src/services/LegacyBudgetMigrationService.ts
 // Migration service – the sole authorized reader of the legacy savedBudgetsStorage (localStorage).
 // It runs once, migrates all legacy records to Dexie, and records a flag in the Dexie "migrations" table.

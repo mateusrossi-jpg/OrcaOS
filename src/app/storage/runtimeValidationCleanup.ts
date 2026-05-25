@@ -1,3 +1,4 @@
+// LEGACY: Storage keys with orcaos prefix are kept for backward compatibility.
 const CLEANUP_MARKER_KEY = 'orcaos:validation-seed-cleaned:v1';
 const CLIENTS_KEY = 'orcaos:clients:v1';
 const WORK_ORDERS_KEY = 'orcaos:work-orders:v1';
