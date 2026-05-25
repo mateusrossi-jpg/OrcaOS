@@ -260,64 +260,208 @@ button:disabled,
   font-weight: 600;
 }
 
-/* Operational Timeline */
+/* Premium Operational Timeline */
+.timeline-filters {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.01);
+  border-bottom: 1px solid var(--aferix-border);
+}
+
+.timeline-filter-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.timeline-filter-tab {
+  background: transparent;
+  border: 1px solid var(--aferix-border);
+  color: var(--aferix-text-secondary);
+  padding: 4px 10px;
+  font-size: 11px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.timeline-filter-tab:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--aferix-text-primary);
+}
+
+.timeline-filter-tab.active {
+  background: rgba(52, 152, 219, 0.1);
+  border-color: rgba(52, 152, 219, 0.3);
+  color: #3498db;
+}
+
+.timeline-search-box {
+  width: 100%;
+}
+
+.timeline-search-input {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--aferix-border);
+  color: var(--aferix-text-primary);
+  padding: 8px 12px;
+  border-radius: var(--aferix-radius-sm);
+  font-size: 13px;
+  transition: border-color 0.2s;
+}
+
+.timeline-search-input:focus {
+  outline: none;
+  border-color: var(--aferix-primary);
+}
+
 .operational-timeline {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  background: rgba(255, 255, 255, 0.02);
+  gap: 0;
+  background: var(--aferix-surface);
   border: 1px solid var(--aferix-border);
-  border-radius: var(--aferix-radius-sm);
-  padding: 12px;
+  border-radius: var(--aferix-radius-md);
+  padding: 0;
+  overflow: hidden;
 }
 
 .operational-timeline-row {
   display: grid;
-  grid-template-columns: 60px 1fr auto;
+  grid-template-columns: 50px 32px 1fr;
   gap: 12px;
-  align-items: center;
-  min-height: 32px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-  padding-top: 4px;
-  padding-bottom: 4px;
+  align-items: flex-start;
+  padding: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  position: relative;
 }
 
 .operational-timeline-row:last-child {
   border-bottom: none;
 }
 
+/* Vertical connecting line */
+.operational-timeline-row::before {
+  content: '';
+  position: absolute;
+  top: 48px;
+  bottom: -16px;
+  left: 77px;
+  width: 2px;
+  background: rgba(255, 255, 255, 0.05);
+  z-index: 0;
+}
+
+.operational-timeline-row:last-child::before {
+  display: none;
+}
+
+.operational-timeline-time-col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  padding-top: 2px;
+}
+
 .operational-timeline-time {
   font-family: monospace;
-  font-size: 11px;
+  font-size: 12px;
+  color: var(--aferix-text-primary);
+  font-weight: 500;
+}
+
+.operational-timeline-date {
+  font-size: 10px;
   color: var(--aferix-text-muted);
+  text-transform: uppercase;
+}
+
+.operational-timeline-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  background: var(--aferix-surface-2);
+  border: 1px solid var(--aferix-border);
+  color: var(--aferix-text-secondary);
+  z-index: 1;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.category-created .operational-timeline-icon {
+  background: rgba(46, 204, 113, 0.1);
+  border-color: rgba(46, 204, 113, 0.2);
+  color: #2ecc71;
+}
+
+.category-transition .operational-timeline-icon {
+  background: rgba(52, 152, 219, 0.1);
+  border-color: rgba(52, 152, 219, 0.2);
+  color: #3498db;
+}
+
+.category-updated .operational-timeline-icon {
+  background: rgba(241, 196, 15, 0.1);
+  border-color: rgba(241, 196, 15, 0.2);
+  color: #f1c40f;
+}
+
+.operational-timeline-content {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 2px;
+}
+
+.operational-timeline-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
 }
 
 .operational-timeline-event {
-  font-size: 13px;
+  font-size: 14px;
   color: var(--aferix-text-primary);
   font-weight: 600;
+  letter-spacing: -0.01em;
 }
 
 .operational-timeline-meta {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--aferix-text-secondary);
-  text-align: right;
+  font-family: monospace;
 }
 
 .operational-timeline-audit {
-  grid-column: 1 / -1;
-  margin-top: -8px;
-  margin-bottom: 8px;
-  padding-left: 72px;
+  margin-top: 4px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: var(--aferix-radius-sm);
+  padding: 8px;
 }
 
 .operational-timeline-audit-summary {
   font-size: 11px;
-  color: var(--aferix-primary);
+  color: var(--aferix-text-secondary);
   cursor: pointer;
-  list-style: none; /* removes native arrow in some browsers */
-  display: inline-flex;
+  list-style: none;
+  display: flex;
   align-items: center;
+  gap: 6px;
+  user-select: none;
+  font-weight: 500;
 }
 
 .operational-timeline-audit-summary::-webkit-details-marker {
@@ -327,39 +471,70 @@ button:disabled,
 .operational-timeline-audit-summary::before {
   content: '▶';
   font-size: 8px;
-  margin-right: 4px;
   transition: transform 0.2s;
+}
+
+details[open] > .operational-timeline-audit-summary {
+  margin-bottom: 12px;
+  color: var(--aferix-text-primary);
 }
 
 details[open] > .operational-timeline-audit-summary::before {
   transform: rotate(90deg);
 }
 
+.operational-timeline-audit-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
 .operational-timeline-mutation {
   display: flex;
-  gap: 8px;
-  margin-top: 4px;
-  font-family: monospace;
-  font-size: 11px;
-  min-width: 0;
-  overflow: hidden;
-  white-space: nowrap;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .operational-timeline-mutation-field {
+  font-size: 11px;
   color: var(--aferix-text-secondary);
-  min-width: 100px;
-  max-width: 180px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  flex-shrink: 0;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .operational-timeline-mutation-change {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: monospace;
+  font-size: 12px;
+  background: rgba(255, 255, 255, 0.02);
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.mutation-old {
+  color: var(--aferix-danger);
+  text-decoration: line-through;
+  opacity: 0.8;
+}
+
+.mutation-arrow {
   color: var(--aferix-text-muted);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  flex-shrink: 1;
+  font-size: 10px;
+}
+
+.mutation-new {
+  color: #2ecc71;
+  font-weight: 500;
+}
+
+.operational-timeline-mutation-more {
+  font-size: 11px;
+  color: var(--aferix-text-muted);
+  font-style: italic;
+  padding-top: 4px;
 }
 
 .active-budget-title {

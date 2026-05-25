@@ -1,6 +1,30 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import type { SavedBudgetRecord } from '../storage/savedBudgetsStorage';
 import { type OperationalTimelineEntry, getWorkflowEventSummary, buildWorkflowTimeline } from '../../../core/workflow/timeline';
+
+export function getEventCategory(type: string) {
+  if (type === 'created') return 'category-created';
+  if (type === 'updated') return 'category-updated';
+  if (['sent', 'authorized', 'execution_started', 'finished', 'archived'].includes(type)) return 'category-transition';
+  return 'category-default';
+}
+
+export function getEventIcon(type: string, mutations?: any[]) {
+  if (type === 'created') return '✦';
+  if (type === 'updated') {
+     const hasFinancial = mutations?.some(m => isMoneyField(m.field));
+     const hasItem = mutations?.some(m => m.field.startsWith('items['));
+     if (hasFinancial) return '＄';
+     if (hasItem) return '⊞';
+     return '✎';
+  }
+  if (type === 'sent') return '↗';
+  if (type === 'authorized') return '✓';
+  if (type === 'execution_started') return '▶';
+  if (type === 'finished') return '★';
+  if (type === 'archived') return '⚑';
+  return '•';
+}
 
 export function formatMutationField(field: string): string {
   const topLevelMap: Record<string, string> = {
@@ -94,128 +118,170 @@ export function formatMutationValue(value: any, field?: string): string {
 }
 
 export function OperationalTimelinePanel({ budget }: { budget: SavedBudgetRecord }) {
+  const [filterType, setFilterType] = useState<string>('todos');
+  const [searchQuery, setSearchQuery] = useState('');
+
   const events = useMemo(() => {
     if (budget.timeline && budget.timeline.length > 0) {
       return buildWorkflowTimeline(budget.timeline);
     }
 
     const rawEvents: OperationalTimelineEntry[] = [];
-
     const status = budget.status as string;
 
-    // Adapter logic: maps existing fields to safe derived timeline
     if (budget.createdAt) {
-      rawEvents.push({
-        id: `created-${budget.id}`,
-        workflowId: budget.id,
-        type: 'created',
-        timestamp: budget.createdAt,
-      });
+      rawEvents.push({ id: `created-${budget.id}`, workflowId: budget.id, type: 'created', timestamp: budget.createdAt });
     }
 
     if (status === 'sent' || status === 'approved' || status === 'authorized' || status === 'finished' || status === 'execution' || status === 'em_revisao' || status === 'enviado') {
-       rawEvents.push({
-         id: `sent-${budget.id}`,
-         workflowId: budget.id,
-         type: 'sent',
-         timestamp: budget.updatedAt || budget.createdAt,
-       });
+       rawEvents.push({ id: `sent-${budget.id}`, workflowId: budget.id, type: 'sent', timestamp: budget.updatedAt || budget.createdAt });
     }
 
     if (status === 'approved' || status === 'authorized' || status === 'finished' || status === 'execution' || status === 'autorizado') {
-       rawEvents.push({
-         id: `authorized-${budget.id}`,
-         workflowId: budget.id,
-         type: 'authorized',
-         timestamp: budget.updatedAt || budget.createdAt,
-       });
+       rawEvents.push({ id: `authorized-${budget.id}`, workflowId: budget.id, type: 'authorized', timestamp: budget.updatedAt || budget.createdAt });
     }
 
     if (status === 'execution' || status === 'em_execucao' || status === 'iniciado') {
-       rawEvents.push({
-         id: `execution-${budget.id}`,
-         workflowId: budget.id,
-         type: 'execution_started',
-         timestamp: budget.updatedAt || budget.createdAt,
-       });
+       rawEvents.push({ id: `execution-${budget.id}`, workflowId: budget.id, type: 'execution_started', timestamp: budget.updatedAt || budget.createdAt });
     }
 
     if (status === 'finished' || status === 'finalizado') {
-       rawEvents.push({
-         id: `finished-${budget.id}`,
-         workflowId: budget.id,
-         type: 'finished',
-         timestamp: budget.updatedAt || budget.createdAt,
-       });
+       rawEvents.push({ id: `finished-${budget.id}`, workflowId: budget.id, type: 'finished', timestamp: budget.updatedAt || budget.createdAt });
     }
 
     if (status === 'archived') {
-       rawEvents.push({
-         id: `archived-${budget.id}`,
-         workflowId: budget.id,
-         type: 'archived',
-         timestamp: budget.updatedAt || budget.createdAt,
-       });
+       rawEvents.push({ id: `archived-${budget.id}`, workflowId: budget.id, type: 'archived', timestamp: budget.updatedAt || budget.createdAt });
     }
 
     return buildWorkflowTimeline(rawEvents);
   }, [budget]);
 
-  if (events.length === 0) {
-    return (
-      <div className="aferix-panel-card">
-        <div style={{ padding: '16px', textAlign: 'center', color: 'var(--aferix-text-muted)' }}>
-          Nenhum evento registrado.
-        </div>
-      </div>
-    );
-  }
+  const filteredEvents = useMemo(() => {
+    return events.filter(ev => {
+      // 1. Filter Type
+      if (filterType === 'fluxo') {
+        if (!['sent', 'authorized', 'execution_started', 'finished', 'archived'].includes(ev.type)) return false;
+      } else if (filterType === 'edicoes') {
+        if (ev.type !== 'updated') return false;
+      } else if (filterType === 'financeiro') {
+        const hasFin = ev.meta?.mutations?.some(m => isMoneyField(m.field));
+        if (!hasFin) return false;
+      } else if (filterType === 'itens') {
+        const hasItem = ev.meta?.mutations?.some(m => m.field.startsWith('items['));
+        if (!hasItem) return false;
+      }
+
+      // 2. Search Query
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase();
+        const summary = getWorkflowEventSummary(ev.type).toLowerCase();
+        const operator = (ev.operator || '').toLowerCase();
+        const context = (ev.context || '').toLowerCase();
+        
+        let matchesText = summary.includes(q) || operator.includes(q) || context.includes(q);
+        
+        if (!matchesText && ev.meta?.mutations) {
+           matchesText = ev.meta.mutations.some(m => {
+             const lbl = formatMutationField(m.field).toLowerCase();
+             const oldVal = formatMutationValue(m.oldValue, m.field).toLowerCase();
+             const newVal = formatMutationValue(m.newValue, m.field).toLowerCase();
+             return lbl.includes(q) || oldVal.includes(q) || newVal.includes(q);
+           });
+        }
+        
+        if (!matchesText) return false;
+      }
+
+      return true;
+    });
+  }, [events, filterType, searchQuery]);
 
   return (
-    <div className="aferix-panel-card">
-      <div className="operational-timeline">
-        {events.map((event) => {
-          const time = new Date(event.timestamp).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-          const mutations = event.meta?.mutations;
-          const hasMutations = mutations && mutations.length > 0;
+    <div className="aferix-panel-card" style={{ padding: 0, overflow: 'hidden' }}>
+      <div className="timeline-filters">
+        <div className="timeline-filter-tabs">
+          {['todos', 'fluxo', 'edições', 'financeiro', 'itens'].map(tab => {
+            const key = tab === 'edições' ? 'edicoes' : tab;
+            return (
+              <button
+                key={key}
+                className={`timeline-filter-tab ${filterType === key ? 'active' : ''}`}
+                onClick={() => setFilterType(key)}
+              >
+                {tab.charAt(0).toUpperCase() + tab.slice(1)}
+              </button>
+            );
+          })}
+        </div>
+        <div className="timeline-search-box">
+          <input
+            type="text"
+            className="timeline-search-input"
+            placeholder="Buscar eventos..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+      </div>
 
-          return (
-            <div key={event.id} className="operational-timeline-row" style={hasMutations ? { alignItems: 'start' } : undefined}>
-              <span className="operational-timeline-time" style={hasMutations ? { paddingTop: '8px' } : undefined}>{time}</span>
-              <span className="operational-timeline-event" style={hasMutations ? { paddingTop: '8px' } : undefined}>{getWorkflowEventSummary(event.type)}</span>
-              
-              {hasMutations ? (
-                <details className="operational-timeline-audit">
-                  <summary className="operational-timeline-audit-summary">
-                    <span className="operational-timeline-meta" style={{ display: 'inline', textAlign: 'right' }}>
-                      {event.operator || event.context || ''}
-                      {` • ${mutations.length} alterações`}
-                    </span>
-                  </summary>
+      <div className="operational-timeline">
+        {filteredEvents.length === 0 ? (
+          <div style={{ padding: '24px 16px', textAlign: 'center', color: 'var(--aferix-text-muted)' }}>
+            Nenhum evento encontrado.
+          </div>
+        ) : (
+          filteredEvents.map((event) => {
+            const dt = new Date(event.timestamp);
+            const time = dt.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+            const date = dt.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
+            
+            const mutations = event.meta?.mutations;
+            const hasMutations = mutations && mutations.length > 0;
+
+            return (
+              <div key={event.id} className={`operational-timeline-row ${getEventCategory(event.type)}`}>
+                <div className="operational-timeline-time-col">
+                  <span className="operational-timeline-time">{time}</span>
+                  <span className="operational-timeline-date">{date}</span>
+                </div>
+                <div className="operational-timeline-icon">
+                   {getEventIcon(event.type, mutations)}
+                </div>
+                <div className="operational-timeline-content">
+                  <div className="operational-timeline-header">
+                    <span className="operational-timeline-event">{getWorkflowEventSummary(event.type)}</span>
+                    <span className="operational-timeline-meta">{event.operator || event.context || ''}</span>
+                  </div>
                   
-                  {mutations.slice(0, 6).map((mut, i) => (
-                    <div key={i} className="operational-timeline-mutation">
-                      <span className="operational-timeline-mutation-field">{formatMutationField(mut.field)}:</span>
-                      <span className="operational-timeline-mutation-change">
-                        {formatMutationValue(mut.oldValue, mut.field)} → {formatMutationValue(mut.newValue, mut.field)}
-                      </span>
-                    </div>
-                  ))}
-                  
-                  {mutations.length > 6 && (
-                    <div className="operational-timeline-mutation" style={{ color: 'var(--aferix-text-muted)', fontStyle: 'italic' }}>
-                      + {mutations.length - 6} alterações
-                    </div>
+                  {hasMutations && (
+                    <details className="operational-timeline-audit">
+                      <summary className="operational-timeline-audit-summary">
+                        {mutations.length} alterações detectadas
+                      </summary>
+                      <div className="operational-timeline-audit-grid">
+                        {mutations.slice(0, 6).map((mut, i) => (
+                          <div key={i} className="operational-timeline-mutation">
+                            <div className="operational-timeline-mutation-field">{formatMutationField(mut.field)}</div>
+                            <div className="operational-timeline-mutation-change">
+                              <span className="mutation-old">{formatMutationValue(mut.oldValue, mut.field)}</span>
+                              <span className="mutation-arrow">→</span>
+                              <span className="mutation-new">{formatMutationValue(mut.newValue, mut.field)}</span>
+                            </div>
+                          </div>
+                        ))}
+                        {mutations.length > 6 && (
+                          <div className="operational-timeline-mutation-more">
+                            + {mutations.length - 6} alterações adicionais
+                          </div>
+                        )}
+                      </div>
+                    </details>
                   )}
-                </details>
-              ) : (
-                <span className="operational-timeline-meta" style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', height: '100%' }}>
-                  {event.operator || event.context || ''}
-                </span>
-              )}
-            </div>
-          );
-        })}
+                </div>
+              </div>
+            );
+          })
+        )}
       </div>
     </div>
   );
