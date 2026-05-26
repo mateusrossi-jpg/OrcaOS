@@ -9,8 +9,7 @@ import { AppShell } from './components/AppShell';
 import { AferixIntro } from './components/AferixIntro';
 import { navItems } from './appData';
 import type { AppTab } from './appTypes';
-// eslint-disable-next-line no-restricted-imports -- TODO: Refactor legacy storage access
-import { loadStoredCaptures, saveStoredCaptures } from './storage/calculationCapturesStorage';
+// LEGACY: Storage access replaced with Dexie migration
 import { HomeScreen } from './screens/HomeScreen';
 import { CatalogScreen } from './screens/CatalogScreen';
 import { ReportsScreen } from './screens/ReportsScreen';
@@ -26,6 +25,8 @@ import { clientMigrationService } from '../services/ClientMigrationService';
 import { catalogMigrationService } from '../services/CatalogMigrationService';
 import { professionalProfileMigrationService } from '../services/ProfessionalProfileMigrationService';
 import { clientProposalMigrationService } from '../services/ClientProposalMigrationService';
+import { calculationCaptureMigrationService } from '../services/CalculationCaptureMigrationService';
+import { useCalculationCaptures } from '../hooks/useCalculationCaptures';
 
 function LazyWorkspaceFallback() {
   return (
@@ -47,10 +48,8 @@ export function App() {
   const [clientInitialSection, setClientInitialSection] = useState<'dashboard' | 'newClient' | 'newWorkOrder' | 'clients' | 'workOrders'>('dashboard');
   const [clientSectionRequestKey, setClientSectionRequestKey] = useState(0);
   const [budgetResetKey, setBudgetResetKey] = useState(0);
-  const [captures, setCaptures] = useState<CalculationCapture[]>(() => {
-    // cleanupRuntimeValidationData(); // Desativado para segurança operacional (Beta)
-    return loadStoredCaptures();
-  });
+  
+  const { captures, addManyCalculationCaptures: addCaptures, refreshCaptures } = useCalculationCaptures();
   
   const { 
     clients,
@@ -69,7 +68,6 @@ export function App() {
     return true;
   };
 
-  useEffect(() => { saveStoredCaptures(captures); }, [captures]);
   useEffect(() => {
     function syncAccount() {
       setAccount(loadAccountState());
@@ -88,6 +86,8 @@ export function App() {
         await catalogMigrationService.runIfNeeded();
         await professionalProfileMigrationService.runIfNeeded();
         await clientProposalMigrationService.runIfNeeded();
+        await calculationCaptureMigrationService.runIfNeeded();
+        await refreshCaptures();
         await refreshClients();
       } catch (err) {
         console.error('Migration failed on bootstrap:', err);
@@ -101,7 +101,7 @@ export function App() {
   }
 
   function addManyCalculationCaptures(items: CalculationCapture[]) {
-    setCaptures((current) => [...items.map(attachActiveWorkOrder), ...current]);
+    addCaptures(items.map(attachActiveWorkOrder));
   }
 
   function goTo(tab: AppTab) {

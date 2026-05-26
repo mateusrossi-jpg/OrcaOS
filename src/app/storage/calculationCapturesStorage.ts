@@ -26,8 +26,3 @@ export function loadStoredCaptures(): CalculationCapture[] {
   }
 }
 
-export function saveStoredCaptures(captures: CalculationCapture[]): void {
-  if (typeof window === 'undefined') return;
-  // eslint-disable-next-line no-restricted-syntax -- TODO: Refactor legacy storage access
-  window.localStorage.setItem(CAPTURES_STORAGE_KEY, JSON.stringify(captures));
-}

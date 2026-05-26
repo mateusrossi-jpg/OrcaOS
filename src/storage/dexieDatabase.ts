@@ -1,5 +1,6 @@
 import Dexie, { Table } from 'dexie';
 import { ClientProposal } from '../features/clientPortal/storage/clientProposalStorage';
+import type { CalculationCapture } from '../core/types/workflow';
 import { Budget } from '../domain/budget';
 import { Client } from '../domain/client';
 import { Service as WorkOrder } from '../core/types/business';
@@ -32,11 +33,13 @@ export class AferixDatabase extends Dexie {
   migrations!: Table<MigrationRecord>;
   settings!: Table<SettingRecord>;
   clientProposals!: Table<ClientProposal>;
+  calculationCaptures!: Table<CalculationCapture>;
 
   constructor() {
     super('AferixDatabase');
     // Version 7: Added clientProposals table
-    this.version(7).stores({
+    // Version 8: Added calculationCaptures table
+    this.version(8).stores({
       budgets: 'id',
       clients: 'id',
       workOrders: 'id',
@@ -47,6 +50,7 @@ export class AferixDatabase extends Dexie {
       migrations: 'key',
       settings: 'key',
       clientProposals: 'id',
+      calculationCaptures: 'id, workOrderId, clientId',
     });
   }
 }
