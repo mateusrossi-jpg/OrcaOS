@@ -5,7 +5,12 @@ import type { UserPlan } from '../core/access/featureAccess';
 export class AccountPlanService {
   async getAccount(): Promise<AferixAccountState> {
     const state = await accountPlanRepository.get();
-    return state || createGuestAccount();
+    if (!state) {
+      const guest = createGuestAccount();
+      await accountPlanRepository.save(guest);
+      return guest;
+    }
+    return state;
   }
 
   private emitChanged() {

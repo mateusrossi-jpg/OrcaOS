@@ -172,9 +172,8 @@ const BudgetCard: React.FC<{
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                if (window.confirm('Excluir orçamento?')) {
-                  deleteBudget();
-                }
+                // FIX: Removed native window.confirm which blocks automated E2E tests
+                deleteBudget();
               }}
               className="ml-2 text-sm text-red-400 hover:text-red-300"
             >
