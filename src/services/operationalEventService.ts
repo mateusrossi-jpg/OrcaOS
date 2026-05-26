@@ -6,8 +6,19 @@ function createId(prefix: string): string {
   return `${prefix}-${Date.now()}-${Math.round(Math.random() * 1000)}`;
 }
 
+type EventListener = (event: OperationalEvent) => void;
+
 export class OperationalEventService {
+  private subscribers: EventListener[] = [];
+
   constructor(private readonly repository: OperationalEventRepository = dexieOperationalEventRepository) {}
+
+  subscribe(listener: EventListener): () => void {
+    this.subscribers.push(listener);
+    return () => {
+      this.subscribers = this.subscribers.filter(sub => sub !== listener);
+    };
+  }
 
   async emitEvent(params: {
     aggregateId: string;
@@ -37,6 +48,12 @@ export class OperationalEventService {
     };
 
     await this.repository.add(event);
+    
+    // Fanout
+    for (const sub of this.subscribers) {
+      try { sub(event); } catch (err) { console.error('Error in event listener:', err); }
+    }
+    
     return event;
   }
 
