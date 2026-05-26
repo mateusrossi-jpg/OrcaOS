@@ -5,13 +5,11 @@ import { buildClientProposal } from '../../../services/clientProposalBuilderServ
 import { professionalProfileService } from '../../../services/professionalProfileService';
 // eslint-disable-next-line no-restricted-imports -- TODO: Refactor legacy storage access
 import { buildClientProposalShareText, buildClientProposalWhatsAppUrl } from '../storage/clientProposalShareText';
+import { useClientProposals } from '../../../hooks/useClientProposals';
 // eslint-disable-next-line no-restricted-imports -- TODO: Refactor legacy storage access
 import {
   clientProposalStatusLabel,
   createClientProposalDraft,
-  deleteClientProposal,
-  loadClientProposals,
-  upsertClientProposal,
   type ClientProposal,
   type ClientProposalStatus,
 } from '../storage/clientProposalStorage';
@@ -43,7 +41,7 @@ function statusTimestampPatch(status: ClientProposalStatus): Partial<ClientPropo
 }
 
 export function ClientProposalWorkspace({ technicalCaptures = [], activeClient = null, activeWorkOrder = null }: ClientProposalWorkspaceProps) {
-  const [proposals, setProposals] = useState<ClientProposal[]>(() => loadClientProposals());
+  const { proposals, refresh, addOrUpdateProposal, removeProposal: removeProposalHook } = useClientProposals();
   const [previewProposal, setPreviewProposal] = useState<ClientProposal | null>(null);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [query, setQuery] = useState('');
@@ -58,10 +56,6 @@ export function ClientProposalWorkspace({ technicalCaptures = [], activeClient =
     return technicalCaptures.filter((capture) => capture.destination === 'budget' || capture.destination === 'both' || capture.itemType === 'service' || capture.itemType === 'material');
   }, [technicalCaptures]);
 
-  function refresh() {
-    setProposals(loadClientProposals());
-  }
-
   async function createProposalFromCurrentBudget() {
     if (proposalReadyCaptures.length === 0) {
       setFeedback('Nenhum item técnico disponível para gerar orçamento do cliente. Envie serviços ou materiais ao orçamento primeiro.');
@@ -69,9 +63,10 @@ export function ClientProposalWorkspace({ technicalCaptures = [], activeClient =
     }
 
     const proposal = await buildClientProposal({ captures: proposalReadyCaptures, activeClient, activeWorkOrder });
-    upsertClientProposal(proposal);
-    refresh();
-    setPreviewProposal(proposal);
+    const timestamp = new Date().toISOString();
+    const updatedProposal = { ...proposal, updatedAt: timestamp };
+    await addOrUpdateProposal(updatedProposal);
+    setPreviewProposal(updatedProposal);
     setFeedback(`Orçamento criado a partir de ${proposalReadyCaptures.length} item(ns) técnico(s).`);
   }
 
@@ -98,15 +93,17 @@ export function ClientProposalWorkspace({ technicalCaptures = [], activeClient =
       paymentTerms: '50% de sinal e 50% na entrega, ajustável conforme negociação.',
       publicNotes: 'Materiais listados para compra do cliente não fazem parte do total cobrado pelo profissional.',
     });
-    upsertClientProposal(proposal);
-    refresh();
-    setPreviewProposal(proposal);
+    const timestamp = new Date().toISOString();
+    const updatedProposal = { ...proposal, updatedAt: timestamp };
+    await addOrUpdateProposal(updatedProposal);
+    setPreviewProposal(updatedProposal);
     setFeedback('Orçamento exemplo criado.');
   }
 
-  function updateProposalStatus(proposal: ClientProposal, status: ClientProposalStatus) {
-    const updatedProposal = upsertClientProposal({ ...proposal, ...statusTimestampPatch(status) });
-    refresh();
+  async function updateProposalStatus(proposal: ClientProposal, status: ClientProposalStatus) {
+    const timestamp = new Date().toISOString();
+    const updatedProposal = { ...proposal, ...statusTimestampPatch(status), updatedAt: timestamp };
+    await addOrUpdateProposal(updatedProposal);
     setPreviewProposal((current) => (current?.id === proposal.id ? updatedProposal : current));
     setFeedback(`Orçamento marcado como ${clientProposalStatusLabel(status).toLowerCase()}.`);
   }
@@ -121,13 +118,13 @@ export function ClientProposalWorkspace({ technicalCaptures = [], activeClient =
     }
   }
 
-  function openWhatsApp(proposal: ClientProposal) {
+  async function openWhatsApp(proposal: ClientProposal) {
     window.open(buildClientProposalWhatsAppUrl(proposal), '_blank', 'noopener,noreferrer');
-    updateProposalStatus(proposal, 'sent');
+    await updateProposalStatus(proposal, 'sent');
   }
 
-  function removeProposal(id: string) {
-    setProposals(deleteClientProposal(id));
+  async function removeProposal(id: string) {
+    await removeProposalHook(id);
     setPreviewProposal((current) => (current?.id === id ? null : current));
     setFeedback('Orçamento removido.');
   }

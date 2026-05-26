@@ -1,4 +1,5 @@
 import Dexie, { Table } from 'dexie';
+import { ClientProposal } from '../features/clientPortal/storage/clientProposalStorage';
 import { Budget } from '../domain/budget';
 import { Client } from '../domain/client';
 import { Service as WorkOrder } from '../core/types/business';
@@ -30,11 +31,12 @@ export class AferixDatabase extends Dexie {
   professionalProfiles!: Table<ProfessionalProfileRecord>;
   migrations!: Table<MigrationRecord>;
   settings!: Table<SettingRecord>;
+  clientProposals!: Table<ClientProposal>;
 
   constructor() {
     super('AferixDatabase');
-    // Version 6: Added professionalProfiles table
-    this.version(6).stores({
+    // Version 7: Added clientProposals table
+    this.version(7).stores({
       budgets: 'id',
       clients: 'id',
       workOrders: 'id',
@@ -44,6 +46,7 @@ export class AferixDatabase extends Dexie {
       professionalProfiles: 'id',
       migrations: 'key',
       settings: 'key',
+      clientProposals: 'id',
     });
   }
 }

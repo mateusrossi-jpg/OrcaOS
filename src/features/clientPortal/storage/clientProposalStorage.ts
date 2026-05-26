@@ -87,11 +87,6 @@ export function loadClientProposals(): ClientProposal[] {
   return safeParseProposals(window.localStorage.getItem(STORAGE_KEY));
 }
 
-export function saveClientProposals(proposals: ClientProposal[]): void {
-  if (typeof window === 'undefined') return;
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(proposals));
-}
-
 export function createClientProposalDraft(input: Partial<ClientProposal> = {}): ClientProposal {
   const timestamp = new Date().toISOString();
   return {
@@ -123,22 +118,6 @@ export function createClientProposalDraft(input: Partial<ClientProposal> = {}): 
     viewedAt: input.viewedAt,
     decidedAt: input.decidedAt,
   };
-}
-
-export function upsertClientProposal(proposal: ClientProposal): ClientProposal {
-  const proposals = loadClientProposals();
-  const timestamp = new Date().toISOString();
-  const nextProposal = { ...proposal, updatedAt: timestamp };
-  const exists = proposals.some((item) => item.id === proposal.id);
-  const nextProposals = exists ? proposals.map((item) => (item.id === proposal.id ? nextProposal : item)) : [nextProposal, ...proposals];
-  saveClientProposals(nextProposals);
-  return nextProposal;
-}
-
-export function deleteClientProposal(id: string): ClientProposal[] {
-  const nextProposals = loadClientProposals().filter((proposal) => proposal.id !== id);
-  saveClientProposals(nextProposals);
-  return nextProposals;
 }
 
 export function clientProposalStatusLabel(status: ClientProposalStatus): string {

@@ -25,6 +25,7 @@ import { LegacyBudgetMigrationService } from '../legacy/LegacyBudgetMigrationSer
 import { clientMigrationService } from '../services/ClientMigrationService';
 import { catalogMigrationService } from '../services/CatalogMigrationService';
 import { professionalProfileMigrationService } from '../services/ProfessionalProfileMigrationService';
+import { clientProposalMigrationService } from '../services/ClientProposalMigrationService';
 
 function LazyWorkspaceFallback() {
   return (
@@ -86,6 +87,7 @@ export function App() {
         await clientMigrationService.runIfNeeded();
         await catalogMigrationService.runIfNeeded();
         await professionalProfileMigrationService.runIfNeeded();
+        await clientProposalMigrationService.runIfNeeded();
         await refreshClients();
       } catch (err) {
         console.error('Migration failed on bootstrap:', err);
