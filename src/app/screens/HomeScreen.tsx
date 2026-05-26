@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import type { AppTab } from '../appTypes';
 import { useBudgetHistory } from '../../hooks/useBudgetHistory';
 import {
@@ -8,9 +8,12 @@ import {
   MetricCard,
   MoneyValue,
   QueueEmptyState,
-  ListCard,
   ListItem,
   StatusBadge,
+  PrimaryButton,
+  SectionTitle,
+  ContextBanner,
+  ListCard,
 } from '../components/ui';
 import { calculateBudget } from '../../domain/aferixFinanceEngine';
 import type { Budget } from '../../domain/budget';
@@ -22,7 +25,7 @@ interface HomeScreenProps {
 }
 
 export function HomeScreen({ onNavigate, onSelectBudget }: HomeScreenProps) {
-  const { budgets } = useBudgetHistory();
+  const { budgets, isLoading } = useBudgetHistory();
   const [financeRecords, setFinanceRecords] = useState<ConsolidatedFinanceRecord[]>([]);
 
   useEffect(() => {
@@ -36,62 +39,132 @@ export function HomeScreen({ onNavigate, onSelectBudget }: HomeScreenProps) {
   }, []);
 
   const now = new Date();
-  const currentMonthBudgets = budgets.filter((b) => {
+  const currentMonthBudgets = useMemo(() => budgets.filter((b) => {
     const d = new Date(b.updatedAt);
     return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
-  });
+  }), [budgets, now]);
 
-  const inProgressCount = budgets.filter(
-    (b) => b.status !== 'finalizado' && b.status !== 'recusado',
-  ).length;
+  const inProgressBudgets = useMemo(() => budgets.filter(
+    (b) => b.status !== 'finalizado' && b.status !== 'recusado' && b.status !== 'arquivado',
+  ), [budgets]);
 
-  const finalizedThisMonth = currentMonthBudgets.filter((b) => b.status === 'finalizado');
-  const finalizedCount = finalizedThisMonth.length;
+  const activeBudget = inProgressBudgets.length > 0 ? inProgressBudgets[0] : null;
 
-  const profitThisMonth = financeRecords.reduce((acc, r) => {
+  const finalizedThisMonth = useMemo(() => currentMonthBudgets.filter((b) => b.status === 'finalizado'), [currentMonthBudgets]);
+  
+  const profitThisMonth = useMemo(() => financeRecords.reduce((acc, r) => {
     const d = new Date(r.updatedAt);
     if (d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth()) {
       return acc + r.netProfit;
     }
     return acc;
-  }, 0);
+  }, 0), [financeRecords, now]);
 
-  const recentBudgets = budgets.slice(0, 3);
+  const recentBudgets = budgets.slice(0, 5);
+
+  if (isLoading) {
+    return (
+      <PageShell>
+        <PageHeader title="Resumo" />
+        <div className="empty-state-card">
+          <strong>Carregando sua operação...</strong>
+        </div>
+      </PageShell>
+    );
+  }
 
   return (
     <PageShell className="aferix-operational-screen">
-      <PageHeader title="Hoje no Aferix" />
+      <PageHeader 
+        title="Hoje no Aferix" 
+        action={
+          <PrimaryButton onClick={() => onNavigate('new-budget')}>
+            Novo orçamento
+          </PrimaryButton>
+        }
+      />
 
-      <PanelCard className="operational-main-metrics">
-        <div className="metric-grid compact-metric-grid">
-          <MetricCard label="Em andamento" value={<strong>{inProgressCount}</strong>} />
-          <MetricCard label="Finalizados este mês" value={<strong>{finalizedCount}</strong>} />
-          <MetricCard
-            label="Lucro deste mês"
-            value={<MoneyValue value={profitThisMonth} tone={profitThisMonth >= 0 ? 'success' : 'danger'} compact />}
-          />
-        </div>
-        <button className="primary-button" onClick={() => onNavigate('new-budget')}>Novo orçamento</button>
-      </PanelCard>
-
-      {budgets.length === 0 ? (
-        <QueueEmptyState
-          title="Comece criando seu primeiro orçamento."
-          action={<button className="primary-button" onClick={() => onNavigate('new-budget')}>Criar orçamento</button>}
-        />
-      ) : (
-        <ListCard title="Últimos orçamentos">
-          {recentBudgets.map((budget) => (
-            <ListItem
-              key={budget.id}
-              onClick={() => onSelectBudget?.(budget)}
-              title={budget.title || 'Sem título'}
-              context={<StatusBadge status={budget.status} />}
-              value={<MoneyValue value={calculateBudget(budget).totalComercial} compact />}
+      <div className="home-dashboard-layout">
+        <PanelCard className="operational-metrics-panel">
+          <div className="metric-grid compact-metric-grid">
+            <MetricCard 
+              label="Em andamento" 
+              value={inProgressBudgets.length} 
+              tone="brand"
             />
-          ))}
-        </ListCard>
-      )}
+            <MetricCard 
+              label="Finalizados (mês)" 
+              value={finalizedThisMonth.length} 
+            />
+            <MetricCard
+              label="Lucro (mês)"
+              value={<MoneyValue value={profitThisMonth} tone={profitThisMonth >= 0 ? 'success' : 'danger'} compact />}
+            />
+          </div>
+        </PanelCard>
+
+        {activeBudget && (
+          <div className="home-active-work-section">
+            <SectionTitle title="Continuar trabalho" eyebrow="Última atualização" />
+            <ContextBanner
+              title={activeBudget.title || 'Orçamento sem título'}
+              meta={`${activeBudget.clientName || 'Cliente não informado'} • ${new Date(activeBudget.updatedAt).toLocaleDateString()}`}
+              icon={<span className="nav-icon">📄</span>}
+              actionLabel="Retomar"
+              onAction={() => onSelectBudget?.(activeBudget)}
+            />
+          </div>
+        )}
+
+        {budgets.length === 0 ? (
+          <QueueEmptyState
+            title="Sua operação começa aqui"
+            icon="🚀"
+            meta="Crie seu primeiro orçamento para começar a gerenciar seus ganhos com precisão."
+            action={<PrimaryButton onClick={() => onNavigate('new-budget')}>Criar primeiro orçamento</PrimaryButton>}
+          />
+        ) : (
+          <div className="home-recent-activity">
+            <SectionTitle 
+              title="Últimos orçamentos" 
+              action={
+                <button className="ghost-action" onClick={() => onNavigate('work-history')}>
+                  Ver todos
+                </button>
+              }
+            />
+            <ListCard>
+              {recentBudgets.map((budget) => (
+                <ListItem
+                  key={budget.id}
+                  onClick={() => onSelectBudget?.(budget)}
+                  title={budget.title || 'Sem título'}
+                  context={budget.clientName || 'Cliente não informado'}
+                  status={<StatusBadge status={budget.status} />}
+                  value={<MoneyValue value={calculateBudget(budget).totalComercial} compact />}
+                />
+              ))}
+            </ListCard>
+          </div>
+        )}
+      </div>
+
+      <style>{`
+        .home-dashboard-layout {
+          display: grid;
+          gap: 24px;
+        }
+        
+        .operational-metrics-panel {
+          padding: 16px !important;
+        }
+        
+        @media (max-width: 768px) {
+          .home-dashboard-layout {
+            gap: 20px;
+          }
+        }
+      `}</style>
     </PageShell>
   );
 }

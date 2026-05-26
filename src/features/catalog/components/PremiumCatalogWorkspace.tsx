@@ -13,6 +13,7 @@ import {
   FilterChips,
   ActionMenu,
   Input,
+  MoneyValue,
   PrimaryButton,
   SecondaryButton,
   PanelCard
@@ -20,11 +21,6 @@ import {
 import { catalogService } from '../../../services/catalogService';
 import { type CatalogHubItem, type CatalogHubItemKind, createCatalogId } from '../types/catalogTypes';
 import './PremiumCatalogWorkspace.css';
-
-const currencyFormatter = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
-function money(value: number): string {
-  return currencyFormatter.format(Number.isFinite(value) ? value : 0);
-}
 
 const CATEGORY_CHIPS: Array<{ id: string; label: string }> = [
   { id: 'all', label: 'Todos' },
@@ -249,21 +245,21 @@ export function PremiumCatalogWorkspace() {
   }
 
   return (
-    <div className="premium-catalog-workspace">
+    <div className="premium-catalog-workspace aferix-d-flex aferix-flex-column aferix-gap-md">
       <PrimaryButton className="new-item-cta" onClick={handleNew}>+ Novo Item</PrimaryButton>
 
-      <PanelCard className="catalog-search-area">
+      <PanelCard className="catalog-search-area aferix-d-flex aferix-flex-column aferix-gap-sm">
         <SearchInput
-          placeholder="Buscar no catálogo por título, marca ou categoria..."
+          placeholder="Buscar no catálogo..."
           value={query}
           onChange={(value) => { setQuery(value); setShowAllItems(false); }}
         />
-        <div className="premium-catalog-top-spacing-sm">
+        <div className="aferix-filter-chips-wrapper">
           <FilterChips
             items={CATEGORY_CHIPS}
             active={[activeChip]}
             onChange={(active) => { setActiveChip(active[0] || 'all'); setShowAllItems(false); }}
-            ariaLabel="Filtrar catálogo por categoria"
+            ariaLabel="Filtrar catálogo"
           />
         </div>
       </PanelCard>
@@ -278,15 +274,11 @@ export function PremiumCatalogWorkspace() {
             <ListItem
               key={item.id}
               title={item.title}
-              context={
-                <div className="premium-catalog-item-meta-grid">
-                  <span>{itemKindLabel(item.kind)} · {item.category} {item.brand && `· ${item.brand}`}</span>
-                </div>
-              }
-              value={<span className="item-price">{money(item.defaultUnitValue)}</span>}
+              context={`${itemKindLabel(item.kind)} ${item.brand ? `• ${item.brand}` : ''}`}
+              value={<MoneyValue value={item.defaultUnitValue} compact />}
               action={
                 <ActionMenu
-                  label="Ações do item"
+                  label="Ações"
                   items={[
                     { id: 'edit', label: 'Editar', onSelect: () => handleEdit(item) },
                     { id: 'duplicate', label: 'Duplicar', onSelect: () => handleDuplicate(item) },

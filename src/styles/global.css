@@ -1,12 +1,76 @@
-:root {
-  color: var(--aferix-text, #f8fafc);
-  background: var(--aferix-bg, #050607);
-  font-family:
-    var(--aferix-font), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+/* AFERIX PREMIUM UTILITY CLASSES */
+.aferix-d-flex { display: flex !important; }
+.aferix-flex-column { flex-direction: column !important; }
+.aferix-flex-1 { flex: 1 !important; }
+.aferix-justify-between { justify-content: space-between !important; }
+.aferix-justify-center { justify-content: center !important; }
+.aferix-align-center { align-items: center !important; }
+.aferix-align-end { align-items: flex-end !important; }
+.aferix-gap-xs { gap: 4px !important; }
+.aferix-gap-sm { gap: 8px !important; }
+.aferix-gap-md { gap: 12px !important; }
+.aferix-gap-lg { gap: 16px !important; }
+.aferix-gap-xl { gap: 24px !important; }
+.aferix-mt-sm { margin-top: 8px !important; }
+.aferix-mt-md { margin-top: 12px !important; }
+.aferix-mt-lg { margin-top: 16px !important; }
+.aferix-mb-sm { margin-bottom: 8px !important; }
+.aferix-mb-md { margin-bottom: 12px !important; }
+.aferix-mb-lg { margin-bottom: 16px !important; }
+.aferix-pb-xl { padding-bottom: 32px !important; }
+.aferix-text-center { text-align: center !important; }
+.aferix-text-right { text-align: right !important; }
+.aferix-text-red { color: var(--aferix-danger) !important; }
+.aferix-text-green { color: var(--aferix-success) !important; }
+.aferix-text-muted { color: var(--aferix-text-muted) !important; }
+.aferix-font-xs { font-size: 0.75rem !important; }
+.aferix-font-sm { font-size: 0.875rem !important; }
+.aferix-font-md { font-size: 1rem !important; }
+.aferix-font-lg { font-size: 1.125rem !important; }
+.aferix-font-xl { font-size: 1.5rem !important; }
+.aferix-font-bold { font-weight: 700 !important; }
+
+.aferix-card-kpi {
+  background: var(--aferix-surface-raised) !important;
+  border: 1px solid var(--aferix-border) !important;
+  padding: 16px !important;
+}
+
+.aferix-card-warning {
+  background: rgba(239, 68, 68, 0.1) !important;
+  border: 1px solid rgba(239, 68, 68, 0.2) !important;
+  padding: 12px !important;
+  border-radius: 12px !important;
+}
+
+.aferix-filter-chips-wrapper {
+  overflow-x: auto;
+  white-space: nowrap;
+  padding-bottom: 4px;
+  -webkit-overflow-scrolling: touch;
+}
+.aferix-filter-chips-wrapper::-webkit-scrollbar { display: none; }
+
+.filter-chips {
+  display: flex !important;
+  gap: 8px !important;
+}
+
+.filter-chip {
+  flex: 0 0 auto !important;
+  padding: 6px 12px !important;
+  border-radius: 20px !important;
+  font-size: 0.8rem !important;
+  font-weight: 600 !important;
+  background: var(--aferix-surface) !important;
+  border: 1px solid var(--aferix-border) !important;
+  color: var(--aferix-text-muted) !important;
+}
+
+.filter-chip.active {
+  background: var(--aferix-primary) !important;
+  color: var(--aferix-bg) !important;
+  border-color: var(--aferix-primary) !important;
 }
 
 /* Universal Dynamic Content Growth - Aferix Fluid UI */

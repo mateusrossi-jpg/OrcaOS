@@ -1,3 +1,5 @@
+/* P82 — AFERIX PREMIUM VISUAL STABILIZATION */
+
 :root {
   --aferix-bg: #070A0F;
   --aferix-surface: #10141B;
@@ -27,6 +29,63 @@
   --aferix-shadow-md: 0 16px 40px rgba(0, 0, 0, 0.35);
 
   --aferix-font: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* Global Mobile-First Reset */
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+  overflow-x: hidden;
+  width: 100%;
+  position: relative;
+  background: var(--aferix-bg);
+}
+
+#root {
+  overflow-x: hidden;
+  width: 100%;
+}
+
+.app-screen, .page-shell {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* Hard Mobile-First Constraints (Max 1 column by default) */
+@media (max-width: 768px) {
+  .metric-grid, 
+  .dashboard-metric-grid, 
+  .dashboard-finance-tiles, 
+  .client-summary-tiles,
+  .plan-card-grid,
+  .home-operations-grid,
+  .home-signal-grid,
+  .catalog-form-grid,
+  .finance-form-grid {
+    grid-template-columns: 1fr !important;
+    gap: var(--aferix-space-3) !important;
+  }
+
+  .primary-action, .full-page-cta, .aferix-fab, button.primary {
+    width: 100% !important;
+    min-height: 48px !important;
+  }
+
+  input, select, textarea, .aferix-input-field, .general-form-field {
+    width: 100% !important;
+  }
+  
+  .aferix-panel-card, .plan-card, .store-card {
+    border-radius: var(--aferix-radius-md) !important;
+    padding: var(--aferix-space-3) !important;
+    max-width: calc(100vw - 32px) !important;
+    margin-left: auto;
+    margin-right: auto;
+  }
 }
 
 body {

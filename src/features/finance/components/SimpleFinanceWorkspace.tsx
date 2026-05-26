@@ -11,8 +11,9 @@ import {
   StatusBadge, 
   ActionMenu, 
   Input, 
+  MonetaryInput,
+  SectionTitle,
   PrimaryButton,
-  SecondaryButton, 
   PanelCard 
 } from '../../../app/components/ui';
 import { FinanceFacade, type ConsolidatedFinanceRecord } from '../financeFacade';
@@ -155,16 +156,46 @@ export function SimpleFinanceWorkspace() {
             <p>Refine valores reais de um orçamento finalizado.</p>
           </header>
 
-          <div className="finance-form-grid finance-form-grid-spaced">
-            <Input className="wide" label="Título" value={editingDraft.title} onChange={(event) => setEditingDraft((current) => current ? { ...current, title: event.target.value } : current)} />
-            <Input label="Cliente" value={editingDraft.clientName} onChange={(event) => setEditingDraft((current) => current ? { ...current, clientName: event.target.value } : current)} />
-            <Input label="Receita realizada · Money" inputMode="decimal" value={editingDraft.receivedAmount} onChange={(event) => setEditingDraft((current) => current ? { ...current, receivedAmount: event.target.value } : current)} />
-            <Input label="Custo material" inputMode="decimal" value={editingDraft.materialCost} onChange={(event) => setEditingDraft((current) => current ? { ...current, materialCost: event.target.value } : current)} />
-            <Input label="Deslocamento" inputMode="decimal" value={editingDraft.travelCost} onChange={(event) => setEditingDraft((current) => current ? { ...current, travelCost: event.target.value } : current)} />
-            <Input label="Outros custos" inputMode="decimal" value={editingDraft.otherCosts} onChange={(event) => setEditingDraft((current) => current ? { ...current, otherCosts: event.target.value } : current)} />
-            <Input label="Taxa cartão" inputMode="decimal" value={editingDraft.cardFee} onChange={(event) => setEditingDraft((current) => current ? { ...current, cardFee: event.target.value } : current)} />
-            <Input label="Imposto estimado" inputMode="decimal" value={editingDraft.estimatedTax} onChange={(event) => setEditingDraft((current) => current ? { ...current, estimatedTax: event.target.value } : current)} />
-          </div>
+            <div className="aferix-d-flex aferix-flex-column aferix-gap-md">
+              <Input className="wide" label="Título do Orçamento" value={editingDraft.title} onChange={(event) => setEditingDraft((current) => current ? { ...current, title: event.target.value } : current)} />
+              <Input label="Cliente" value={editingDraft.clientName} onChange={(event) => setEditingDraft((current) => current ? { ...current, clientName: event.target.value } : current)} />
+              
+              <SectionTitle title="Valores Reais" eyebrow="Ajuste fino pós-execução" />
+              
+              <MonetaryInput 
+                label="Faturamento Real" 
+                value={parseAmount(editingDraft.receivedAmount)} 
+                onChange={(val: number) => setEditingDraft(curr => curr ? {...curr, receivedAmount: String(val)} : curr)} 
+              />
+              
+              <div className="finance-costs-stack aferix-d-flex aferix-flex-column aferix-gap-sm">
+                <MonetaryInput 
+                  label="Material Real" 
+                  value={parseAmount(editingDraft.materialCost)} 
+                  onChange={(val: number) => setEditingDraft(curr => curr ? {...curr, materialCost: String(val)} : curr)} 
+                />
+                <MonetaryInput 
+                  label="Deslocamento Real" 
+                  value={parseAmount(editingDraft.travelCost)} 
+                  onChange={(val: number) => setEditingDraft(curr => curr ? {...curr, travelCost: String(val)} : curr)} 
+                />
+                <MonetaryInput 
+                  label="Outros Custos Reais" 
+                  value={parseAmount(editingDraft.otherCosts)} 
+                  onChange={(val: number) => setEditingDraft(curr => curr ? {...curr, otherCosts: String(val)} : curr)} 
+                />
+                <MonetaryInput 
+                  label="Taxa de Cartão" 
+                  value={parseAmount(editingDraft.cardFee)} 
+                  onChange={(val: number) => setEditingDraft(curr => curr ? {...curr, cardFee: String(val)} : curr)} 
+                />
+                <MonetaryInput 
+                  label="Imposto Estimado" 
+                  value={parseAmount(editingDraft.estimatedTax)} 
+                  onChange={(val: number) => setEditingDraft(curr => curr ? {...curr, estimatedTax: String(val)} : curr)} 
+                />
+              </div>
+            </div>
 
           <div className="finance-entry-actions">
             <PrimaryButton className="finance-entry-submit" onClick={saveAdjustment}>Salvar ajuste</PrimaryButton>
@@ -202,29 +233,21 @@ export function SimpleFinanceWorkspace() {
               <ListItem 
                 key={row.budgetId}
                 title={row.title}
-                context={
-                  <div className="finance-row-meta-grid">
-                    <span>{row.clientName || 'Cliente final'} · {formatDate(row.updatedAt)}</span>
-                    <StatusBadge status="finalizado" />
-                  </div>
-                }
+                context={`${row.clientName || 'Cliente final'} • ${formatDate(row.updatedAt)}`}
+                status={<StatusBadge status="finalizado" />}
                 value={
-                  <div className="finance-row-value-grid">
-                    <strong>{money(row.netProfit)}</strong>
-                    <small>{row.netMarginPercent.toFixed(0)}% margem</small>
+                  <div className="aferix-d-flex aferix-flex-column aferix-align-end">
+                    <MoneyValue value={row.netProfit} tone={row.netProfit >= 0 ? 'success' : 'danger'} compact />
+                    <span className="aferix-font-xs aferix-text-muted">{row.netMarginPercent.toFixed(0)}% margem</span>
                   </div>
                 }
                 action={
-                  <div className="finance-row-status-inline">
-                    <SecondaryButton onClick={() => openAdjustment(row)}>Abrir</SecondaryButton>
-                    <ActionMenu
-                      label="Ações do resultado"
-                      items={[
-                        { id: 'open', label: 'Abrir ajuste', onSelect: () => openAdjustment(row) },
-                        { id: 'edit', label: 'Editar', onSelect: () => openAdjustment(row) },
-                      ]}
-                    />
-                  </div>
+                  <ActionMenu
+                    label="Ações"
+                    items={[
+                      { id: 'open', label: 'Ajustar Valores', onSelect: () => openAdjustment(row) },
+                    ]}
+                  />
                 }
               />
             );
