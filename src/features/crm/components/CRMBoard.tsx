@@ -3,6 +3,7 @@ import { ClientPipelineProjection } from '../../../domain/operationalProjections
 import { operationalReadModelService } from '../../../services/operationalReadModelService';
 import { operationalSubscriptionService } from '../../../services/operationalSubscriptionService';
 import { CRMColumn } from './CRMColumn';
+import { OperationalDashboardLayout, ERPLoader, ERPTokens } from '../../../ui/system';
 
 interface CRMBoardProps {
   onClientClick?: (clientId: string) => void;
@@ -57,31 +58,27 @@ export function CRMBoard({ onClientClick }: CRMBoardProps) {
   }, [pipeline]);
 
   if (isLoading) {
-    return (
-      <div className="w-full h-64 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-yellow-500"></div>
-      </div>
-    );
+    return <ERPLoader message="Carregando funil de CRM..." />;
   }
 
-  return (
-    <div className="w-full h-full flex flex-col overflow-hidden">
-      <div className="px-6 py-4 border-b border-gray-800 bg-gray-900/50 flex items-center justify-between">
-        <div>
-          <h2 className="text-lg font-bold text-gray-100">CRM Pipeline</h2>
-          <p className="text-sm text-gray-400">Fluxo operacional de relacionamento focado em conversão e recorrência</p>
-        </div>
-        <div className="flex items-center gap-4">
-          <div className="text-right">
-            <span className="text-xs text-gray-500 uppercase font-semibold">Total Base</span>
-            <p className="text-xl font-bold text-yellow-500">{Object.keys(pipeline).length}</p>
-          </div>
+  const header = (
+    <div className="flex items-center justify-between">
+      <div>
+        <h2 className={`text-lg font-bold ${ERPTokens.colors.textPrimary}`}>CRM Pipeline</h2>
+        <p className={`text-sm ${ERPTokens.colors.textSecondary}`}>Fluxo operacional de relacionamento focado em conversão e recorrência</p>
+      </div>
+      <div className="flex items-center gap-4">
+        <div className="text-right">
+          <span className={`text-xs ${ERPTokens.colors.textTertiary} uppercase font-semibold`}>Total Base</span>
+          <p className={`text-xl font-bold ${ERPTokens.colors.brandAccent}`}>{Object.keys(pipeline).length}</p>
         </div>
       </div>
+    </div>
+  );
 
-      {/* Board Scrollable Area */}
-      <div className="flex-1 overflow-x-auto p-6 bg-gray-950/20">
-        <div className="flex gap-4 h-full min-h-[500px]">
+  return (
+    <OperationalDashboardLayout header={header}>
+      <div className="flex gap-4 h-full min-h-[500px]">
           <CRMColumn 
             title="Leads / Oportunidades" 
             clients={columns.leads} 
@@ -119,7 +116,6 @@ export function CRMBoard({ onClientClick }: CRMBoardProps) {
             onCardClick={onClientClick}
           />
         </div>
-      </div>
-    </div>
+    </OperationalDashboardLayout>
   );
 }

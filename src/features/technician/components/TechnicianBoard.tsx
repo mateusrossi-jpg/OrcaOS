@@ -4,6 +4,7 @@ import { operationalSubscriptionService } from '../../../services/operationalSub
 import { QueueWorkflowInput, sortOperationalQueue, buildQueueSummary } from '../../../core/workflow/queueEngine';
 import { TechnicianQueue } from './TechnicianQueue';
 import { OperationalPressureCard } from '../../sla/components/OperationalPressureCard';
+import { OperationalDashboardLayout, ERPLoader, ERPTokens } from '../../../ui/system';
 
 export function TechnicianBoard() {
   const [workflows, setWorkflows] = useState<QueueWorkflowInput[]>([]);
@@ -53,29 +54,24 @@ export function TechnicianBoard() {
   }, [workflows]);
 
   if (isLoading) {
-    return (
-      <div className="w-full h-64 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-yellow-500"></div>
-      </div>
-    );
+    return <ERPLoader message="Carregando hub do técnico..." />;
   }
 
-  return (
-    <div className="w-full h-full flex flex-col overflow-hidden">
-      <div className="px-6 py-4 border-b border-gray-800 bg-gray-900/50">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <h2 className="text-lg font-bold text-gray-100">Technician Workflow Hub</h2>
-            <p className="text-sm text-gray-400">Gerenciamento da fila operacional e pressão de execução</p>
-          </div>
-          <div className="w-full sm:w-auto min-w-[300px]">
-            <OperationalPressureCard summary={summary} />
-          </div>
-        </div>
+  const header = (
+    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div>
+        <h2 className={`text-lg font-bold ${ERPTokens.colors.textPrimary}`}>Technician Workflow Hub</h2>
+        <p className={`text-sm ${ERPTokens.colors.textSecondary}`}>Gerenciamento da fila operacional e pressão de execução</p>
       </div>
+      <div className="w-full sm:w-auto min-w-[300px]">
+        <OperationalPressureCard summary={summary} />
+      </div>
+    </div>
+  );
 
-      <div className="flex-1 overflow-x-auto p-6 bg-gray-950/20">
-        <div className="flex gap-4 h-full min-h-[500px]">
+  return (
+    <OperationalDashboardLayout header={header}>
+      <div className="flex gap-4 h-full min-h-[500px]">
           <TechnicianQueue 
             title="Execução Ativa" 
             workflows={queues.execution} 
@@ -97,7 +93,6 @@ export function TechnicianBoard() {
             accentColor="bg-green-500" 
           />
         </div>
-      </div>
-    </div>
+    </OperationalDashboardLayout>
   );
 }
