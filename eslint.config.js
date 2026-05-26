@@ -6,7 +6,7 @@ export default tseslint.config(
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
-    ignores: ["dist/**", "node_modules/**", "android/**", "ios/**", "docs/**"]
+    ignores: ["dist/**", "node_modules/**", "android/**", "ios/**", "docs/**", "test-results/**", "playwright-report/**"]
   },
   {
     languageOptions: {
