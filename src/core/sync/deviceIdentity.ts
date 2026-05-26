@@ -1,4 +1,5 @@
 import { DeviceIdentity } from './syncTypes';
+import { safeJsonParse } from '../runtime/safeGuards';
 
 /**
  * DeviceIdentity Foundation
@@ -17,18 +18,15 @@ export class DeviceIdentityManager {
     if (typeof window === 'undefined') return;
 
     const stored = localStorage.getItem(this.storageKey);
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored) as DeviceIdentity;
-        this.identity = {
-          ...parsed,
-          lastSeenAt: new Date().toISOString()
-        };
-        this.persist();
-        return;
-      } catch (err) {
-        console.warn('Failed to parse device identity. Generating new one.', err);
-      }
+    const parsed = safeJsonParse<DeviceIdentity | null>(stored, null);
+    
+    if (parsed && parsed.deviceId) {
+      this.identity = {
+        ...parsed,
+        lastSeenAt: new Date().toISOString()
+      };
+      this.persist();
+      return;
     }
 
     this.identity = {

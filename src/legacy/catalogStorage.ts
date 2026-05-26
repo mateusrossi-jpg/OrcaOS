@@ -1,4 +1,5 @@
 import type { CatalogItem } from '../core/types/business';
+import { safeJsonParse } from '../core/runtime/safeGuards';
 
 const CATALOG_STORAGE_KEY = 'orcaos:catalog-items:v1';
 
@@ -50,23 +51,14 @@ export function loadCatalogItems(): CatalogItem[] {
     return starterCatalogItems;
   }
 
-  try {
-    const storedValue = window.localStorage.getItem(CATALOG_STORAGE_KEY);
+  const storedValue = window.localStorage.getItem(CATALOG_STORAGE_KEY);
+  const parsedValue = safeJsonParse<unknown[]>(storedValue, starterCatalogItems);
 
-    if (!storedValue) {
-      return starterCatalogItems;
-    }
-
-    const parsedValue: unknown = JSON.parse(storedValue);
-
-    if (!Array.isArray(parsedValue)) {
-      return starterCatalogItems;
-    }
-
-    return parsedValue.filter(isCatalogItem);
-  } catch {
+  if (!Array.isArray(parsedValue)) {
     return starterCatalogItems;
   }
+
+  return parsedValue.filter(isCatalogItem);
 }
 
 export function saveCatalogItems(items: CatalogItem[]): void {

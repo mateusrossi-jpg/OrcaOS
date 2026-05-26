@@ -5,6 +5,7 @@
  */
 import type { BudgetItem } from '../core/types/business';
 import { Budget as NewBudget } from '../domain/budget';
+import { safeJsonParse } from '../core/runtime/safeGuards';
 
 const STORAGE_KEY = 'orcaos:saved-budgets:v1';
 
@@ -51,23 +52,14 @@ export function loadSavedBudgets(): SavedBudgetRecord[] {
   }
 
   const raw = window.localStorage.getItem(STORAGE_KEY);
+  const parsed = safeJsonParse<unknown[]>(raw, []);
 
-  if (!raw) {
+  if (!Array.isArray(parsed)) {
     return [];
   }
 
-  try {
-    const parsed = JSON.parse(raw) as unknown;
-
-    if (!Array.isArray(parsed)) {
-      return [];
-    }
-
-    // Shallow validation for migration purposes
-    return parsed as SavedBudgetRecord[];
-  } catch {
-    return [];
-  }
+  // Shallow validation for migration purposes
+  return parsed as SavedBudgetRecord[];
 }
 
 export function mapToNewBudget(record: SavedBudgetRecord): NewBudget {

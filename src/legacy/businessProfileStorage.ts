@@ -1,4 +1,5 @@
 import type { BusinessProfile } from '../core/types/business';
+import { safeJsonParse } from '../core/runtime/safeGuards';
 
 const BUSINESS_PROFILE_STORAGE_KEY = 'orcaos:business-profile:v1';
 
@@ -51,23 +52,14 @@ export function loadBusinessProfile(): BusinessProfile {
     return defaultBusinessProfile;
   }
 
-  try {
-    const storedValue = window.localStorage.getItem(BUSINESS_PROFILE_STORAGE_KEY);
+  const storedValue = window.localStorage.getItem(BUSINESS_PROFILE_STORAGE_KEY);
+  const parsedValue = safeJsonParse<unknown>(storedValue, defaultBusinessProfile);
 
-    if (!storedValue) {
-      return defaultBusinessProfile;
-    }
-
-    const parsedValue: unknown = JSON.parse(storedValue);
-
-    if (!isBusinessProfile(parsedValue)) {
-      return defaultBusinessProfile;
-    }
-
-    return { ...defaultBusinessProfile, ...parsedValue };
-  } catch {
+  if (!isBusinessProfile(parsedValue)) {
     return defaultBusinessProfile;
   }
+
+  return { ...defaultBusinessProfile, ...parsedValue };
 }
 
 export function saveBusinessProfile(profile: BusinessProfile): void {

@@ -6,11 +6,11 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import { Budget, BUDGET_STATUS, BudgetStatus } from '../domain/budget';
 import { calculateBudget } from '../domain/aferixFinanceEngine';
-import { BudgetService } from '../services/budgetService';
 import { BudgetPersistenceService } from '../services/BudgetPersistenceService';
+import { operationalFacade } from '../features/workflow/operationalFacade';
 
 const persistenceService = new BudgetPersistenceService();
-const service = new BudgetService();
+// service const removed as we use facade now
 
 const generateId = () => {
   try {
@@ -89,7 +89,7 @@ export function useBudgetForm(initialBudgetId?: string | null) {
     setIsSaving(true);
     setError(null);
     try {
-      await persistenceService.saveDraft(budget);
+      await operationalFacade.saveBudget(budget);
       const updated = await persistenceService.getBudget(budget.id);
       if (updated) setBudget(updated);
     } catch (e) {
@@ -106,7 +106,7 @@ export function useBudgetForm(initialBudgetId?: string | null) {
     setIsSaving(true);
     setError(null);
     try {
-      await service.changeStatus(budget, newStatus);
+      await operationalFacade.changeBudgetStatus(budget.id, newStatus, budget);
       const updated = await persistenceService.getBudget(budget.id);
       if (updated) setBudget(updated);
     } catch (e) {
@@ -130,7 +130,7 @@ export function useBudgetForm(initialBudgetId?: string | null) {
     setIsSaving(true);
     setError(null);
     try {
-      await service.finalizeBudget(budget);
+      await operationalFacade.finalizeBudget(budget.id, budget);
       const finalized = await persistenceService.getBudget(budget.id);
       if (finalized) setBudget(finalized);
     } catch (e) {

@@ -17,7 +17,7 @@ import {
   PanelCard 
 } from '../../../app/components/ui';
 import { FinanceFacade, type ConsolidatedFinanceRecord } from '../financeFacade';
-import { SimpleFinanceService } from '../../../services/SimpleFinanceService';
+import { operationalFacade } from '../../workflow/operationalFacade';
 import './SimpleFinanceWorkspace.css';
 
 interface AdjustmentDraft {
@@ -110,9 +110,7 @@ export function SimpleFinanceWorkspace() {
   async function saveAdjustment() {
     if (!editingDraft) return;
     
-    const financeService = new SimpleFinanceService();
-    
-    await financeService.saveRecord({
+    await operationalFacade.recordFinanceAdjustment({
       title: editingDraft.title,
       clientName: editingDraft.clientName,
       status: 'realized',

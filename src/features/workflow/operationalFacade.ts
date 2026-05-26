@@ -3,9 +3,12 @@ import { BudgetService } from '../../services/budgetService';
 import { clientProposalService } from '../../services/clientProposalService';
 import { workOrderService } from '../../services/workOrderService';
 import { operationalEventService } from '../../services/operationalEventService';
-import { BUDGET_STATUS } from '../../domain/budget';
+import { SimpleFinanceService } from '../../services/SimpleFinanceService';
+import { BUDGET_STATUS, Budget, BudgetStatus } from '../../domain/budget';
 import { ClientProposalStatus } from '../clientPortal/storage/clientProposalStorage';
 import { WorkOrder } from '../../core/types/business';
+import { SimpleFinanceRecordInput } from '../../domain/finance';
+import { OperationalEventType } from '../../domain/operationalEvent';
 
 /**
  * OperationalFacade: O ÚNICO maestro operacional do sistema.
@@ -15,42 +18,81 @@ import { WorkOrder } from '../../core/types/business';
  */
 export const operationalFacade = {
 
-  // --- BUDGET TRANSITIONS (Base Source of Truth) ---
+  // --- BUDGET OPERATIONS ---
 
-  authorizeBudget: async (budgetId: string): Promise<void> => {
+  saveBudget: async (budget: Budget): Promise<void> => {
     const budgetPersistence = new BudgetPersistenceService();
-    const budgetService = new BudgetService();
-    const budget = await budgetPersistence.getBudget(budgetId);
-    if (budget && budget.status !== BUDGET_STATUS.AUTORIZADO) {
-      await budgetService.changeStatus(budget, BUDGET_STATUS.AUTORIZADO);
+    const existing = await budgetPersistence.getBudget(budget.id);
+    await budgetPersistence.saveBudget(budget);
+
+    if (!existing) {
       await operationalEventService.emitEvent({
         aggregateId: budget.id,
         aggregateType: 'budget',
-        eventType: 'BUDGET_AUTHORIZED',
-        snapshot: { status: BUDGET_STATUS.AUTORIZADO }
+        eventType: 'BUDGET_CREATED',
+        snapshot: { status: budget.status }
+      });
+    } else {
+      await operationalEventService.emitEvent({
+        aggregateId: budget.id,
+        aggregateType: 'budget',
+        eventType: 'BUDGET_UPDATED',
+        metadata: { title: budget.title }
       });
     }
   },
 
-  executeBudget: async (budgetId: string): Promise<void> => {
+  changeBudgetStatus: async (budgetId: string, nextStatus: BudgetStatus, budgetSnapshot?: Budget): Promise<void> => {
     const budgetPersistence = new BudgetPersistenceService();
     const budgetService = new BudgetService();
-    const budget = await budgetPersistence.getBudget(budgetId);
-    if (budget && budget.status !== BUDGET_STATUS.EM_EXECUCAO) {
-      await budgetService.changeStatus(budget, BUDGET_STATUS.EM_EXECUCAO);
-      await operationalEventService.emitEvent({
-        aggregateId: budget.id,
-        aggregateType: 'budget',
-        eventType: 'BUDGET_EXECUTION_STARTED',
-        snapshot: { status: BUDGET_STATUS.EM_EXECUCAO }
-      });
+    
+    if (budgetSnapshot) {
+      await budgetPersistence.saveBudget(budgetSnapshot);
+    }
+
+    const budget = budgetSnapshot ?? await budgetPersistence.getBudget(budgetId);
+    
+    if (budget && budget.status !== nextStatus) {
+      await budgetService.changeStatus(budget, nextStatus);
+      
+      const eventTypeMap: Record<string, OperationalEventType> = {
+        [BUDGET_STATUS.ENVIADO]: 'BUDGET_SENT',
+        [BUDGET_STATUS.AUTORIZADO]: 'BUDGET_AUTHORIZED',
+        [BUDGET_STATUS.RECUSADO]: 'BUDGET_REJECTED',
+        ['arquivado']: 'BUDGET_ARCHIVED',
+        ['cancelado']: 'BUDGET_CANCELLED'
+      };
+
+      const eventType = eventTypeMap[nextStatus];
+      if (eventType) {
+        await operationalEventService.emitEvent({
+          aggregateId: budget.id,
+          aggregateType: 'budget',
+          eventType,
+          snapshot: { status: nextStatus }
+        });
+      }
     }
   },
 
-  finalizeBudget: async (budgetId: string): Promise<void> => {
+  authorizeBudget: async (budgetId: string, budgetSnapshot?: Budget): Promise<void> => {
+    await operationalFacade.changeBudgetStatus(budgetId, BUDGET_STATUS.AUTORIZADO, budgetSnapshot);
+  },
+
+  executeBudget: async (budgetId: string, budgetSnapshot?: Budget): Promise<void> => {
+    await operationalFacade.changeBudgetStatus(budgetId, BUDGET_STATUS.EM_EXECUCAO, budgetSnapshot);
+  },
+
+  finalizeBudget: async (budgetId: string, budgetSnapshot?: Budget): Promise<void> => {
     const budgetPersistence = new BudgetPersistenceService();
     const budgetService = new BudgetService();
-    const budget = await budgetPersistence.getBudget(budgetId);
+
+    if (budgetSnapshot) {
+      await budgetPersistence.saveBudget(budgetSnapshot);
+    }
+
+    const budget = budgetSnapshot ?? await budgetPersistence.getBudget(budgetId);
+    
     if (budget && budget.status !== BUDGET_STATUS.FINALIZADO) {
       await budgetService.finalizeBudget(budget);
       await operationalEventService.emitEvent({
@@ -69,16 +111,22 @@ export const operationalFacade = {
   },
 
   archiveBudget: async (budgetId: string): Promise<void> => {
-    const budgetPersistence = new BudgetPersistenceService();
-    const budgetService = new BudgetService();
-    const budget = await budgetPersistence.getBudget(budgetId);
-    if (budget && budget.status !== 'arquivado') {
-      await budgetService.changeStatus(budget, 'arquivado');
+    await operationalFacade.changeBudgetStatus(budgetId, 'arquivado');
+  },
+
+  // --- FINANCE OPERATIONS ---
+
+  recordFinanceAdjustment: async (record: SimpleFinanceRecordInput): Promise<void> => {
+    const financeService = new SimpleFinanceService();
+    await financeService.saveRecord(record);
+    
+    if (record.sourceBudgetId) {
       await operationalEventService.emitEvent({
-        aggregateId: budget.id,
-        aggregateType: 'budget',
-        eventType: 'BUDGET_ARCHIVED',
-        snapshot: { status: 'arquivado' }
+        aggregateId: record.sourceBudgetId,
+        aggregateType: 'finance',
+        eventType: 'FINANCE_RECORD_REALIZED',
+        metadata: { adjustment: true },
+        snapshot: { ...record }
       });
     }
   },
