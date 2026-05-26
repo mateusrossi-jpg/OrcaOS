@@ -75,3 +75,15 @@ export interface OperationalActivityProjection {
   readonly severity: EventSeverity;
   readonly correlationId?: string;
 }
+
+export interface RecurringMaintenanceProjection {
+  readonly clientId: string;
+  readonly clientName: string;
+  readonly sourceBudgetId: string;
+  readonly serviceTitle: string;
+  readonly lastExecutionDate: string;
+  readonly nextSuggestedDate: string;
+  readonly recurrenceIntervalDays: number;
+  readonly priority: 'low' | 'normal' | 'high';
+  readonly status: 'pending' | 'notified' | 'scheduled' | 'dismissed';
+}
