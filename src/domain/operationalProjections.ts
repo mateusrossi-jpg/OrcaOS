@@ -52,3 +52,25 @@ export interface OperationalBoardProjection {
   finalized: OperationalCardProjection[];
   archived: OperationalCardProjection[];
 }
+
+export interface ClientPipelineProjection {
+  clientId: string;
+  clientName: string;
+  status: 'lead' | 'proposal_sent' | 'approved' | 'execution' | 'finalized' | 'recurring_candidate';
+  totalRevenue: number;
+  lastInteractionAt: string;
+  activeBudgets: number;
+}
+
+export interface OperationalActivityProjection {
+  id: string; // usually event.id
+  aggregateId: string;
+  aggregateType: string;
+  actor: string;
+  eventType: string;
+  title: string;
+  description: string;
+  timestamp: string;
+  severity: 'info' | 'warning' | 'error' | 'success';
+  correlationId?: string;
+}

@@ -1,16 +1,18 @@
-import { operationalEventService } from './operationalEventService';
+// operationalEventService import removed as it is now in SubscriptionService
 import { operationalTimelineService } from './operationalTimelineService';
 import {
   OperationalPipelineProjection,
   OperationalMetricsProjection,
   OperationalBoardProjection,
-  OperationalCardProjection
+  OperationalCardProjection,
+  ClientPipelineProjection,
+  OperationalActivityProjection
 } from '../domain/operationalProjections';
 import { BudgetStatus } from '../domain/budget';
 import { ClientProposalStatus } from '../features/clientPortal/storage/clientProposalStorage';
 import { ServiceStatus } from '../core/types/business';
-import { OperationalEvent } from '../domain/operationalEvent';
 import { BudgetPersistenceService } from './BudgetPersistenceService';
+import { QueueWorkflowInput } from '../core/workflow/queueEngine';
 
 /**
  * OperationalReadModelService
@@ -23,20 +25,25 @@ export class OperationalReadModelService {
   private metricsCache: OperationalMetricsProjection | null = null;
   private boardCache: OperationalBoardProjection | null = null;
 
+  private crmPipelineCache: Record<string, ClientPipelineProjection> | null = null;
+  private activityCache: OperationalActivityProjection[] | null = null;
+
   constructor() {
-    // Invalidation Pipeline: listens to the operational event fanout
-    operationalEventService.subscribe((event: OperationalEvent) => {
-      this.handleEventInvalidation(event);
-    });
+    // Subscription and invalidation logic moved to OperationalSubscriptionService (Event Fanout Layer)
   }
 
-  private handleEventInvalidation(event: OperationalEvent) {
-    // Para escalabilidade ERP, poderíamos aplicar mutate delta nas projections.
-    // Aqui invalidamos os caches inteiros para garantir determinismo seguro.
-    this.pipelineCache = null;
-    this.metricsCache = null;
-    this.boardCache = null;
-    console.debug(`[ReadModel] Invalidation triggered by event: ${event.eventType} for agg: ${event.aggregateId}`);
+  /**
+   * Invalidation targeting specific projections.
+   * Called by OperationalSubscriptionService based on ProjectionInvalidationMap.
+   */
+  invalidate(projection: 'pipeline' | 'metrics' | 'board' | 'crm' | 'activity') {
+    switch (projection) {
+      case 'pipeline': this.pipelineCache = null; break;
+      case 'metrics': this.metricsCache = null; break;
+      case 'board': this.boardCache = null; break;
+      case 'crm': this.crmPipelineCache = null; break;
+      case 'activity': this.activityCache = null; break;
+    }
   }
 
   /**
@@ -177,6 +184,104 @@ export class OperationalReadModelService {
     return board;
   }
 
+  async getClientPipelineProjection(): Promise<Record<string, ClientPipelineProjection>> {
+    if (this.crmPipelineCache) return this.crmPipelineCache;
+    
+    // Very simplified CRM pipeline derived from events
+    const allEvents = await operationalTimelineService.getGlobalTimeline();
+    const crm: Record<string, ClientPipelineProjection> = {};
+    
+    for (const evt of allEvents) {
+      // Logic for CRM pipeline extraction would go here
+      // For now, we mock basic aggregation to fulfill readiness without creating parallel tables
+      const clientId = evt.aggregateId; // assuming correlation or derived
+      if (!crm[clientId]) {
+        crm[clientId] = {
+          clientId,
+          clientName: 'Client ' + clientId,
+          status: 'lead',
+          totalRevenue: 0,
+          lastInteractionAt: evt.timestamp,
+          activeBudgets: 1
+        };
+      }
+      
+      if (evt.eventType === 'PROPOSAL_SENT') crm[clientId].status = 'proposal_sent';
+      if (evt.eventType === 'PROPOSAL_APPROVED') crm[clientId].status = 'approved';
+      if (evt.eventType === 'BUDGET_EXECUTION_STARTED') crm[clientId].status = 'execution';
+      if (evt.eventType === 'BUDGET_FINALIZED') crm[clientId].status = 'finalized';
+      
+      if (new Date(evt.timestamp) > new Date(crm[clientId].lastInteractionAt)) {
+        crm[clientId].lastInteractionAt = evt.timestamp;
+      }
+    }
+    
+    this.crmPipelineCache = crm;
+    return crm;
+  }
+
+  async getActivityProjection(): Promise<OperationalActivityProjection[]> {
+    if (this.activityCache) return this.activityCache;
+    
+    const allEvents = await operationalTimelineService.getGlobalTimeline();
+    
+    const activity: OperationalActivityProjection[] = allEvents.map(evt => {
+      let severity: 'info' | 'warning' | 'error' | 'success' = 'info';
+      if (evt.eventType.includes('ERROR')) severity = 'error';
+      else if (evt.eventType.includes('APPROVED') || evt.eventType.includes('COMPLETED') || evt.eventType.includes('FINALIZED')) severity = 'success';
+      else if (evt.eventType.includes('DELAY') || evt.eventType.includes('BREACH')) severity = 'warning';
+      
+      return {
+        id: evt.id,
+        aggregateId: evt.aggregateId,
+        aggregateType: evt.aggregateType,
+        actor: evt.actor,
+        eventType: evt.eventType,
+        title: `Ação: ${evt.eventType}`,
+        description: `Evento registrado via ${evt.source}`,
+        timestamp: evt.timestamp,
+        severity,
+        correlationId: evt.correlationId
+      };
+    });
+    
+    // Reverse chronological order for feed
+    activity.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+    
+    this.activityCache = activity;
+    return activity;
+  }
+
+  async getOperationalQueue(): Promise<QueueWorkflowInput[]> {
+    // Minimally integrate QueueEngine by projecting the queue state from the read model
+    // so QueueEngine can act as a pure reader, not a source of truth.
+    const allEvents = await operationalTimelineService.getGlobalTimeline();
+    const grouped = operationalTimelineService.groupEventsByAggregate(allEvents);
+    
+    const queue: QueueWorkflowInput[] = [];
+    for (const [id, events] of Object.entries(grouped)) {
+      const sorted = events.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+      
+      const wf: QueueWorkflowInput = {
+        id,
+        status: 'draft',
+        createdAt: sorted[0]?.timestamp,
+        updatedAt: sorted[sorted.length - 1]?.timestamp,
+      };
+
+      for (const evt of sorted) {
+        if (evt.eventType === 'PROPOSAL_SENT') { wf.status = 'sent'; wf.sentAt = evt.timestamp; }
+        if (evt.eventType === 'BUDGET_AUTHORIZED') { wf.status = 'authorized'; wf.authorizedAt = evt.timestamp; }
+        if (evt.eventType === 'BUDGET_EXECUTION_STARTED') { wf.status = 'execution'; wf.executionStartedAt = evt.timestamp; }
+        if (evt.eventType === 'BUDGET_FINALIZED') { wf.status = 'finished'; wf.finishedAt = evt.timestamp; }
+        if ((evt.eventType as string) === 'WORKFLOW_BLOCKED') { wf.blocked = true; }
+        if ((evt.eventType as string) === 'WORKFLOW_UNBLOCKED') { wf.blocked = false; }
+      }
+      queue.push(wf);
+    }
+    return queue;
+  }
+
   /**
    * Preload hydration used during app startup.
    */
@@ -184,6 +289,8 @@ export class OperationalReadModelService {
     await this.getPipelineProjection();
     await this.getMetricsProjection();
     await this.getBoardProjection();
+    await this.getClientPipelineProjection();
+    await this.getActivityProjection();
   }
 }
 
