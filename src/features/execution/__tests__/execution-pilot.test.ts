@@ -3,7 +3,6 @@ import { pilotUsageMetrics } from '../metrics/PilotUsageMetrics';
 import { evidenceUploadQueue } from '../storage/evidenceUploadQueue';
 import { offlineReconciliationService } from '../../../core/sync/offlineReconciliation';
 import { versionVectorManager } from '../../../core/sync/versionVector';
-import { deviceIdentityManager } from '../../../core/sync/deviceIdentity';
 import { SyncEnvelope } from '../../../core/sync/syncTypes';
 
 // Mock device identity to control device ID
@@ -18,6 +17,7 @@ vi.mock('../../../core/sync/deviceIdentity', () => {
 describe('Pilot Usage Metrics', () => {
   beforeEach(() => {
     // Reset private metrics array using any cast since it's a test
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (pilotUsageMetrics as any).metrics = [];
   });
 
@@ -53,6 +53,7 @@ describe('Pilot Usage Metrics', () => {
 
 describe('Evidence Upload Queue (Offline-Safe)', () => {
   beforeEach(() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (evidenceUploadQueue as any).queue = [];
   });
 
@@ -61,7 +62,7 @@ describe('Evidence Upload Queue (Offline-Safe)', () => {
       id: 'photo-1',
       workOrderId: 'os-1',
       type: 'photo',
-      fileUri: 'content://media/1',
+      localPath: 'content://media/1',
       timestamp: new Date().toISOString(),
     });
 
@@ -76,7 +77,7 @@ describe('Evidence Upload Queue (Offline-Safe)', () => {
       id: 'photo-1',
       workOrderId: 'os-1',
       type: 'photo',
-      fileUri: 'content://media/1',
+      localPath: 'content://media/1',
       timestamp: new Date().toISOString(),
     });
 
@@ -93,8 +94,12 @@ describe('Offline Reconciliation causal consistency', () => {
       deviceId: 'local-device-123',
       eventId: 'evt-1',
       aggregateId: 'agg-1',
+      aggregateType: 'workOrder',
       timestamp: new Date().toISOString(),
       sequence: 1,
+      transportVersion: '1.0',
+      syncVersion: '1.0',
+      operationType: 'APPEND',
       payload: {},
     };
 
@@ -110,8 +115,12 @@ describe('Offline Reconciliation causal consistency', () => {
       deviceId: 'remote-device-456',
       eventId: 'evt-2',
       aggregateId: 'agg-2',
+      aggregateType: 'workOrder',
       timestamp: new Date(Date.now() + 10000).toISOString(), // strictly in the future
       sequence: 1,
+      transportVersion: '1.0',
+      syncVersion: '1.0',
+      operationType: 'APPEND',
       payload: {},
     };
 
