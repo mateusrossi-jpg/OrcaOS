@@ -93,11 +93,11 @@ export function HomeScreen({ onNavigate, onSelectBudget }: HomeScreenProps) {
               tone="brand"
             />
             <MetricCard 
-              label="Finalizados (mês)" 
+              label="Concluídos (mês)" 
               value={finalizedThisMonth.length} 
             />
             <MetricCard
-              label="Lucro (mês)"
+              label="Meu Lucro (mês)"
               value={<MoneyValue value={profitThisMonth} tone={profitThisMonth >= 0 ? 'success' : 'danger'} compact />}
             />
           </div>

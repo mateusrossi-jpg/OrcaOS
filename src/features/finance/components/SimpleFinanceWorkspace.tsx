@@ -143,8 +143,8 @@ export function SimpleFinanceWorkspace() {
   return (
     <section className="simple-finance-workspace">
       <div className="dashboard-finance-tiles">
-        <MetricCard label="Receita realizada · Money" value={<MoneyValue value={monthSummary.realized} tone="success" />} tone="success" />
-        <MetricCard label="Custos diretos" value={<MoneyValue value={monthSummary.directCosts} tone="danger" />} tone="danger" />
+        <MetricCard label="Faturamento Real" value={<MoneyValue value={monthSummary.realized} tone="success" />} tone="success" />
+        <MetricCard label="Custos Operacionais" value={<MoneyValue value={monthSummary.directCosts} tone="danger" />} tone="danger" />
         <MetricCard label="Lucro líquido" value={<MoneyValue value={monthSummary.net} tone={monthSummary.net >= 0 ? 'success' : 'danger'} />} tone={monthSummary.net >= 0 ? 'success' : 'danger'} />
       </div>
 

@@ -91,7 +91,7 @@ export const BudgetForm: React.FC<BudgetFormProps> = ({ id, onBack }) => {
         {/* 2. Dados Básicos */}
         <PanelCard className="aferix-d-flex aferix-flex-column aferix-gap-md">
           <Input
-            label="Título do Projeto"
+            label="Título do Orçamento"
             value={budget.title}
             onChange={(e) => updateField('title', e.target.value)}
             disabled={isReadOnly}
@@ -127,7 +127,7 @@ export const BudgetForm: React.FC<BudgetFormProps> = ({ id, onBack }) => {
 
         {/* 3. Custos Operacionais */}
         <div className="aferix-costs-section">
-          <SectionTitle title="Custos e Deduções" />
+          <SectionTitle title="Custos da Operação" />
           <PanelCard className="aferix-d-flex aferix-flex-column aferix-gap-md">
             <MonetaryInput
               label="Materiais"
@@ -170,9 +170,9 @@ export const BudgetForm: React.FC<BudgetFormProps> = ({ id, onBack }) => {
 
         {/* 4. Ações Operacionais */}
         {!isReadOnly && (
-          <div className="aferix-d-flex aferix-flex-column aferix-gap-md aferix-mt-lg aferix-pb-xl">
+          <div className="aferix-d-flex aferix-flex-column aferix-gap-md aferix-mt-lg aferix-journey-actions">
             <PrimaryButton onClick={requestFinalize} disabled={isSaving}>
-              Finalizar Orçamento
+              Finalizar e Congelar
             </PrimaryButton>
             
             <div className="aferix-d-flex aferix-gap-sm">
@@ -255,6 +255,9 @@ export const BudgetForm: React.FC<BudgetFormProps> = ({ id, onBack }) => {
         }
         .aferix-costs-section {
           margin-top: 12px;
+        }
+        .aferix-journey-actions {
+          padding-bottom: 120px; /* Space for sticky preview */
         }
         @media (max-width: 768px) {
           .aferix-sticky-preview {

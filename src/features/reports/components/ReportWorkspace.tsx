@@ -165,7 +165,7 @@ export function ReportWorkspace({ captures: _captures, activeClient: _activeClie
               tone="danger"
             />
             <MetricCard 
-              label="Margem Média Líquida" 
+              label="Minha Margem Média" 
               value={`${financeStats.avgMargin.toFixed(1)}%`} 
               tone={financeStats.avgMargin >= 0 ? 'brand' : 'danger'}
             />
