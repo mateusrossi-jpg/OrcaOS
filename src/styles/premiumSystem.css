@@ -1,18 +1,13 @@
 /* P82 — AFERIX PREMIUM VISUAL STABILIZATION */
 
 :root {
-  --aferix-bg: #070A0F;
-  --aferix-surface: #10141B;
-  --aferix-surface-raised: #151A22;
-  --aferix-border: rgba(255, 255, 255, 0.06);
-  --aferix-text: #F8FAFC;
-  --aferix-text-primary: #F8FAFC;
-  --aferix-text-secondary: #A1A1AA;
-  --aferix-text-muted: #71717A;
-  --aferix-primary: #FFD21F;
-  --aferix-primary-strong: #EAB308;
-  --aferix-success: #22C55E;
-  --aferix-danger: #EF4444;
+  /* Premium Industrial Overrides */
+  --aferix-radius-sm: 10px;
+  --aferix-radius-md: 14px;
+  --aferix-radius-lg: 18px;
+
+  --aferix-shadow-sm: 0 6px 18px rgba(0, 0, 0, 0.25);
+  --aferix-shadow-md: 0 16px 40px rgba(0, 0, 0, 0.35);
 
   --aferix-space-1: 8px;
   --aferix-space-2: 12px;
@@ -20,13 +15,6 @@
   --aferix-space-4: 20px;
   --aferix-space-5: 24px;
   --aferix-space-6: 32px;
-
-  --aferix-radius-sm: 10px;
-  --aferix-radius-md: 14px;
-  --aferix-radius-lg: 18px;
-
-  --aferix-shadow-sm: 0 6px 18px rgba(0, 0, 0, 0.25);
-  --aferix-shadow-md: 0 16px 40px rgba(0, 0, 0, 0.35);
 
   --aferix-font: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
 }

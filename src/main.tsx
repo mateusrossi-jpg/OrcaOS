@@ -5,6 +5,7 @@ import { AppAccessGate } from './features/settings/components/AppAccessGate';
 import './styles/global.css';
 import './styles/aferixTheme.css';
 import './styles/premiumSystem.css';
+import './styles/aferixUtilities.css';
 
 const rootElement = document.getElementById('root');
 
