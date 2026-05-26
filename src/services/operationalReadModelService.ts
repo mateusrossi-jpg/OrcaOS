@@ -3,12 +3,14 @@ import { operationalTimelineService } from './operationalTimelineService';
 import {
   OperationalPipelineProjection,
   OperationalMetricsProjection,
-  OperationalBoardProjection
+  OperationalBoardProjection,
+  OperationalCardProjection
 } from '../domain/operationalProjections';
 import { BudgetStatus } from '../domain/budget';
 import { ClientProposalStatus } from '../features/clientPortal/storage/clientProposalStorage';
 import { ServiceStatus } from '../core/types/business';
 import { OperationalEvent } from '../domain/operationalEvent';
+import { BudgetPersistenceService } from './BudgetPersistenceService';
 
 /**
  * OperationalReadModelService
@@ -125,17 +127,50 @@ export class OperationalReadModelService {
 
     const pipeline = await this.getPipelineProjection();
     const board: OperationalBoardProjection = {
-      budgetsInDraft: [],
-      budgetsWaitingApproval: [],
-      workOrdersInProgress: [],
-      completedItems: []
+      draft: [],
+      sent: [],
+      approved: [],
+      authorized: [],
+      inExecution: [],
+      finalized: [],
+      archived: []
     };
 
+    const budgetPersistence = new BudgetPersistenceService();
+
     for (const proj of Object.values(pipeline)) {
-      if (proj.budgetStatus === 'iniciado') board.budgetsInDraft.push(proj.budgetId);
-      if (proj.budgetStatus === 'enviado' || proj.budgetStatus === 'em_revisao') board.budgetsWaitingApproval.push(proj.budgetId);
-      if (proj.budgetStatus === 'em_execucao' || proj.workOrderStatus === 'in-progress') board.workOrdersInProgress.push(proj.budgetId);
-      if (proj.budgetStatus === 'finalizado') board.completedItems.push(proj.budgetId);
+      const budget = await budgetPersistence.getBudget(proj.budgetId);
+      if (!budget) continue;
+
+      const card: OperationalCardProjection = {
+        id: budget.id,
+        clientName: budget.clientName || 'Cliente sem nome',
+        title: budget.title,
+        currentStatus: budget.status,
+        proposalStatus: proj.proposalStatus,
+        workOrderStatus: proj.workOrderStatus,
+        revenue: budget.chargedValue || 0,
+        netProfit: budget.financialSnapshot?.lucroBruto || 0,
+        margin: budget.financialSnapshot?.margemPercentual || 0,
+        createdAt: budget.createdAt,
+        updatedAt: budget.updatedAt,
+        aging: Math.floor((Date.now() - new Date(budget.createdAt).getTime()) / (1000 * 60 * 60 * 24)),
+        priority: 'normal',
+        slaBreached: false,
+        overdue: false,
+        executionDelay: 0,
+        approvalDelay: 0,
+        stalledWorkflow: false
+      };
+
+      if (budget.status === 'iniciado') board.draft.push(card);
+      else if (budget.status === 'enviado' || budget.status === 'em_revisao') board.sent.push(card);
+      else if (proj.proposalStatus === 'approved' && budget.status !== 'autorizado') board.approved.push(card);
+      else if (budget.status === 'autorizado') board.authorized.push(card);
+      else if (budget.status === 'em_execucao' || proj.workOrderStatus === 'in-progress') board.inExecution.push(card);
+      else if (budget.status === 'finalizado') board.finalized.push(card);
+      else if (budget.status === 'arquivado') board.archived.push(card);
+      else board.draft.push(card); // fallback
     }
 
     this.boardCache = board;

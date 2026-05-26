@@ -21,9 +21,34 @@ export interface OperationalMetricsProjection {
   lastUpdatedAt: string;
 }
 
+export interface OperationalCardProjection {
+  id: string;
+  clientName: string;
+  title: string;
+  currentStatus: string;
+  proposalStatus?: string;
+  workOrderStatus?: string;
+  revenue: number;
+  netProfit: number;
+  margin: number;
+  createdAt: string;
+  updatedAt: string;
+  aging: number; // days since creation or last update
+  assignedTechnician?: string;
+  priority: 'low' | 'normal' | 'high' | 'urgent';
+  slaBreached: boolean;
+  overdue: boolean;
+  executionDelay: number; // in days
+  approvalDelay: number; // in days
+  stalledWorkflow: boolean;
+}
+
 export interface OperationalBoardProjection {
-  budgetsInDraft: string[];
-  budgetsWaitingApproval: string[];
-  workOrdersInProgress: string[];
-  completedItems: string[];
+  draft: OperationalCardProjection[];
+  sent: OperationalCardProjection[];
+  approved: OperationalCardProjection[];
+  authorized: OperationalCardProjection[];
+  inExecution: OperationalCardProjection[];
+  finalized: OperationalCardProjection[];
+  archived: OperationalCardProjection[];
 }
