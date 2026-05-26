@@ -31,11 +31,19 @@ export function MenuScreen({ account, onNavigate }: MenuScreenProps) {
   const accountLabel = account.status === 'google' || account.status === 'email' || account.status === 'local' ? account.displayName : 'Sem login';
   const systemItems = [
     {
-      title: 'Catálogo',
+      title: 'Clientes',
+      onClick: () => onNavigate('base'),
+    },
+    {
+      title: 'Catálogo de Serviços',
       onClick: () => onNavigate('catalog'),
     },
     {
-      title: 'Perfil e Conta',
+      title: 'Relatórios',
+      onClick: () => onNavigate('reports'),
+    },
+    {
+      title: 'Perfil Profissional',
       context: `${accountLabel} · ${planStatusTitle(account)}`,
       onClick: () => setActiveSection('profile'),
     },
@@ -56,7 +64,7 @@ export function MenuScreen({ account, onNavigate }: MenuScreenProps) {
       onClick: () => setActiveSection('about'),
     },
   ] as const;
-  const visibleSystemItems = showAllSystemItems ? systemItems : systemItems.slice(0, 5);
+  const visibleSystemItems = showAllSystemItems ? systemItems : systemItems.slice(0, 10);
   const hiddenSystemItemsCount = Math.max(systemItems.length - visibleSystemItems.length, 0);
   
   if (activeSection !== 'main') {

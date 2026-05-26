@@ -20,13 +20,20 @@ interface BudgetHistoryPageProps {
 }
 
 export const BudgetHistoryPage: React.FC<BudgetHistoryPageProps> = ({ onOpenBudget, onNewBudget }) => {
-  const { budgets, totalCount, isLoading, filter, setFilter } = useBudgetHistory();
+  const { budgets, totalCount, isLoading, filter, setFilter, deleteBudget } = useBudgetHistory();
 
   const FILTER_CHIPS = [
     { id: 'todos', label: 'Todos' },
     { id: 'andamento', label: 'Em andamento' },
     { id: 'finalizados', label: 'Finalizados' },
   ];
+
+  const handleDelete = async (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+    if (window.confirm('Tem certeza que deseja excluir este orçamento?')) {
+      await deleteBudget(id);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -76,6 +83,15 @@ export const BudgetHistoryPage: React.FC<BudgetHistoryPageProps> = ({ onOpenBudg
               context={budget.clientName || 'Cliente não informado'}
               status={<StatusBadge status={budget.status} />}
               value={<MoneyValue value={calculateBudget(budget).totalComercial} compact />}
+              action={
+                <button 
+                  className="ghost-action aferix-p-sm" 
+                  onClick={(e) => handleDelete(e, budget.id)}
+                  title="Excluir"
+                >
+                  Excluir
+                </button>
+              }
             />
           ))}
         </ListCard>

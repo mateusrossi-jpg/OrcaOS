@@ -201,6 +201,8 @@ export const BudgetForm: React.FC<BudgetFormProps> = ({ id, onBack }) => {
           title={`Lucro: ${formatCurrencyBRL(preview?.grossProfit || 0)}`}
           meta={`Margem: ${formatPercent(preview?.marginPercent || 0)} • Custo: ${formatCurrencyBRL(preview?.totalCost || 0)}`}
           icon={<span className="nav-icon">💰</span>}
+          actionLabel={!isReadOnly ? "Finalizar" : undefined}
+          onAction={!isReadOnly ? requestFinalize : undefined}
         />
       </div>
 

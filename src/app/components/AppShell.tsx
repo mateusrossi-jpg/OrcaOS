@@ -29,13 +29,11 @@ const NavGlyph = memo(NavGlyphRaw);
 export function AppShell({ children, activeTab, navItems, onNavigate, activeClient }: AppShellProps) {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [isBudgetGroupOpen, setIsBudgetGroupOpen] = useState(false);
   const [isBaseGroupOpen, setIsBaseGroupOpen] = useState(false);
 
   useEffect(() => {
     setIsSidebarCollapsed(true);
     setIsDrawerOpen(false);
-    setIsBudgetGroupOpen(false);
     setIsBaseGroupOpen(false);
   }, [activeTab]);
 
@@ -44,7 +42,6 @@ export function AppShell({ children, activeTab, navItems, onNavigate, activeClie
       if (!(e.target as Element).closest('.app-sidebar, .mobile-top-bar')) {
         setIsDrawerOpen(false);
         setIsSidebarCollapsed(true);
-        setIsBudgetGroupOpen(false);
         setIsBaseGroupOpen(false);
       }
     }
@@ -73,7 +70,14 @@ export function AppShell({ children, activeTab, navItems, onNavigate, activeClie
     activeTab === 'reports' ||
     activeTab === 'settings' ||
     activeTab === 'store';
-  const workActive = activeTab === 'budgets' || activeTab === 'work-history';
+
+  // Core Journey items for Bottom Nav
+  const bottomNavItems = [
+    { id: 'pulse', label: 'Resumo', icon: 'home' as AppIconGlyph },
+    { id: 'work-history', label: 'Operação', icon: 'document' as AppIconGlyph },
+    { id: 'money', label: 'Financeiro', icon: 'finance' as AppIconGlyph },
+    { id: 'settings', label: 'Mais', icon: 'clients' as AppIconGlyph },
+  ];
 
   const iconMap: Record<AppIconGlyph, ReactNode> = {
     home: <NavGlyph path="M3 10.5 12 3l9 7.5M6.5 9.5V21h11V9.5" />,
@@ -96,7 +100,6 @@ export function AppShell({ children, activeTab, navItems, onNavigate, activeClie
             setIsSidebarCollapsed((current) => {
               const nextCollapsed = !current;
               if (!nextCollapsed) {
-                setIsBudgetGroupOpen(false);
                 setIsBaseGroupOpen(false);
               }
               return nextCollapsed;
@@ -128,7 +131,6 @@ export function AppShell({ children, activeTab, navItems, onNavigate, activeClie
           onClick={() => {
             setIsSidebarCollapsed(true);
             setIsDrawerOpen(false);
-            setIsBudgetGroupOpen(false);
             setIsBaseGroupOpen(false);
           }}
           aria-hidden="true"
@@ -147,8 +149,7 @@ export function AppShell({ children, activeTab, navItems, onNavigate, activeClie
             onClick={() => {
               setIsSidebarCollapsed(true);
               setIsDrawerOpen(false);
-              setIsBudgetGroupOpen(false);
-              setIsBaseGroupOpen(false);
+                setIsBaseGroupOpen(false);
             }}
           >
             ✕
@@ -171,43 +172,14 @@ export function AppShell({ children, activeTab, navItems, onNavigate, activeClie
               )}
 
               {workItem && (
-                <div className={`nav-group ${workActive ? 'active' : ''}`}>
-                  <button
-                    type="button"
-                    className={`nav-item nav-parent ${workActive ? 'active' : ''}`}
-                    onClick={() => {
-                      setIsBudgetGroupOpen((current) => !current);
-                    }}
-                  >
-                    <span className={`nav-icon icon-${workItem.icon}`}>{iconMap[workItem.icon]}</span>
-                    <strong className="nav-label">{workItem.label}</strong>
-                    <span className={`nav-group-caret ${isBudgetGroupOpen ? 'open' : ''}`}>▾</span>
-                    {workActive && <span className="active-indicator" />}
-                  </button>
-
-                  {isBudgetGroupOpen && (
-                    <div className="nav-subitems">
-                      <button
-                        type="button"
-                        className={`nav-subitem ${activeTab === 'budgets' ? 'active' : ''}`}
-                        onClick={() => {
-                          onNavigate('budgets');
-                        }}
-                      >
-                        Novo orçamento
-                      </button>
-                      <button
-                        type="button"
-                        className={`nav-subitem ${activeTab === 'work-history' ? 'active' : ''}`}
-                        onClick={() => {
-                          onNavigate('work-history');
-                        }}
-                      >
-                        Histórico
-                      </button>
-                    </div>
-                  )}
-                </div>
+                <button
+                  className={`nav-item ${activeTab === 'work-history' || activeTab === 'budgets' || activeTab === 'new-budget' ? 'active' : ''}`}
+                  onClick={() => onNavigate('work-history')}
+                >
+                  <span className={`nav-icon icon-${workItem.icon}`}>{iconMap[workItem.icon]}</span>
+                  <strong className="nav-label">Operacional</strong>
+                  {(activeTab === 'work-history' || activeTab === 'budgets' || activeTab === 'new-budget') && <span className="active-indicator" />}
+                </button>
               )}
 
               {moneyItem && (
@@ -221,24 +193,36 @@ export function AppShell({ children, activeTab, navItems, onNavigate, activeClie
                 </button>
               )}
 
+              <button
+                className={`nav-item ${activeTab === 'reports' ? 'active' : ''}`}
+                onClick={() => onNavigate('reports')}
+              >
+                <span className="nav-icon icon-chart">{iconMap['chart']}</span>
+                <strong className="nav-label">Relatórios</strong>
+                {activeTab === 'reports' && <span className="active-indicator" />}
+              </button>
+
               {baseItem && (
-                <div className={`nav-group ${baseActive ? 'active' : ''}`}>
+                <div className={`nav-group ${baseActive && activeTab !== 'reports' ? 'active' : ''}`}>
                   <button
                     type="button"
-                    className={`nav-item nav-parent ${baseActive ? 'active' : ''}`}
+                    className={`nav-item nav-parent ${baseActive && activeTab !== 'reports' ? 'active' : ''}`}
                     onClick={() => {
+                      if (!baseActive || activeTab === 'reports') {
+                        onNavigate('base');
+                      }
                       setIsBaseGroupOpen((current) => !current);
                     }}
                   >
                     <span className={`nav-icon icon-${baseItem.icon}`}>{iconMap[baseItem.icon]}</span>
-                    <strong className="nav-label">{baseItem.label}</strong>
+                    <strong className="nav-label">Mais</strong>
                     <span className={`nav-group-caret ${isBaseGroupOpen ? 'open' : ''}`}>▾</span>
-                    {baseActive && <span className="active-indicator" />}
+                    {baseActive && activeTab !== 'reports' && <span className="active-indicator" />}
                   </button>
 
                   {isBaseGroupOpen && (
                     <div className="nav-subitems">
-                      {baseSubItems.map((item) => (
+                      {baseSubItems.filter(i => i.id !== 'reports').map((item) => (
                         <button
                           key={item.id}
                           type="button"
@@ -263,6 +247,27 @@ export function AppShell({ children, activeTab, navItems, onNavigate, activeClie
       <section className="app-content-area">
         <div className="content-container">{children}</div>
       </section>
+
+      <nav className="mobile-bottom-nav">
+        {bottomNavItems.map((item) => (
+          <button
+            key={item.id}
+            type="button"
+            className={`bottom-nav-item ${
+              (item.id === 'pulse' && activeTab === 'pulse') ||
+              (item.id === 'work-history' && (activeTab === 'work-history' || activeTab === 'budgets')) ||
+              (item.id === 'money' && activeTab === 'money') ||
+              (item.id === 'base' && baseActive)
+                ? 'active'
+                : ''
+            }`}
+            onClick={() => onNavigate(item.id as AppTab)}
+          >
+            <span className="nav-icon">{iconMap[item.icon]}</span>
+            <span>{item.label}</span>
+          </button>
+        ))}
+      </nav>
     </main>
   );
 }
