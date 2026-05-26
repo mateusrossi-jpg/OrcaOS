@@ -26,7 +26,8 @@ import { SimpleFinanceMigrationService } from '../services/SimpleFinanceMigratio
 import { useCalculationCaptures } from '../hooks/useCalculationCaptures';
 import { useAccountPlan } from '../hooks/useAccountPlan';
 import { useAppClients } from './hooks/useAppClients';
-
+import { realtimeBridge } from '../core/realtime/bridge';
+import { ERPToast } from '../ui/system';
 function LazyWorkspaceFallback() {
   return (
     <section className="app-screen">
@@ -79,11 +80,16 @@ export function App() {
         await SimpleFinanceMigrationService.runIfNeeded();
         await refreshCaptures();
         await refreshClients();
+        realtimeBridge.initialize();
       } catch (err) {
         console.error('Migration failed on bootstrap:', err);
       }
     }
     runMigration();
+    
+    return () => {
+      realtimeBridge.shutdown();
+    };
   }, [refreshClients]);
 
   if (isLoadingAccount || !account) {
@@ -133,6 +139,7 @@ export function App() {
 
   return (
     <>
+      <ERPToast />
       <AferixIntro />
       <AppShell activeTab={activeTab} navItems={navItems} activeClient={activeClient} activeWorkOrder={activeWorkOrder} onNavigate={goTo}>
         <Suspense fallback={<LazyWorkspaceFallback />}>

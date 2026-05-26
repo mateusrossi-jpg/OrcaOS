@@ -2,6 +2,7 @@ import { useEffect, useState, memo, type ReactNode } from 'react';
 import type { Client, Service as WorkOrder } from '../../core/types/business';
 import './AppShell.css';
 import type { AppNavItem, AppTab, AppIconGlyph } from '../appTypes';
+import { ERPNotificationCenter } from '../../ui/system';
 
 const AFERIX_WORDMARK = '/icons/aferix-wordmark-premium.svg';
 
@@ -114,7 +115,8 @@ export function AppShell({ children, activeTab, navItems, onNavigate, activeClie
         <div className="mobile-app-brand">
           <img src={AFERIX_WORDMARK} alt="Aferix" height={24} />
         </div>
-        <div className="mobile-context-info">
+        <div className="mobile-context-info flex items-center gap-3">
+          <ERPNotificationCenter />
           {activeClient && <span className="client-initials" title={activeClient.name}>{activeClient.name.charAt(0).toUpperCase()}</span>}
         </div>
       </div>
