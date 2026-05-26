@@ -2,7 +2,7 @@ import { budgetCalculator } from '../../../services/BudgetCalculatorService';
 import type { Client, WorkOrder } from '../../../core/types/business';
 import type { CalculationCapture } from '../../../core/types/workflow';
 import type { Budget, BudgetItem } from '../../../domain/budget';
-import { loadProfessionalProfile } from '../../settings/storage/professionalProfileStorage';
+import { professionalProfileService } from '../../../services/professionalProfileService';
 import { createClientProposalDraft, type ClientProposal, type ClientProposalPublicItem, type ClientPurchaseMaterialItem } from './clientProposalStorage';
 
 function parseDecimal(value?: string, fallback = 0): number {
@@ -63,12 +63,12 @@ function buildClientMaterial(capture: CalculationCapture): ClientPurchaseMateria
   };
 }
 
-export function buildClientProposalFromCaptures(input: {
+export async function buildClientProposalFromCaptures(input: {
   captures: CalculationCapture[];
   activeClient?: Client | null;
   activeWorkOrder?: WorkOrder | null;
-}): ClientProposal {
-  const profile = loadProfessionalProfile();
+}): Promise<ClientProposal> {
+  const profile = await professionalProfileService.getProfile();
   const chargedItems = input.captures.filter(isBudgetChargedItem).map(buildPublicItem);
   const clientPurchaseMaterials = input.captures.filter(isClientPurchaseMaterial).map(buildClientMaterial);
   

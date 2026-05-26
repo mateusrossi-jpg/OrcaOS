@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { Client, WorkOrder } from '../../../core/types/business';
 import type { CalculationCapture } from '../../../core/types/workflow';
 import { useBudgetHistory } from '../../../hooks/useBudgetHistory';
@@ -44,9 +44,21 @@ export function ReportWorkspace({ captures: _captures, activeClient: _activeClie
   
   const { budgets: savedBudgets, isLoading } = useBudgetHistory();
   const financeRecords = useMemo(() => FinanceFacade.getRealizedRecords(), []);
-  const profile = useMemo(() => ProfileFacade.getProfile(), []);
+  const [profileName, setProfileName] = useState('Profissional');
 
-  const profileName = profile.businessName || profile.professionalName || 'Profissional';
+  useEffect(() => {
+    let active = true;
+    async function loadProfileName() {
+      const profile = await ProfileFacade.getProfile();
+      if (!active) return;
+      setProfileName(profile.businessName || profile.professionalName || 'Profissional');
+    }
+
+    void loadProfileName();
+    return () => {
+      active = false;
+    };
+  }, []);
 
   // Calculate Hero Data: Planned vs Actual
   const heroData = useMemo(() => {

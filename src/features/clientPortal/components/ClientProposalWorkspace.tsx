@@ -1,10 +1,8 @@
 import { useMemo, useState } from 'react';
 import type { Client, WorkOrder } from '../../../core/types/business';
 import type { CalculationCapture } from '../../../core/types/workflow';
-// eslint-disable-next-line no-restricted-imports -- TODO: Refactor legacy storage access
-import { loadProfessionalProfile } from '../../settings/storage/professionalProfileStorage';
-// eslint-disable-next-line no-restricted-imports -- TODO: Refactor legacy storage access
-import { buildClientProposalFromCaptures } from '../storage/buildClientProposalFromCaptures';
+import { buildClientProposal } from '../../../services/clientProposalBuilderService';
+import { professionalProfileService } from '../../../services/professionalProfileService';
 // eslint-disable-next-line no-restricted-imports -- TODO: Refactor legacy storage access
 import { buildClientProposalShareText, buildClientProposalWhatsAppUrl } from '../storage/clientProposalShareText';
 // eslint-disable-next-line no-restricted-imports -- TODO: Refactor legacy storage access
@@ -64,21 +62,21 @@ export function ClientProposalWorkspace({ technicalCaptures = [], activeClient =
     setProposals(loadClientProposals());
   }
 
-  function createProposalFromCurrentBudget() {
+  async function createProposalFromCurrentBudget() {
     if (proposalReadyCaptures.length === 0) {
       setFeedback('Nenhum item técnico disponível para gerar orçamento do cliente. Envie serviços ou materiais ao orçamento primeiro.');
       return;
     }
 
-    const proposal = buildClientProposalFromCaptures({ captures: proposalReadyCaptures, activeClient, activeWorkOrder });
+    const proposal = await buildClientProposal({ captures: proposalReadyCaptures, activeClient, activeWorkOrder });
     upsertClientProposal(proposal);
     refresh();
     setPreviewProposal(proposal);
     setFeedback(`Orçamento criado a partir de ${proposalReadyCaptures.length} item(ns) técnico(s).`);
   }
 
-  function createExampleProposal() {
-    const profile = loadProfessionalProfile();
+  async function createExampleProposal() {
+    const profile = await professionalProfileService.getProfile();
     const proposal = createClientProposalDraft({
       professionalId: profile.professionalId,
       companyId: profile.companyId,
@@ -151,8 +149,8 @@ export function ClientProposalWorkspace({ technicalCaptures = [], activeClient =
           <small>{proposalReadyCaptures.length} item(ns) técnico(s) disponíveis para transformar em orçamento público.</small>
         </div>
         <div className="client-proposal-actions">
-          <button className="primary-action inline-action" type="button" onClick={createProposalFromCurrentBudget}>Criar orçamento do orçamento atual</button>
-          <button className="secondary-action inline-action" type="button" onClick={createExampleProposal}>Criar orçamento exemplo</button>
+          <button className="primary-action inline-action" type="button" onClick={() => void createProposalFromCurrentBudget()}>Criar orçamento do orçamento atual</button>
+          <button className="secondary-action inline-action" type="button" onClick={() => void createExampleProposal()}>Criar orçamento exemplo</button>
           <button className="secondary-action inline-action" type="button" onClick={refresh}>Atualizar lista</button>
         </div>
         <label className="client-proposal-search">

@@ -1,6 +1,6 @@
-import { loadBusinessProfile } from '../../../legacy/businessProfileStorage';
-// eslint-disable-next-line no-restricted-imports -- TODO: Refactor legacy storage access
-import { loadProfessionalProfile } from '../storage/professionalProfileStorage';
+import { useEffect, useState } from 'react';
+import { professionalProfileService } from '../../../services/professionalProfileService';
+import { createDefaultProfessionalProfile, type ProfessionalProfile } from '../models/professionalProfile';
 import './ProfessionalIdentityCard.css';
 
 interface ProfessionalIdentityCardProps {
@@ -8,20 +8,32 @@ interface ProfessionalIdentityCardProps {
   contextLabel?: string;
 }
 
-function hasVisibleProfileData(profile: ReturnType<typeof loadProfessionalProfile>): boolean {
+function hasVisibleProfileData(profile: ProfessionalProfile): boolean {
   return Boolean(profile.professionalName || profile.businessName || profile.document || profile.phone || profile.email || profile.city || profile.state);
 }
 
 export function ProfessionalIdentityCard({ compact = false, contextLabel = 'Identidade profissional' }: ProfessionalIdentityCardProps) {
-  const profile = loadProfessionalProfile();
-  const businessProfile = loadBusinessProfile();
-  const hasData = hasVisibleProfileData(profile) || Boolean(businessProfile.businessName || businessProfile.responsibleName || businessProfile.phone || businessProfile.email);
-  const displayName = profile.businessName || businessProfile.businessName || profile.professionalName || businessProfile.responsibleName || 'Perfil profissional não configurado';
-  const responsibleName = profile.professionalName && displayName !== profile.professionalName ? profile.professionalName : businessProfile.responsibleName && displayName !== businessProfile.responsibleName ? businessProfile.responsibleName : '';
-  const location = [profile.address || businessProfile.address, [profile.city, profile.state].filter(Boolean).join(' / ')].filter(Boolean).join(' - ');
-  const document = profile.document || businessProfile.documentNumber;
-  const phone = profile.phone || businessProfile.phone;
-  const email = profile.email || businessProfile.email;
+  const [profile, setProfile] = useState<ProfessionalProfile>(() => createDefaultProfessionalProfile());
+
+  useEffect(() => {
+    let active = true;
+    async function loadProfile() {
+      const loadedProfile = await professionalProfileService.getProfile();
+      if (active) setProfile(loadedProfile);
+    }
+    void loadProfile();
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const hasData = hasVisibleProfileData(profile);
+  const displayName = profile.businessName || profile.professionalName || 'Perfil profissional não configurado';
+  const responsibleName = profile.professionalName && displayName !== profile.professionalName ? profile.professionalName : '';
+  const location = [profile.address, [profile.city, profile.state].filter(Boolean).join(' / ')].filter(Boolean).join(' - ');
+  const document = profile.document;
+  const phone = profile.phone;
+  const email = profile.email;
 
   return (
     <aside className={compact ? 'professional-identity-card compact' : 'professional-identity-card'}>

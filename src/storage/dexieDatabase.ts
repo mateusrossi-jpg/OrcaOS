@@ -4,6 +4,7 @@ import { Client } from '../domain/client';
 import { Service as WorkOrder } from '../core/types/business';
 import { CatalogHubItem, CatalogSupplier } from '../features/catalog/storage/catalogHubStorage';
 import { SupplierProfile } from '../features/catalog/storage/supplierProfileStorage';
+import { ProfessionalProfile } from '../features/settings/models/professionalProfile';
 
 export interface MigrationRecord {
   key: string;
@@ -15,6 +16,10 @@ export interface SettingRecord {
   value: unknown;
 }
 
+export interface ProfessionalProfileRecord extends ProfessionalProfile {
+  id: string;
+}
+
 export class AferixDatabase extends Dexie {
   budgets!: Table<Budget>;
   clients!: Table<Client>;
@@ -22,19 +27,21 @@ export class AferixDatabase extends Dexie {
   catalog!: Table<CatalogHubItem>;
   catalogSuppliers!: Table<CatalogSupplier>;
   supplierProfiles!: Table<SupplierProfile>;
+  professionalProfiles!: Table<ProfessionalProfileRecord>;
   migrations!: Table<MigrationRecord>;
   settings!: Table<SettingRecord>;
 
   constructor() {
     super('AferixDatabase');
-    // Version 5: Added catalogSuppliers and supplierProfiles tables
-    this.version(5).stores({
+    // Version 6: Added professionalProfiles table
+    this.version(6).stores({
       budgets: 'id',
       clients: 'id',
       workOrders: 'id',
       catalog: 'id',
       catalogSuppliers: 'id',
       supplierProfiles: 'id',
+      professionalProfiles: 'id',
       migrations: 'key',
       settings: 'key',
     });

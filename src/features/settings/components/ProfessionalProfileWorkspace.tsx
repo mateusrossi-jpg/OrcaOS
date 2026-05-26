@@ -1,50 +1,31 @@
-import { useState, type ChangeEvent } from 'react';
+import { useEffect, useState, type ChangeEvent } from 'react';
 import { BackButton } from '../../../app/components/ui';
-import { loadBusinessProfile, saveBusinessProfile } from '../../../legacy/businessProfileStorage';
-// eslint-disable-next-line no-restricted-imports -- TODO: Refactor legacy storage access
-import {
-  loadProfessionalProfile,
-  resetProfessionalProfileIds,
-  saveProfessionalProfile,
-  type ProfessionalProfile,
-} from '../storage/professionalProfileStorage';
+import { professionalProfileService } from '../../../services/professionalProfileService';
+import { createDefaultProfessionalProfile, type ProfessionalProfile } from '../models/professionalProfile';
 import './ProfessionalProfileWorkspace.css';
 
-function syncProfileToBusinessProfile(profile: ProfessionalProfile) {
-  const currentBusinessProfile = loadBusinessProfile();
-  const location = [profile.city, profile.state].filter(Boolean).join(' / ');
-  const address = [profile.address, location].filter(Boolean).join(' - ');
-
-  saveBusinessProfile({
-    ...currentBusinessProfile,
-    businessName: profile.businessName || profile.professionalName || currentBusinessProfile.businessName,
-    documentNumber: profile.document || currentBusinessProfile.documentNumber,
-    phone: profile.phone || currentBusinessProfile.phone,
-    email: profile.email || currentBusinessProfile.email,
-    address: address || currentBusinessProfile.address,
-    logoUrl: profile.logoUrl || currentBusinessProfile.logoUrl,
-    logoDataUrl: profile.logoDataUrl || currentBusinessProfile.logoDataUrl,
-    responsibleName: profile.professionalName || currentBusinessProfile.responsibleName,
-    defaultNotes: profile.commercialNotes || currentBusinessProfile.defaultNotes,
-    defaultPaymentTerms: profile.defaultPaymentTerms || currentBusinessProfile.defaultPaymentTerms,
-    defaultValidity: profile.defaultValidity || currentBusinessProfile.defaultValidity,
-    defaultGuarantee: profile.defaultGuarantee || currentBusinessProfile.defaultGuarantee,
-    defaultExecutionDeadline: profile.defaultExecutionDeadline || currentBusinessProfile.defaultExecutionDeadline,
-    defaultBudgetTemplateId: profile.defaultBudgetTemplateId || currentBusinessProfile.defaultBudgetTemplateId,
-    defaultReportTemplateId: profile.defaultReportTemplateId || currentBusinessProfile.defaultReportTemplateId,
-  });
-}
-
 export function ProfessionalProfileWorkspace({ onBack }: { onBack?: () => void } = {}) {
-  const [profile, setProfile] = useState<ProfessionalProfile>(() => loadProfessionalProfile());
+  const [profile, setProfile] = useState<ProfessionalProfile>(() => createDefaultProfessionalProfile());
+
+  useEffect(() => {
+    let active = true;
+    async function loadProfile() {
+      const loadedProfile = await professionalProfileService.getProfile();
+      if (active) setProfile(loadedProfile);
+    }
+    void loadProfile();
+    return () => {
+      active = false;
+    };
+  }, []);
 
   function updateProfile<K extends keyof ProfessionalProfile>(key: K, value: ProfessionalProfile[K]) {
     setProfile((current) => ({ ...current, [key]: value }));
   }
 
-  function saveProfile() {
-    saveProfessionalProfile(profile);
-    syncProfileToBusinessProfile(profile);
+  async function saveProfile() {
+    const saved = await professionalProfileService.saveProfile(profile);
+    setProfile(saved);
   }
 
   function handleLogoFileChange(event: ChangeEvent<HTMLInputElement>) {
@@ -64,11 +45,9 @@ export function ProfessionalProfileWorkspace({ onBack }: { onBack?: () => void }
     setProfile((current) => ({ ...current, logoUrl: '', logoDataUrl: '' }));
   }
 
-  function regenerateIds() {
-    const nextProfile = resetProfessionalProfileIds(profile);
+  async function regenerateIds() {
+    const nextProfile = await professionalProfileService.regenerateIds(profile);
     setProfile(nextProfile);
-    saveProfessionalProfile(nextProfile);
-    syncProfileToBusinessProfile(nextProfile);
   }
 
   return (
@@ -85,7 +64,6 @@ export function ProfessionalProfileWorkspace({ onBack }: { onBack?: () => void }
         </header>
       </section>
 
-      {/* 1. Identidade visual */}
       <section className="professional-profile-section">
         <header>
           <div>
@@ -107,7 +85,6 @@ export function ProfessionalProfileWorkspace({ onBack }: { onBack?: () => void }
         </div>
       </section>
 
-      {/* 2. Dados Comerciais */}
       <section className="professional-profile-section">
         <header>
           <div>
@@ -124,7 +101,6 @@ export function ProfessionalProfileWorkspace({ onBack }: { onBack?: () => void }
         </div>
       </section>
 
-      {/* 2.5 IDs de Sincronização */}
       <section className="professional-profile-section">
         <header>
           <div>
@@ -144,11 +120,10 @@ export function ProfessionalProfileWorkspace({ onBack }: { onBack?: () => void }
           </div>
         </div>
         <div className="professional-profile-actions">
-          <button className="ghost-action" type="button" onClick={regenerateIds}>Regenerar IDs</button>
+          <button className="ghost-action" type="button" onClick={() => void regenerateIds()}>Regenerar IDs</button>
         </div>
       </section>
 
-      {/* 3. Padrões de Orçamentos */}
       <section className="professional-profile-section">
         <header>
           <div>
@@ -163,7 +138,7 @@ export function ProfessionalProfileWorkspace({ onBack }: { onBack?: () => void }
           <label className="budget-field wide"><span>Observações</span><textarea value={profile.commercialNotes} onChange={e => updateProfile('commercialNotes', e.target.value)} /></label>
         </div>
         <div className="professional-profile-save-row">
-          <button className="primary-action" type="button" onClick={saveProfile}>Salvar Alterações</button>
+          <button className="primary-action" type="button" onClick={() => void saveProfile()}>Salvar Alterações</button>
         </div>
       </section>
     </div>

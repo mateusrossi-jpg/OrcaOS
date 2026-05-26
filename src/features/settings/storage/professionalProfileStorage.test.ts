@@ -26,7 +26,7 @@ describe('professional profile storage', () => {
     expect(profile.mainArea).toBe('Elétrica');
     expect(profile.defaultPaymentTerms).toBe('Condições de pagamento a combinar.');
     expect(profile.defaultValidity).toBe('7 dias');
-    expect(window.localStorage.getItem('orcaos:professional-profile:v1')).toBeTruthy();
+    expect(window.localStorage.getItem('orcaos:professional-profile:v1')).toBeNull();
   });
 
   it('saves and loads professional profile data', () => {
