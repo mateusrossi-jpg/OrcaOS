@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import type { AppTab } from '../appTypes';
 import { useBudgetHistory } from '../../hooks/useBudgetHistory';
 import {
@@ -13,6 +14,7 @@ import {
 } from '../components/ui';
 import { calculateBudget } from '../../domain/aferixFinanceEngine';
 import type { Budget } from '../../domain/budget';
+import { FinanceFacade, type ConsolidatedFinanceRecord } from '../../features/finance/financeFacade';
 
 interface HomeScreenProps {
   onNavigate: (tab: AppTab) => void;
@@ -21,6 +23,17 @@ interface HomeScreenProps {
 
 export function HomeScreen({ onNavigate, onSelectBudget }: HomeScreenProps) {
   const { budgets } = useBudgetHistory();
+  const [financeRecords, setFinanceRecords] = useState<ConsolidatedFinanceRecord[]>([]);
+
+  useEffect(() => {
+    let active = true;
+    async function load() {
+      const records = await FinanceFacade.getRealizedRecords();
+      if (active) setFinanceRecords(records);
+    }
+    void load();
+    return () => { active = false; };
+  }, []);
 
   const now = new Date();
   const currentMonthBudgets = budgets.filter((b) => {
@@ -35,9 +48,12 @@ export function HomeScreen({ onNavigate, onSelectBudget }: HomeScreenProps) {
   const finalizedThisMonth = currentMonthBudgets.filter((b) => b.status === 'finalizado');
   const finalizedCount = finalizedThisMonth.length;
 
-  const profitThisMonth = finalizedThisMonth.reduce((acc, b) => {
-    const result = calculateBudget(b);
-    return acc + result.lucroBruto;
+  const profitThisMonth = financeRecords.reduce((acc, r) => {
+    const d = new Date(r.updatedAt);
+    if (d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth()) {
+      return acc + r.netProfit;
+    }
+    return acc;
   }, 0);
 
   const recentBudgets = budgets.slice(0, 3);

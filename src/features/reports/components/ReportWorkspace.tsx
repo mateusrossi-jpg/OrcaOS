@@ -3,9 +3,8 @@ import type { Client, WorkOrder } from '../../../core/types/business';
 import type { CalculationCapture } from '../../../core/types/workflow';
 import { useBudgetHistory } from '../../../hooks/useBudgetHistory';
 import { BUDGET_STATUS } from '../../../domain/budget';
-import { FinanceFacade } from '../../finance/financeFacade';
+import { FinanceFacade, type ConsolidatedFinanceRecord } from '../../finance/financeFacade';
 import { ProfileFacade } from '../../settings/profileFacade';
-import { calculateServiceProfit } from '../../../core/finance/serviceProfit';
 import { 
   MetricCard, 
   PanelCard, 
@@ -43,7 +42,7 @@ export function ReportWorkspace({ captures: _captures, activeClient: _activeClie
   const [activeCategory, setActiveCategory] = useState<ReportCategory>('financeiro');
   
   const { budgets: savedBudgets, isLoading } = useBudgetHistory();
-  const financeRecords = useMemo(() => FinanceFacade.getRealizedRecords(), []);
+  const [financeRecords, setFinanceRecords] = useState<ConsolidatedFinanceRecord[]>([]);
   const [profileName, setProfileName] = useState('Profissional');
 
   useEffect(() => {
@@ -60,15 +59,23 @@ export function ReportWorkspace({ captures: _captures, activeClient: _activeClie
     };
   }, []);
 
+  useEffect(() => {
+    let active = true;
+    async function loadFinance() {
+      const records = await FinanceFacade.getRealizedRecords();
+      if (active) setFinanceRecords(records);
+    }
+    void loadFinance();
+    return () => { active = false; };
+  }, [savedBudgets]); // Reload if budgets change
+
   // Calculate Hero Data: Planned vs Actual
   const heroData = useMemo(() => {
     const plannedProfit = savedBudgets
       .filter(b => b.status === BUDGET_STATUS.FINALIZADO)
       .reduce((sum, b) => sum + (b.financialSnapshot?.lucroBruto || 0), 0);
     
-    const actualProfit = financeRecords
-      .filter(r => r.status === 'realized')
-      .reduce((sum, r) => sum + calculateServiceProfit(r).netProfit, 0);
+    const actualProfit = financeRecords.reduce((sum, r) => sum + r.netProfit, 0);
 
     const delta = actualProfit - plannedProfit;
     const isPositive = delta >= 0;
@@ -78,14 +85,10 @@ export function ReportWorkspace({ captures: _captures, activeClient: _activeClie
 
   // Category specific data
   const financeStats = useMemo(() => {
-    const realized = financeRecords.filter(r => r.status === 'realized');
-    const totalRevenue = realized.reduce((sum, r) => sum + r.receivedAmount, 0);
-    const totalCosts = realized.reduce((sum, r) => {
-      const p = calculateServiceProfit(r);
-      return sum + p.directCosts;
-    }, 0);
-    const avgMargin = realized.length > 0
-      ? realized.reduce((sum, r) => sum + calculateServiceProfit(r).netMarginPercent, 0) / realized.length
+    const totalRevenue = financeRecords.reduce((sum, r) => sum + r.receivedAmount, 0);
+    const totalCosts = financeRecords.reduce((sum, r) => sum + r.directCosts, 0);
+    const avgMargin = financeRecords.length > 0
+      ? financeRecords.reduce((sum, r) => sum + r.netMarginPercent, 0) / financeRecords.length
       : 0;
 
     return { totalRevenue, totalCosts, avgMargin };
@@ -199,7 +202,7 @@ export function ReportWorkspace({ captures: _captures, activeClient: _activeClie
           <div className="metric-grid">
             <MetricCard 
               label="Serviços Concluídos" 
-              value={financeRecords.filter(r => r.status === 'realized').length} 
+              value={financeRecords.length} 
             />
             <MetricCard 
               label="Orçamentos Enviados" 

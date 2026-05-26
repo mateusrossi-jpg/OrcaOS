@@ -23,6 +23,8 @@ export interface ProfessionalProfileRecord extends ProfessionalProfile {
   id: string;
 }
 
+import { SimpleFinanceRecord } from '../domain/finance';
+
 export class AferixDatabase extends Dexie {
   budgets!: Table<Budget>;
   clients!: Table<Client>;
@@ -36,13 +38,15 @@ export class AferixDatabase extends Dexie {
   clientProposals!: Table<ClientProposal>;
   calculationCaptures!: Table<CalculationCapture>;
   accountPlan!: Table<AferixAccountState & { id: string }>;
+  simpleFinanceRecords!: Table<SimpleFinanceRecord>;
 
   constructor() {
     super('AferixDatabase');
     // Version 7: Added clientProposals table
     // Version 8: Added calculationCaptures table
     // Version 9: Added accountPlan table
-    this.version(9).stores({
+    // Version 10: Added simpleFinanceRecords table
+    this.version(10).stores({
       budgets: 'id',
       clients: 'id',
       workOrders: 'id',
@@ -55,6 +59,7 @@ export class AferixDatabase extends Dexie {
       clientProposals: 'id',
       calculationCaptures: 'id, workOrderId, clientId',
       accountPlan: 'id',
+      simpleFinanceRecords: 'id, sourceBudgetId',
     });
   }
 }

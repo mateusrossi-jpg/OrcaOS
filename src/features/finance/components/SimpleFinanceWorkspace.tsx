@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { 
   MetricCard, 
   MoneyValue, 
@@ -15,26 +15,9 @@ import {
   SecondaryButton, 
   PanelCard 
 } from '../../../app/components/ui';
-import { calculateServiceProfit } from '../../../core/finance/serviceProfit';
-import { BUDGET_STATUS } from '../../../domain/budget';
-import { useBudgetHistory } from '../../../hooks/useBudgetHistory';
-// eslint-disable-next-line no-restricted-imports -- TODO: Refactor legacy storage access
-import { loadSimpleFinanceRecords, saveSimpleFinanceRecord, type SimpleFinanceRecord } from '../storage/simpleFinanceStorage';
+import { FinanceFacade, type ConsolidatedFinanceRecord } from '../financeFacade';
+import { SimpleFinanceService } from '../../../services/SimpleFinanceService';
 import './SimpleFinanceWorkspace.css';
-
-interface BudgetFinanceRow {
-  budgetId: string;
-  title: string;
-  clientName: string;
-  status: string;
-  updatedAt: string;
-  receivedAmount: number;
-  materialCost: number;
-  travelCost: number;
-  otherCosts: number;
-  cardFee: number;
-  estimatedTax: number;
-}
 
 interface AdjustmentDraft {
   budgetId: string;
@@ -55,24 +38,16 @@ function money(value: number): string {
   return moneyFormatter.format(Number.isFinite(value) ? value : 0);
 }
 
-function safeNonNegative(value: number | undefined): number {
-  if (typeof value !== "number" || !Number.isFinite(value)) return 0;
-  return Math.max(0, value);
-}
-
 function parseAmount(value: string): number {
   const parsed = Number(value.replace(",", ".").trim());
   return Number.isFinite(parsed) ? Math.max(0, parsed) : 0;
 }
 
-function safeDate(value: string): string {
-  if (!value) return new Date(0).toISOString();
-  const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? new Date(0).toISOString() : date.toISOString();
-}
-
 function formatDate(value: string): string {
-  return new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(new Date(safeDate(value)));
+  if (!value) return '';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '';
+  return new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(date);
 }
 
 export function SimpleFinanceWorkspace() {
@@ -81,75 +56,43 @@ export function SimpleFinanceWorkspace() {
   const [showAllRows, setShowAllRows] = useState(false);
   const [syncTick, setSyncTick] = useState(0);
 
-  const { budgets, isLoading } = useBudgetHistory();
+  const [financeRecords, setFinanceRecords] = useState<ConsolidatedFinanceRecord[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const finalizedBudgets = useMemo(
-    () => budgets.filter((budget) => budget.status === BUDGET_STATUS.FINALIZADO),
-    [budgets]
-  );
-
-  const adjustmentsByBudgetId = useMemo(() => {
-    const map = new Map<string, SimpleFinanceRecord>();
-    loadSimpleFinanceRecords().forEach((record) => {
-      if (record.sourceBudgetId) map.set(record.sourceBudgetId, record);
-    });
-    return map;
+  useEffect(() => {
+    let active = true;
+    async function load() {
+      setIsLoading(true);
+      const records = await FinanceFacade.getRealizedRecords();
+      if (active) {
+        setFinanceRecords(records);
+        setIsLoading(false);
+      }
+    }
+    void load();
+    return () => { active = false; };
   }, [syncTick]);
-
-  const rows = useMemo<BudgetFinanceRow[]>(() => {
-    return finalizedBudgets.map((budget) => {
-      const adjustment = adjustmentsByBudgetId.get(budget.id);
-      
-      // Mapeamento oficial do domínio Aferix para a linha de finanças
-      const baseRow: BudgetFinanceRow = {
-        budgetId: budget.id,
-        title: budget.title,
-        clientName: budget.clientName || 'Cliente final',
-        status: budget.status,
-        updatedAt: safeDate(budget.finalizedAt || budget.updatedAt),
-        receivedAmount: safeNonNegative(budget.chargedValue - budget.discounts),
-        materialCost: safeNonNegative(budget.materialCost),
-        travelCost: safeNonNegative(budget.travelCost),
-        otherCosts: safeNonNegative(budget.helperCost + (budget.fees || 0) + (budget.otherCosts || 0)),
-        cardFee: 0,
-        estimatedTax: 0,
-      };
-
-      if (!adjustment) return baseRow;
-
-      return {
-        ...baseRow,
-        receivedAmount: safeNonNegative(adjustment.receivedAmount),
-        materialCost: safeNonNegative(adjustment.materialCost),
-        travelCost: safeNonNegative(adjustment.travelCost),
-        otherCosts: safeNonNegative(adjustment.otherCosts),
-        cardFee: safeNonNegative(adjustment.cardFee),
-        estimatedTax: safeNonNegative(adjustment.estimatedTax),
-      };
-    });
-  }, [finalizedBudgets, adjustmentsByBudgetId]);
 
   const filteredRows = useMemo(() => {
     const normalizedSearch = recordSearch.trim().toLowerCase();
-    if (!normalizedSearch) return rows;
-    return rows.filter((row) => [row.title, row.clientName, money(row.receivedAmount)].join(' ').toLowerCase().includes(normalizedSearch));
-  }, [recordSearch, rows]);
+    if (!normalizedSearch) return financeRecords;
+    return financeRecords.filter((row) => [row.title, row.clientName, money(row.receivedAmount)].join(' ').toLowerCase().includes(normalizedSearch));
+  }, [recordSearch, financeRecords]);
 
   const visibleRows = showAllRows ? filteredRows : filteredRows.slice(0, FINANCE_VISIBLE_LIMIT);
   const hiddenRecordCount = Math.max(filteredRows.length - visibleRows.length, 0);
 
   const monthSummary = useMemo(() => {
-    return rows.reduce((summary, row) => {
-      const result = calculateServiceProfit(row);
+    return financeRecords.reduce((summary, row) => {
       return {
-        realized: summary.realized + result.receivedAmount,
-        directCosts: summary.directCosts + result.directCosts,
-        net: summary.net + result.netProfit,
+        realized: summary.realized + row.receivedAmount,
+        directCosts: summary.directCosts + row.directCosts,
+        net: summary.net + row.netProfit,
       };
     }, { realized: 0, directCosts: 0, net: 0 });
-  }, [rows]);
+  }, [financeRecords]);
 
-  function openAdjustment(row: BudgetFinanceRow) {
+  function openAdjustment(row: ConsolidatedFinanceRecord) {
     setEditingDraft({
       budgetId: row.budgetId,
       title: row.title,
@@ -163,9 +106,12 @@ export function SimpleFinanceWorkspace() {
     });
   }
 
-  function saveAdjustment() {
+  async function saveAdjustment() {
     if (!editingDraft) return;
-    saveSimpleFinanceRecord({
+    
+    const financeService = new SimpleFinanceService();
+    
+    await financeService.saveRecord({
       title: editingDraft.title,
       clientName: editingDraft.clientName,
       status: 'realized',
@@ -177,11 +123,12 @@ export function SimpleFinanceWorkspace() {
       otherCosts: parseAmount(editingDraft.otherCosts),
       sourceBudgetId: editingDraft.budgetId,
     });
+    
     setEditingDraft(null);
     setSyncTick((value) => value + 1);
   }
 
-  if (isLoading && budgets.length === 0) {
+  if (isLoading && financeRecords.length === 0) {
     return (
       <section className="simple-finance-workspace">
         <div className="empty-state-card">
@@ -237,7 +184,7 @@ export function SimpleFinanceWorkspace() {
       </PanelCard>
 
       <ListCard>
-        {rows.length === 0 ? (
+        {financeRecords.length === 0 ? (
           <QueueEmptyState 
             title="Nenhum orçamento finalizado" 
             meta="Quando um orçamento for finalizado, o resultado aparecerá aqui automaticamente." 
@@ -251,7 +198,6 @@ export function SimpleFinanceWorkspace() {
           />
         ) : (
           visibleRows.map((row) => {
-            const profit = calculateServiceProfit(row);
             return (
               <ListItem 
                 key={row.budgetId}
@@ -264,8 +210,8 @@ export function SimpleFinanceWorkspace() {
                 }
                 value={
                   <div className="finance-row-value-grid">
-                    <strong>{money(profit.netProfit)}</strong>
-                    <small>{profit.netMarginPercent.toFixed(0)}% margem</small>
+                    <strong>{money(row.netProfit)}</strong>
+                    <small>{row.netMarginPercent.toFixed(0)}% margem</small>
                   </div>
                 }
                 action={

@@ -22,6 +22,7 @@ import { professionalProfileMigrationService } from '../services/ProfessionalPro
 import { clientProposalMigrationService } from '../services/ClientProposalMigrationService';
 import { calculationCaptureMigrationService } from '../services/CalculationCaptureMigrationService';
 import { AccountPlanMigrationService } from '../services/AccountPlanMigrationService';
+import { SimpleFinanceMigrationService } from '../services/SimpleFinanceMigrationService';
 import { useCalculationCaptures } from '../hooks/useCalculationCaptures';
 import { useAccountPlan } from '../hooks/useAccountPlan';
 import { useAppClients } from './hooks/useAppClients';
@@ -75,6 +76,7 @@ export function App() {
         await clientProposalMigrationService.runIfNeeded();
         await calculationCaptureMigrationService.runIfNeeded();
         await AccountPlanMigrationService.runIfNeeded();
+        await SimpleFinanceMigrationService.runIfNeeded();
         await refreshCaptures();
         await refreshClients();
       } catch (err) {
