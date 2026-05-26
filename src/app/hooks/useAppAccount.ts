@@ -1,24 +1,18 @@
-import { useState, useEffect } from 'react';
-import {
-  loadAccountState,
-  AFERIX_ACCOUNT_CHANGED_EVENT,
-  type AferixAccountState,
-} from '../../core/access/accountPlanStorage';
+import { useAccountPlan } from '../../hooks/useAccountPlan';
 import { userPlan as defaultUserPlan } from '../appData';
+import type { AferixAccountState } from '../../core/access/accountPlanStorage';
 
 export function useAppAccount() {
-  const [account, setAccount] = useState<AferixAccountState>(() => loadAccountState());
+  const { account } = useAccountPlan();
 
-  useEffect(() => {
-    function syncAccount() {
-      setAccount(loadAccountState());
-    }
+  const activeUserPlan = account?.plan ?? defaultUserPlan;
 
-    window.addEventListener(AFERIX_ACCOUNT_CHANGED_EVENT, syncAccount);
-    return () => window.removeEventListener(AFERIX_ACCOUNT_CHANGED_EVENT, syncAccount);
-  }, []);
-
-  const activeUserPlan = account.plan ?? defaultUserPlan;
+  // Provide a no-op or actual service call for setAccount to maintain compatibility if needed
+  const setAccount = (_newState: AferixAccountState) => {
+    // Note: To actually update, consumers should use accountPlanService.
+    // For legacy compatibility where they passed setAccount down, we do nothing or warn.
+    console.warn('setAccount is deprecated. Use accountPlanService methods instead.');
+  };
 
   return {
     account,

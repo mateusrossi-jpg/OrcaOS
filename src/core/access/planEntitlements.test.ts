@@ -1,7 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { createMemoryStorage } from '../../test/createMemoryStorage';
-import { signInGoogleAccount } from './accountPlanStorage';
+import '../../test/mockAccountPlanRepository';
+import { accountPlanService } from '../../services/accountPlanService';
 import { isPlanEntitlementSyncConfigured, refreshPlanEntitlement } from './planEntitlements';
+import { mockAccountPlanRepository } from '../../test/mockAccountPlanRepository';
 
 function jsonResponse(value: unknown, ok = true, status = 200): Response {
   return {
@@ -13,7 +14,7 @@ function jsonResponse(value: unknown, ok = true, status = 200): Response {
 }
 
 describe('plan entitlements', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     vi.stubGlobal('CustomEvent', class {
       type: string;
 
@@ -22,15 +23,15 @@ describe('plan entitlements', () => {
       }
     });
     vi.stubGlobal('window', {
-      localStorage: createMemoryStorage(),
       dispatchEvent: vi.fn(),
     });
+    await mockAccountPlanRepository.clear();
   });
 
-  afterEach(() => {
-    window.localStorage.clear();
+  afterEach(async () => {
     vi.unstubAllGlobals();
     vi.unstubAllEnvs();
+    await mockAccountPlanRepository.clear();
   });
 
   it('reports whether entitlement sync is configured', () => {
@@ -51,7 +52,8 @@ describe('plan entitlements', () => {
   it('updates the account plan from an entitlement response', async () => {
     vi.stubEnv('VITE_AFERIX_ENTITLEMENTS_ENDPOINT', 'https://api.example.com/entitlements');
     vi.stubEnv('VITE_AFERIX_ENTITLEMENTS_API_KEY', 'secret');
-    const account = signInGoogleAccount({ sub: '123', name: 'Profissional', email: 'profissional@example.com' });
+    await accountPlanService.signInGoogleAccount({ sub: '123', name: 'Profissional', email: 'profissional@example.com' });
+    const account = await accountPlanService.getAccount();
     const fetchMock = vi.fn().mockResolvedValue(jsonResponse({ plan: 'pro', status: 'active', planSource: 'subscription', expiresAt: '2026-06-01T00:00:00.000Z' }));
     vi.stubGlobal('fetch', fetchMock);
 
@@ -73,7 +75,8 @@ describe('plan entitlements', () => {
 
   it('preserves expired subscription status from the entitlement endpoint', async () => {
     vi.stubEnv('VITE_AFERIX_ENTITLEMENTS_ENDPOINT', 'https://api.example.com/entitlements');
-    const account = signInGoogleAccount({ sub: '123', name: 'Profissional', email: 'profissional@example.com' });
+    await accountPlanService.signInGoogleAccount({ sub: '123', name: 'Profissional', email: 'profissional@example.com' });
+    const account = await accountPlanService.getAccount();
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({ plan: 'free', status: 'expired', expiresAt: '2026-01-01T00:00:00.000Z' })));
 
     const result = await refreshPlanEntitlement(account);
@@ -86,7 +89,8 @@ describe('plan entitlements', () => {
 
   it('allows trial subscriptions as Pro', async () => {
     vi.stubEnv('VITE_AFERIX_ENTITLEMENTS_ENDPOINT', 'https://api.example.com/entitlements');
-    const account = signInGoogleAccount({ sub: '123', email: 'profissional@example.com' });
+    await accountPlanService.signInGoogleAccount({ sub: '123', email: 'profissional@example.com' });
+    const account = await accountPlanService.getAccount();
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({ plan: 'pro', status: 'trial', planSource: 'subscription' })));
 
     const result = await refreshPlanEntitlement(account);
@@ -97,7 +101,8 @@ describe('plan entitlements', () => {
 
   it('does not release Pro when subscription is past due', async () => {
     vi.stubEnv('VITE_AFERIX_ENTITLEMENTS_ENDPOINT', 'https://api.example.com/entitlements');
-    const account = signInGoogleAccount({ sub: '123', email: 'profissional@example.com' });
+    await accountPlanService.signInGoogleAccount({ sub: '123', email: 'profissional@example.com' });
+    const account = await accountPlanService.getAccount();
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({ plan: 'pro', status: 'past_due', planSource: 'subscription' })));
 
     const result = await refreshPlanEntitlement(account);
@@ -108,7 +113,8 @@ describe('plan entitlements', () => {
 
   it('keeps inactive subscription users on free plan', async () => {
     vi.stubEnv('VITE_AFERIX_ENTITLEMENTS_ENDPOINT', 'https://api.example.com/entitlements');
-    const account = signInGoogleAccount({ sub: '123', email: 'profissional@example.com' });
+    await accountPlanService.signInGoogleAccount({ sub: '123', email: 'profissional@example.com' });
+    const account = await accountPlanService.getAccount();
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({ plan: 'pro', status: 'inactive', planSource: 'subscription' })));
 
     const result = await refreshPlanEntitlement(account);
@@ -119,7 +125,8 @@ describe('plan entitlements', () => {
 
   it('fails clearly when the entitlement endpoint rejects the request', async () => {
     vi.stubEnv('VITE_AFERIX_ENTITLEMENTS_ENDPOINT', 'https://api.example.com/entitlements');
-    const account = signInGoogleAccount({ sub: '123' });
+    await accountPlanService.signInGoogleAccount({ sub: '123' });
+    const account = await accountPlanService.getAccount();
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse('not allowed', false, 403)));
 
     await expect(refreshPlanEntitlement(account)).rejects.toThrow('not allowed');

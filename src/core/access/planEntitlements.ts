@@ -1,5 +1,6 @@
-import { loadAccountState, saveAccountState, type AferixAccountState, type AferixPlanSource, type AferixPlanStatus } from './accountPlanStorage';
+import { type AferixAccountState, type AferixPlanSource, type AferixPlanStatus } from './accountPlanStorage';
 import type { UserPlan } from './featureAccess';
+import { accountPlanService } from '../../services/accountPlanService';
 
 export interface PlanEntitlementResponse {
   plan?: UserPlan;
@@ -48,7 +49,7 @@ function resolveEffectivePlan(plan: UserPlan, status: AferixPlanStatus): UserPla
   return plan === 'pro' && (status === 'active' || status === 'trial') ? 'pro' : 'free';
 }
 
-export function applyPlanEntitlementResponse(account: AferixAccountState, entitlement: PlanEntitlementResponse): PlanEntitlementResult {
+export async function applyPlanEntitlementResponse(account: AferixAccountState, entitlement: PlanEntitlementResponse): Promise<PlanEntitlementResult> {
   const requestedPlan = normalizePlan(entitlement.plan);
   const status = normalizeStatus(entitlement.status, requestedPlan);
   const plan = resolveEffectivePlan(requestedPlan, status);
@@ -61,7 +62,7 @@ export function applyPlanEntitlementResponse(account: AferixAccountState, entitl
     planExpiresAt: expiresAt,
     updatedAt: new Date().toISOString(),
   };
-  saveAccountState(nextAccount);
+  await accountPlanService.saveAccount(nextAccount);
 
   return {
     account: nextAccount,
@@ -70,10 +71,11 @@ export function applyPlanEntitlementResponse(account: AferixAccountState, entitl
   };
 }
 
-export async function refreshPlanEntitlement(account = loadAccountState()): Promise<PlanEntitlementResult> {
+export async function refreshPlanEntitlement(account?: AferixAccountState): Promise<PlanEntitlementResult> {
+  const resolvedAccount = account || await accountPlanService.getAccount();
   const endpoint = getEntitlementsEndpoint().trim();
   if (!endpoint) throw new Error('Configure VITE_AFERIX_ENTITLEMENTS_ENDPOINT para verificar a liberação Pro.');
-  if (!account.userId) throw new Error('Entre com uma conta antes de verificar a liberação Pro.');
+  if (!resolvedAccount.userId) throw new Error('Entre com uma conta antes de verificar a liberação Pro.');
 
   const headers: Record<string, string> = { 'Content-Type': 'application/json' };
   const apiKey = getEntitlementsApiKey().trim();
@@ -83,10 +85,10 @@ export async function refreshPlanEntitlement(account = loadAccountState()): Prom
     method: 'POST',
     headers,
     body: JSON.stringify({
-      userId: account.userId,
-      installationId: account.installationId,
-      email: account.email,
-      status: account.status,
+      userId: resolvedAccount.userId,
+      installationId: resolvedAccount.installationId,
+      email: resolvedAccount.email,
+      status: resolvedAccount.status,
     }),
   });
 
@@ -95,5 +97,5 @@ export async function refreshPlanEntitlement(account = loadAccountState()): Prom
     throw new Error(errorText || `Falha ao verificar a liberação Pro: ${response.status}`);
   }
 
-  return applyPlanEntitlementResponse(account, await response.json() as PlanEntitlementResponse);
+  return applyPlanEntitlementResponse(resolvedAccount, await response.json() as PlanEntitlementResponse);
 }

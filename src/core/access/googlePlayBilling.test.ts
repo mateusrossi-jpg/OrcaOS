@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { createMemoryStorage } from '../../test/createMemoryStorage';
+import '../../test/mockAccountPlanRepository';
+import { mockAccountPlanRepository } from '../../test/mockAccountPlanRepository';
 import type { AferixAccountState } from './accountPlanStorage';
 import { getGooglePlayBillingSetup, purchaseGooglePlayPro, restoreGooglePlayPurchases, syncGooglePlayPurchaseEntitlement } from './googlePlayBilling';
 
@@ -26,7 +27,7 @@ function jsonResponse(value: unknown, ok = true, status = 200): Response {
 }
 
 describe('google play billing bridge contract', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     vi.stubGlobal('CustomEvent', class {
       type: string;
 
@@ -35,15 +36,15 @@ describe('google play billing bridge contract', () => {
       }
     });
     vi.stubGlobal('window', {
-      localStorage: createMemoryStorage(),
       dispatchEvent: vi.fn(),
     });
+    await mockAccountPlanRepository.clear();
   });
 
-  afterEach(() => {
-    window.localStorage.clear();
+  afterEach(async () => {
     vi.unstubAllGlobals();
     vi.unstubAllEnvs();
+    await mockAccountPlanRepository.clear();
   });
 
   it('exposes setup expected by the native Android bridge', () => {

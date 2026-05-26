@@ -1,11 +1,6 @@
 import { useState, lazy } from 'react';
 import type { AferixAccountState } from '../../core/access/accountPlanStorage';
-import {
-  signInEmailAccount,
-  signInGoogleAccount,
-  signInLocalAccount,
-  signOutLocalAccount,
-} from '../../core/access/accountPlanStorage';
+import { accountPlanService } from '../../services/accountPlanService';
 import { isGoogleAccountLoginConfigured, requestGoogleAccountProfile } from '../../core/access/googleAccountAuth';
 import { planStatusTitle, planStatusDescription } from '../utils/planHelpers';
 import { AferixTabs, PageHeader, PageShell, PanelCard, PrimaryButton, SecondaryButton, Button, Input } from '../components/ui';
@@ -23,7 +18,7 @@ interface SettingsScreenProps {
 
 type SettingsTab = 'account' | 'company' | 'security' | 'backup' | 'about';
 
-export function SettingsScreen({ account, onAccountChange }: SettingsScreenProps) {
+export function SettingsScreen({ account, onAccountChange: _onAccountChange }: SettingsScreenProps) {
   const [activeTab, setActiveTab] = useState<SettingsTab>('account');
   const [feedback, setFeedback] = useState<string | null>(null);
   const [isSigningIn, setIsSigningIn] = useState(false);
@@ -33,13 +28,15 @@ export function SettingsScreen({ account, onAccountChange }: SettingsScreenProps
   const accountLabel = account.status === 'google' || account.status === 'email' || account.status === 'local' ? account.displayName : 'Sem login';
   const accountDescription = account.status === 'google' ? `${account.email || 'E-mail não informado'} · Google vinculado` : account.status === 'email' ? `${account.email} · cadastro por e-mail` : account.status === 'local' ? 'Conta local deste dispositivo' : 'Modo visitante local-first';
 
-  function registerEmailAccount() {
+  async function registerEmailAccount() {
+    setIsSigningIn(true);
     try {
-      const nextAccount = signInEmailAccount(emailDraft, nameDraft);
-      onAccountChange(nextAccount);
+      await accountPlanService.signInEmailAccount(emailDraft, nameDraft);
       setFeedback('Conta por e-mail cadastrada.');
     } catch (error) {
       setFeedback(error instanceof Error ? error.message : 'Falha ao cadastrar e-mail.');
+    } finally {
+      setIsSigningIn(false);
     }
   }
 
@@ -48,11 +45,32 @@ export function SettingsScreen({ account, onAccountChange }: SettingsScreenProps
     setFeedback(null);
     try {
       const profile = await requestGoogleAccountProfile();
-      const nextAccount = signInGoogleAccount(profile);
-      onAccountChange(nextAccount);
+      await accountPlanService.signInGoogleAccount(profile);
       setFeedback('Conta Google conectada.');
     } catch (error) {
       setFeedback(error instanceof Error ? error.message : 'Falha ao entrar com Google.');
+    } finally {
+      setIsSigningIn(false);
+    }
+  }
+
+  async function connectLocal() {
+    setIsSigningIn(true);
+    try {
+      await accountPlanService.signInLocalAccount();
+    } catch (error) {
+      setFeedback(error instanceof Error ? error.message : 'Falha ao entrar localmente.');
+    } finally {
+      setIsSigningIn(false);
+    }
+  }
+
+  async function disconnectAccount() {
+    setIsSigningIn(true);
+    try {
+      await accountPlanService.signOutLocalAccount();
+    } catch (error) {
+      setFeedback(error instanceof Error ? error.message : 'Falha ao sair da conta.');
     } finally {
       setIsSigningIn(false);
     }
@@ -104,10 +122,10 @@ export function SettingsScreen({ account, onAccountChange }: SettingsScreenProps
                 <Input label="E-mail de acesso" type="email" value={emailDraft} placeholder="profissional@email.com" onChange={(event) => setEmailDraft(event.target.value)} />
               </div>
               <div className="settings-actions-row-premium">
-                <PrimaryButton onClick={registerEmailAccount}>Cadastrar e-mail</PrimaryButton>
+                <PrimaryButton disabled={isSigningIn} onClick={registerEmailAccount}>Cadastrar e-mail</PrimaryButton>
                 <SecondaryButton disabled={!googleReady || isSigningIn} onClick={connectGoogle}>{isSigningIn ? 'Conectando...' : 'Vincular Google'}</SecondaryButton>
-                <Button variant="ghost" onClick={() => onAccountChange(signInLocalAccount())}>Entrar localmente</Button>
-                <Button variant="ghost" onClick={() => onAccountChange(signOutLocalAccount())}>Sair</Button>
+                <Button variant="ghost" disabled={isSigningIn} onClick={connectLocal}>Entrar localmente</Button>
+                <Button variant="ghost" disabled={isSigningIn} onClick={disconnectAccount}>Sair</Button>
               </div>
               {feedback && <p className="general-added-message">{feedback}</p>}
             </section>

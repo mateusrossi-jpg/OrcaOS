@@ -1,9 +1,4 @@
 import { Suspense, useEffect, useState } from 'react';
-import {
-  loadAccountState,
-  AFERIX_ACCOUNT_CHANGED_EVENT,
-  type AferixAccountState,
-} from '../core/access/accountPlanStorage';
 import type { CalculationCapture } from '../core/types/workflow';
 import { AppShell } from './components/AppShell';
 import { AferixIntro } from './components/AferixIntro';
@@ -26,7 +21,10 @@ import { catalogMigrationService } from '../services/CatalogMigrationService';
 import { professionalProfileMigrationService } from '../services/ProfessionalProfileMigrationService';
 import { clientProposalMigrationService } from '../services/ClientProposalMigrationService';
 import { calculationCaptureMigrationService } from '../services/CalculationCaptureMigrationService';
+import { AccountPlanMigrationService } from '../services/AccountPlanMigrationService';
 import { useCalculationCaptures } from '../hooks/useCalculationCaptures';
+import { useAccountPlan } from '../hooks/useAccountPlan';
+import { useAppClients } from './hooks/useAppClients';
 
 function LazyWorkspaceFallback() {
   return (
@@ -38,8 +36,6 @@ function LazyWorkspaceFallback() {
     </section>
   );
 }
-
-import { useAppClients } from './hooks/useAppClients';
 
 export function App() {
   const [activeTab, setActiveTab] = useState<AppTab>('pulse');
@@ -62,20 +58,11 @@ export function App() {
     refresh: refreshClients
   } = useAppClients();
 
-  const [account, setAccount] = useState<AferixAccountState>(() => loadAccountState());
+  const { account, isLoading: isLoadingAccount } = useAccountPlan();
 
   const canNavigate = () => {
     return true;
   };
-
-  useEffect(() => {
-    function syncAccount() {
-      setAccount(loadAccountState());
-    }
-
-    window.addEventListener(AFERIX_ACCOUNT_CHANGED_EVENT, syncAccount);
-    return () => window.removeEventListener(AFERIX_ACCOUNT_CHANGED_EVENT, syncAccount);
-  }, []);
 
   useEffect(() => {
     async function runMigration() {
@@ -87,6 +74,7 @@ export function App() {
         await professionalProfileMigrationService.runIfNeeded();
         await clientProposalMigrationService.runIfNeeded();
         await calculationCaptureMigrationService.runIfNeeded();
+        await AccountPlanMigrationService.runIfNeeded();
         await refreshCaptures();
         await refreshClients();
       } catch (err) {
@@ -95,6 +83,10 @@ export function App() {
     }
     runMigration();
   }, [refreshClients]);
+
+  if (isLoadingAccount || !account) {
+    return <LazyWorkspaceFallback />;
+  }
 
   function attachActiveWorkOrder(capture: CalculationCapture): CalculationCapture {
     return activeWorkOrderId && !capture.workOrderId ? { ...capture, workOrderId: activeWorkOrderId } : capture;
@@ -162,7 +154,7 @@ export function App() {
           )}
 
           {activeTab === 'money' && <FinancialScreen />}
-          {activeTab === 'settings' && <MenuScreen account={account} onAccountChange={setAccount} onNavigate={goTo} />}
+          {activeTab === 'settings' && <MenuScreen account={account} onAccountChange={() => {}} onNavigate={goTo} />}
 
           {activeTab === 'budgets' && (
             <RuntimeErrorBoundary>
@@ -197,7 +189,7 @@ export function App() {
           )}
           {activeTab === 'catalog' && <CatalogScreen onAddMany={addManyCalculationCaptures} context={context} />}
           {activeTab === 'reports' && <ReportsScreen captures={captures} context={context} />}
-          {activeTab === 'store' && <StoreScreen account={account} onAccountChange={setAccount} onBack={() => goTo('settings')} />}
+          {activeTab === 'store' && <StoreScreen account={account} onAccountChange={() => {}} onBack={() => goTo('settings')} />}
         </Suspense>
       </AppShell>
     </>
