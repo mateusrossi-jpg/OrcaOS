@@ -1,4 +1,5 @@
 import Dexie, { Table } from 'dexie';
+import { OperationalEvent } from '../domain/operationalEvent';
 import { ClientProposal } from '../features/clientPortal/storage/clientProposalStorage';
 import type { CalculationCapture } from '../core/types/workflow';
 import { Budget } from '../domain/budget';
@@ -39,6 +40,7 @@ export class AferixDatabase extends Dexie {
   calculationCaptures!: Table<CalculationCapture>;
   accountPlan!: Table<AferixAccountState & { id: string }>;
   simpleFinanceRecords!: Table<SimpleFinanceRecord>;
+  operationalEvents!: Table<OperationalEvent>;
 
   constructor() {
     super('AferixDatabase');
@@ -46,7 +48,8 @@ export class AferixDatabase extends Dexie {
     // Version 8: Added calculationCaptures table
     // Version 9: Added accountPlan table
     // Version 10: Added simpleFinanceRecords table
-    this.version(10).stores({
+    // Version 11: Added operationalEvents table
+    this.version(11).stores({
       budgets: 'id',
       clients: 'id',
       workOrders: 'id',
@@ -60,6 +63,7 @@ export class AferixDatabase extends Dexie {
       calculationCaptures: 'id, workOrderId, clientId',
       accountPlan: 'id',
       simpleFinanceRecords: 'id, sourceBudgetId',
+      operationalEvents: 'id, aggregateId, aggregateType, eventType, timestamp, correlationId',
     });
   }
 }

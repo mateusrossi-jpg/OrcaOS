@@ -2,6 +2,7 @@ import { BudgetPersistenceService } from '../../services/BudgetPersistenceServic
 import { BudgetService } from '../../services/budgetService';
 import { clientProposalService } from '../../services/clientProposalService';
 import { workOrderService } from '../../services/workOrderService';
+import { operationalEventService } from '../../services/operationalEventService';
 import { BUDGET_STATUS } from '../../domain/budget';
 import { ClientProposalStatus } from '../clientPortal/storage/clientProposalStorage';
 import { WorkOrder } from '../../core/types/business';
@@ -22,6 +23,12 @@ export const operationalFacade = {
     const budget = await budgetPersistence.getBudget(budgetId);
     if (budget && budget.status !== BUDGET_STATUS.AUTORIZADO) {
       await budgetService.changeStatus(budget, BUDGET_STATUS.AUTORIZADO);
+      await operationalEventService.emitEvent({
+        aggregateId: budget.id,
+        aggregateType: 'budget',
+        eventType: 'BUDGET_AUTHORIZED',
+        snapshot: { status: BUDGET_STATUS.AUTORIZADO }
+      });
     }
   },
 
@@ -31,6 +38,12 @@ export const operationalFacade = {
     const budget = await budgetPersistence.getBudget(budgetId);
     if (budget && budget.status !== BUDGET_STATUS.EM_EXECUCAO) {
       await budgetService.changeStatus(budget, BUDGET_STATUS.EM_EXECUCAO);
+      await operationalEventService.emitEvent({
+        aggregateId: budget.id,
+        aggregateType: 'budget',
+        eventType: 'BUDGET_EXECUTION_STARTED',
+        snapshot: { status: BUDGET_STATUS.EM_EXECUCAO }
+      });
     }
   },
 
@@ -40,6 +53,18 @@ export const operationalFacade = {
     const budget = await budgetPersistence.getBudget(budgetId);
     if (budget && budget.status !== BUDGET_STATUS.FINALIZADO) {
       await budgetService.finalizeBudget(budget);
+      await operationalEventService.emitEvent({
+        aggregateId: budget.id,
+        aggregateType: 'budget',
+        eventType: 'BUDGET_FINALIZED',
+        snapshot: { status: BUDGET_STATUS.FINALIZADO }
+      });
+      await operationalEventService.emitEvent({
+        aggregateId: budget.id,
+        aggregateType: 'finance',
+        eventType: 'FINANCE_RECORD_REALIZED',
+        snapshot: { status: BUDGET_STATUS.FINALIZADO }
+      });
     }
   },
 
@@ -49,6 +74,12 @@ export const operationalFacade = {
     const budget = await budgetPersistence.getBudget(budgetId);
     if (budget && budget.status !== 'arquivado') {
       await budgetService.changeStatus(budget, 'arquivado');
+      await operationalEventService.emitEvent({
+        aggregateId: budget.id,
+        aggregateType: 'budget',
+        eventType: 'BUDGET_ARCHIVED',
+        snapshot: { status: 'arquivado' }
+      });
     }
   },
 
@@ -65,6 +96,13 @@ export const operationalFacade = {
     proposal.decidedAt = new Date().toISOString();
     proposal.updatedAt = new Date().toISOString();
     await clientProposalService.update(proposal);
+
+    await operationalEventService.emitEvent({
+      aggregateId: proposal.id,
+      aggregateType: 'proposal',
+      eventType: 'PROPOSAL_APPROVED',
+      snapshot: { status: 'approved' }
+    });
 
     if (proposal.budgetId) {
       await operationalFacade.authorizeBudget(proposal.budgetId);
@@ -83,12 +121,25 @@ export const operationalFacade = {
     proposal.updatedAt = new Date().toISOString();
     await clientProposalService.update(proposal);
 
+    await operationalEventService.emitEvent({
+      aggregateId: proposal.id,
+      aggregateType: 'proposal',
+      eventType: 'PROPOSAL_REJECTED',
+      snapshot: { status: 'rejected' }
+    });
+
     if (proposal.budgetId) {
       const budgetPersistence = new BudgetPersistenceService();
       const budgetService = new BudgetService();
       const budget = await budgetPersistence.getBudget(proposal.budgetId);
       if (budget && budget.status !== 'recusado') {
         await budgetService.changeStatus(budget, 'recusado');
+        await operationalEventService.emitEvent({
+          aggregateId: budget.id,
+          aggregateType: 'budget',
+          eventType: 'BUDGET_REJECTED',
+          snapshot: { status: 'recusado' }
+        });
       }
     }
   },
@@ -107,6 +158,15 @@ export const operationalFacade = {
     if (status === 'viewed' && !proposal.viewedAt) proposal.viewedAt = new Date().toISOString();
     
     await clientProposalService.update(proposal);
+
+    if (status === 'sent') {
+      await operationalEventService.emitEvent({
+        aggregateId: proposal.id,
+        aggregateType: 'proposal',
+        eventType: 'PROPOSAL_SENT',
+        snapshot: { status: 'sent' }
+      });
+    }
   },
 
   // --- WORK ORDER TRANSITIONS ---
@@ -116,6 +176,14 @@ export const operationalFacade = {
    */
   createWorkOrder: async (workOrder: WorkOrder): Promise<void> => {
     await workOrderService.add(workOrder);
+    
+    await operationalEventService.emitEvent({
+      aggregateId: workOrder.id,
+      aggregateType: 'workorder',
+      eventType: 'WORKORDER_CREATED',
+      snapshot: { status: workOrder.status }
+    });
+
     if (workOrder.budgetId) {
       await operationalFacade.executeBudget(workOrder.budgetId);
     }
@@ -127,6 +195,15 @@ export const operationalFacade = {
   updateWorkOrder: async (workOrder: WorkOrder): Promise<void> => {
     await workOrderService.update(workOrder);
 
+    if (workOrder.status === 'in-progress') {
+      await operationalEventService.emitEvent({
+        aggregateId: workOrder.id,
+        aggregateType: 'workorder',
+        eventType: 'WORKORDER_STARTED',
+        snapshot: { status: 'in-progress' }
+      });
+    }
+
     if (workOrder.status === 'done' && workOrder.budgetId) {
       await operationalFacade.finalizeBudget(workOrder.budgetId);
     } else if (workOrder.status === 'cancelled' && workOrder.budgetId) {
@@ -135,7 +212,22 @@ export const operationalFacade = {
       const budget = await budgetPersistence.getBudget(workOrder.budgetId);
       if (budget && budget.status !== 'cancelado') {
         await budgetService.changeStatus(budget, 'cancelado');
+        await operationalEventService.emitEvent({
+          aggregateId: budget.id,
+          aggregateType: 'budget',
+          eventType: 'BUDGET_CANCELLED',
+          snapshot: { status: 'cancelado' }
+        });
       }
+    }
+    
+    if (workOrder.status === 'cancelled') {
+      await operationalEventService.emitEvent({
+        aggregateId: workOrder.id,
+        aggregateType: 'workorder',
+        eventType: 'WORKORDER_CANCELLED',
+        snapshot: { status: 'cancelled' }
+      });
     }
   },
 
@@ -149,6 +241,13 @@ export const operationalFacade = {
     wo.status = 'done';
     wo.updatedAt = new Date().toISOString();
     await workOrderService.update(wo);
+
+    await operationalEventService.emitEvent({
+      aggregateId: wo.id,
+      aggregateType: 'workorder',
+      eventType: 'WORKORDER_COMPLETED',
+      snapshot: { status: 'done' }
+    });
 
     if (wo.budgetId) {
       await operationalFacade.finalizeBudget(wo.budgetId);
