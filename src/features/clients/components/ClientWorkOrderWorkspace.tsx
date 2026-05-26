@@ -298,23 +298,22 @@ export function ClientWorkOrderWorkspace({ initialSection, initialClientId, sect
                   key={client.id}
                   title={client.name}
                   context={
-                    <div className="client-row-meta-grid">
-                      <span>{client.phone} · {client.email}</span>
-                      {client.address && <small className="client-address-line">{client.address}</small>}
+                    <div className="aferix-d-flex aferix-flex-column aferix-gap-xs">
+                      <span>{client.phone || 'Sem telefone'} • {client.email || 'Sem e-mail'}</span>
+                      <div className="aferix-d-flex aferix-align-center aferix-gap-sm">
+                        <StatusBadge tone="success">Ativo</StatusBadge>
+                        {client.address && <small className="aferix-text-muted">{client.address}</small>}
+                      </div>
                     </div>
                   }
-                  status={<StatusBadge tone="success">Ativo</StatusBadge>}
                   action={
-                    <div className="client-row-status-inline">
-                      <SecondaryButton onClick={() => openClientForEdit(client)}>Abrir</SecondaryButton>
-                      <ActionMenu
-                        label="Ações do cliente"
-                        items={[
-                          { id: 'edit', label: 'Editar', onSelect: () => openClientForEdit(client) },
-                          { id: 'remove', label: 'Remover', tone: 'danger', onSelect: () => confirmRemoveClient(client.id) },
-                        ]}
-                      />
-                    </div>
+                    <ActionMenu
+                      label="Ações"
+                      items={[
+                        { id: 'edit', label: 'Editar', onSelect: () => openClientForEdit(client) },
+                        { id: 'remove', label: 'Remover', tone: 'danger', onSelect: () => confirmRemoveClient(client.id) },
+                      ]}
+                    />
                   }
                 />
               ))
