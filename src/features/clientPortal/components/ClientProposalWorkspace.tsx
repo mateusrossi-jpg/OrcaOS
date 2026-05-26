@@ -13,6 +13,7 @@ import {
   type ClientProposal,
   type ClientProposalStatus,
 } from '../storage/clientProposalStorage';
+import { operationalFacade } from '../../workflow/operationalFacade';
 import { ClientProposalPreview } from './ClientProposalPreview';
 import './ClientProposalWorkspace.css';
 
@@ -32,13 +33,7 @@ function formatDate(value: string): string {
   return new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }).format(new Date(value));
 }
 
-function statusTimestampPatch(status: ClientProposalStatus): Partial<ClientProposal> {
-  const timestamp = new Date().toISOString();
-  if (status === 'sent') return { status, sentAt: timestamp };
-  if (status === 'viewed') return { status, viewedAt: timestamp };
-  if (status === 'approved' || status === 'rejected') return { status, decidedAt: timestamp };
-  return { status };
-}
+
 
 export function ClientProposalWorkspace({ technicalCaptures = [], activeClient = null, activeWorkOrder = null }: ClientProposalWorkspaceProps) {
   const { proposals, refresh, addOrUpdateProposal, removeProposal: removeProposalHook } = useClientProposals();
@@ -101,10 +96,9 @@ export function ClientProposalWorkspace({ technicalCaptures = [], activeClient =
   }
 
   async function updateProposalStatus(proposal: ClientProposal, status: ClientProposalStatus) {
-    const timestamp = new Date().toISOString();
-    const updatedProposal = { ...proposal, ...statusTimestampPatch(status), updatedAt: timestamp };
-    await addOrUpdateProposal(updatedProposal);
-    setPreviewProposal((current) => (current?.id === proposal.id ? updatedProposal : current));
+    await operationalFacade.changeProposalStatus(proposal.id, status);
+    await refresh();
+    setPreviewProposal((current) => (current?.id === proposal.id ? { ...current, status } : current));
     setFeedback(`Orçamento marcado como ${clientProposalStatusLabel(status).toLowerCase()}.`);
   }
 

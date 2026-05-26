@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import type { Client, Service as WorkOrder } from '../../../core/types/business';
 import { clientService } from '../../../services/clientService';
 import { workOrderService } from '../../../services/workOrderService';
+import { operationalFacade } from '../../../features/workflow/operationalFacade';
 import { settingsService } from '../../../services/settingsService';
 
 const ACTIVE_WORK_ORDER_KEY = 'activeWorkOrderId';
@@ -248,7 +249,7 @@ export function ClientWorkOrderWorkspace({ initialSection, initialClientId, sect
     // Atualiza ordens de serviço vinculadas para remover o vínculo
     const linkedWorkOrders = workOrders.filter(w => w.clientId === clientId);
     for (const wo of linkedWorkOrders) {
-      await workOrderService.update({ ...wo, clientId: undefined });
+      await operationalFacade.updateWorkOrder({ ...wo, clientId: undefined });
     }
 
     await loadData();

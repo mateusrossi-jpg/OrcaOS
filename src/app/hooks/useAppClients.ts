@@ -2,6 +2,7 @@ import { useState, useMemo, useCallback, useEffect } from 'react';
 import type { Client, WorkOrder } from '../../core/types/business';
 import { clientService } from '../../services/clientService';
 import { workOrderService } from '../../services/workOrderService';
+import { operationalFacade } from '../../features/workflow/operationalFacade';
 import { settingsService } from '../../services/settingsService';
 
 const ACTIVE_WORK_ORDER_KEY = 'activeWorkOrderId';
@@ -57,7 +58,7 @@ export function useAppClients() {
       updatedAt: new Date().toISOString() 
     };
     
-    await workOrderService.update(updatedWo);
+    await operationalFacade.updateWorkOrder(updatedWo);
     await loadData();
   }, [activeWorkOrderId, workOrders, loadData]);
 

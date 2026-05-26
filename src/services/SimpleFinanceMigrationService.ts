@@ -28,7 +28,6 @@ function isRecord(value: unknown): value is SimpleFinanceRecord {
   );
 }
 
-// eslint-disable-next-line no-restricted-syntax
 function loadLegacyRecords(): SimpleFinanceRecord[] {
   // eslint-disable-next-line no-restricted-syntax
   if (typeof window === 'undefined' || typeof window.localStorage === 'undefined') return [];
