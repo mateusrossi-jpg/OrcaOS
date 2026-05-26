@@ -85,15 +85,15 @@ if (reportTSX.includes('aferix-wordmark-document.svg')) {
 }
 
 // 5. Propostas / Orçamento
-logStep('Propostas / Orçamento (BudgetWorkspace.css)');
-const budgetCSS = readFile('src/features/budgets/components/BudgetWorkspace.css');
-const budgetTSX = readFile('src/features/budgets/components/BudgetWorkspace.tsx');
-['.budget-workspace', 'overflow-x: hidden', '.budget-workspace-tabs', '.budget-workspace-stepper', 'overflow-x: auto', '.budget-workspace-tabs button.active', '.budget-sticky-summary', '.highlight-profit', '@media (max-width: 760px)'].forEach(rule => {
+logStep('Propostas / Orçamento (BudgetPrintPreview.css)');
+const budgetCSS = readFile('src/features/budgets/components/BudgetPrintPreview.css');
+const budgetTSX = readFile('src/pages/BudgetForm.tsx');
+['.print-preview-shell', 'width: 100%', '.print-document', '.print-logo', 'overflow: visible', '.print-validation-alert', '@media print'].forEach(rule => {
   if (budgetCSS.includes(rule)) logSuccess(`Regra de orçamento encontrada: ${rule}`);
   else logError(`Faltando regra de orçamento: ${rule}`);
 });
-['Cliente', 'Serviço', 'Itens', 'Custos', 'PDF'].forEach(step => {
-  if (budgetTSX.includes(`label: '${step}'`)) logSuccess(`Fluxo de orçamento preservado: ${step}`);
+['Título do Projeto', 'Preço do Serviço', 'Custos e Deduções', 'Materiais', 'Finalizar Orçamento'].forEach(step => {
+  if (budgetTSX.includes(step)) logSuccess(`Fluxo de orçamento preservado: ${step}`);
   else logError(`Fluxo sem token explícito para etapa: ${step}`);
 });
 ['var(--orca-text', 'var(--orca-muted', 'var(--orca-accent', 'var(--orca-primary'].forEach(rule => {
@@ -101,7 +101,7 @@ const budgetTSX = readFile('src/features/budgets/components/BudgetWorkspace.tsx'
   else logError(`Encontrou variável legada: ${rule}`);
 });
 ['#000000', '#222222', 'border-radius: 4px', 'text-transform: uppercase'].forEach(token => {
-  if (budgetCSS.includes(token)) logWarn(`Fallback visual/legado encontrado em BudgetWorkspace.css: ${token}`);
+  if (budgetCSS.includes(token)) logWarn(`Fallback visual/legado encontrado em BudgetPrintPreview.css: ${token}`);
 });
 
 // 6. Licença
@@ -251,8 +251,8 @@ if (!catalogHubCSS.includes('var(--orca-')) {
   logError('Catálogo voltou a usar var(--orca-*) no CSS principal');
 }
 
-['Cliente', 'Serviço', 'Itens', 'Custos', 'PDF'].forEach(step => {
-  if (budgetTSX.includes(`label: '${step}'`)) logSuccess(`Guardrail de Orçamentos preserva etapa: ${step}`);
+['Título do Projeto', 'Preço do Serviço', 'Custos e Deduções', 'Materiais', 'Finalizar Orçamento'].forEach(step => {
+  if (budgetTSX.includes(step)) logSuccess(`Guardrail de Orçamentos preserva etapa: ${step}`);
   else logError(`Guardrail de Orçamentos sem token explícito para etapa: ${step}`);
 });
 
@@ -267,7 +267,7 @@ const legalComplianceCSS = readFile('src/features/settings/components/LegalCompl
 const professionalIdentityCSS = readFile('src/features/settings/components/ProfessionalIdentityCard.css');
 const budgetPrintPreviewCSS = readFile('src/features/budgets/components/BudgetPrintPreview.css');
 
-if (rcChecklist.includes('# Aferix — Release Candidate Checklist') && rcChecklist.includes('## Checklist manual') && rcChecklist.includes('## Pendências não bloqueantes')) {
+if (rcChecklist.includes('# Aferix — Release Candidate Checklist') && rcChecklist.includes('## Checklist de Testes Manuais') && rcChecklist.includes('## Riscos Conhecidos & Limitações')) {
   logSuccess('Checklist de Release Candidate documentado');
 } else {
   logError('docs/RELEASE_CANDIDATE_CHECKLIST.md ausente ou incompleto');

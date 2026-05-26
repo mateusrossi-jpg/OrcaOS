@@ -11,8 +11,9 @@ Este documento serve para consolidar e gerenciar de forma centralizada todos os 
 
 | ID | Título do Problema | Módulo | Severidade | Prioridade | Status | Decisão Pós-Sessão | Link / Print |
 | :--- | :--- | :--- | :---: | :---: | :---: | :--- | :--- |
-| *EX-01* | *Exemplo de bug estético de margem* | *Relatórios* | *Baixa* | *P2* | *Aberto* | *Investigar depois* | *N/A* |
-| | | | | | | | |
+| *UX-01* | *Rótulo de cliente livre redundante com dropdown* | *Orçamentos* | *Baixa* | *P1* | *Novo* | *Corrigir antes de continuar* | *N/A* |
+| *UX-02* | *Contraste baixo nas legendas de custos* | *Orçamentos* | *Baixa* | *P1* | *Novo* | *Corrigir antes de continuar* | *N/A* |
+| *BUG-01* | *Delay estético no resize do PDF* | *Relatórios* | *Baixa* | *P2* | *Aberto* | *Investigar depois* | *N/A* |
 
 ---
 
@@ -39,19 +40,43 @@ Este documento serve para consolidar e gerenciar de forma centralizada todos os 
 
 ## 3. Detalhamento de Problemas Registrados
 
-*(Utilize esta seção para detalhar as evidências técnicas e passos de reprodução dos bugs catalogados na tabela superior)*
-
 ---
 
-### [ID] Título Detalhado do Bug
-* **Origem (Sessão / Usuário):** ________________________
-* **Módulo Afetado:** [Clientes / Orçamentos / OS / Offline / Relatórios / Outro]
-* **Comportamento Obtido:** Descrever o comportamento errático.
+### [UX-01] Rótulo de cliente livre redundante com dropdown
+* **Origem (Sessão / Usuário):** Piloto 1 / Ronaldo Silva
+* **Módulo Afetado:** Orçamentos (Cadastro/Seleção de Cliente)
+* **Comportamento Obtido:** Usuário hesitou 9s pois o campo de texto livre ficava sempre visível junto com o dropdown, causando dúvida sobre onde digitar.
 * **Passos para Reproduzir:**
-  1. Passo 1
-  2. Passo 2
+  1. Abrir criação de orçamento.
+  2. Visualizar área de Cliente.
+* **Decisão & Observações:**
+  * [x] Corrigir antes de continuar (tornar fallback dinâmico)
+  * [ ] Aceitar no piloto (com workaround)
+  * [ ] Investigar depois
+* **Evidência Visual (Link/Print):** N/A
+
+### [UX-02] Contraste baixo nas legendas de custos
+* **Origem (Sessão / Usuário):** Piloto 1 / Ronaldo Silva
+* **Módulo Afetado:** Orçamentos (Custos)
+* **Comportamento Obtido:** Em ambiente simulado de forte incidência solar, o texto em cinza escuro ficou difícil de ler no tema dark.
+* **Passos para Reproduzir:**
+  1. Abrir criação de orçamento.
+  2. Ir até seção de Custos (Materiais/Ajudante).
+* **Decisão & Observações:**
+  * [x] Corrigir antes de continuar (aumentar contraste)
+  * [ ] Aceitar no piloto (com workaround)
+  * [ ] Investigar depois
+* **Evidência Visual (Link/Print):** N/A
+
+### [BUG-01] Delay estético no resize do PDF
+* **Origem (Sessão / Usuário):** Piloto 1 / Ronaldo Silva
+* **Módulo Afetado:** Relatórios / BudgetPrintPreview
+* **Comportamento Obtido:** Leve travamento ao rotacionar a tela no Safari Mobile para visualizar o PDF.
+* **Passos para Reproduzir:**
+  1. Abrir visualização de proposta aprovada.
+  2. Girar o celular (Retrato -> Paisagem).
 * **Decisão & Observações:**
   * [ ] Corrigir antes de continuar
   * [ ] Aceitar no piloto (com workaround)
-  * [ ] Investigar depois
-* **Evidência Visual (Link/Print):** *(Anexar imagem sob a pasta de evidências ou colar markdown de referência)*
+  * [x] Investigar depois
+* **Evidência Visual (Link/Print):** N/A

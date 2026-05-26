@@ -123,32 +123,35 @@ export const BudgetForm: React.FC<BudgetFormProps> = ({ id, onBack }) => {
               placeholder="Ex: Instalação Residencial"
             />
           </div>
-          {/* Cliente selector */}
-          <select
-            value={budget.clientId || ''}
-            onChange={(e) => {
-              const selectedId = e.target.value;
-              const selectedClient = clients.find((c: Client) => c.id === selectedId);
-              updateField('clientId', selectedId);
-              updateField('clientName', selectedClient?.name || '');
-            }}
-            disabled={isReadOnly}
-            className="w-full bg-transparent text-base font-bold text-gray-100 focus:outline-none placeholder-gray-700 disabled:opacity-100 mb-2"
-          >
-            <option value="">Selecione um cliente (ou digite um nome livre)</option>
-            {clients.map((c: Client) => (
-              <option key={c.id} value={c.id}>{c.name}</option>
-            ))}
-          </select>
-          {/* Fallback nome livre */}
-          <input
-            type="text"
-            value={budget.clientName || ''}
-            onChange={(e) => updateField('clientName', e.target.value)}
-            disabled={isReadOnly}
-            className="w-full bg-transparent text-base font-bold text-gray-100 focus:outline-none placeholder-gray-700 disabled:opacity-100"
-            placeholder="Nome do cliente (livre)"
-          />
+          <div className={`p-4 rounded-2xl border transition-colors ${isReadOnly ? 'bg-transparent border-gray-900' : 'bg-gray-900/50 border-gray-800 focus-within:border-gray-700'}`}>
+            <label className="block text-[10px] text-gray-500 uppercase font-black mb-1.5 tracking-wider">Cliente</label>
+            <select
+              value={budget.clientId || ''}
+              onChange={(e) => {
+                const selectedId = e.target.value;
+                const selectedClient = clients.find((c: Client) => c.id === selectedId);
+                updateField('clientId', selectedId);
+                updateField('clientName', selectedClient?.name || '');
+              }}
+              disabled={isReadOnly}
+              className="w-full bg-transparent text-base font-bold text-gray-100 focus:outline-none disabled:opacity-100"
+            >
+              <option value="">Cliente Avulso (Nome Livre)</option>
+              {clients.map((c: Client) => (
+                <option key={c.id} value={c.id}>{c.name}</option>
+              ))}
+            </select>
+            {!budget.clientId && (
+              <input
+                type="text"
+                value={budget.clientName || ''}
+                onChange={(e) => updateField('clientName', e.target.value)}
+                disabled={isReadOnly}
+                className="w-full bg-transparent text-sm font-medium text-gray-300 focus:outline-none placeholder-gray-700 disabled:opacity-100 border-t border-gray-800 pt-3 mt-3"
+                placeholder="Digite o nome do cliente avulso..."
+              />
+            )}
+          </div>
         </div>
 
         {/* 4. Costs Grid (Mobile Friendly) */}
@@ -286,7 +289,7 @@ interface CostInputProps {
 
 const CostInput: React.FC<CostInputProps> = ({ label, value, onChange, disabled, isNegative }) => (
   <div className={`p-4 rounded-2xl border transition-all ${disabled ? 'bg-transparent border-gray-900' : 'bg-gray-900/50 border-gray-800 active:scale-[0.97] active:bg-gray-800'}`}>
-    <label className="block text-[10px] text-gray-500 uppercase font-black mb-2 tracking-widest">{label}</label>
+    <label className="block text-[10px] text-gray-300 uppercase font-black mb-2 tracking-widest">{label}</label>
     <div className="flex items-center">
       <span className={`text-xs font-black mr-1 ${isNegative ? 'text-red-500' : 'text-gray-600'}`}>
         {isNegative ? '-' : '+'} R$
