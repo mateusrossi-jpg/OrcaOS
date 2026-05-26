@@ -1,6 +1,6 @@
 export type TransportConnectionState = 'disconnected' | 'connecting' | 'connected' | 'reconnecting' | 'offline';
 
-export type TransportEvent = 'ping' | 'pong' | 'operational_event' | 'notification' | 'sync_request';
+export type TransportEvent = 'ping' | 'pong' | 'operational_event' | 'notification' | 'sync_request' | 'automation_dispatch';
 
 export type NotificationPriority = 'low' | 'normal' | 'high' | 'critical';
 
