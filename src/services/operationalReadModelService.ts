@@ -13,6 +13,8 @@ import { ClientProposalStatus } from '../features/clientPortal/storage/clientPro
 import { ServiceStatus } from '../core/types/business';
 import { BudgetPersistenceService } from './BudgetPersistenceService';
 import { QueueWorkflowInput } from '../core/workflow/queueEngine';
+import { operationalFeedService } from './operationalFeedService';
+import { getOperationalEventSeverity } from '../domain/eventSeverity';
 
 /**
  * OperationalReadModelService
@@ -35,14 +37,16 @@ export class OperationalReadModelService {
   /**
    * Invalidation targeting specific projections.
    * Called by OperationalSubscriptionService based on ProjectionInvalidationMap.
+   * Supports: pipeline, metrics, board, crm, activity, feed.
    */
-  invalidate(projection: 'pipeline' | 'metrics' | 'board' | 'crm' | 'activity') {
+  invalidate(projection: 'pipeline' | 'metrics' | 'board' | 'crm' | 'activity' | 'feed') {
     switch (projection) {
       case 'pipeline': this.pipelineCache = null; break;
       case 'metrics': this.metricsCache = null; break;
       case 'board': this.boardCache = null; break;
       case 'crm': this.crmPipelineCache = null; break;
       case 'activity': this.activityCache = null; break;
+      case 'feed': operationalFeedService.invalidateFeed(); break;
     }
   }
 
@@ -226,11 +230,6 @@ export class OperationalReadModelService {
     const allEvents = await operationalTimelineService.getGlobalTimeline();
     
     const activity: OperationalActivityProjection[] = allEvents.map(evt => {
-      let severity: 'info' | 'warning' | 'error' | 'success' = 'info';
-      if (evt.eventType.includes('ERROR')) severity = 'error';
-      else if (evt.eventType.includes('APPROVED') || evt.eventType.includes('COMPLETED') || evt.eventType.includes('FINALIZED')) severity = 'success';
-      else if (evt.eventType.includes('DELAY') || evt.eventType.includes('BREACH')) severity = 'warning';
-      
       return {
         id: evt.id,
         aggregateId: evt.aggregateId,
@@ -240,7 +239,7 @@ export class OperationalReadModelService {
         title: `Ação: ${evt.eventType}`,
         description: `Evento registrado via ${evt.source}`,
         timestamp: evt.timestamp,
-        severity,
+        severity: getOperationalEventSeverity(evt.eventType),
         correlationId: evt.correlationId
       };
     });

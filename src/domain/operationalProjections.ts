@@ -1,6 +1,7 @@
 import { BudgetStatus } from './budget';
 import { ClientProposalStatus } from '../features/clientPortal/storage/clientProposalStorage';
 import { ServiceStatus } from '../core/types/business';
+import { EventSeverity } from './eventSeverity';
 
 export interface OperationalPipelineProjection {
   budgetId: string;
@@ -71,6 +72,6 @@ export interface OperationalActivityProjection {
   title: string;
   description: string;
   timestamp: string;
-  severity: 'info' | 'warning' | 'error' | 'success';
+  severity: EventSeverity;
   correlationId?: string;
 }

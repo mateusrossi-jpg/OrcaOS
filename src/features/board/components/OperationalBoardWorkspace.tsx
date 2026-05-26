@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { OperationalBoardProjection } from '../../../domain/operationalProjections';
 import { operationalReadModelService } from '../../../services/operationalReadModelService';
-import { operationalEventService } from '../../../services/operationalEventService';
+import { operationalSubscriptionService } from '../../../services/operationalSubscriptionService';
 import { operationalFacade } from '../../workflow/operationalFacade';
 import { OperationalEvent } from '../../../domain/operationalEvent';
 import { operationalTimelineService } from '../../../services/operationalTimelineService';
@@ -32,7 +32,7 @@ export function OperationalBoardWorkspace() {
   // Hook into realtime invalidations
   useEffect(() => {
     fetchBoard();
-    const unsubscribe = operationalEventService.subscribe(() => {
+    const unsubscribe = operationalSubscriptionService.subscribeBoardUpdates(() => {
       fetchBoard();
     });
     return () => unsubscribe();
