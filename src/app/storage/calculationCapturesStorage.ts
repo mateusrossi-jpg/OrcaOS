@@ -1,4 +1,5 @@
 import type { CalculationCapture, CalculationDestination } from '../../core/types/workflow';
+import { safeJsonParse, safeArray } from '../../core/runtime/safeGuards';
 
 // LEGACY: Keep orcaos prefix for backward compatibility with existing user data.
 const CAPTURES_STORAGE_KEY = 'orcaos:calculation-captures:v1';
@@ -16,13 +17,11 @@ function isCalculationCapture(value: unknown): value is CalculationCapture {
 export function loadStoredCaptures(): CalculationCapture[] {
   if (typeof window === 'undefined') return [];
   try {
-    // eslint-disable-next-line no-restricted-syntax -- TODO: Refactor legacy storage access
+    // eslint-disable-next-line no-restricted-syntax -- Legacy localStorage bridge (migration-only)
     const stored = window.localStorage.getItem(CAPTURES_STORAGE_KEY);
-    if (!stored) return [];
-    const parsed: unknown = JSON.parse(stored);
-    return Array.isArray(parsed) ? parsed.filter(isCalculationCapture) : [];
+    const parsed = safeJsonParse<unknown[]>(stored, []);
+    return safeArray(parsed).filter(isCalculationCapture);
   } catch {
     return [];
   }
 }
-

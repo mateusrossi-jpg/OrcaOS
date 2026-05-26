@@ -4,74 +4,74 @@ import { ServiceStatus } from '../core/types/business';
 import { EventSeverity } from './eventSeverity';
 
 export interface OperationalPipelineProjection {
-  budgetId: string;
-  budgetStatus: BudgetStatus;
-  proposalId?: string;
-  proposalStatus?: ClientProposalStatus;
-  workOrderId?: string;
-  workOrderStatus?: ServiceStatus;
-  lastUpdatedAt: string;
+  readonly budgetId: string;
+  readonly budgetStatus: BudgetStatus;
+  readonly proposalId?: string;
+  readonly proposalStatus?: ClientProposalStatus;
+  readonly workOrderId?: string;
+  readonly workOrderStatus?: ServiceStatus;
+  readonly lastUpdatedAt: string;
 }
 
 export interface OperationalMetricsProjection {
-  totalBudgets: number;
-  totalProposalsSent: number;
-  totalProposalsApproved: number;
-  totalWorkOrdersCompleted: number;
-  revenueRealized: number;
-  lastUpdatedAt: string;
+  readonly totalBudgets: number;
+  readonly totalProposalsSent: number;
+  readonly totalProposalsApproved: number;
+  readonly totalWorkOrdersCompleted: number;
+  readonly revenueRealized: number;
+  readonly lastUpdatedAt: string;
 }
 
 export interface OperationalCardProjection {
-  id: string;
-  clientName: string;
-  title: string;
-  currentStatus: string;
-  proposalStatus?: string;
-  workOrderStatus?: string;
-  revenue: number;
-  netProfit: number;
-  margin: number;
-  createdAt: string;
-  updatedAt: string;
-  aging: number; // days since creation or last update
-  assignedTechnician?: string;
-  priority: 'low' | 'normal' | 'high' | 'urgent';
-  slaBreached: boolean;
-  overdue: boolean;
-  executionDelay: number; // in days
-  approvalDelay: number; // in days
-  stalledWorkflow: boolean;
+  readonly id: string;
+  readonly clientName: string;
+  readonly title: string;
+  readonly currentStatus: string;
+  readonly proposalStatus?: string;
+  readonly workOrderStatus?: string;
+  readonly revenue: number;
+  readonly netProfit: number;
+  readonly margin: number;
+  readonly createdAt: string;
+  readonly updatedAt: string;
+  readonly aging: number;
+  readonly assignedTechnician?: string;
+  readonly priority: 'low' | 'normal' | 'high' | 'urgent';
+  readonly slaBreached: boolean;
+  readonly overdue: boolean;
+  readonly executionDelay: number;
+  readonly approvalDelay: number;
+  readonly stalledWorkflow: boolean;
 }
 
 export interface OperationalBoardProjection {
-  draft: OperationalCardProjection[];
-  sent: OperationalCardProjection[];
-  approved: OperationalCardProjection[];
-  authorized: OperationalCardProjection[];
-  inExecution: OperationalCardProjection[];
-  finalized: OperationalCardProjection[];
-  archived: OperationalCardProjection[];
+  readonly draft: readonly OperationalCardProjection[];
+  readonly sent: readonly OperationalCardProjection[];
+  readonly approved: readonly OperationalCardProjection[];
+  readonly authorized: readonly OperationalCardProjection[];
+  readonly inExecution: readonly OperationalCardProjection[];
+  readonly finalized: readonly OperationalCardProjection[];
+  readonly archived: readonly OperationalCardProjection[];
 }
 
 export interface ClientPipelineProjection {
-  clientId: string;
-  clientName: string;
-  status: 'lead' | 'proposal_sent' | 'approved' | 'execution' | 'finalized' | 'recurring_candidate';
-  totalRevenue: number;
-  lastInteractionAt: string;
-  activeBudgets: number;
+  readonly clientId: string;
+  readonly clientName: string;
+  readonly status: 'lead' | 'proposal_sent' | 'approved' | 'execution' | 'finalized' | 'recurring_candidate';
+  readonly totalRevenue: number;
+  readonly lastInteractionAt: string;
+  readonly activeBudgets: number;
 }
 
 export interface OperationalActivityProjection {
-  id: string; // usually event.id
-  aggregateId: string;
-  aggregateType: string;
-  actor: string;
-  eventType: string;
-  title: string;
-  description: string;
-  timestamp: string;
-  severity: EventSeverity;
-  correlationId?: string;
+  readonly id: string;
+  readonly aggregateId: string;
+  readonly aggregateType: string;
+  readonly actor: string;
+  readonly eventType: string;
+  readonly title: string;
+  readonly description: string;
+  readonly timestamp: string;
+  readonly severity: EventSeverity;
+  readonly correlationId?: string;
 }

@@ -1,4 +1,6 @@
 // LEGACY: Storage keys with orcaos prefix are kept for backward compatibility.
+import { safeJsonParse, safeArray, safeString } from '../../core/runtime/safeGuards';
+
 const CLEANUP_MARKER_KEY = 'orcaos:validation-seed-cleaned:v1';
 const CLIENTS_KEY = 'orcaos:clients:v1';
 const WORK_ORDERS_KEY = 'orcaos:work-orders:v1';
@@ -7,39 +9,27 @@ const CAPTURES_KEY = 'orcaos:calculation-captures:v1';
 const BUDGETS_KEY = 'orcaos:saved-budgets:v1';
 
 function hasStorage(): boolean {
-  // eslint-disable-next-line no-restricted-syntax -- TODO: Refactor legacy storage access
+  // eslint-disable-next-line no-restricted-syntax -- Legacy localStorage bridge (migration-only)
   return typeof window !== 'undefined' && typeof window.localStorage !== 'undefined';
 }
 
 function readArray(key: string): unknown[] {
-  try {
-    // eslint-disable-next-line no-restricted-syntax -- TODO: Refactor legacy storage access
-    const raw = window.localStorage.getItem(key);
-    if (!raw) return [];
-    const parsed: unknown = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
+  // eslint-disable-next-line no-restricted-syntax -- Legacy localStorage bridge (migration-only)
+  const raw = window.localStorage.getItem(key);
+  return safeArray(safeJsonParse(raw, []));
 }
 
 function writeArray(key: string, items: unknown[]): void {
-  // eslint-disable-next-line no-restricted-syntax -- TODO: Refactor legacy storage access
+  // eslint-disable-next-line no-restricted-syntax -- Legacy localStorage bridge (migration-only)
   window.localStorage.setItem(key, JSON.stringify(items));
 }
 
-function getString(value: unknown, field: string): string {
-  if (!value || typeof value !== 'object') return '';
-  const candidate = (value as Record<string, unknown>)[field];
-  return typeof candidate === 'string' ? candidate : '';
-}
-
 function isValidationRecord(value: unknown): boolean {
-  const id = getString(value, 'id');
-  const name = getString(value, 'name');
-  const title = getString(value, 'title');
-  const address = getString(value, 'address');
-  const clientName = getString(value, 'clientName');
+  const id = safeString((value as Record<string, unknown>)?.id);
+  const name = safeString((value as Record<string, unknown>)?.name);
+  const title = safeString((value as Record<string, unknown>)?.title);
+  const address = safeString((value as Record<string, unknown>)?.address);
+  const clientName = safeString((value as Record<string, unknown>)?.clientName);
 
   return (
     id.startsWith('validation-') ||
@@ -59,7 +49,7 @@ function removeValidationItems(key: string): string[] {
   const items = readArray(key);
   if (items.length === 0) return [];
 
-  const removedIds = items.filter(isValidationRecord).map((item) => getString(item, 'id')).filter(Boolean);
+  const removedIds = items.filter(isValidationRecord).map((item) => safeString((item as Record<string, unknown>)?.id)).filter(Boolean);
   if (removedIds.length === 0) return [];
 
   writeArray(key, items.filter((item) => !isValidationRecord(item)));
@@ -73,14 +63,14 @@ export function cleanupRuntimeValidationData(): void {
   removeValidationItems(WORK_ORDERS_KEY);
   removeValidationItems(BUDGETS_KEY);
   removeValidationItems(CAPTURES_KEY);
-  // eslint-disable-next-line no-restricted-syntax -- TODO: Refactor legacy storage access
+  // eslint-disable-next-line no-restricted-syntax -- Legacy localStorage bridge (migration-only)
   const activeWorkOrderId = window.localStorage.getItem(ACTIVE_WORK_ORDER_KEY);
 
   if (activeWorkOrderId) {
-    // eslint-disable-next-line no-restricted-syntax -- TODO: Refactor legacy storage access
+    // eslint-disable-next-line no-restricted-syntax -- Legacy localStorage bridge (migration-only)
     window.localStorage.removeItem(ACTIVE_WORK_ORDER_KEY);
   }
 
-  // eslint-disable-next-line no-restricted-syntax -- TODO: Refactor legacy storage access
+  // eslint-disable-next-line no-restricted-syntax -- Legacy localStorage bridge (migration-only)
   window.localStorage.setItem(CLEANUP_MARKER_KEY, new Date().toISOString());
 }

@@ -49,8 +49,8 @@ export class OperationalEventService {
 
     await this.repository.add(event);
     
-    // Fanout
-    for (const sub of this.subscribers) {
+    // Fanout (snapshot array to prevent mutation-during-iteration)
+    for (const sub of [...this.subscribers]) {
       try { sub(event); } catch (err) { console.error('Error in event listener:', err); }
     }
     

@@ -46,24 +46,35 @@ export class OperationalSubscriptionService {
     console.debug(`[SubscriptionService] Fanout: ${event.eventType} affected ${affectedProjections.join(', ')}`);
 
     // 3. Incremental Refresh Subscriptions (push notification to UI listeners)
+    // Snapshot Sets before iteration to prevent mutation-during-iteration
     if (affectedProjections.includes('board')) {
-      this.boardSubscribers.forEach(cb => cb());
+      for (const cb of [...this.boardSubscribers]) {
+        try { cb(); } catch (err) { console.error('[SubscriptionService] Board subscriber error:', err); }
+      }
     }
     
     if (affectedProjections.includes('metrics')) {
-      this.metricsSubscribers.forEach(cb => cb());
+      for (const cb of [...this.metricsSubscribers]) {
+        try { cb(); } catch (err) { console.error('[SubscriptionService] Metrics subscriber error:', err); }
+      }
     }
     
     if (affectedProjections.includes('crm')) {
-      this.clientPipelineSubscribers.forEach(cb => cb());
+      for (const cb of [...this.clientPipelineSubscribers]) {
+        try { cb(); } catch (err) { console.error('[SubscriptionService] CRM subscriber error:', err); }
+      }
     }
 
     if (affectedProjections.includes('activity') || affectedProjections.includes('pipeline')) {
-      this.financeOperationalSubscribers.forEach(cb => cb());
+      for (const cb of [...this.financeOperationalSubscribers]) {
+        try { cb(); } catch (err) { console.error('[SubscriptionService] Finance subscriber error:', err); }
+      }
     }
 
     // Timeline updates are aggregate-specific
-    this.timelineSubscribers.forEach(cb => cb(event.aggregateId));
+    for (const cb of [...this.timelineSubscribers]) {
+      try { cb(event.aggregateId); } catch (err) { console.error('[SubscriptionService] Timeline subscriber error:', err); }
+    }
   }
 
   // ---- Core Subscriptions (ERP-Grade) ----

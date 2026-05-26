@@ -22,16 +22,16 @@ export type OperationalEventType =
   | 'CLIENT_UPDATED';
 
 export interface OperationalEvent {
-  id: string;
-  aggregateId: string;
-  aggregateType: EventAggregateType;
-  eventType: OperationalEventType;
-  timestamp: string;
-  actor: string;
-  source: string;
-  metadata?: Record<string, unknown>;
-  snapshot?: Record<string, unknown>;
-  correlationId?: string;
-  causationId?: string;
-  createdAt: string;
+  readonly id: string;
+  readonly aggregateId: string;
+  readonly aggregateType: EventAggregateType;
+  readonly eventType: OperationalEventType;
+  readonly timestamp: string;
+  readonly actor: string;
+  readonly source: string;
+  readonly metadata?: Readonly<Record<string, unknown>>;
+  readonly snapshot?: Readonly<Record<string, unknown>>;
+  readonly correlationId?: string;
+  readonly causationId?: string;
+  readonly createdAt: string;
 }

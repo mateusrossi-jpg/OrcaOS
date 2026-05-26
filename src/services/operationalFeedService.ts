@@ -30,6 +30,7 @@ import {
   getOperationalEventPriority,
   isOperationalAlertSeverity,
 } from '../domain/eventSeverity';
+import { safeTimestamp, deduplicateBy } from '../core/runtime/safeGuards';
 
 type FeedListener = (payload: OperationalFeedSubscriptionPayload) => void;
 type AlertListener = (alerts: OperationalAlertItem[]) => void;
@@ -172,31 +173,31 @@ export class OperationalFeedService {
       totalCount: this.feedCache.length,
     };
 
-    // Notify activity feed subscribers
-    this.feedSubscribers.forEach(cb => {
+    // Notify activity feed subscribers (snapshot Set to prevent mutation-during-iteration)
+    for (const cb of [...this.feedSubscribers]) {
       try { cb(payload); } catch (err) { console.error('[FeedService] Feed subscriber error:', err); }
-    });
+    }
 
     // Notify technician subscribers (workorder-related events)
     if (feedItem.aggregateType === 'workorder' || feedItem.eventType.includes('EXECUTION')) {
-      this.technicianSubscribers.forEach(cb => {
+      for (const cb of [...this.technicianSubscribers]) {
         try { cb(payload); } catch (err) { console.error('[FeedService] Technician subscriber error:', err); }
-      });
+      }
     }
 
     // Notify client activity subscribers (proposal/client-related events)
     if (feedItem.aggregateType === 'proposal' || feedItem.aggregateType === 'client') {
-      this.clientActivitySubscribers.forEach(cb => {
+      for (const cb of [...this.clientActivitySubscribers]) {
         try { cb(payload); } catch (err) { console.error('[FeedService] Client subscriber error:', err); }
-      });
+      }
     }
 
     // Alert derivation (NOT persisted, purely transient)
     if (isOperationalAlertSeverity(feedItem.severity)) {
       const alertItem = feedItem as OperationalAlertItem;
-      this.alertSubscribers.forEach(cb => {
+      for (const cb of [...this.alertSubscribers]) {
         try { cb([alertItem]); } catch (err) { console.error('[FeedService] Alert subscriber error:', err); }
-      });
+      }
     }
   }
 
@@ -213,12 +214,13 @@ export class OperationalFeedService {
    * Deterministic: same events → same feed.
    * Called once during startup, not on every render.
    */
-  rebuildFromEvents(events: OperationalEvent[]): void {
+  rebuildFromEvents(events: readonly OperationalEvent[]): void {
     // Sort chronologically, then reverse for newest-first
     const sorted = [...events].sort(
-      (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+      (a, b) => safeTimestamp(b.timestamp) - safeTimestamp(a.timestamp)
     );
-    this.feedCache = sorted.map(eventToFeedItem);
+    // Deduplicate by event ID to guarantee idempotency on rebuild
+    this.feedCache = deduplicateBy(sorted.map(eventToFeedItem), item => item.id);
   }
 
   /**

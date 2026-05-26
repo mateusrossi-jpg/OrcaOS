@@ -1,3 +1,5 @@
+import { safeJsonParse } from '../../../core/runtime/safeGuards';
+
 export interface AppAccessLockState {
   enabled: boolean;
   salt: string;
@@ -47,7 +49,7 @@ export function loadAppAccessLock(): AppAccessLockState | null {
   try {
     const stored = window.localStorage.getItem(STORAGE_KEY);
     if (!stored) return null;
-    const parsed = JSON.parse(stored) as Partial<AppAccessLockState>;
+    const parsed = safeJsonParse<Partial<AppAccessLockState>>(stored, {});
     if (!parsed.enabled || !parsed.salt || !parsed.pinHash) return null;
     return {
       enabled: true,

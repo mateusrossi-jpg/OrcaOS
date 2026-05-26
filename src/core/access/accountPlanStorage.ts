@@ -1,4 +1,5 @@
 import type { UserPlan } from './featureAccess';
+import { safeJsonParse } from '../runtime/safeGuards';
 
 export type AferixAccountStatus = 'guest' | 'email' | 'local' | 'google';
 export type AferixPlanSource = 'free' | 'local-test' | 'subscription';
@@ -52,7 +53,7 @@ export function legacyLoadAccountState(): AferixAccountState {
   try {
     const stored = window.localStorage.getItem(STORAGE_KEY);
     if (stored) {
-      const value = JSON.parse(stored) as Partial<AferixAccountState>;
+      const value = safeJsonParse<Partial<AferixAccountState>>(stored, {});
       const plan = value.plan === 'pro' ? 'pro' : 'free';
       return {
         status: value.status === 'google' ? 'google' : value.status === 'email' ? 'email' : value.status === 'local' ? 'local' : 'guest',

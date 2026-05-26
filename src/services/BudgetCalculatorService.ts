@@ -1,4 +1,5 @@
 import { Budget, BudgetItem } from '../domain/budget';
+import { sanitizeNumericFields } from '../core/runtime/safeGuards';
 
 export interface BudgetCalculationResult {
   subtotal: number;
@@ -102,15 +103,8 @@ export class BudgetCalculatorService {
       totalCost: totalCostOficial,
     };
 
-    // Global NaN / Infinity protection
-    (Object.keys(finalResult) as Array<keyof BudgetCalculationResult>).forEach((key) => {
-      const val = finalResult[key];
-      if (typeof val === 'number' && !Number.isFinite(val)) {
-        (finalResult as unknown as Record<string, unknown>)[key] = 0;
-      }
-    });
-
-    return finalResult;
+    // Global NaN / Infinity protection via centralized sanitizer
+    return sanitizeNumericFields(finalResult);
   }
 }
 

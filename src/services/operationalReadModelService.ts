@@ -1,5 +1,6 @@
 // operationalEventService import removed as it is now in SubscriptionService
 import { operationalTimelineService } from './operationalTimelineService';
+import { safeString, safeTimestamp } from '../core/runtime/safeGuards';
 import {
   OperationalPipelineProjection,
   OperationalMetricsProjection,
@@ -15,6 +16,10 @@ import { BudgetPersistenceService } from './BudgetPersistenceService';
 import { QueueWorkflowInput } from '../core/workflow/queueEngine';
 import { operationalFeedService } from './operationalFeedService';
 import { getOperationalEventSeverity } from '../domain/eventSeverity';
+
+type Mutable<T> = {
+  -readonly [P in keyof T]: T[P];
+};
 
 /**
  * OperationalReadModelService
@@ -65,9 +70,9 @@ export class OperationalReadModelService {
     // correlationId com a proposal e a work order.
     for (const [id, events] of Object.entries(grouped)) {
       // Rebuild the state for this aggregate by traversing its events forward in time.
-      const sorted = events.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+      const sorted = events.sort((a, b) => safeTimestamp(a.timestamp) - safeTimestamp(b.timestamp));
       
-      const proj: OperationalPipelineProjection = {
+      const proj: Mutable<OperationalPipelineProjection> = {
         budgetId: id,
         budgetStatus: 'iniciado',
         lastUpdatedAt: sorted[sorted.length - 1].timestamp
@@ -76,13 +81,16 @@ export class OperationalReadModelService {
       for (const evt of sorted) {
         if (evt.aggregateType === 'budget') {
           proj.budgetId = evt.aggregateId;
-          if (evt.snapshot?.status) proj.budgetStatus = evt.snapshot.status as BudgetStatus;
+          const s = safeString(evt.snapshot?.status);
+          if (s) proj.budgetStatus = s as BudgetStatus;
         } else if (evt.aggregateType === 'proposal') {
           proj.proposalId = evt.aggregateId;
-          if (evt.snapshot?.status) proj.proposalStatus = evt.snapshot.status as ClientProposalStatus;
+          const s = safeString(evt.snapshot?.status);
+          if (s) proj.proposalStatus = s as ClientProposalStatus;
         } else if (evt.aggregateType === 'workorder') {
           proj.workOrderId = evt.aggregateId;
-          if (evt.snapshot?.status) proj.workOrderStatus = evt.snapshot.status as ServiceStatus;
+          const s = safeString(evt.snapshot?.status);
+          if (s) proj.workOrderStatus = s as ServiceStatus;
         }
       }
 
@@ -137,14 +145,14 @@ export class OperationalReadModelService {
     if (this.boardCache) return this.boardCache;
 
     const pipeline = await this.getPipelineProjection();
-    const board: OperationalBoardProjection = {
-      draft: [],
-      sent: [],
-      approved: [],
-      authorized: [],
-      inExecution: [],
-      finalized: [],
-      archived: []
+    const board: Mutable<OperationalBoardProjection> = {
+      draft: [] as Mutable<OperationalCardProjection>[],
+      sent: [] as Mutable<OperationalCardProjection>[],
+      approved: [] as Mutable<OperationalCardProjection>[],
+      authorized: [] as Mutable<OperationalCardProjection>[],
+      inExecution: [] as Mutable<OperationalCardProjection>[],
+      finalized: [] as Mutable<OperationalCardProjection>[],
+      archived: [] as Mutable<OperationalCardProjection>[]
     };
 
     const budgetPersistence = new BudgetPersistenceService();
@@ -153,7 +161,7 @@ export class OperationalReadModelService {
       const budget = await budgetPersistence.getBudget(proj.budgetId);
       if (!budget) continue;
 
-      const card: OperationalCardProjection = {
+      const card: Mutable<OperationalCardProjection> = {
         id: budget.id,
         clientName: budget.clientName || 'Cliente sem nome',
         title: budget.title,
@@ -174,14 +182,14 @@ export class OperationalReadModelService {
         stalledWorkflow: false
       };
 
-      if (budget.status === 'iniciado') board.draft.push(card);
-      else if (budget.status === 'enviado' || budget.status === 'em_revisao') board.sent.push(card);
-      else if (proj.proposalStatus === 'approved' && budget.status !== 'autorizado') board.approved.push(card);
-      else if (budget.status === 'autorizado') board.authorized.push(card);
-      else if (budget.status === 'em_execucao' || proj.workOrderStatus === 'in-progress') board.inExecution.push(card);
-      else if (budget.status === 'finalizado') board.finalized.push(card);
-      else if (budget.status === 'arquivado') board.archived.push(card);
-      else board.draft.push(card); // fallback
+      if (budget.status === 'iniciado') (board.draft as Mutable<OperationalCardProjection>[]).push(card);
+      else if (budget.status === 'enviado' || budget.status === 'em_revisao') (board.sent as Mutable<OperationalCardProjection>[]).push(card);
+      else if (proj.proposalStatus === 'approved' && budget.status !== 'autorizado') (board.approved as Mutable<OperationalCardProjection>[]).push(card);
+      else if (budget.status === 'autorizado') (board.authorized as Mutable<OperationalCardProjection>[]).push(card);
+      else if (budget.status === 'em_execucao' || proj.workOrderStatus === 'in-progress') (board.inExecution as Mutable<OperationalCardProjection>[]).push(card);
+      else if (budget.status === 'finalizado') (board.finalized as Mutable<OperationalCardProjection>[]).push(card);
+      else if (budget.status === 'arquivado') (board.archived as Mutable<OperationalCardProjection>[]).push(card);
+      else (board.draft as Mutable<OperationalCardProjection>[]).push(card); // fallback
     }
 
     this.boardCache = board;
@@ -193,7 +201,7 @@ export class OperationalReadModelService {
     
     // Very simplified CRM pipeline derived from events
     const allEvents = await operationalTimelineService.getGlobalTimeline();
-    const crm: Record<string, ClientPipelineProjection> = {};
+    const crm: Record<string, Mutable<ClientPipelineProjection>> = {};
     
     for (const evt of allEvents) {
       // Logic for CRM pipeline extraction would go here
@@ -215,7 +223,7 @@ export class OperationalReadModelService {
       if (evt.eventType === 'BUDGET_EXECUTION_STARTED') crm[clientId].status = 'execution';
       if (evt.eventType === 'BUDGET_FINALIZED') crm[clientId].status = 'finalized';
       
-      if (new Date(evt.timestamp) > new Date(crm[clientId].lastInteractionAt)) {
+      if (safeTimestamp(evt.timestamp) > safeTimestamp(crm[clientId].lastInteractionAt)) {
         crm[clientId].lastInteractionAt = evt.timestamp;
       }
     }
@@ -245,7 +253,7 @@ export class OperationalReadModelService {
     });
     
     // Reverse chronological order for feed
-    activity.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+    activity.sort((a, b) => safeTimestamp(b.timestamp) - safeTimestamp(a.timestamp));
     
     this.activityCache = activity;
     return activity;
@@ -259,7 +267,7 @@ export class OperationalReadModelService {
     
     const queue: QueueWorkflowInput[] = [];
     for (const [id, events] of Object.entries(grouped)) {
-      const sorted = events.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+      const sorted = events.sort((a, b) => safeTimestamp(a.timestamp) - safeTimestamp(b.timestamp));
       
       const wf: QueueWorkflowInput = {
         id,

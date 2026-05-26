@@ -13,49 +13,49 @@ import { EventSeverity } from './eventSeverity';
 
 export interface OperationalFeedItem {
   /** Unique feed item ID (derived from event.id) */
-  id: string;
+  readonly id: string;
 
   /** The aggregate this event belongs to */
-  aggregateId: string;
+  readonly aggregateId: string;
 
   /** The aggregate type (budget, proposal, workorder, client, finance) */
-  aggregateType: string;
+  readonly aggregateType: string;
 
   /** Who triggered the event */
-  actor: string;
+  readonly actor: string;
 
   /** The original operational event type */
-  eventType: string;
+  readonly eventType: string;
 
   /** Human-readable title for feed display */
-  title: string;
+  readonly title: string;
 
   /** Human-readable description */
-  description: string;
+  readonly description: string;
 
   /** Event timestamp (ISO string) */
-  timestamp: string;
+  readonly timestamp: string;
 
   /** Derived severity (info, success, warning, critical) */
-  severity: EventSeverity;
+  readonly severity: EventSeverity;
 
   /** Derived priority (0-5, higher = more urgent) */
-  priority: number;
+  readonly priority: number;
 
   /** Correlation chain for tracing related events */
-  correlationId?: string;
+  readonly correlationId?: string;
 
   /** Reference to the timeline entry */
-  timelineReference?: string;
+  readonly timelineReference?: string;
 
   /** Tags for filtering and analytics (e.g., ['sla', 'overdue']) */
-  operationalTags: string[];
+  readonly operationalTags: readonly string[];
 
   /** Whether this item can participate in future unread tracking */
-  unreadCapable: boolean;
+  readonly unreadCapable: boolean;
 
   /** Whether this item is relevant for SLA tracking */
-  slaRelevant: boolean;
+  readonly slaRelevant: boolean;
 }
 
 /**
@@ -64,10 +64,10 @@ export interface OperationalFeedItem {
  */
 export interface OperationalFeedSubscriptionPayload {
   /** New items since last emission (newest first) */
-  newItems: OperationalFeedItem[];
+  readonly newItems: readonly OperationalFeedItem[];
 
   /** Total count in the full feed (for pagination readiness) */
-  totalCount: number;
+  readonly totalCount: number;
 }
 
 /**
@@ -75,5 +75,5 @@ export interface OperationalFeedSubscriptionPayload {
  * This is a filtered view, not a separate entity.
  */
 export type OperationalAlertItem = OperationalFeedItem & {
-  severity: 'warning' | 'critical';
+  readonly severity: 'warning' | 'critical';
 };
