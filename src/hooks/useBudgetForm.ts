@@ -54,16 +54,18 @@ export function useBudgetForm(initialBudgetId?: string | null) {
 
   const permissions = useMemo((): BudgetEditPermissions => {
     const s = budget.status;
-    if (s === BUDGET_STATUS.INICIADO) {
+    
+    // 1. Totalmente Editável: rascunho (INICIADO) ou em_analise (ENVIADO)
+    if (s === BUDGET_STATUS.INICIADO || s === BUDGET_STATUS.ENVIADO) {
       return { canEditTitle: true, canEditClient: true, canEditItems: true, canEditFinancials: true, canEditNotes: true, canEditStatus: true };
     }
-    if (s === BUDGET_STATUS.ENVIADO) {
-      return { canEditTitle: true, canEditClient: true, canEditItems: false, canEditFinancials: false, canEditNotes: true, canEditStatus: true };
-    }
+    
+    // 2. Read-Only Operacional (Bloqueado) mas permite notas e avanço de status
     if (s === BUDGET_STATUS.AUTORIZADO || s === BUDGET_STATUS.EM_EXECUCAO) {
       return { canEditTitle: false, canEditClient: false, canEditItems: false, canEditFinancials: false, canEditNotes: true, canEditStatus: true };
     }
-    // FINALIZADO, ARQUIVADO, RECUSADO
+    
+    // 3. Finalizados / Arquivados / Recusados (Tudo bloqueado)
     return { canEditTitle: false, canEditClient: false, canEditItems: false, canEditFinancials: false, canEditNotes: false, canEditStatus: false };
   }, [budget.status]);
 

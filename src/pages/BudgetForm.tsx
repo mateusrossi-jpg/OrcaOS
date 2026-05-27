@@ -45,6 +45,7 @@ export const BudgetForm: React.FC<BudgetFormProps> = ({ id, onBack }) => {
     confirmFinalize,
     error,
     clearError,
+    isReadOnly,
   } = useBudgetForm(id);
 
   const { clients } = useClients();
@@ -60,7 +61,7 @@ export const BudgetForm: React.FC<BudgetFormProps> = ({ id, onBack }) => {
   }
 
   return (
-    <PageShell className={`aferix-budget-form-screen ${isSaving ? 'is-saving' : ''}`}>
+    <PageShell className={`aferix-budget-form-screen ${isSaving ? 'is-saving' : ''} ${isReadOnly ? 'is-read-only' : ''}`}>
       <PageHeader 
         title={budget.title || (id ? 'Editar orçamento' : 'Novo orçamento')} 
         sourceLabel={budget.status.toUpperCase()}
@@ -70,6 +71,16 @@ export const BudgetForm: React.FC<BudgetFormProps> = ({ id, onBack }) => {
           </SecondaryButton>
         }
       />
+
+      {isReadOnly && (
+        <div className="aferix-mb-md">
+          <ContextBanner
+            title={`Orçamento bloqueado para edição (Status: ${budget.status.replace('_', ' ').toUpperCase()})`}
+            meta="Os dados principais, itens e custos não podem mais ser alterados."
+            icon={<span className="nav-icon">🔒</span>}
+          />
+        </div>
+      )}
 
       {error && (
         <div className="aferix-card-warning aferix-mb-md">
@@ -309,6 +320,10 @@ export const BudgetForm: React.FC<BudgetFormProps> = ({ id, onBack }) => {
         .aferix-budget-form-screen.is-saving {
           opacity: 0.7;
           pointer-events: none;
+        }
+        .aferix-budget-form-screen.is-read-only .aferix-card-kpi,
+        .aferix-budget-form-screen.is-read-only .aferix-costs-section {
+          opacity: 0.85;
         }
         .aferix-costs-section {
           margin-top: 12px;
