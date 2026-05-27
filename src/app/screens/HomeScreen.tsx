@@ -10,9 +10,7 @@ import {
   QueueEmptyState,
   ListItem,
   StatusBadge,
-  PrimaryButton,
   SectionTitle,
-  ContextBanner,
   ListCard,
 } from '../components/ui';
 import { calculateBudget } from '../../domain/aferixFinanceEngine';
@@ -39,33 +37,34 @@ export function HomeScreen({ onNavigate, onSelectBudget }: HomeScreenProps) {
   }, []);
 
   const now = new Date();
-  const currentMonthBudgets = useMemo(() => budgets.filter((b) => {
-    const d = new Date(b.updatedAt);
-    return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
-  }), [budgets, now]);
 
-  const inProgressBudgets = useMemo(() => budgets.filter(
-    (b) => b.status !== 'finalizado' && b.status !== 'recusado' && b.status !== 'arquivado',
+  // 2. Dashboard Operacional (Métricas Rápidas)
+  // Orçamentos Pendentes (Rascunho/Enviado)
+  const pendingBudgets = useMemo(() => budgets.filter(
+    (b) => b.status === 'iniciado' || b.status === 'em_revisao' || b.status === 'enviado'
   ), [budgets]);
 
-  const activeBudget = inProgressBudgets.length > 0 ? inProgressBudgets[0] : null;
+  // Serviços Em Execução (Aprovado/Iniciado)
+  const activeBudgets = useMemo(() => budgets.filter(
+    (b) => b.status === 'autorizado' || b.status === 'em_execucao'
+  ), [budgets]);
 
-  const finalizedThisMonth = useMemo(() => currentMonthBudgets.filter((b) => b.status === 'finalizado'), [currentMonthBudgets]);
-  
-  const profitThisMonth = useMemo(() => financeRecords.reduce((acc, r) => {
+  // Faturamento / Receita do Mês (lendo da fonte de verdade financeira)
+  const revenueThisMonth = useMemo(() => financeRecords.reduce((acc, r) => {
     const d = new Date(r.updatedAt);
     if (d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth()) {
-      return acc + r.netProfit;
+      return acc + r.receivedAmount;
     }
     return acc;
   }, 0), [financeRecords, now]);
 
+  // 3. Atividade Recente: Lista enxuta (max 3 a 5 itens)
   const recentBudgets = budgets.slice(0, 5);
 
   if (isLoading) {
     return (
       <PageShell>
-        <PageHeader title="Resumo" />
+        <PageHeader title="Painel" />
         <div className="empty-state-card">
           <strong>Carregando sua operação...</strong>
         </div>
@@ -75,61 +74,54 @@ export function HomeScreen({ onNavigate, onSelectBudget }: HomeScreenProps) {
 
   return (
     <PageShell className="aferix-operational-screen">
-      <PageHeader 
-        title="Hoje no Aferix" 
-        action={
-          <PrimaryButton onClick={() => onNavigate('new-budget')}>
-            Novo orçamento
-          </PrimaryButton>
-        }
-      />
+      <PageHeader title="Painel Operacional" />
 
       <div className="home-dashboard-layout">
+        
+        {/* 1. CTA Principal e Único */}
+        <section className="home-primary-cta-section">
+          <button 
+            className="home-primary-cta" 
+            onClick={() => onNavigate('new-budget')}
+          >
+            <span className="cta-icon">＋</span>
+            Novo Orçamento
+          </button>
+        </section>
+
+        {/* 2. Dashboard Operacional */}
         <PanelCard className="operational-metrics-panel">
           <div className="metric-grid compact-metric-grid">
             <MetricCard 
-              label="Em andamento" 
-              value={inProgressBudgets.length} 
-              tone="brand"
+              label="Pendentes" 
+              value={pendingBudgets.length} 
+              tone="default"
             />
             <MetricCard 
-              label="Concluídos (mês)" 
-              value={finalizedThisMonth.length} 
+              label="Em Execução" 
+              value={activeBudgets.length} 
+              tone="brand"
             />
             <MetricCard
-              label="Meu Lucro (mês)"
-              value={<MoneyValue value={profitThisMonth} tone={profitThisMonth >= 0 ? 'success' : 'danger'} compact />}
+              label="Receita do Mês"
+              value={<MoneyValue value={revenueThisMonth} tone={revenueThisMonth >= 0 ? 'success' : 'danger'} compact />}
               featured
               tone="success"
             />
           </div>
         </PanelCard>
 
-        {activeBudget && (
-          <div className="home-active-work-section">
-            <SectionTitle title="Continuar trabalho" eyebrow="Última atualização" />
-            <ContextBanner
-              title={activeBudget.title || 'Orçamento sem título'}
-              meta={`${activeBudget.clientName || 'Cliente não informado'} • ${new Date(activeBudget.updatedAt).toLocaleDateString()}`}
-              icon={<span className="nav-icon">📄</span>}
-              actionLabel="Retomar"
-              onAction={() => onSelectBudget?.(activeBudget)}
-            />
-          </div>
-        )}
-
+        {/* 3. Atividade Recente */}
         {budgets.length === 0 ? (
           <QueueEmptyState
             title="Sua operação começa aqui"
             icon="🚀"
             meta="Crie seu primeiro orçamento para começar a gerenciar seus ganhos com precisão."
-            action={<PrimaryButton onClick={() => onNavigate('new-budget')}>Criar primeiro orçamento</PrimaryButton>}
+            action={<button className="primary-action" onClick={() => onNavigate('new-budget')}>Criar primeiro orçamento</button>}
           />
         ) : (
           <div className="home-recent-activity">
-            <SectionTitle 
-              title="Últimos orçamentos" 
-            />
+            <SectionTitle title="Atividade Recente" />
             <ListCard>
               {recentBudgets.map((budget) => (
                 <ListItem
@@ -150,49 +142,73 @@ export function HomeScreen({ onNavigate, onSelectBudget }: HomeScreenProps) {
         .home-dashboard-layout {
           display: flex;
           flex-direction: column;
-          gap: 20px;
+          gap: 24px;
           min-width: 0;
           width: 100%;
         }
         
+        /* Premium Yellow CTA */
+        .home-primary-cta-section {
+          display: flex;
+          flex-direction: column;
+        }
+
+        .home-primary-cta {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 12px;
+          width: 100%;
+          min-height: 64px;
+          border: none;
+          border-radius: var(--aferix-radius-lg, 12px);
+          background: var(--aferix-primary, #f5a400);
+          color: #000;
+          font-size: 1.15rem;
+          font-weight: 800;
+          cursor: pointer;
+          transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease;
+          box-shadow: 0 4px 14px rgba(245, 164, 0, 0.25);
+        }
+
+        .home-primary-cta:active {
+          transform: scale(0.98);
+          box-shadow: 0 2px 8px rgba(245, 164, 0, 0.2);
+        }
+
+        .cta-icon {
+          font-size: 1.4rem;
+          font-weight: bold;
+        }
+
         .operational-metrics-panel {
-          padding: 12px !important;
-          margin-bottom: 4px;
+          padding: 16px !important;
+          background: var(--aferix-surface-raised, #16181e) !important;
+          border: 1px solid var(--aferix-border, #2a2d36) !important;
         }
 
         .compact-metric-grid {
           display: grid !important;
-          grid-template-columns: repeat(2, 1fr) !important;
-          gap: 10px !important;
+          grid-template-columns: repeat(3, 1fr) !important;
+          gap: 12px !important;
         }
         
         @media (max-width: 480px) {
           .compact-metric-grid {
             grid-template-columns: repeat(2, 1fr) !important;
           }
-          /* Lucro can take full width if it's the 3rd item */
+          /* Receita takes full width if it's the 3rd item */
           .compact-metric-grid > article:last-child {
             grid-column: 1 / -1;
           }
         }
 
-        .home-active-work-section, .home-recent-activity {
+        .home-recent-activity {
           display: flex;
           flex-direction: column;
           gap: 12px;
           min-width: 0;
           width: 100%;
-        }
-
-        @media (min-width: 769px) {
-          .compact-metric-grid {
-            grid-template-columns: repeat(3, 1fr) !important;
-          }
-          .home-dashboard-layout {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 24px;
-          }
         }
       `}</style>
     </PageShell>
