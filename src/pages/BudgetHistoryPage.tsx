@@ -84,7 +84,7 @@ export const BudgetHistoryPage: React.FC<BudgetHistoryPageProps> = ({ onOpenBudg
         <QueueEmptyState
           title={query ? "Nenhum resultado" : "Vazio"}
           meta={query ? "Tente outros termos." : "Orçamentos salvos aparecerão aqui."}
-          action={!query && filter === 'todos' ? <PrimaryButton onClick={onNewBudget}>Criar primeiro</PrimaryButton> : null}
+          action={null}
         />
       ) : (
         <ListCard style={{ gap: 0 }}>

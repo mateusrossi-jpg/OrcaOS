@@ -1521,16 +1521,22 @@ textarea {
 /* ===== Reference fidelity pass ===== */
 .metric-card.featured,
 .metric-card.tone-brand.featured {
-  background: linear-gradient(180deg, rgba(255, 210, 31, 0.96), rgba(234, 179, 8, 0.94)) !important;
-  border-color: rgba(255, 210, 31, 0.92) !important;
-  box-shadow: 0 12px 28px rgba(255, 210, 31, 0.24) !important;
+  background: var(--aferix-bg-surface) !important;
+  border-color: rgba(255, 210, 31, 0.3) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
 }
 
 .metric-card.featured > span,
 .metric-card.featured > small,
 .metric-card.featured .money-value,
 .metric-card.featured > strong {
-  color: #111214 !important;
+  color: var(--aferix-text-primary) !important;
+}
+
+.metric-card.featured strong,
+.metric-card.tone-brand.featured strong,
+.metric-card.featured .money-value {
+  color: var(--aferix-yellow) !important;
 }
 
 .section-mode-tabs button.active,

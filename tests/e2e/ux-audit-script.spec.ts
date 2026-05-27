@@ -39,7 +39,7 @@ test.describe('P91 Human UX Audit', () => {
 
     // 4. Novo Orçamento (Top and Bottom)
     await page.click('.mobile-bottom-nav button:has-text("Resumo")'); // Back home
-    await page.click('button:has-text("Novo Orçamento", button:has-text("Novo orçamento"))');
+    await page.click('button:has-text("Novo Orçamento")');
     await page.waitForTimeout(1000);
     await page.screenshot({ path: path.join(SCREENSHOT_DIR, '04-novo-orcamento-topo.png') });
     

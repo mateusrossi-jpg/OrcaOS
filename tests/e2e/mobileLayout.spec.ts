@@ -28,7 +28,7 @@ test.describe('Mobile Layout Hardening', () => {
     // Create a budget to see it in history
     await page.click('.mobile-bottom-nav button:has-text("Resumo")');
     await page.waitForTimeout(500);
-    await page.click('button:has-text("Novo Orçamento"), button:has-text("Novo Orçamento", button:has-text("Novo orçamento"))');
+    await page.click('button:has-text("Novo Orçamento")');
     await page.fill('input[placeholder="Ex: Instalação Residencial"]', 'Mobile Test Budget');
     await page.click('button:has-text("Salvar Rascunho")');
     await page.waitForTimeout(1000); // Wait for save

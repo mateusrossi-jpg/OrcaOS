@@ -63,7 +63,7 @@ Call log:
   39 | 
   40 |     // 4. Novo Orçamento (Top and Bottom)
   41 |     await page.click('.mobile-bottom-nav button:has-text("Resumo")'); // Back home
-  42 |     await page.click('button:has-text("Novo orçamento")');
+  42 |     await page.click('button:has-text("Novo Orçamento")');
   43 |     await page.waitForTimeout(1000);
   44 |     await page.screenshot({ path: path.join(SCREENSHOT_DIR, '04-novo-orcamento-topo.png') });
   45 |     

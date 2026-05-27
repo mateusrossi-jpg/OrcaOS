@@ -40,7 +40,7 @@ Call log:
   16 |     await page.screenshot({ path: path.join(SCREENSHOT_DIR, '01-home.png') });
   17 |     
   18 |     // 2. Create New Budget
-  19 |     await page.click('button:has-text("Novo orçamento")');
+  19 |     await page.click('button:has-text("Novo Orçamento")');
   20 |     await page.waitForTimeout(500);
   21 |     await page.screenshot({ path: path.join(SCREENSHOT_DIR, '02-new-budget-empty.png') });
   22 | 

@@ -16,7 +16,7 @@ test.describe('P96 Visual Geometry Audit', () => {
     await page.screenshot({ path: path.join(SCREENSHOT_DIR, '01-home-topo.png') });
     
     // Create a budget if needed to see "Últimos orçamentos"
-    await page.click('button:has-text("Novo Orçamento", button:has-text("Novo orçamento"))');
+    await page.click('button:has-text("Novo Orçamento")');
     await page.fill('input[placeholder="Ex: Instalação Residencial"]', 'Geometria Teste P96');
     await page.getByRole('textbox', { name: 'Preço do Serviço R$' }).fill('125000');
     await page.click('button:has-text("Salvar Rascunho")');

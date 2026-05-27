@@ -305,9 +305,9 @@ html, body, #root {
   left: 0;
   right: 0;
   height: var(--aferix-bottom-nav-height, 60px);
-  background: rgba(16, 20, 27, 0.96);
+  background: var(--aferix-bg-primary);
   backdrop-filter: blur(16px);
-  border-top: 1px solid var(--aferix-border);
+  border-top: 1px solid #333;
   grid-template-columns: repeat(4, 1fr);
   z-index: 200;
   padding-bottom: var(--aferix-safe-area-bottom, env(safe-area-inset-bottom, 16px));

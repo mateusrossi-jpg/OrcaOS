@@ -40,7 +40,7 @@ Call log:
   16 |     await page.screenshot({ path: path.join(SCREENSHOT_DIR, '01-home-topo.png') });
   17 |     
   18 |     // Create a budget if needed to see "Últimos orçamentos"
-  19 |     await page.click('button:has-text("Novo orçamento")');
+  19 |     await page.click('button:has-text("Novo Orçamento")');
   20 |     await page.fill('input[placeholder="Ex: Instalação Residencial"]', 'Geometria Teste P96');
   21 |     await page.getByRole('textbox', { name: 'Preço do Serviço R$' }).fill('125000');
   22 |     await page.click('button:has-text("Salvar Rascunho")');

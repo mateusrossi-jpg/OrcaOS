@@ -33,7 +33,7 @@ Call log:
   9  | 
   10 |   test('Budget workflow locking: Draft -> Sent -> Authorized', async ({ page }) => {
   11 |     // 1. Create Draft
-  12 |     await page.click('button:has-text("Novo orçamento")');
+  12 |     await page.click('button:has-text("Novo Orçamento")');
   13 |     await page.fill('input[placeholder="Ex: Instalação Residencial"]', 'Locking Test');
   14 |     await page.getByRole('textbox', { name: 'Preço do Serviço R$' }).fill('100000'); // 1000.00
   15 |     
@@ -74,7 +74,7 @@ Call log:
   50 | 
   51 |   test('Budget workflow locking: Executing -> Finalized', async ({ page }) => {
   52 |     // Create and move to Executing (shortcut for test speed)
-  53 |     await page.click('button:has-text("Novo orçamento")');
+  53 |     await page.click('button:has-text("Novo Orçamento")');
   54 |     await page.fill('input[placeholder="Ex: Instalação Residencial"]', 'Execution Test');
   55 |     await page.click('button:has-text("Enviar para Cliente")');
   56 |     await page.click('button:has-text("Autorizar Execução")');
