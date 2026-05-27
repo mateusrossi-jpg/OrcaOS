@@ -106,28 +106,25 @@ export function MenuScreen({ account, onNavigate }: MenuScreenProps) {
         {menuGroups.map((group) => (
           <div key={group.title} className="menu-group-section">
             <SectionTitle title={group.title} />
-            <PanelCard className="menu-utility-panel" style={{ padding: 0, overflow: 'hidden' }}>
-              <div className="menu-utility-list">
-                {group.items.map((item) => (
-                  <button
-                    key={item.title}
-                    className="menu-utility-item"
-                    type="button"
-                    onClick={item.onClick}
-                    style={{ border: 'none', borderRadius: 0, borderBottom: '1px solid var(--aferix-border)' }}
-                  >
-                    <div className="menu-utility-content">
-                      <div className="aferix-d-flex aferix-align-center aferix-gap-sm">
-                        <span className="utility-icon">{item.icon}</span>
-                        <span className="utility-item-title">{item.title}</span>
-                      </div>
-                      {'context' in item && <span className="utility-meta" style={{ marginLeft: '28px' }}>{item.context}</span>}
+            <div className="menu-utility-list">
+              {group.items.map((item) => (
+                <button
+                  key={item.title}
+                  className="menu-utility-item"
+                  type="button"
+                  onClick={item.onClick}
+                >
+                  <div className="menu-utility-content">
+                    <div className="aferix-d-flex aferix-align-center">
+                      <span className="utility-icon">{item.icon}</span>
+                      <span className="utility-item-title">{item.title}</span>
                     </div>
-                    <span className="row-arrow">›</span>
-                  </button>
-                ))}
-              </div>
-            </PanelCard>
+                    {'context' in item && <span className="utility-meta" style={{ marginLeft: '36px' }}>{item.context}</span>}
+                  </div>
+                  <span className="row-arrow">›</span>
+                </button>
+              ))}
+            </div>
           </div>
         ))}
       </div>

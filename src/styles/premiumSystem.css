@@ -1058,16 +1058,13 @@ h2, h3, .section-title h3, .plan-card-heading h2 {
 }
 
 .menu-utility-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 12px;
+  display: flex;
+  flex-direction: column;
   width: 100%;
-}
-
-@media (max-width: 640px) {
-  .menu-utility-list {
-    grid-template-columns: 1fr;
-  }
+  border: 1px solid var(--aferix-border);
+  border-radius: var(--aferix-radius-md);
+  background: #10141B;
+  overflow: hidden;
 }
 
 .menu-utility-item {
@@ -1075,30 +1072,46 @@ h2, h3, .section-title h3, .plan-card-heading h2 {
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  padding: 16px;
-  min-height: 64px;
+  padding: 14px 16px;
+  min-height: 56px;
   width: 100%;
-  border: 1px solid var(--aferix-border);
-  border-radius: var(--aferix-radius-md);
-  background: #10141B;
+  border: none;
+  border-bottom: 1px solid var(--aferix-border);
+  background: transparent;
   color: var(--aferix-text-primary);
   text-align: left;
-  transition: background-color 0.1s ease-in-out, border-color 0.1s ease-in-out !important;
+  transition: background-color 0.1s ease-in-out;
   cursor: pointer;
   box-sizing: border-box;
+}
+
+.menu-utility-item:last-child {
+  border-bottom: none;
 }
 
 .menu-utility-content {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
   flex: 1;
   min-width: 0;
 }
 
 .menu-utility-item:hover {
-  background: #151A22;
-  border-color: rgba(255, 210, 31, 0.3);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.menu-utility-item:active {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.utility-icon {
+  font-size: 1.1rem;
+  margin-right: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
 }
 
 .utility-item-title {

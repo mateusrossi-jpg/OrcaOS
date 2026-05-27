@@ -154,11 +154,6 @@
   min-height: 42px !important;
 }
 
-.simple-finance-workspace .continuous-list-item {
-  min-height: 60px;
-  padding-block: 10px !important;
-}
-
 @media (max-width: 767px) {
   .finance-screen-header {
     gap: 10px !important;
@@ -177,10 +172,6 @@
 
   .simple-finance-workspace .metric-card {
     min-height: 64px !important;
-  }
-
-  .simple-finance-workspace .continuous-list-item {
-    grid-template-columns: minmax(0, 1fr) auto;
   }
 
   .finance-record-actions {
@@ -243,9 +234,5 @@
   .finance-form-grid,
   .comparative-input-group {
     grid-template-columns: 1fr !important;
-  }
-
-  .simple-finance-workspace .continuous-list-item {
-    align-items: start !important;
   }
 }

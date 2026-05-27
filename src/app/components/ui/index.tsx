@@ -137,18 +137,28 @@ export const ListItem = memo(function ListItem({
 }) {
   return (
     <article 
-      className={`continuous-list-item ${onClick ? 'clickable-row' : ''} ${className}`.trim()}
+      className={`operational-card ${onClick ? 'clickable-row' : ''} ${className}`.trim()}
       onClick={onClick}
     >
-      <div className="client-col">
-        <strong>{title}</strong>
-        {context && <small className="client-meta">{context}</small>}
+      <div className="operational-card-main">
+        <div className="operational-card-left">
+          <strong className="operational-card-title">{title}</strong>
+          {context && <small className="operational-card-meta">{context}</small>}
+        </div>
+        
+        {(value || action) && (
+          <div className="operational-card-right">
+            {value && <div className="operational-card-value">{value}</div>}
+            {action && <div className="operational-card-action">{action}</div>}
+          </div>
+        )}
       </div>
-      <div className="value-col">
-        {value && <div className="value-wrapper">{value}</div>}
-      </div>
-      {status && <div className="status-wrapper">{status}</div>}
-      {action && <div className="action-wrapper">{action}</div>}
+
+      {status && (
+        <div className="operational-card-status-row">
+          {status}
+        </div>
+      )}
     </article>
   );
 });
@@ -196,29 +206,26 @@ export const StatusBadge = memo(function StatusBadge({
 }) {
   if (children) return <Badge tone={tone}>{children}</Badge>;
 
-  const normalized = (status ?? '').toLowerCase();
-  if (normalized === 'finalizado') 
-    return <Badge tone="success">🔒 Finalizado</Badge>;
-  if (normalized === 'cancelado') 
-    return <Badge tone="danger">🔒 Cancelado</Badge>;
-  if (normalized === 'recusado') 
-    return <Badge tone="danger">🔒 Recusado</Badge>;
-  if (normalized === 'em_revisao') 
-    return <Badge tone="brand">● Em revisão</Badge>;
-  if (normalized === 'enviado') 
-    return <Badge tone="brand">● Enviado</Badge>;
-  if (normalized === 'autorizado') 
-    return <Badge tone="success">● Autorizado</Badge>;
-  if (normalized === 'em_execucao') 
-    return <Badge tone="success">● Em execução</Badge>;
-  if (normalized === 'iniciado') 
-    return <Badge tone="default">● Iniciado</Badge>;
-  
-  return <Badge tone="muted">● {status || 'Status'}</Badge>;
+  const normalized = (status ?? '').toLowerCase().replace(' ', '_');
+  const label = normalized.charAt(0).toUpperCase() + normalized.slice(1).replace('_', ' ');
+
+  let icon = '●';
+  if (['finalizado', 'cancelado', 'recusado', 'arquivado'].includes(normalized)) {
+    icon = '🔒';
+  }
+
+  return (
+    <Badge 
+      tone={tone} 
+      className={`status-badge status-${normalized}`}
+    >
+      {icon} {label}
+    </Badge>
+  );
 });
 
-export const Badge = memo(function Badge({ children, tone = 'default' }: { children: ReactNode; tone?: Tone }) {
-  return <span className={`aferix-badge tone-${tone}`}>{children}</span>;
+export const Badge = memo(function Badge({ children, tone = 'default', className = '' }: { children: ReactNode; tone?: Tone; className?: string }) {
+  return <span className={`aferix-badge tone-${tone} ${className}`.trim()}>{children}</span>;
 });
 
 /**

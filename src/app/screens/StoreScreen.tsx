@@ -1,10 +1,8 @@
 import { useState } from 'react';
 import type { AferixAccountState } from '../../core/access/accountPlanStorage';
-import { getBillingReadiness } from '../../core/access/billingReadiness';
 import { buildProCheckoutUrl } from '../../core/access/commercialCheckout';
-import { purchaseGooglePlayPro, restoreGooglePlayPurchases, syncGooglePlayPurchaseEntitlement, getGooglePlayBillingSetup } from '../../core/access/googlePlayBilling';
 import { refreshPlanEntitlement } from '../../core/access/planEntitlements';
-import { proPlanBenefits, proV1Priorities, futureProBacklog } from '../../core/access/planStrategy';
+import { proPlanBenefits } from '../../core/access/planStrategy';
 import { storePackages } from '../appData';
 import { MetricCard, PageHeader, PageShell, PlanCard, BackButton, ListCard, ListItem, PanelCard, SecondaryButton } from '../components/ui';
 import { planStatusTitle } from '../utils/planHelpers';
@@ -17,11 +15,7 @@ interface StoreScreenProps {
 
 export function StoreScreen({ account, onAccountChange, onBack }: StoreScreenProps) {
   const activeUserPlan = account.plan;
-  const [isGooglePlayBusy, setIsGooglePlayBusy] = useState(false);
   const [showAllProBenefits, setShowAllProBenefits] = useState(false);
-  const billingReadiness = getBillingReadiness();
-  const googlePlaySetup = getGooglePlayBillingSetup();
-  const googlePlayMode = billingReadiness.channel === 'google-play';
   const visibleProBenefits = showAllProBenefits ? proPlanBenefits : proPlanBenefits.slice(0, 5);
   const hiddenProBenefitsCount = Math.max(proPlanBenefits.length - visibleProBenefits.length, 0);
 
@@ -30,7 +24,7 @@ export function StoreScreen({ account, onAccountChange, onBack }: StoreScreenPro
       const result = await refreshPlanEntitlement(account);
       onAccountChange(result.account);
     } catch {
-      // Error handled by not updating state as feedback is removed
+      // Error handled by not updating state
     }
   }
 
@@ -38,36 +32,7 @@ export function StoreScreen({ account, onAccountChange, onBack }: StoreScreenPro
     try {
       window.open(buildProCheckoutUrl(account), '_blank', 'noopener,noreferrer');
     } catch {
-      // Error handled by not updating state as feedback is removed
-    }
-  }
-
-  async function buyWithGooglePlay() {
-    setIsGooglePlayBusy(true);
-    try {
-      const purchase = await purchaseGooglePlayPro();
-      const result = await syncGooglePlayPurchaseEntitlement(account, purchase, 'purchase');
-      onAccountChange(result.account);
-    } catch {
-      // Error handled by not updating state as feedback is removed
-    } finally {
-      setIsGooglePlayBusy(false);
-    }
-  }
-
-  async function restoreWithGooglePlay() {
-    setIsGooglePlayBusy(true);
-    try {
-      const purchases = await restoreGooglePlayPurchases();
-      if (purchases.length === 0) {
-        return;
-      }
-      const result = await syncGooglePlayPurchaseEntitlement(account, purchases[0], 'restore');
-      onAccountChange(result.account);
-    } catch {
-      // Error handled by not updating state as feedback is removed
-    } finally {
-      setIsGooglePlayBusy(false);
+      // Error handled by not updating state
     }
   }
 
@@ -113,56 +78,35 @@ export function StoreScreen({ account, onAccountChange, onBack }: StoreScreenPro
           </button>
         )}
       </ListCard>
-      <div className="settings-group account-settings-panel billing-readiness-panel">
-        <div className="settings-panel-title">
-          <span className="aferix-kicker">Pagamentos</span>
-          <h2>{billingReadiness.statusTitle}</h2>
+
+      <PanelCard className="pro-preparation-card">
+        <header>
+          <div>
+            <span className="aferix-kicker">Evolução</span>
+            <h2>Plano Pro em preparação</h2>
+            <p>Estamos refinando as ferramentas de sincronização e relatórios avançados.</p>
           </div>
-        <div className="billing-readiness-grid">
-          <article><span>Canal</span><strong>{billingReadiness.channelLabel}</strong><small>{billingReadiness.channel === 'beta-assisted' ? 'Sem cobrança automática no beta.' : 'Canal configurável por ambiente.'}</small></article>
-          <article><span>Endpoint Pro</span><strong>{billingReadiness.entitlementEndpointConfigured ? 'Configurado' : 'Pendente'}</strong><small>Responsável por liberar, expirar ou bloquear Pro.</small></article>
-          <article><span>Android package</span><strong className="android-package" title={billingReadiness.packageName || 'Pendente'}>{billingReadiness.packageName || 'Pendente'}</strong><small>Necessário para Google Play Billing.</small></article>
-          <article><span>Produto Pro</span><strong className="product-id" title={billingReadiness.proProductId || 'Pendente'}>{billingReadiness.proProductId || 'Pendente'}</strong><small>ID da assinatura/product no Play Console.</small></article>
-          <article><span>Bridge Android</span><strong className="long-token" title={billingReadiness.googlePlayBridgeName}>{billingReadiness.googlePlayBridgeName}</strong><small>{googlePlaySetup.bridgeAvailable ? 'Disponível neste app.' : 'Aguardando plugin nativo.'}</small></article>
+        </header>
+        <div className="aferix-p-md">
+          <p className="aferix-text-muted aferix-font-sm">Recursos premium serão liberados gradualmente para todos os usuários beta. Sua licença atual é gratuita durante este período.</p>
         </div>
-        <div className="billing-release-list">
-          {billingReadiness.releaseChecklist.map((item) => <span key={item}>{item}</span>)}
-        </div>
-      </div>
-      {googlePlayMode && <div className="settings-group account-settings-panel commercial-checkout-panel">
-        <div className="settings-panel-title">
-          <span className="aferix-kicker">Google Play</span>
-          <h2>Compra pela conta Google</h2>
-          </div>
-        <div className="billing-readiness-grid">
-          <article><span>Produto</span><strong className="product-id" title={googlePlaySetup.productId || 'Pendente'}>{googlePlaySetup.productId || 'Pendente'}</strong><small>Assinatura/produto Pro no Play Console.</small></article>
-          <article><span>Pacote</span><strong className="android-package" title={googlePlaySetup.packageName || 'Pendente'}>{googlePlaySetup.packageName || 'Pendente'}</strong><small>Deve bater com o app publicado.</small></article>
-          <article><span>Backend</span><strong>{googlePlaySetup.entitlementEndpoint ? 'Configurado' : 'Pendente'}</strong><small>Valida token com Google, não no front-end.</small></article>
-        </div>
-        <div className="general-capture-actions">
-          <button type="button" disabled={!billingReadiness.isGooglePlayReady || !account.userId || isGooglePlayBusy || activeUserPlan === 'pro'} onClick={buyWithGooglePlay}>{isGooglePlayBusy ? 'Processando...' : 'Comprar com Google Play'}</button>
-          <button type="button" className="secondary-action" disabled={!billingReadiness.isGooglePlayReady || !account.userId || isGooglePlayBusy} onClick={restoreWithGooglePlay}>Restaurar compra</button>
-        </div>
-        {!account.userId && <p className="general-helper-text">Entre com e-mail ou Google antes de comprar/restaurar Pro.</p>}
-        {!googlePlaySetup.bridgeAvailable && <p className="general-helper-text">Bridge nativo pendente no Android/Capacitor antes da venda real.</p>}
-      </div>}
+      </PanelCard>
+
       <PanelCard>
         <header>
           <div>
             <span className="aferix-kicker">Assinatura</span>
             <h2>{activeUserPlan === 'pro' ? 'Aferix Pro Ativo' : 'Plano Aferix Pro'}</h2>
+            <p>Status: {planStatusTitle(account)}</p>
           </div>
         </header>
-        <div className="metric-grid compact-metric-grid">
-          <MetricCard label="Status" value={planStatusTitle(account)} />
-          <MetricCard label="ID" value={account.installationId.slice(0, 8)} />
-        </div>
         <div className="local-backup-actions store-account-actions">
-          <SecondaryButton onClick={checkSubscription}>Verificar</SecondaryButton>
+          <SecondaryButton onClick={checkSubscription}>Verificar Licença</SecondaryButton>
         </div>
       </PanelCard>
+
       <details className="aferix-panel-card store-detail-section">
-        <summary>Estratégia e comparativo</summary>
+        <summary>Planos e Comparativo</summary>
         <div className="store-detail-content">
           <div className="metric-grid compact-metric-grid">
             <MetricCard label="Free" value="Básico" />
@@ -171,20 +115,9 @@ export function StoreScreen({ account, onAccountChange, onBack }: StoreScreenPro
           {storePackages.map((pack) => (
             <article className="store-card" key={pack.title}>
               <span><strong>{pack.title}</strong><b>{pack.price}</b></span>
-              <em className="store-card-status">Planejado</em>
+              <em className="store-card-status">Lançamento em breve</em>
             </article>
           ))}
-        </div>
-      </details>
-      <details className="aferix-panel-card store-detail-section">
-        <summary>Prioridade V1 Pro e backlog</summary>
-        <div className="store-detail-content">
-          <div className="plan-priority-grid">
-            {proV1Priorities.map((benefit, index) => <article key={benefit.title}><span>{index + 1}</span><strong>{benefit.title}</strong></article>)}
-          </div>
-          <div className="plan-future-list">
-            {futureProBacklog.map((benefit) => <span key={benefit.title}><strong>{benefit.title}</strong></span>)}
-          </div>
         </div>
       </details>
     </PageShell>

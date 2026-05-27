@@ -44,70 +44,55 @@ export function getBillingReadiness(): BillingReadiness {
   const isGooglePlayReady = channel === 'google-play' && hasPackageName && hasProductId && entitlementEndpointConfigured;
   const isExternalCheckoutReady = channel === 'external-checkout' && Boolean(checkoutUrl()) && entitlementEndpointConfigured;
 
+  const defaultChecklist = [
+    'Plano Pro em preparação',
+    'Recursos premium serão liberados gradualmente',
+    'Sua licença atual é gratuita durante este período',
+  ];
+
   if (channel === 'google-play') {
     return {
       channel,
-      channelLabel: 'Google Play Billing',
+      channelLabel: 'Acesso Premium',
       isGooglePlayReady,
       isExternalCheckoutReady,
       packageName: packageName(),
       proProductId: proProductId(),
       googlePlayBridgeName: 'AferixGooglePlayBilling',
       entitlementEndpointConfigured,
-      statusTitle: isGooglePlayReady ? 'Google Play preparado' : 'Google Play pendente',
-      statusDescription: isGooglePlayReady
-        ? 'Produto Pro, pacote Android, bridge esperado e endpoint de validação estão mapeados. Falta apenas conectar o plugin nativo ao bridge.'
-        : 'Configure package name, produto Pro, bridge Android e endpoint antes de liberar cobrança real pela Play Store.',
-      releaseChecklist: [
-        'Criar assinatura/produto Pro no Google Play Console.',
-        'Conectar Play Billing ao bridge nativo de billing.',
-        'Enviar purchaseToken e productId para backend seguro.',
-        'Validar compra no backend com Google Play Developer API.',
-        'Restaurar compras pelo mesmo bridge quando o usuário trocar de aparelho.',
-        'Liberar Pro somente via endpoint de entitlement.',
-      ],
+      statusTitle: 'Licença Profissional',
+      statusDescription: 'Sua assinatura profissional está sendo preparada para os próximos recursos de nuvem.',
+      releaseChecklist: defaultChecklist,
     };
   }
 
   if (channel === 'external-checkout') {
     return {
       channel,
-      channelLabel: 'Checkout externo',
+      channelLabel: 'Acesso Premium',
       isGooglePlayReady,
       isExternalCheckoutReady,
       packageName: packageName(),
       proProductId: proProductId(),
       googlePlayBridgeName: 'AferixGooglePlayBilling',
       entitlementEndpointConfigured,
-      statusTitle: isExternalCheckoutReady ? 'Checkout externo preparado' : 'Checkout externo pendente',
-      statusDescription: isExternalCheckoutReady
-        ? 'Checkout e endpoint estão configurados. Útil para venda assistida fora da Google Play quando permitido pela estratégia de distribuição.'
-        : 'Configure checkout público e endpoint de entitlement para liberar Pro após pagamento.',
-      releaseChecklist: [
-        'Confirmar se o canal externo é permitido para a distribuição escolhida.',
-        'Conectar webhook do provedor ao backend.',
-        'Gravar assinatura no backend.',
-        'Liberar Pro via endpoint de entitlement.',
-      ],
+      statusTitle: 'Licença Profissional',
+      statusDescription: 'Sua assinatura profissional está sendo preparada para os próximos recursos de nuvem.',
+      releaseChecklist: defaultChecklist,
     };
   }
 
   return {
     channel,
-    channelLabel: 'Beta assistido',
+    channelLabel: 'Beta',
     isGooglePlayReady,
     isExternalCheckoutReady,
     packageName: packageName(),
     proProductId: proProductId(),
     googlePlayBridgeName: 'AferixGooglePlayBilling',
     entitlementEndpointConfigured,
-    statusTitle: 'Beta sem cobrança real',
-    statusDescription: 'A loja mostra a estratégia Pro, mas não deve prometer venda automática até o canal de pagamento ser ativado.',
-    releaseChecklist: [
-      'Validar valor percebido do Pro no beta fechado.',
-      'Definir preço e periodicidade.',
-      'Escolher canal inicial: Google Play Billing ou checkout externo.',
-      'Ativar endpoint de entitlement antes de liberar venda real.',
-    ],
+    statusTitle: 'Licença Gratuita (Beta)',
+    statusDescription: 'O plano profissional está em fase de preparação e será liberado gradualmente.',
+    releaseChecklist: defaultChecklist,
   };
 }

@@ -2191,116 +2191,104 @@ button.highlight-card {
   word-break: normal;
 }
 
-.continuous-list-item {
-  display: grid !important;
-  grid-template-columns: 1fr auto !important;
-  grid-template-areas: 
-    "client value"
-    "meta status";
-  align-items: start !important;
-  gap: 8px 16px !important;
-  padding: 14px 16px !important;
+/* 2. Standardized Operational Card Anatomy */
+.operational-card {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  padding: 12px 14px !important;
   border-bottom: 1px solid var(--aferix-border);
-  transition: background 0.1s ease;
+  background: transparent;
+  transition: background 0.15s ease;
   min-width: 0 !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
 }
 
-.continuous-list-item:last-child {
-  border-bottom: none;
+.operational-card.clickable-row {
+  cursor: pointer;
 }
 
-.continuous-list-item.clickable-row:hover {
+.operational-card.clickable-row:hover {
   background: var(--aferix-surface-raised);
 }
 
-.client-col {
-  grid-area: client;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-  flex: 1;
+.operational-card-main {
+  display: grid !important;
+  grid-template-columns: 1fr auto !important;
+  gap: 12px !important;
+  align-items: start !important;
+  width: 100% !important;
+  min-width: 0 !important;
 }
 
-.client-col strong {
+.operational-card-left {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 2px !important;
+  min-width: 0 !important;
+}
+
+.operational-card-title {
   font-size: 14.5px !important;
   font-weight: 650 !important;
   color: var(--aferix-text);
+  line-height: 1.3 !important;
   white-space: normal !important;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  line-height: 1.3;
+  display: -webkit-box !important;
+  -webkit-line-clamp: 2 !important;
+  -webkit-box-orient: vertical !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
 }
 
-.client-col small.client-meta {
-  grid-area: meta;
+.operational-card-meta {
   font-size: 12px !important;
   color: var(--aferix-text-muted);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: block;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
 }
 
-.value-col {
-  grid-area: value;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  justify-content: flex-start;
-  gap: 4px;
-  flex-shrink: 0;
-  text-align: right;
-  min-width: fit-content;
+.operational-card-right {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-end !important;
+  gap: 4px !important;
+  flex-shrink: 0 !important;
+  min-width: fit-content !important;
 }
 
-.status-wrapper {
-  grid-area: status;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-}
-
-.value-wrapper {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-}
-
-.action-wrapper {
-  grid-area: action;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-}
-
-@media (max-width: 767px) {
-  .continuous-list-item {
-    grid-template-areas: 
-      "client value"
-      "meta status";
-    position: relative;
-    padding-right: 42px !important;
-  }
-  
-  .action-wrapper {
-    position: absolute;
-    right: 8px;
-    top: 50%;
-    transform: translateY(-50%);
-    display: flex !important;
-  }
-}
-
-.value-wrapper strong {
+.operational-card-value {
   font-size: 15px !important;
   font-weight: 750 !important;
   color: var(--aferix-text);
   font-family: var(--aferix-font-mono, monospace);
   font-variant-numeric: tabular-nums;
+  white-space: nowrap !important;
+}
+
+.operational-card-action {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+}
+
+.operational-card-status-row {
+  display: flex !important;
+  width: 100% !important;
+  padding-top: 2px !important;
+}
+
+/* Legacy overrides to match new anatomy */
+.continuous-list-item {
+  display: none !important; /* Replaced by operational-card */
+}
+
+@media (max-width: 767px) {
+  .operational-card {
+    padding: 10px 12px !important;
+  }
 }
 
 .compact-delete-action {
@@ -4205,4 +4193,51 @@ button.primary:hover,
 
 .aferix-notes-section .aferix-panel-card {
   padding: 10px !important;
+}
+
+/* P96 Visual Geometry - Touch Target Hardening */
+.operational-card-action button {
+  min-width: 44px !important;
+  min-height: 44px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: transparent !important;
+  border: none !important;
+  color: var(--aferix-text-muted) !important;
+  font-size: 1.25rem !important;
+  padding: 0 !important;
+  margin: -10px -10px -10px 0 !important; /* Expansion for easy touch without moving layout */
+}
+
+.operational-card-action button:active {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border-radius: 50% !important;
+}
+
+/* P96 Visual Geometry - Status Badge Hardening */
+.aferix-badge.status-finalizado {
+  border-color: rgba(16, 185, 129, 0.3) !important;
+  background: rgba(16, 185, 129, 0.08) !important;
+  color: #10B981 !important;
+}
+
+.aferix-badge.status-recusado, 
+.aferix-badge.status-cancelado {
+  border-color: rgba(239, 68, 68, 0.3) !important;
+  background: rgba(239, 68, 68, 0.08) !important;
+  color: #EF4444 !important;
+}
+
+.aferix-badge.status-em_execucao,
+.aferix-badge.status-autorizado {
+  border-color: rgba(59, 130, 246, 0.3) !important;
+  background: rgba(59, 130, 246, 0.08) !important;
+  color: #3B82F6 !important;
+}
+
+.aferix-badge.status-enviado {
+  border-color: rgba(245, 158, 11, 0.3) !important;
+  background: rgba(245, 158, 11, 0.08) !important;
+  color: #F59E0B !important;
 }

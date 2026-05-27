@@ -9,7 +9,7 @@ const technicalNotice = [
 const privacyNotice = [
   'O Aferix funciona local-first: clientes, atendimentos, orcamentos, catalogo e perfil ficam no armazenamento local do navegador/dispositivo.',
   'Backup e responsabilidade do usuario. O navegador pode limpar cache/armazenamento local; exporte backup regularmente.',
-  'Quando Google, Drive ou endpoint Pro estiverem configurados, dados de conta e liberacao assistida podem ser processados para login, backup ou acesso beta.',
+  'Quando Google, Drive ou serviços de nuvem estiverem configurados, dados de conta e liberação assistida podem ser processados para login, backup ou acesso beta.',
   'Base colaborativa de precos e catalogos reais sera futura e dependera de consentimento explicito.',
 ];
 

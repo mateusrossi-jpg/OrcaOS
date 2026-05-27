@@ -11,7 +11,7 @@ describe('billing readiness', () => {
 
     expect(readiness.channel).toBe('beta-assisted');
     expect(readiness.isGooglePlayReady).toBe(false);
-    expect(readiness.statusTitle).toBe('Beta sem cobrança real');
+    expect(readiness.statusTitle).toBe('Licença Gratuita (Beta)');
   });
 
   it('marks external checkout ready only with checkout and entitlement endpoint', () => {

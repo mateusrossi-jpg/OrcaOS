@@ -65,20 +65,21 @@
 
 @media (max-width: 560px) {
   .compact-action-menu-trigger {
-    min-width: 38px !important;
-    width: 38px;
-    min-height: 38px !important;
+    min-width: 44px !important;
+    width: 44px;
+    min-height: 44px !important;
   }
 
   .compact-action-menu-popover {
-    min-width: 184px;
-    max-width: min(78vw, 230px);
-    gap: 5px;
-    padding: 7px;
+    min-width: 200px;
+    max-width: min(85vw, 260px);
+    gap: 8px;
+    padding: 10px;
   }
 
   .compact-action-menu-item {
-    min-height: 36px !important;
-    font-size: 0.78rem;
+    min-height: 44px !important;
+    font-size: 0.88rem;
+    padding: 10px 14px !important;
   }
 }
