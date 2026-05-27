@@ -22,7 +22,7 @@ export function MobileActionMenu({
   return (
     <>
       {/* Trigger button */}
-      <button className={styles.trigger} onClick={() => setOpen(true)} aria-label="Open action menu">⋮</button>
+      <button className={styles.trigger} onClick={(e) => { e.stopPropagation(); setOpen(true); }} aria-label="Open action menu">⋮</button>
       <ActionSheet isOpen={open} onClose={close} label={label}>
         {items.map(it => (
           <SecondaryButton

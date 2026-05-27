@@ -36,6 +36,21 @@
   --aferix-warning: #FACC15;
   --aferix-accent: var(--aferix-brand);
 
+  /* --- RHYTHM TOKENS (P97) --- */
+  --aferix-page-padding-mobile: 16px;
+  --aferix-section-gap: 16px;
+  --aferix-card-padding: 16px;
+  --aferix-card-padding-compact: 12px;
+  --aferix-row-padding: 12px 16px;
+  --aferix-row-min-height: 56px;
+  --aferix-row-gap: 8px;
+  --aferix-list-item-padding: 12px;
+  --aferix-badge-height: 22px;
+  --aferix-action-button-size: 32px;
+  --aferix-bottom-nav-height: 60px;
+  --aferix-touch-target: 44px;
+  --aferix-safe-area-bottom: env(safe-area-inset-bottom, 16px);
+
   /* --- SPACING --- */
   --aferix-spacing-xs: 2px;
   --aferix-spacing-sm: 4px;
@@ -823,9 +838,9 @@ svg {
   display: grid !important;
   align-content: center !important;
   gap: 4px !important;
-  min-height: 84px !important;
+  min-height: 64px !important;
   min-width: 0 !important;
-  padding: 12px 16px !important;
+  padding: 12px 14px !important;
   border: 1px solid var(--aferix-border) !important;
   border-radius: var(--aferix-radius-md) !important;
   background: linear-gradient(180deg, var(--aferix-surface-raised), var(--aferix-surface)) !important;
@@ -858,7 +873,7 @@ svg {
 .survey-review-counts strong {
   color: var(--aferix-text) !important;
   font-family: var(--aferix-font) !important;
-  font-size: clamp(22px, 2.5vw, 26px) !important;
+  font-size: clamp(20px, 2.2vw, 24px) !important;
   font-weight: 800 !important;
   line-height: 1 !important;
   letter-spacing: -0.02em !important;
@@ -2195,8 +2210,8 @@ button.highlight-card {
 .operational-card {
   display: flex !important;
   flex-direction: column !important;
-  gap: 8px !important;
-  padding: 12px 14px !important;
+  gap: var(--aferix-spacing-md, 8px) !important;
+  padding: var(--aferix-row-padding, 12px 16px) !important;
   border-bottom: 1px solid var(--aferix-border);
   background: transparent;
   transition: background 0.15s ease;
@@ -2252,9 +2267,9 @@ button.highlight-card {
 
 .operational-card-right {
   display: flex !important;
-  flex-direction: column !important;
-  align-items: flex-end !important;
-  gap: 4px !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 12px !important;
   flex-shrink: 0 !important;
   min-width: fit-content !important;
 }
@@ -2266,12 +2281,13 @@ button.highlight-card {
   font-family: var(--aferix-font-mono, monospace);
   font-variant-numeric: tabular-nums;
   white-space: nowrap !important;
+  text-align: right !important;
 }
 
 .operational-card-action {
   display: flex !important;
   align-items: center !important;
-  justify-content: flex-end !important;
+  justify-content: center !important;
 }
 
 .operational-card-status-row {
@@ -2282,7 +2298,10 @@ button.highlight-card {
 
 /* Legacy overrides to match new anatomy */
 .continuous-list-item {
-  display: none !important; /* Replaced by operational-card */
+  min-height: 58px !important;
+  padding: 12px 14px !important;
+  background: transparent !important;
+}
 }
 
 @media (max-width: 767px) {
@@ -3661,15 +3680,15 @@ button.secondary {
 /* Global layout consistency baseline (mobile-first) */
 :root {
   --aferix-layout-max: 1120px;
-  --aferix-layout-x-mobile: 10px;
-  --aferix-layout-x-desktop: 20px;
-  --aferix-layout-gap: 8px;
+  --aferix-layout-x-mobile: var(--aferix-page-padding-mobile, 16px);
+  --aferix-layout-x-desktop: 24px;
+  --aferix-layout-gap: var(--aferix-section-gap, 16px);
 }
 
 .content-container {
   max-width: var(--aferix-layout-max) !important;
   margin: 0 auto !important;
-  padding: 12px var(--aferix-layout-x-desktop) 20px !important;
+  padding: 16px var(--aferix-layout-x-desktop) 40px !important;
 }
 
 .aferix-page-shell,
@@ -3679,13 +3698,13 @@ button.secondary {
 .app-screen.wide-screen {
   width: 100% !important;
   max-width: 100vw !important;
-  padding-left: 10px !important;
-  padding-right: 10px !important;
-  padding-bottom: calc(100px + env(safe-area-inset-bottom)) !important;
+  padding-left: var(--aferix-layout-x-mobile) !important;
+  padding-right: var(--aferix-layout-x-mobile) !important;
+  padding-bottom: calc(100px + var(--aferix-safe-area-bottom)) !important;
   overflow-x: hidden !important;
   box-sizing: border-box !important;
   display: grid !important;
-  gap: 8px !important;
+  gap: var(--aferix-layout-gap) !important;
   align-content: start;
 }
 
@@ -4197,8 +4216,8 @@ button.primary:hover,
 
 /* P96 Visual Geometry - Touch Target Hardening */
 .operational-card-action button {
-  min-width: 44px !important;
-  min-height: 44px !important;
+  min-width: 32px !important;
+  min-height: 32px !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
@@ -4207,12 +4226,14 @@ button.primary:hover,
   color: var(--aferix-text-muted) !important;
   font-size: 1.25rem !important;
   padding: 0 !important;
-  margin: -10px -10px -10px 0 !important; /* Expansion for easy touch without moving layout */
+  margin: 0 -6px 0 0 !important;
+  border-radius: 50% !important;
 }
 
-.operational-card-action button:active {
-  background: rgba(255, 255, 255, 0.05) !important;
-  border-radius: 50% !important;
+.operational-card-action button:active,
+.operational-card-action button:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: var(--aferix-text) !important;
 }
 
 /* P96 Visual Geometry - Status Badge Hardening */

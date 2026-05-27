@@ -26,7 +26,10 @@ export function CompactActionMenu({
         className="ghost-action compact-row-action compact-action-menu-trigger"
         aria-label={label}
         aria-expanded={isOpen}
-        onClick={() => setIsOpen((current) => !current)}
+        onClick={(e) => {
+          e.stopPropagation();
+          setIsOpen((current) => !current);
+        }}
       >
         ⋮
       </button>

@@ -26,7 +26,9 @@ test.describe('Mobile Layout Hardening', () => {
     await expect(page.locator('header h1')).toContainText('Histórico');
     
     // Create a budget to see it in history
-    await page.click('button:has-text("Novo")');
+    await page.click('.mobile-bottom-nav button:has-text("Resumo")');
+    await page.waitForTimeout(500);
+    await page.click('button:has-text("Novo Orçamento"), button:has-text("Novo orçamento")');
     await page.fill('input[placeholder="Ex: Instalação Residencial"]', 'Mobile Test Budget');
     await page.click('button:has-text("Salvar Rascunho")');
     await page.waitForTimeout(1000); // Wait for save
@@ -35,15 +37,15 @@ test.describe('Mobile Layout Hardening', () => {
     // Back to history
     await page.click('.mobile-bottom-nav button:has-text("Operação")');
     
-    const listItem = page.locator('.continuous-list-item').first();
+    const listItem = page.locator('.operational-card').first();
     await expect(listItem).toBeVisible();
     
     // Check if title is visible and not broken (hard to check "broken" but we check visibility)
     await expect(listItem.locator('strong')).toContainText('Mobile Test Budget');
     
-    // Delete button should be visible (as icon)
-    const deleteBtn = listItem.locator('.compact-delete-action');
-    await expect(deleteBtn).toBeVisible();
+    // Action menu should be visible (as icon)
+    const menuBtn = listItem.locator('button:has-text("⋮"), button:has-text("…"), [aria-label="Open action menu"]');
+    await expect(menuBtn).toBeVisible();
   });
 
   test('Notification dropdown layout', async ({ page }) => {

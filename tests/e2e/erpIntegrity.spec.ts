@@ -30,9 +30,10 @@ test.describe('ERP Integrity - Financial & Workflow', () => {
     await page.click('button:has-text("Novo orçamento")');
     await page.fill('input[placeholder="Ex: Instalação Residencial"]', 'Workflow Test');
     
-    await page.click('button:has-text("Enviado")');
-    await page.click('button:has-text("Autorizar")');
-    await page.click('button:has-text("Finalizar e Congelar")');
+    await page.click('button:has-text("Enviar para Cliente")');
+    await page.click('button:has-text("Autorizar Execução")');
+    await page.click('button:has-text("Iniciar Execução")');
+    await page.click('button:has-text("Finalizar Trabalho")');
     await page.click('button:has-text("Confirmar")');
     
     await expect(page.locator('input[placeholder="Ex: Instalação Residencial"]')).toBeDisabled();

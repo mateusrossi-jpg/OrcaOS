@@ -57,7 +57,7 @@ test.describe('Mobile Structural Layout Audit', () => {
 
   test('Menu page structural integrity', async ({ page }) => {
     await page.click('.mobile-bottom-nav button:has-text("Mais")');
-    await page.waitForSelector('header h1:has-text("Configurações")');
+    await page.waitForSelector('header h1:has-text("Mais")');
     await checkLayout(page);
 
     // Menu items should be full width

@@ -19,10 +19,10 @@ test('runtime budget flow verification', async ({ page }) => {
   // Helper to open budgets screen via navigation
   const goToBudgets = async () => {
     await page.waitForTimeout(500);
-    // Use bottom nav on mobile
-    const bottomNavOp = page.locator('.bottom-nav-item', { hasText: /Operação/i });
-    if (await bottomNavOp.isVisible()) {
-      await bottomNavOp.click();
+    // Use bottom nav on mobile to go to Home/Pulse
+    const bottomNavPulse = page.locator('.bottom-nav-item', { hasText: /Resumo/i });
+    if (await bottomNavPulse.isVisible()) {
+      await bottomNavPulse.click();
       await page.waitForTimeout(500);
     }
 
@@ -32,18 +32,11 @@ test('runtime budget flow verification', async ({ page }) => {
       return;
     }
     // If HomeScreen primary button is visible, click it directly
-    const homeBtn = page.locator('button:has-text("Novo orçamento")').filter({ hasText: /^Novo orçamento$/ }).first();
+    const homeBtn = page.locator('button:has-text("Novo Orçamento"), button:has-text("Novo orçamento")').first();
     if (await homeBtn.count() && await homeBtn.isVisible()) {
       await homeBtn.click({ force: true });
       await page.waitForTimeout(500);
       return;
-    }
-
-    // In History page (Operação), click + Novo
-    const newBtn = page.locator('button:has-text("+ Novo")').first();
-    if (await newBtn.count() && await newBtn.isVisible()) {
-      await newBtn.click({ force: true });
-      await page.waitForTimeout(500);
     }
   };
 
@@ -100,7 +93,7 @@ test('runtime budget flow verification', async ({ page }) => {
   await page.waitForSelector('h1:has-text("Histórico")', { timeout: 10000 });
 
   // Verify that three budgets appear
-  const cards = page.locator('article.continuous-list-item').filter({ hasText: /Orçamento/ });
+  const cards = page.locator('article.operational-card').filter({ hasText: /Orçamento/ });
   await expect(cards).toHaveCount(3);
 
   // 4. Edit the second budget (change title)
@@ -125,19 +118,22 @@ test('runtime budget flow verification', async ({ page }) => {
   await expect(page.locator('text=Orçamento 2 EDITADO')).toBeVisible();
 
   // 5. Delete the first budget
-  const firstCard = page.locator('article.continuous-list-item').filter({ hasText: /Orçamento 1/ }).first();
-  const deleteBtn = firstCard.locator('button', { hasText: /Excluir/i });
-  await deleteBtn.click();
+  const firstCard = page.locator('article.operational-card').filter({ hasText: /Orçamento 1/ }).first();
+  await firstCard.locator('button').last().click({ force: true });
+  
+  const deleteBtn = page.locator('button', { hasText: /^Excluir$/ }).last();
+  await expect(deleteBtn).toBeVisible({ timeout: 10000 });
+  await deleteBtn.click({ force: true });
   await page.waitForTimeout(500);
 
   // Verify only two budgets remain
-  const remaining = page.locator('article.continuous-list-item').filter({ hasText: /Orçamento/ });
+  const remaining = page.locator('article.operational-card').filter({ hasText: /Orçamento/ });
   await expect(remaining).toHaveCount(2);
 
   // 6. Reload page and verify persistence
   await page.reload();
   await goToHistory();
-  const afterReload = page.locator('article.continuous-list-item').filter({ hasText: /Orçamento/ });
+  const afterReload = page.locator('article.operational-card').filter({ hasText: /Orçamento/ });
   await expect(afterReload).toHaveCount(2);
   await expect(page.locator('text=Orçamento 1')).toBeHidden();
 });
