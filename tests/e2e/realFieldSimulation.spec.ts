@@ -57,7 +57,7 @@ test.describe('P94 Real Field Simulation', () => {
     await page.screenshot({ path: path.join(SCREENSHOT_DIR, '07-budget-notes-saved.png') });
 
     // 10. Finalize
-    await page.click('button:has-text("Finalizar Trabalho")');
+    await page.click('button:has-text("Finalizar Orçamento")');
     await page.waitForTimeout(500);
     await page.screenshot({ path: path.join(SCREENSHOT_DIR, '08-finalize-modal.png') });
     await page.click('button:has-text("Confirmar")');

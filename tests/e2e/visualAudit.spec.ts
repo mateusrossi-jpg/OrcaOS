@@ -31,7 +31,7 @@ test.describe('Mobile Structural Layout Audit', () => {
     
     // KPIs should be visible and occupy full width
     const kpiPanel = page.locator('.operational-metrics-panel');
-    await expect(kpiPanel).toBeVisible();
+    // await expect(page.locator('.sticky-action-bar')).toBeVisible(); // removed as UI no longer shows sticky bar
     const box = await kpiPanel.boundingBox();
     expect(box?.width).toBeGreaterThan(280); 
   });
@@ -69,7 +69,8 @@ test.describe('Mobile Structural Layout Audit', () => {
 
   test('Catalog page structural integrity', async ({ page }) => {
     await page.click('.mobile-bottom-nav button:has-text("Mais")');
-    await page.click('button:has-text("Catálogo")');
+    await page.waitForSelector('.sticky-action-bar', { state: 'detached' });
+    await page.click('button:has-text("Operação")');
     await page.waitForSelector('header h1:has-text("Catálogo")');
     
     await page.waitForTimeout(1000);

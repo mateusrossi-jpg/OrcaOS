@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Real Operational Flow (P102-A)', () => {
   test('Complete lifecycle: Create Client -> Budget -> Execution -> Financial Audit -> Finalize', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('http://localhost:5175/');
 
     // 1. Create Budget programmatically for speed and reliability in E2E
     await page.evaluate(async () => {

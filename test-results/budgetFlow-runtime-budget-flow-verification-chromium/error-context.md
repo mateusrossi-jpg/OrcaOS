@@ -35,7 +35,7 @@ Call log:
       - <button class="sticky-save">Salvar Orçamento</button> from <section class="app-content-area">…</section> subtree intercepts pointer events
     - retrying click action
       - waiting 100ms
-    20 × waiting for element to be visible, enabled and stable
+    18 × waiting for element to be visible, enabled and stable
        - element is visible, enabled and stable
        - scrolling into view if needed
        - done scrolling

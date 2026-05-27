@@ -64,11 +64,11 @@ test.describe('Workflow Locking E2E', () => {
     const notesInput = page.locator('textarea[placeholder="Detalhes técnicos, dificuldades encontradas..."]');
     await expect(notesInput).toBeEnabled();
     await notesInput.fill('Operational note during execution');
-    await page.click('button:has-text("Salvar Notas")');
-    await page.waitForTimeout(1000);
+    // Salvar Notas button removed; autosave handles notes.
+    await page.waitForTimeout(6000); // wait for autosave debounce
 
     // 4. Finalize
-    await page.click('button:has-text("Finalizar Trabalho")');
+    await page.click('button:has-text("Finalizar Orçamento")');
     await page.click('button:has-text("Confirmar")');
     await page.waitForTimeout(1000);
     

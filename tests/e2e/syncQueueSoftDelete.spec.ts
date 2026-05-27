@@ -71,7 +71,8 @@ test('Soft Delete and Sync Queue validation', async ({ page }) => {
 
   // 3. Delete Budget
   // Go to History
-  await page.click('.bottom-nav-item:has-text("Operação")');
+  await page.waitForSelector('.sticky-action-bar', { state: 'detached' });
+    await page.click('.bottom-nav-item:has-text("Operação")');
   await page.waitForSelector('h1:has-text("Histórico")');
 
   // Check it appears in UI
