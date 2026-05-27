@@ -72,7 +72,7 @@ test('Soft Delete and Sync Queue validation', async ({ page }) => {
   // 3. Delete Budget
   // Go to History
   // Skipping wait for sticky-action-bar as it no longer exists
-  await page.click('.bottom-nav-item:has-text("Operação")');
+  await page.click('.bottom-nav-item:has-text("Operação")', { force: true });
   await page.waitForSelector('h1:has-text("Histórico")');
 
   // Check it appears in UI
