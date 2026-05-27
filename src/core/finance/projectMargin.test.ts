@@ -18,11 +18,14 @@ describe('calculateProjectMargin', () => {
     expect(result.marginPercent).toBe(59);
   });
 
-  it('rejects invalid negative values', () => {
-    expect(() => calculateProjectMargin({ total_servicos: 100, custo_materiais: -1 })).toThrow('Custo de materiais');
+  it('sanitizes invalid negative values to zero instead of throwing', () => {
+    const result = calculateProjectMargin({ total_servicos: 100, custo_materiais: -1 });
+    expect(result.custo_materiais).toBe(0);
+    expect(result.lucro_liquido).toBe(100);
   });
 
-  it('rejects tax rates above 100 percent', () => {
-    expect(() => calculateProjectMargin({ total_servicos: 100, aliquota_imposto: 101 })).toThrow('Alíquota');
+  it('clamps tax rates above 100 percent to 100', () => {
+    const result = calculateProjectMargin({ total_servicos: 100, aliquota_imposto: 101 });
+    expect(result.aliquota_imposto).toBe(100);
   });
 });

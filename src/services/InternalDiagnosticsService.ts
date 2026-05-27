@@ -2,6 +2,8 @@ import { db } from '../storage/dexieDatabase';
 import { aferixLogger } from '../core/debug/aferixLogger';
 import { storagePressureService } from './StoragePressureService';
 import { conflictDetectionService } from './ConflictDetectionService';
+import { operationalConsistencyService } from './OperationalConsistencyService';
+import { performanceAuditService } from './PerformanceAuditService';
 
 export type OperationalHealthReport = {
   generatedAt: string;
@@ -23,6 +25,10 @@ export type OperationalHealthReport = {
   backupCompatible: boolean;
   
   healthScore: number;
+  databaseHealthScore: number;
+  financialHealthScore: number;
+  operationalHealthScore: number;
+  performanceHealthScore: number;
   
   warnings: string[];
   criticalIssues: string[];
@@ -77,8 +83,31 @@ export class InternalDiagnosticsService {
       warnings.push(`Detected ${activeConflicts} active sync conflicts`);
     }
 
+    const allBudgets = await db.budgets.toArray();
+    const opReport = operationalConsistencyService.generateOperationalReport(allBudgets);
+    opReport.anomalies.forEach(a => {
+      if (a.severity === 'critical') criticalIssues.push(`[OpAnomaly] ${a.budgetId}: ${a.issue}`);
+      else warnings.push(`[OpAnomaly] ${a.budgetId}: ${a.issue}`);
+    });
+
+    const perfWarnings = performanceAuditService.detectLargeCollections([
+      { name: 'budgets', count: totalBudgets },
+      { name: 'clients', count: totalClients },
+      { name: 'workOrders', count: totalWorkOrders }
+    ]);
+    perfWarnings.forEach(pw => {
+      if (pw.severity === 'high') criticalIssues.push(`[Perf] ${pw.description}`);
+      else warnings.push(`[Perf] ${pw.description}`);
+    });
+
+    // Sub-scoring
+    const databaseHealthScore = Math.max(0, 100 - (brokenRefs * 10) - (invalidDateCount * 2));
+    const financialHealthScore = Math.max(0, 100 - (finInconsistencies * 10));
+    const operationalHealthScore = Math.max(0, 100 - (opReport.criticalAnomalies * 10) - ((opReport.totalAnomalies - opReport.criticalAnomalies) * 2));
+    const performanceHealthScore = Math.max(0, 100 - (perfWarnings.length * 5) - (storagePressure.pressureWarning ? 10 : 0));
+
     // Scoring
-    const healthScore = Math.max(0, 100 - (criticalIssues.length * 10) - (warnings.length * 2));
+    const healthScore = Math.max(0, Math.floor((databaseHealthScore + financialHealthScore + operationalHealthScore + performanceHealthScore) / 4));
     
     aferixLogger.audit('Diagnostics', `Audit complete. Score: ${healthScore}`);
 
@@ -97,6 +126,10 @@ export class InternalDiagnosticsService {
       financialInconsistencies: finInconsistencies,
       backupCompatible,
       healthScore,
+      databaseHealthScore,
+      financialHealthScore,
+      operationalHealthScore,
+      performanceHealthScore,
       warnings,
       criticalIssues,
       storagePressureWarning: storagePressure.pressureWarning,

@@ -1,3 +1,5 @@
+import { financialSafety } from './financialSafety';
+
 export interface ServiceProfitInput {
   receivedAmount: number;
   materialCost?: number;
@@ -16,27 +18,23 @@ export interface ServiceProfitResult {
   netMarginPercent: number;
 }
 
-function safeAmount(value: number | undefined): number {
-  const amount = value ?? 0;
-  if (!Number.isFinite(amount) || amount < 0) {
-    return 0;
-  }
-  return amount;
-}
-
 export function calculateServiceProfit(input: ServiceProfitInput): ServiceProfitResult {
-  const receivedAmount = safeAmount(input.receivedAmount);
-  const materialCost = safeAmount(input.materialCost);
-  const travelCost = safeAmount(input.travelCost);
-  const otherCosts = safeAmount(input.otherCosts);
-  const cardFee = safeAmount(input.cardFee);
-  const estimatedTax = safeAmount(input.estimatedTax);
+  const receivedAmount = financialSafety.safeCurrency(input.receivedAmount);
+  const materialCost = financialSafety.safeCurrency(input.materialCost);
+  const travelCost = financialSafety.safeCurrency(input.travelCost);
+  const otherCosts = financialSafety.safeCurrency(input.otherCosts);
+  const cardFee = financialSafety.safeCurrency(input.cardFee);
+  const estimatedTax = financialSafety.safeCurrency(input.estimatedTax);
 
-  const directCosts = materialCost + travelCost + otherCosts;
-  const financialCosts = cardFee + estimatedTax;
-  const grossProfit = receivedAmount - directCosts;
-  const netProfit = grossProfit - financialCosts;
-  const netMarginPercent = receivedAmount > 0 ? (netProfit / receivedAmount) * 100 : 0;
+  const directCosts = financialSafety.normalizeMoney(materialCost + travelCost + otherCosts);
+  const financialCosts = financialSafety.normalizeMoney(cardFee + estimatedTax);
+  const grossProfit = financialSafety.normalizeMoney(receivedAmount - directCosts);
+  const netProfit = financialSafety.normalizeMoney(grossProfit - financialCosts);
+  
+  let netMarginPercent = 0;
+  if (receivedAmount > 0) {
+    netMarginPercent = financialSafety.normalizeMoney((netProfit / receivedAmount) * 100);
+  }
 
   return {
     receivedAmount,
@@ -49,7 +47,7 @@ export function calculateServiceProfit(input: ServiceProfitInput): ServiceProfit
 }
 
 export function calculatePercentAmount(base: number, percent: number): number {
-  const safeBase = safeAmount(base);
-  const safePercent = safeAmount(percent);
-  return safeBase * safePercent / 100;
+  const safeBase = financialSafety.safeCurrency(base);
+  const safePercent = financialSafety.safePercentage(percent);
+  return financialSafety.normalizeMoney((safeBase * safePercent) / 100);
 }

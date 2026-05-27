@@ -8,10 +8,12 @@ export const DebugPanel: React.FC = () => {
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
+      // eslint-disable-next-line
       (window as unknown as { AFERIX_DEBUG: () => void }).AFERIX_DEBUG = () => {
         setVisible(true);
         runScan();
       };
+      // eslint-disable-next-line no-restricted-syntax
       if (localStorage.getItem('aferix_debug') === 'true') {
         setVisible(true);
         runScan();
@@ -47,7 +49,13 @@ export const DebugPanel: React.FC = () => {
       
       {report && (
         <div style={{ marginTop: '20px' }}>
-          <h3>Health Score: {report.healthScore}/100</h3>
+          <h3 style={{ margin: '10px 0 0 0' }}>Health Score: {report.healthScore}/100</h3>
+          <div style={{ marginLeft: '10px', fontSize: '0.9em', color: '#ccc' }}>
+            <p>Database: {report.databaseHealthScore}</p>
+            <p>Financial: {report.financialHealthScore}</p>
+            <p>Operational: {report.operationalHealthScore}</p>
+            <p>Performance: {report.performanceHealthScore}</p>
+          </div>
           <p>Database Version: {report.databaseVersion}</p>
           <p>Total Budgets: {report.totalBudgets} (Pending Sync: {report.pendingSyncCount}, Deleted: {report.deletedSyncCount})</p>
           <p>Total Clients: {report.totalClients}</p>
