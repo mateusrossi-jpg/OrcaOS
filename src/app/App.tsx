@@ -28,6 +28,10 @@ import { useAppClients } from './hooks/useAppClients';
 import { realtimeBridge } from '../core/realtime/bridge';
 import { ERPToast } from '../ui/system';
 import { DebugPanel } from '../features/settings/components/DebugPanel';
+import { multiTabProtection } from '../core/database/multiTabProtection';
+
+multiTabProtection.init();
+
 function LazyWorkspaceFallback() {
   return (
     <section className="app-screen">

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * OFFICIAL ARCHITECTURE: UI -> Hooks -> Services -> Repositories -> Dexie.
  * Do not access storage/repository directly from UI/hooks.
@@ -9,6 +10,12 @@ import { db } from '../storage/dexieDatabase';
 
 import { validateBudgetIntegrity } from '../domain/guards';
 import { aferixLogger } from '../core/debug/aferixLogger';
+import { safeTransaction } from '../core/database/safeTransaction';
+import { writeLock } from '../core/database/writeLock';
+import { idempotency } from '../core/database/idempotency';
+import { operationAudit } from '../core/audit/operationAudit';
+
+const BUDGET_LAST_HASH = new Map<string, string>();
 
 export class DexieBudgetRepository implements BudgetRepository {
   async createBudget(budget: Budget): Promise<void> {
@@ -17,7 +24,26 @@ export class DexieBudgetRepository implements BudgetRepository {
       aferixLogger.warn('Aferix Integrity', 'Blocked invalid budget creation', toSave);
       throw new Error('Invalid budget integrity');
     }
-    await db.budgets.add(toSave);
+
+    const currentHash = idempotency.generateWriteFingerprint(toSave);
+    if (BUDGET_LAST_HASH.get(toSave.id) === currentHash) {
+      aferixLogger.info('Idempotency', `Duplicate create budget prevented for ${toSave.id}`);
+      return;
+    }
+
+    const start = Date.now();
+    try {
+      await writeLock.withDatabaseLock(toSave.id, async () => {
+        await safeTransaction('createBudget', 'rw', [db.budgets], async () => {
+          await db.budgets.add(toSave);
+        });
+        BUDGET_LAST_HASH.set(toSave.id, currentHash);
+      });
+      operationAudit.log({ timestamp: new Date().toISOString(), operation: 'create', entity: 'Budget', entityId: toSave.id, success: true, durationMs: Date.now() - start });
+    } catch (e: any) {
+      operationAudit.log({ timestamp: new Date().toISOString(), operation: 'create', entity: 'Budget', entityId: toSave.id, success: false, durationMs: Date.now() - start, warnings: [e.message] });
+      throw e;
+    }
   }
 
   async updateBudget(budget: Budget): Promise<void> {
@@ -26,7 +52,26 @@ export class DexieBudgetRepository implements BudgetRepository {
       aferixLogger.warn('Aferix Integrity', 'Blocked invalid budget update', toSave);
       throw new Error('Invalid budget integrity');
     }
-    await db.budgets.put(toSave);
+
+    const currentHash = idempotency.generateWriteFingerprint(toSave);
+    if (BUDGET_LAST_HASH.get(toSave.id) === currentHash) {
+      aferixLogger.info('Idempotency', `Duplicate update budget prevented for ${toSave.id}`);
+      return;
+    }
+
+    const start = Date.now();
+    try {
+      await writeLock.withDatabaseLock(toSave.id, async () => {
+        await safeTransaction('updateBudget', 'rw', [db.budgets], async () => {
+          await db.budgets.put(toSave);
+        });
+        BUDGET_LAST_HASH.set(toSave.id, currentHash);
+      });
+      operationAudit.log({ timestamp: new Date().toISOString(), operation: 'update', entity: 'Budget', entityId: toSave.id, success: true, durationMs: Date.now() - start });
+    } catch (e: any) {
+      operationAudit.log({ timestamp: new Date().toISOString(), operation: 'update', entity: 'Budget', entityId: toSave.id, success: false, durationMs: Date.now() - start, warnings: [e.message] });
+      throw e;
+    }
   }
 
   async getBudgetById(id: string): Promise<Budget | undefined> {
@@ -61,10 +106,21 @@ export class DexieBudgetRepository implements BudgetRepository {
     return count;
   }
   async delete(id: string): Promise<void> {
-    const existing = await db.budgets.get(id);
-    if (existing) {
-      const toSave = { ...existing, syncStatus: 'deleted', syncUpdatedAt: Date.now(), updatedAt: new Date().toISOString() } as Budget;
-      await db.budgets.put(toSave);
+    const start = Date.now();
+    try {
+      await writeLock.withDatabaseLock(id, async () => {
+        await safeTransaction('deleteBudget', 'rw', [db.budgets], async () => {
+          const b = await db.budgets.get(id);
+          if (b) {
+            await db.budgets.put({ ...b, syncStatus: 'deleted', syncUpdatedAt: Date.now(), updatedAt: new Date().toISOString() });
+          }
+        });
+        BUDGET_LAST_HASH.delete(id);
+      });
+      operationAudit.log({ timestamp: new Date().toISOString(), operation: 'delete', entity: 'Budget', entityId: id, success: true, durationMs: Date.now() - start });
+    } catch (e: any) {
+      operationAudit.log({ timestamp: new Date().toISOString(), operation: 'delete', entity: 'Budget', entityId: id, success: false, durationMs: Date.now() - start, warnings: [e.message] });
+      throw e;
     }
   }
 }

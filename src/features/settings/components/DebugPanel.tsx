@@ -12,6 +12,10 @@ export const DebugPanel: React.FC = () => {
         setVisible(true);
         runScan();
       };
+      if (localStorage.getItem('aferix_debug') === 'true') {
+        setVisible(true);
+        runScan();
+      }
     }
   }, []);
 

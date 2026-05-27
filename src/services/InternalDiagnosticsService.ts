@@ -1,5 +1,7 @@
 import { db } from '../storage/dexieDatabase';
 import { aferixLogger } from '../core/debug/aferixLogger';
+import { storagePressureService } from './StoragePressureService';
+import { conflictDetectionService } from './ConflictDetectionService';
 
 export type OperationalHealthReport = {
   generatedAt: string;
@@ -24,6 +26,9 @@ export type OperationalHealthReport = {
   
   warnings: string[];
   criticalIssues: string[];
+
+  storagePressureWarning?: boolean;
+  activeConflicts?: number;
 };
 
 export class InternalDiagnosticsService {
@@ -61,6 +66,17 @@ export class InternalDiagnosticsService {
     
     const backupCompatible = await this.scanBackupCompatibility(warnings);
 
+    const storagePressure = await storagePressureService.detectStoragePressure();
+    if (storagePressure.pressureWarning) {
+      warnings.push('Storage pressure warning: ' + Math.round(storagePressure.percentageUsed * 100) + '% used');
+    }
+
+    const conflicts = conflictDetectionService.getConflicts();
+    const activeConflicts = conflicts.length;
+    if (activeConflicts > 0) {
+      warnings.push(`Detected ${activeConflicts} active sync conflicts`);
+    }
+
     // Scoring
     const healthScore = Math.max(0, 100 - (criticalIssues.length * 10) - (warnings.length * 2));
     
@@ -82,7 +98,9 @@ export class InternalDiagnosticsService {
       backupCompatible,
       healthScore,
       warnings,
-      criticalIssues
+      criticalIssues,
+      storagePressureWarning: storagePressure.pressureWarning,
+      activeConflicts
     };
   }
 
