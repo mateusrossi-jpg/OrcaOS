@@ -32,7 +32,7 @@ test('runtime budget flow verification', async ({ page }) => {
       return;
     }
     // If HomeScreen primary button is visible, click it directly
-    const homeBtn = page.locator('button:has-text("Novo Orçamento"), button:has-text("Novo orçamento")').first();
+    const homeBtn = page.locator('button:has-text("Novo Orçamento"), button:has-text("Novo Orçamento", button:has-text("Novo orçamento"))').first();
     if (await homeBtn.count() && await homeBtn.isVisible()) {
       await homeBtn.click({ force: true });
       await page.waitForTimeout(500);

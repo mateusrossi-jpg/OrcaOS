@@ -8,11 +8,11 @@ test.describe('Mobile Layout Hardening', () => {
   });
 
   test('Home screen layout integrity', async ({ page }) => {
-    await expect(page.locator('header h1')).toContainText('Hoje no Aferix');
+    await expect(page.locator('header h1')).toContainText('Painel Operacional');
     
     // Metrics should be visible
-    await expect(page.locator('text=Em andamento')).toBeVisible();
-    await expect(page.locator('text=Concluídos (mês)')).toBeVisible();
+    await expect(page.locator('text=Pendentes')).toBeVisible();
+    await expect(page.locator('text=Em Execução')).toBeVisible();
     
     // Bottom nav should be visible and have 4 items
     const bottomNav = page.locator('.mobile-bottom-nav');
@@ -28,7 +28,7 @@ test.describe('Mobile Layout Hardening', () => {
     // Create a budget to see it in history
     await page.click('.mobile-bottom-nav button:has-text("Resumo")');
     await page.waitForTimeout(500);
-    await page.click('button:has-text("Novo Orçamento"), button:has-text("Novo orçamento")');
+    await page.click('button:has-text("Novo Orçamento"), button:has-text("Novo Orçamento", button:has-text("Novo orçamento"))');
     await page.fill('input[placeholder="Ex: Instalação Residencial"]', 'Mobile Test Budget');
     await page.click('button:has-text("Salvar Rascunho")');
     await page.waitForTimeout(1000); // Wait for save

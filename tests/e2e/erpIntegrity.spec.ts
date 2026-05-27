@@ -7,7 +7,7 @@ test.describe('ERP Integrity - Financial & Workflow', () => {
   });
 
   test('Financial Calculation Accuracy', async ({ page }) => {
-    await page.click('button:has-text("Novo orçamento")');
+    await page.click('button:has-text("Novo Orçamento"), button:has-text("Novo Orçamento", button:has-text("Novo orçamento"))');
     await page.fill('input[placeholder="Ex: Instalação Residencial"]', 'ERP Integrity Test');
     
     // Inputs (MonetaryInput uses inputmode="numeric")
@@ -27,13 +27,13 @@ test.describe('ERP Integrity - Financial & Workflow', () => {
   });
 
   test('Status Workflow and Read-Only Mode', async ({ page }) => {
-    await page.click('button:has-text("Novo orçamento")');
+    await page.click('button:has-text("Novo Orçamento"), button:has-text("Novo Orçamento", button:has-text("Novo orçamento"))');
     await page.fill('input[placeholder="Ex: Instalação Residencial"]', 'Workflow Test');
     
     await page.click('button:has-text("Enviar para Cliente")');
     await page.click('button:has-text("Autorizar Execução")');
     await page.click('button:has-text("Iniciar Execução")');
-    await page.click('button:has-text("Finalizar Trabalho")');
+    await page.click('button:has-text("Finalizar Orçamento")');
     await page.click('button:has-text("Confirmar")');
     
     await expect(page.locator('input[placeholder="Ex: Instalação Residencial"]')).toBeDisabled();
@@ -42,7 +42,7 @@ test.describe('ERP Integrity - Financial & Workflow', () => {
 
   test('Persistence and Multi-Budget Integrity', async ({ page }) => {
     // Create Budget 1
-    await page.click('button:has-text("Novo orçamento")');
+    await page.click('button:has-text("Novo Orçamento"), button:has-text("Novo Orçamento", button:has-text("Novo orçamento"))');
     await page.fill('input[placeholder="Ex: Instalação Residencial"]', 'Budget 1');
     await page.click('button:has-text("Salvar Rascunho")');
     await page.waitForTimeout(1000); // Wait for save
@@ -51,7 +51,7 @@ test.describe('ERP Integrity - Financial & Workflow', () => {
     await page.goto('http://localhost:5173/');
     
     // Create Budget 2
-    await page.click('button:has-text("Novo orçamento")');
+    await page.click('button:has-text("Novo Orçamento"), button:has-text("Novo Orçamento", button:has-text("Novo orçamento"))');
     await page.fill('input[placeholder="Ex: Instalação Residencial"]', 'Budget 2');
     await page.click('button:has-text("Salvar Rascunho")');
     await page.waitForTimeout(1000); // Wait for save

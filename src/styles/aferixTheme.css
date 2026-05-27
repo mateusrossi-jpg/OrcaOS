@@ -1,14 +1,14 @@
 :root {
   /* AFERIX DESIGN SYSTEM V1 — GLOBAL VISUAL FOUNDATION TOKENS */
   /* --- COLORS --- */
-  --aferix-bg-primary: #070A0F;
-  --aferix-bg-surface: #10141B;
-  --aferix-bg-elevated: #151A22;
-  --aferix-border: rgba(255, 255, 255, 0.06);
-  --aferix-border-strong: rgba(255, 255, 255, 0.12);
-  --aferix-text-primary: #F8FAFC;
-  --aferix-text-secondary: #A1A1AA;
-  --aferix-yellow: #FFD21F;
+  --aferix-bg-primary: #121212;
+  --aferix-bg-surface: #1E1E1E;
+  --aferix-bg-elevated: #2A2A2A;
+  --aferix-border: rgba(255, 255, 255, 0.08);
+  --aferix-border-strong: rgba(255, 255, 255, 0.16);
+  --aferix-text-primary: #F3F4F6;
+  --aferix-text-secondary: #9CA3AF;
+  --aferix-yellow: #FACC15;
   --aferix-red: #EF4444;
   --aferix-green: #22C55E;
 
@@ -17,12 +17,12 @@
   --aferix-bg-soft: var(--aferix-bg-primary);
   --aferix-surface: var(--aferix-bg-surface);
   --aferix-surface-raised: var(--aferix-bg-elevated);
-  --aferix-surface-active: #1e2430;
+  --aferix-surface-active: #262626;
   --aferix-surface-2: var(--aferix-surface-raised);
   --aferix-surface-3: var(--aferix-surface-active);
-  --aferix-surface-hover: #1e2430;
+  --aferix-surface-hover: #262626;
   --aferix-text: var(--aferix-text-primary);
-  --aferix-text-muted: #71717A;
+  --aferix-text-muted: #6B7280;
   --aferix-text-soft: var(--aferix-text-secondary);
   --aferix-muted: var(--aferix-text-muted);
   --aferix-brand: var(--aferix-yellow);
@@ -48,7 +48,7 @@
   --aferix-badge-height: 22px;
   --aferix-action-button-size: 32px;
   --aferix-bottom-nav-height: 60px;
-  --aferix-touch-target: 44px;
+  --aferix-touch-target: 48px;
   --aferix-safe-area-bottom: env(safe-area-inset-bottom, 16px);
 
   /* --- SPACING --- */
@@ -68,9 +68,9 @@
 
   /* --- RADIUS --- */
   --aferix-radius-sm: 4px;
-  --aferix-radius-md: 8px;
-  --aferix-radius-lg: 12px;
-  --aferix-radius-xl: 12px; /* HARD LIMIT P14 */
+  --aferix-radius-md: 6px;
+  --aferix-radius-lg: 8px;
+  --aferix-radius-xl: 8px; /* HARD LIMIT P14 */
   --aferix-radius: var(--aferix-radius-md);
 
   /* --- SHADOWS --- */
@@ -1708,7 +1708,7 @@ button:disabled,
   align-items: center;
   padding: 14px 18px;
   border: 1px solid var(--aferix-border-soft);
-  border-radius: 16px;
+  border-radius: var(--aferix-radius);
   background: var(--aferix-surface-raised);
 }
 
@@ -1719,7 +1719,7 @@ button:disabled,
 
 .plan-badge {
   padding: 4px 10px;
-  border-radius: 20px;
+  border-radius: var(--aferix-radius);
   background: var(--aferix-primary);
   color: var(--aferix-bg);
   font-size: 0.75rem;
@@ -1732,7 +1732,7 @@ button:disabled,
   gap: 16px;
   padding: 20px;
   border: 1px solid var(--aferix-border-soft);
-  border-radius: 16px;
+  border-radius: var(--aferix-radius);
   background: var(--aferix-surface);
 }
 
@@ -1803,7 +1803,7 @@ button:disabled,
   gap: 10px;
   padding: 14px;
   border: 1px dashed var(--aferix-border);
-  border-radius: 12px;
+  border-radius: var(--aferix-radius);
 }
 
 .reload-btn {
@@ -1937,7 +1937,7 @@ button.highlight-card {
   gap: 16px;
   min-width: 0;
   border: 1px solid var(--aferix-border);
-  border-radius: 12px;
+  border-radius: var(--aferix-radius);
   padding: 16px;
   background: var(--aferix-surface-2);
 }
@@ -2465,7 +2465,7 @@ button.highlight-card {
 .top-nav-menu-button {
   height: 38px;
   padding: 0 14px;
-  border-radius: 10px;
+  border-radius: var(--aferix-radius);
   border: 1px solid transparent;
   background: transparent;
   color: var(--aferix-text-muted);
@@ -2487,7 +2487,7 @@ button.highlight-card {
   min-width: 220px;
   padding: 8px;
   border: 1px solid var(--aferix-border);
-  border-radius: 14px;
+  border-radius: var(--aferix-radius);
   background:
     linear-gradient(180deg, rgba(22, 24, 30, 0.98), rgba(10, 11, 14, 0.98)) !important;
   box-shadow: 0 24px 80px rgba(0, 0, 0, 0.55) !important;
@@ -2499,7 +2499,7 @@ button.highlight-card {
   min-height: 42px;
   padding: 0 12px;
   border: 0 !important;
-  border-radius: 10px;
+  border-radius: var(--aferix-radius);
   background: transparent !important;
   color: var(--aferix-text-muted) !important;
   text-align: left;
@@ -2792,7 +2792,7 @@ button.highlight-card {
   background: rgba(255, 255, 255, 0.05) !important;
   border: 1px solid var(--aferix-border, #222222) !important;
   padding: 4px 10px !important;
-  border-radius: 99px !important;
+  border-radius: var(--aferix-radius) !important;
   white-space: nowrap !important;
 }
 
@@ -3079,7 +3079,7 @@ button.highlight-card {
   place-items: center !important;
   width: 24px !important;
   height: 24px !important;
-  border-radius: 99px !important;
+  border-radius: var(--aferix-radius) !important;
   font-size: 0.76rem !important;
   font-weight: 900 !important;
   color: #000000 !important;
@@ -3499,7 +3499,7 @@ button.secondary {
 .full-page-cta {
   width: 100% !important;
   min-height: 46px !important;
-  border-radius: 12px !important;
+  border-radius: var(--aferix-radius) !important;
   font-weight: 800 !important;
   justify-self: stretch !important;
   box-shadow: 0 8px 22px rgba(245, 164, 0, 0.14) !important;
@@ -3526,7 +3526,7 @@ button.secondary {
   min-width: 0 !important;
   min-height: 46px !important;
   border: 1px solid rgba(255, 255, 255, 0.07) !important;
-  border-radius: 12px !important;
+  border-radius: var(--aferix-radius) !important;
   background: rgba(255, 255, 255, 0.025) !important;
   color: var(--aferix-text) !important;
   padding: 11px 13px !important;
@@ -3587,7 +3587,7 @@ button.secondary {
 .metric-card,
 .finance-tile {
   min-height: 72px !important;
-  border-radius: 12px !important;
+  border-radius: var(--aferix-radius) !important;
 }
 
 .continuous-list,
@@ -3774,7 +3774,7 @@ textarea,
   min-height: 46px !important;
   height: 46px !important;
   border: 1px solid rgba(255, 255, 255, 0.06) !important;
-  border-radius: 10px !important;
+  border-radius: var(--aferix-radius) !important;
   padding: 10px 14px !important;
   color: var(--aferix-text) !important;
   background: rgba(255, 255, 255, 0.02) !important;
@@ -3923,7 +3923,7 @@ button.danger:hover:not(:disabled) {
   min-height: 32px !important;
   padding: 2px 10px !important;
   border: 1px solid transparent !important;
-  border-radius: 16px !important;
+  border-radius: var(--aferix-radius) !important;
   background: transparent !important;
   color: var(--aferix-text-muted) !important;
   font: inherit !important;
@@ -4146,7 +4146,7 @@ button.primary:hover,
     gap: 4px !important;
     background: rgba(255, 255, 255, 0.02) !important;
     border: 1px solid rgba(255, 255, 255, 0.05) !important;
-    border-radius: 12px !important;
+    border-radius: var(--aferix-radius) !important;
     padding: 4px !important;
     margin-bottom: 12px !important;
     overflow-x: auto !important;

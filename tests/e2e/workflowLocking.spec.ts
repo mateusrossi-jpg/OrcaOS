@@ -9,7 +9,7 @@ test.describe('Workflow Locking E2E', () => {
 
   test('Budget workflow locking: Draft -> Sent -> Authorized', async ({ page }) => {
     // 1. Create Draft
-    await page.click('button:has-text("Novo orçamento")');
+    await page.click('button:has-text("Novo Orçamento", button:has-text("Novo orçamento"))');
     await page.fill('input[placeholder="Ex: Instalação Residencial"]', 'Locking Test');
     await page.getByRole('textbox', { name: 'Preço do Serviço R$' }).fill('100000'); // 1000.00
     
@@ -50,7 +50,7 @@ test.describe('Workflow Locking E2E', () => {
 
   test('Budget workflow locking: Executing -> Finalized', async ({ page }) => {
     // Create and move to Executing (shortcut for test speed)
-    await page.click('button:has-text("Novo orçamento")');
+    await page.click('button:has-text("Novo Orçamento", button:has-text("Novo orçamento"))');
     await page.fill('input[placeholder="Ex: Instalação Residencial"]', 'Execution Test');
     await page.click('button:has-text("Enviar para Cliente")');
     await page.click('button:has-text("Autorizar Execução")');
