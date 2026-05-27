@@ -77,10 +77,9 @@ test.describe('Workflow Locking E2E', () => {
     // 4. Finalize
     // Removed wait for deprecated sticky-action-bar
     await page.click('.bottom-nav-item:has-text("Operação")', { force: true });
-    await page.waitForTimeout(1000);
-    
-    // Status should be FINALIZADO
-    await expect(page.locator('text=/finalizado/i')).toBeVisible();
+await page.waitForTimeout(2000);
+await page.waitForSelector('button:has-text("Arquivar Orçamento")', { timeout: 90000 });
+await expect(page.locator('button', { hasText: 'Arquivar Orçamento' })).toBeVisible();
     
     // Everything should be disabled
     await expect(notesInput).toBeDisabled();

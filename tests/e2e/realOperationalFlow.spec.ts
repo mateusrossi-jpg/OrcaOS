@@ -26,7 +26,7 @@ test.describe('Real Operational Flow (P102-A)', () => {
       });
     });
 
-    await page.goto('/');
+    await page.goto('http://localhost:5175/');
     await page.waitForTimeout(500);
 
     // 2. Open Diagnostics to check for inconsistencies

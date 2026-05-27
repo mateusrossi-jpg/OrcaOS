@@ -106,6 +106,7 @@ test('runtime budget flow verification', async ({ page }) => {
   const deleteBtn = page.locator('button', { hasText: /^Excluir$/ }).last();
   await expect(deleteBtn).toBeVisible({ timeout: 10000 });
   await deleteBtn.click({ force: true });
+  // Dialog is automatically accepted via page.on('dialog') handler above
   await page.waitForTimeout(500);
 
   // Verify only two budgets remain

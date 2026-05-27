@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Database Resilience validation (P101)', () => {
   test('Prevents duplicate saves and locks concurrently', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('http://localhost:5175/');
 
     // Activate Debug Mode via localStorage
     await page.evaluate(() => {

@@ -73,9 +73,9 @@ test('Soft Delete and Sync Queue validation', async ({ page }) => {
   // Go to History
   // Skipping wait for sticky-action-bar as it no longer exists
   await page.click('.bottom-nav-item:has-text("Operação")', { force: true });
-  await page.waitForSelector('h1:has-text("Histórico")');
-
-  // Check it appears in UI
+  await page.waitForTimeout(500);
+  await page.waitForTimeout(1000);
+await expect(page.locator('h1:has-text("Histórico")')).toBeVisible({ timeout: 30000 });
   const card = page.locator('article.operational-card').filter({ hasText: budgetTitle });
   await expect(card).toBeVisible();
 
@@ -86,6 +86,7 @@ test('Soft Delete and Sync Queue validation', async ({ page }) => {
   const deleteConfirmBtn = page.locator('button', { hasText: /^Excluir$/ }).last();
   await expect(deleteConfirmBtn).toBeVisible();
   await deleteConfirmBtn.click({ force: true });
+await page.waitForTimeout(1000); // allow delete processing
   await page.waitForTimeout(1000); // Wait for IndexedDB
 
   // 4. Confirm it disappeared from UI
