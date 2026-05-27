@@ -57,7 +57,11 @@ const emptyItem = (kind: CatalogHubItemKind = 'material'): CatalogHubItem => ({
   updatedAt: new Date().toISOString(),
 });
 
-export function PremiumCatalogWorkspace() {
+interface PremiumCatalogWorkspaceProps {
+  onSendToBudget?: (items: CatalogHubItem[]) => void;
+}
+
+export function PremiumCatalogWorkspace({ onSendToBudget }: PremiumCatalogWorkspaceProps) {
   const [items, setItems] = useState<CatalogHubItem[]>([]);
   const [query, setQuery] = useState('');
   const [activeChip, setActiveChip] = useState('all');
@@ -280,10 +284,19 @@ export function PremiumCatalogWorkspace() {
                 <ActionMenu
                   label="Ações"
                   items={[
+                    { 
+                      id: 'select', 
+                      label: 'Adicionar ao Orçamento', 
+                      onSelect: () => {
+                        if (onSendToBudget) {
+                          onSendToBudget([item]);
+                        }
+                      },
+                    },
                     { id: 'edit', label: 'Editar', onSelect: () => handleEdit(item) },
                     { id: 'duplicate', label: 'Duplicar', onSelect: () => handleDuplicate(item) },
-                    { id: 'delete', label: 'Excluir', tone: 'danger', onSelect: () => requestDelete(item) },
-                  ]}
+                    { id: 'delete', label: 'Excluir', tone: 'danger' as const, onSelect: () => requestDelete(item) },
+                  ].filter(it => it.id !== 'select' || !!onSendToBudget)}
                 />
               }
             />

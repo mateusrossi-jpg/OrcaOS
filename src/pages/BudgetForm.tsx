@@ -1,9 +1,11 @@
 import React from 'react';
-import { BUDGET_STATUS } from '../domain/budget';
+import { BUDGET_STATUS, type BudgetItem } from '../domain/budget';
 import { formatCurrencyBRL, formatPercent } from '../utils/formatters';
 import { useClients } from '../hooks/useClients';
 import { useBudgetForm } from '../hooks/useBudgetForm';
 import { Client } from '../domain/client';
+import { PremiumCatalogWorkspace } from '../features/catalog/components/PremiumCatalogWorkspace';
+import type { CatalogHubItem } from '../features/catalog/types/catalogTypes';
 import { 
   PageShell,
   PageHeader,
@@ -13,11 +15,14 @@ import {
   MonetaryInput,
   PrimaryButton,
   SecondaryButton,
-  DangerButton,
   Badge,
   SectionTitle,
   ContextBanner,
   TextArea,
+  Modal,
+  ListCard,
+  ListItem,
+  MoneyValue,
 } from '../app/components/ui';
 import { StickyActionBar } from '../components/StickyActionBar';
 
@@ -31,6 +36,8 @@ export const BudgetForm: React.FC<BudgetFormProps> = ({ id, onBack }) => {
     budget,
     isLoading,
     updateField,
+    addItem,
+    removeItem,
     preview,
     isSaving,
     permissions,
@@ -50,6 +57,7 @@ export const BudgetForm: React.FC<BudgetFormProps> = ({ id, onBack }) => {
   } = useBudgetForm(id);
 
   const { clients } = useClients();
+  const [showCatalog, setShowCatalog] = React.useState(false);
 
   if (isLoading) {
     return (
@@ -60,6 +68,11 @@ export const BudgetForm: React.FC<BudgetFormProps> = ({ id, onBack }) => {
       </PageShell>
     );
   }
+
+  const handleAddFromCatalog = (items: CatalogHubItem[]) => {
+    items.forEach(item => addItem(item));
+    setShowCatalog(false);
+  };
 
   return (
     <PageShell className={`aferix-budget-form-screen ${isSaving ? 'is-saving' : ''} ${isReadOnly ? 'is-read-only' : ''}`}>
@@ -141,6 +154,46 @@ export const BudgetForm: React.FC<BudgetFormProps> = ({ id, onBack }) => {
           )}
         </PanelCard>
 
+        {/* 2.5. Itens do Orçamento */}
+        <div className="aferix-items-section">
+          <SectionTitle 
+            title="Itens e Serviços" 
+            action={
+              permissions.canEditItems && (
+                <button 
+                  type="button"
+                  className="ghost-action aferix-font-bold" 
+                  onClick={() => setShowCatalog(true)}
+                  style={{ color: 'var(--aferix-primary)', fontSize: '0.85rem' }}
+                >
+                  + Catálogo
+                </button>
+              )
+            }
+          />
+          <ListCard className="aferix-mb-sm">
+            {(budget.items || []).length === 0 ? (
+              <div className="aferix-p-md aferix-text-center aferix-text-muted">
+                <small>Nenhum item adicionado ainda.</small>
+              </div>
+            ) : (
+              (budget.items || []).map((item: BudgetItem) => (
+                <ListItem
+                  key={item.id}
+                  title={item.description}
+                  context={`${item.quantity} x ${formatCurrencyBRL(item.unitPrice)}`}
+                  value={<MoneyValue value={item.quantity * item.unitPrice} compact />}
+                  action={
+                    permissions.canEditItems && (
+                      <button type="button" className="ghost-action" onClick={() => removeItem(item.id)} style={{ color: 'var(--aferix-danger)', padding: '8px' }}>✕</button>
+                    )
+                  }
+                />
+              ))
+            )}
+          </ListCard>
+        </div>
+
         {/* 3. Custos Operacionais */}
         <div className="aferix-costs-section">
           <SectionTitle title="Custos e Deduções" />
@@ -207,61 +260,54 @@ export const BudgetForm: React.FC<BudgetFormProps> = ({ id, onBack }) => {
           </PanelCard>
         </div>
 
-        {/* 5. Ações Operacionais (State Machine) */}
-        <div className="aferix-d-flex aferix-flex-column aferix-gap-md aferix-mt-lg aferix-journey-actions">
-          {budget.status === BUDGET_STATUS.INICIADO && (
-            <>
-              <PrimaryButton onClick={markAsSent} disabled={isSaving}>
-                Enviar para Cliente
-              </PrimaryButton>
-              <SecondaryButton onClick={saveDraft} disabled={isSaving}>
-                {isSaving ? 'Salvando...' : 'Salvar Rascunho'}
-              </SecondaryButton>
-            </>
-          )}
-
-          {budget.status === BUDGET_STATUS.ENVIADO && (
-            <>
-              <PrimaryButton onClick={markAsAuthorized} disabled={isSaving}>
-                Autorizar Execução
-              </PrimaryButton>
-              <DangerButton onClick={markAsRejected} disabled={isSaving}>
-                Recusar Orçamento
-              </DangerButton>
-            </>
-          )}
-
-          {budget.status === BUDGET_STATUS.AUTORIZADO && (
-            <>
-              <PrimaryButton onClick={markAsExecuting} disabled={isSaving}>
-                Iniciar Execução
-              </PrimaryButton>
-            </>
-          )}
-
-          {budget.status === BUDGET_STATUS.EM_EXECUCAO && (
-            <>
-              <PrimaryButton onClick={requestFinalize} disabled={isSaving}>
-                Finalizar Orçamento
-              </PrimaryButton>
-            </>
-          )}
-          {budget.status === BUDGET_STATUS.FINALIZADO && (
-            <>
-              <SecondaryButton onClick={archiveBudget} disabled={isSaving}>
-                Arquivar Orçamento
-              </SecondaryButton>
-            </>
-          )}
-        </div>
-        
         {/* Sticky Action Bar */}
         <StickyActionBar
-          onSave={saveDraft}
           onCancel={onBack}
-          saveLabel="Salvar Orçamento"
-          cancelLabel="Cancelar"
           disabled={isSaving}
+          actions={
+            <>
+              {budget.status === BUDGET_STATUS.INICIADO && (
+                <>
+                  <button type="button" className="sticky-save" onClick={markAsSent} disabled={isSaving}>
+                    Enviar para Cliente
+                  </button>
+                  <button type="button" className="sticky-secondary" onClick={saveDraft} disabled={isSaving}>
+                    {isSaving ? 'Salvando...' : 'Salvar Rascunho'}
+                  </button>
+                </>
+              )}
+              {budget.status === BUDGET_STATUS.ENVIADO && (
+                <>
+                  <button type="button" className="sticky-save" onClick={markAsAuthorized} disabled={isSaving}>
+                    Autorizar Execução
+                  </button>
+                  <button type="button" className="sticky-cancel" onClick={markAsRejected} disabled={isSaving}>
+                    Recusar Orçamento
+                  </button>
+                </>
+              )}
+              {budget.status === BUDGET_STATUS.AUTORIZADO && (
+                <button type="button" className="sticky-save" onClick={markAsExecuting} disabled={isSaving}>
+                  Iniciar Execução
+                </button>
+              )}
+              {budget.status === BUDGET_STATUS.EM_EXECUCAO && (
+                <button type="button" className="sticky-save" onClick={requestFinalize} disabled={isSaving}>
+                  Finalizar Orçamento
+                </button>
+              )}
+              {budget.status === BUDGET_STATUS.FINALIZADO && (
+                <button type="button" className="sticky-save" style={{ background: '#4b5563', color: '#fff' }} onClick={archiveBudget} disabled={isSaving}>
+                  Arquivar Orçamento
+                </button>
+              )}
+              {![BUDGET_STATUS.INICIADO, BUDGET_STATUS.ENVIADO, BUDGET_STATUS.AUTORIZADO, BUDGET_STATUS.EM_EXECUCAO, BUDGET_STATUS.FINALIZADO].includes(budget.status as any) && (
+                <button type="button" className="sticky-save" onClick={saveDraft} disabled={isSaving}>
+                  Salvar Rascunho
+                </button>
+              )}
+            </>
+          }
         />
       </div>
 
@@ -311,6 +357,19 @@ export const BudgetForm: React.FC<BudgetFormProps> = ({ id, onBack }) => {
         </div>
       )}
 
+      {/* 7. Catalog Modal */}
+      {showCatalog && (
+        <Modal
+          isOpen={showCatalog}
+          title="Catálogo Profissional"
+          onClose={() => setShowCatalog(false)}
+        >
+          <div style={{ margin: '-16px', maxHeight: '60vh', overflowY: 'auto' }}>
+            <PremiumCatalogWorkspace onSendToBudget={handleAddFromCatalog} />
+          </div>
+        </Modal>
+      )}
+
       <style>{`
           .aferix-sticky-preview {
             position: fixed;
@@ -329,9 +388,6 @@ export const BudgetForm: React.FC<BudgetFormProps> = ({ id, onBack }) => {
           }
           .aferix-costs-section {
             margin-top: 12px;
-          }
-          .aferix-journey-actions {
-            padding-bottom: 120px; /* Space for sticky preview */
           }
           @media (max-width: 768px) {
             .aferix-sticky-preview {

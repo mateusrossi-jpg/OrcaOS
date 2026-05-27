@@ -8,6 +8,7 @@ import { Budget, BUDGET_STATUS, BudgetStatus } from '../domain/budget';
 import { calculateBudget } from '../domain/aferixFinanceEngine';
 import { BudgetPersistenceService } from '../services/BudgetPersistenceService';
 import { operationalFacade } from '../features/workflow/operationalFacade';
+import type { CatalogHubItem } from '../features/catalog/types/catalogTypes';
 
 const persistenceService = new BudgetPersistenceService();
 // service const removed as we use facade now
@@ -186,11 +187,43 @@ export function useBudgetForm(initialBudgetId?: string | null) {
       setShowFinalizeModal(false);
     }
   };
+const addItem = useCallback((item: Partial<CatalogHubItem>) => {
+  const newItem = {
+    id: generateId(),
+    description: item.title || 'Novo Item',
+    quantity: item.defaultQuantity || 1,
+    unitPrice: item.defaultUnitValue || 0,
+    category: (item.kind === 'labor' ? 'labor' : item.kind === 'material' ? 'material' : 'other') as 'labor' | 'material' | 'other',
+    catalogId: item.id
+  };
+  setBudget(prev => {
+    const newItems = [...(prev.items || []), newItem];
+    // Optional: Auto-calculate total if it's 0 or based on items
+    const newChargedValue = prev.chargedValue === 0 
+      ? newItems.reduce((acc, it) => acc + (it.quantity * it.unitPrice), 0)
+      : prev.chargedValue;
+
+    return { 
+      ...prev, 
+      items: newItems,
+      chargedValue: newChargedValue 
+    };
+  });
+}, []);
+
+const removeItem = useCallback((itemId: string) => {
+  setBudget(prev => ({
+    ...prev,
+    items: (prev.items || []).filter(it => it.id !== itemId)
+  }));
+}, []);
 
   return {
     budget,
     isLoading,
     updateField,
+    addItem,
+    removeItem,
     preview,
     isSaving,
     isReadOnly: !permissions.canEditFinancials && !permissions.canEditItems && !permissions.canEditTitle,

@@ -13,19 +13,26 @@
 .sheet {
   position: fixed;
   left: 50%;
-  bottom: calc(env(safe-area-inset-bottom) + 16px);
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 76px); /* 16px + 60px (bottom nav) */
   transform: translateX(-50%);
   width: min(420px, calc(100vw - 32px));
-  max-height: 85vh;
+  max-height: 70vh;
   overflow-y: auto;
   border-radius: 20px;
-  padding: 16px;
+  padding: 20px;
   background: var(--aferix-bg-elevated, #1f2937);
   color: #f9fafb;
   border: 1px solid rgba(255,255,255,.08);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.6);
   box-sizing: border-box;
   z-index: 1000;
+}
+
+@media (min-width: 1025px) {
+  .sheet {
+    bottom: 50%;
+    transform: translate(-50%, 50%);
+  }
 }
 
 /* Animations */

@@ -37,6 +37,12 @@
   color: #000;
 }
 
+.sticky-secondary {
+  background: var(--aferix-surface-elevated, #2a2d36);
+  color: var(--aferix-text, #fff);
+  border: 1px solid rgba(255,255,255,0.1) !important;
+}
+
 .sticky-cancel {
   background: var(--aferix-danger, #d32f2f);
   color: #fff;
