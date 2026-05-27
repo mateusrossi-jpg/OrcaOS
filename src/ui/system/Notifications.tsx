@@ -87,7 +87,23 @@ export function ERPNotificationCenter() {
       </button>
 
       {isOpen && (
-        <div className={`absolute right-0 mt-2 w-80 bg-gray-950 border ${ERPTokens.colors.borderLight} rounded-xl shadow-xl z-50 flex flex-col overflow-hidden`}>
+        <div 
+          className="notification-dropdown"
+          style={{
+            position: 'absolute',
+            right: 0,
+            marginTop: '8px',
+            width: 'min(calc(100vw - 32px), 320px)',
+            backgroundColor: '#050607',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            borderRadius: '12px',
+            boxShadow: '0 10px 25px rgba(0,0,0,0.5)',
+            zIndex: 1000,
+            display: 'flex',
+            flexDirection: 'column',
+            overflow: 'hidden'
+          }}
+        >
           <div className="p-3 border-b border-gray-800 bg-gray-900/50 flex justify-between items-center">
             <h3 className="text-sm font-bold text-gray-200">Alertas Operacionais</h3>
             <span className="text-[10px] text-gray-500 uppercase tracking-wider">{feed.length} eventos</span>

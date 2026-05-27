@@ -359,7 +359,7 @@
 
 .client-compact-row .client-col strong,
 .client-compact-row .client-col small {
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
 }
 
 @media (max-width: 767px) {

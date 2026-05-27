@@ -270,7 +270,7 @@
 .item-title,
 .item-meta {
   min-width: 0 !important;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
 }
 
 .item-price-action {

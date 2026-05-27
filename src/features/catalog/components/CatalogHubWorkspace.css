@@ -107,7 +107,7 @@
   margin: 0;
   line-height: 1.1;
   font-size: 1.5rem; /* Reduced from default large size */
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
 }
 
 @media (max-width: 760px) {
@@ -154,7 +154,7 @@
 .online-result-box strong,
 .online-result-box small {
   min-width: 0;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
 }
 
 .catalog-card-heading {
@@ -168,6 +168,7 @@
   padding-bottom: 8px;
   scrollbar-width: none;
   -ms-overflow-style: none;
+  -webkit-overflow-scrolling: touch;
 }
 
 .catalog-kind-summary::-webkit-scrollbar {
@@ -499,7 +500,7 @@
 }
 
 .catalog-hub-item-card strong {
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
 }
 
 .catalog-material-tags {

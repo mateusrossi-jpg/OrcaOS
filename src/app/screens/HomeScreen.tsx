@@ -151,17 +151,43 @@ export function HomeScreen({ onNavigate, onSelectBudget }: HomeScreenProps) {
 
       <style>{`
         .home-dashboard-layout {
-          display: grid;
-          gap: 24px;
+          display: flex;
+          flex-direction: column;
+          gap: 20px;
+          min-width: 0;
+          width: 100%;
         }
         
         .operational-metrics-panel {
-          padding: 16px !important;
+          padding: 12px !important;
+          margin-bottom: 4px;
+        }
+
+        .compact-metric-grid {
+          display: grid !important;
+          grid-template-columns: repeat(3, 1fr) !important;
+          gap: 8px !important;
         }
         
-        @media (max-width: 768px) {
+        @media (max-width: 600px) {
+          .compact-metric-grid {
+            grid-template-columns: 1fr !important;
+            gap: 10px !important;
+          }
+        }
+
+        .home-active-work-section, .home-recent-activity {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+          min-width: 0;
+        }
+
+        @media (min-width: 769px) {
           .home-dashboard-layout {
-            gap: 20px;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 24px;
           }
         }
       `}</style>

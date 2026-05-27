@@ -85,11 +85,11 @@ export const BudgetHistoryPage: React.FC<BudgetHistoryPageProps> = ({ onOpenBudg
               value={<MoneyValue value={calculateBudget(budget).totalComercial} compact />}
               action={
                 <button 
-                  className="ghost-action aferix-p-sm" 
+                  className="ghost-action compact-delete-action" 
                   onClick={(e) => handleDelete(e, budget.id)}
                   title="Excluir"
                 >
-                  Excluir
+                  <span className="delete-icon">🗑️</span>
                 </button>
               }
             />

@@ -27,7 +27,8 @@
 .professional-identity-main strong {
   color: var(--aferix-text);
   font-size: 1.02rem;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
+  word-break: normal;
 }
 
 .professional-identity-main small,

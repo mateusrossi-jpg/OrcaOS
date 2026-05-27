@@ -12,13 +12,11 @@
 /* Universal Dynamic Content Growth - Aferix Fluid UI */
 * {
   box-sizing: border-box;
-  overflow-wrap: break-word;
-  word-wrap: break-word;
-  word-break: break-word;
 }
 
 html, body, #root {
   width: 100%;
+  max-width: 100%;
   min-height: 100vh;
   min-height: 100dvh;
   margin: 0;
@@ -59,14 +57,16 @@ html, body, #root {
   overflow: visible !important;
   display: flex !important;
   flex-direction: column !important;
+  min-width: 0;
 }
 
-/* Remove all text truncation and ellipsis */
+/* Sensible defaults for text growth and breaking */
 strong, p, span, small, h1, h2, h3, h4, li, em, b {
-  white-space: normal !important;
-  overflow: visible !important;
-  text-overflow: clip !important;
-  max-width: 100% !important;
+  white-space: normal;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: normal;
+  max-width: 100%;
 }
 
 button,
