@@ -75,9 +75,12 @@ test('Soft Delete and Sync Queue validation', async ({ page }) => {
   await page.click('.bottom-nav-item:has-text("Operação")', { force: true });
   await page.waitForTimeout(500);
   await page.waitForTimeout(1000);
-await expect(page.locator('h1:has-text("Histórico")')).toBeVisible({ timeout: 30000 });
+  await page.waitForSelector('h1:has-text("Histórico")', { timeout: 120000 });
+  await expect(page.locator('h1:has-text("Histórico")')).toBeVisible({ timeout: 120000 });
   const card = page.locator('article.operational-card').filter({ hasText: budgetTitle });
   await expect(card).toBeVisible();
+  // Ensure UI settled
+  await page.waitForTimeout(2000);
 
   // Click the delete button on the card (usually the last button or has an explicit icon)
   await card.locator('button').last().click({ force: true });

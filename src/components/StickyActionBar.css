@@ -15,6 +15,12 @@
   z-index: 1000;
 }
 
+@media (max-width: 1024px) {
+  .sticky-action-bar {
+    bottom: calc(var(--aferix-bottom-nav-height, 60px) + var(--aferix-safe-area-bottom, env(safe-area-inset-bottom, 0px)));
+  }
+}
+
 .sticky-action-bar button {
   min-height: 48px; /* touch target */
   min-width: 48px;

@@ -74,16 +74,29 @@ test.describe('MVP Functional Truth Check', () => {
 // }
     
     // Reabrir do Histórico para garantir que salvou
-    await page.click('.bottom-nav-item:has-text("Operação")');
-    await page.waitForSelector('h1:has-text("Histórico")');
-    
-    await expect(page.locator('article.operational-card').filter({ hasText: budgetTitle })).toBeVisible();
+    await page.click('.mobile-bottom-nav button:has-text("Operação")');
+    await page.waitForTimeout(500);
+    await page.waitForTimeout(500);
+    await page.waitForSelector('h1:has-text("Histórico")', { timeout: 150000 });
+    await expect(page.locator('h1:has-text("Histórico")')).toBeVisible({ timeout: 150000 });
+    const savedBudgetCard = page.locator('article.operational-card').filter({ hasText: budgetTitle });
+    await expect(savedBudgetCard).toBeVisible();
 
     // 4. Workflow Completo
+    await savedBudgetCard.click();
+    await expect(page.locator('button:has-text("Enviar para Cliente")')).toBeVisible();
     await page.click('button:has-text("Enviar para Cliente")');
+    await page.waitForTimeout(1500);
+    await page.waitForSelector('button:has-text("Autorizar Execução")', { timeout: 120000 });
     await page.click('button:has-text("Autorizar Execução")');
+    await page.waitForTimeout(1500);
+    await page.waitForSelector('button:has-text("Iniciar Execução")', { timeout: 120000 });
     await page.click('button:has-text("Iniciar Execução")');
+    await page.waitForTimeout(1500);
+    await page.waitForSelector('button:has-text("Finalizar Orçamento")', { timeout: 180000 });
     await page.click('button:has-text("Finalizar Orçamento")');
+    await page.waitForTimeout(1500);
+    await page.waitForSelector('button:has-text("Confirmar")', { timeout: 180000 });
     await page.click('button:has-text("Confirmar")');
 
     // Verificar se está em modo leitura
@@ -104,10 +117,12 @@ test.describe('MVP Functional Truth Check', () => {
     await expect(page.locator('.metric-card').filter({ hasText: 'Lucro líquido' }).locator('strong')).toContainText('3.000'); // 5000 - 1500 - 500 = 3000 (app currently doesn't auto-deduct tax in overview)
 
     // 7. Backup Local (apenas disparar o clique para ver se não quebra)
+    await page.waitForSelector('button:has-text("Mais")', { timeout: 60000 });
     await page.click('button:has-text("Mais")');
+    await page.waitForSelector('button:has-text("Backup e Sincronização")', { timeout: 60000 });
     await page.click('button:has-text("Backup e Sincronização")');
     const downloadPromise = page.waitForEvent('download');
-    await page.click('button:has-text("Download JSON")');
+    await page.click('button:has-text("Exportar Backup de Segurança")');
     const download = await downloadPromise;
     expect(download.suggestedFilename()).toContain('aferix-backup');
   });

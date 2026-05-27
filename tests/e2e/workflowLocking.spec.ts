@@ -75,16 +75,14 @@ test.describe('Workflow Locking E2E', () => {
     await page.waitForTimeout(6000); // wait for autosave debounce
 
     // 4. Finalize
-    // Removed wait for deprecated sticky-action-bar
-    await page.click('.bottom-nav-item:has-text("Operação")', { force: true });
-await page.waitForTimeout(2000);
-await page.waitForSelector('button:has-text("Arquivar Orçamento")', { timeout: 90000 });
-await expect(page.locator('button', { hasText: 'Arquivar Orçamento' })).toBeVisible();
-    
-    // Everything should be disabled
+    await page.click('button:has-text("Finalizar Orçamento")');
+    await page.click('button:has-text("Confirmar")');
+    await expect(page.locator('text=FINALIZADO').first()).toBeVisible();
     await expect(notesInput).toBeDisabled();
-    
-    // Action should be 'Arquivar'
-    await expect(page.locator('button:has-text("Arquivar Orçamento")')).toBeVisible();
+
+    const archiveBtn = page.locator('button', { hasText: 'Arquivar Orçamento' });
+    await expect(archiveBtn).toBeVisible();
+    await archiveBtn.click();
+    await expect(page.locator('text=ARQUIVADO').first()).toBeVisible();
   });
 });

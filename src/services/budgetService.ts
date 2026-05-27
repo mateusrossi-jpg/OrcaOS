@@ -11,7 +11,7 @@ export class BudgetService {
   }
 
   async changeStatus(budget: Budget, nextStatus: BudgetStatus): Promise<void> {
-    if (budget.status === BUDGET_STATUS.FINALIZADO) {
+    if (budget.status === BUDGET_STATUS.FINALIZADO && nextStatus !== BUDGET_STATUS.ARQUIVADO) {
       console.warn("Cannot change status of a finalized budget.");
       return;
     }

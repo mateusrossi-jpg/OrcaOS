@@ -65,7 +65,11 @@ export function useBudgetForm(initialBudgetId?: string | null) {
       return { canEditTitle: false, canEditClient: false, canEditItems: false, canEditFinancials: false, canEditNotes: true, canEditStatus: true };
     }
     
-    // 3. Finalizados / Arquivados / Recusados (Tudo bloqueado)
+    if (s === BUDGET_STATUS.FINALIZADO) {
+      return { canEditTitle: false, canEditClient: false, canEditItems: false, canEditFinancials: false, canEditNotes: false, canEditStatus: true };
+    }
+
+    // 3. Arquivados / Recusados (Tudo bloqueado)
     return { canEditTitle: false, canEditClient: false, canEditItems: false, canEditFinancials: false, canEditNotes: false, canEditStatus: false };
   }, [budget.status]);
 
