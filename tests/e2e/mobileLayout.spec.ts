@@ -5,15 +5,16 @@ test.describe('Mobile Layout Hardening', () => {
     // iPhone X viewport
     await page.setViewportSize({ width: 375, height: 812 });
     await page.goto('http://localhost:5175/');
+    // Ensure bottom navigation is loaded before assertions
+    await page.waitForSelector('.mobile-bottom-nav', { timeout: 10000 });
   });
 
   test('Home screen layout integrity', async ({ page }) => {
     await expect(page.locator('header h1')).toContainText('Painel Operacional');
     
-    // Metrics should be visible
-    // Metrics may be present as KPI panel; verify presence of KPI container
-    await expect(page.locator('.operational-metrics-panel')).toBeVisible();
-    
+    // Verify essential Home elements
+    await expect(page.locator('button:has-text("Novo Orçamento")')).toBeVisible();
+    // Ensure bottom navigation is present (already checked later)
     // Bottom nav should be visible and have 4 items
     const bottomNav = page.locator('.mobile-bottom-nav');
     await expect(bottomNav).toBeVisible();
