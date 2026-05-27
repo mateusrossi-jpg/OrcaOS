@@ -1,11 +1,12 @@
 import { safeJsonParse } from '../../../core/runtime/safeGuards';
+import { db } from '../../../storage/dexieDatabase';
 
 export interface AferixLocalBackup {
   app: string;
-  version: 1;
+  version: 2;
   exportedAt: string;
-  source: 'localStorage';
-  keys: Record<string, string>;
+  source: 'dexie';
+  tables: Record<string, unknown[]>;
 }
 
 export interface AferixBackupSummary {
@@ -20,43 +21,23 @@ export interface AferixBackupDataSummaryItem {
   count: number;
 }
 
-// LEGACY: Old OrcaOS prefix kept to allow users to restore backups from previous versions.
-const ORCA_PREFIX = 'orcaos';
-const AFERIX_PREFIX = 'aferix';
 const LEGACY_APP_MARKER = 'Or\u00e7aOS';
 
-function parseJsonValue(value: string | undefined): unknown {
-  return safeJsonParse<unknown>(value, null);
-}
-
-function countArrayValue(value: string | undefined): number {
-  const parsedValue = parseJsonValue(value);
-  return Array.isArray(parsedValue) ? parsedValue.length : 0;
-}
-
-function countPresentValue(value: string | undefined): number {
-  return value ? 1 : 0;
-}
-
-export function collectAferixLocalBackup(): AferixLocalBackup {
-  const keys: Record<string, string> = {};
-
+export async function collectAferixLocalBackup(): Promise<AferixLocalBackup> {
+  const tablesData: Record<string, unknown[]> = {};
+  
   if (typeof window !== 'undefined') {
-    for (let index = 0; index < window.localStorage.length; index += 1) {
-      const key = window.localStorage.key(index);
-      if (key?.startsWith(ORCA_PREFIX) || key?.startsWith(AFERIX_PREFIX)) {
-        const value = window.localStorage.getItem(key);
-        if (value !== null) keys[key] = value;
-      }
+    for (const table of db.tables) {
+      tablesData[table.name] = await table.toArray();
     }
   }
 
   return {
     app: 'Aferix',
-    version: 1,
+    version: 2,
     exportedAt: new Date().toISOString(),
-    source: 'localStorage',
-    keys,
+    source: 'dexie',
+    tables: tablesData,
   };
 }
 
@@ -67,7 +48,7 @@ export function stringifyAferixBackup(backup: AferixLocalBackup): string {
 export function summarizeAferixBackup(backup: AferixLocalBackup): AferixBackupSummary {
   const serialized = stringifyAferixBackup(backup);
   return {
-    keyCount: Object.keys(backup.keys).length,
+    keyCount: Object.keys(backup.tables || {}).length,
     estimatedSizeKb: Math.max(1, Math.ceil(new Blob([serialized]).size / 1024)),
     exportedAt: backup.exportedAt,
     version: backup.version,
@@ -75,55 +56,17 @@ export function summarizeAferixBackup(backup: AferixLocalBackup): AferixBackupSu
 }
 
 export function summarizeAferixBackupData(backup: AferixLocalBackup): AferixBackupDataSummaryItem[] {
-  const keys = backup.keys;
-  const catalogCount = countArrayValue(keys['orcaos:catalog-hub-items:v1']) + countArrayValue(keys['orcaos:catalog-items:v1']);
-  const supplierCount = countArrayValue(keys['orcaos:catalog-suppliers:v1']) + countArrayValue(keys['orcaos:supplier-profiles:v1']);
-  const surveyCount = countArrayValue(keys['orcaos:calculation-captures:v1']) + countArrayValue(keys['orcaos:guided-rooms:v1']) + countArrayValue(keys['orcaos:guided-labor-templates:v1']);
-  const settingsCount = countPresentValue(keys['orcaos:access-lock:v1']) + countPresentValue(keys['orcaos:purchase-tax-records:v1']) + countPresentValue(keys['orcaos.hasSeenFirstOpenIntro.v1']);
-  const profileCount = countPresentValue(keys['orcaos:business-profile:v1']) + countPresentValue(keys['orcaos:professional-profile:v1']);
-  const accountCount = countPresentValue(keys['aferix:account-plan:v1']) + countPresentValue(keys['orcaos:user-plan']) + countPresentValue(keys['orcaos:installation-id:v1']);
-  const financeCount = countArrayValue(keys['orcaos:simple-finance-records:v1']);
-  const draftCount = countPresentValue(keys['orcaos:budget-draft:v1']);
-
-  const mappedKeys = [
-    'orcaos:clients:v1',
-    'orcaos:work-orders:v1',
-    'orcaos:saved-budgets:v1',
-    'orcaos:catalog-hub-items:v1',
-    'orcaos:catalog-items:v1',
-    'orcaos:catalog-suppliers:v1',
-    'orcaos:supplier-profiles:v1',
-    'orcaos:calculation-captures:v1',
-    'orcaos:guided-rooms:v1',
-    'orcaos:guided-labor-templates:v1',
-    'orcaos:access-lock:v1',
-    'orcaos:purchase-tax-records:v1',
-    'orcaos.hasSeenFirstOpenIntro.v1',
-    'orcaos.hasSeenFirstOpenIntro',
-    'orcaos:business-profile:v1',
-    'orcaos:professional-profile:v1',
-    'aferix:account-plan:v1',
-    'orcaos:user-plan',
-    'orcaos:installation-id:v1',
-    'orcaos:simple-finance-records:v1',
-    'orcaos:budget-draft:v1',
-  ];
-
-  const otherCount = Object.keys(keys).filter((key) => !mappedKeys.includes(key)).length;
-
+  const tables = backup.tables || {};
+  
   return [
-    { label: 'Clientes', count: countArrayValue(keys['orcaos:clients:v1']) },
-    { label: 'Execução / Work', count: countArrayValue(keys['orcaos:work-orders:v1']) },
-    { label: 'Orçamentos', count: countArrayValue(keys['orcaos:saved-budgets:v1']) },
-    { label: 'Financeiro / Money', count: financeCount },
-    { label: 'Catálogo / Base', count: catalogCount },
-    { label: 'Fornecedores', count: supplierCount },
-    { label: 'Configurações', count: settingsCount },
-    { label: 'Diagnósticos / Pulse', count: surveyCount },
-    { label: 'Perfil profissional', count: profileCount },
-    { label: 'Conta e Licença', count: accountCount },
-    { label: 'Rascunhos ativos', count: draftCount },
-    { label: 'Outros dados', count: otherCount },
+    { label: 'Orçamentos', count: tables['budgets']?.length || 0 },
+    { label: 'Clientes', count: tables['clients']?.length || 0 },
+    { label: 'Histórico Operacional (OS)', count: tables['workOrders']?.length || 0 },
+    { label: 'Eventos (Timeline)', count: tables['operationalEvents']?.length || 0 },
+    { label: 'Lançamentos Financeiros', count: tables['simpleFinanceRecords']?.length || 0 },
+    { label: 'Catálogo (Serviços/Itens)', count: tables['catalog']?.length || 0 },
+    { label: 'Propostas de Clientes', count: tables['clientProposals']?.length || 0 },
+    { label: 'Tabelas Extras (Settings/Misc)', count: Object.keys(tables).filter(t => !['budgets', 'clients', 'workOrders', 'operationalEvents', 'simpleFinanceRecords', 'catalog', 'clientProposals'].includes(t)).length }
   ];
 }
 
@@ -133,43 +76,46 @@ export function parseAferixBackup(value: string): AferixLocalBackup {
   if (!parsed || typeof parsed !== 'object') throw new Error('Arquivo de backup inválido ou JSON corrompido.');
 
   const backup = parsed;
-  if (backup.app !== 'Aferix' && backup.app !== LEGACY_APP_MARKER) throw new Error('Este arquivo não parece ser um backup do Aferix.');
-  if (backup.version !== 1) throw new Error('Versão de backup não suportada.');
-  if (!backup.keys || typeof backup.keys !== 'object') throw new Error('Backup sem dados restauráveis.');
+  if (backup.app !== 'Aferix' && backup.app !== LEGACY_APP_MARKER) throw new Error('Este arquivo não parece ser um backup válido do Aferix.');
+  // Backwards compatibility with version 1 (localStorage)
+  if ((backup as Record<string, unknown>).version === 1) {
+      throw new Error('Backup versão 1 (localStorage) detectado. O sistema agora usa banco de dados Dexie (v2). Atualize o app antigo primeiro, migre os dados e gere um novo backup.');
+  }
 
-  const safeKeys: Record<string, string> = {};
-  Object.entries(backup.keys).forEach(([key, itemValue]) => {
-    if ((key.startsWith(ORCA_PREFIX) || key.startsWith(AFERIX_PREFIX)) && typeof itemValue === 'string') {
-      safeKeys[key] = itemValue;
-    }
-  });
+  if (backup.version !== 2) throw new Error('Versão de backup não suportada.');
+
+  if (!backup.tables || typeof backup.tables !== 'object') throw new Error('Backup sem tabelas restauráveis.');
 
   return {
     app: 'Aferix',
-    version: 1,
+    version: 2,
     exportedAt: backup.exportedAt || new Date().toISOString(),
-    source: 'localStorage',
-    keys: safeKeys,
+    source: 'dexie',
+    tables: backup.tables,
   };
 }
 
-export function restoreAferixBackup(backup: AferixLocalBackup, mode: 'merge' | 'replace'): number {
+export async function restoreAferixBackup(backup: AferixLocalBackup, mode: 'merge' | 'replace'): Promise<number> {
   if (typeof window === 'undefined') return 0;
+  
+  let restoredCount = 0;
 
-  if (mode === 'replace') {
-    const keysToRemove: string[] = [];
-    for (let index = 0; index < window.localStorage.length; index += 1) {
-      const key = window.localStorage.key(index);
-      if (key?.startsWith(ORCA_PREFIX) || key?.startsWith(AFERIX_PREFIX)) keysToRemove.push(key);
+  await db.transaction('rw', db.tables, async () => {
+    if (mode === 'replace') {
+      for (const table of db.tables) {
+        await table.clear();
+      }
     }
-    keysToRemove.forEach((key) => window.localStorage.removeItem(key));
-  }
 
-  Object.entries(backup.keys).forEach(([key, value]) => {
-    if (key.startsWith(ORCA_PREFIX) || key.startsWith(AFERIX_PREFIX)) window.localStorage.setItem(key, value);
+    for (const [tableName, records] of Object.entries(backup.tables)) {
+      if (db.tables.find(t => t.name === tableName)) {
+        await db.table(tableName).bulkPut(records);
+        restoredCount++;
+      }
+    }
   });
 
-  return Object.keys(backup.keys).length;
+  return restoredCount;
 }
 
 export function downloadBackupFile(filename: string, content: string): void {

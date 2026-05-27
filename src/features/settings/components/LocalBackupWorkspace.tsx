@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 // eslint-disable-next-line no-restricted-imports -- TODO: Refactor legacy storage access
 import {
   collectAferixLocalBackup,
@@ -10,6 +10,8 @@ import {
   summarizeAferixBackup,
   summarizeAferixBackupData,
   type AferixLocalBackup,
+  type AferixBackupSummary,
+  type AferixBackupDataSummaryItem
 } from '../storage/localBackup';
 import { Button, Select } from '../../../app/components/ui';
 import { AppSecurityPanel } from './AppSecurityPanel';
@@ -24,18 +26,39 @@ export function LocalBackupWorkspace({ includeLinkedSettings = true }: { include
   const [importPreview, setImportPreview] = useState<AferixLocalBackup | null>(null);
   const [replaceConfirmation, setReplaceConfirmation] = useState('');
   const [canReload, setCanReload] = useState(false);
-  const currentBackup = useMemo(() => collectAferixLocalBackup(), []);
-  const summary = summarizeAferixBackup(currentBackup);
-  const currentDataSummary = summarizeAferixBackupData(currentBackup);
+  
+  const [summary, setSummary] = useState<AferixBackupSummary | null>(null);
+  const [currentDataSummary, setCurrentDataSummary] = useState<AferixBackupDataSummaryItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadCurrentData() {
+      try {
+        const backup = await collectAferixLocalBackup();
+        setSummary(summarizeAferixBackup(backup));
+        setCurrentDataSummary(summarizeAferixBackupData(backup));
+      } catch (err) {
+        console.error('Failed to load backup summary:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    loadCurrentData();
+  }, []);
+
   const importDataSummary = importPreview ? summarizeAferixBackupData(importPreview) : [];
 
-  function refreshBackupText() {
-    setBackupText(stringifyAferixBackup(collectAferixLocalBackup()));
+  async function refreshBackupText() {
+    setFeedback('Gerando backup...');
+    const backup = await collectAferixLocalBackup();
+    setBackupText(stringifyAferixBackup(backup));
     setFeedback('Backup gerado na caixa de texto.');
   }
 
   async function copyBackup() {
-    const text = stringifyAferixBackup(collectAferixLocalBackup());
+    setFeedback('Copiando...');
+    const backup = await collectAferixLocalBackup();
+    const text = stringifyAferixBackup(backup);
     setBackupText(text);
     try {
       await navigator.clipboard.writeText(text);
@@ -45,8 +68,10 @@ export function LocalBackupWorkspace({ includeLinkedSettings = true }: { include
     }
   }
 
-  function downloadBackup() {
-    const text = stringifyAferixBackup(collectAferixLocalBackup());
+  async function downloadBackup() {
+    setFeedback('Preparando arquivo...');
+    const backup = await collectAferixLocalBackup();
+    const text = stringifyAferixBackup(backup);
     downloadBackupFile(createBackupFilename(), text);
     setBackupText(text);
     setFeedback('Arquivo de backup gerado para download.');
@@ -58,22 +83,23 @@ export function LocalBackupWorkspace({ includeLinkedSettings = true }: { include
       setImportPreview(parsed);
       const importedSummary = summarizeAferixBackup(parsed);
       setCanReload(false);
-      setFeedback(`Backup válido: ${importedSummary.keyCount} grupo(s) de dados, aproximadamente ${importedSummary.estimatedSizeKb} KB.`);
+      setFeedback(`Backup válido: ${importedSummary.keyCount} tabelas, aproximadamente ${importedSummary.estimatedSizeKb} KB.`);
     } catch (error) {
       setImportPreview(null);
       setFeedback(error instanceof Error ? error.message : 'Falha ao ler o backup.');
     }
   }
 
-  function restoreImport() {
+  async function restoreImport() {
     try {
+      setFeedback('Restaurando backup...');
       const parsed = importPreview ?? parseAferixBackup(backupText);
       if (restoreMode === 'replace' && replaceConfirmation.trim() !== 'SUBSTITUIR') {
         setFeedback('Isso substituirá os dados locais do Aferix neste navegador. Digite SUBSTITUIR para confirmar.');
         return;
       }
-      const restoredCount = restoreAferixBackup(parsed, restoreMode);
-      setFeedback(`${restoredCount} grupo(s) restaurado(s). Recarregue o app para garantir que todas as telas leiam os dados atualizados.`);
+      const restoredCount = await restoreAferixBackup(parsed, restoreMode);
+      setFeedback(`${restoredCount} tabelas restauradas. Recarregue o app para garantir que todas as telas leiam os dados atualizados.`);
       setImportPreview(parsed);
       setCanReload(true);
     } catch (error) {
@@ -94,13 +120,17 @@ export function LocalBackupWorkspace({ includeLinkedSettings = true }: { include
       try {
         const parsed = parseAferixBackup(result);
         setImportPreview(parsed);
-        setFeedback(`Arquivo carregado: ${Object.keys(parsed.keys).length} grupo(s) de dados encontrados.`);
+        setFeedback(`Arquivo carregado: ${Object.keys(parsed.tables).length} tabelas encontradas.`);
       } catch (error) {
         setImportPreview(null);
         setFeedback(error instanceof Error ? error.message : 'Arquivo inválido.');
       }
     };
     reader.readAsText(file);
+  }
+
+  if (isLoading) {
+    return <div className="aferix-panel-card"><p>Carregando sistema de backup...</p></div>;
   }
 
   return (
@@ -120,7 +150,7 @@ export function LocalBackupWorkspace({ includeLinkedSettings = true }: { include
             <span className="aferix-kicker">Segurança</span>
             <h2>Exportar e Restaurar</h2>
             <p>Salve uma cópia local dos seus dados antes de trocar de dispositivo.</p>
-            <small>{summary.keyCount} grupo(s) locais, aproximadamente {summary.estimatedSizeKb} KB.</small>
+            <small>{summary?.keyCount || 0} tabelas locais, aproximadamente {summary?.estimatedSizeKb || 0} KB.</small>
           </div>
         </header>
       </div>
@@ -168,7 +198,6 @@ export function LocalBackupWorkspace({ includeLinkedSettings = true }: { include
         </div>
       </div>
 
-
       <div className="aferix-panel-card">
         <header><div><h2>Ferramentas Avançadas</h2></div></header>
         <div className="local-backup-advanced-body">
@@ -180,13 +209,10 @@ export function LocalBackupWorkspace({ includeLinkedSettings = true }: { include
           {importPreview && (
             <div className="local-backup-preview">
               <strong>Prévia do backup</strong>
-              <small>Exportado em: {new Date(importPreview.exportedAt).toLocaleString('pt-BR')} · {Object.keys(importPreview.keys).length} grupo(s)</small>
+              <small>Exportado em: {new Date(importPreview.exportedAt).toLocaleString('pt-BR')} · {Object.keys(importPreview.tables).length} tabelas</small>
               <div className="local-backup-summary-grid">
                 {importDataSummary.map((item) => <span key={item.label}>{item.label}: <strong>{item.count}</strong></span>)}
               </div>
-              <ul>
-                {Object.keys(importPreview.keys).slice(0, 12).map((key) => <li key={key}>{key}</li>)}
-              </ul>
             </div>
           )}
 

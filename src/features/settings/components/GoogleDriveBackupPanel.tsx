@@ -63,7 +63,7 @@ export function GoogleDriveBackupPanel() {
     setIsBusy(true);
     try {
       const token = await ensureToken();
-      const localBackup = collectAferixLocalBackup();
+      const localBackup = await collectAferixLocalBackup();
       const summary = summarizeAferixBackup(localBackup);
       const saved = await saveBackupToGoogleDrive(token, localBackup);
       setDriveBackup(saved);

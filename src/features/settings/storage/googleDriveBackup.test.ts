@@ -27,11 +27,11 @@ function textResponse(value: string, ok = true, status = 200): Response {
 
 const backup: AferixLocalBackup = {
   app: 'Aferix',
-  version: 1,
+  version: 2,
   exportedAt: '2026-05-02T00:00:00.000Z',
-  source: 'localStorage',
-  keys: {
-    'orcaos:clients:v1': '[{"id":"c1","name":"Cliente"}]',
+  source: 'dexie',
+  tables: {
+    'clients': [{ "id": "c1", "name": "Cliente" }],
   },
 };
 
@@ -84,7 +84,7 @@ describe('google drive backup storage', () => {
 
     const loaded = await loadBackupFromGoogleDrive('token');
 
-    expect(loaded.keys).toEqual(backup.keys);
+    expect(loaded.tables).toEqual(backup.tables);
     expect(fetchMock).toHaveBeenNthCalledWith(
       2,
       'https://www.googleapis.com/drive/v3/files/file-1?alt=media',
@@ -111,7 +111,7 @@ describe('google drive backup storage', () => {
     expect(fetchMock.mock.calls[1][0]).toContain('/upload/drive/v3/files?uploadType=multipart');
     expect(uploadInit.method).toBe('POST');
     expect(String(uploadInit.body)).toContain('"parents":["appDataFolder"]');
-    expect(String(uploadInit.body)).toContain('"orcaos:clients:v1"');
+    expect(String(uploadInit.body)).toContain('"clients"');
   });
 
   it('updates an existing Drive backup file', async () => {
