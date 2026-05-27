@@ -142,13 +142,13 @@ export const ListItem = memo(function ListItem({
     >
       <div className="client-col">
         <strong>{title}</strong>
-        {context && <small>{context}</small>}
+        {context && <small className="client-meta">{context}</small>}
       </div>
       <div className="value-col">
-        {status && <div className="status-wrapper">{status}</div>}
         {value && <div className="value-wrapper">{value}</div>}
-        {action && <div className="action-wrapper">{action}</div>}
       </div>
+      {status && <div className="status-wrapper">{status}</div>}
+      {action && <div className="action-wrapper">{action}</div>}
     </article>
   );
 });

@@ -117,8 +117,10 @@ export function MenuScreen({ account, onNavigate }: MenuScreenProps) {
               type="button"
               onClick={item.onClick}
             >
-              <span className="utility-item-title">{item.title}</span>
-              {'context' in item && <span className="utility-meta">{item.context}</span>}
+              <div className="menu-utility-content">
+                <span className="utility-item-title">{item.title}</span>
+                {'context' in item && <span className="utility-meta">{item.context}</span>}
+              </div>
               <span className="row-arrow">›</span>
             </button>
           ))}

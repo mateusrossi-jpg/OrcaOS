@@ -16,7 +16,7 @@
 
 html, body, #root {
   width: 100%;
-  max-width: 100%;
+  max-width: 100vw;
   min-height: 100vh;
   min-height: 100dvh;
   margin: 0;
@@ -25,6 +25,11 @@ html, body, #root {
   display: flex;
   flex-direction: column;
   background: var(--aferix-bg, #000000);
+  box-sizing: border-box;
+}
+
+*, *:before, *:after {
+  box-sizing: border-box;
 }
 
 /* Force all cards and containers to grow with content */

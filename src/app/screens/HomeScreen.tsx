@@ -165,14 +165,17 @@ export function HomeScreen({ onNavigate, onSelectBudget }: HomeScreenProps) {
 
         .compact-metric-grid {
           display: grid !important;
-          grid-template-columns: repeat(3, 1fr) !important;
-          gap: 8px !important;
+          grid-template-columns: repeat(2, 1fr) !important;
+          gap: 10px !important;
         }
         
-        @media (max-width: 600px) {
+        @media (max-width: 480px) {
           .compact-metric-grid {
-            grid-template-columns: 1fr !important;
-            gap: 10px !important;
+            grid-template-columns: repeat(2, 1fr) !important;
+          }
+          /* Lucro can take full width if it's the 3rd item */
+          .compact-metric-grid > article:last-child {
+            grid-column: 1 / -1;
           }
         }
 
@@ -181,9 +184,13 @@ export function HomeScreen({ onNavigate, onSelectBudget }: HomeScreenProps) {
           flex-direction: column;
           gap: 12px;
           min-width: 0;
+          width: 100%;
         }
 
         @media (min-width: 769px) {
+          .compact-metric-grid {
+            grid-template-columns: repeat(3, 1fr) !important;
+          }
           .home-dashboard-layout {
             display: grid;
             grid-template-columns: 1fr;

@@ -165,10 +165,13 @@
   display: flex;
   overflow-x: auto;
   gap: 10px;
-  padding-bottom: 8px;
+  padding: 4px 0 12px;
   scrollbar-width: none;
   -ms-overflow-style: none;
   -webkit-overflow-scrolling: touch;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .catalog-kind-summary::-webkit-scrollbar {
@@ -177,21 +180,34 @@
 
 .catalog-kind-summary button {
   flex: 0 0 auto;
-  min-width: 100px;
-}
-
-.catalog-kind-summary button {
+  min-width: 120px;
   display: grid;
   gap: 4px;
-  min-width: 0;
   border: 1px solid var(--aferix-border);
   border-radius: var(--aferix-radius-sm, 8px);
-  padding: 10px;
+  padding: 12px;
   color: var(--aferix-text-muted);
   background: var(--aferix-bg-soft);
   font: inherit;
   text-align: left;
   cursor: pointer;
+}
+
+@media (max-width: 760px) {
+  .catalog-hub-workspace {
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+  }
+  
+  .catalog-hub-header,
+  .catalog-list-heading,
+  .catalog-search-bar,
+  .catalog-new-item-action {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
 }
 
 .catalog-kind-summary button.active {

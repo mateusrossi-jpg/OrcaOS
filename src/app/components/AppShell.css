@@ -286,7 +286,9 @@ html, body, #root {
   }
 
   .content-container {
-    padding: 16px 16px 90px;
+    padding: 0;
+    width: 100%;
+    max-width: 100%;
   }
 
   .drawer-close-button {
