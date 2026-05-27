@@ -95,7 +95,7 @@ export const BudgetForm: React.FC<BudgetFormProps> = ({ id, onBack }) => {
         {/* 2. Dados Básicos */}
         <PanelCard className="aferix-d-flex aferix-flex-column aferix-gap-sm" style={{ padding: '12px' }}>
           <Input
-            label="Título do Orçamento"
+            label="Título do Projeto"
             value={budget.title}
             onChange={(e) => updateField('title', e.target.value)}
             disabled={!permissions.canEditTitle}
@@ -131,7 +131,7 @@ export const BudgetForm: React.FC<BudgetFormProps> = ({ id, onBack }) => {
 
         {/* 3. Custos Operacionais */}
         <div className="aferix-costs-section">
-          <SectionTitle title="Custos da Operação" />
+          <SectionTitle title="Custos e Deduções" />
           <PanelCard className="aferix-d-flex aferix-flex-column aferix-gap-sm" style={{ padding: '12px' }}>
             <div className="aferix-form-grid" style={{ gridTemplateColumns: '1fr 1fr' }}>
               <MonetaryInput
@@ -230,11 +230,10 @@ export const BudgetForm: React.FC<BudgetFormProps> = ({ id, onBack }) => {
           {budget.status === BUDGET_STATUS.EM_EXECUCAO && (
             <>
               <PrimaryButton onClick={requestFinalize} disabled={isSaving}>
-                Finalizar Trabalho
+                Finalizar Orçamento
               </PrimaryButton>
             </>
           )}
-
           {budget.status === BUDGET_STATUS.FINALIZADO && (
             <>
               <SecondaryButton onClick={archiveBudget} disabled={isSaving}>

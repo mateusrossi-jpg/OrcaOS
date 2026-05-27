@@ -220,3 +220,29 @@ input[type='number'] {
   -moz-appearance: textfield;
   appearance: textfield;
 }
+
+/* Settings and Tab navigation rules (P97 stabilization) */
+.settings-section-tabs {
+  display: flex;
+  overflow-x: auto;
+  flex-wrap: nowrap;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  gap: 8px;
+  padding: 4px 0;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--aferix-border);
+}
+
+.settings-section-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+@media (min-width: 900px) {
+  .settings-section-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 16px;
+  }
+}
+
