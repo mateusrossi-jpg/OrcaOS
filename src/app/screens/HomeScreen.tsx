@@ -127,11 +127,6 @@ export function HomeScreen({ onNavigate, onSelectBudget }: HomeScreenProps) {
           <div className="home-recent-activity">
             <SectionTitle 
               title="Últimos orçamentos" 
-              action={
-                <button className="ghost-action" onClick={() => onNavigate('work-history')}>
-                  Ver todos
-                </button>
-              }
             />
             <ListCard>
               {recentBudgets.map((budget) => (

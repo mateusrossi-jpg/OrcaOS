@@ -1,7 +1,7 @@
 import { useEffect, useState, memo, type ReactNode } from 'react';
 import type { Client, Service as WorkOrder } from '../../core/types/business';
 import './AppShell.css';
-import type { AppNavItem, AppTab, AppIconGlyph } from '../appTypes';
+import type { AppTab, AppIconGlyph } from '../appTypes';
 import { ERPNotificationCenter } from '../../ui/system';
 
 const AFERIX_WORDMARK = '/icons/aferix-wordmark-premium.svg';
@@ -10,7 +10,6 @@ const AFERIX_WORDMARK = '/icons/aferix-wordmark-premium.svg';
 interface AppShellProps {
   children: ReactNode;
   activeTab: AppTab;
-  navItems: AppNavItem[];
   onNavigate: (id: AppTab) => void;
   activeClient: Client | null;
   activeWorkOrder: WorkOrder | null;
@@ -26,15 +25,13 @@ function NavGlyphRaw({ path }: { path: string }) {
 
 const NavGlyph = memo(NavGlyphRaw);
 
-export function AppShell({ children, activeTab, navItems, onNavigate, activeClient }: AppShellProps) {
+export function AppShell({ children, activeTab, onNavigate, activeClient }: AppShellProps) {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [isBaseGroupOpen, setIsBaseGroupOpen] = useState(false);
 
   useEffect(() => {
     setIsSidebarCollapsed(true);
     setIsDrawerOpen(false);
-    setIsBaseGroupOpen(false);
   }, [activeTab]);
 
   useEffect(() => {
@@ -42,27 +39,11 @@ export function AppShell({ children, activeTab, navItems, onNavigate, activeClie
       if (!(e.target as Element).closest('.app-sidebar, .mobile-top-bar')) {
         setIsDrawerOpen(false);
         setIsSidebarCollapsed(true);
-        setIsBaseGroupOpen(false);
       }
     }
     document.addEventListener('pointerdown', handlePointerDown);
     return () => document.removeEventListener('pointerdown', handlePointerDown);
   }, []);
-
-  const mainNavItems = navItems.filter((item) => item.id !== 'settings' && item.id !== 'store');
-
-  const pulseItem = mainNavItems.find((item) => item.id === 'pulse');
-  const workItem = mainNavItems.find((item) => item.id === 'work-history');
-  const moneyItem = mainNavItems.find((item) => item.id === 'money');
-  const baseItem = mainNavItems.find((item) => item.id === 'base');
-
-  const baseSubItems: Array<{ id: AppTab; label: string; description?: string; icon: AppIconGlyph }> = [
-    { id: 'base', label: 'Clientes', icon: 'clients' },
-    { id: 'catalog', label: 'Catálogo', icon: 'document' },
-    { id: 'reports', label: 'Relatórios', icon: 'chart' },
-    { id: 'settings', label: 'Configurações', icon: 'settings' },
-    { id: 'store', label: 'Licença Pro', icon: 'store' }
-  ];
 
   const baseActive =
     activeTab === 'base' ||
@@ -76,7 +57,7 @@ export function AppShell({ children, activeTab, navItems, onNavigate, activeClie
     { id: 'pulse', label: 'Resumo', icon: 'home' as AppIconGlyph },
     { id: 'work-history', label: 'Operação', icon: 'document' as AppIconGlyph },
     { id: 'money', label: 'Financeiro', icon: 'finance' as AppIconGlyph },
-    { id: 'settings', label: 'Mais', icon: 'clients' as AppIconGlyph },
+    { id: 'settings', label: 'Mais', icon: 'settings' as AppIconGlyph },
   ];
 
   const iconMap: Record<AppIconGlyph, ReactNode> = {
@@ -97,13 +78,7 @@ export function AppShell({ children, activeTab, navItems, onNavigate, activeClie
           type="button"
           aria-label="Abrir menu"
           onClick={() => {
-            setIsSidebarCollapsed((current) => {
-              const nextCollapsed = !current;
-              if (!nextCollapsed) {
-                setIsBaseGroupOpen(false);
-              }
-              return nextCollapsed;
-            });
+            setIsSidebarCollapsed((current) => !current);
             setIsDrawerOpen((current) => !current);
           }}
           onKeyDown={(e) => {
@@ -131,7 +106,6 @@ export function AppShell({ children, activeTab, navItems, onNavigate, activeClie
           onClick={() => {
             setIsSidebarCollapsed(true);
             setIsDrawerOpen(false);
-            setIsBaseGroupOpen(false);
           }}
           aria-hidden="true"
         />
@@ -149,7 +123,6 @@ export function AppShell({ children, activeTab, navItems, onNavigate, activeClie
             onClick={() => {
               setIsSidebarCollapsed(true);
               setIsDrawerOpen(false);
-                setIsBaseGroupOpen(false);
             }}
           >
             ✕
@@ -158,86 +131,38 @@ export function AppShell({ children, activeTab, navItems, onNavigate, activeClie
 
         <nav className="sidebar-nav desktop-sidebar-nav">
           <div className="nav-section">
-            <span className="nav-section-title">Navegação</span>
+            <span className="nav-section-title">Sistema</span>
             <div className="nav-items-stack">
-              {pulseItem && (
-                <button
-                  className={`nav-item ${activeTab === 'pulse' ? 'active' : ''}`}
-                  onClick={() => onNavigate(pulseItem.id)}
-                >
-                  <span className={`nav-icon icon-${pulseItem.icon}`}>{iconMap[pulseItem.icon]}</span>
-                  <strong className="nav-label">{pulseItem.label}</strong>
-                  {activeTab === 'pulse' && <span className="active-indicator" />}
-                </button>
-              )}
-
-              {workItem && (
-                <button
-                  className={`nav-item ${activeTab === 'work-history' || activeTab === 'budgets' || activeTab === 'new-budget' ? 'active' : ''}`}
-                  onClick={() => onNavigate('work-history')}
-                >
-                  <span className={`nav-icon icon-${workItem.icon}`}>{iconMap[workItem.icon]}</span>
-                  <strong className="nav-label">Operacional</strong>
-                  {(activeTab === 'work-history' || activeTab === 'budgets' || activeTab === 'new-budget') && <span className="active-indicator" />}
-                </button>
-              )}
-
-              {moneyItem && (
-                <button
-                  className={`nav-item ${activeTab === 'money' ? 'active' : ''}`}
-                  onClick={() => onNavigate(moneyItem.id)}
-                >
-                  <span className={`nav-icon icon-${moneyItem.icon}`}>{iconMap[moneyItem.icon]}</span>
-                  <strong className="nav-label">{moneyItem.label}</strong>
-                  {activeTab === 'money' && <span className="active-indicator" />}
-                </button>
-              )}
-
               <button
-                className={`nav-item ${activeTab === 'reports' ? 'active' : ''}`}
-                onClick={() => onNavigate('reports')}
+                className={`nav-item ${activeTab === 'settings' ? 'active' : ''}`}
+                onClick={() => onNavigate('settings')}
               >
-                <span className="nav-icon icon-chart">{iconMap['chart']}</span>
-                <strong className="nav-label">Relatórios</strong>
-                {activeTab === 'reports' && <span className="active-indicator" />}
+                <span className="nav-icon icon-settings">{iconMap['settings']}</span>
+                <strong className="nav-label">Configurações</strong>
+                {activeTab === 'settings' && <span className="active-indicator" />}
               </button>
 
-              {baseItem && (
-                <div className={`nav-group ${baseActive && activeTab !== 'reports' ? 'active' : ''}`}>
-                  <button
-                    type="button"
-                    className={`nav-item nav-parent ${baseActive && activeTab !== 'reports' ? 'active' : ''}`}
-                    onClick={() => {
-                      if (!baseActive || activeTab === 'reports') {
-                        onNavigate('base');
-                      }
-                      setIsBaseGroupOpen((current) => !current);
-                    }}
-                  >
-                    <span className={`nav-icon icon-${baseItem.icon}`}>{iconMap[baseItem.icon]}</span>
-                    <strong className="nav-label">Mais</strong>
-                    <span className={`nav-group-caret ${isBaseGroupOpen ? 'open' : ''}`}>▾</span>
-                    {baseActive && activeTab !== 'reports' && <span className="active-indicator" />}
-                  </button>
-
-                  {isBaseGroupOpen && (
-                    <div className="nav-subitems">
-                      {baseSubItems.filter(i => i.id !== 'reports').map((item) => (
-                        <button
-                          key={item.id}
-                          type="button"
-                          className={`nav-subitem ${activeTab === item.id ? 'active' : ''}`}
-                          onClick={() => {
-                            onNavigate(item.id);
-                          }}
-                        >
-                          {item.label}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
+              <button
+                className={`nav-item ${activeTab === 'store' ? 'active' : ''}`}
+                onClick={() => onNavigate('store')}
+              >
+                <span className="nav-icon icon-store">{iconMap['store']}</span>
+                <strong className="nav-label">Licença Pro</strong>
+                {activeTab === 'store' && <span className="active-indicator" />}
+              </button>
+              
+              <div className="nav-section-divider" style={{ margin: '12px 0', borderTop: '1px solid rgba(255,255,255,0.05)' }} />
+              
+              <button
+                className="nav-item"
+                onClick={() => {
+                   // Placeholder for Logout/Exit
+                   window.location.reload();
+                }}
+              >
+                <span className="nav-icon">🚪</span>
+                <strong className="nav-label">Sair</strong>
+              </button>
             </div>
           </div>
 

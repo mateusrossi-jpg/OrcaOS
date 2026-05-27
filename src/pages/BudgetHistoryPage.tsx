@@ -12,6 +12,8 @@ import {
   PrimaryButton,
   FilterChips,
   QueueEmptyState,
+  ActionMenu,
+  SearchInput,
 } from '../app/components/ui';
 
 interface BudgetHistoryPageProps {
@@ -21,6 +23,7 @@ interface BudgetHistoryPageProps {
 
 export const BudgetHistoryPage: React.FC<BudgetHistoryPageProps> = ({ onOpenBudget, onNewBudget }) => {
   const { budgets, totalCount, isLoading, filter, setFilter, deleteBudget } = useBudgetHistory();
+  const [query, setQuery] = React.useState('');
 
   const FILTER_CHIPS = [
     { id: 'todos', label: 'Todos' },
@@ -28,8 +31,16 @@ export const BudgetHistoryPage: React.FC<BudgetHistoryPageProps> = ({ onOpenBudg
     { id: 'finalizados', label: 'Finalizados' },
   ];
 
-  const handleDelete = async (e: React.MouseEvent, id: string) => {
-    e.stopPropagation();
+  const filteredBudgets = React.useMemo(() => {
+    const normalized = query.toLowerCase().trim();
+    if (!normalized) return budgets;
+    return budgets.filter(b => 
+      (b.title?.toLowerCase() || '').includes(normalized) || 
+      (b.clientName?.toLowerCase() || '').includes(normalized)
+    );
+  }, [budgets, query]);
+
+  const handleDelete = async (id: string) => {
     if (window.confirm('Tem certeza que deseja excluir este orçamento?')) {
       await deleteBudget(id);
     }
@@ -50,32 +61,34 @@ export const BudgetHistoryPage: React.FC<BudgetHistoryPageProps> = ({ onOpenBudg
     <PageShell className="aferix-history-screen">
       <PageHeader 
         title="Histórico" 
-        sourceLabel={`${totalCount} orçamentos`}
-        action={
-          <PrimaryButton onClick={onNewBudget}>
-            + Novo
-          </PrimaryButton>
-        }
+        sourceLabel={`${totalCount} orçamentos registrados.`}
       />
 
-      <PanelCard className="history-filter-area aferix-mb-lg">
-        <FilterChips
-          items={FILTER_CHIPS}
-          active={[filter]}
-          onChange={(active) => setFilter((active[0] as HistoryFilter) || 'todos')}
-          ariaLabel="Filtrar orçamentos"
+      <PanelCard className="history-search-panel aferix-d-flex aferix-flex-column aferix-gap-sm">
+        <SearchInput
+          placeholder="Buscar título ou cliente..."
+          value={query}
+          onChange={setQuery}
         />
+        <div className="aferix-filter-chips-wrapper">
+          <FilterChips
+            items={FILTER_CHIPS}
+            active={[filter]}
+            onChange={(active) => setFilter((active[0] as HistoryFilter) || 'todos')}
+            ariaLabel="Filtrar orçamentos"
+          />
+        </div>
       </PanelCard>
 
-      {budgets.length === 0 ? (
+      {filteredBudgets.length === 0 ? (
         <QueueEmptyState
-          title="Nenhum orçamento"
-          meta={filter === 'todos' ? "Crie seu primeiro orçamento para começar." : "Nenhum orçamento encontrado para este filtro."}
-          action={filter === 'todos' ? <PrimaryButton onClick={onNewBudget}>Criar orçamento</PrimaryButton> : null}
+          title={query ? "Nenhum resultado encontrado" : "Histórico vazio"}
+          meta={query ? "Tente buscar com outros termos." : "Seus orçamentos salvos e finalizados aparecerão aqui."}
+          action={!query && filter === 'todos' ? <PrimaryButton onClick={onNewBudget}>Criar orçamento</PrimaryButton> : null}
         />
       ) : (
         <ListCard>
-          {budgets.map((budget) => (
+          {filteredBudgets.map((budget) => (
             <ListItem
               key={budget.id}
               onClick={() => onOpenBudget(budget.id)}
@@ -84,13 +97,13 @@ export const BudgetHistoryPage: React.FC<BudgetHistoryPageProps> = ({ onOpenBudg
               status={<StatusBadge status={budget.status} />}
               value={<MoneyValue value={calculateBudget(budget).totalComercial} compact />}
               action={
-                <button 
-                  className="ghost-action compact-delete-action" 
-                  onClick={(e) => handleDelete(e, budget.id)}
-                  title="Excluir"
-                >
-                  <span className="delete-icon">🗑️</span>
-                </button>
+                <ActionMenu
+                  label="Ações"
+                  items={[
+                    { id: 'open', label: 'Abrir Orçamento', onSelect: () => onOpenBudget(budget.id) },
+                    { id: 'delete', label: 'Excluir', tone: 'danger', onSelect: () => handleDelete(budget.id) },
+                  ]}
+                />
               }
             />
           ))}

@@ -121,6 +121,8 @@ export function useBudgetForm(initialBudgetId?: string | null) {
   const markAsSent = () => handleStatusChange(BUDGET_STATUS.ENVIADO);
   const markAsAuthorized = () => handleStatusChange(BUDGET_STATUS.AUTORIZADO);
   const markAsRejected = () => handleStatusChange(BUDGET_STATUS.RECUSADO);
+  const markAsExecuting = () => handleStatusChange(BUDGET_STATUS.EM_EXECUCAO);
+  const archiveBudget = () => handleStatusChange(BUDGET_STATUS.ARQUIVADO);
 
   const requestFinalize = () => setShowFinalizeModal(true);
   const cancelFinalize = () => setShowFinalizeModal(false);
@@ -149,12 +151,14 @@ export function useBudgetForm(initialBudgetId?: string | null) {
     updateField,
     preview,
     isSaving,
-    isReadOnly: budget.status === BUDGET_STATUS.FINALIZADO,
+    isReadOnly: budget.status === BUDGET_STATUS.FINALIZADO || budget.status === BUDGET_STATUS.ARQUIVADO || budget.status === BUDGET_STATUS.RECUSADO,
     showFinalizeModal,
     saveDraft,
     markAsSent,
     markAsAuthorized,
     markAsRejected,
+    markAsExecuting,
+    archiveBudget,
     requestFinalize,
     cancelFinalize,
     confirmFinalize,

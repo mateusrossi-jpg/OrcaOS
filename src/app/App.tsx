@@ -2,7 +2,6 @@ import { Suspense, useEffect, useState } from 'react';
 import type { CalculationCapture } from '../core/types/workflow';
 import { AppShell } from './components/AppShell';
 import { AferixIntro } from './components/AferixIntro';
-import { navItems } from './appData';
 import type { AppTab } from './appTypes';
 // LEGACY: Storage access replaced with Dexie migration
 import { HomeScreen } from './screens/HomeScreen';
@@ -141,7 +140,7 @@ export function App() {
     <>
       <ERPToast />
       <AferixIntro />
-      <AppShell activeTab={activeTab} navItems={navItems} activeClient={activeClient} activeWorkOrder={activeWorkOrder} onNavigate={goTo}>
+      <AppShell activeTab={activeTab} activeClient={activeClient} activeWorkOrder={activeWorkOrder} onNavigate={goTo}>
         <Suspense fallback={<LazyWorkspaceFallback />}>
           {activeTab === 'pulse' && (
             <HomeScreen

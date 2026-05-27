@@ -1,5 +1,6 @@
 import React from 'react';
 import { useBudgetForm } from '../hooks/useBudgetForm';
+import { BUDGET_STATUS } from '../domain/budget';
 import { formatCurrencyBRL, formatPercent } from '../utils/formatters';
 import { useClients } from '../hooks/useClients';
 import { Client } from '../domain/client';
@@ -36,6 +37,8 @@ export const BudgetForm: React.FC<BudgetFormProps> = ({ id, onBack }) => {
     markAsSent,
     markAsAuthorized,
     markAsRejected,
+    markAsExecuting,
+    archiveBudget,
     requestFinalize,
     cancelFinalize,
     confirmFinalize,
@@ -168,41 +171,73 @@ export const BudgetForm: React.FC<BudgetFormProps> = ({ id, onBack }) => {
           </PanelCard>
         </div>
 
-        {/* 4. Ações Operacionais */}
+        {/* 4. Ações Operacionais (State Machine) */}
         {!isReadOnly && (
           <div className="aferix-d-flex aferix-flex-column aferix-gap-md aferix-mt-lg aferix-journey-actions">
-            <PrimaryButton onClick={requestFinalize} disabled={isSaving}>
-              Finalizar e Congelar
-            </PrimaryButton>
-            
-            <div className="aferix-d-flex aferix-gap-sm">
-              <SecondaryButton className="aferix-flex-1" onClick={markAsSent} disabled={isSaving}>
-                Enviado
-              </SecondaryButton>
-              <SecondaryButton className="aferix-flex-1" onClick={markAsAuthorized} disabled={isSaving}>
-                Autorizar
-              </SecondaryButton>
-            </div>
+            {budget.status === BUDGET_STATUS.INICIADO && (
+              <>
+                <PrimaryButton onClick={markAsSent} disabled={isSaving}>
+                  Enviar para Cliente
+                </PrimaryButton>
+                <SecondaryButton onClick={saveDraft} disabled={isSaving}>
+                  {isSaving ? 'Salvando...' : 'Salvar Rascunho'}
+                </SecondaryButton>
+              </>
+            )}
 
-            <SecondaryButton onClick={saveDraft} disabled={isSaving}>
-              {isSaving ? 'Salvando...' : 'Salvar Rascunho'}
+            {budget.status === BUDGET_STATUS.ENVIADO && (
+              <>
+                <PrimaryButton onClick={markAsAuthorized} disabled={isSaving}>
+                  Autorizar Execução
+                </PrimaryButton>
+                <DangerButton onClick={markAsRejected} disabled={isSaving}>
+                  Recusar Orçamento
+                </DangerButton>
+                <SecondaryButton onClick={saveDraft} disabled={isSaving}>
+                  Atualizar Dados
+                </SecondaryButton>
+              </>
+            )}
+
+            {budget.status === BUDGET_STATUS.AUTORIZADO && (
+              <>
+                <PrimaryButton onClick={markAsExecuting} disabled={isSaving}>
+                  Iniciar Execução
+                </PrimaryButton>
+                <SecondaryButton onClick={saveDraft} disabled={isSaving}>
+                  Ajustar Orçamento
+                </SecondaryButton>
+              </>
+            )}
+
+            {budget.status === BUDGET_STATUS.EM_EXECUCAO && (
+              <>
+                <PrimaryButton onClick={requestFinalize} disabled={isSaving}>
+                  Finalizar Trabalho
+                </PrimaryButton>
+                <SecondaryButton onClick={saveDraft} disabled={isSaving}>
+                  Atualizar Custos
+                </SecondaryButton>
+              </>
+            )}
+          </div>
+        )}
+
+        {budget.status === BUDGET_STATUS.FINALIZADO && (
+          <div className="aferix-d-flex aferix-flex-column aferix-gap-md aferix-mt-lg aferix-journey-actions">
+            <SecondaryButton onClick={archiveBudget} disabled={isSaving}>
+              Arquivar Orçamento
             </SecondaryButton>
-            
-            <DangerButton onClick={markAsRejected} disabled={isSaving}>
-              Recusar Orçamento
-            </DangerButton>
           </div>
         )}
       </div>
 
-      {/* 5. Sticky Preview */}
+      {/* 5. Sticky Preview (Simplified) */}
       <div className="aferix-sticky-preview">
         <ContextBanner
           title={`Lucro: ${formatCurrencyBRL(preview?.grossProfit || 0)}`}
           meta={`Margem: ${formatPercent(preview?.marginPercent || 0)} • Custo: ${formatCurrencyBRL(preview?.totalCost || 0)}`}
           icon={<span className="nav-icon">💰</span>}
-          actionLabel={!isReadOnly ? "Finalizar" : undefined}
-          onAction={!isReadOnly ? requestFinalize : undefined}
         />
       </div>
 
