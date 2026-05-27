@@ -18,7 +18,7 @@ test.describe('Mobile Layout Hardening', () => {
     // Bottom nav should be visible and have 4 items
     const bottomNav = page.locator('.mobile-bottom-nav');
     await expect(bottomNav).toBeVisible();
-    await expect(bottomNav.locator('.bottom-nav-item')).toBeVisible();
+    await expect(bottomNav.locator('.bottom-nav-item').first()).toBeVisible();
   });
 
   test('History page list integrity', async ({ page }) => {

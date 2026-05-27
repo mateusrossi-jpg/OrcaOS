@@ -4,8 +4,14 @@ test.describe('Workflow Locking E2E', () => {
   test.beforeEach(async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 812 });
     await page.goto('http://localhost:5175/');
+    // Auto‑accept any confirmation dialogs to avoid test hangs
+    page.on('dialog', async (dialog) => {
+      console.log('PLAYWRIGHT DIALOG DETECTED:', dialog.type(), dialog.message());
+      await dialog.accept();
+    });
     await page.waitForTimeout(1000);
   });
+
 
   test('Budget workflow locking: Draft -> Sent -> Authorized', async ({ page }) => {
     // 1. Create Draft
@@ -74,7 +80,7 @@ test.describe('Workflow Locking E2E', () => {
     await page.waitForTimeout(1000);
     
     // Status should be FINALIZADO
-    await expect(page.locator('text=FINALIZADO').first()).toBeVisible();
+    await expect(page.locator('text=/finalizado/i')).toBeVisible();
     
     // Everything should be disabled
     await expect(notesInput).toBeDisabled();
