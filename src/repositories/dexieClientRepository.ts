@@ -5,22 +5,25 @@ import { createId } from '../app/utils/idHelpers';
 
 export class DexieClientRepository implements ClientRepository {
   async getAll(): Promise<Client[]> {
-    return await db.clients.toArray();
+    return await db.clients.filter(c => c.syncStatus !== 'deleted').toArray();
   }
 
   async getById(id: string): Promise<Client | undefined> {
-    return await db.clients.get(id);
+    const client = await db.clients.get(id);
+    if (client && client.syncStatus === 'deleted') return undefined;
+    return client;
   }
 
   async add(clientData: Omit<Client, 'id' | 'createdAt' | 'updatedAt'>): Promise<Client> {
-    const now = Date.now();
+    const now = new Date().toISOString();
     const client: Client = {
       ...clientData,
       id: createId('client'),
-      createdAt: new Date(now).toISOString(),
+      createdAt: now,
       updatedAt: now,
       syncStatus: 'pending',
-    } as any;
+      syncUpdatedAt: Date.now(),
+    };
     await db.clients.add(client);
     return client;
   }
@@ -28,22 +31,23 @@ export class DexieClientRepository implements ClientRepository {
   async update(client: Client): Promise<void> {
     const updatedClient = {
       ...client,
-      updatedAt: Date.now(),
+      updatedAt: new Date().toISOString(),
       syncStatus: 'pending',
-    } as any;
+      syncUpdatedAt: Date.now(),
+    } as Client;
     await db.clients.put(updatedClient);
   }
 
   async delete(id: string): Promise<void> {
     const existing = await db.clients.get(id);
     if (existing) {
-      const toSave = { ...existing, syncStatus: 'deleted', updatedAt: Date.now() } as any;
+      const toSave = { ...existing, syncStatus: 'deleted', syncUpdatedAt: Date.now(), updatedAt: new Date().toISOString() } as Client;
       await db.clients.put(toSave);
     }
   }
 
   async bulkAdd(clients: Client[]): Promise<void> {
-    const toSave = clients.map(c => ({ ...c, syncStatus: 'pending', updatedAt: Date.now() })) as any;
+    const toSave = clients.map(c => ({ ...c, syncStatus: 'pending', syncUpdatedAt: Date.now(), updatedAt: new Date().toISOString() })) as Client[];
     await db.clients.bulkAdd(toSave);
   }
 }

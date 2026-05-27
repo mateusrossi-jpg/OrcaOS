@@ -9,30 +9,32 @@ import { db } from '../storage/dexieDatabase';
 
 export class DexieBudgetRepository implements BudgetRepository {
   async createBudget(budget: Budget): Promise<void> {
-    const toSave = { ...budget, syncStatus: 'pending', updatedAt: Date.now() } as any;
+    const toSave = { ...budget, syncStatus: 'pending', syncUpdatedAt: Date.now(), updatedAt: budget.updatedAt || new Date().toISOString() } as Budget;
     await db.budgets.add(toSave);
   }
 
   async updateBudget(budget: Budget): Promise<void> {
-    const toSave = { ...budget, syncStatus: 'pending', updatedAt: Date.now() } as any;
+    const toSave = { ...budget, syncStatus: 'pending', syncUpdatedAt: Date.now(), updatedAt: new Date().toISOString() } as Budget;
     await db.budgets.put(toSave);
   }
 
   async getBudgetById(id: string): Promise<Budget | undefined> {
-    return await db.budgets.get(id);
+    const budget = await db.budgets.get(id);
+    if (budget && budget.syncStatus === 'deleted') return undefined;
+    return budget;
   }
 
   async listBudgets(): Promise<Budget[]> {
     // Dexie's toArray() returns elements in primary key order (or insertion order).
     // We sort in memory to guarantee newest first by createdAt.
-    const all = await db.budgets.toArray();
+    const all = await db.budgets.filter(b => b.syncStatus !== 'deleted').toArray();
     return all.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   }
 
   async listFinalizedByMonth(year: number, month: number): Promise<Budget[]> {
     // Fetch all finalized budgets and filter in memory by the finalizedAt month.
     // A more advanced index strategy could be used, but this is simple and robust for the MVP.
-    const finalized = await db.budgets.where('status').equals(BUDGET_STATUS.FINALIZADO).toArray();
+    const finalized = await db.budgets.where('status').equals(BUDGET_STATUS.FINALIZADO).filter(b => b.syncStatus !== 'deleted').toArray();
     
     return finalized.filter(budget => {
       if (!budget.finalizedAt) return false;
@@ -50,7 +52,7 @@ export class DexieBudgetRepository implements BudgetRepository {
   async delete(id: string): Promise<void> {
     const existing = await db.budgets.get(id);
     if (existing) {
-      const toSave = { ...existing, syncStatus: 'deleted', updatedAt: Date.now() } as any;
+      const toSave = { ...existing, syncStatus: 'deleted', syncUpdatedAt: Date.now(), updatedAt: new Date().toISOString() } as Budget;
       await db.budgets.put(toSave);
     }
   }

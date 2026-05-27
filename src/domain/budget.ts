@@ -67,8 +67,9 @@ export interface Budget {
   
   // Metadata
   createdAt: string;
-  updatedAt: number | string;
+  updatedAt: string;
   syncStatus?: 'synced' | 'pending' | 'deleted';
+  syncUpdatedAt?: number;
   finalizedAt?: string;
   
   financialSnapshot?: FinancialSnapshot;

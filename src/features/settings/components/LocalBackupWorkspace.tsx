@@ -12,7 +12,7 @@ import {
   type AferixBackupSummary,
   type AferixBackupDataSummaryItem
 } from '../storage/localBackup';
-import { PrimaryButton, SecondaryButton, DangerButton, PanelCard, ContextBanner } from '../../../app/components/ui';
+import { PrimaryButton, DangerButton, PanelCard, ContextBanner } from '../../../app/components/ui';
 import './LocalBackupWorkspace.css';
 
 export function LocalBackupWorkspace({ includeLinkedSettings = true }: { includeLinkedSettings?: boolean }) {
@@ -28,7 +28,7 @@ export function LocalBackupWorkspace({ includeLinkedSettings = true }: { include
         const backup = await collectAferixLocalBackup();
         setSummary(summarizeAferixBackup(backup));
         setCurrentDataSummary(summarizeAferixBackupData(backup));
-      } catch (err) {
+      } catch ( _err ) {
         console.error('Failed to load backup summary:', err);
       } finally {
         setIsLoading(false);
@@ -44,7 +44,7 @@ export function LocalBackupWorkspace({ includeLinkedSettings = true }: { include
       const text = stringifyAferixBackup(backup);
       downloadBackupFile(createBackupFilename(), text);
       setFeedback('Backup exportado com sucesso.');
-    } catch (err) {
+    } catch ( _err ) {
       setFeedback('Falha ao exportar backup.');
     }
   }
