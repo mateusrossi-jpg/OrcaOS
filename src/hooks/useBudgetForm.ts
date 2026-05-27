@@ -20,6 +20,15 @@ const generateId = () => {
   }
 };
 
+export interface BudgetEditPermissions {
+  canEditTitle: boolean;
+  canEditClient: boolean;
+  canEditItems: boolean;
+  canEditFinancials: boolean;
+  canEditNotes: boolean;
+  canEditStatus: boolean;
+}
+
 export function useBudgetForm(initialBudgetId?: string | null) {
   const [budget, setBudget] = useState<Budget>({
     id: generateId(),
@@ -42,6 +51,21 @@ export function useBudgetForm(initialBudgetId?: string | null) {
   const [isSaving, setIsSaving] = useState(false);
   const [showFinalizeModal, setShowFinalizeModal] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const permissions = useMemo((): BudgetEditPermissions => {
+    const s = budget.status;
+    if (s === BUDGET_STATUS.INICIADO) {
+      return { canEditTitle: true, canEditClient: true, canEditItems: true, canEditFinancials: true, canEditNotes: true, canEditStatus: true };
+    }
+    if (s === BUDGET_STATUS.ENVIADO) {
+      return { canEditTitle: true, canEditClient: true, canEditItems: false, canEditFinancials: false, canEditNotes: true, canEditStatus: true };
+    }
+    if (s === BUDGET_STATUS.AUTORIZADO || s === BUDGET_STATUS.EM_EXECUCAO) {
+      return { canEditTitle: false, canEditClient: false, canEditItems: false, canEditFinancials: false, canEditNotes: true, canEditStatus: true };
+    }
+    // FINALIZADO, ARQUIVADO, RECUSADO
+    return { canEditTitle: false, canEditClient: false, canEditItems: false, canEditFinancials: false, canEditNotes: false, canEditStatus: false };
+  }, [budget.status]);
 
   useEffect(() => {
     async function load() {
@@ -80,9 +104,21 @@ export function useBudgetForm(initialBudgetId?: string | null) {
   }, [budget]);
 
   const updateField = useCallback(<K extends keyof Budget>(field: K, value: Budget[K]) => {
-    if (budget.status === BUDGET_STATUS.FINALIZADO) return;
+    const s = budget.status;
+    
+    // Total read-only states
+    if (s === BUDGET_STATUS.FINALIZADO || s === BUDGET_STATUS.ARQUIVADO || s === BUDGET_STATUS.RECUSADO) return;
+
+    // Granular locking
+    if (field === 'title' && !permissions.canEditTitle) return;
+    if ((field === 'clientId' || field === 'clientName') && !permissions.canEditClient) return;
+    if (field === 'items' && !permissions.canEditItems) return;
+    
+    const financialFields: Array<keyof Budget> = ['chargedValue', 'materialCost', 'travelCost', 'helperCost', 'fees', 'discounts', 'otherCosts'];
+    if (financialFields.includes(field) && !permissions.canEditFinancials) return;
+
     setBudget(prev => ({ ...prev, [field]: value }));
-  }, [budget.status]);
+  }, [budget.status, permissions]);
 
   const saveDraft = async () => {
     if (isSaving || isLoading) return;
@@ -102,7 +138,7 @@ export function useBudgetForm(initialBudgetId?: string | null) {
   };
 
   const handleStatusChange = async (newStatus: BudgetStatus) => {
-    if (isSaving || isLoading) return;
+    if (isSaving || isLoading || !permissions.canEditStatus) return;
     setIsSaving(true);
     setError(null);
     try {
@@ -151,7 +187,8 @@ export function useBudgetForm(initialBudgetId?: string | null) {
     updateField,
     preview,
     isSaving,
-    isReadOnly: budget.status === BUDGET_STATUS.FINALIZADO || budget.status === BUDGET_STATUS.ARQUIVADO || budget.status === BUDGET_STATUS.RECUSADO,
+    isReadOnly: !permissions.canEditFinancials && !permissions.canEditItems && !permissions.canEditTitle,
+    permissions,
     showFinalizeModal,
     saveDraft,
     markAsSent,

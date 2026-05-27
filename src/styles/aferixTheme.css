@@ -86,11 +86,11 @@
   --aferix-space-2: var(--aferix-spacing-sm);
   --aferix-space-3: var(--aferix-spacing-md);
   --aferix-space-4: var(--aferix-spacing-lg);
-  --aferix-space-5: 16px; /* MAX SECTION GAP */
-  --aferix-space-6: 16px; /* MAX SECTION GAP */
-  --aferix-page-mobile-x: 12px;
+  --aferix-space-5: 12px; /* REDUCED MAX SECTION GAP */
+  --aferix-space-6: 12px; /* REDUCED MAX SECTION GAP */
+  --aferix-page-mobile-x: 10px;
   --aferix-page-desktop-x: 12px;
-  --aferix-card-padding-mobile: 12px;
+  --aferix-card-padding-mobile: 10px;
   --aferix-card-padding-desktop: 12px;
   --aferix-font: "Inter", "Geist", "Outfit", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --aferix-mono: "JetBrains Mono", "SFMono-Regular", Consolas, "Liberation Mono", monospace;
@@ -3673,15 +3673,15 @@ button.secondary {
 /* Global layout consistency baseline (mobile-first) */
 :root {
   --aferix-layout-max: 1120px;
-  --aferix-layout-x-mobile: 14px;
+  --aferix-layout-x-mobile: 10px;
   --aferix-layout-x-desktop: 20px;
-  --aferix-layout-gap: 12px;
+  --aferix-layout-gap: 8px;
 }
 
 .content-container {
   max-width: var(--aferix-layout-max) !important;
   margin: 0 auto !important;
-  padding: 16px var(--aferix-layout-x-desktop) 26px !important;
+  padding: 12px var(--aferix-layout-x-desktop) 20px !important;
 }
 
 .aferix-page-shell,
@@ -3691,13 +3691,13 @@ button.secondary {
 .app-screen.wide-screen {
   width: 100% !important;
   max-width: 100vw !important;
-  padding-left: 16px !important;
-  padding-right: 16px !important;
-  padding-bottom: calc(120px + env(safe-area-inset-bottom)) !important;
+  padding-left: 10px !important;
+  padding-right: 10px !important;
+  padding-bottom: calc(100px + env(safe-area-inset-bottom)) !important;
   overflow-x: hidden !important;
   box-sizing: border-box !important;
   display: grid !important;
-  gap: var(--aferix-layout-gap) !important;
+  gap: 8px !important;
   align-content: start;
 }
 
@@ -4180,3 +4180,29 @@ button.primary:hover,
   }
 }
 
+
+/* P93 ERP Density Hardening - Additional Refinements */
+.metric-card.tone-success strong {
+  color: #10B981 !important;
+}
+
+.metric-card.tone-brand strong {
+  color: var(--aferix-primary) !important;
+}
+
+.metric-card.featured {
+  border-color: rgba(255, 210, 31, 0.2) !important;
+  background: linear-gradient(180deg, rgba(255, 210, 31, 0.05), transparent) !important;
+}
+
+.compact-history-item {
+  padding: 10px 12px !important;
+}
+
+.aferix-costs-section .aferix-panel-card {
+  padding: 10px !important;
+}
+
+.aferix-notes-section .aferix-panel-card {
+  padding: 10px !important;
+}

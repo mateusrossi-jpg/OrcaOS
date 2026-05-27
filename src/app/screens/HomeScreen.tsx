@@ -99,6 +99,8 @@ export function HomeScreen({ onNavigate, onSelectBudget }: HomeScreenProps) {
             <MetricCard
               label="Meu Lucro (mês)"
               value={<MoneyValue value={profitThisMonth} tone={profitThisMonth >= 0 ? 'success' : 'danger'} compact />}
+              featured
+              tone="success"
             />
           </div>
         </PanelCard>

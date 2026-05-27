@@ -17,6 +17,7 @@ import {
   Badge,
   SectionTitle,
   ContextBanner,
+  TextArea,
 } from '../app/components/ui';
 
 interface BudgetFormProps {
@@ -31,7 +32,7 @@ export const BudgetForm: React.FC<BudgetFormProps> = ({ id, onBack }) => {
     updateField,
     preview,
     isSaving,
-    isReadOnly,
+    permissions,
     showFinalizeModal,
     saveDraft,
     markAsSent,
@@ -79,25 +80,25 @@ export const BudgetForm: React.FC<BudgetFormProps> = ({ id, onBack }) => {
         </div>
       )}
 
-      <div className="aferix-d-flex aferix-flex-column aferix-gap-lg">
+      <div className="aferix-d-flex aferix-flex-column aferix-gap-md">
         {/* 1. Preço Dominante */}
-        <PanelCard className="aferix-card-kpi aferix-text-center">
+        <PanelCard className="aferix-card-kpi aferix-text-center" style={{ padding: '12px' }}>
           <MonetaryInput
             label="Preço do Serviço"
             value={budget.chargedValue}
             onChange={(val) => updateField('chargedValue', val)}
-            disabled={isReadOnly}
+            disabled={!permissions.canEditFinancials}
             placeholder="0,00"
           />
         </PanelCard>
 
         {/* 2. Dados Básicos */}
-        <PanelCard className="aferix-d-flex aferix-flex-column aferix-gap-md">
+        <PanelCard className="aferix-d-flex aferix-flex-column aferix-gap-sm" style={{ padding: '12px' }}>
           <Input
             label="Título do Orçamento"
             value={budget.title}
             onChange={(e) => updateField('title', e.target.value)}
-            disabled={isReadOnly}
+            disabled={!permissions.canEditTitle}
             placeholder="Ex: Instalação Residencial"
           />
 
@@ -109,7 +110,7 @@ export const BudgetForm: React.FC<BudgetFormProps> = ({ id, onBack }) => {
               updateField('clientId', val);
               updateField('clientName', selectedClient?.name || '');
             }}
-            disabled={isReadOnly}
+            disabled={!permissions.canEditClient}
           >
             <option value="">Cliente Avulso (Nome Livre)</option>
             {clients.map((c: Client) => (
@@ -122,7 +123,7 @@ export const BudgetForm: React.FC<BudgetFormProps> = ({ id, onBack }) => {
               label="Nome do Cliente Avulso"
               value={budget.clientName || ''}
               onChange={(e) => updateField('clientName', e.target.value)}
-              disabled={isReadOnly}
+              disabled={!permissions.canEditClient}
               placeholder="Digite o nome..."
             />
           )}
@@ -131,108 +132,128 @@ export const BudgetForm: React.FC<BudgetFormProps> = ({ id, onBack }) => {
         {/* 3. Custos Operacionais */}
         <div className="aferix-costs-section">
           <SectionTitle title="Custos da Operação" />
-          <PanelCard className="aferix-d-flex aferix-flex-column aferix-gap-md">
-            <MonetaryInput
-              label="Materiais"
-              value={budget.materialCost}
-              onChange={(val) => updateField('materialCost', val)}
-              disabled={isReadOnly}
+          <PanelCard className="aferix-d-flex aferix-flex-column aferix-gap-sm" style={{ padding: '12px' }}>
+            <div className="aferix-form-grid" style={{ gridTemplateColumns: '1fr 1fr' }}>
+              <MonetaryInput
+                label="Materiais"
+                value={budget.materialCost}
+                onChange={(val) => updateField('materialCost', val)}
+                disabled={!permissions.canEditFinancials}
+              />
+              <MonetaryInput
+                label="Ajudante"
+                value={budget.helperCost}
+                onChange={(val) => updateField('helperCost', val)}
+                disabled={!permissions.canEditFinancials}
+              />
+              <MonetaryInput
+                label="Transporte"
+                value={budget.travelCost}
+                onChange={(val) => updateField('travelCost', val)}
+                disabled={!permissions.canEditFinancials}
+              />
+              <MonetaryInput
+                label="Taxas"
+                value={budget.fees}
+                onChange={(val) => updateField('fees', val)}
+                disabled={!permissions.canEditFinancials}
+              />
+              <MonetaryInput
+                label="Descontos"
+                value={budget.discounts}
+                onChange={(val) => updateField('discounts', val)}
+                disabled={!permissions.canEditFinancials}
+              />
+              <MonetaryInput
+                label="Outros"
+                value={budget.otherCosts}
+                onChange={(val) => updateField('otherCosts', val)}
+                disabled={!permissions.canEditFinancials}
+              />
+            </div>
+          </PanelCard>
+        </div>
+
+        {/* 4. Notas Operacionais */}
+        <div className="aferix-notes-section">
+          <SectionTitle title="Notas e Observações" />
+          <PanelCard className="aferix-d-flex aferix-flex-column aferix-gap-sm" style={{ padding: '12px' }}>
+            <TextArea
+              label="Observações do Cliente"
+              value={budget.commercialNotes || ''}
+              onChange={(val) => updateField('commercialNotes', val)}
+              disabled={!permissions.canEditNotes}
+              placeholder="Termos de pagamento, garantias..."
             />
-            <MonetaryInput
-              label="Ajudante"
-              value={budget.helperCost}
-              onChange={(val) => updateField('helperCost', val)}
-              disabled={isReadOnly}
-            />
-            <MonetaryInput
-              label="Transporte"
-              value={budget.travelCost}
-              onChange={(val) => updateField('travelCost', val)}
-              disabled={isReadOnly}
-            />
-            <MonetaryInput
-              label="Taxas"
-              value={budget.fees}
-              onChange={(val) => updateField('fees', val)}
-              disabled={isReadOnly}
-            />
-            <MonetaryInput
-              label="Descontos"
-              value={budget.discounts}
-              onChange={(val) => updateField('discounts', val)}
-              disabled={isReadOnly}
-            />
-            <MonetaryInput
-              label="Outros Custos"
-              value={budget.otherCosts}
-              onChange={(val) => updateField('otherCosts', val)}
-              disabled={isReadOnly}
+            <TextArea
+              label="Notas Internas"
+              value={budget.notes || ''}
+              onChange={(val) => updateField('notes', val)}
+              disabled={!permissions.canEditNotes}
+              placeholder="Detalhes técnicos, dificuldades encontradas..."
             />
           </PanelCard>
         </div>
 
-        {/* 4. Ações Operacionais (State Machine) */}
-        {!isReadOnly && (
-          <div className="aferix-d-flex aferix-flex-column aferix-gap-md aferix-mt-lg aferix-journey-actions">
-            {budget.status === BUDGET_STATUS.INICIADO && (
-              <>
-                <PrimaryButton onClick={markAsSent} disabled={isSaving}>
-                  Enviar para Cliente
-                </PrimaryButton>
-                <SecondaryButton onClick={saveDraft} disabled={isSaving}>
-                  {isSaving ? 'Salvando...' : 'Salvar Rascunho'}
-                </SecondaryButton>
-              </>
-            )}
+        {/* 5. Ações Operacionais (State Machine) */}
+        <div className="aferix-d-flex aferix-flex-column aferix-gap-md aferix-mt-lg aferix-journey-actions">
+          {budget.status === BUDGET_STATUS.INICIADO && (
+            <>
+              <PrimaryButton onClick={markAsSent} disabled={isSaving}>
+                Enviar para Cliente
+              </PrimaryButton>
+              <SecondaryButton onClick={saveDraft} disabled={isSaving}>
+                {isSaving ? 'Salvando...' : 'Salvar Rascunho'}
+              </SecondaryButton>
+            </>
+          )}
 
-            {budget.status === BUDGET_STATUS.ENVIADO && (
-              <>
-                <PrimaryButton onClick={markAsAuthorized} disabled={isSaving}>
-                  Autorizar Execução
-                </PrimaryButton>
-                <DangerButton onClick={markAsRejected} disabled={isSaving}>
-                  Recusar Orçamento
-                </DangerButton>
-                <SecondaryButton onClick={saveDraft} disabled={isSaving}>
-                  Atualizar Dados
-                </SecondaryButton>
-              </>
-            )}
+          {budget.status === BUDGET_STATUS.ENVIADO && (
+            <>
+              <PrimaryButton onClick={markAsAuthorized} disabled={isSaving}>
+                Autorizar Execução
+              </PrimaryButton>
+              <DangerButton onClick={markAsRejected} disabled={isSaving}>
+                Recusar Orçamento
+              </DangerButton>
+            </>
+          )}
 
-            {budget.status === BUDGET_STATUS.AUTORIZADO && (
-              <>
-                <PrimaryButton onClick={markAsExecuting} disabled={isSaving}>
-                  Iniciar Execução
-                </PrimaryButton>
-                <SecondaryButton onClick={saveDraft} disabled={isSaving}>
-                  Ajustar Orçamento
-                </SecondaryButton>
-              </>
-            )}
+          {budget.status === BUDGET_STATUS.AUTORIZADO && (
+            <>
+              <PrimaryButton onClick={markAsExecuting} disabled={isSaving}>
+                Iniciar Execução
+              </PrimaryButton>
+            </>
+          )}
 
-            {budget.status === BUDGET_STATUS.EM_EXECUCAO && (
-              <>
-                <PrimaryButton onClick={requestFinalize} disabled={isSaving}>
-                  Finalizar Trabalho
-                </PrimaryButton>
-                <SecondaryButton onClick={saveDraft} disabled={isSaving}>
-                  Atualizar Custos
-                </SecondaryButton>
-              </>
-            )}
-          </div>
-        )}
+          {budget.status === BUDGET_STATUS.EM_EXECUCAO && (
+            <>
+              <PrimaryButton onClick={requestFinalize} disabled={isSaving}>
+                Finalizar Trabalho
+              </PrimaryButton>
+            </>
+          )}
 
-        {budget.status === BUDGET_STATUS.FINALIZADO && (
-          <div className="aferix-d-flex aferix-flex-column aferix-gap-md aferix-mt-lg aferix-journey-actions">
-            <SecondaryButton onClick={archiveBudget} disabled={isSaving}>
-              Arquivar Orçamento
-            </SecondaryButton>
-          </div>
-        )}
+          {budget.status === BUDGET_STATUS.FINALIZADO && (
+            <>
+              <SecondaryButton onClick={archiveBudget} disabled={isSaving}>
+                Arquivar Orçamento
+              </SecondaryButton>
+            </>
+          )}
+          
+          {(budget.status === BUDGET_STATUS.ENVIADO || 
+            budget.status === BUDGET_STATUS.AUTORIZADO || 
+            budget.status === BUDGET_STATUS.EM_EXECUCAO) && permissions.canEditNotes && (
+              <SecondaryButton onClick={saveDraft} disabled={isSaving}>
+                Salvar Notas
+              </SecondaryButton>
+          )}
+        </div>
       </div>
 
-      {/* 5. Sticky Preview (Simplified) */}
+      {/* 6. Sticky Preview (Simplified) */}
       <div className="aferix-sticky-preview">
         <ContextBanner
           title={`Lucro: ${formatCurrencyBRL(preview?.grossProfit || 0)}`}

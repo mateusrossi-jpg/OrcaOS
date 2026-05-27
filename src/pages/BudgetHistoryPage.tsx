@@ -64,7 +64,7 @@ export const BudgetHistoryPage: React.FC<BudgetHistoryPageProps> = ({ onOpenBudg
         sourceLabel={`${totalCount} orçamentos registrados.`}
       />
 
-      <PanelCard className="history-search-panel aferix-d-flex aferix-flex-column aferix-gap-sm">
+      <PanelCard className="history-search-panel aferix-d-flex aferix-flex-column aferix-gap-xs" style={{ padding: '8px 12px' }}>
         <SearchInput
           placeholder="Buscar título ou cliente..."
           value={query}
@@ -82,25 +82,26 @@ export const BudgetHistoryPage: React.FC<BudgetHistoryPageProps> = ({ onOpenBudg
 
       {filteredBudgets.length === 0 ? (
         <QueueEmptyState
-          title={query ? "Nenhum resultado encontrado" : "Histórico vazio"}
-          meta={query ? "Tente buscar com outros termos." : "Seus orçamentos salvos e finalizados aparecerão aqui."}
-          action={!query && filter === 'todos' ? <PrimaryButton onClick={onNewBudget}>Criar orçamento</PrimaryButton> : null}
+          title={query ? "Nenhum resultado" : "Vazio"}
+          meta={query ? "Tente outros termos." : "Orçamentos salvos aparecerão aqui."}
+          action={!query && filter === 'todos' ? <PrimaryButton onClick={onNewBudget}>Criar primeiro</PrimaryButton> : null}
         />
       ) : (
-        <ListCard>
+        <ListCard style={{ gap: 0 }}>
           {filteredBudgets.map((budget) => (
             <ListItem
               key={budget.id}
               onClick={() => onOpenBudget(budget.id)}
               title={budget.title || 'Sem título'}
-              context={budget.clientName || 'Cliente não informado'}
+              context={budget.clientName || 'Sem cliente'}
               status={<StatusBadge status={budget.status} />}
               value={<MoneyValue value={calculateBudget(budget).totalComercial} compact />}
+              className="compact-history-item"
               action={
                 <ActionMenu
-                  label="Ações"
+                  label="…"
                   items={[
-                    { id: 'open', label: 'Abrir Orçamento', onSelect: () => onOpenBudget(budget.id) },
+                    { id: 'open', label: 'Abrir', onSelect: () => onOpenBudget(budget.id) },
                     { id: 'delete', label: 'Excluir', tone: 'danger', onSelect: () => handleDelete(budget.id) },
                   ]}
                 />
