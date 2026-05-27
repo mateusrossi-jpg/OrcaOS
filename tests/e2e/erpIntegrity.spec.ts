@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 test.describe('ERP Integrity - Financial & Workflow', () => {
   test.beforeEach(async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 812 });
-    await page.goto('http://localhost:5173/');
+    await page.goto('http://localhost:5175/');
   });
 
   test('Financial Calculation Accuracy', async ({ page }) => {
@@ -48,7 +48,7 @@ test.describe('ERP Integrity - Financial & Workflow', () => {
     await page.waitForTimeout(1000); // Wait for save
     
     // Go back to home
-    await page.goto('http://localhost:5173/');
+    await page.goto('http://localhost:5175/');
     
     // Create Budget 2
     await page.click('button:has-text("Novo Orçamento")');
@@ -57,7 +57,7 @@ test.describe('ERP Integrity - Financial & Workflow', () => {
     await page.waitForTimeout(1000); // Wait for save
 
     // Go to history via Home list or navigation
-    await page.goto('http://localhost:5173/');
+    await page.goto('http://localhost:5175/');
     
     // Check if both appear in the recent list on Home
     await expect(page.locator('text=Budget 1').first()).toBeVisible();

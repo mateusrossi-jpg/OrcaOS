@@ -11,7 +11,7 @@ test('runtime budget flow verification', async ({ page }) => {
     await dialog.accept();
   });
   // 1. Navigate to app
-  await page.goto('http://localhost:5173/');
+  await page.goto('http://localhost:5175/');
   
   // Wait for app to be ready
   await page.waitForSelector('.mobile-bottom-nav', { timeout: 10000 });

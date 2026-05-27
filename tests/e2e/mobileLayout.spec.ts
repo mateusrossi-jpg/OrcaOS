@@ -4,7 +4,7 @@ test.describe('Mobile Layout Hardening', () => {
   test.beforeEach(async ({ page }) => {
     // iPhone X viewport
     await page.setViewportSize({ width: 375, height: 812 });
-    await page.goto('http://localhost:5173/');
+    await page.goto('http://localhost:5175/');
   });
 
   test('Home screen layout integrity', async ({ page }) => {

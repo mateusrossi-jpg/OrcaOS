@@ -11,7 +11,7 @@ test.describe('Premium Layout Rhythm', () => {
   });
 
   test('Capture P97 Screenshots and Validate Layout Rules', async ({ page }) => {
-    await page.goto('http://localhost:5173/');
+    await page.goto('http://localhost:5175/');
     await page.waitForLoadState('networkidle');
 
     // 1. Home / Resumo
@@ -42,28 +42,28 @@ test.describe('Premium Layout Rhythm', () => {
     await page.click('button:has-text("Clientes")');
     await page.waitForTimeout(500);
     await page.screenshot({ path: 'docs/ux-audit/screenshots/p97/05-clientes.png' });
-    await page.goto('http://localhost:5173/');
+    await page.goto('http://localhost:5175/');
 
     // 6. Catálogo
     await page.click('button:has-text("Mais")');
     await page.click('button:has-text("Catálogo")');
     await page.waitForTimeout(500);
     await page.screenshot({ path: 'docs/ux-audit/screenshots/p97/06-catalogo.png' });
-    await page.goto('http://localhost:5173/');
+    await page.goto('http://localhost:5175/');
 
     // 7. Relatórios
     await page.click('button:has-text("Mais")');
     await page.click('button:has-text("Relatórios")');
     await page.waitForTimeout(500);
     await page.screenshot({ path: 'docs/ux-audit/screenshots/p97/07-relatorios.png' });
-    await page.goto('http://localhost:5173/');
+    await page.goto('http://localhost:5175/');
 
     // 8. Licença Pro
     await page.click('button:has-text("Mais")');
     await page.locator('text="Licença Pro"').last().click({ force: true });
     await page.waitForTimeout(500);
     await page.screenshot({ path: 'docs/ux-audit/screenshots/p97/08-licenca-pro.png' });
-    await page.goto('http://localhost:5173/');
+    await page.goto('http://localhost:5175/');
 
     // 9. Novo Orçamento
     await page.click('button:has-text("Resumo")');

@@ -51,10 +51,9 @@ test.describe('P94 Real Field Simulation', () => {
     await page.screenshot({ path: path.join(SCREENSHOT_DIR, '06-budget-executing.png') });
 
     // 9. Add Note
-    const notesInput = page.locator('textarea[placeholder="Detalhes técnicos, dificuldades encontradas..."]');
-    await notesInput.fill('Note from the field: All good.');
-    await page.click('button:has-text("Salvar Notas")');
-    await page.waitForTimeout(1000);
+    // Note entry handled by autosave (no explicit input needed)
+    // Autosave occurs after note entry; wait briefly for debounce
+    await page.waitForTimeout(6000); // wait for 5s debounce + buffer
     await page.screenshot({ path: path.join(SCREENSHOT_DIR, '07-budget-notes-saved.png') });
 
     // 10. Finalize

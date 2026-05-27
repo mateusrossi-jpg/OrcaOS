@@ -8,7 +8,7 @@ export const DebugPanel: React.FC = () => {
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      // eslint-disable-next-line
+      
       (window as unknown as { AFERIX_DEBUG: () => void }).AFERIX_DEBUG = () => {
         setVisible(true);
         runScan();

@@ -1,10 +1,10 @@
 import React from 'react';
-import { useBudgetForm } from '../hooks/useBudgetForm';
 import { BUDGET_STATUS } from '../domain/budget';
 import { formatCurrencyBRL, formatPercent } from '../utils/formatters';
 import { useClients } from '../hooks/useClients';
+import { useBudgetForm } from '../hooks/useBudgetForm';
 import { Client } from '../domain/client';
-import {
+import { 
   PageShell,
   PageHeader,
   PanelCard,
@@ -19,6 +19,7 @@ import {
   ContextBanner,
   TextArea,
 } from '../app/components/ui';
+import { StickyActionBar } from '../components/StickyActionBar';
 
 interface BudgetFormProps {
   id?: string | null;
@@ -252,15 +253,16 @@ export const BudgetForm: React.FC<BudgetFormProps> = ({ id, onBack }) => {
               </SecondaryButton>
             </>
           )}
-          
-          {(budget.status === BUDGET_STATUS.ENVIADO || 
-            budget.status === BUDGET_STATUS.AUTORIZADO || 
-            budget.status === BUDGET_STATUS.EM_EXECUCAO) && permissions.canEditNotes && (
-              <SecondaryButton onClick={saveDraft} disabled={isSaving}>
-                Salvar Notas
-              </SecondaryButton>
-          )}
         </div>
+        
+        {/* Sticky Action Bar */}
+        <StickyActionBar
+          onSave={saveDraft}
+          onCancel={onBack}
+          saveLabel="Salvar Orçamento"
+          cancelLabel="Cancelar"
+          disabled={isSaving}
+        />
       </div>
 
       {/* 6. Sticky Preview (Simplified) */}
@@ -310,33 +312,37 @@ export const BudgetForm: React.FC<BudgetFormProps> = ({ id, onBack }) => {
       )}
 
       <style>{`
-        .aferix-sticky-preview {
-          position: fixed;
-          bottom: env(safe-area-inset-bottom, 16px);
-          left: 16px;
-          right: 16px;
-          z-index: 100;
-        }
-        .aferix-budget-form-screen.is-saving {
-          opacity: 0.7;
-          pointer-events: none;
-        }
-        .aferix-budget-form-screen.is-read-only .aferix-card-kpi,
-        .aferix-budget-form-screen.is-read-only .aferix-costs-section {
-          opacity: 0.85;
-        }
-        .aferix-costs-section {
-          margin-top: 12px;
-        }
-        .aferix-journey-actions {
-          padding-bottom: 120px; /* Space for sticky preview */
-        }
-        @media (max-width: 768px) {
           .aferix-sticky-preview {
-            bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+            position: fixed;
+            bottom: env(safe-area-inset-bottom, 16px);
+            left: 16px;
+            right: 16px;
+            z-index: 100;
           }
-        }
-      `}</style>
+          .aferix-budget-form-screen.is-saving {
+            opacity: 0.7;
+            pointer-events: none;
+          }
+          .aferix-budget-form-screen.is-read-only .aferix-card-kpi,
+          .aferix-budget-form-screen.is-read-only .aferix-costs-section {
+            opacity: 0.85;
+          }
+          .aferix-costs-section {
+            margin-top: 12px;
+          }
+          .aferix-journey-actions {
+            padding-bottom: 120px; /* Space for sticky preview */
+          }
+          @media (max-width: 768px) {
+            .aferix-sticky-preview {
+              bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+            }
+          }
+          button {
+            min-height: 48px;
+            min-width: 48px;
+          }
+        `}</style>
     </PageShell>
   );
 };

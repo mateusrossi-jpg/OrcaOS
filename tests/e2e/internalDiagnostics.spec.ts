@@ -6,7 +6,7 @@ test('Internal Diagnostics validation (P100)', async ({ page }) => {
   page.on('dialog', async dialog => await dialog.accept());
   
   await page.setViewportSize({ width: 375, height: 812 });
-  await page.goto('http://localhost:5173/');
+  await page.goto('http://localhost:5175/');
   await page.waitForSelector('.mobile-bottom-nav', { timeout: 10000 });
 
   // 1. Trigger the Hidden Debug Panel

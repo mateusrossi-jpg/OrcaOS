@@ -10,7 +10,7 @@ test('Soft Delete and Sync Queue validation', async ({ page }) => {
   
   await page.setViewportSize({ width: 375, height: 812 });
 
-  await page.goto('http://localhost:5173/');
+  await page.goto('http://localhost:5175/');
   await page.waitForSelector('.mobile-bottom-nav', { timeout: 10000 });
 
   // Expose syncService to window is assumed to be ready

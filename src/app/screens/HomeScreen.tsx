@@ -1,21 +1,8 @@
-import { useState, useEffect, useMemo } from 'react';
 import type { AppTab } from '../appTypes';
 import { useBudgetHistory } from '../../hooks/useBudgetHistory';
-import {
-  PageShell,
-  PageHeader,
-  PanelCard,
-  MetricCard,
-  MoneyValue,
-  QueueEmptyState,
-  ListItem,
-  StatusBadge,
-  SectionTitle,
-  ListCard,
-} from '../components/ui';
+import { PageShell, PageHeader, QueueEmptyState, ListItem, ListCard, StatusBadge, SectionTitle, MoneyValue } from '../components/ui';
 import { calculateBudget } from '../../domain/aferixFinanceEngine';
 import type { Budget } from '../../domain/budget';
-import { FinanceFacade, type ConsolidatedFinanceRecord } from '../../features/finance/financeFacade';
 
 interface HomeScreenProps {
   onNavigate: (tab: AppTab) => void;
@@ -24,39 +11,6 @@ interface HomeScreenProps {
 
 export function HomeScreen({ onNavigate, onSelectBudget }: HomeScreenProps) {
   const { budgets, isLoading } = useBudgetHistory();
-  const [financeRecords, setFinanceRecords] = useState<ConsolidatedFinanceRecord[]>([]);
-
-  useEffect(() => {
-    let active = true;
-    async function load() {
-      const records = await FinanceFacade.getRealizedRecords();
-      if (active) setFinanceRecords(records);
-    }
-    void load();
-    return () => { active = false; };
-  }, []);
-
-  const now = new Date();
-
-  // 2. Dashboard Operacional (Métricas Rápidas)
-  // Orçamentos Pendentes (Rascunho/Enviado)
-  const pendingBudgets = useMemo(() => budgets.filter(
-    (b) => b.status === 'iniciado' || b.status === 'em_revisao' || b.status === 'enviado'
-  ), [budgets]);
-
-  // Serviços Em Execução (Aprovado/Iniciado)
-  const activeBudgets = useMemo(() => budgets.filter(
-    (b) => b.status === 'autorizado' || b.status === 'em_execucao'
-  ), [budgets]);
-
-  // Faturamento / Receita do Mês (lendo da fonte de verdade financeira)
-  const revenueThisMonth = useMemo(() => financeRecords.reduce((acc, r) => {
-    const d = new Date(r.updatedAt);
-    if (d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth()) {
-      return acc + r.receivedAmount;
-    }
-    return acc;
-  }, 0), [financeRecords, now]);
 
   // 3. Atividade Recente: Lista enxuta (max 3 a 5 itens)
   const recentBudgets = budgets.slice(0, 5);
@@ -89,27 +43,7 @@ export function HomeScreen({ onNavigate, onSelectBudget }: HomeScreenProps) {
           </button>
         </section>
 
-        {/* 2. Dashboard Operacional */}
-        <PanelCard className="operational-metrics-panel">
-          <div className="metric-grid compact-metric-grid">
-            <MetricCard 
-              label="Pendentes" 
-              value={pendingBudgets.length} 
-              tone="default"
-            />
-            <MetricCard 
-              label="Em Execução" 
-              value={activeBudgets.length} 
-              tone="brand"
-            />
-            <MetricCard
-              label="Receita do Mês"
-              value={<MoneyValue value={revenueThisMonth} tone={revenueThisMonth >= 0 ? 'success' : 'danger'} compact />}
-              featured
-              tone="success"
-            />
-          </div>
-        </PanelCard>
+
 
         {/* 3. Atividade Recente */}
         {budgets.length === 0 ? (

@@ -1,0 +1,41 @@
+/* src/components/StickyActionBar.css */
+
+/* Premium Dark Fixed Footer for action buttons */
+.sticky-action-bar {
+  position: fixed;
+  bottom: env(safe-area-inset-bottom, 0px);
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--aferix-surface-raised, #16181e); /* dark surface */
+  border-top: 1px solid var(--aferix-border, #2a2d36);
+  z-index: 1000;
+}
+
+.sticky-action-bar button {
+  min-height: 48px; /* touch target */
+  min-width: 48px;
+  padding: 0 16px;
+  border: none;
+  border-radius: var(--aferix-radius-md, 8px);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+
+.sticky-save {
+  background: var(--aferix-primary, #f5a400);
+  color: #000;
+}
+
+.sticky-cancel {
+  background: var(--aferix-danger, #d32f2f);
+  color: #fff;
+}
+
+.sticky-action-bar button:active {
+  transform: scale(0.96);
+}

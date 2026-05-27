@@ -6,7 +6,7 @@ test.describe('Real Operational Flow (P102-A)', () => {
 
     // 1. Create Budget programmatically for speed and reliability in E2E
     await page.evaluate(async () => {
-      // @ts-ignore
+      // @ts-expect-error needed for dynamic import of Dexie DB
       const { db } = await import('/src/storage/dexieDatabase.ts');
       await db.budgets.add({
         id: crypto.randomUUID(),

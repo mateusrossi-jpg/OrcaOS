@@ -4,7 +4,7 @@ test.describe('MVP Functional Truth Check', () => {
   test.beforeEach(async ({ page }) => {
     // iPhone X viewport for mobile-first validation
     await page.setViewportSize({ width: 375, height: 812 });
-    await page.goto('http://localhost:5173/');
+    await page.goto('http://localhost:5175/');
     await page.waitForSelector('.mobile-bottom-nav', { timeout: 10000 });
     
     // Auto-accept all confirmation dialogs
