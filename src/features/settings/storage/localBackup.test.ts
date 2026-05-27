@@ -111,7 +111,7 @@ describe('local backup storage', () => {
   it('rejects backups from other apps or unsupported versions', () => {
     expect(() => parseAferixBackup(JSON.stringify({ app: 'Outro', version: 1, keys: {} }))).toThrow('backup do Aferix');
     expect(() => parseAferixBackup(JSON.stringify({ app: 'Aferix', version: 2, keys: {} }))).toThrow('Versão de backup');
-    expect(() => parseAferixBackup('{invalid-json')).toThrow('JSON inválido');
+    expect(() => parseAferixBackup('{invalid-json')).toThrow('Arquivo de backup inválido ou JSON corrompido.');
   });
 
   it('ignores unsafe keys while parsing backups', () => {

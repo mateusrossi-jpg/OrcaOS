@@ -58,9 +58,10 @@ export const operationalFacade = {
       const eventTypeMap: Record<string, OperationalEventType> = {
         [BUDGET_STATUS.ENVIADO]: 'BUDGET_SENT',
         [BUDGET_STATUS.AUTORIZADO]: 'BUDGET_AUTHORIZED',
+        [BUDGET_STATUS.EM_EXECUCAO]: 'BUDGET_EXECUTION_STARTED',
         [BUDGET_STATUS.RECUSADO]: 'BUDGET_REJECTED',
-        ['arquivado']: 'BUDGET_ARCHIVED',
-        ['cancelado']: 'BUDGET_CANCELLED'
+        [BUDGET_STATUS.ARQUIVADO]: 'BUDGET_ARCHIVED',
+        [BUDGET_STATUS.CANCELADO]: 'BUDGET_CANCELLED'
       };
 
       const eventType = eventTypeMap[nextStatus];
@@ -105,13 +106,27 @@ export const operationalFacade = {
         aggregateId: budget.id,
         aggregateType: 'finance',
         eventType: 'FINANCE_RECORD_REALIZED',
-        snapshot: { status: BUDGET_STATUS.FINALIZADO }
+        snapshot: { 
+          status: BUDGET_STATUS.FINALIZADO,
+          revenue: budget.chargedValue - budget.discounts,
+          grossProfit: budget.financialSnapshot?.lucroBruto || 0
+        }
       });
     }
   },
 
   archiveBudget: async (budgetId: string): Promise<void> => {
     await operationalFacade.changeBudgetStatus(budgetId, 'arquivado');
+  },
+
+  deleteBudget: async (budgetId: string): Promise<void> => {
+    const budgetPersistence = new BudgetPersistenceService();
+    await budgetPersistence.deleteBudget(budgetId);
+    await operationalEventService.emitEvent({
+      aggregateId: budgetId,
+      aggregateType: 'budget',
+      eventType: 'BUDGET_DELETED',
+    });
   },
 
   // --- FINANCE OPERATIONS ---

@@ -1,6 +1,7 @@
 import { db } from '../storage/dexieDatabase';
 import { SimpleFinanceService } from './SimpleFinanceService';
 import { SimpleFinanceRecord } from '../domain/finance';
+import { safeJsonParse } from '../core/runtime/safeGuards';
 
 const STORAGE_KEY = 'orcaos:simple-finance-records:v1';
 
@@ -33,13 +34,8 @@ function loadLegacyRecords(): SimpleFinanceRecord[] {
   if (typeof window === 'undefined' || typeof window.localStorage === 'undefined') return [];
   // eslint-disable-next-line no-restricted-syntax
   const raw = window.localStorage.getItem(STORAGE_KEY);
-  if (!raw) return [];
-  try {
-    const parsed: unknown = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed.filter(isRecord).sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)) : [];
-  } catch {
-    return [];
-  }
+  const parsed = safeJsonParse<unknown[]>(raw, []);
+  return Array.isArray(parsed) ? parsed.filter(isRecord).sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)) : [];
 }
 
 const MIGRATION_KEY = 'migration:simpleFinance:dexie';

@@ -1,3 +1,5 @@
+import { safeJsonParse } from '../../../core/runtime/safeGuards';
+
 export interface AferixLocalBackup {
   app: string;
   version: 1;
@@ -24,12 +26,7 @@ const AFERIX_PREFIX = 'aferix';
 const LEGACY_APP_MARKER = 'Or\u00e7aOS';
 
 function parseJsonValue(value: string | undefined): unknown {
-  if (!value) return null;
-  try {
-    return JSON.parse(value);
-  } catch {
-    return null;
-  }
+  return safeJsonParse<unknown>(value, null);
 }
 
 function countArrayValue(value: string | undefined): number {
@@ -131,15 +128,11 @@ export function summarizeAferixBackupData(backup: AferixLocalBackup): AferixBack
 }
 
 export function parseAferixBackup(value: string): AferixLocalBackup {
-  let parsed: unknown;
-  try {
-    parsed = JSON.parse(value);
-  } catch {
-    throw new Error('JSON inválido. Confira se o conteúdo colado é um backup completo do Aferix.');
-  }
-  if (!parsed || typeof parsed !== 'object') throw new Error('Arquivo de backup inválido.');
+  const parsed = safeJsonParse<Partial<AferixLocalBackup> | null>(value, null);
+  
+  if (!parsed || typeof parsed !== 'object') throw new Error('Arquivo de backup inválido ou JSON corrompido.');
 
-  const backup = parsed as Partial<AferixLocalBackup>;
+  const backup = parsed;
   if (backup.app !== 'Aferix' && backup.app !== LEGACY_APP_MARKER) throw new Error('Este arquivo não parece ser um backup do Aferix.');
   if (backup.version !== 1) throw new Error('Versão de backup não suportada.');
   if (!backup.keys || typeof backup.keys !== 'object') throw new Error('Backup sem dados restauráveis.');

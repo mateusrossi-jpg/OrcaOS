@@ -78,7 +78,12 @@ export class OperationalReadModelService {
         lastUpdatedAt: sorted[sorted.length - 1].timestamp
       };
 
+      let isDeleted = false;
       for (const evt of sorted) {
+        if (evt.eventType === 'BUDGET_DELETED') {
+          isDeleted = true;
+          break;
+        }
         if (evt.aggregateType === 'budget') {
           proj.budgetId = evt.aggregateId;
           const s = safeString(evt.snapshot?.status);
@@ -94,14 +99,10 @@ export class OperationalReadModelService {
         }
       }
 
-      // We only key the pipeline by budgetId since budget is our source-of-truth.
-      // But notice some aggregates could be 'proposal' independent if correlation is lost.
-      // For simplicity in this projection, we just map everything grouped by its root.
-      // Since operationalFacade correlates via emitEvent aggregateId...
-      // Wait, in operationalFacade, Proposal events are emitted with aggregateId = proposal.id.
-      // This means they won't automatically group with budgetId unless we use correlationId!
-      // But this fulfills the structural read model requirement for now.
-      pipeline[proj.budgetId] = proj;
+      if (!isDeleted) {
+        // We only key the pipeline by budgetId since budget is our source-of-truth.
+        pipeline[proj.budgetId] = proj;
+      }
     }
 
     this.pipelineCache = pipeline;
@@ -125,7 +126,9 @@ export class OperationalReadModelService {
       if (evt.eventType === 'PROPOSAL_APPROVED') totalProposalsApproved++;
       if (evt.eventType === 'WORKORDER_COMPLETED') totalWorkOrdersCompleted++;
       if (evt.eventType === 'FINANCE_RECORD_REALIZED') {
-        revenueRealized++; // Simplification: we might need to sum amounts if passed in snapshot
+        const amount = Number(evt.snapshot?.revenue) || 0;
+        const adjustment = Number(evt.snapshot?.receivedAmount) || 0;
+        revenueRealized += (amount + adjustment);
       }
     }
 
@@ -259,6 +262,15 @@ export class OperationalReadModelService {
     return activity;
   }
 
+  async getFeedProjection() {
+    const feed = operationalFeedService.getFeed();
+    if (feed.length > 0) return feed;
+
+    const allEvents = await operationalTimelineService.getGlobalTimeline();
+    operationalFeedService.rebuildFromEvents(allEvents);
+    return operationalFeedService.getFeed();
+  }
+
   async getOperationalQueue(): Promise<QueueWorkflowInput[]> {
     // Minimally integrate QueueEngine by projecting the queue state from the read model
     // so QueueEngine can act as a pure reader, not a source of truth.
@@ -293,6 +305,9 @@ export class OperationalReadModelService {
    * Preload hydration used during app startup.
    */
   async hydrate() {
+    const allEvents = await operationalTimelineService.getGlobalTimeline();
+    operationalFeedService.rebuildFromEvents(allEvents);
+
     await this.getPipelineProjection();
     await this.getMetricsProjection();
     await this.getBoardProjection();

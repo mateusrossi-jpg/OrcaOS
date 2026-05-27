@@ -1,4 +1,5 @@
 import { createDefaultProfessionalProfile, resetProfessionalProfileIds, type ProfessionalProfile } from '../models/professionalProfile';
+import { safeJsonParse } from '../../../core/runtime/safeGuards';
 
 export { createDefaultProfessionalProfile, resetProfessionalProfileIds };
 export type { ProfessionalProfile };
@@ -13,20 +14,18 @@ function isProfessionalProfile(value: unknown): value is ProfessionalProfile {
 
 export function loadProfessionalProfile(): ProfessionalProfile {
   if (typeof window === 'undefined') return createDefaultProfessionalProfile();
-  try {
-    const stored = window.localStorage.getItem(PROFESSIONAL_PROFILE_STORAGE_KEY);
-    if (!stored) return createDefaultProfessionalProfile();
-    const parsed: unknown = JSON.parse(stored);
-    if (!isProfessionalProfile(parsed)) return createDefaultProfessionalProfile();
-    return {
-      ...createDefaultProfessionalProfile(),
-      ...parsed,
-      professionalId: parsed.professionalId,
-      companyId: parsed.companyId,
-    };
-  } catch {
-    return createDefaultProfessionalProfile();
-  }
+  
+  const stored = window.localStorage.getItem(PROFESSIONAL_PROFILE_STORAGE_KEY);
+  const parsed = safeJsonParse<unknown>(stored, null);
+  
+  if (!isProfessionalProfile(parsed)) return createDefaultProfessionalProfile();
+  
+  return {
+    ...createDefaultProfessionalProfile(),
+    ...parsed,
+    professionalId: parsed.professionalId,
+    companyId: parsed.companyId,
+  };
 }
 
 export function saveProfessionalProfile(profile: ProfessionalProfile): void {

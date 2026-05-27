@@ -3,6 +3,7 @@ export type EventAggregateType = 'budget' | 'proposal' | 'workorder' | 'client' 
 export type OperationalEventType =
   | 'BUDGET_CREATED'
   | 'BUDGET_UPDATED'
+  | 'BUDGET_DELETED'
   | 'BUDGET_SENT'
   | 'BUDGET_APPROVED'
   | 'BUDGET_AUTHORIZED'

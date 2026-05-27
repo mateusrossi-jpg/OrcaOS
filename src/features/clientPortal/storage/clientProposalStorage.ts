@@ -1,3 +1,5 @@
+import { safeJsonParse } from '../../../core/runtime/safeGuards';
+
 export type ClientProposalStatus = 'draft' | 'sent' | 'viewed' | 'approved' | 'rejected' | 'expired';
 
 export interface ClientProposalPublicItem {
@@ -71,20 +73,11 @@ function isClientProposal(value: unknown): value is ClientProposal {
   );
 }
 
-function safeParseProposals(value: string | null): ClientProposal[] {
-  if (!value) return [];
-  try {
-    const parsed: unknown = JSON.parse(value);
-    if (!Array.isArray(parsed)) return [];
-    return parsed.filter(isClientProposal);
-  } catch {
-    return [];
-  }
-}
-
 export function loadClientProposals(): ClientProposal[] {
   if (typeof window === 'undefined') return [];
-  return safeParseProposals(window.localStorage.getItem(STORAGE_KEY));
+  const raw = window.localStorage.getItem(STORAGE_KEY);
+  const parsed = safeJsonParse<unknown[]>(raw, []);
+  return parsed.filter(isClientProposal);
 }
 
 export function createClientProposalDraft(input: Partial<ClientProposal> = {}): ClientProposal {

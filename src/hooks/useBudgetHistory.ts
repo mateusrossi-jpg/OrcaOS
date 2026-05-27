@@ -6,6 +6,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { BudgetPersistenceService } from '../services/BudgetPersistenceService';
 import { Budget, BUDGET_STATUS } from '../domain/budget';
+import { operationalFacade } from '../features/workflow/operationalFacade';
 
 const persistence = new BudgetPersistenceService();
 
@@ -38,7 +39,7 @@ export function useBudgetHistory() {
     setIsLoading(true);
     setError(null);
     try {
-      await persistence.deleteBudget(id);
+      await operationalFacade.deleteBudget(id);
       await loadBudgets();
     } catch (e) {
       const err = e as Error;

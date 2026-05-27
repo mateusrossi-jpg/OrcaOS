@@ -1,4 +1,5 @@
 import type { CalculationDestination, TechnicalItemType } from '../../../core/types/workflow';
+import { safeJsonParse } from '../../../core/runtime/safeGuards';
 
 export type CatalogHubItemKind = 'material' | 'labor' | 'service' | 'travel' | 'fee' | 'custom';
 
@@ -185,23 +186,13 @@ const starterItems: CatalogHubItem[] = [
   },
 ];
 
-function safeParseArray<T>(value: string | null, fallback: T[]): T[] {
-  if (!value) return fallback;
-  try {
-    const parsed: unknown = JSON.parse(value);
-    return Array.isArray(parsed) ? (parsed as T[]) : fallback;
-  } catch {
-    return fallback;
-  }
-}
-
 function sortMostRecent<T extends { updatedAt?: string; createdAt?: string }>(items: T[]): T[] {
   return [...items].sort((a, b) => (b.updatedAt ?? b.createdAt ?? '').localeCompare(a.updatedAt ?? a.createdAt ?? ''));
 }
 
 export function loadCatalogHubItems(): CatalogHubItem[] {
   if (typeof window === 'undefined') return starterItems;
-  return sortMostRecent(safeParseArray<CatalogHubItem>(window.localStorage.getItem(ITEMS_KEY), starterItems));
+  return sortMostRecent(safeJsonParse<CatalogHubItem[]>(window.localStorage.getItem(ITEMS_KEY), starterItems));
 }
 
 export function saveCatalogHubItems(items: CatalogHubItem[]): void {
@@ -211,7 +202,7 @@ export function saveCatalogHubItems(items: CatalogHubItem[]): void {
 
 export function loadCatalogSuppliers(): CatalogSupplier[] {
   if (typeof window === 'undefined') return starterSuppliers;
-  return sortMostRecent(safeParseArray<CatalogSupplier>(window.localStorage.getItem(SUPPLIERS_KEY), starterSuppliers));
+  return sortMostRecent(safeJsonParse<CatalogSupplier[]>(window.localStorage.getItem(SUPPLIERS_KEY), starterSuppliers));
 }
 
 export function saveCatalogSuppliers(suppliers: CatalogSupplier[]): void {

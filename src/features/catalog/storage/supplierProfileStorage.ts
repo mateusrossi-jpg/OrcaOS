@@ -1,3 +1,5 @@
+import { safeJsonParse } from '../../../core/runtime/safeGuards';
+
 export interface SupplierProfile {
   id: string;
   name: string;
@@ -22,24 +24,17 @@ export interface SupplierProfile {
 const STORAGE_KEY = 'orcaos:supplier-profiles:v1';
 export const SUPPLIER_PROFILES_CHANGED_EVENT = 'orcaos:supplier-profiles-changed';
 
-function safeParseProfiles(value: string | null): SupplierProfile[] {
-  if (!value) return [];
-  try {
-    const parsed: unknown = JSON.parse(value);
-    if (!Array.isArray(parsed)) return [];
-    return parsed.filter((item): item is SupplierProfile => {
-      if (!item || typeof item !== 'object') return false;
-      const profile = item as Partial<SupplierProfile>;
-      return typeof profile.id === 'string' && typeof profile.name === 'string' && typeof profile.document === 'string';
-    });
-  } catch {
-    return [];
-  }
+function isSupplierProfile(item: unknown): item is SupplierProfile {
+  if (!item || typeof item !== 'object') return false;
+  const profile = item as Partial<SupplierProfile>;
+  return typeof profile.id === 'string' && typeof profile.name === 'string' && typeof profile.document === 'string';
 }
 
 export function loadSupplierProfiles(): SupplierProfile[] {
   if (typeof window === 'undefined') return [];
-  return safeParseProfiles(window.localStorage.getItem(STORAGE_KEY)).sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+  const raw = window.localStorage.getItem(STORAGE_KEY);
+  const parsed = safeJsonParse<unknown[]>(raw, []);
+  return parsed.filter(isSupplierProfile).sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
 }
 
 export function saveSupplierProfiles(profiles: SupplierProfile[]): void {

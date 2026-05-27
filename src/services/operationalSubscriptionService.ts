@@ -9,7 +9,7 @@ type ProjectionName = 'pipeline' | 'metrics' | 'board' | 'crm' | 'activity' | 'f
 // Invalidation Map: Which events invalidate which projections
 const ProjectionInvalidationMap: Record<string, ProjectionName[]> = {
   'BUDGET_CREATED': ['pipeline', 'metrics', 'board', 'crm', 'activity', 'feed'],
-  'BUDGET_EXECUTED': ['pipeline', 'board', 'crm', 'activity', 'feed'],
+  'BUDGET_EXECUTION_STARTED': ['pipeline', 'board', 'crm', 'activity', 'feed'],
   'BUDGET_FINALIZED': ['pipeline', 'metrics', 'board', 'crm', 'activity', 'feed'],
   'PROPOSAL_SENT': ['pipeline', 'metrics', 'board', 'crm', 'activity', 'feed'],
   'PROPOSAL_APPROVED': ['pipeline', 'metrics', 'board', 'crm', 'activity', 'feed'],

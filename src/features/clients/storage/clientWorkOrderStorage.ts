@@ -1,4 +1,5 @@
 import type { Client, Service as WorkOrder } from '../../../core/types/business';
+import { safeJsonParse } from '../../../core/runtime/safeGuards';
 
 const CLIENTS_STORAGE_KEY = 'orcaos:clients:v1';
 const WORK_ORDERS_STORAGE_KEY = 'orcaos:work-orders:v1';
@@ -25,26 +26,20 @@ function isWorkOrder(value: unknown): value is WorkOrder {
 function readJsonArray<T>(key: string, guard: (value: unknown) => value is T): T[] {
   if (typeof window === 'undefined') return [];
 
-  try {
-    const storedValue = window.localStorage.getItem(key);
-    if (!storedValue) return [];
-
-    const parsedValue: unknown = JSON.parse(storedValue);
+  const storedValue = window.localStorage.getItem(key);
+  const parsedValue = safeJsonParse<unknown[]>(storedValue, []);
     
-    // Migração de dados legados para os novos status se necessário
-    if (Array.isArray(parsedValue)) {
-      const migrated = (parsedValue as Array<Record<string, unknown>>).map((item) => {
-        if (item.status === 'open' || item.status === 'scheduled') {
-          return { ...item, status: 'in-progress' };
-        }
-        return item;
-      });
-      return migrated.filter(guard) as unknown as T[];
-    }
-    return [];
-  } catch {
-    return [];
+  // Migração de dados legados para os novos status se necessário
+  if (Array.isArray(parsedValue)) {
+    const migrated = (parsedValue as Array<Record<string, unknown>>).map((item) => {
+      if (item.status === 'open' || item.status === 'scheduled') {
+        return { ...item, status: 'in-progress' };
+      }
+      return item;
+    });
+    return migrated.filter(guard) as unknown as T[];
   }
+  return [];
 }
 
 function writeJsonArray<T>(key: string, items: T[]): void {
