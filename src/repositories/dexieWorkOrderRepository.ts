@@ -12,22 +12,29 @@ export class DexieWorkOrderRepository implements WorkOrderRepository {
   }
 
   async add(workOrder: WorkOrder): Promise<void> {
-    await db.workOrders.add(workOrder);
+    const toSave = { ...workOrder, syncStatus: 'pending', updatedAt: Date.now() } as any;
+    await db.workOrders.add(toSave);
   }
 
   async update(workOrder: WorkOrder): Promise<void> {
     await db.workOrders.put({
       ...workOrder,
-      updatedAt: new Date().toISOString(),
-    });
+      updatedAt: Date.now(),
+      syncStatus: 'pending',
+    } as any);
   }
 
   async delete(id: string): Promise<void> {
-    await db.workOrders.delete(id);
+    const existing = await db.workOrders.get(id);
+    if (existing) {
+      const toSave = { ...existing, syncStatus: 'deleted', updatedAt: Date.now() } as any;
+      await db.workOrders.put(toSave);
+    }
   }
 
   async bulkAdd(workOrders: WorkOrder[]): Promise<void> {
-    await db.workOrders.bulkAdd(workOrders);
+    const toSave = workOrders.map(w => ({ ...w, syncStatus: 'pending', updatedAt: Date.now() })) as any;
+    await db.workOrders.bulkAdd(toSave);
   }
 }
 

@@ -175,7 +175,7 @@ export class OperationalReadModelService {
         netProfit: budget.financialSnapshot?.lucroBruto || 0,
         margin: budget.financialSnapshot?.margemPercentual || 0,
         createdAt: budget.createdAt,
-        updatedAt: budget.updatedAt,
+        updatedAt: new Date(budget.updatedAt).toISOString(),
         aging: Math.floor((Date.now() - new Date(budget.createdAt).getTime()) / (1000 * 60 * 60 * 24)),
         priority: 'normal',
         slaBreached: false,

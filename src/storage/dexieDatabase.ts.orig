@@ -49,11 +49,10 @@ export class AferixDatabase extends Dexie {
     // Version 9: Added accountPlan table
     // Version 10: Added simpleFinanceRecords table
     // Version 11: Added operationalEvents table
-    // Version 12: Added syncStatus index (P97)
-    this.version(12).stores({
-      budgets: 'id, syncStatus',
-      clients: 'id, syncStatus',
-      workOrders: 'id, syncStatus',
+    this.version(11).stores({
+      budgets: 'id',
+      clients: 'id',
+      workOrders: 'id',
       catalog: 'id',
       catalogSuppliers: 'id',
       supplierProfiles: 'id',

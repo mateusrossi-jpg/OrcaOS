@@ -19,5 +19,6 @@ export interface Client {
   salesHistoryNotes?: string;
   notes?: string;
   createdAt: string; // ISO String for better serialization in Dexie
-  updatedAt: string;
+  updatedAt: number | string;
+  syncStatus?: 'synced' | 'pending' | 'deleted';
 }

@@ -13,13 +13,14 @@ export class DexieClientRepository implements ClientRepository {
   }
 
   async add(clientData: Omit<Client, 'id' | 'createdAt' | 'updatedAt'>): Promise<Client> {
-    const now = new Date().toISOString();
+    const now = Date.now();
     const client: Client = {
       ...clientData,
       id: createId('client'),
-      createdAt: now,
+      createdAt: new Date(now).toISOString(),
       updatedAt: now,
-    };
+      syncStatus: 'pending',
+    } as any;
     await db.clients.add(client);
     return client;
   }
@@ -27,17 +28,23 @@ export class DexieClientRepository implements ClientRepository {
   async update(client: Client): Promise<void> {
     const updatedClient = {
       ...client,
-      updatedAt: new Date().toISOString(),
-    };
+      updatedAt: Date.now(),
+      syncStatus: 'pending',
+    } as any;
     await db.clients.put(updatedClient);
   }
 
   async delete(id: string): Promise<void> {
-    await db.clients.delete(id);
+    const existing = await db.clients.get(id);
+    if (existing) {
+      const toSave = { ...existing, syncStatus: 'deleted', updatedAt: Date.now() } as any;
+      await db.clients.put(toSave);
+    }
   }
 
   async bulkAdd(clients: Client[]): Promise<void> {
-    await db.clients.bulkAdd(clients);
+    const toSave = clients.map(c => ({ ...c, syncStatus: 'pending', updatedAt: Date.now() })) as any;
+    await db.clients.bulkAdd(toSave);
   }
 }
 

@@ -84,7 +84,8 @@ export interface Service {
   scheduledDate?: string;
   paymentStatus: 'pending' | 'partial' | 'paid';
   createdAt?: string;
-  updatedAt?: string;
+  updatedAt?: number | string;
+  syncStatus?: 'synced' | 'pending' | 'deleted';
 }
 
 export type WorkOrder = Service;

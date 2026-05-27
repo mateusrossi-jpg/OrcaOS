@@ -1,0 +1,30 @@
+--- src/repositories/dexieBudgetRepository.ts
++++ src/repositories/dexieBudgetRepository.ts
+@@ -10,9 +10,14 @@
+ export class DexieBudgetRepository implements BudgetRepository {
+   async createBudget(budget: Budget): Promise<void> {
++    const toSave = { ...budget, syncStatus: 'pending', updatedAt: Date.now() } as any;
+-    await db.budgets.add(budget);
++    await db.budgets.add(toSave);
+   }
+ 
+   async updateBudget(budget: Budget): Promise<void> {
+-    await db.budgets.put(budget);
++    const toSave = { ...budget, syncStatus: 'pending', updatedAt: Date.now() } as any;
++    await db.budgets.put(toSave);
+   }
+ 
+   async getBudgetById(id: string): Promise<Budget | undefined> {
+@@ -47,6 +52,14 @@
+   }
+   async delete(id: string): Promise<void> {
+-    await db.budgets.delete(id);
++    const existing = await db.budgets.get(id);
++    if (existing) {
++      const toSave = { ...existing, syncStatus: 'deleted', updatedAt: Date.now() } as any;
++      await db.budgets.put(toSave);
++    } else {
++      // If not exists, just ignore or add tombstone? For MVP, just ignore if not found.
++    }
+   }
+ }

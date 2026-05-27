@@ -70,7 +70,7 @@ export const FinanceFacade = {
         title: budget.title,
         clientName: budget.clientName || 'Cliente final',
         status: budget.status,
-        updatedAt: budget.finalizedAt || budget.updatedAt || new Date().toISOString(),
+        updatedAt: new Date(budget.finalizedAt || budget.updatedAt || new Date()).toISOString(),
         receivedAmount,
         materialCost,
         travelCost,

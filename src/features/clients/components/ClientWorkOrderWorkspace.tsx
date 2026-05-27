@@ -64,8 +64,10 @@ interface ClientDraft {
 
 const CLIENT_OS_VISIBLE_LIMIT = 5;
 
-function recentTimestamp(item: { updatedAt?: string; createdAt?: string }): string {
-  return item.updatedAt ?? item.createdAt ?? '';
+function recentTimestamp(item: { updatedAt?: number | string; createdAt?: string }): string {
+  if (item.createdAt) return item.createdAt;
+  if (item.updatedAt) return new Date(item.updatedAt).toISOString();
+  return '';
 }
 
 const emptyClientDraft: ClientDraft = {

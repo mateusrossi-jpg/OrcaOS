@@ -9,11 +9,13 @@ import { db } from '../storage/dexieDatabase';
 
 export class DexieBudgetRepository implements BudgetRepository {
   async createBudget(budget: Budget): Promise<void> {
-    await db.budgets.add(budget);
+    const toSave = { ...budget, syncStatus: 'pending', updatedAt: Date.now() } as any;
+    await db.budgets.add(toSave);
   }
 
   async updateBudget(budget: Budget): Promise<void> {
-    await db.budgets.put(budget);
+    const toSave = { ...budget, syncStatus: 'pending', updatedAt: Date.now() } as any;
+    await db.budgets.put(toSave);
   }
 
   async getBudgetById(id: string): Promise<Budget | undefined> {
@@ -46,6 +48,10 @@ export class DexieBudgetRepository implements BudgetRepository {
     return count;
   }
   async delete(id: string): Promise<void> {
-    await db.budgets.delete(id);
+    const existing = await db.budgets.get(id);
+    if (existing) {
+      const toSave = { ...existing, syncStatus: 'deleted', updatedAt: Date.now() } as any;
+      await db.budgets.put(toSave);
+    }
   }
 }

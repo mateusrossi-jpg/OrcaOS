@@ -1,0 +1,27 @@
+--- src/storage/dexieDatabase.ts
++++ src/storage/dexieDatabase.ts
+@@ -49,20 +49,21 @@
+     // Version 9: Added accountPlan table
+     // Version 10: Added simpleFinanceRecords table
+     // Version 11: Added operationalEvents table
+-    this.version(11).stores({
++    // Version 12: Added syncStatus index (P97)
++    this.version(12).stores({
+-      budgets: 'id',
+-      clients: 'id',
+-      workOrders: 'id',
++      budgets: 'id, syncStatus',
++      clients: 'id, syncStatus',
++      workOrders: 'id, syncStatus',
+       catalog: 'id',
+       catalogSuppliers: 'id',
+       supplierProfiles: 'id',
+       professionalProfiles: 'id',
+       migrations: 'key',
+       settings: 'key',
+       clientProposals: 'id',
+       calculationCaptures: 'id, workOrderId, clientId',
+       accountPlan: 'id',
+       simpleFinanceRecords: 'id, sourceBudgetId',
+       operationalEvents: 'id, aggregateId, aggregateType, eventType, timestamp, correlationId',
+     });
