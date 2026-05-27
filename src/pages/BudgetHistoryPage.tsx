@@ -21,7 +21,7 @@ interface BudgetHistoryPageProps {
   onNewBudget: () => void;
 }
 
-export const BudgetHistoryPage: React.FC<BudgetHistoryPageProps> = ({ onOpenBudget, onNewBudget }) => {
+export const BudgetHistoryPage: React.FC<BudgetHistoryPageProps> = ({ onOpenBudget, onNewBudget: _onNewBudget }) => {
   const { budgets, totalCount, isLoading, filter, setFilter, deleteBudget } = useBudgetHistory();
   const [query, setQuery] = React.useState('');
 

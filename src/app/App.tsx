@@ -27,6 +27,7 @@ import { useAccountPlan } from '../hooks/useAccountPlan';
 import { useAppClients } from './hooks/useAppClients';
 import { realtimeBridge } from '../core/realtime/bridge';
 import { ERPToast } from '../ui/system';
+import { DebugPanel } from '../features/settings/components/DebugPanel';
 function LazyWorkspaceFallback() {
   return (
     <section className="app-screen">
@@ -139,6 +140,7 @@ export function App() {
   return (
     <>
       <ERPToast />
+      <DebugPanel />
       <AferixIntro />
       <AppShell activeTab={activeTab} activeClient={activeClient} activeWorkOrder={activeWorkOrder} onNavigate={goTo}>
         <Suspense fallback={<LazyWorkspaceFallback />}>

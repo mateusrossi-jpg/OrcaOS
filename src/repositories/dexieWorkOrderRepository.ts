@@ -2,6 +2,9 @@ import { WorkOrder } from '../core/types/business';
 import { WorkOrderRepository } from './workOrderRepository';
 import { db } from '../storage/dexieDatabase';
 
+import { validateWorkOrderIntegrity } from '../domain/guards';
+import { aferixLogger } from '../core/debug/aferixLogger';
+
 export class DexieWorkOrderRepository implements WorkOrderRepository {
   async getAll(): Promise<WorkOrder[]> {
     return await db.workOrders.filter(w => w.syncStatus !== 'deleted').toArray();
@@ -15,16 +18,27 @@ export class DexieWorkOrderRepository implements WorkOrderRepository {
 
   async add(workOrder: WorkOrder): Promise<void> {
     const toSave = { ...workOrder, syncStatus: 'pending', syncUpdatedAt: Date.now(), updatedAt: workOrder.updatedAt || new Date().toISOString() } as WorkOrder;
+    if (!validateWorkOrderIntegrity(toSave)) {
+      aferixLogger.warn('Aferix Integrity', 'Blocked invalid work order add', toSave);
+      throw new Error('Invalid work order integrity');
+    }
     await db.workOrders.add(toSave);
   }
 
   async update(workOrder: WorkOrder): Promise<void> {
-    await db.workOrders.put({
+    const toSave = {
       ...workOrder,
       updatedAt: new Date().toISOString(),
       syncStatus: 'pending',
       syncUpdatedAt: Date.now(),
-    } as WorkOrder);
+    } as WorkOrder;
+
+    if (!validateWorkOrderIntegrity(toSave)) {
+      aferixLogger.warn('Aferix Integrity', 'Blocked invalid work order update', toSave);
+      throw new Error('Invalid work order integrity');
+    }
+
+    await db.workOrders.put(toSave);
   }
 
   async delete(id: string): Promise<void> {

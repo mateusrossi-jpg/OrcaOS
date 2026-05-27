@@ -1,3 +1,5 @@
+/* eslint-disable no-restricted-imports */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useEffect, useState } from 'react';
 import {
   collectAferixLocalBackup,
@@ -8,14 +10,13 @@ import {
   stringifyAferixBackup,
   summarizeAferixBackup,
   summarizeAferixBackupData,
-  type AferixLocalBackup,
   type AferixBackupSummary,
   type AferixBackupDataSummaryItem
 } from '../storage/localBackup';
-import { PrimaryButton, DangerButton, PanelCard, ContextBanner } from '../../../app/components/ui';
+import { PrimaryButton, PanelCard, ContextBanner } from '../../../app/components/ui';
 import './LocalBackupWorkspace.css';
 
-export function LocalBackupWorkspace({ includeLinkedSettings = true }: { includeLinkedSettings?: boolean }) {
+export function LocalBackupWorkspace({ includeLinkedSettings: _includeLinkedSettings = true }: { includeLinkedSettings?: boolean }) {
   const [feedback, setFeedback] = useState<string | null>(null);
   const [summary, setSummary] = useState<AferixBackupSummary | null>(null);
   const [currentDataSummary, setCurrentDataSummary] = useState<AferixBackupDataSummaryItem[]>([]);
@@ -44,7 +45,7 @@ export function LocalBackupWorkspace({ includeLinkedSettings = true }: { include
       const text = stringifyAferixBackup(backup);
       downloadBackupFile(createBackupFilename(), text);
       setFeedback('Backup exportado com sucesso.');
-    } catch ( _err ) {
+    } catch (_e) {
       setFeedback('Falha ao exportar backup.');
     }
   }

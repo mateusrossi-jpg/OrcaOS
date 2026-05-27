@@ -2,10 +2,13 @@ import { Client } from '../domain/client';
 import { ClientRepository } from './clientRepository';
 import { db } from '../storage/dexieDatabase';
 import { createId } from '../app/utils/idHelpers';
+import { validateClientIntegrity } from '../domain/guards';
+import { aferixLogger } from '../core/debug/aferixLogger';
 
 export class DexieClientRepository implements ClientRepository {
   async getAll(): Promise<Client[]> {
-    return await db.clients.filter(c => c.syncStatus !== 'deleted').toArray();
+    const all = await db.clients.filter(c => c.syncStatus !== 'deleted').toArray();
+    return all.sort((a, b) => a.name.localeCompare(b.name));
   }
 
   async getById(id: string): Promise<Client | undefined> {
@@ -44,6 +47,15 @@ export class DexieClientRepository implements ClientRepository {
       const toSave = { ...existing, syncStatus: 'deleted', syncUpdatedAt: Date.now(), updatedAt: new Date().toISOString() } as Client;
       await db.clients.put(toSave);
     }
+  }
+
+  async put(client: Client): Promise<void> {
+    const toSave = { ...client, syncStatus: 'pending', syncUpdatedAt: Date.now(), updatedAt: new Date().toISOString() } as Client;
+    if (!validateClientIntegrity(toSave)) {
+      aferixLogger.warn('Aferix Integrity', 'Blocked invalid client put', toSave);
+      throw new Error('Invalid client integrity');
+    }
+    await db.clients.put(toSave);
   }
 
   async bulkAdd(clients: Client[]): Promise<void> {

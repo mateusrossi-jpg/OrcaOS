@@ -7,14 +7,25 @@ import { Budget, BUDGET_STATUS } from '../domain/budget';
 import { BudgetRepository } from './budgetRepository';
 import { db } from '../storage/dexieDatabase';
 
+import { validateBudgetIntegrity } from '../domain/guards';
+import { aferixLogger } from '../core/debug/aferixLogger';
+
 export class DexieBudgetRepository implements BudgetRepository {
   async createBudget(budget: Budget): Promise<void> {
     const toSave = { ...budget, syncStatus: 'pending', syncUpdatedAt: Date.now(), updatedAt: budget.updatedAt || new Date().toISOString() } as Budget;
+    if (!validateBudgetIntegrity(toSave)) {
+      aferixLogger.warn('Aferix Integrity', 'Blocked invalid budget creation', toSave);
+      throw new Error('Invalid budget integrity');
+    }
     await db.budgets.add(toSave);
   }
 
   async updateBudget(budget: Budget): Promise<void> {
     const toSave = { ...budget, syncStatus: 'pending', syncUpdatedAt: Date.now(), updatedAt: new Date().toISOString() } as Budget;
+    if (!validateBudgetIntegrity(toSave)) {
+      aferixLogger.warn('Aferix Integrity', 'Blocked invalid budget update', toSave);
+      throw new Error('Invalid budget integrity');
+    }
     await db.budgets.put(toSave);
   }
 
