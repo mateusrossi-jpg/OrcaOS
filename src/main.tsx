@@ -7,7 +7,14 @@ import './styles/aferixTheme.css';
 import './styles/premiumSystem.css';
 import './styles/aferixUtilities.css';
 
+import { syncService } from './services/SyncService';
+
 const rootElement = document.getElementById('root');
+
+// Expose syncService to window for E2E tests
+if (typeof window !== 'undefined') {
+  (window as unknown as { syncService: typeof syncService }).syncService = syncService;
+}
 
 if (rootElement) {
   ReactDOM.createRoot(rootElement).render(

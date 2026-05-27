@@ -29,7 +29,7 @@ export function LocalBackupWorkspace({ includeLinkedSettings = true }: { include
         setSummary(summarizeAferixBackup(backup));
         setCurrentDataSummary(summarizeAferixBackupData(backup));
       } catch ( _err ) {
-        console.error('Failed to load backup summary:', err);
+        console.error('Failed to load backup summary:', _err);
       } finally {
         setIsLoading(false);
       }
