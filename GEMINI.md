@@ -27,16 +27,23 @@ O Aferix deve parecer caro, sério e profissional.
 - **Offline-First:** Não é uma feature, é a identidade. O sistema nunca abandona o usuário. Persistência forte e sync silencioso.
 
 ## 3. Próximas Fases (Master Roadmap)
-1. **FASE 1: ESTABILIZAÇÃO PREMIUM (FOCO ATUAL)**
-   - Padronização visual total.
-   - Mobile-first real (uma mão, alta legibilidade sob sol).
-   - Eliminação de poluição visual e redundâncias.
-   - Hierarquia visual profissional.
-2. **FASE 2: HARDENING & EVENT STORE**
-   - Trilha operacional determinística (Event Store).
-   - Confiabilidade total nos cálculos de lucro/margem.
-3. **FASE 3: CLOUD & SAAS**
-   - Sync opcional, cloud híbrida, multi-device, colaboração.
+1.  **FASE 1: ESTABILIZAÇÃO PREMIUM (CONCLUÍDA)**
+    *   Padronização visual total e mobile-first real.
+    *   Ações operacionais centralizadas na `StickyActionBar`.
+    *   Correção de bloqueios de toque e overlays no iOS.
+2.  **FASE 2: HARDENING & EVENT STORE (CONCLUÍDA)**
+    *   Trilha operacional determinística (`FINANCIAL_MUTATION`).
+    *   Snapshots financeiros imutáveis em transições de status.
+    *   Motor de reconciliação e auditoria de integridade automática.
+3.  **FASE 3: CLOUD & SAAS (CONCLUÍDA - FUNDAÇÃO)**
+    *   Sincronização híbrida via Supabase Event Store replication.
+    *   Replicação offline-first com reconciliação cloud.
+
+## 4. Mandatos Arquiteturais (Novos)
+*   **Fluxo de Mutação:** NENHUMA alteração financeira ou de status deve tocar o banco sem passar pelo `operationalFacade`. O Facade é o único que emite os eventos de mutação necessários para o Hardening.
+*   **Event Store:** O Event Store (`operationalEvents`) é a Fonte da Verdade para auditoria. O estado do banco (`budgets`) deve ser derivável da trilha de eventos.
+*   **Sincronização:** O app é offline-first. A sincronização cloud é um espelhamento da trilha de eventos local para replicação multi-dispositivo.
+*   **Cálculos:** O `BudgetCalculatorService` é a única autoridade de cálculo. Snapshots financeiros são congelados no momento da finalização para garantir histórico imutável.
 
 ## 4. Proibições e Restrições
 - **Overengineering:** Sem CQRS, event bus complexo, DI pesada ou state machines gigantes.

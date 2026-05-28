@@ -29,8 +29,8 @@ import { realtimeBridge } from '../core/realtime/bridge';
 import { ERPToast } from '../ui/system';
 import { DebugPanel } from '../features/settings/components/DebugPanel';
 import { multiTabProtection } from '../core/database/multiTabProtection';
+import { cloudSyncService } from '../services/CloudSyncService';
 
-multiTabProtection.init();
 
 function LazyWorkspaceFallback() {
   return (
@@ -66,6 +66,11 @@ export function App() {
 
   const { account, isLoading: isLoadingAccount } = useAccountPlan();
 
+  useEffect(() => {
+    multiTabProtection.init();
+    return () => multiTabProtection.destroy();
+  }, []);
+
   const canNavigate = () => {
     return true;
   };
@@ -95,6 +100,14 @@ export function App() {
       realtimeBridge.shutdown();
     };
   }, [refreshClients]);
+
+  // FASE 3: Cloud Sync Background Task
+  useEffect(() => {
+    const interval = setInterval(() => {
+      void cloudSyncService.syncLocalToCloud();
+    }, 30000); // 30s
+    return () => clearInterval(interval);
+  }, []);
 
   if (isLoadingAccount || !account) {
     return <LazyWorkspaceFallback />;

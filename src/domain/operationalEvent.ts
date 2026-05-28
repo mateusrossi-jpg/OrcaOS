@@ -20,8 +20,15 @@ export type OperationalEventType =
   | 'WORKORDER_COMPLETED'
   | 'WORKORDER_CANCELLED'
   | 'FINANCE_RECORD_REALIZED'
+  | 'FINANCIAL_MUTATION'
   | 'CLIENT_CREATED'
   | 'CLIENT_UPDATED';
+
+export interface FinancialDiff {
+  field: string;
+  oldValue: number;
+  newValue: number;
+}
 
 export interface OperationalEvent {
   readonly id: string;
@@ -29,9 +36,12 @@ export interface OperationalEvent {
   readonly aggregateType: EventAggregateType;
   readonly eventType: OperationalEventType;
   readonly timestamp: string;
+  readonly sequence?: number; // For ordered Event Store reconciliation
   readonly actor: string;
   readonly source: string;
-  readonly metadata?: Readonly<Record<string, unknown>>;
+  readonly metadata?: Readonly<Record<string, unknown>> & {
+    diff?: FinancialDiff[];
+  };
   readonly snapshot?: Readonly<Record<string, unknown>>;
   readonly correlationId?: string;
   readonly causationId?: string;

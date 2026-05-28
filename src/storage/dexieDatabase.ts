@@ -50,7 +50,8 @@ export class AferixDatabase extends Dexie {
     // Version 10: Added simpleFinanceRecords table
     // Version 11: Added operationalEvents table
     // Version 12: Added syncStatus index (P97)
-    this.version(12).stores({
+    // Version 13: Added syncStatus to operationalEvents (P108 - Cloud Sync)
+    this.version(13).stores({
       budgets: 'id, syncStatus',
       clients: 'id, syncStatus',
       workOrders: 'id, syncStatus',
@@ -64,7 +65,7 @@ export class AferixDatabase extends Dexie {
       calculationCaptures: 'id, workOrderId, clientId',
       accountPlan: 'id',
       simpleFinanceRecords: 'id, sourceBudgetId',
-      operationalEvents: 'id, aggregateId, aggregateType, eventType, timestamp, correlationId',
+      operationalEvents: 'id, aggregateId, aggregateType, eventType, timestamp, correlationId, syncStatus',
     });
   }
 }

@@ -4,7 +4,7 @@
  */
 
 import { useState, useMemo, useCallback, useEffect } from 'react';
-import { Budget, BUDGET_STATUS, BudgetStatus } from '../domain/budget';
+import { Budget, BUDGET_STATUS, BudgetStatus, type BudgetItem } from '../domain/budget';
 import { calculateBudget } from '../domain/aferixFinanceEngine';
 import { BudgetPersistenceService } from '../services/BudgetPersistenceService';
 import { operationalFacade } from '../features/workflow/operationalFacade';
@@ -218,12 +218,20 @@ const removeItem = useCallback((itemId: string) => {
   }));
 }, []);
 
+  const updateItem = useCallback((itemId: string, updates: Partial<BudgetItem>) => {
+    setBudget(prev => ({
+      ...prev,
+      items: (prev.items || []).map(it => it.id === itemId ? { ...it, ...updates } : it)
+    }));
+  }, []);
+
   return {
     budget,
     isLoading,
     updateField,
     addItem,
     removeItem,
+    updateItem,
     preview,
     isSaving,
     isReadOnly: !permissions.canEditFinancials && !permissions.canEditItems && !permissions.canEditTitle,

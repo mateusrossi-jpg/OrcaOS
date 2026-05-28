@@ -4,6 +4,8 @@ import { storagePressureService } from './StoragePressureService';
 import { conflictDetectionService } from './ConflictDetectionService';
 import { operationalConsistencyService } from './OperationalConsistencyService';
 import { performanceAuditService } from './PerformanceAuditService';
+import { calculateBudget } from '../domain/aferixFinanceEngine';
+import { budgetHardeningService } from './BudgetHardeningService';
 
 export type OperationalHealthReport = {
   generatedAt: string;
@@ -35,6 +37,12 @@ export type OperationalHealthReport = {
 
   storagePressureWarning?: boolean;
   activeConflicts?: number;
+  eventStoreCount: number;
+  hardeningReport?: {
+    consistentBudgets: number;
+    driftCount: number;
+    repairedCount: number;
+  };
 };
 
 export class InternalDiagnosticsService {
@@ -83,7 +91,29 @@ export class InternalDiagnosticsService {
       warnings.push(`Detected ${activeConflicts} active sync conflicts`);
     }
 
+    const eventStoreCount = await db.operationalEvents.count();
+
+    // Hardening Audit
     const allBudgets = await db.budgets.toArray();
+    let consistentBudgets = 0;
+    let driftCount = 0;
+
+    for (const b of allBudgets) {
+      try {
+        const audit = await budgetHardeningService.auditBudget(b.id);
+        if (audit.isConsistent) {
+          consistentBudgets++;
+        } else {
+          driftCount++;
+          if (audit.driftValue > 0) {
+            criticalIssues.push(`[Hardening] Orçamento ${b.id}: Drift financeiro de R$ ${audit.driftValue.toFixed(2)}`);
+          }
+        }
+      } catch {
+        warnings.push(`[Hardening] Falha ao auditar orçamento ${b.id}`);
+      }
+    }
+
     const opReport = operationalConsistencyService.generateOperationalReport(allBudgets);
     opReport.anomalies.forEach(a => {
       if (a.severity === 'critical') criticalIssues.push(`[OpAnomaly] ${a.budgetId}: ${a.issue}`);
@@ -102,7 +132,7 @@ export class InternalDiagnosticsService {
 
     // Sub-scoring
     const databaseHealthScore = Math.max(0, 100 - (brokenRefs * 10) - (invalidDateCount * 2));
-    const financialHealthScore = Math.max(0, 100 - (finInconsistencies * 10));
+    const financialHealthScore = Math.max(0, 100 - (finInconsistencies * 10) - (driftCount * 5));
     const operationalHealthScore = Math.max(0, 100 - (opReport.criticalAnomalies * 10) - ((opReport.totalAnomalies - opReport.criticalAnomalies) * 2));
     const performanceHealthScore = Math.max(0, 100 - (perfWarnings.length * 5) - (storagePressure.pressureWarning ? 10 : 0));
 
@@ -133,8 +163,34 @@ export class InternalDiagnosticsService {
       warnings,
       criticalIssues,
       storagePressureWarning: storagePressure.pressureWarning,
-      activeConflicts
+      activeConflicts,
+      eventStoreCount,
+      hardeningReport: {
+        consistentBudgets,
+        driftCount,
+        repairedCount: 0
+      }
     };
+  }
+
+  /**
+   * Executa reparo em massa baseado na auditoria do Hardening.
+   */
+  async repairAllFinancialDrifts(): Promise<number> {
+    const allBudgets = await db.budgets.toArray();
+    let repaired = 0;
+    for (const b of allBudgets) {
+      try {
+        const audit = await budgetHardeningService.auditBudget(b.id);
+        if (!audit.isConsistent) {
+          const success = await budgetHardeningService.repairBudget(b.id);
+          if (success) repaired++;
+        }
+      } catch (e) {
+        console.error(`Repair failed for budget ${b.id}:`, e);
+      }
+    }
+    return repaired;
   }
 
   async scanOrphanRecords(_warnings: string[]): Promise<number> {
@@ -148,8 +204,28 @@ export class InternalDiagnosticsService {
     return leaks;
   }
 
-  async scanFinancialConsistency(_criticalIssues: string[]): Promise<number> {
-    return 0;
+  async scanFinancialConsistency(criticalIssues: string[]): Promise<number> {
+    let issues = 0;
+    const allBudgets = await db.budgets.toArray();
+    for (const b of allBudgets) {
+      const engineResult = calculateBudget(b);
+      
+      // Check for drifts in finalized budgets
+      if (b.status === 'finalizado' && b.financialSnapshot) {
+        const drift = Math.abs(b.financialSnapshot.lucroBruto - engineResult.lucroBruto);
+        if (drift > 0.01) {
+          criticalIssues.push(`[FinanceDrift] Orçamento ${b.id}: Lucro no snapshot (${b.financialSnapshot.lucroBruto.toFixed(2)}) diverge do motor (${engineResult.lucroBruto.toFixed(2)})`);
+          issues++;
+        }
+      }
+
+      // Check for invalid totals
+      if ((b.chargedValue || 0) < 0 || engineResult.totalComercial < 0) {
+        criticalIssues.push(`[InvalidFinance] Orçamento ${b.id}: Valor cobrado ou total comercial é negativo`);
+        issues++;
+      }
+    }
+    return issues;
   }
 
   async scanSyncQueueIntegrity(_warnings: string[], criticalIssues: string[]): Promise<number> {

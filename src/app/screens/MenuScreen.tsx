@@ -12,6 +12,7 @@ import type { AppTab } from '../appTypes';
 
 const AppSecurityPanel = lazy(() => import('../../features/settings/components/AppSecurityPanel').then((module) => ({ default: module.AppSecurityPanel })));
 const GoogleDriveBackupPanel = lazy(() => import('../../features/settings/components/GoogleDriveBackupPanel').then((module) => ({ default: module.GoogleDriveBackupPanel })));
+const CloudSyncPanel = lazy(() => import('../../features/settings/components/CloudSyncPanel').then((module) => ({ default: module.CloudSyncPanel })));
 const LocalBackupWorkspace = lazy(() => import('../../features/settings/components/LocalBackupWorkspace').then((module) => ({ default: module.LocalBackupWorkspace })));
 const ProfessionalProfileWorkspace = lazy(() => import('../../features/settings/components/ProfessionalProfileWorkspace').then((module) => ({ default: module.ProfessionalProfileWorkspace })));
 const LegalCompliancePanel = lazy(() => import('../../features/settings/components/LegalCompliancePanel').then((module) => ({ default: module.LegalCompliancePanel })));
@@ -80,6 +81,7 @@ export function MenuScreen({ account, onNavigate }: MenuScreenProps) {
             <PanelCard className="settings-group account-settings-panel">
               <BackButton label="Voltar ao Menu" onClick={() => setActiveSection('main')} />
               <LocalBackupWorkspace includeLinkedSettings={false} />
+              <CloudSyncPanel />
               <GoogleDriveBackupPanel />
             </PanelCard>
           )}

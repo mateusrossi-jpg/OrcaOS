@@ -94,7 +94,7 @@ export const BudgetHistoryPage: React.FC<BudgetHistoryPageProps> = ({ onOpenBudg
               onClick={() => onOpenBudget(budget.id)}
               title={budget.title || 'Sem título'}
               context={budget.clientName || 'Sem cliente'}
-              status={<StatusBadge status={budget.status} />}
+              status={<StatusBadge status={budget.status} syncStatus={budget.syncStatus} />}
               value={<MoneyValue value={calculateBudget(budget).totalComercial} compact />}
               className="compact-history-item"
               action={

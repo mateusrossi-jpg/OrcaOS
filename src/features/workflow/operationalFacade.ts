@@ -8,13 +8,22 @@ import { BUDGET_STATUS, Budget, BudgetStatus } from '../../domain/budget';
 import { ClientProposalStatus } from '../clientPortal/storage/clientProposalStorage';
 import { WorkOrder } from '../../core/types/business';
 import { SimpleFinanceRecordInput } from '../../domain/finance';
-import { OperationalEventType } from '../../domain/operationalEvent';
+import { OperationalEventType, FinancialDiff } from '../../domain/operationalEvent';
+
+const getFinancialDiff = (oldB: Budget, newB: Budget): FinancialDiff[] => {
+  const fields: (keyof Budget & string)[] = [
+    'chargedValue', 'materialCost', 'travelCost', 'helperCost', 'fees', 'discounts', 'otherCosts'
+  ];
+  return fields.reduce((acc, field) => {
+    const ov = Number(oldB[field as keyof Budget]) || 0;
+    const nv = Number(newB[field as keyof Budget]) || 0;
+    if (ov !== nv) acc.push({ field, oldValue: ov, newValue: nv });
+    return acc;
+  }, [] as FinancialDiff[]);
+};
 
 /**
  * OperationalFacade: O ÚNICO maestro operacional do sistema.
- * Todas as transições de workflow (orçamento, proposta, ordem de serviço)
- * devem passar por aqui para garantir propagação automatizada
- * e manter o Budget como o único Source-of-Truth.
  */
 export const operationalFacade = {
 
@@ -23,36 +32,49 @@ export const operationalFacade = {
   saveBudget: async (budget: Budget): Promise<void> => {
     const budgetPersistence = new BudgetPersistenceService();
     const existing = await budgetPersistence.getBudget(budget.id);
-    await budgetPersistence.saveBudget(budget);
-
-    if (!existing) {
-      await operationalEventService.emitEvent({
-        aggregateId: budget.id,
-        aggregateType: 'budget',
-        eventType: 'BUDGET_CREATED',
-        snapshot: { status: budget.status }
-      });
+    
+    if (existing) {
+      const diff = getFinancialDiff(existing, budget);
+      if (diff.length > 0) {
+        await operationalEventService.emitEvent({
+          aggregateId: budget.id,
+          aggregateType: 'budget',
+          eventType: 'FINANCIAL_MUTATION',
+          metadata: { diff, title: budget.title },
+          snapshot: { ...budget }
+        });
+      } else {
+        await operationalEventService.emitEvent({
+          aggregateId: budget.id,
+          aggregateType: 'budget',
+          eventType: 'BUDGET_UPDATED',
+          metadata: { title: budget.title }
+        });
+      }
     } else {
       await operationalEventService.emitEvent({
         aggregateId: budget.id,
         aggregateType: 'budget',
-        eventType: 'BUDGET_UPDATED',
-        metadata: { title: budget.title }
+        eventType: 'BUDGET_CREATED',
+        snapshot: { ...budget }
       });
     }
+
+    await budgetPersistence.saveBudget(budget);
   },
 
   changeBudgetStatus: async (budgetId: string, nextStatus: BudgetStatus, budgetSnapshot?: Budget): Promise<void> => {
     const budgetPersistence = new BudgetPersistenceService();
     const budgetService = new BudgetService();
     
+    const budget = budgetSnapshot ?? await budgetPersistence.getBudget(budgetId);
+    if (!budget) return;
+
     if (budgetSnapshot) {
       await budgetPersistence.saveBudget(budgetSnapshot);
     }
-
-    const budget = budgetSnapshot ?? await budgetPersistence.getBudget(budgetId);
     
-    if (budget && budget.status !== nextStatus) {
+    if (budget.status !== nextStatus) {
       await budgetService.changeStatus(budget, nextStatus);
       
       const eventTypeMap: Record<string, OperationalEventType> = {
@@ -70,7 +92,7 @@ export const operationalFacade = {
           aggregateId: budget.id,
           aggregateType: 'budget',
           eventType,
-          snapshot: { status: nextStatus }
+          snapshot: { ...budget, status: nextStatus }
         });
       }
     }
@@ -88,20 +110,25 @@ export const operationalFacade = {
     const budgetPersistence = new BudgetPersistenceService();
     const budgetService = new BudgetService();
 
+    const budget = budgetSnapshot ?? await budgetPersistence.getBudget(budgetId);
+    if (!budget) return;
+
     if (budgetSnapshot) {
       await budgetPersistence.saveBudget(budgetSnapshot);
     }
-
-    const budget = budgetSnapshot ?? await budgetPersistence.getBudget(budgetId);
     
-    if (budget && budget.status !== BUDGET_STATUS.FINALIZADO) {
+    if (budget.status !== BUDGET_STATUS.FINALIZADO) {
       await budgetService.finalizeBudget(budget);
+      
+      const finalSnapshot = { ...budget, status: BUDGET_STATUS.FINALIZADO };
+      
       await operationalEventService.emitEvent({
         aggregateId: budget.id,
         aggregateType: 'budget',
         eventType: 'BUDGET_FINALIZED',
-        snapshot: { status: BUDGET_STATUS.FINALIZADO }
+        snapshot: finalSnapshot
       });
+
       await operationalEventService.emitEvent({
         aggregateId: budget.id,
         aggregateType: 'finance',
@@ -109,7 +136,8 @@ export const operationalFacade = {
         snapshot: { 
           status: BUDGET_STATUS.FINALIZADO,
           revenue: budget.chargedValue - budget.discounts,
-          grossProfit: budget.financialSnapshot?.lucroBruto || 0
+          grossProfit: budget.financialSnapshot?.lucroBruto || 0,
+          budgetSnapshot: finalSnapshot
         }
       });
     }

@@ -68,6 +68,8 @@ export function PremiumCatalogWorkspace({ onSendToBudget }: PremiumCatalogWorksp
   const [view, setView] = useState<'list' | 'form'>('list');
   const [editingItem, setEditingItem] = useState<CatalogHubItem | null>(null);
   const [itemPendingDelete, setItemPendingDelete] = useState<CatalogHubItem | null>(null);
+  const [itemPendingSelection, setItemPendingSelection] = useState<CatalogHubItem | null>(null);
+  const [pendingQuantity, setPendingQuantity] = useState(1);
   const [showAllItems, setShowAllItems] = useState(false);
 
   async function loadData() {
@@ -288,9 +290,8 @@ export function PremiumCatalogWorkspace({ onSendToBudget }: PremiumCatalogWorksp
                       id: 'select', 
                       label: 'Adicionar ao Orçamento', 
                       onSelect: () => {
-                        if (onSendToBudget) {
-                          onSendToBudget([item]);
-                        }
+                        setItemPendingSelection(item);
+                        setPendingQuantity(item.defaultQuantity || 1);
                       },
                     },
                     { id: 'edit', label: 'Editar', onSelect: () => handleEdit(item) },
@@ -311,6 +312,30 @@ export function PremiumCatalogWorkspace({ onSendToBudget }: PremiumCatalogWorksp
           </div>
         )}
       </ListCard>
+
+      <Modal
+        isOpen={Boolean(itemPendingSelection)}
+        title="Adicionar ao Orçamento"
+        confirmLabel="Confirmar Inclusão"
+        onClose={() => setItemPendingSelection(null)}
+        onConfirm={() => {
+          if (itemPendingSelection && onSendToBudget) {
+            onSendToBudget([{ ...itemPendingSelection, defaultQuantity: pendingQuantity }]);
+            setItemPendingSelection(null);
+          }
+        }}
+      >
+        <div className="aferix-d-flex aferix-flex-column aferix-gap-md" style={{ padding: '16px 0' }}>
+          <p>Defina a quantidade de <strong>{itemPendingSelection?.title}</strong>:</p>
+          <Input
+            label="Quantidade"
+            type="number"
+            value={pendingQuantity}
+            onChange={(e) => setPendingQuantity(Number(e.target.value))}
+            autoFocus
+          />
+        </div>
+      </Modal>
 
       <Modal
         isOpen={Boolean(itemPendingDelete)}

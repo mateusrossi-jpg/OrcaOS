@@ -76,14 +76,41 @@ export function DangerButton(props: Omit<ButtonHTMLAttributes<HTMLButtonElement>
 }
 
 /**
- * PanelCard: Componente de card padronizado.
+ * Surface: Componente de base para layout com suporte a elevação e padding semântico.
+ * Evolução do PanelCard para o sistema de tokens.
  */
-export function PanelCard({ children, className = '', ...props }: { children: ReactNode; className?: string } & HTMLAttributes<HTMLElement>) {
-  return <section className={`aferix-panel-card ${className}`.trim()} {...props}>{children}</section>;
+export function Surface({ 
+  children, 
+  className = '', 
+  elevation = 1, 
+  padding = 'md',
+  ...props 
+}: { 
+  children: ReactNode; 
+  className?: string;
+  elevation?: 0 | 1 | 2;
+  padding?: 'none' | 'sm' | 'md' | 'lg';
+} & HTMLAttributes<HTMLElement>) {
+  const elevationClass = `elevation-${elevation}`;
+  const paddingClass = padding !== 'none' ? `p-${padding}` : '';
+  
+  return (
+    <section 
+      className={`aferix-surface ${elevationClass} ${paddingClass} ${className}`.trim()} 
+      {...props}
+    >
+      {children}
+    </section>
+  );
 }
 
 /**
- * ListCard: Especialização de PanelCard para listas.
+ * Alias para compatibilidade legada enquanto migramos para Surface.
+ */
+export const PanelCard = Surface;
+
+/**
+ * ListCard: Especialização de Surface para listas.
  */
 export function ListCard({ 
   title, 
@@ -98,12 +125,11 @@ export function ListCard({
   className?: string;
 } & HTMLAttributes<HTMLElement>) {
   return (
-    <PanelCard className={`list-card ${className}`.trim()} {...props}>
+    <Surface elevation={1} padding="none" className={`list-card ${className}`.trim()} {...props}>
       {(title || action) && (
-        <header className="card-header">
+        <header className="card-header" style={{ padding: 'var(--sz-md)' }}>
           <div>
             {title && <h3>{title}</h3>}
-
           </div>
           {action && <div className="card-header-action">{action}</div>}
         </header>
@@ -111,7 +137,7 @@ export function ListCard({
       <div className="continuous-list">
         {children}
       </div>
-    </PanelCard>
+    </Surface>
   );
 }
 
@@ -199,10 +225,12 @@ export const StatusBadge = memo(function StatusBadge({
   status,
   children,
   tone = 'default',
+  syncStatus,
 }: {
   status?: string;
   children?: ReactNode;
   tone?: Tone;
+  syncStatus?: 'synced' | 'pending' | 'deleted';
 }) {
   if (children) return <Badge tone={tone}>{children}</Badge>;
 
@@ -215,12 +243,16 @@ export const StatusBadge = memo(function StatusBadge({
   }
 
   return (
-    <Badge 
-      tone={tone} 
-      className={`status-badge status-${normalized}`}
-    >
-      {icon} {label}
-    </Badge>
+    <div className="aferix-status-group aferix-d-flex aferix-align-center aferix-gap-xs">
+      <Badge 
+        tone={tone} 
+        className={`status-badge status-${normalized}`}
+      >
+        {icon} {label}
+      </Badge>
+      {syncStatus === 'synced' && <span title="Sincronizado na Nuvem" style={{ fontSize: '14px', color: 'var(--aferix-success)', opacity: 0.8 }}>☁️</span>}
+      {syncStatus === 'pending' && <span title="Aguardando Sincronismo" style={{ fontSize: '14px', color: 'var(--aferix-warning)', opacity: 0.6 }}>☁️</span>}
+    </div>
   );
 });
 
@@ -241,7 +273,7 @@ export function QueueEmptyState({
   title: string; 
   meta?: ReactNode;
   icon?: ReactNode;
-  action?: ReactNode;
+  action?: ReactNode; 
   className?: string;
 }) {
   return (
@@ -608,7 +640,7 @@ export function PlanCard({
   className?: string;
 }) {
   return (
-    <PanelCard className={`plan-card ${featured ? 'featured' : ''} ${className}`.trim()}>
+    <Surface elevation={1} padding="md" className={`plan-card ${featured ? 'featured' : ''} ${className}`.trim()}>
       {badge && <Badge tone={featured ? 'brand' : 'default'}>{badge}</Badge>}
       <header className="plan-card-heading">
         <h2>{title}</h2>
@@ -627,7 +659,7 @@ export function PlanCard({
       )}
       </div>
       {action && <div className="plan-card-action">{action}</div>}
-    </PanelCard>
+    </Surface>
   );
 }
 
@@ -638,18 +670,18 @@ export function SectionHeader(props: { title: string; eyebrow?: string; classNam
 
 export function MetricPanel({ title, meta, action, className = '' }: { title: string; meta?: string; action?: ReactNode; className?: string }) {
   return (
-    <PanelCard className={`info-card ${className}`.trim()}>
+    <Surface elevation={1} padding="md" className={`info-card ${className}`.trim()}>
       <div className="info-card-content">
         <strong>{title}</strong>
         {meta && <small>{meta}</small>}
       </div>
       {action && <div className="info-card-action">{action}</div>}
-    </PanelCard>
+    </Surface>
   );
 }
 
 export function PremiumCard({ children, className = '' }: { children: ReactNode; className?: string }) {
-  return <PanelCard className={`premium-card ${className}`.trim()}>{children}</PanelCard>;
+  return <Surface elevation={1} padding="md" className={`premium-card ${className}`.trim()}>{children}</Surface>;
 }
 
 export function ContextBanner({
@@ -666,7 +698,7 @@ export function ContextBanner({
   onAction?: () => void;
 }) {
   return (
-    <aside className="context-banner aferix-panel-card">
+    <aside className="context-banner aferix-surface elevation-1 p-md">
       {icon && <span className="context-banner-icon">{icon}</span>}
       <div className="context-banner-content">
         <strong>{title}</strong>

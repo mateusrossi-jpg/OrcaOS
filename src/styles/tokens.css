@@ -1,0 +1,104 @@
+/* AFERIX DESIGN SYSTEM — CORE TOKENS V1
+   Central source of truth for brand identity, spacing, and rhythm. 
+   -------------------------------------------------------------- */
+
+:root {
+  /* --- PALETA PRIMITIVA (Raw Palette) --- */
+  
+  /* Brand */
+  --primitive-gold-400: #FDE68A;
+  --primitive-gold-500: #FACC15; /* Brand Primary */
+  --primitive-gold-600: #EAB308;
+  --primitive-gold-700: #A85D08;
+  
+  /* Neutral / Grays */
+  --primitive-black: #050607;
+  --primitive-gray-950: #09090b;
+  --primitive-gray-900: #121212;
+  --primitive-gray-800: #18181b;
+  --primitive-gray-700: #1f2937;
+  --primitive-gray-600: #27272a;
+  --primitive-gray-500: #3f3f46;
+  --primitive-gray-400: #71717a;
+  --primitive-gray-300: #9ca3af;
+  --primitive-gray-200: #d1d5db;
+  --primitive-gray-100: #f3f4f6;
+  --primitive-white: #ffffff;
+  
+  /* Semantics */
+  --primitive-red: #EF4444;
+  --primitive-red-soft: rgba(239, 68, 68, 0.1);
+  --primitive-green: #22C55E;
+  --primitive-green-soft: rgba(34, 197, 94, 0.1);
+
+  /* --- TOKENS SEMÂNTICOS (Semantic Mappings) --- */
+
+  /* Brand Levels */
+  --brand-primary: var(--primitive-gold-500);
+  --brand-hover: var(--primitive-gold-600);
+  --brand-active: var(--primitive-gold-400);
+  --brand-muted: var(--primitive-gold-700);
+  --brand-soft: rgba(250, 204, 21, 0.1);
+  --brand-text: var(--primitive-black);
+
+  /* Background & Surface Levels (Elevation) */
+  --bg-app: var(--primitive-black);
+  --bg-soft: var(--primitive-gray-950);
+  --bg-surface: var(--primitive-gray-900);
+  --bg-elevated: var(--primitive-gray-800);
+  --bg-active: var(--primitive-gray-600);
+  --bg-overlay: rgba(5, 6, 7, 0.85);
+
+  /* Content & Text */
+  --text-primary: var(--primitive-gray-100);
+  --text-secondary: var(--primitive-gray-300);
+  --text-muted: var(--primitive-gray-400);
+  --text-inverse: var(--primitive-black);
+  
+  /* Borders & Dividers */
+  --border-dim: rgba(255, 255, 255, 0.06);
+  --border-soft: rgba(255, 255, 255, 0.08);
+  --border-medium: rgba(255, 255, 255, 0.16);
+  --border-active: var(--brand-primary);
+
+  /* Status Colors */
+  --status-success: var(--primitive-green);
+  --status-danger: var(--primitive-red);
+  --status-warning: var(--primitive-gold-500);
+  --status-info: var(--primitive-gray-300);
+
+  /* --- SPACING & RHYTHM (Modular Scale) --- */
+  --space-unit: 4px;
+  --sz-xs: calc(var(--space-unit) * 1); /* 4px */
+  --sz-sm: calc(var(--space-unit) * 2); /* 8px */
+  --sz-md: calc(var(--space-unit) * 4); /* 16px */
+  --sz-lg: calc(var(--space-unit) * 6); /* 24px */
+  --sz-xl: calc(var(--space-unit) * 8); /* 32px */
+  --sz-2xl: calc(var(--space-unit) * 12); /* 48px */
+  
+  /* Standard Layout Rhythms */
+  --page-padding: var(--sz-md);
+  --card-padding: var(--sz-md);
+  --section-gap: var(--sz-lg);
+  --row-gap: var(--sz-sm);
+
+  /* --- RADIUS --- */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-pill: 9999px;
+
+  /* --- SHADOWS --- */
+  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.6);
+
+  /* --- Z-INDEX --- */
+  --z-base: 1;
+  --z-sticky: 100;
+  --z-drawer: 500;
+  --z-modal: 1000;
+  --z-toast: 2000;
+}
