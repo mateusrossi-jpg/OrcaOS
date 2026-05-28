@@ -4,7 +4,8 @@ import {
   PageHeader, 
   PageShell, 
   Surface, 
-  SectionTitle 
+  SectionTitle,
+  ListCard
 } from '../components/ui';
 import type { AferixAccountState } from '../../core/access/accountPlanStorage';
 import { planStatusTitle } from '../utils/planHelpers';
@@ -25,6 +26,10 @@ interface MenuScreenProps {
 
 type MenuSection = 'main' | 'profile' | 'security' | 'backup' | 'about';
 
+/**
+ * MenuScreen V5 (The Advanced Settings Hub)
+ * Total visual parity: Centered 440px, purified surfaces.
+ */
 export function MenuScreen({ account, onNavigate }: MenuScreenProps) {
   const [activeSection, setActiveSection] = useState<MenuSection>('main');
   
@@ -32,53 +37,52 @@ export function MenuScreen({ account, onNavigate }: MenuScreenProps) {
 
   const menuGroups = [
     {
-      title: 'OPERACIONAL',
+      title: 'GESTÃO OPERACIONAL',
       items: [
-        { title: 'Clientes', onClick: () => onNavigate('base'), icon: '👥' },
-        { title: 'Catálogo de Serviços', onClick: () => onNavigate('catalog'), icon: '📦' },
-        { title: 'Relatórios', onClick: () => onNavigate('reports'), icon: '📊' },
+        { title: 'Base de Clientes', onClick: () => onNavigate('base'), icon: '👥' },
+        { title: 'Catálogo Profissional', onClick: () => onNavigate('catalog'), icon: '📦' },
+        { title: 'Relatórios e BI', onClick: () => onNavigate('reports'), icon: '📊' },
       ]
     },
     {
-      title: 'SISTEMA',
+      title: 'SEGURANÇA E DADOS',
       items: [
-        { title: 'Backup e Sincronização', onClick: () => setActiveSection('backup'), icon: '☁️' },
-        { title: 'Segurança', onClick: () => setActiveSection('security'), icon: '🔒' },
+        { title: 'Backup e Sincronismo', onClick: () => setActiveSection('backup'), icon: '☁️' },
+        { title: 'Acesso e PIN', onClick: () => setActiveSection('security'), icon: '🔒' },
       ]
     },
     {
-      title: 'PLATAFORMA',
+      title: 'ASSINATURA E PERFIL',
       items: [
         { 
-          title: 'Perfil Profissional', 
+          title: 'Meu Perfil', 
           context: `${accountLabel} · ${planStatusTitle(account)}`,
           onClick: () => setActiveSection('profile'),
           icon: '👤'
         },
-        { title: 'Licença Pro', onClick: () => onNavigate('store'), icon: '⭐' },
-        { title: 'Sobre o Aferix', onClick: () => setActiveSection('about'), icon: 'ℹ️' },
+        { title: 'Gerenciar Licença', onClick: () => onNavigate('store'), icon: '⭐' },
+        { title: 'Sobre o ERP', onClick: () => setActiveSection('about'), icon: 'ℹ️' },
       ]
     }
   ];
   
   if (activeSection !== 'main') {
-    // ... rest of details view logic remains same
     return (
-      <PageShell className="wide-screen">
-        <Suspense fallback={<Surface><p>Carregando...</p></Surface>}>
+      <div className="aferix-settings-detail-container" style={{ maxWidth: '440px', margin: '0 auto' }}>
+        <Suspense fallback={<Surface elevation={1} padding="md"><p>Preparando ambiente...</p></Surface>}>
           {activeSection === 'profile' && (
-            <Surface className="settings-group account-settings-panel">
+            <Surface elevation={1} padding="md" className="settings-group">
               <ProfessionalProfileWorkspace onBack={() => setActiveSection('main')} />
             </Surface>
           )}
           {activeSection === 'security' && (
-            <Surface className="settings-group account-settings-panel">
+            <Surface elevation={1} padding="md" className="settings-group">
               <BackButton label="Voltar ao Menu" onClick={() => setActiveSection('main')} />
               <AppSecurityPanel />
             </Surface>
           )}
           {activeSection === 'backup' && (
-            <Surface className="settings-group account-settings-panel">
+            <Surface elevation={1} padding="md" className="settings-group">
               <BackButton label="Voltar ao Menu" onClick={() => setActiveSection('main')} />
               <LocalBackupWorkspace includeLinkedSettings={false} />
               <CloudSyncPanel />
@@ -86,54 +90,110 @@ export function MenuScreen({ account, onNavigate }: MenuScreenProps) {
             </Surface>
           )}
           {activeSection === 'about' && (
-            <Surface className="settings-group account-settings-panel">
+            <Surface elevation={1} padding="md" className="settings-group">
               <BackButton label="Voltar ao Menu" onClick={() => setActiveSection('main')} />
               <LegalCompliancePanel />
-              <Surface>
+              <Surface elevation={0} padding="md" className="aferix-mt-lg">
                 <SectionTitle title="Sobre o Aferix" />
-                <p className="menu-about-note menu-about-note-spaced">Versão MVP · Local-first</p>
+                <p className="aferix-text-muted text-small">O sistema operacional definitivo para prestadores de serviço técnicos. Versão 0.1.0-rc.1</p>
               </Surface>
             </Surface>
           )}
         </Suspense>
-      </PageShell>
+      </div>
     );
   }
 
   return (
-    <PageShell className="menu-overview-screen">
-      <PageHeader title="Mais" sourceLabel="Configurações e utilitários do sistema." />
+    <div className="aferix-menu-container" style={{ maxWidth: '440px', margin: '0 auto' }}>
+      <PageHeader title="Mais" sourceLabel="Configurações e utilitários técnicos." />
 
-      <div className="aferix-d-flex aferix-flex-column aferix-gap-lg">
+      <div className="aferix-d-flex aferix-flex-column aferix-gap-lg aferix-mt-lg">
         {menuGroups.map((group) => (
           <div key={group.title} className="menu-group-section">
             <SectionTitle title={group.title} />
-            <div className="menu-utility-list">
+            <ListCard className="aferix-mt-sm">
               {group.items.map((item) => (
                 <button
                   key={item.title}
-                  className="menu-utility-item"
+                  className="aferix-menu-row-button"
                   type="button"
                   onClick={item.onClick}
                 >
-                  <div className="menu-utility-content">
-                    <div className="aferix-d-flex aferix-align-center">
-                      <span className="utility-icon">{item.icon}</span>
-                      <span className="utility-item-title">{item.title}</span>
-                    </div>
-                    {'context' in item && <span className="utility-meta" style={{ marginLeft: '36px' }}>{item.context}</span>}
+                  <span className="row-icon">{item.icon}</span>
+                  <div className="row-body">
+                    <strong className="row-title">{item.title}</strong>
+                    {'context' in item && <span className="row-context">{item.context}</span>}
                   </div>
                   <span className="row-arrow">›</span>
                 </button>
               ))}
-            </div>
+            </ListCard>
           </div>
         ))}
       </div>
       
-      <div className="aferix-mt-xl aferix-text-center">
-        <p className="aferix-font-xs aferix-text-muted">Aferix ERP © 2026</p>
-      </div>
-    </PageShell>
+      <footer className="aferix-mt-2xl aferix-text-center aferix-pb-xl">
+        <p className="aferix-font-xs aferix-text-muted" style={{ opacity: 0.5 }}>AFERIX ERP OPERACIONAL © 2026</p>
+      </footer>
+
+      <style>{`
+        .aferix-menu-row-button {
+          display: flex;
+          align-items: center;
+          width: 100%;
+          padding: var(--sz-md);
+          background: transparent;
+          border: none;
+          border-bottom: 1px solid var(--border-dim);
+          text-align: left;
+          gap: var(--sz-md);
+          cursor: pointer;
+          transition: background 0.2s ease;
+        }
+
+        .aferix-menu-row-button:last-child {
+          border-bottom: none;
+        }
+
+        .aferix-menu-row-button:hover {
+          background: var(--bg-active);
+        }
+
+        .row-icon {
+          font-size: 20px;
+          min-width: 24px;
+          display: flex;
+          justify-content: center;
+        }
+
+        .row-body {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+        }
+
+        .row-title {
+          font-size: 14px;
+          font-weight: 700;
+          color: var(--text-primary);
+        }
+
+        .row-context {
+          font-size: 11px;
+          font-weight: 600;
+          color: var(--text-muted);
+          text-transform: uppercase;
+          letter-spacing: 0.02em;
+        }
+
+        .row-arrow {
+          font-size: 20px;
+          color: var(--border-medium);
+          font-weight: 300;
+        }
+      `}</style>
+    </div>
   );
 }

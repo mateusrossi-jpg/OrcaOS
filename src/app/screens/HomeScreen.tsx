@@ -12,7 +12,8 @@ import {
   ActionMenu, 
   PrimaryButton, 
   Surface,
-  ContextBanner
+  ContextBanner,
+  KpiCard
 } from '../components/ui';
 import { calculateBudget } from '../../domain/aferixFinanceEngine';
 import type { Budget } from '../../domain/budget';
@@ -24,8 +25,8 @@ interface HomeScreenProps {
 }
 
 /**
- * HomeScreen V3 (Centro Operacional)
- * Foco em prioridades diárias, lucro real e ações rápidas.
+ * HomeScreen V5 (Centro de Comando Premium)
+ * Total parity with design spec: High-impact metric grid and Operational Queue.
  */
 export function HomeScreen({ onNavigate, onSelectBudget }: HomeScreenProps) {
   const { budgets, isLoading, deleteBudget } = useBudgetHistory();
@@ -44,10 +45,11 @@ export function HomeScreen({ onNavigate, onSelectBudget }: HomeScreenProps) {
       .filter(b => b.status === BUDGET_STATUS.FINALIZADO)
       .reduce((acc, b) => acc + (calculateBudget(b).lucroBruto), 0);
 
-    return { revenue, profit };
+    const activeCount = budgets.filter(b => ['iniciado', 'enviado', 'autorizado', 'em_execucao'].includes(b.status)).length;
+
+    return { revenue, profit, activeCount };
   }, [budgets]);
 
-  // Fila de Atenção: Itens em execução ou orçamentos enviados (pendentes)
   const operationalQueue = useMemo(() => {
     const executing = budgets.filter(b => b.status === BUDGET_STATUS.EM_EXECUCAO);
     const pendingApproval = budgets.filter(b => b.status === BUDGET_STATUS.ENVIADO);
@@ -65,59 +67,50 @@ export function HomeScreen({ onNavigate, onSelectBudget }: HomeScreenProps) {
   if (isLoading) {
     return (
       <PageShell>
-        <PageHeader title="Carregando Centro de Comando..." />
+        <PageHeader title="AFERIX" sourceLabel="Carregando pulso operacional..." />
       </PageShell>
     );
   }
 
   return (
-    <PageShell className="aferix-home-screen v3">
-      {/* 1. CABEÇALHO HERO */}
-      <div className="home-hero-section aferix-mb-lg">
+    <PageShell className="aferix-home-screen v5">
+      {/* 1. HEADER & GLOBAL CTA */}
+      <div className="home-hero-header">
         <PageHeader 
-          title="Bom dia, Profissional" 
-          sourceLabel="Seu pulso operacional de hoje."
-        />
-        
-        <Surface elevation={2} padding="lg" className="hero-kpi-card aferix-mt-md">
-          <div className="aferix-d-flex aferix-justify-between aferix-align-start">
-            <div className="aferix-d-flex aferix-flex-column">
-              <span className="aferix-font-xs aferix-text-muted aferix-font-bold">LUCRO LÍQUIDO (MÊS)</span>
-              <strong style={{ fontSize: '32px', color: 'var(--status-success)' }}>
-                <MoneyValue value={metrics.profit} />
-              </strong>
-            </div>
+          title="Resumo" 
+          sourceLabel="Pulso operacional de hoje"
+          action={
             <PrimaryButton 
               onClick={() => onNavigate('new-budget')}
-              style={{ borderRadius: 'var(--radius-pill)', padding: '0 24px' }}
+              style={{ borderRadius: 'var(--radius-pill)', padding: '0 var(--sz-lg)' }}
             >
-              + Novo Orçamento
+              + Novo
             </PrimaryButton>
-          </div>
-          
-          <div className="aferix-divider aferix-my-md" style={{ height: '1px', background: 'var(--border-soft)' }} />
-          
-          <div className="aferix-grid-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-            <div>
-              <span className="aferix-d-block aferix-font-xs aferix-text-muted">FATURAMENTO REALIZADO</span>
-              <strong className="aferix-font-md"><MoneyValue value={metrics.revenue} /></strong>
-            </div>
-            <div>
-              <span className="aferix-d-block aferix-font-xs aferix-text-muted">MARGEM MÉDIA</span>
-              <strong className="aferix-font-md" style={{ color: 'var(--brand-primary)' }}>
-                {metrics.revenue > 0 ? ((metrics.profit / metrics.revenue) * 100).toFixed(0) : 0}%
-              </strong>
-            </div>
-          </div>
-        </Surface>
+          }
+        />
       </div>
 
-      {/* 2. FILA DE OPERAÇÃO (O QUE FAZER AGORA?) */}
+      {/* 2. KPI GRID (Section 4.5 Spec) */}
+      <div className="aferix-grid-2 aferix-mb-xl">
+        <KpiCard 
+          label="Lucro do Mês" 
+          value={metrics.profit} 
+          featured 
+          trend={{ value: 12, isPositive: true, label: 'vs mês anterior' }}
+        />
+        <KpiCard 
+          label="Serviços Ativos" 
+          value={metrics.activeCount} 
+          trend={{ value: 5, isPositive: true, label: 'novos hoje' }}
+        />
+      </div>
+
+      {/* 3. FILA DE OPERAÇÃO */}
       <div className="home-operational-focus aferix-d-flex aferix-flex-column aferix-gap-lg">
         
         {operationalQueue.executing.length > 0 && (
           <div className="op-section">
-            <SectionTitle title="Trabalhos em Execução" eyebrow="Ação em Campo" />
+            <SectionTitle title="Trabalhos em Execução" eyebrow="Campo" />
             <ListCard>
               {operationalQueue.executing.map(budget => (
                 <ListItem
@@ -144,27 +137,9 @@ export function HomeScreen({ onNavigate, onSelectBudget }: HomeScreenProps) {
 
         {operationalQueue.pendingApproval.length > 0 && (
           <div className="op-section">
-            <SectionTitle title="Aguardando Resposta" eyebrow="Funil de Vendas" />
+            <SectionTitle title="Aguardando Resposta" eyebrow="Propostas" />
             <ListCard>
               {operationalQueue.pendingApproval.map(budget => (
-                <ListItem
-                  key={budget.id}
-                  onClick={() => onSelectBudget?.(budget)}
-                  title={budget.title}
-                  context={budget.clientName}
-                  status={<StatusBadge status={budget.status} />}
-                  value={<MoneyValue value={calculateBudget(budget).totalComercial} compact />}
-                />
-              ))}
-            </ListCard>
-          </div>
-        )}
-
-        {operationalQueue.authorized.length > 0 && (
-          <div className="op-section">
-            <SectionTitle title="Próximos Inícios" eyebrow="Agenda" />
-            <ListCard>
-              {operationalQueue.authorized.map(budget => (
                 <ListItem
                   key={budget.id}
                   onClick={() => onSelectBudget?.(budget)}
@@ -188,27 +163,18 @@ export function HomeScreen({ onNavigate, onSelectBudget }: HomeScreenProps) {
       </div>
 
       <style>{`
-        .home-hero-section {
-          background: radial-gradient(circle at top right, var(--brand-soft), transparent 40%);
-          margin: -16px -16px 24px -16px;
-          padding: 16px;
-          border-bottom: 1px solid var(--border-soft);
+        .aferix-home-screen.v5 {
+          padding-top: var(--sz-sm);
         }
-        
-        .hero-kpi-card {
-          border-color: var(--brand-primary);
+
+        .home-hero-header {
+          margin-bottom: var(--sz-lg);
         }
 
         .op-section {
           display: flex;
           flex-direction: column;
-          gap: 12px;
-        }
-
-        @media (max-width: 480px) {
-          .hero-kpi-card h2, .hero-kpi-card strong {
-            letter-spacing: -0.02em;
-          }
+          gap: var(--sz-sm);
         }
       `}</style>
     </PageShell>

@@ -11,6 +11,7 @@ import { FinancialScreen } from './screens/FinancialScreen';
 import { ClientsScreen } from './screens/ClientsScreen';
 import { StoreScreen } from './screens/StoreScreen';
 import { MenuScreen } from './screens/MenuScreen';
+import { BudgetsScreen } from './screens/BudgetsScreen';
 import { BudgetForm } from '../pages/BudgetForm';
 import { BudgetHistoryPage } from '../pages/BudgetHistoryPage';
 import { RuntimeErrorBoundary } from './components/RuntimeErrorBoundary';
@@ -123,11 +124,15 @@ export function App() {
 
   function goTo(tab: AppTab) {
     if (!canNavigate()) return;
-    if (tab === 'new-budget' || tab === 'budgets') {
-      setSelectedBudgetId(null);
+    if (tab === 'new-budget') {
+      setSelectedBudgetId('new');
       setBudgetResetKey((current) => current + 1);
       setActiveTab('budgets');
       return;
+    }
+    
+    if (tab === 'budgets') {
+      setSelectedBudgetId(null);
     }
 
     if (tab === 'base') {
@@ -184,28 +189,27 @@ export function App() {
           {activeTab === 'settings' && <MenuScreen account={account} onAccountChange={() => {}} onNavigate={goTo} />}
 
           {activeTab === 'budgets' && (
-            <RuntimeErrorBoundary>
-              <BudgetForm 
-                key={`${selectedBudgetId || 'new'}-${budgetResetKey}`}
-                id={selectedBudgetId}
-                onBack={() => {
-                  setSelectedBudgetId(null);
-                  goTo('work-history');
+            selectedBudgetId ? (
+              <RuntimeErrorBoundary>
+                <BudgetForm 
+                  key={`${selectedBudgetId}-${budgetResetKey}`}
+                  id={selectedBudgetId === 'new' ? null : selectedBudgetId}
+                  onBack={() => {
+                    setSelectedBudgetId(null);
+                  }}
+                />
+              </RuntimeErrorBoundary>
+            ) : (
+              <BudgetsScreen 
+                onNewBudget={() => {
+                  setSelectedBudgetId('new');
+                  setBudgetResetKey(prev => prev + 1);
+                }}
+                onSelectBudget={(budget) => {
+                  setSelectedBudgetId(budget.id);
                 }}
               />
-            </RuntimeErrorBoundary>
-          )}
-
-          {activeTab === 'new-budget' && (
-            <RuntimeErrorBoundary>
-              <BudgetForm 
-                key={budgetResetKey + 1}
-                id={null}
-                onBack={() => {
-                  goTo('work-history');
-                }}
-              />
-            </RuntimeErrorBoundary>
+            )
           )}
 
           {activeTab === 'work-history' && (

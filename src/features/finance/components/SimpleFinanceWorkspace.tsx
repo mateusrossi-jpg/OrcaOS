@@ -1,28 +1,23 @@
 import { useMemo, useState, useEffect } from 'react';
 import { 
-  MetricCard, 
+  KpiCard,
   MoneyValue, 
   QueueEmptyState, 
   Button, 
-  BackButton, 
+  SecondaryButton, 
+  PrimaryButton,
   ListCard, 
-  ListItem, 
   SearchInput, 
-  StatusBadge, 
   ActionMenu, 
   Input, 
   MonetaryInput,
   SectionTitle,
-  PrimaryButton,
-  SecondaryButton,
   Surface,
   Badge,
   ContextBanner
 } from '../../../app/components/ui';
 import { FinanceFacade, type ConsolidatedFinanceRecord } from '../financeFacade';
 import { operationalFacade } from '../../workflow/operationalFacade';
-import { BudgetPersistenceService } from '../../../services/BudgetPersistenceService';
-import { BUDGET_STATUS } from '../../../domain/budget';
 import { formatCurrencyBRL } from '../../../utils/formatters';
 import './SimpleFinanceWorkspace.css';
 
@@ -38,8 +33,6 @@ interface AdjustmentDraft {
   estimatedTax: string;
 }
 
-const FINANCE_VISIBLE_LIMIT = 8;
-
 function parseAmount(value: string): number {
   const parsed = Number(value.replace(",", ".").trim());
   return Number.isFinite(parsed) ? Math.max(0, parsed) : 0;
@@ -49,12 +42,13 @@ function formatDate(value: string): string {
   if (!value) return '';
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return '';
-  return new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: '2-digit' }).format(date);
+  return new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: 'short' }).format(date).toUpperCase();
 }
 
 /**
- * SimpleFinanceWorkspace V3 (O Livro de Verdades)
- * Foco em DRE Simplificado e Extrato Bancário Premium.
+ * SimpleFinanceWorkspace V5 (Business Ledger Edition)
+ * Total paridade visual com o Design Spec (Section 4.4).
+ * Foco em entendimento imediato do resultado real.
  */
 export function SimpleFinanceWorkspace() {
   const [recordSearch, setRecordSearch] = useState('');
@@ -64,38 +58,20 @@ export function SimpleFinanceWorkspace() {
 
   const [financeRecords, setFinanceRecords] = useState<ConsolidatedFinanceRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [pendingReceivables, setPendingReceivables] = useState(0);
 
   useEffect(() => {
     let active = true;
     async function load() {
       setIsLoading(true);
       const records = await FinanceFacade.getRealizedRecords();
-      
-      const budgetPersistence = new BudgetPersistenceService();
-      const allBudgets = await budgetPersistence.listBudgets();
-      const authorizedTotal = allBudgets
-        .filter(b => b.status === BUDGET_STATUS.AUTORIZADO || b.status === BUDGET_STATUS.EM_EXECUCAO)
-        .reduce((acc, b) => acc + (b.chargedValue - b.discounts), 0);
-
       if (active) {
         setFinanceRecords(records);
-        setPendingReceivables(authorizedTotal);
         setIsLoading(false);
       }
     }
     void load();
     return () => { active = false; };
   }, [syncTick]);
-
-  const filteredRows = useMemo(() => {
-    const normalizedSearch = recordSearch.trim().toLowerCase();
-    if (!normalizedSearch) return financeRecords;
-    return financeRecords.filter((row) => [row.title, row.clientName].join(' ').toLowerCase().includes(normalizedSearch));
-  }, [recordSearch, financeRecords]);
-
-  const visibleRows = showAllRows ? filteredRows : filteredRows.slice(0, FINANCE_VISIBLE_LIMIT);
-  const hiddenRecordCount = Math.max(filteredRows.length - visibleRows.length, 0);
 
   const stats = useMemo(() => {
     return financeRecords.reduce((acc, row) => {
@@ -106,6 +82,12 @@ export function SimpleFinanceWorkspace() {
       };
     }, { revenue: 0, costs: 0, profit: 0 });
   }, [financeRecords]);
+
+  const filteredRows = useMemo(() => {
+    const normalizedSearch = recordSearch.trim().toLowerCase();
+    if (!normalizedSearch) return financeRecords;
+    return financeRecords.filter((row) => [row.title, row.clientName].join(' ').toLowerCase().includes(normalizedSearch));
+  }, [recordSearch, financeRecords]);
 
   function openAdjustment(row: ConsolidatedFinanceRecord) {
     setEditingDraft({
@@ -140,91 +122,83 @@ export function SimpleFinanceWorkspace() {
   }
 
   if (isLoading && financeRecords.length === 0) {
-    return <section className="aferix-p-md"><QueueEmptyState title="Auditoria Financeira" meta="Acessando o livro de registros..." /></section>;
+    return <section className="aferix-p-md"><QueueEmptyState title="Lançamentos" meta="Auditoria financeira em andamento..." /></section>;
   }
 
   return (
-    <div className="aferix-finance-center v3 aferix-d-flex aferix-flex-column aferix-gap-lg">
+    <div className="aferix-finance-ledger" style={{ maxWidth: '440px', margin: '0 auto' }}>
       
-      {/* 1. DRE SIMPLIFICADO (MÊS ATUAL) */}
-      <Surface elevation={2} padding="lg" className="aferix-dre-card">
-        <header className="aferix-d-flex aferix-justify-between aferix-align-center aferix-mb-md">
-          <span className="aferix-font-xs aferix-font-bold aferix-text-muted">DRE OPERACIONAL (MAIO)</span>
-          <Badge tone={stats.profit >= 0 ? 'success' : 'danger'}>
-            {stats.revenue > 0 ? ((stats.profit / stats.revenue) * 100).toFixed(0) : 0}% Margem
-          </Badge>
-        </header>
-        
-        <div className="aferix-text-center aferix-mb-lg">
-          <span className="aferix-d-block aferix-font-xs aferix-text-muted">LUCRO LÍQUIDO ACUMULADO</span>
-          <strong style={{ fontSize: '36px', color: 'var(--status-success)' }}>
-            {formatCurrencyBRL(stats.profit)}
-          </strong>
-        </div>
-
-        <div className="aferix-divider aferix-my-md" style={{ height: '1px', background: 'var(--border-soft)' }} />
-
-        <div className="aferix-grid-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
-          <div>
-            <span className="aferix-d-block aferix-font-xs aferix-text-muted">RECEITA BRUTA</span>
-            <strong className="aferix-font-md" style={{ color: 'var(--text-primary)' }}>{formatCurrencyBRL(stats.revenue)}</strong>
-          </div>
-          <div>
-            <span className="aferix-d-block aferix-font-xs aferix-text-muted">CUSTOS DIRETOS</span>
-            <strong className="aferix-font-md" style={{ color: 'var(--status-danger)' }}>{formatCurrencyBRL(stats.costs)}</strong>
-          </div>
-        </div>
-      </Surface>
-
-      {/* 2. FILTRO DE BUSCA (LIVRO) */}
-      <div className="finance-ledger-header">
-        <SectionTitle title="Livro de Lançamentos" eyebrow="Histórico de Auditoria" />
-        <Surface elevation={1} padding="sm" className="aferix-mt-sm">
-          <SearchInput
-            value={recordSearch}
-            placeholder="Buscar por título ou cliente..."
-            onChange={setRecordSearch}
+      {/* 1. KPI GRID (MÉTRICAS EXECUTIVAS) */}
+      <div className="aferix-grid-2 aferix-mb-lg">
+        <div style={{ gridColumn: 'span 2' }}>
+          <KpiCard 
+            label="Lucro Líquido do Mês" 
+            value={stats.profit} 
+            featured 
+            trend={{ value: stats.revenue > 0 ? ((stats.profit / stats.revenue) * 100).toFixed(0) : 0, isPositive: stats.profit >= 0, label: '% de margem real' }}
           />
-        </Surface>
+        </div>
+        <KpiCard label="Receita Bruta" value={stats.revenue} />
+        <KpiCard label="Custos Obra" value={stats.costs} />
       </div>
 
-      {/* 3. EXTRATO DE LANÇAMENTOS */}
-      <ListCard>
+      {/* 2. FILTROS E BUSCA */}
+      <Surface elevation={1} padding="sm" className="ledger-search-panel aferix-mb-lg">
+        <SearchInput
+          value={recordSearch}
+          placeholder="Título, cliente ou valor..."
+          onChange={setRecordSearch}
+        />
+      </Surface>
+
+      {/* 3. LISTA DE LANÇAMENTOS (AUDITORIA) */}
+      <div className="aferix-d-flex aferix-flex-column aferix-gap-md">
+        <SectionTitle title="Lançamentos Realizados" eyebrow="Extrato do Mês" />
+        
         {filteredRows.length === 0 ? (
-          <QueueEmptyState title="Vazio" meta="Nenhum registro encontrado para este filtro." />
+          <QueueEmptyState title="Vazio" meta="Nenhum registro encontrado." />
         ) : (
-          visibleRows.map(row => (
-            <div key={row.budgetId} className="aferix-p-md aferix-d-flex aferix-justify-between aferix-align-center" style={{ borderBottom: '1px solid var(--border-dim)' }}>
-              <div className="aferix-d-flex aferix-flex-column">
-                <span className="aferix-font-sm aferix-font-bold">{row.title}</span>
-                <small className="aferix-text-muted">{formatDate(row.updatedAt)} • {row.clientName}</small>
-              </div>
-              <div className="aferix-d-flex aferix-align-center aferix-gap-md">
+          filteredRows.map(row => (
+            <Surface 
+              key={row.budgetId} 
+              elevation={1} 
+              padding="md" 
+              className="ledger-transaction-card"
+            >
+              <div className="aferix-d-flex aferix-gap-md aferix-align-center">
+                {/* Micro Date */}
+                <div className="ledger-date-pill">
+                  <span>{formatDate(row.updatedAt).split(' ')[0]}</span>
+                  <small>{formatDate(row.updatedAt).split(' ')[1]}</small>
+                </div>
+
+                {/* Body */}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <strong className="aferix-d-block aferix-font-sm aferix-truncate" style={{ color: 'var(--text-primary)' }}>
+                    {row.title}
+                  </strong>
+                  <small className="aferix-text-muted aferix-d-block aferix-truncate">{row.clientName}</small>
+                </div>
+
+                {/* Value */}
                 <div className="aferix-text-right">
-                  <strong className="aferix-d-block aferix-font-sm" style={{ color: 'var(--status-success)' }}>
+                  <strong style={{ color: 'var(--status-success)', fontSize: '15px' }}>
                     +{formatCurrencyBRL(row.netProfit)}
                   </strong>
-                  <span className="aferix-font-xs aferix-text-muted">{row.netMarginPercent.toFixed(0)}% margem</span>
+                  <div className="aferix-d-flex aferix-justify-end aferix-mt-xs">
+                     <ActionMenu
+                      label="…"
+                      items={[{ id: 'adj', label: 'Ajustar Auditoria', onSelect: () => openAdjustment(row) }]}
+                    />
+                  </div>
                 </div>
-                <ActionMenu
-                  label="…"
-                  items={[{ id: 'adj', label: 'Ajustar Auditoria', onSelect: () => openAdjustment(row) }]}
-                />
               </div>
-            </div>
+            </Surface>
           ))
         )}
+      </div>
 
-        {filteredRows.length > FINANCE_VISIBLE_LIMIT && (
-          <div className="aferix-p-sm aferix-text-center">
-            <Button variant="ghost" onClick={() => setShowAllRows(!showAllRows)}>
-              {showAllRows ? 'Ver menos' : `Ver mais (${hiddenRecordCount})`}
-            </Button>
-          </div>
-        )}
-      </ListCard>
-
-      {/* 4. MODAL DE AJUSTE (AUDITORIA) */}
+      {/* 4. MODAL DE AJUSTE (REUTILIZADO) */}
       {editingDraft && (
         <div className="aferix-modal-overlay">
           <div className="aferix-modal-card">
@@ -232,30 +206,59 @@ export function SimpleFinanceWorkspace() {
               <h2>Ajuste de Auditoria</h2>
             </header>
             <div className="aferix-modal-body aferix-d-flex aferix-flex-column aferix-gap-md">
-              <p className="aferix-text-muted aferix-font-sm">Refine os valores reais observados na execução deste projeto.</p>
-              
               <MonetaryInput label="Faturamento Final" value={parseAmount(editingDraft.receivedAmount)} onChange={(v) => setEditingDraft(d => d ? {...d, receivedAmount: String(v)} : null)} />
-              
               <div className="aferix-grid-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                <MonetaryInput label="Material Real" value={parseAmount(editingDraft.materialCost)} onChange={(v) => setEditingDraft(d => d ? {...d, materialCost: String(v)} : null)} />
-                <MonetaryInput label="Transporte Real" value={parseAmount(editingDraft.travelCost)} onChange={(v) => setEditingDraft(d => d ? {...d, travelCost: String(v)} : null)} />
-                <MonetaryInput label="Taxa Cartão" value={parseAmount(editingDraft.cardFee)} onChange={(v) => setEditingDraft(d => d ? {...d, cardFee: String(v)} : null)} />
+                <MonetaryInput label="Material" value={parseAmount(editingDraft.materialCost)} onChange={(v) => setEditingDraft(d => d ? {...d, materialCost: String(v)} : null)} />
+                <MonetaryInput label="Transp." value={parseAmount(editingDraft.travelCost)} onChange={(v) => setEditingDraft(d => d ? {...d, travelCost: String(v)} : null)} />
+                <MonetaryInput label="Taxas" value={parseAmount(editingDraft.cardFee)} onChange={(v) => setEditingDraft(d => d ? {...d, cardFee: String(v)} : null)} />
                 <MonetaryInput label="Outros" value={parseAmount(editingDraft.otherCosts)} onChange={(v) => setEditingDraft(d => d ? {...d, otherCosts: String(v)} : null)} />
               </div>
             </div>
             <footer className="aferix-modal-footer">
               <SecondaryButton onClick={() => setEditingDraft(null)}>Cancelar</SecondaryButton>
-              <PrimaryButton onClick={saveAdjustment}>Confirmar Ajustes</PrimaryButton>
+              <PrimaryButton onClick={saveAdjustment}>Confirmar</PrimaryButton>
             </footer>
           </div>
         </div>
       )}
 
-      <ContextBanner
-        title="Projeção de Caixa"
-        meta={`Você tem ${formatCurrencyBRL(pendingReceivables)} previstos para entrar nos próximos 15 dias baseado em orçamentos aprovados.`}
-        icon="📉"
-      />
+      <div className="aferix-mt-xl">
+        <ContextBanner
+          title="Fim de Mês"
+          meta="Gere o relatório completo consolidado no menu 'Mais > Relatórios' para sua contabilidade."
+          icon="📊"
+        />
+      </div>
+
+      <style>{`
+        .ledger-date-pill {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          min-width: 42px;
+          height: 42px;
+          background: var(--bg-active);
+          border-radius: var(--radius-sm);
+          border: 1px solid var(--border-soft);
+          flex-shrink: 0;
+        }
+        .ledger-date-pill span {
+          font-size: 13px;
+          font-weight: 900;
+          color: var(--text-primary);
+          line-height: 1;
+        }
+        .ledger-date-pill small {
+          font-size: 9px;
+          font-weight: 700;
+          color: var(--brand-primary);
+          text-transform: uppercase;
+        }
+        .ledger-transaction-card {
+          border-left: 3px solid var(--status-success);
+        }
+      `}</style>
     </div>
   );
 }

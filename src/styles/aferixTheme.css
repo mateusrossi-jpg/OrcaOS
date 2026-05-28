@@ -1,88 +1,15 @@
-/* AFERIX THEME V2 — CONSUMING DESIGN TOKENS
-   Mapped to src/styles/tokens.css for global consistency.
-   ------------------------------------------------------ */
+/* AFERIX THEME V3 — DESIGN PARITY (oklch)
+   Central rules mapping to tokens.css
+   ----------------------------------------- */
 
 :root {
-  /* --- COLORS MAPPING --- */
-  --aferix-bg-primary: var(--bg-app);
-  --aferix-bg-surface: var(--bg-surface);
-  --aferix-bg-elevated: var(--bg-elevated);
-  
-  --aferix-bg: var(--bg-app);
-  --aferix-bg-soft: var(--bg-soft);
-  --aferix-surface: var(--bg-surface);
-  --aferix-surface-raised: var(--bg-elevated);
-  --aferix-surface-active: var(--bg-active);
-  --aferix-surface-2: var(--bg-surface);
-  --aferix-surface-3: var(--bg-active);
-  --aferix-surface-hover: var(--bg-active);
-
-  --aferix-border: var(--border-soft);
-  --aferix-border-strong: var(--border-medium);
-  --aferix-border-soft: var(--border-dim);
-
-  --aferix-text: var(--text-primary);
-  --aferix-text-primary: var(--text-primary);
-  --aferix-text-secondary: var(--text-secondary);
-  --aferix-text-muted: var(--text-muted);
-  --aferix-text-soft: var(--text-secondary);
-  --aferix-muted: var(--text-muted);
-
-  --aferix-brand: var(--brand-primary);
-  --aferix-brand-soft: var(--brand-muted);
-  --aferix-brand-hover: var(--brand-hover);
-  --aferix-primary: var(--brand-primary);
-  --aferix-primary-strong: var(--brand-hover);
-  --aferix-primary-soft: var(--brand-soft);
-
-  --aferix-success: var(--status-success);
-  --aferix-danger: var(--status-danger);
-  --aferix-warning: var(--status-warning);
-  --aferix-accent: var(--brand-primary);
-
-  /* --- RHYTHM & SPACING MAPPING --- */
-  --aferix-spacing-xs: var(--sz-xs);
-  --aferix-spacing-sm: var(--sz-sm);
+  /* Spacing aliases for backward compatibility */
   --aferix-spacing-md: var(--sz-md);
-  --aferix-spacing-lg: var(--sz-lg);
-  --aferix-spacing-xl: var(--sz-xl);
-
-  --aferix-page-padding-mobile: var(--page-padding);
-  --aferix-section-gap: var(--section-gap);
-  --aferix-card-padding: var(--card-padding);
-  --aferix-card-padding-compact: var(--sz-sm);
-  --aferix-row-padding: var(--sz-sm) var(--sz-md);
-  --aferix-row-gap: var(--row-gap);
-
-  /* --- RADIUS MAPPING --- */
-  --aferix-radius-sm: var(--radius-xs);
-  --aferix-radius-md: var(--radius-sm);
-  --aferix-radius-lg: var(--radius-md);
-  --aferix-radius-xl: var(--radius-md); /* Hard limit from design doc */
-  --aferix-radius: var(--radius-sm);
-
-  /* --- SHADOWS MAPPING --- */
-  --aferix-shadow-sm: var(--shadow-sm);
-  --aferix-shadow: var(--shadow-md);
-  --aferix-shadow-soft: var(--shadow-sm);
-  --aferix-shadow-elevated: var(--shadow-md);
-  --aferix-shadow-modal: var(--shadow-lg);
-
-  /* --- COMPATIBILITY MAPPINGS --- */
-  --aferix-space-1: var(--sz-xs);
-  --aferix-space-2: var(--sz-sm);
-  --aferix-space-3: var(--sz-md);
-  --aferix-space-4: var(--sz-lg);
-  --aferix-space-5: var(--sz-lg); /* Reduced gap as per design request */
-  --aferix-space-6: var(--sz-lg);
-
-  /* Typography remains same for now, just pointing to standard tokens */
-  --aferix-font: "Inter", "Geist", "Outfit", ui-sans-serif, system-ui, sans-serif;
-  --aferix-premium-gradient: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-hover) 100%);
+  --aferix-card-padding: var(--sz-md);
 }
 
 /* --------------------------------------------------
-   GEOMETRY UTILITIES (The Great Purification)
+   GEOMETRY UTILITIES
    -------------------------------------------------- */
 
 .rounded-sm   { border-radius: var(--radius-sm) !important; }
@@ -91,85 +18,41 @@
 .rounded-pill { border-radius: var(--radius-pill) !important; }
 
 /* SPACING UTILITIES */
-.p-xs { padding: var(--sz-xs) !important; }
 .p-sm { padding: var(--sz-sm) !important; }
 .p-md { padding: var(--sz-md) !important; }
 .p-lg { padding: var(--sz-lg) !important; }
-.p-xl { padding: var(--sz-xl) !important; }
 
-.gap-xs { gap: var(--sz-xs) !important; }
 .gap-sm { gap: var(--sz-sm) !important; }
 .gap-md { gap: var(--sz-md) !important; }
 .gap-lg { gap: var(--sz-lg) !important; }
 
-.m-auto { margin: 0 auto !important; }
-.mt-auto { margin-top: auto !important; }
-
-/* TYPOGRAPHY CLEANUP */
-.text-micro { font-size: 12px !important; letter-spacing: 0.05em; font-weight: 700; }
-.text-small { font-size: 14px !important; line-height: 1.4; }
-.text-body  { font-size: 16px !important; line-height: 1.5; }
-.text-title { font-size: 24px !important; font-weight: 900; letter-spacing: -0.02em; }
-
 /* --------------------------------------------------
-   SURFACE SYSTEM (Dark Premium Evolution)
+   SURFACE SYSTEM (Dark Premium)
    -------------------------------------------------- */
 
 .aferix-surface {
   border-radius: var(--radius-md);
   border: 1px solid var(--border-soft);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: all 0.2s ease;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
-/* Elevation Levels */
 .aferix-surface.elevation-0 {
   background: transparent;
   border-color: transparent;
-  box-shadow: none;
 }
 
 .aferix-surface.elevation-1 {
-  background: linear-gradient(180deg, var(--bg-surface), var(--bg-app));
+  background: var(--bg-surface);
   box-shadow: var(--shadow-sm);
 }
 
 .aferix-surface.elevation-2 {
-  background: linear-gradient(180deg, var(--bg-elevated), var(--bg-surface));
+  background: var(--bg-elevated);
   box-shadow: var(--shadow-md);
   border-color: var(--border-medium);
-}
-
-/* Semantic Padding */
-.aferix-surface.p-sm { padding: var(--sz-sm) !important; }
-.aferix-surface.p-md { padding: var(--sz-md) !important; }
-.aferix-surface.p-lg { padding: var(--sz-lg) !important; }
-
-/* Legacy Mapper (Kept for raw CSS classes not yet converted to Surface) */
-.info-card,
-.notice-box,
-.active-work-context-card,
-.calculation-context-card,
-.survey-intro-card,
-.survey-empty-state,
-.survey-measurement-panel,
-.survey-review-panel,
-.budget-technical-drawer,
-.client-purchase-panel,
-.client-purchase-empty,
-.client-purchase-card,
-.report-command-panel,
-.report-document,
-.settings-row,
-.account-email-card,
-.account-settings-panel,
-.store-card,
-.resource-action-card {
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border-soft);
-  background: linear-gradient(180deg, var(--bg-surface), var(--bg-app));
-  padding: var(--sz-md);
 }
 
 /* --------------------------------------------------
@@ -177,218 +60,155 @@
    -------------------------------------------------- */
 
 .ui-button {
+  min-height: 48px;
+  border-radius: var(--radius-md);
+  padding: 0 var(--sz-lg);
+  font-weight: 700;
+  font-size: 14px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: var(--sz-sm);
-  min-height: 48px;
-  padding: 0 var(--sz-lg);
-  border-radius: var(--radius-md);
-  font-weight: 700;
-  font-size: 14px;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.2s ease;
   cursor: pointer;
   border: 1px solid transparent;
-  white-space: nowrap;
 }
 
-.ui-button:active {
-  transform: scale(0.96);
-}
-
-.ui-button:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-  filter: grayscale(1);
-}
-
-/* Primary: Full Gold */
 .primary-action {
   background: var(--brand-primary) !important;
   color: var(--brand-text) !important;
-  box-shadow: var(--shadow-sm);
 }
 
-.primary-action:hover:not(:disabled) {
-  background: var(--brand-hover) !important;
-  box-shadow: var(--shadow-md);
-}
-
-/* Secondary: Transparent with Border */
 .secondary-action {
   background: transparent !important;
   border-color: var(--border-medium) !important;
   color: var(--text-primary) !important;
 }
 
-.secondary-action:hover:not(:disabled) {
-  background: var(--bg-active) !important;
-  border-color: var(--brand-primary) !important;
-}
-
-/* Danger: Outlined or Soft Red */
-.danger-action {
-  background: var(--primitive-red-soft) !important;
-  border-color: var(--status-danger) !important;
-  color: var(--status-danger) !important;
-}
-
-.danger-action:hover:not(:disabled) {
-  background: var(--status-danger) !important;
-  color: var(--text-inverse) !important;
-}
-
-/* Ghost: Minimalist */
-.ghost-action {
-  background: transparent !important;
-  color: var(--text-muted) !important;
-  padding: 0 var(--sz-sm) !important;
-}
-
-.ghost-action:hover:not(:disabled) {
-  color: var(--brand-primary) !important;
-  background: var(--bg-active) !important;
-}
-
-/* CTA: Full width on mobile */
-.full-page-cta {
-  width: 100%;
-  font-size: 16px;
-  letter-spacing: 0.02em;
-}
-
 /* --------------------------------------------------
    FORM FIELDS (Premium Inputs)
    -------------------------------------------------- */
 
-.aferix-input-field,
-.monetary-input-field,
-.aferix-select-field {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sz-xs);
-  width: 100%;
-}
-
-/* Label Hierarchy */
-.aferix-input-field > span,
-.monetary-input-field > span,
-.aferix-select-field > span {
-  color: var(--text-secondary);
-  font-size: 13px;
-  font-weight: 600;
-  padding-left: 2px;
-  text-transform: none;
-  letter-spacing: normal;
-}
-
-/* Input Anatomy */
 .aferix-input-field input,
 .aferix-input-field textarea,
 .aferix-select-field select,
 .monetary-input-wrapper {
-  width: 100%;
-  min-height: 48px; /* iOS standard touch target */
-  background: var(--bg-soft) !important;
-  border: 1px solid var(--border-dim) !important;
+  min-height: 48px;
+  background: var(--bg-surface) !important;
+  border: 1px solid var(--border-soft) !important;
   border-radius: var(--radius-sm) !important;
   color: var(--text-primary) !important;
   padding: 0 var(--sz-md) !important;
-  font-size: 16px !important; /* Prevents auto-zoom on iOS */
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-  outline: none !important;
-  appearance: none;
+  font-size: 16px !important;
 }
 
-/* Specifics for TextArea */
-.aferix-textarea {
-  padding-top: var(--sz-sm) !important;
-  padding-bottom: var(--sz-sm) !important;
+.aferix-input-field input:focus {
+  border-color: var(--brand-primary) !important;
+}
+
+/* --------------------------------------------------
+   BADGES & PILLS
+   -------------------------------------------------- */
+
+.aferix-status-pill {
+  padding: 2px 10px;
+  border-radius: var(--radius-pill);
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: var(--bg-active);
+  border: 1px solid var(--border-soft);
+}
+
+.tone-brand { color: var(--brand-primary); }
+.tone-success { color: var(--status-success); }
+.tone-danger { color: var(--status-danger); }
+
+/* --------------------------------------------------
+   METRIC CARDS (Secondary)
+   -------------------------------------------------- */
+
+.aferix-metric-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sz-xs);
   min-height: 80px;
-  line-height: 1.5;
+  justify-content: center;
 }
 
-/* Search Input (Lighter version) */
-.search-input-wrapper {
-  width: 100%;
+.metric-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
 }
 
-.aferix-search-input {
-  width: 100%;
-  min-height: 44px;
-  background: var(--bg-elevated) !important;
-  border: 1px solid var(--border-soft) !important;
-  border-radius: var(--radius-pill) !important;
-  padding: 0 20px !important;
-  color: var(--text-primary) !important;
-  outline: none !important;
-  font-size: 14px !important;
+.metric-value {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.aferix-metric-card.featured .metric-value {
+  color: var(--brand-primary);
+}
+
+/* --------------------------------------------------
+   SECTION HEADERS
+   -------------------------------------------------- */
+
+.aferix-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: var(--sz-sm);
+  padding: 0 4px;
+}
+
+.aferix-eyebrow {
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--brand-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 2px;
+}
+
+.aferix-h3 {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+
+/* --------------------------------------------------
+   TABS SYSTEM
+   -------------------------------------------------- */
+
+.aferix-tabs-pill {
+  display: inline-flex;
+  background: var(--bg-surface);
+  padding: 4px;
+  border-radius: var(--radius-pill);
+  gap: 4px;
+  border: 1px solid var(--border-soft);
+}
+
+.aferix-tabs-pill button {
+  background: transparent;
+  border: none;
+  padding: 6px 16px;
+  border-radius: var(--radius-pill);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-muted);
   transition: all 0.2s ease;
 }
 
-.aferix-search-input:focus {
-  border-color: var(--brand-primary) !important;
-  background: var(--bg-surface) !important;
-  box-shadow: 0 0 0 1px var(--brand-primary) !important;
-}
-
-/* Specifics for Select */
-.select-wrapper {
-  position: relative;
-  display: flex;
-  width: 100%;
-}
-
-.select-wrapper::after {
-  content: '▾';
-  position: absolute;
-  right: var(--sz-md);
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--text-muted);
-  pointer-events: none;
-}
-
-/* Monetary Input Alignment */
-.monetary-input-wrapper {
-  display: flex !important;
-  align-items: center;
-  gap: var(--sz-xs);
-  padding: 0 var(--sz-md) !important;
-}
-
-.currency-prefix {
-  color: var(--brand-primary);
-  font-weight: 800;
-  font-size: 14px;
-}
-
-.monetary-input-wrapper input {
-  background: transparent !important;
-  border: none !important;
-  padding: 0 !important;
-  min-height: auto !important;
-  box-shadow: none !important;
-}
-
-/* Focus States */
-.aferix-input-field input:focus,
-.aferix-input-field textarea:focus,
-.aferix-select-field select:focus,
-.monetary-input-field:focus-within .monetary-input-wrapper {
-  border-color: var(--brand-primary) !important;
-  box-shadow: 0 0 0 1px var(--brand-primary) !important;
-}
-
-/* Disabled State */
-input:disabled, select:disabled, textarea:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.aferix-input-field small {
-  font-size: 11px;
-  color: var(--text-muted);
-  margin-top: 2px;
-  padding-left: 2px;
+.aferix-tabs-pill button.active {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-sm);
 }

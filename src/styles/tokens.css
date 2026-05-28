@@ -1,30 +1,50 @@
-/* AFERIX DESIGN TOKENS
-   Source: AFERIX_DESIGN_SPEC.md - Section 2
-   --------------------------------------- */
+/* AFERIX DESIGN TOKENS — OKLCH EDITION
+   Source: AFERIX_DESIGN_SPEC.md (Visual Parity)
+   ------------------------------------------- */
 
 :root {
-  /* COLORS */
-  --bg-app: #050607;
-  --bg-surface: #121212;
-  --bg-elevated: #18181b;
-  --brand-primary: #FACC15;
-  --brand-soft: rgba(250, 204, 21, 0.1);
-  --brand-text: #050607;
+  /* --- COLORS (OKLCH for Perceptual Precision) --- */
   
-  --text-primary: #f3f4f6;
-  --text-secondary: #9ca3af;
-  --text-muted: #71717a;
-  --text-inverse: #050607;
+  /* Backgrounds */
+  --bg-app: oklch(14% 0.01 260);      /* Deepest base */
+  --bg-surface: oklch(18% 0.01 260);  /* Card base */
+  --bg-elevated: oklch(22% 0.02 260); /* Hover/Modal base */
+  --bg-overlay: oklch(14% 0.01 260 / 0.85); /* Glassmorphism backdrop */
+  --bg-active: oklch(26% 0.03 260);   /* Active item state */
 
-  --status-success: #22C55E;
-  --status-danger: #EF4444;
-  --status-warning: #FACC15;
+  /* Brand (Premium Gold) */
+  --brand-primary: oklch(82% 0.16 85);
+  --brand-hover: oklch(85% 0.14 85);
+  --brand-soft: oklch(82% 0.16 85 / 0.1);
+  --brand-text: oklch(12% 0.02 260);  /* Text on gold */
 
-  --border-soft: rgba(255, 255, 255, 0.08);
-  --border-dim: rgba(255, 255, 255, 0.04);
-  --border-medium: rgba(255, 255, 255, 0.16);
+  /* Semantic Feedback */
+  --status-success: oklch(70% 0.15 145);
+  --status-danger: oklch(62% 0.18 25);
+  --status-warning: oklch(82% 0.16 85);
+  --status-info: oklch(75% 0.12 210);
 
-  /* SPACING (Modular Scale) */
+  /* Typography */
+  --text-primary: oklch(96% 0.01 260);
+  --text-secondary: oklch(75% 0.02 260);
+  --text-muted: oklch(55% 0.02 260);
+  --text-inverse: oklch(10% 0.01 260);
+
+  /* Borders */
+  --border-dim: oklch(30% 0.01 260 / 0.15);
+  --border-soft: oklch(35% 0.02 260 / 0.25);
+  --border-medium: oklch(45% 0.03 260 / 0.45);
+  --border-active: var(--brand-primary);
+
+  /* --- GEOMETRY --- */
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-xl: 24px;
+  --radius-pill: 9999px;
+
+  /* --- SPACING --- */
   --sz-xs: 4px;
   --sz-sm: 8px;
   --sz-md: 16px;
@@ -32,19 +52,19 @@
   --sz-xl: 32px;
   --sz-2xl: 48px;
 
-  /* GEOMETRY */
-  --radius-sm: 6px;
-  --radius-md: 12px;
-  --radius-lg: 20px;
-  --radius-pill: 9999px;
+  /* --- SHADOWS --- */
+  --shadow-sm: 0 2px 8px oklch(0% 0 0 / 0.4);
+  --shadow-md: 0 10px 30px oklch(0% 0 0 / 0.6);
+  --shadow-lg: 0 20px 48px oklch(0% 0 0 / 0.8);
 
-  /* Z-INDEX */
+  /* --- Z-INDEX --- */
   --z-base: 1;
   --z-sticky: 100;
+  --z-drawer: 500;
   --z-modal: 1000;
   --z-toast: 2000;
 
-  /* TYPOGRAPHY */
-  --aferix-font: "Inter", system-ui, sans-serif;
-  --aferix-premium-gradient: linear-gradient(135deg, var(--brand-primary) 0%, #EAB308 100%);
+  /* --- TYPOGRAPHY --- */
+  --aferix-font: "Inter", "Outfit", system-ui, sans-serif;
+  --aferix-premium-gradient: linear-gradient(135deg, var(--brand-primary) 0%, oklch(75% 0.18 85) 100%);
 }

@@ -184,31 +184,31 @@ export const ListItem = memo(function ListItem({
 });
 
 /**
- * MetricCard: Card de métrica padronizado.
+ * MetricCard: Card de métrica secundário.
  */
 export const MetricCard = memo(function MetricCard({
   label,
   value,
-  operationalHint,
-  trend,
   tone = 'default',
   featured = false,
   className = '',
 }: {
   label: string;
   value: ReactNode;
-  operationalHint?: ReactNode;
-  trend?: ReactNode;
   tone?: Tone;
   featured?: boolean;
   className?: string;
 }) {
   return (
-    <article className={`metric-card tone-${tone}${featured ? ' featured' : ''} ${className}`.trim()}>
-      <span>{label}</span>
-      <strong>{value}</strong>
-      {(operationalHint || trend) && <small>{operationalHint ?? trend}</small>}
-    </article>
+    <Surface 
+      elevation={featured ? 1 : 0} 
+      padding="md" 
+      className={`aferix-metric-card tone-${tone}${featured ? ' featured' : ''} ${className}`.trim()}
+      style={{ background: featured ? 'var(--bg-surface)' : 'var(--bg-active)' }}
+    >
+      <span className="metric-label">{label}</span>
+      <strong className="metric-value">{value}</strong>
+    </Surface>
   );
 });
 
@@ -252,6 +252,30 @@ export const StatusBadge = memo(function StatusBadge({
 
 export const Badge = memo(function Badge({ children, tone = 'default', className = '' }: { children: ReactNode; tone?: Tone; className?: string }) {
   return <span className={`aferix-badge tone-${tone} ${className}`.trim()}>{children}</span>;
+});
+
+/**
+ * StatusPill: Versão premium e compacta do status do orçamento.
+ * Implements AFERIX_DESIGN_SPEC.md - Section 4.3
+ */
+export const StatusPill = memo(function StatusPill({ 
+  status 
+}: { 
+  status: string 
+}) {
+  const normalized = (status ?? '').toLowerCase().replace(' ', '_');
+  const label = normalized.charAt(0).toUpperCase() + normalized.slice(1).replace('_', ' ');
+
+  let tone: Tone = 'default';
+  if (normalized === 'finalizado') tone = 'success';
+  if (['em_execucao', 'autorizado', 'enviado'].includes(normalized)) tone = 'brand';
+  if (['cancelado', 'recusado'].includes(normalized)) tone = 'danger';
+
+  return (
+    <span className={`aferix-status-pill tone-${tone}`}>
+      {label}
+    </span>
+  );
 });
 
 /**
@@ -598,12 +622,12 @@ export function SectionTitle({
   className?: string 
 }) {
   return (
-    <header className={`section-title ${className}`.trim()}>
-      <div className="section-title-main">
-        {eyebrow && <span className="section-eyebrow">{eyebrow}</span>}
-        <h3>{title}</h3>
+    <header className={`aferix-section-header ${className}`.trim()}>
+      <div className="aferix-d-flex aferix-flex-column">
+        {eyebrow && <span className="aferix-eyebrow">{eyebrow}</span>}
+        <h3 className="aferix-h3">{title}</h3>
       </div>
-      {action && <div className="section-title-action">{action}</div>}
+      {action && <div className="aferix-action-slot">{action}</div>}
     </header>
   );
 }
@@ -705,6 +729,7 @@ export function ContextBanner({
 
 
 export { PageShell };
+export { KpiCard } from './KpiCard';
 export { ConfirmModal } from './ConfirmModal';
 
 export function AferixTabs<T extends string>({

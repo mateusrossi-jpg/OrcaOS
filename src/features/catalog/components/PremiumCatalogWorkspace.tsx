@@ -16,7 +16,8 @@ import {
   MoneyValue,
   PrimaryButton,
   SecondaryButton,
-  Surface
+  Surface,
+  SectionTitle
 } from '../../../app/components/ui';
 import { catalogService } from '../../../services/catalogService';
 import { type CatalogHubItem, type CatalogHubItemKind, createCatalogId } from '../types/catalogTypes';
@@ -251,10 +252,10 @@ export function PremiumCatalogWorkspace({ onSendToBudget }: PremiumCatalogWorksp
   }
 
   return (
-    <div className="premium-catalog-workspace aferix-d-flex aferix-flex-column aferix-gap-md">
-      <PrimaryButton className="new-item-cta" onClick={handleNew}>+ Novo Item</PrimaryButton>
+    <div className="premium-catalog-workspace aferix-d-flex aferix-flex-column aferix-gap-lg" style={{ maxWidth: '440px', margin: '0 auto' }}>
+      <PrimaryButton className="new-item-cta rounded-pill" onClick={handleNew}>+ Novo Item</PrimaryButton>
 
-      <Surface className="catalog-search-area aferix-d-flex aferix-flex-column aferix-gap-sm">
+      <Surface elevation={1} padding="sm" className="catalog-search-area aferix-d-flex aferix-flex-column aferix-gap-sm">
         <SearchInput
           placeholder="Buscar no catálogo..."
           value={query}
@@ -270,48 +271,54 @@ export function PremiumCatalogWorkspace({ onSendToBudget }: PremiumCatalogWorksp
         </div>
       </Surface>
 
-      <ListCard>
-        {filteredItems.length === 0 ? (
-          <QueueEmptyState
-            title="Nenhum item encontrado"
-          />
-        ) : (
-          visibleItems.map((item) => (
-            <ListItem
-              key={item.id}
-              title={item.title}
-              context={`${itemKindLabel(item.kind)} ${item.brand ? `• ${item.brand}` : ''}`}
-              value={<MoneyValue value={item.defaultUnitValue} compact />}
-              action={
-                <ActionMenu
-                  label="Ações"
-                  items={[
-                    { 
-                      id: 'select', 
-                      label: 'Adicionar ao Orçamento', 
-                      onSelect: () => {
-                        setItemPendingSelection(item);
-                        setPendingQuantity(item.defaultQuantity || 1);
-                      },
-                    },
-                    { id: 'edit', label: 'Editar', onSelect: () => handleEdit(item) },
-                    { id: 'duplicate', label: 'Duplicar', onSelect: () => handleDuplicate(item) },
-                    { id: 'delete', label: 'Excluir', tone: 'danger' as const, onSelect: () => requestDelete(item) },
-                  ].filter(it => it.id !== 'select' || !!onSendToBudget)}
-                />
-              }
+      <div className="aferix-d-flex aferix-flex-column aferix-gap-md">
+        <SectionTitle title="Biblioteca de Itens" eyebrow="Produtos e Serviços" />
+        <ListCard>
+          {filteredItems.length === 0 ? (
+            <QueueEmptyState
+              title="Nenhum item encontrado"
             />
-          ))
-        )}
+          ) : (
+            visibleItems.map((item) => (
+              <div key={item.id} className="aferix-p-md aferix-d-flex aferix-justify-between aferix-align-center" style={{ borderBottom: '1px solid var(--border-dim)' }}>
+                <div className="aferix-d-flex aferix-flex-column">
+                  <strong className="aferix-font-sm" style={{ color: 'var(--text-primary)' }}>{item.title}</strong>
+                  <small className="aferix-text-muted">{itemKindLabel(item.kind)} {item.brand ? `• ${item.brand}` : ''}</small>
+                </div>
+                <div className="aferix-d-flex aferix-align-center aferix-gap-md">
+                  <strong className="tabular-nums" style={{ color: 'var(--brand-primary)', fontSize: '13px' }}>
+                    <MoneyValue value={item.defaultUnitValue} compact />
+                  </strong>
+                  <ActionMenu
+                    label="…"
+                    items={[
+                      { 
+                        id: 'select', 
+                        label: 'Adicionar ao Orçamento', 
+                        onSelect: () => {
+                          setItemPendingSelection(item);
+                          setPendingQuantity(item.defaultQuantity || 1);
+                        },
+                      },
+                      { id: 'edit', label: 'Editar', onSelect: () => handleEdit(item) },
+                      { id: 'duplicate', label: 'Duplicar', onSelect: () => handleDuplicate(item) },
+                      { id: 'delete', label: 'Excluir', tone: 'danger' as const, onSelect: () => requestDelete(item) },
+                    ].filter(it => it.id !== 'select' || !!onSendToBudget)}
+                  />
+                </div>
+              </div>
+            ))
+          )}
 
-        {filteredItems.length > CATALOG_VISIBLE_LIMIT && (
-          <div className="premium-catalog-top-spacing-sm">
-            <Button variant="ghost" className="density-toggle-cta" onClick={() => setShowAllItems((current) => !current)}>
-              {showAllItems ? 'Ver menos' : `Ver mais (${hiddenItemsCount})`}
-            </Button>
-          </div>
-        )}
-      </ListCard>
+          {filteredItems.length > CATALOG_VISIBLE_LIMIT && (
+            <div className="aferix-p-sm aferix-text-center">
+              <Button variant="ghost" onClick={() => setShowAllItems((current) => !current)}>
+                {showAllItems ? 'Ver menos' : `Ver mais (${hiddenItemsCount})`}
+              </Button>
+            </div>
+          )}
+        </ListCard>
+      </div>
 
       <Modal
         isOpen={Boolean(itemPendingSelection)}

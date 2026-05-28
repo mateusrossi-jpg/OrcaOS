@@ -15,16 +15,17 @@ interface AppShellProps {
 }
 
 /**
- * AppShell V4 (The Premium Mobile Shell)
+ * AppShell V5 (The Premium 5-Pillar Shell)
  * Implements AFERIX_DESIGN_SPEC.md - Section 3
- * Centered container, max-width 440px, viewport controlled.
+ * Total parity with Lovable design: Resumo, Operação, Financeiro, Agenda, Mais.
  */
 export function AppShell({ children, activeTab, onNavigate }: AppShellProps) {
   const bottomNavItems = [
-    { id: 'pulse', label: 'Home', icon: '🏠' },
+    { id: 'pulse', label: 'Resumo', icon: '🏠' },
     { id: 'budgets', label: 'Operação', icon: '📑' },
     { id: 'money', label: 'Financeiro', icon: '💰' },
-    { id: 'settings', label: 'Menu', icon: '☰' },
+    { id: 'work-history', label: 'Agenda', icon: '📅' },
+    { id: 'settings', label: 'Mais', icon: '☰' },
   ];
 
   return (
@@ -34,7 +35,7 @@ export function AppShell({ children, activeTab, onNavigate }: AppShellProps) {
         <header className="aferix-header" role="banner">
           <div className="header-left"></div>
           <div className="header-brand">
-            <img src={AFERIX_WORDMARK} alt="Aferix" height={20} />
+            <img src={AFERIX_WORDMARK} alt="AFERIX" height={20} />
           </div>
           <div className="header-actions">
             <ERPNotificationCenter />
@@ -46,12 +47,12 @@ export function AppShell({ children, activeTab, onNavigate }: AppShellProps) {
           <div className="content-inner">{children}</div>
         </main>
 
-        {/* Fixed Bottom Nav */}
+        {/* Fixed Bottom Nav (5 Items) */}
         <nav className="aferix-bottom-nav">
           {bottomNavItems.map((item) => {
             const isActive = activeTab === item.id || 
               (item.id === 'settings' && ['settings', 'catalog', 'store', 'reports', 'base'].includes(activeTab)) ||
-              (item.id === 'budgets' && ['budgets', 'work-history', 'budgetDetail', 'new-budget'].includes(activeTab));
+              (item.id === 'budgets' && ['budgets', 'budgetDetail', 'new-budget'].includes(activeTab));
 
             return (
               <button

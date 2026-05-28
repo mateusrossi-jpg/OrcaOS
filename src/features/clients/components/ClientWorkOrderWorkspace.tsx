@@ -272,176 +272,152 @@ export function ClientWorkOrderWorkspace({ initialSection, initialClientId, sect
   }
 
   return (
-    <div className="client-os-workspace refined-client-os">
+    <div className="aferix-client-os-container" style={{ maxWidth: '440px', margin: '0 auto' }}>
       {activeSection === 'clients' && (
-        <>
-          <div className="dashboard-finance-tiles client-summary-tiles client-summary-tiles-spaced">
-            <MetricCard label="Clientes Totais" value={clients.length} />
+        <div className="aferix-d-flex aferix-flex-column aferix-gap-lg">
+          <div className="aferix-grid-2">
+            <MetricCard label="Clientes Totais" value={clients.length} featured />
             <MetricCard label="Novos no mês" value={clients.filter(c => recentTimestamp(c).includes(new Date().toISOString().slice(0, 7))).length} tone="brand" />
           </div>
 
-          <Surface className="client-search-card">
+          <Surface elevation={1} padding="sm">
             <SearchInput 
-              placeholder="Buscar cliente por nome, e-mail ou telefone..." 
+              placeholder="Buscar por nome ou contato..." 
               value={clientSearch}
               onChange={(value) => { setClientSearch(value); setShowAllClients(false); }}
             />
           </Surface>
 
-          <ListCard>
-            {visibleClients.length === 0 ? (
-              <QueueEmptyState 
-                title="Nenhum cliente"
-
-              />
-            ) : (
-              visibleClients.map((client) => (
-                <ListItem 
-                  key={client.id}
-                  title={client.name}
-                  context={
-                    <div className="aferix-d-flex aferix-flex-column aferix-gap-xs">
-                      <span>{client.phone || 'Sem telefone'} • {client.email || 'Sem e-mail'}</span>
-                      <div className="aferix-d-flex aferix-align-center aferix-gap-sm">
-                        <StatusBadge tone="success">Ativo</StatusBadge>
-                        {client.address && <small className="aferix-text-muted">{client.address}</small>}
-                      </div>
+          <div className="aferix-d-flex aferix-flex-column aferix-gap-md">
+            <SectionTitle title="Base de Clientes" eyebrow="Gestão de Carteira" />
+            <ListCard>
+              {visibleClients.length === 0 ? (
+                <QueueEmptyState 
+                  title="Nenhum cliente"
+                />
+              ) : (
+                visibleClients.map((client) => (
+                  <div key={client.id} className="aferix-p-md aferix-d-flex aferix-justify-between aferix-align-center" style={{ borderBottom: '1px solid var(--border-dim)' }}>
+                    <div className="aferix-d-flex aferix-flex-column">
+                      <strong className="aferix-font-sm" style={{ color: 'var(--text-primary)' }}>{client.name}</strong>
+                      <small className="aferix-text-muted">{client.phone || 'Sem telefone'}</small>
                     </div>
-                  }
-                  action={
                     <ActionMenu
-                      label="Ações"
+                      label="…"
                       items={[
                         { id: 'edit', label: 'Editar', onSelect: () => openClientForEdit(client) },
                         { id: 'remove', label: 'Remover', tone: 'danger', onSelect: () => confirmRemoveClient(client.id) },
                       ]}
                     />
-                  }
-                />
-              ))
-            )}
-            
-            {filteredClients.length > CLIENT_OS_VISIBLE_LIMIT && (
-              <div className="client-list-expand-wrap">
-                <Button variant="ghost" className="density-toggle-cta" onClick={() => setShowAllClients((current) => !current)}>
-                  {showAllClients ? 'Ver menos' : `Ver mais (${hiddenClientsCount})`}
-                </Button>
-              </div>
-            )}
-          </ListCard>
-        </>
+                  </div>
+                ))
+              )}
+              
+              {filteredClients.length > CLIENT_OS_VISIBLE_LIMIT && (
+                <div className="aferix-p-sm aferix-text-center">
+                  <Button variant="ghost" onClick={() => setShowAllClients((current) => !current)}>
+                    {showAllClients ? 'Ver menos' : `Ver mais (${hiddenClientsCount})`}
+                  </Button>
+                </div>
+              )}
+            </ListCard>
+          </div>
+        </div>
       )}
 
       {activeSection === 'newClient' && (
-        <Surface className="client-form-card">
+        <Surface elevation={1} padding="md" className="client-form-card">
           <BackButton onClick={cancelClientEdit} label="Voltar para a Lista" />
-          <header className="client-form-header">
+          <header className="aferix-mb-lg aferix-mt-md">
             <SectionTitle 
               title={editingClientId ? 'Editar Cliente' : 'Novo Cliente'} 
+              eyebrow="Formulário de Cadastro"
             />
           </header>
 
-          <div className="aferix-form-grid">
-            <div className="aferix-form-section aferix-form-grid-wide">
-              <div className="aferix-form-section-head">
-                <strong>Identificação</strong>
-                <small>Dados para localizar cliente e orçamento.</small>
+          <div className="aferix-d-flex aferix-flex-column aferix-gap-lg">
+            <div className="aferix-form-section">
+              <strong className="aferix-d-block aferix-mb-sm text-micro">IDENTIFICAÇÃO</strong>
+              <div className="aferix-d-flex aferix-flex-column aferix-gap-md">
+                <Input 
+                  label="Nome / Razão Social"
+                  value={clientDraft.name} 
+                  placeholder="Ex: João da Silva" 
+                  onChange={(event) => updateClientDraft('name', event.target.value)} 
+                />
+                {isDuplicateName && (
+                  <small style={{ color: 'var(--status-danger)', marginTop: '-8px' }}>
+                    ⚠️ Já existe um cliente com este nome.
+                  </small>
+                )}
+                <div className="aferix-grid-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                  <Input 
+                    label="CPF / CNPJ"
+                    value={clientDraft.documentNumber} 
+                    placeholder="Opcional" 
+                    onChange={(event) => updateClientDraft('documentNumber', event.target.value)} 
+                  />
+                  <Input 
+                    label="Telefone / WhatsApp"
+                    inputMode="tel" 
+                    value={clientDraft.phone} 
+                    placeholder="(00) 00000-0000" 
+                    onChange={(event) => updateClientDraft('phone', event.target.value)} 
+                  />
+                </div>
+                <Input 
+                  label="E-mail Principal"
+                  type="email" 
+                  value={clientDraft.email} 
+                  placeholder="contato@email.com" 
+                  onChange={(event) => updateClientDraft('email', event.target.value)} 
+                />
               </div>
             </div>
-            <div className="aferix-form-grid-wide">
-              <Input 
-                className="aferix-form-grid-wide"
-                label="Nome / razão social"
-                value={clientDraft.name} 
-                placeholder="Ex: João da Silva" 
-                onChange={(event) => updateClientDraft('name', event.target.value)} 
-              />
-              {isDuplicateName && (
-                <small className="aferix-input-warning" style={{ color: 'var(--color-orange-600)', marginTop: '0.25rem', display: 'block' }}>
-                  ⚠️ Já existe um cliente com este nome.
-                </small>
-              )}
-            </div>
-            <Input 
-              label="CPF / CNPJ"
-              value={clientDraft.documentNumber} 
-              placeholder="Opcional" 
-              onChange={(event) => updateClientDraft('documentNumber', event.target.value)} 
-            />
-            <Input 
-              label="Telefone / WhatsApp"
-              inputMode="tel" 
-              value={clientDraft.phone} 
-              placeholder="(00) 00000-0000" 
-              onChange={(event) => updateClientDraft('phone', event.target.value)} 
-            />
-            <Input 
-              className="aferix-form-grid-wide"
-              label="E-mail"
-              type="email" 
-              value={clientDraft.email} 
-              placeholder="contato@email.com" 
-              onChange={(event) => updateClientDraft('email', event.target.value)} 
-            />
-            
-            <TextArea 
-              className="aferix-form-grid-wide"
-              label="Contatos adicionais"
-              value={clientDraft.additionalContacts} 
-              placeholder="Outros telefones ou nomes de contato..." 
-              onChange={(value) => updateClientDraft('additionalContacts', value)} 
-            />
 
-            <div className="aferix-form-section aferix-form-grid-wide">
-              <div className="aferix-form-section-head">
-                <strong>Endereço</strong>
-                <small>Dados para faturamento e localização.</small>
+            <div className="aferix-form-section">
+              <strong className="aferix-d-block aferix-mb-sm text-micro">ENDEREÇO</strong>
+              <Input 
+                label="Logradouro e Número"
+                value={clientDraft.address} 
+                placeholder="Rua, número, bairro, cidade..." 
+                onChange={(event) => updateClientDraft('address', event.target.value)} 
+              />
+            </div>
+            
+            <div className="aferix-form-section">
+              <strong className="aferix-d-block aferix-mb-sm text-micro">COMERCIAL</strong>
+              <div className="aferix-grid-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                <Select 
+                  label="Contribuinte" 
+                  value={clientDraft.contributorType} 
+                  onChange={(val) => updateClientDraft('contributorType', val as ClientDraft['contributorType'])}
+                >
+                  <option value="not-informed">Não informado</option>
+                  <option value="individual">Pessoa física</option>
+                  <option value="taxpayer">Contribuinte</option>
+                </Select>
+                <MonetaryInput 
+                  label="Limite" 
+                  value={clientDraft.creditLimit} 
+                  onChange={(value) => updateClientDraft('creditLimit', value)} 
+                />
               </div>
             </div>
-            <Input 
-              className="aferix-form-grid-wide"
-              label="Endereço Completo"
-              value={clientDraft.address} 
-              placeholder="Rua, número, bairro, cidade..." 
-              onChange={(event) => updateClientDraft('address', event.target.value)} 
-            />
-            
-            <div className="aferix-form-section aferix-form-grid-wide">
-              <div className="aferix-form-section-head">
-                <strong>Comercial</strong>
-              </div>
-            </div>
-            <Select 
-              label="Tipo de contribuinte" 
-              value={clientDraft.contributorType} 
-              onChange={(val) => updateClientDraft('contributorType', val as ClientDraft['contributorType'])}
-            >
-              <option value="not-informed">Não informado</option>
-              <option value="individual">Pessoa física</option>
-              <option value="taxpayer">Contribuinte ICMS</option>
-              <option value="exempt">Isento</option>
-              <option value="non-taxpayer">Não contribuinte</option>
-            </Select>
-            <MonetaryInput 
-              label="Limite de crédito" 
-              value={clientDraft.creditLimit} 
-              onChange={(value) => updateClientDraft('creditLimit', value)} 
-            />
-            
+
             <TextArea 
-              className="aferix-form-grid-wide"
-              label="Observações"
+              label="Notas Adicionais"
               value={clientDraft.notes} 
               placeholder="Informações úteis para atendimento." 
               onChange={(value) => updateClientDraft('notes', value)} 
             />
           </div>
 
-          <div className="aferix-form-actions">
-            <PrimaryButton onClick={addClient}>
+          <div className="aferix-d-flex aferix-flex-column aferix-gap-sm aferix-mt-2xl">
+            <PrimaryButton onClick={addClient} style={{ width: '100%' }}>
               {editingClientId ? 'Salvar Alterações' : 'Cadastrar Cliente'}
             </PrimaryButton>
-            <SecondaryButton onClick={cancelClientEdit}>
+            <SecondaryButton onClick={cancelClientEdit} style={{ width: '100%' }}>
               Cancelar
             </SecondaryButton>
           </div>
