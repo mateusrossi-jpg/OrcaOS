@@ -9,6 +9,7 @@ import { Client } from '../domain/client';
 import { PremiumCatalogWorkspace } from '../features/catalog/components/PremiumCatalogWorkspace';
 import type { CatalogHubItem } from '../features/catalog/types/catalogTypes';
 import { BudgetSummaryView } from '../features/budgets/components/BudgetSummaryView';
+import { FieldWorkTool } from '../features/budgets/components/FieldWorkTool';
 import { 
   PageShell,
   PageHeader,
@@ -33,15 +34,11 @@ interface BudgetFormProps {
   onBack?: () => void;
 }
 
-/**
- * Mapeia o status do orçamento para a etapa inicial do Workflow.
- * Garante que o profissional comece onde parou no ciclo de vida.
- */
 const mapStatusToStep = (status: BudgetStatus): WorkflowStepId => {
-  if (status === BUDGET_STATUS.ENVIADO) return 7;
-  if (status === BUDGET_STATUS.AUTORIZADO || status === BUDGET_STATUS.EM_EXECUCAO) return 8;
-  if (status === BUDGET_STATUS.FINALIZADO || status === BUDGET_STATUS.ARQUIVADO) return 9;
-  return 1;
+  if (status === BUDGET_STATUS.ENVIADO) return 9; // Proposta
+  if (status === BUDGET_STATUS.AUTORIZADO || status === BUDGET_STATUS.EM_EXECUCAO) return 10; // Execução
+  if (status === BUDGET_STATUS.FINALIZADO || status === BUDGET_STATUS.ARQUIVADO) return 11; // Fechamento
+  return 1; // Cliente
 };
 
 export const BudgetForm: React.FC<BudgetFormProps> = ({ id, onBack }) => {
@@ -74,16 +71,12 @@ export const BudgetForm: React.FC<BudgetFormProps> = ({ id, onBack }) => {
   const { clients } = useClients();
   const [showCatalog, setShowCatalog] = React.useState(false);
 
-  // 1. Inicializa o passo baseado no status assim que o carregamento termina
   React.useEffect(() => {
     if (!isLoading && budget.status) {
       setCurrentStep(mapStatusToStep(budget.status));
     }
   }, [isLoading, budget.status]);
 
-  /**
-   * 2. Navegação segura entre etapas (SSOT)
-   */
   const handleNavigate = (stepId: WorkflowStepId) => {
     setCurrentStep(stepId);
   };
@@ -103,10 +96,13 @@ export const BudgetForm: React.FC<BudgetFormProps> = ({ id, onBack }) => {
     );
   }
 
+  const services = (budget.items || []).filter(item => item.category !== 'material');
+  const materials = (budget.items || []).filter(item => item.category === 'material');
+
   return (
     <PageShell className={`aferix-budget-form-screen ${isSaving ? 'is-saving' : ''} ${isReadOnly ? 'is-read-only' : ''}`}>
       <PageHeader 
-        title={currentStep === 9 ? 'Finalização do Projeto' : (budget.title || (id ? 'Editar orçamento' : 'Novo orçamento'))} 
+        title={currentStep === 11 ? 'Finalização do Projeto' : (budget.title || (id ? 'Editar orçamento' : 'Novo orçamento'))} 
         sourceLabel={budget.status.toUpperCase()}
         action={
           <SecondaryButton onClick={onBack}>
@@ -115,7 +111,7 @@ export const BudgetForm: React.FC<BudgetFormProps> = ({ id, onBack }) => {
         }
       />
 
-      {isReadOnly && currentStep < 9 && (
+      {isReadOnly && currentStep < 11 && (
         <div className="aferix-mb-md">
           <ContextBanner
             title={`Orçamento bloqueado para edição (Status: ${budget.status.replace('_', ' ').toUpperCase()})`}
@@ -142,25 +138,10 @@ export const BudgetForm: React.FC<BudgetFormProps> = ({ id, onBack }) => {
 
       <div className="aferix-d-flex aferix-flex-column aferix-gap-md aferix-mt-lg">
         
-        {/* ETAPA 1: CONTEXTO */}
+        {/* ETAPA 1: CLIENTE */}
         {currentStep === 1 && (
           <Surface elevation={1} padding="md">
-            <SectionTitle title="Identificação do Projeto" eyebrow="Passo 1" />
-            <Input
-              label="Título do Orçamento"
-              value={budget.title}
-              onChange={(e) => updateField('title', e.target.value)}
-              disabled={!permissions.canEditTitle}
-              placeholder="Ex: Instalação Elétrica Residencial"
-              autoFocus
-            />
-          </Surface>
-        )}
-
-        {/* ETAPA 2: CLIENTE */}
-        {currentStep === 2 && (
-          <Surface elevation={1} padding="md">
-            <SectionTitle title="Vincular Cliente" eyebrow="Passo 2" />
+            <SectionTitle title="Vincular Cliente" eyebrow="Passo 1" />
             <Select
               label="Selecione um Cliente"
               value={budget.clientId || ''}
@@ -189,12 +170,49 @@ export const BudgetForm: React.FC<BudgetFormProps> = ({ id, onBack }) => {
           </Surface>
         )}
 
-        {/* ETAPA 3: ITENS */}
+        {/* ETAPA 2: ESCOPO */}
+        {currentStep === 2 && (
+          <Surface elevation={1} padding="md">
+            <SectionTitle title="Escopo do Projeto" eyebrow="Passo 2" />
+            <Input
+              label="Título do Orçamento"
+              value={budget.title}
+              onChange={(e) => updateField('title', e.target.value)}
+              disabled={!permissions.canEditTitle}
+              placeholder="Ex: Instalação Elétrica Residencial"
+              autoFocus
+            />
+            <Input
+              label="Prazo Estimado de Execução"
+              value={budget.executionDeadline || ''}
+              onChange={(e) => updateField('executionDeadline', e.target.value)}
+              disabled={!permissions.canEditTitle}
+              placeholder="Ex: 3 dias úteis"
+            />
+          </Surface>
+        )}
+
+        {/* ETAPA 3: TÉCNICO */}
         {currentStep === 3 && (
+          <Surface elevation={1} padding="md">
+            <SectionTitle title="Levantamento Técnico" eyebrow="Passo 3" />
+            <TextArea
+              label="Descrição do Problema / Necessidade"
+              value={budget.technicalNotes || ''}
+              onChange={(val) => updateField('technicalNotes', val)}
+              disabled={!permissions.canEditNotes}
+              placeholder="Descreva o cenário encontrado no local..."
+              rows={5}
+            />
+          </Surface>
+        )}
+
+        {/* ETAPA 4: SERVIÇOS (M. Obra) */}
+        {currentStep === 4 && (
           <div className="aferix-items-section">
             <SectionTitle 
-              title="Itens e Serviços" 
-              eyebrow="Passo 3"
+              title="Mão de Obra e Serviços" 
+              eyebrow="Passo 4"
               action={
                 permissions.canEditItems && (
                   <button 
@@ -209,12 +227,12 @@ export const BudgetForm: React.FC<BudgetFormProps> = ({ id, onBack }) => {
               }
             />
             <ListCard>
-              {(budget.items || []).length === 0 ? (
+              {services.length === 0 ? (
                 <div className="aferix-p-md aferix-text-center aferix-text-muted">
-                  <small>Nenhum item adicionado ao orçamento.</small>
+                  <small>Nenhum serviço adicionado.</small>
                 </div>
               ) : (
-                (budget.items || []).map((item: BudgetItem) => (
+                services.map((item: BudgetItem) => (
                   <div key={item.id} className="aferix-budget-item-row aferix-d-flex aferix-flex-column aferix-gap-xs" style={{ padding: '12px', borderBottom: '1px solid var(--border-soft)' }}>
                     <div className="aferix-d-flex aferix-justify-between aferix-align-center">
                       <strong className="aferix-font-sm">{item.description}</strong>
@@ -251,34 +269,96 @@ export const BudgetForm: React.FC<BudgetFormProps> = ({ id, onBack }) => {
           </div>
         )}
 
-        {/* ETAPA 4: CUSTOS DIRETOS */}
-        {currentStep === 4 && (
+        {/* ETAPA 5: MATERIAIS */}
+        {currentStep === 5 && (
+          <div className="aferix-items-section">
+            <SectionTitle 
+              title="Materiais e Insumos" 
+              eyebrow="Passo 5"
+              action={
+                permissions.canEditItems && (
+                  <button 
+                    type="button"
+                    className="ghost-action aferix-font-bold" 
+                    onClick={() => setShowCatalog(true)}
+                    style={{ color: 'var(--brand-primary)', fontSize: '0.85rem' }}
+                  >
+                    + Catálogo
+                  </button>
+                )
+              }
+            />
+            <ListCard>
+              {materials.length === 0 ? (
+                <div className="aferix-p-md aferix-text-center aferix-text-muted">
+                  <small>Nenhum material adicionado.</small>
+                </div>
+              ) : (
+                materials.map((item: BudgetItem) => (
+                  <div key={item.id} className="aferix-budget-item-row aferix-d-flex aferix-flex-column aferix-gap-xs" style={{ padding: '12px', borderBottom: '1px solid var(--border-soft)' }}>
+                    <div className="aferix-d-flex aferix-justify-between aferix-align-center">
+                      <strong className="aferix-font-sm">{item.description}</strong>
+                      {permissions.canEditItems && (
+                        <button type="button" className="ghost-action" onClick={() => removeItem(item.id)} style={{ color: 'var(--status-danger)' }}>✕</button>
+                      )}
+                    </div>
+                    <div className="aferix-d-flex aferix-align-center aferix-gap-md">
+                      <div style={{ width: '70px' }}>
+                        <Input
+                          label="Qtd"
+                          type="number"
+                          value={item.quantity}
+                          onChange={(e) => updateItem(item.id, { quantity: Number(e.target.value) })}
+                          disabled={!permissions.canEditItems}
+                        />
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <MonetaryInput
+                          label="Preço Unit."
+                          value={item.unitPrice}
+                          onChange={(val) => updateItem(item.id, { unitPrice: val })}
+                          disabled={!permissions.canEditItems}
+                        />
+                      </div>
+                      <div className="aferix-text-right" style={{ paddingTop: '14px' }}>
+                        <MoneyValue value={item.quantity * item.unitPrice} compact />
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </ListCard>
+          </div>
+        )}
+
+        {/* ETAPA 6: LOGÍSTICA (CUSTOS DIRETOS) */}
+        {currentStep === 6 && (
           <Surface elevation={1} padding="md">
-            <SectionTitle title="Custos de Obra" eyebrow="Passo 4" />
+            <SectionTitle title="Logística e Outros Custos" eyebrow="Passo 6" />
             <div className="aferix-form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-              <MonetaryInput label="Materiais" value={budget.materialCost} onChange={(val) => updateField('materialCost', val)} disabled={!permissions.canEditFinancials} />
-              <MonetaryInput label="Ajudante" value={budget.helperCost} onChange={(val) => updateField('helperCost', val)} disabled={!permissions.canEditFinancials} />
               <MonetaryInput label="Viagem/Transporte" value={budget.travelCost} onChange={(val) => updateField('travelCost', val)} disabled={!permissions.canEditFinancials} />
+              <MonetaryInput label="Ajudante / Terceiros" value={budget.helperCost} onChange={(val) => updateField('helperCost', val)} disabled={!permissions.canEditFinancials} />
+              <MonetaryInput label="Compras Avulsas (Material Extra)" value={budget.materialCost} onChange={(val) => updateField('materialCost', val)} disabled={!permissions.canEditFinancials} />
               <MonetaryInput label="Outros Custos" value={budget.otherCosts} onChange={(val) => updateField('otherCosts', val)} disabled={!permissions.canEditFinancials} />
             </div>
           </Surface>
         )}
 
-        {/* ETAPA 5: DEDUÇÕES */}
-        {currentStep === 5 && (
+        {/* ETAPA 7: TAXAS (DEDUÇÕES) */}
+        {currentStep === 7 && (
           <Surface elevation={1} padding="md">
-            <SectionTitle title="Impostos e Descontos" eyebrow="Passo 5" />
+            <SectionTitle title="Impostos e Descontos" eyebrow="Passo 7" />
             <div className="aferix-form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-              <MonetaryInput label="Taxas" value={budget.fees} onChange={(val) => updateField('fees', val)} disabled={!permissions.canEditFinancials} />
-              <MonetaryInput label="Descontos" value={budget.discounts} onChange={(val) => updateField('discounts', val)} disabled={!permissions.canEditFinancials} />
+              <MonetaryInput label="Taxas (NF/Cartão)" value={budget.fees} onChange={(val) => updateField('fees', val)} disabled={!permissions.canEditFinancials} />
+              <MonetaryInput label="Desconto Comercial" value={budget.discounts} onChange={(val) => updateField('discounts', val)} disabled={!permissions.canEditFinancials} />
             </div>
           </Surface>
         )}
 
-        {/* ETAPA 6: ANÁLISE DE LUCRO */}
-        {currentStep === 6 && (
+        {/* ETAPA 8: ESTRATÉGIA (ANÁLISE DE LUCRO) */}
+        {currentStep === 8 && (
           <Surface elevation={2} padding="md">
-            <SectionTitle title="Preço de Venda e Margem" eyebrow="Passo 6" />
+            <SectionTitle title="Preço de Venda e Margem" eyebrow="Passo 8" />
             <MonetaryInput
               label="Preço Final Proposto"
               value={budget.chargedValue}
@@ -297,12 +377,12 @@ export const BudgetForm: React.FC<BudgetFormProps> = ({ id, onBack }) => {
           </Surface>
         )}
 
-        {/* ETAPA 7: PROPOSTA */}
-        {currentStep === 7 && (
+        {/* ETAPA 9: PROPOSTA */}
+        {currentStep === 9 && (
           <Surface elevation={1} padding="md">
-            <SectionTitle title="Termos da Proposta" eyebrow="Passo 7" />
+            <SectionTitle title="Termos da Proposta" eyebrow="Passo 9" />
             <TextArea
-              label="Notas para o Cliente"
+              label="Condições para o Cliente"
               value={budget.commercialNotes || ''}
               onChange={(val) => updateField('commercialNotes', val)}
               disabled={!permissions.canEditNotes}
@@ -311,29 +391,23 @@ export const BudgetForm: React.FC<BudgetFormProps> = ({ id, onBack }) => {
             />
           </Surface>
         )}
-
-        {/* ETAPA 8: EXECUÇÃO */}
-        {currentStep === 8 && (
-          <Surface elevation={1} padding="md">
-            <SectionTitle title="Gestão de Campo" eyebrow="Passo 8" />
-            <TextArea
-              label="Diário de Obra (Privado)"
-              value={budget.notes || ''}
-              onChange={(val) => updateField('notes', val)}
-              disabled={!permissions.canEditNotes}
-              placeholder="Anote detalhes técnicos ou imprevistos durante a execução..."
-              rows={5}
-            />
-          </Surface>
+...
+        {/* ETAPA 10: EXECUÇÃO */}
+        {currentStep === 10 && (
+          <FieldWorkTool 
+            budget={budget} 
+            onUpdateNotes={(val) => updateField('notes', val)} 
+            isReadOnly={!permissions.canEditNotes}
+          />
         )}
 
-        {/* ETAPA 9: FECHAMENTO */}
-        {currentStep === 9 && (
+        {/* ETAPA 11: FECHAMENTO */}
+        {currentStep === 11 && (
           <BudgetSummaryView budget={budget} onArchived={onBack} />
         )}
 
-        {/* Sticky Action Bar (Hidden on step 9) */}
-        {currentStep < 9 && (
+        {/* Sticky Action Bar */}
+        {currentStep < 11 && (
           <StickyActionBar
             onCancel={onBack}
             disabled={isSaving}
@@ -351,7 +425,7 @@ export const BudgetForm: React.FC<BudgetFormProps> = ({ id, onBack }) => {
                 >
                   {BUDGET_WORKFLOW_MAP[currentStep].actionLabel}
                 </button>
-                {currentStep >= 7 && budget.status === BUDGET_STATUS.INICIADO && (
+                {currentStep >= 9 && budget.status === BUDGET_STATUS.INICIADO && (
                   <button type="button" className="sticky-secondary" style={{ flex: 1 }} onClick={markAsSent} disabled={isSaving}>
                     Enviar
                   </button>
@@ -362,8 +436,8 @@ export const BudgetForm: React.FC<BudgetFormProps> = ({ id, onBack }) => {
         )}
       </div>
 
-      {/* 6. Sticky Preview (Hidden on step 9) */}
-      {currentStep < 9 && (
+      {/* Sticky Preview */}
+      {currentStep < 11 && (
         <div className="aferix-sticky-preview">
           <ContextBanner
             title={`Margem: ${formatPercent(preview?.marginPercent || 0)}`}
@@ -373,7 +447,7 @@ export const BudgetForm: React.FC<BudgetFormProps> = ({ id, onBack }) => {
         </div>
       )}
 
-      {/* 6. Finalize Modal */}
+      {/* Finalize Modal */}
       {showFinalizeModal && (
         <div className="aferix-modal-overlay">
           <div className="aferix-modal-card">
@@ -407,7 +481,7 @@ export const BudgetForm: React.FC<BudgetFormProps> = ({ id, onBack }) => {
         </div>
       )}
 
-      {/* 7. Catalog Modal */}
+      {/* Catalog Modal */}
       {showCatalog && (
         <Modal
           isOpen={showCatalog}

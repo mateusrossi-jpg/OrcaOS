@@ -14,10 +14,16 @@ import {
   MonetaryInput,
   SectionTitle,
   PrimaryButton,
-  Surface 
+  SecondaryButton,
+  Surface,
+  Badge,
+  ContextBanner
 } from '../../../app/components/ui';
 import { FinanceFacade, type ConsolidatedFinanceRecord } from '../financeFacade';
 import { operationalFacade } from '../../workflow/operationalFacade';
+import { BudgetPersistenceService } from '../../../services/BudgetPersistenceService';
+import { BUDGET_STATUS } from '../../../domain/budget';
+import { formatCurrencyBRL } from '../../../utils/formatters';
 import './SimpleFinanceWorkspace.css';
 
 interface AdjustmentDraft {
@@ -32,12 +38,7 @@ interface AdjustmentDraft {
   estimatedTax: string;
 }
 
-const moneyFormatter = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
-const FINANCE_VISIBLE_LIMIT = 5;
-
-function money(value: number): string {
-  return moneyFormatter.format(Number.isFinite(value) ? value : 0);
-}
+const FINANCE_VISIBLE_LIMIT = 8;
 
 function parseAmount(value: string): number {
   const parsed = Number(value.replace(",", ".").trim());
@@ -48,9 +49,13 @@ function formatDate(value: string): string {
   if (!value) return '';
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return '';
-  return new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(date);
+  return new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: '2-digit' }).format(date);
 }
 
+/**
+ * SimpleFinanceWorkspace V3 (O Livro de Verdades)
+ * Foco em DRE Simplificado e Extrato Bancário Premium.
+ */
 export function SimpleFinanceWorkspace() {
   const [recordSearch, setRecordSearch] = useState('');
   const [editingDraft, setEditingDraft] = useState<AdjustmentDraft | null>(null);
@@ -59,14 +64,23 @@ export function SimpleFinanceWorkspace() {
 
   const [financeRecords, setFinanceRecords] = useState<ConsolidatedFinanceRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [pendingReceivables, setPendingReceivables] = useState(0);
 
   useEffect(() => {
     let active = true;
     async function load() {
       setIsLoading(true);
       const records = await FinanceFacade.getRealizedRecords();
+      
+      const budgetPersistence = new BudgetPersistenceService();
+      const allBudgets = await budgetPersistence.listBudgets();
+      const authorizedTotal = allBudgets
+        .filter(b => b.status === BUDGET_STATUS.AUTORIZADO || b.status === BUDGET_STATUS.EM_EXECUCAO)
+        .reduce((acc, b) => acc + (b.chargedValue - b.discounts), 0);
+
       if (active) {
         setFinanceRecords(records);
+        setPendingReceivables(authorizedTotal);
         setIsLoading(false);
       }
     }
@@ -77,20 +91,20 @@ export function SimpleFinanceWorkspace() {
   const filteredRows = useMemo(() => {
     const normalizedSearch = recordSearch.trim().toLowerCase();
     if (!normalizedSearch) return financeRecords;
-    return financeRecords.filter((row) => [row.title, row.clientName, money(row.receivedAmount)].join(' ').toLowerCase().includes(normalizedSearch));
+    return financeRecords.filter((row) => [row.title, row.clientName].join(' ').toLowerCase().includes(normalizedSearch));
   }, [recordSearch, financeRecords]);
 
   const visibleRows = showAllRows ? filteredRows : filteredRows.slice(0, FINANCE_VISIBLE_LIMIT);
   const hiddenRecordCount = Math.max(filteredRows.length - visibleRows.length, 0);
 
-  const monthSummary = useMemo(() => {
-    return financeRecords.reduce((summary, row) => {
+  const stats = useMemo(() => {
+    return financeRecords.reduce((acc, row) => {
       return {
-        realized: summary.realized + row.receivedAmount,
-        directCosts: summary.directCosts + row.directCosts,
-        net: summary.net + row.netProfit,
+        revenue: acc.revenue + row.receivedAmount,
+        costs: acc.costs + row.directCosts,
+        profit: acc.profit + row.netProfit,
       };
-    }, { realized: 0, directCosts: 0, net: 0 });
+    }, { revenue: 0, costs: 0, profit: 0 });
   }, [financeRecords]);
 
   function openAdjustment(row: ConsolidatedFinanceRecord) {
@@ -103,13 +117,12 @@ export function SimpleFinanceWorkspace() {
       travelCost: String(row.travelCost),
       otherCosts: String(row.otherCosts),
       cardFee: String(row.cardFee),
-      estimatedTax: String(row.estimatedTax),
+      estimatedTax: String(row.estimatedTax || 0),
     });
   }
 
   async function saveAdjustment() {
     if (!editingDraft) return;
-    
     await operationalFacade.recordFinanceAdjustment({
       title: editingDraft.title,
       clientName: editingDraft.clientName,
@@ -122,139 +135,127 @@ export function SimpleFinanceWorkspace() {
       otherCosts: parseAmount(editingDraft.otherCosts),
       sourceBudgetId: editingDraft.budgetId,
     });
-    
     setEditingDraft(null);
-    setSyncTick((value) => value + 1);
+    setSyncTick((v) => v + 1);
   }
 
   if (isLoading && financeRecords.length === 0) {
-    return (
-      <section className="simple-finance-workspace">
-        <QueueEmptyState 
-          title="Carregando dados financeiros" 
-          meta="Buscando orçamentos finalizados..."
-        />
-      </section>
-    );
+    return <section className="aferix-p-md"><QueueEmptyState title="Auditoria Financeira" meta="Acessando o livro de registros..." /></section>;
   }
 
   return (
-    <section className="simple-finance-workspace">
-      <div className="dashboard-finance-tiles aferix-grid-4 aferix-mb-lg">
-        <MetricCard label="Faturamento Real" value={<MoneyValue value={monthSummary.realized} tone="success" />} tone="success" />
-        <MetricCard label="Custos Operacionais" value={<MoneyValue value={monthSummary.directCosts} tone="danger" />} tone="danger" />
-        <MetricCard label="Lucro líquido" value={<MoneyValue value={monthSummary.net} tone={monthSummary.net >= 0 ? 'success' : 'danger'} />} tone={monthSummary.net >= 0 ? 'success' : 'danger'} featured />
+    <div className="aferix-finance-center v3 aferix-d-flex aferix-flex-column aferix-gap-lg">
+      
+      {/* 1. DRE SIMPLIFICADO (MÊS ATUAL) */}
+      <Surface elevation={2} padding="lg" className="aferix-dre-card">
+        <header className="aferix-d-flex aferix-justify-between aferix-align-center aferix-mb-md">
+          <span className="aferix-font-xs aferix-font-bold aferix-text-muted">DRE OPERACIONAL (MAIO)</span>
+          <Badge tone={stats.profit >= 0 ? 'success' : 'danger'}>
+            {stats.revenue > 0 ? ((stats.profit / stats.revenue) * 100).toFixed(0) : 0}% Margem
+          </Badge>
+        </header>
+        
+        <div className="aferix-text-center aferix-mb-lg">
+          <span className="aferix-d-block aferix-font-xs aferix-text-muted">LUCRO LÍQUIDO ACUMULADO</span>
+          <strong style={{ fontSize: '36px', color: 'var(--status-success)' }}>
+            {formatCurrencyBRL(stats.profit)}
+          </strong>
+        </div>
+
+        <div className="aferix-divider aferix-my-md" style={{ height: '1px', background: 'var(--border-soft)' }} />
+
+        <div className="aferix-grid-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+          <div>
+            <span className="aferix-d-block aferix-font-xs aferix-text-muted">RECEITA BRUTA</span>
+            <strong className="aferix-font-md" style={{ color: 'var(--text-primary)' }}>{formatCurrencyBRL(stats.revenue)}</strong>
+          </div>
+          <div>
+            <span className="aferix-d-block aferix-font-xs aferix-text-muted">CUSTOS DIRETOS</span>
+            <strong className="aferix-font-md" style={{ color: 'var(--status-danger)' }}>{formatCurrencyBRL(stats.costs)}</strong>
+          </div>
+        </div>
+      </Surface>
+
+      {/* 2. FILTRO DE BUSCA (LIVRO) */}
+      <div className="finance-ledger-header">
+        <SectionTitle title="Livro de Lançamentos" eyebrow="Histórico de Auditoria" />
+        <Surface elevation={1} padding="sm" className="aferix-mt-sm">
+          <SearchInput
+            value={recordSearch}
+            placeholder="Buscar por título ou cliente..."
+            onChange={setRecordSearch}
+          />
+        </Surface>
       </div>
 
-      {editingDraft && (
-        <Surface elevation={2} padding="md" className="finance-entry-panel aferix-mb-xl">
-          <BackButton onClick={() => setEditingDraft(null)} label="Voltar para resultados" />
-          <header className="panel-list-header aferix-mb-md">
-            <h2>Ajuste Financeiro</h2>
-            <p className="aferix-text-muted">Refine valores reais de um orçamento finalizado.</p>
-          </header>
-
-            <div className="aferix-d-flex aferix-flex-column aferix-gap-md">
-              <Input label="Título do Orçamento" value={editingDraft.title} onChange={(event) => setEditingDraft((current) => current ? { ...current, title: event.target.value } : current)} />
-              <Input label="Cliente" value={editingDraft.clientName} onChange={(event) => setEditingDraft((current) => current ? { ...current, clientName: event.target.value } : current)} />
-              
-              <SectionTitle title="Valores Reais" eyebrow="Ajuste fino pós-execução" />
-              
-              <MonetaryInput 
-                label="Faturamento Real" 
-                value={parseAmount(editingDraft.receivedAmount)} 
-                onChange={(val: number) => setEditingDraft(curr => curr ? {...curr, receivedAmount: String(val)} : curr)} 
-              />
-              
-              <div className="aferix-form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                <MonetaryInput 
-                  label="Material" 
-                  value={parseAmount(editingDraft.materialCost)} 
-                  onChange={(val: number) => setEditingDraft(curr => curr ? {...curr, materialCost: String(val)} : curr)} 
-                />
-                <MonetaryInput 
-                  label="Deslocamento" 
-                  value={parseAmount(editingDraft.travelCost)} 
-                  onChange={(val: number) => setEditingDraft(curr => curr ? {...curr, travelCost: String(val)} : curr)} 
-                />
-                <MonetaryInput 
-                  label="Outros Custos" 
-                  value={parseAmount(editingDraft.otherCosts)} 
-                  onChange={(val: number) => setEditingDraft(curr => curr ? {...curr, otherCosts: String(val)} : curr)} 
-                />
-                <MonetaryInput 
-                  label="Taxas" 
-                  value={parseAmount(editingDraft.cardFee)} 
-                  onChange={(val: number) => setEditingDraft(curr => curr ? {...curr, cardFee: String(val)} : curr)} 
+      {/* 3. EXTRATO DE LANÇAMENTOS */}
+      <ListCard>
+        {filteredRows.length === 0 ? (
+          <QueueEmptyState title="Vazio" meta="Nenhum registro encontrado para este filtro." />
+        ) : (
+          visibleRows.map(row => (
+            <div key={row.budgetId} className="aferix-p-md aferix-d-flex aferix-justify-between aferix-align-center" style={{ borderBottom: '1px solid var(--border-dim)' }}>
+              <div className="aferix-d-flex aferix-flex-column">
+                <span className="aferix-font-sm aferix-font-bold">{row.title}</span>
+                <small className="aferix-text-muted">{formatDate(row.updatedAt)} • {row.clientName}</small>
+              </div>
+              <div className="aferix-d-flex aferix-align-center aferix-gap-md">
+                <div className="aferix-text-right">
+                  <strong className="aferix-d-block aferix-font-sm" style={{ color: 'var(--status-success)' }}>
+                    +{formatCurrencyBRL(row.netProfit)}
+                  </strong>
+                  <span className="aferix-font-xs aferix-text-muted">{row.netMarginPercent.toFixed(0)}% margem</span>
+                </div>
+                <ActionMenu
+                  label="…"
+                  items={[{ id: 'adj', label: 'Ajustar Auditoria', onSelect: () => openAdjustment(row) }]}
                 />
               </div>
             </div>
-
-          <div className="finance-entry-actions aferix-mt-lg">
-            <PrimaryButton onClick={saveAdjustment}>Salvar Ajustes</PrimaryButton>
-          </div>
-        </Surface>
-      )}
-
-      <Surface elevation={1} padding="sm" className="finance-results-panel aferix-mb-md">
-        <header className="panel-list-header aferix-mb-sm">
-          <SectionTitle title="Resultados Detalhados" />
-        </header>
-        <SearchInput
-          value={recordSearch}
-          placeholder="Filtrar por título, cliente ou valor..."
-          onChange={(value) => { setRecordSearch(value); setShowAllRows(false); }}
-        />
-      </Surface>
-
-      <ListCard>
-        {financeRecords.length === 0 ? (
-          <QueueEmptyState 
-            title="Nenhum orçamento finalizado" 
-            meta="Quando um orçamento for finalizado, o resultado aparecerá aqui automaticamente." 
-            icon={<svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10H7v-2h10v2z"/></svg>}
-          />
-        ) : filteredRows.length === 0 ? (
-          <QueueEmptyState 
-            title="Nenhum resultado" 
-            meta={`Nenhum orçamento encontrado para "${recordSearch}".`} 
-            icon={<svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>}
-          />
-        ) : (
-          visibleRows.map((row) => {
-            return (
-              <ListItem 
-                key={row.budgetId}
-                title={row.title}
-                context={`${row.clientName || 'Cliente final'} • ${formatDate(row.updatedAt)}`}
-                status={<StatusBadge status="finalizado" />}
-                value={
-                  <div className="aferix-d-flex aferix-flex-column aferix-align-end">
-                    <MoneyValue value={row.netProfit} tone={row.netProfit >= 0 ? 'success' : 'danger'} compact />
-                    <span className="aferix-font-xs aferix-text-muted">{row.netMarginPercent.toFixed(0)}% margem</span>
-                  </div>
-                }
-                action={
-                  <ActionMenu
-                    label="Ações"
-                    items={[
-                      { id: 'open', label: 'Ajustar Valores', onSelect: () => openAdjustment(row) },
-                    ]}
-                  />
-                }
-              />
-            );
-          })
+          ))
         )}
-        
+
         {filteredRows.length > FINANCE_VISIBLE_LIMIT && (
-          <div className="finance-list-expand-wrap">
-            <Button variant="ghost" className="density-toggle-cta" onClick={() => setShowAllRows((current) => !current)}>
+          <div className="aferix-p-sm aferix-text-center">
+            <Button variant="ghost" onClick={() => setShowAllRows(!showAllRows)}>
               {showAllRows ? 'Ver menos' : `Ver mais (${hiddenRecordCount})`}
             </Button>
           </div>
         )}
       </ListCard>
-    </section>
+
+      {/* 4. MODAL DE AJUSTE (AUDITORIA) */}
+      {editingDraft && (
+        <div className="aferix-modal-overlay">
+          <div className="aferix-modal-card">
+            <header className="aferix-modal-header">
+              <h2>Ajuste de Auditoria</h2>
+            </header>
+            <div className="aferix-modal-body aferix-d-flex aferix-flex-column aferix-gap-md">
+              <p className="aferix-text-muted aferix-font-sm">Refine os valores reais observados na execução deste projeto.</p>
+              
+              <MonetaryInput label="Faturamento Final" value={parseAmount(editingDraft.receivedAmount)} onChange={(v) => setEditingDraft(d => d ? {...d, receivedAmount: String(v)} : null)} />
+              
+              <div className="aferix-grid-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                <MonetaryInput label="Material Real" value={parseAmount(editingDraft.materialCost)} onChange={(v) => setEditingDraft(d => d ? {...d, materialCost: String(v)} : null)} />
+                <MonetaryInput label="Transporte Real" value={parseAmount(editingDraft.travelCost)} onChange={(v) => setEditingDraft(d => d ? {...d, travelCost: String(v)} : null)} />
+                <MonetaryInput label="Taxa Cartão" value={parseAmount(editingDraft.cardFee)} onChange={(v) => setEditingDraft(d => d ? {...d, cardFee: String(v)} : null)} />
+                <MonetaryInput label="Outros" value={parseAmount(editingDraft.otherCosts)} onChange={(v) => setEditingDraft(d => d ? {...d, otherCosts: String(v)} : null)} />
+              </div>
+            </div>
+            <footer className="aferix-modal-footer">
+              <SecondaryButton onClick={() => setEditingDraft(null)}>Cancelar</SecondaryButton>
+              <PrimaryButton onClick={saveAdjustment}>Confirmar Ajustes</PrimaryButton>
+            </footer>
+          </div>
+        </div>
+      )}
+
+      <ContextBanner
+        title="Projeção de Caixa"
+        meta={`Você tem ${formatCurrencyBRL(pendingReceivables)} previstos para entrar nos próximos 15 dias baseado em orçamentos aprovados.`}
+        icon="📉"
+      />
+    </div>
   );
 }
