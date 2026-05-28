@@ -14,7 +14,7 @@ import {
   MonetaryInput,
   SectionTitle,
   PrimaryButton,
-  PanelCard 
+  Surface 
 } from '../../../app/components/ui';
 import { FinanceFacade, type ConsolidatedFinanceRecord } from '../financeFacade';
 import { operationalFacade } from '../../workflow/operationalFacade';
@@ -130,32 +130,32 @@ export function SimpleFinanceWorkspace() {
   if (isLoading && financeRecords.length === 0) {
     return (
       <section className="simple-finance-workspace">
-        <div className="empty-state-card">
-          <strong>Carregando dados financeiros</strong>
-          <p>Buscando orçamentos finalizados...</p>
-        </div>
+        <QueueEmptyState 
+          title="Carregando dados financeiros" 
+          meta="Buscando orçamentos finalizados..."
+        />
       </section>
     );
   }
 
   return (
     <section className="simple-finance-workspace">
-      <div className="dashboard-finance-tiles">
+      <div className="dashboard-finance-tiles aferix-grid-4 aferix-mb-lg">
         <MetricCard label="Faturamento Real" value={<MoneyValue value={monthSummary.realized} tone="success" />} tone="success" />
         <MetricCard label="Custos Operacionais" value={<MoneyValue value={monthSummary.directCosts} tone="danger" />} tone="danger" />
-        <MetricCard label="Lucro líquido" value={<MoneyValue value={monthSummary.net} tone={monthSummary.net >= 0 ? 'success' : 'danger'} />} tone={monthSummary.net >= 0 ? 'success' : 'danger'} />
+        <MetricCard label="Lucro líquido" value={<MoneyValue value={monthSummary.net} tone={monthSummary.net >= 0 ? 'success' : 'danger'} />} tone={monthSummary.net >= 0 ? 'success' : 'danger'} featured />
       </div>
 
       {editingDraft && (
-        <PanelCard className="finance-entry-panel">
+        <Surface elevation={2} padding="md" className="finance-entry-panel aferix-mb-xl">
           <BackButton onClick={() => setEditingDraft(null)} label="Voltar para resultados" />
-          <header className="panel-list-header">
-            <h2>Ajuste Financeiro do Orçamento</h2>
-            <p>Refine valores reais de um orçamento finalizado.</p>
+          <header className="panel-list-header aferix-mb-md">
+            <h2>Ajuste Financeiro</h2>
+            <p className="aferix-text-muted">Refine valores reais de um orçamento finalizado.</p>
           </header>
 
             <div className="aferix-d-flex aferix-flex-column aferix-gap-md">
-              <Input className="wide" label="Título do Orçamento" value={editingDraft.title} onChange={(event) => setEditingDraft((current) => current ? { ...current, title: event.target.value } : current)} />
+              <Input label="Título do Orçamento" value={editingDraft.title} onChange={(event) => setEditingDraft((current) => current ? { ...current, title: event.target.value } : current)} />
               <Input label="Cliente" value={editingDraft.clientName} onChange={(event) => setEditingDraft((current) => current ? { ...current, clientName: event.target.value } : current)} />
               
               <SectionTitle title="Valores Reais" eyebrow="Ajuste fino pós-execução" />
@@ -166,51 +166,46 @@ export function SimpleFinanceWorkspace() {
                 onChange={(val: number) => setEditingDraft(curr => curr ? {...curr, receivedAmount: String(val)} : curr)} 
               />
               
-              <div className="finance-costs-stack aferix-d-flex aferix-flex-column aferix-gap-sm">
+              <div className="aferix-form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                 <MonetaryInput 
-                  label="Material Real" 
+                  label="Material" 
                   value={parseAmount(editingDraft.materialCost)} 
                   onChange={(val: number) => setEditingDraft(curr => curr ? {...curr, materialCost: String(val)} : curr)} 
                 />
                 <MonetaryInput 
-                  label="Deslocamento Real" 
+                  label="Deslocamento" 
                   value={parseAmount(editingDraft.travelCost)} 
                   onChange={(val: number) => setEditingDraft(curr => curr ? {...curr, travelCost: String(val)} : curr)} 
                 />
                 <MonetaryInput 
-                  label="Outros Custos Reais" 
+                  label="Outros Custos" 
                   value={parseAmount(editingDraft.otherCosts)} 
                   onChange={(val: number) => setEditingDraft(curr => curr ? {...curr, otherCosts: String(val)} : curr)} 
                 />
                 <MonetaryInput 
-                  label="Taxa de Cartão" 
+                  label="Taxas" 
                   value={parseAmount(editingDraft.cardFee)} 
                   onChange={(val: number) => setEditingDraft(curr => curr ? {...curr, cardFee: String(val)} : curr)} 
-                />
-                <MonetaryInput 
-                  label="Imposto Estimado" 
-                  value={parseAmount(editingDraft.estimatedTax)} 
-                  onChange={(val: number) => setEditingDraft(curr => curr ? {...curr, estimatedTax: String(val)} : curr)} 
                 />
               </div>
             </div>
 
-          <div className="finance-entry-actions">
-            <PrimaryButton className="finance-entry-submit" onClick={saveAdjustment}>Salvar ajuste</PrimaryButton>
+          <div className="finance-entry-actions aferix-mt-lg">
+            <PrimaryButton onClick={saveAdjustment}>Salvar Ajustes</PrimaryButton>
           </div>
-        </PanelCard>
+        </Surface>
       )}
 
-      <PanelCard className="finance-results-panel">
-        <header className="panel-list-header">
-          <h2>Resultados de Orçamentos Finalizados</h2>
+      <Surface elevation={1} padding="sm" className="finance-results-panel aferix-mb-md">
+        <header className="panel-list-header aferix-mb-sm">
+          <SectionTitle title="Resultados Detalhados" />
         </header>
         <SearchInput
           value={recordSearch}
-          placeholder="Buscar orçamento por título, cliente ou valor..."
+          placeholder="Filtrar por título, cliente ou valor..."
           onChange={(value) => { setRecordSearch(value); setShowAllRows(false); }}
         />
-      </PanelCard>
+      </Surface>
 
       <ListCard>
         {financeRecords.length === 0 ? (

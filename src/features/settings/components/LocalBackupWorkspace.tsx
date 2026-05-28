@@ -13,7 +13,7 @@ import {
   type AferixBackupSummary,
   type AferixBackupDataSummaryItem
 } from '../storage/localBackup';
-import { PrimaryButton, PanelCard, ContextBanner } from '../../../app/components/ui';
+import { PrimaryButton, Surface, ContextBanner } from '../../../app/components/ui';
 import './LocalBackupWorkspace.css';
 
 export function LocalBackupWorkspace({ includeLinkedSettings: _includeLinkedSettings = true }: { includeLinkedSettings?: boolean }) {
@@ -76,7 +76,7 @@ export function LocalBackupWorkspace({ includeLinkedSettings: _includeLinkedSett
 
   return (
     <div className="local-backup-workspace-premium aferix-d-flex aferix-flex-column aferix-gap-md">
-      <PanelCard className="aferix-d-flex aferix-flex-column aferix-gap-md" style={{ padding: '24px' }}>
+      <Surface className="aferix-d-flex aferix-flex-column aferix-gap-md" style={{ padding: '24px' }}>
         <div>
           <h2 className="aferix-font-xl aferix-font-bold">Offline Backup</h2>
           <p className="aferix-text-muted">Proteja seus dados do ERP exportando localmente para o seu dispositivo.</p>
@@ -87,9 +87,9 @@ export function LocalBackupWorkspace({ includeLinkedSettings: _includeLinkedSett
             Exportar Backup de Segurança
           </PrimaryButton>
         </div>
-      </PanelCard>
+      </Surface>
 
-      <PanelCard className="aferix-d-flex aferix-flex-column aferix-gap-md" style={{ padding: '24px' }}>
+      <Surface className="aferix-d-flex aferix-flex-column aferix-gap-md" style={{ padding: '24px' }}>
         <div>
           <h2 className="aferix-font-lg aferix-font-bold">Restauração</h2>
           <p className="aferix-text-muted">Importe um arquivo JSON para restaurar seu ERP.</p>
@@ -113,7 +113,7 @@ export function LocalBackupWorkspace({ includeLinkedSettings: _includeLinkedSett
             />
           </label>
         </div>
-      </PanelCard>
+      </Surface>
 
       {feedback && (
         <div className="aferix-card-warning" style={{ textAlign: 'center', padding: '16px' }}>

@@ -1,36 +1,37 @@
-/* Mobile ActionMenu styling */
+/* Mobile ActionMenu styling — purified dark premium theme */
 
-/* Overlay backdrop */
+/* Backdrop */
 .overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5); /* dark translucent */
-  z-index: 999;
+  background: var(--bg-overlay);
+  z-index: var(--z-modal);
+  backdrop-filter: blur(4px);
 }
 
 /* Bottom sheet container */
 .sheet {
   position: fixed;
   left: 50%;
-  bottom: calc(env(safe-area-inset-bottom) + 16px);
+  bottom: calc(env(safe-area-inset-bottom, 0px) + var(--sz-md));
   transform: translateX(-50%);
-  width: min(360px, calc(100vw - 32px));
-  max-width: calc(100vw - 32px);
-  border-radius: 18px;
-  padding: 12px;
-  background: var(--aferix-bg-elevated, #1f2937);
-  color: #f9fafb;
-  border: 1px solid rgba(255,255,255,.08);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+  width: min(360px, calc(100vw - var(--sz-xl)));
+  max-width: calc(100vw - var(--sz-xl));
+  border-radius: var(--radius-lg);
+  padding: var(--sz-md);
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  border: 1px solid var(--border-soft);
+  box-shadow: var(--shadow-md);
   box-sizing: border-box;
-  z-index: 1000;
+  z-index: var(--z-modal);
 }
 
 /* Menu container */
 .menu {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--sz-sm);
 }
 
 /* Button/item styling */
@@ -41,17 +42,19 @@
   flex-direction: row;
   align-items: center;
   justify-content: flex-start;
-  gap: 10px;
-  padding: 0 14px;
+  gap: var(--sz-md);
+  padding: 0 var(--sz-md);
   background: transparent;
-  color: #f9fafb;
+  color: var(--text-primary);
   border: none;
+  border-radius: var(--radius-sm);
   white-space: nowrap;
   word-break: normal;
   overflow-wrap: normal;
   text-align: left;
+  transition: background 0.2s ease;
 }
 
 .itemButton:hover {
-  background: rgba(255,255,255,0.08);
+  background: var(--bg-active);
 }

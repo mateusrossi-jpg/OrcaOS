@@ -77,7 +77,6 @@ export function DangerButton(props: Omit<ButtonHTMLAttributes<HTMLButtonElement>
 
 /**
  * Surface: Componente de base para layout com suporte a elevação e padding semântico.
- * Evolução do PanelCard para o sistema de tokens.
  */
 export function Surface({ 
   children, 
@@ -103,11 +102,6 @@ export function Surface({
     </section>
   );
 }
-
-/**
- * Alias para compatibilidade legada enquanto migramos para Surface.
- */
-export const PanelCard = Surface;
 
 /**
  * ListCard: Especialização de Surface para listas.

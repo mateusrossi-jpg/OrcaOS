@@ -1,12 +1,12 @@
-/* Overlay and Sheet tokens – premium dark theme */
+/* Overlay and Sheet tokens – purified dark premium theme */
 
 /* Backdrop */
 .overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.55); /* dark translucent */
-  backdrop-filter: blur(4px);
-  z-index: 999;
+  background: var(--bg-overlay);
+  backdrop-filter: blur(8px);
+  z-index: var(--z-modal);
 }
 
 /* Sheet (centered modal / action sheet) */
@@ -18,14 +18,14 @@
   width: min(420px, calc(100vw - 32px));
   max-height: 70vh;
   overflow-y: auto;
-  border-radius: 20px;
-  padding: 20px;
-  background: var(--aferix-bg-elevated, #1f2937);
-  color: #f9fafb;
-  border: 1px solid rgba(255,255,255,.08);
-  box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+  border-radius: var(--radius-lg);
+  padding: var(--sz-lg);
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  border: 1px solid var(--border-soft);
+  box-shadow: var(--shadow-lg);
   box-sizing: border-box;
-  z-index: 1000;
+  z-index: var(--z-modal);
 }
 
 @media (min-width: 1025px) {

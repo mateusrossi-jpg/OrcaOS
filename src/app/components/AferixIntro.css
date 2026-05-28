@@ -1,157 +1,107 @@
-.aferix-intro {
+/* AFERIX INTRO — PURIFIED DARK PREMIUM V1 */
+
+.aferix-intro-screen {
   position: fixed;
   inset: 0;
-  z-index: 99999;
+  z-index: var(--z-toast); /* Ensure it is above everything */
   display: flex;
   align-items: center;
   justify-content: center;
-  background:
-    radial-gradient(circle at 50% 42%, rgba(245, 164, 0, 0.08), transparent 42%),
-    linear-gradient(180deg, #090b0f 0%, #050607 72%);
-  color: #f5f1e8;
-  padding: 24px;
+  background: var(--bg-app);
+  color: var(--text-primary);
   overflow: hidden;
-  transition: opacity 0.4s ease-out, visibility 0.4s ease-out;
-  opacity: 1;
-  visibility: visible;
 }
 
-.aferix-intro.fading {
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-}
-
-.aferix-intro-glow {
+/* Atmospheric Glow (Semantic Brand Usage) */
+.aferix-intro-screen::before {
+  content: '';
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 480px;
-  height: 480px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(245, 164, 0, 0.075) 0%, rgba(245, 164, 0, 0) 72%);
+  inset: 0;
+  background: radial-gradient(circle at 50% 42%, var(--brand-soft), transparent 60%);
+  opacity: 0.8;
   pointer-events: none;
-  filter: blur(36px);
 }
 
-.aferix-intro-content {
+.intro-content {
   position: relative;
-  z-index: 2;
+  z-index: var(--z-base);
+  width: 100%;
+  max-width: 440px;
+  padding: var(--sz-xl);
   display: flex;
   flex-direction: column;
   align-items: center;
-  max-width: 440px;
   text-align: center;
-  animation: introFadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-.aferix-intro-wordmark {
-  display: block;
+.intro-logo-container {
   width: min(80vw, 292px);
+  margin: 0 auto var(--sz-xl);
+}
+
+.intro-wordmark {
+  width: 100%;
   height: auto;
-  margin: 0 auto 26px;
-  object-fit: contain;
-  object-position: center;
-  animation: introLogoSettle 900ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  filter: drop-shadow(var(--shadow-md));
 }
 
-.aferix-intro-phrase {
-  font-family: 'Outfit', 'Inter', 'Sora', sans-serif;
-  font-size: 22px;
-  font-weight: 700;
-  line-height: 1.25;
-  color: #f5f1e8;
-  margin: 0 0 12px 0;
-  letter-spacing: 0;
+.intro-title {
+  font-size: 24px;
+  font-weight: 900;
+  color: var(--text-primary);
+  margin: 0 0 var(--sz-sm) 0;
+  letter-spacing: -0.02em;
 }
 
-.aferix-intro-sub {
-  font-family: 'Inter', sans-serif;
+.intro-subtitle {
   font-size: 14px;
-  font-weight: 400;
-  line-height: 1.6;
-  color: #a6a6af;
-  margin: 0 0 30px 0;
+  color: var(--text-muted);
+  margin: 0 0 var(--sz-2xl) 0;
+  max-width: 280px;
+  line-height: 1.5;
 }
 
-.aferix-intro-loader {
+/* Loading Progress (Brand Foundation) */
+.intro-loading-track {
   width: 180px;
-  height: 3px;
-  background-color: rgba(255, 255, 255, 0.06);
-  border-radius: 9px;
+  height: 4px;
+  background-color: var(--border-dim);
+  border-radius: var(--radius-pill);
   overflow: hidden;
   position: relative;
 }
 
-.aferix-intro-loader-bar {
+.intro-loading-bar {
   position: absolute;
-  inset: 0;
-  background: linear-gradient(90deg, #d97706, #f5a400, #ffb21a);
-  border-radius: 9px;
-  transform: translateX(-100%);
-  animation: introLoaderProgress 1.9s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 30%;
+  background: var(--aferix-premium-gradient);
+  border-radius: var(--radius-pill);
+  animation: introLoading 2.4s cubic-bezier(0.65, 0, 0.35, 1) infinite;
 }
 
-@keyframes introFadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes introLogoSettle {
-  from {
-    opacity: 0;
-    transform: scale(0.96);
-    filter: blur(4px);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-    filter: blur(0);
-  }
-}
-
-@keyframes introLoaderProgress {
-  to {
-    transform: translateX(0);
-  }
+@keyframes introLoading {
+  0% { left: -30%; width: 30%; }
+  50% { width: 50%; }
+  100% { left: 100%; width: 30%; }
 }
 
 @media (max-width: 480px) {
-  .aferix-intro-wordmark {
+  .intro-content {
+    padding: var(--sz-lg);
+  }
+  
+  .intro-logo-container {
     width: min(88vw, 252px);
   }
-
-  .aferix-intro-phrase {
-    font-size: 18px;
+  
+  .intro-title {
+    font-size: 20px;
   }
-
-  .aferix-intro-sub {
+  
+  .intro-subtitle {
     font-size: 13px;
-  }
-
-  .aferix-intro-glow {
-    width: 320px;
-    height: 320px;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .aferix-intro,
-  .aferix-intro-content,
-  .aferix-intro-wordmark,
-  .aferix-intro-loader-bar {
-    animation: none;
-    transition: none;
-  }
-
-  .aferix-intro-loader-bar {
-    transform: translateX(0);
   }
 }

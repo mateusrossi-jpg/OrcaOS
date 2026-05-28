@@ -16,7 +16,7 @@ import {
   MoneyValue,
   PrimaryButton,
   SecondaryButton,
-  PanelCard
+  Surface
 } from '../../../app/components/ui';
 import { catalogService } from '../../../services/catalogService';
 import { type CatalogHubItem, type CatalogHubItemKind, createCatalogId } from '../types/catalogTypes';
@@ -160,7 +160,7 @@ export function PremiumCatalogWorkspace({ onSendToBudget }: PremiumCatalogWorksp
       <div className="premium-catalog-workspace form-view">
         <BackButton onClick={() => setView('list')} label="Voltar para a Biblioteca" />
 
-        <PanelCard className="catalog-edit-card">
+        <Surface className="catalog-edit-card">
           <header className="panel-list-header">
             <h2>{editingItem.id ? 'Editar Item' : 'Novo Item'}</h2>
             <p>Configure os detalhes técnicos e comerciais.</p>
@@ -232,7 +232,7 @@ export function PremiumCatalogWorkspace({ onSendToBudget }: PremiumCatalogWorksp
               Cancelar
             </SecondaryButton>
           </div>
-        </PanelCard>
+        </Surface>
 
         <Modal
           isOpen={Boolean(itemPendingDelete)}
@@ -254,7 +254,7 @@ export function PremiumCatalogWorkspace({ onSendToBudget }: PremiumCatalogWorksp
     <div className="premium-catalog-workspace aferix-d-flex aferix-flex-column aferix-gap-md">
       <PrimaryButton className="new-item-cta" onClick={handleNew}>+ Novo Item</PrimaryButton>
 
-      <PanelCard className="catalog-search-area aferix-d-flex aferix-flex-column aferix-gap-sm">
+      <Surface className="catalog-search-area aferix-d-flex aferix-flex-column aferix-gap-sm">
         <SearchInput
           placeholder="Buscar no catálogo..."
           value={query}
@@ -268,7 +268,7 @@ export function PremiumCatalogWorkspace({ onSendToBudget }: PremiumCatalogWorksp
             ariaLabel="Filtrar catálogo"
           />
         </div>
-      </PanelCard>
+      </Surface>
 
       <ListCard>
         {filteredItems.length === 0 ? (

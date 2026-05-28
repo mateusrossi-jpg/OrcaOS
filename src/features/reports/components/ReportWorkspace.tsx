@@ -7,7 +7,7 @@ import { FinanceFacade, type ConsolidatedFinanceRecord } from '../../finance/fin
 import { ProfileFacade } from '../../settings/profileFacade';
 import { 
   MetricCard, 
-  PanelCard, 
+  Surface, 
   ListCard, 
   ListItem, 
   FilterChips, 
@@ -111,9 +111,9 @@ export function ReportWorkspace({ captures: _captures, activeClient: _activeClie
   if (isLoading) {
     return (
       <div className="report-workspace-container">
-        <PanelCard>
+        <Surface>
           <div className="loading-state-placeholder">Carregando dados financeiros...</div>
-        </PanelCard>
+        </Surface>
       </div>
     );
   }
@@ -121,7 +121,7 @@ export function ReportWorkspace({ captures: _captures, activeClient: _activeClie
   return (
     <div className="report-workspace-container">
       {/* Hero Card: Planned vs Actual */}
-      <PanelCard className="report-hero-card">
+      <Surface className="report-hero-card">
         <div className="hero-main-metric">
           <span>Lucro Realizado (Geral)</span>
           <strong>{money(heroData.actualProfit)}</strong>
@@ -139,17 +139,17 @@ export function ReportWorkspace({ captures: _captures, activeClient: _activeClie
             <small className="comparison-note">{heroData.isPositive ? 'Acima do orçado' : 'Abaixo do orçado'}</small>
           </div>
         </div>
-      </PanelCard>
+      </Surface>
 
       {/* Category Selector */}
-      <PanelCard className="report-category-nav">
+      <Surface className="report-category-nav">
         <FilterChips 
           items={CATEGORIES}
           active={[activeCategory]}
           onChange={(active) => setActiveCategory(active[0] || 'financeiro')}
           ariaLabel="Selecionar categoria de relatório"
         />
-      </PanelCard>
+      </Surface>
 
       {/* Category Content */}
       <section className="report-category-content">

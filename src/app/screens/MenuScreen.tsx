@@ -3,7 +3,7 @@ import {
   BackButton, 
   PageHeader, 
   PageShell, 
-  PanelCard, 
+  Surface, 
   SectionTitle 
 } from '../components/ui';
 import type { AferixAccountState } from '../../core/access/accountPlanStorage';
@@ -65,35 +65,35 @@ export function MenuScreen({ account, onNavigate }: MenuScreenProps) {
     // ... rest of details view logic remains same
     return (
       <PageShell className="wide-screen">
-        <Suspense fallback={<PanelCard><p>Carregando...</p></PanelCard>}>
+        <Suspense fallback={<Surface><p>Carregando...</p></Surface>}>
           {activeSection === 'profile' && (
-            <PanelCard className="settings-group account-settings-panel">
+            <Surface className="settings-group account-settings-panel">
               <ProfessionalProfileWorkspace onBack={() => setActiveSection('main')} />
-            </PanelCard>
+            </Surface>
           )}
           {activeSection === 'security' && (
-            <PanelCard className="settings-group account-settings-panel">
+            <Surface className="settings-group account-settings-panel">
               <BackButton label="Voltar ao Menu" onClick={() => setActiveSection('main')} />
               <AppSecurityPanel />
-            </PanelCard>
+            </Surface>
           )}
           {activeSection === 'backup' && (
-            <PanelCard className="settings-group account-settings-panel">
+            <Surface className="settings-group account-settings-panel">
               <BackButton label="Voltar ao Menu" onClick={() => setActiveSection('main')} />
               <LocalBackupWorkspace includeLinkedSettings={false} />
               <CloudSyncPanel />
               <GoogleDriveBackupPanel />
-            </PanelCard>
+            </Surface>
           )}
           {activeSection === 'about' && (
-            <PanelCard className="settings-group account-settings-panel">
+            <Surface className="settings-group account-settings-panel">
               <BackButton label="Voltar ao Menu" onClick={() => setActiveSection('main')} />
               <LegalCompliancePanel />
-              <PanelCard>
+              <Surface>
                 <SectionTitle title="Sobre o Aferix" />
                 <p className="menu-about-note menu-about-note-spaced">Versão MVP · Local-first</p>
-              </PanelCard>
-            </PanelCard>
+              </Surface>
+            </Surface>
           )}
         </Suspense>
       </PageShell>

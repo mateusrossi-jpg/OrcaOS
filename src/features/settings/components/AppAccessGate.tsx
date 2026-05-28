@@ -76,7 +76,6 @@ export function AppAccessGate({ children }: AppAccessGateProps) {
         <div className="app-access-brand">
           <img src="/icons/aferix-app-icon.svg" alt="Aferix" />
           <div>
-            <span className="aferix-kicker">Aferix protegido</span>
             <strong>Acesso local</strong>
           </div>
         </div>

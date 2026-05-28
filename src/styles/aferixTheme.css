@@ -82,6 +82,182 @@
 }
 
 /* --------------------------------------------------
+   GEOMETRY UTILITIES (The Great Purification)
+   -------------------------------------------------- */
+
+.rounded-sm   { border-radius: var(--radius-sm) !important; }
+.rounded-md   { border-radius: var(--radius-md) !important; }
+.rounded-lg   { border-radius: var(--radius-lg) !important; }
+.rounded-pill { border-radius: var(--radius-pill) !important; }
+
+/* SPACING UTILITIES */
+.p-xs { padding: var(--sz-xs) !important; }
+.p-sm { padding: var(--sz-sm) !important; }
+.p-md { padding: var(--sz-md) !important; }
+.p-lg { padding: var(--sz-lg) !important; }
+.p-xl { padding: var(--sz-xl) !important; }
+
+.gap-xs { gap: var(--sz-xs) !important; }
+.gap-sm { gap: var(--sz-sm) !important; }
+.gap-md { gap: var(--sz-md) !important; }
+.gap-lg { gap: var(--sz-lg) !important; }
+
+.m-auto { margin: 0 auto !important; }
+.mt-auto { margin-top: auto !important; }
+
+/* TYPOGRAPHY CLEANUP */
+.text-micro { font-size: 12px !important; letter-spacing: 0.05em; font-weight: 700; }
+.text-small { font-size: 14px !important; line-height: 1.4; }
+.text-body  { font-size: 16px !important; line-height: 1.5; }
+.text-title { font-size: 24px !important; font-weight: 900; letter-spacing: -0.02em; }
+
+/* --------------------------------------------------
+   SURFACE SYSTEM (Dark Premium Evolution)
+   -------------------------------------------------- */
+
+.aferix-surface {
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-soft);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Elevation Levels */
+.aferix-surface.elevation-0 {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.aferix-surface.elevation-1 {
+  background: linear-gradient(180deg, var(--bg-surface), var(--bg-app));
+  box-shadow: var(--shadow-sm);
+}
+
+.aferix-surface.elevation-2 {
+  background: linear-gradient(180deg, var(--bg-elevated), var(--bg-surface));
+  box-shadow: var(--shadow-md);
+  border-color: var(--border-medium);
+}
+
+/* Semantic Padding */
+.aferix-surface.p-sm { padding: var(--sz-sm) !important; }
+.aferix-surface.p-md { padding: var(--sz-md) !important; }
+.aferix-surface.p-lg { padding: var(--sz-lg) !important; }
+
+/* Legacy Mapper (Kept for raw CSS classes not yet converted to Surface) */
+.info-card,
+.notice-box,
+.active-work-context-card,
+.calculation-context-card,
+.survey-intro-card,
+.survey-empty-state,
+.survey-measurement-panel,
+.survey-review-panel,
+.budget-technical-drawer,
+.client-purchase-panel,
+.client-purchase-empty,
+.client-purchase-card,
+.report-command-panel,
+.report-document,
+.settings-row,
+.account-email-card,
+.account-settings-panel,
+.store-card,
+.resource-action-card {
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-soft);
+  background: linear-gradient(180deg, var(--bg-surface), var(--bg-app));
+  padding: var(--sz-md);
+}
+
+/* --------------------------------------------------
+   BUTTONS (Premium Hierarchy)
+   -------------------------------------------------- */
+
+.ui-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sz-sm);
+  min-height: 48px;
+  padding: 0 var(--sz-lg);
+  border-radius: var(--radius-md);
+  font-weight: 700;
+  font-size: 14px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+.ui-button:active {
+  transform: scale(0.96);
+}
+
+.ui-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  filter: grayscale(1);
+}
+
+/* Primary: Full Gold */
+.primary-action {
+  background: var(--brand-primary) !important;
+  color: var(--brand-text) !important;
+  box-shadow: var(--shadow-sm);
+}
+
+.primary-action:hover:not(:disabled) {
+  background: var(--brand-hover) !important;
+  box-shadow: var(--shadow-md);
+}
+
+/* Secondary: Transparent with Border */
+.secondary-action {
+  background: transparent !important;
+  border-color: var(--border-medium) !important;
+  color: var(--text-primary) !important;
+}
+
+.secondary-action:hover:not(:disabled) {
+  background: var(--bg-active) !important;
+  border-color: var(--brand-primary) !important;
+}
+
+/* Danger: Outlined or Soft Red */
+.danger-action {
+  background: var(--primitive-red-soft) !important;
+  border-color: var(--status-danger) !important;
+  color: var(--status-danger) !important;
+}
+
+.danger-action:hover:not(:disabled) {
+  background: var(--status-danger) !important;
+  color: var(--text-inverse) !important;
+}
+
+/* Ghost: Minimalist */
+.ghost-action {
+  background: transparent !important;
+  color: var(--text-muted) !important;
+  padding: 0 var(--sz-sm) !important;
+}
+
+.ghost-action:hover:not(:disabled) {
+  color: var(--brand-primary) !important;
+  background: var(--bg-active) !important;
+}
+
+/* CTA: Full width on mobile */
+.full-page-cta {
+  width: 100%;
+  font-size: 16px;
+  letter-spacing: 0.02em;
+}
+
+/* --------------------------------------------------
    FORM FIELDS (Premium Inputs)
    -------------------------------------------------- */
 

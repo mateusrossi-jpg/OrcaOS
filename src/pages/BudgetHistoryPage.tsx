@@ -4,12 +4,11 @@ import { calculateBudget } from '../domain/aferixFinanceEngine';
 import {
   PageShell,
   PageHeader,
-  PanelCard,
+  Surface,
   ListCard,
   ListItem,
   StatusBadge,
   MoneyValue,
- 
   FilterChips,
   QueueEmptyState,
   ActionMenu,
@@ -64,7 +63,7 @@ export const BudgetHistoryPage: React.FC<BudgetHistoryPageProps> = ({ onOpenBudg
         sourceLabel={`${totalCount} orçamentos registrados.`}
       />
 
-      <PanelCard className="history-search-panel aferix-d-flex aferix-flex-column aferix-gap-xs" style={{ padding: '8px 12px' }}>
+      <Surface elevation={1} padding="sm" className="history-search-panel aferix-d-flex aferix-flex-column aferix-gap-xs">
         <SearchInput
           placeholder="Buscar título ou cliente..."
           value={query}
@@ -78,7 +77,7 @@ export const BudgetHistoryPage: React.FC<BudgetHistoryPageProps> = ({ onOpenBudg
             ariaLabel="Filtrar orçamentos"
           />
         </div>
-      </PanelCard>
+      </Surface>
 
       {filteredBudgets.length === 0 ? (
         <QueueEmptyState
@@ -87,7 +86,7 @@ export const BudgetHistoryPage: React.FC<BudgetHistoryPageProps> = ({ onOpenBudg
           action={null}
         />
       ) : (
-        <ListCard style={{ gap: 0 }}>
+        <ListCard className="aferix-mt-md">
           {filteredBudgets.map((budget) => (
             <ListItem
               key={budget.id}

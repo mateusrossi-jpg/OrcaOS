@@ -33,7 +33,6 @@ export function LegalCompliancePanel() {
     <section className="legal-compliance-panel">
       <div className="legal-compliance-header">
         <div>
-          <span className="aferix-kicker">Responsabilidade e dados</span>
           <h2>Termos, privacidade e aviso tecnico</h2>
           <p>Informacoes essenciais para uso responsavel no beta fechado.</p>
         </div>

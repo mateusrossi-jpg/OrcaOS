@@ -40,7 +40,6 @@ export function CloudSyncPanel() {
     return (
       <section className="google-drive-backup-premium" style={{ opacity: 0.6, pointerEvents: 'none' }}>
         <div className="backup-panel-header">
-          <span className="aferix-kicker">Cloud Sync (Beta)</span>
           <h2>Sincronização Multi-Dispositivo</h2>
           <p>Indisponível: Chaves de API não configuradas.</p>
         </div>
@@ -51,7 +50,6 @@ export function CloudSyncPanel() {
   return (
     <section className="google-drive-backup-premium">
       <div className="backup-panel-header">
-        <span className="aferix-kicker" style={{ color: 'var(--aferix-primary)' }}>Cloud Sync (Beta)</span>
         <h2>Sincronização Ativa</h2>
         <p>Seus dados operacionais são protegidos e sincronizados em tempo real entre seus dispositivos.</p>
       </div>

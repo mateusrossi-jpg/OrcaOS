@@ -3,7 +3,7 @@ import type { AferixAccountState } from '../../core/access/accountPlanStorage';
 import { accountPlanService } from '../../services/accountPlanService';
 import { isGoogleAccountLoginConfigured, requestGoogleAccountProfile } from '../../core/access/googleAccountAuth';
 import { planStatusTitle, planStatusDescription } from '../utils/planHelpers';
-import { AferixTabs, PageHeader, PageShell, PanelCard, PrimaryButton, SecondaryButton, Button, Input } from '../components/ui';
+import { AferixTabs, PageHeader, PageShell, Surface, PrimaryButton, SecondaryButton, Button, Input } from '../components/ui';
 
 const AppSecurityPanel = lazy(() => import('../../features/settings/components/AppSecurityPanel').then((module) => ({ default: module.AppSecurityPanel })));
 const GoogleDriveBackupPanel = lazy(() => import('../../features/settings/components/GoogleDriveBackupPanel').then((module) => ({ default: module.GoogleDriveBackupPanel })));
@@ -97,9 +97,8 @@ export function SettingsScreen({ account, onAccountChange: _onAccountChange }: S
 
       <div className="settings-content-area">
         {activeTab === 'account' && (
-          <PanelCard className="settings-group account-settings-panel">
+          <Surface elevation={1} padding="md" className="settings-group account-settings-panel">
             <div className="settings-panel-title">
-              <span className="aferix-kicker">Acesso e Identidade</span>
               <h2>Sua Conta</h2>
             </div>
 
@@ -129,7 +128,7 @@ export function SettingsScreen({ account, onAccountChange: _onAccountChange }: S
               </div>
               {feedback && <p className="general-added-message">{feedback}</p>}
             </section>
-          </PanelCard>
+          </Surface>
         )}
 
         {activeTab === 'company' && <ProfessionalProfileWorkspace onBack={() => setActiveTab('account')} />}
@@ -137,29 +136,22 @@ export function SettingsScreen({ account, onAccountChange: _onAccountChange }: S
         {activeTab === 'security' && <AppSecurityPanel />}
 
         {activeTab === 'backup' && (
-          <div className="backup-settings-flow">
+          <div className="backup-settings-flow aferix-d-flex aferix-flex-column aferix-gap-md">
             <LocalBackupWorkspace includeLinkedSettings={false} />
             <GoogleDriveBackupPanel />
           </div>
         )}
 
         {activeTab === 'about' && (
-          <>
+          <div className="aferix-d-flex aferix-flex-column aferix-gap-md">
             <LegalCompliancePanel />
-            <PanelCard className="settings-group account-settings-panel">
+            <Surface elevation={1} padding="md">
               <div className="settings-panel-title">
-                <span className="aferix-kicker">Evolução planejada</span>
-                <h2>Roteiro do produto</h2>
+                <h2>Sobre o Aferix</h2>
+                <p className="aferix-text-muted aferix-mt-sm">Versão MVP · Local-first ERP</p>
               </div>
-              <div className="plan-priority-grid">
-                <article><span>1</span><strong>Fase 1: Essencial</strong><small>Atendimento, cálculo, orçamento e relatório simples.</small></article>
-                <article><span>2</span><strong>Fase 2: Financeiro</strong><small>Financeiro gerencial com receitas, custos e lucro real.</small></article>
-                <article><span>3</span><strong>Fase 3: Operacional</strong><small>Catálogo, serviços, materiais, estoque leve e lista de compra.</small></article>
-                <article><span>4</span><strong>Fase 4: Documentação</strong><small>Relatórios técnicos e comerciais avançados.</small></article>
-                <article><span>5</span><strong>Fase 5: Ecossistema</strong><small>Web, nuvem, multiusuário, fiscal e integrações.</small></article>
-              </div>
-            </PanelCard>
-          </>
+            </Surface>
+          </div>
         )}
       </div>
     </PageShell>

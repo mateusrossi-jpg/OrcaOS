@@ -1,3 +1,5 @@
+/* AFERIX COMPACT ACTION MENU — REFINED STYLES */
+
 .compact-action-menu {
   position: relative;
   display: inline-flex;
@@ -5,33 +7,37 @@
 }
 
 .compact-action-menu-trigger {
-  min-width: 40px !important;
-  width: 40px;
-  min-height: 40px !important;
+  min-width: 48px !important;
+  width: 48px;
+  min-height: 48px !important;
   padding: 0 !important;
   justify-content: center !important;
-  border-radius: 10px !important;
-  font-size: 1rem;
+  border-radius: var(--radius-md) !important;
+  font-size: 1.2rem;
   line-height: 1;
+  background: var(--bg-surface) !important;
+  border: 1px solid var(--border-soft) !important;
+  color: var(--text-secondary) !important;
 }
 
 .compact-action-menu-trigger:hover {
-  border-color: rgba(255, 210, 31, 0.26) !important;
+  border-color: var(--brand-primary) !important;
+  color: var(--brand-primary) !important;
 }
 
 .compact-action-menu-popover {
   position: absolute;
   top: calc(100% + 8px);
-  z-index: 80;
-  min-width: 196px;
+  z-index: var(--z-modal);
+  min-width: 200px;
   display: grid;
-  gap: 6px;
-  padding: 8px;
-  border-radius: 12px;
-  border: 1px solid var(--aferix-border);
-  background: linear-gradient(180deg, rgba(21, 26, 34, 0.985), rgba(16, 20, 27, 0.995));
-  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.38);
-  backdrop-filter: blur(10px);
+  gap: var(--sz-xs);
+  padding: var(--sz-xs);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-medium);
+  background: var(--bg-overlay);
+  box-shadow: var(--shadow-lg);
+  backdrop-filter: blur(12px);
 }
 
 .compact-action-menu-popover.align-right {
@@ -43,43 +49,28 @@
 }
 
 .compact-action-menu-item {
-  min-height: 38px !important;
+  min-height: 44px !important;
   justify-content: flex-start !important;
   text-align: left !important;
-  padding: 8px 10px !important;
-  border-radius: 9px !important;
-  font-size: 0.81rem;
-  line-height: 1.15;
+  padding: 0 var(--sz-md) !important;
+  border-radius: var(--radius-sm) !important;
+  font-size: 14px;
   font-weight: 600;
+  border: 1px solid transparent !important;
+  background: transparent !important;
+  color: var(--text-primary) !important;
 }
 
 .compact-action-menu-item:hover {
-  border-color: rgba(255, 255, 255, 0.12) !important;
+  background: var(--bg-active) !important;
+  border-color: var(--border-soft) !important;
 }
 
 .compact-action-menu-item.danger {
-  color: #fca5a5 !important;
-  border-color: rgba(239, 68, 68, 0.28) !important;
-  background: rgba(239, 68, 68, 0.08) !important;
+  color: var(--status-danger) !important;
 }
 
-@media (max-width: 560px) {
-  .compact-action-menu-trigger {
-    min-width: 44px !important;
-    width: 44px;
-    min-height: 44px !important;
-  }
-
-  .compact-action-menu-popover {
-    min-width: 200px;
-    max-width: min(85vw, 260px);
-    gap: 8px;
-    padding: 10px;
-  }
-
-  .compact-action-menu-item {
-    min-height: 44px !important;
-    font-size: 0.88rem;
-    padding: 10px 14px !important;
-  }
+.compact-action-menu-item.danger:hover {
+  background: rgba(239, 68, 68, 0.1) !important;
+  border-color: rgba(239, 68, 68, 0.2) !important;
 }

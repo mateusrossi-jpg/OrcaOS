@@ -24,7 +24,7 @@ import {
   SectionTitle,
   PrimaryButton,
   SecondaryButton,
-  PanelCard
+  Surface
 } from '../../../app/components/ui';
 import './ClientWorkOrderWorkspace.css';
 
@@ -280,13 +280,13 @@ export function ClientWorkOrderWorkspace({ initialSection, initialClientId, sect
             <MetricCard label="Novos no mês" value={clients.filter(c => recentTimestamp(c).includes(new Date().toISOString().slice(0, 7))).length} tone="brand" />
           </div>
 
-          <PanelCard className="client-search-card">
+          <Surface className="client-search-card">
             <SearchInput 
               placeholder="Buscar cliente por nome, e-mail ou telefone..." 
               value={clientSearch}
               onChange={(value) => { setClientSearch(value); setShowAllClients(false); }}
             />
-          </PanelCard>
+          </Surface>
 
           <ListCard>
             {visibleClients.length === 0 ? (
@@ -333,7 +333,7 @@ export function ClientWorkOrderWorkspace({ initialSection, initialClientId, sect
       )}
 
       {activeSection === 'newClient' && (
-        <PanelCard className="client-form-card">
+        <Surface className="client-form-card">
           <BackButton onClick={cancelClientEdit} label="Voltar para a Lista" />
           <header className="client-form-header">
             <SectionTitle 
@@ -445,7 +445,7 @@ export function ClientWorkOrderWorkspace({ initialSection, initialClientId, sect
               Cancelar
             </SecondaryButton>
           </div>
-        </PanelCard>
+        </Surface>
       )}
 
       <Modal

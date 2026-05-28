@@ -151,7 +151,7 @@ export function AppShell({ children, activeTab, onNavigate, activeClient }: AppS
                 {activeTab === 'store' && <span className="active-indicator" />}
               </button>
               
-              <div className="nav-section-divider" style={{ margin: '12px 0', borderTop: '1px solid rgba(255,255,255,0.05)' }} />
+              <div className="nav-section-divider aferix-my-md aferix-border-top" />
               
               <button
                 className="nav-item"

@@ -2,7 +2,8 @@ import { useState } from 'react';
 import type { AferixAccountState } from '../../core/access/accountPlanStorage';
 import { buildProCheckoutUrl } from '../../core/access/commercialCheckout';
 import { proPlanBenefits } from '../../core/access/planStrategy';
-import { PageHeader, PageShell, PlanCard, BackButton, ListCard, ListItem, PanelCard } from '../components/ui';
+import { PageHeader, PageShell, PlanCard, BackButton, ListCard, ListItem, Surface, Badge, SectionTitle, ContextBanner } from '../components/ui';
+import { planStatusTitle } from '../utils/planHelpers';
 
 interface StoreScreenProps {
   account: AferixAccountState;
@@ -11,74 +12,53 @@ interface StoreScreenProps {
 }
 
 export function StoreScreen({ account, onBack }: StoreScreenProps) {
-  const activeUserPlan = account.plan;
-  const [showAllProBenefits, setShowAllProBenefits] = useState(false);
-  const visibleProBenefits = showAllProBenefits ? proPlanBenefits : proPlanBenefits.slice(0, 5);
-  const hiddenProBenefitsCount = Math.max(proPlanBenefits.length - visibleProBenefits.length, 0);
-
-  function openCheckout() {
-    try {
-      window.open(buildProCheckoutUrl(account), '_blank', 'noopener,noreferrer');
-    } catch {
-      // Error handled by not updating state
-    }
-  }
-
   return (
     <PageShell className="wide-screen store-screen">
       {onBack && <BackButton label="Voltar" onClick={onBack} />}
-      <PageHeader title="Licença" />
-      <section className="plan-card-grid" aria-label="Planos Aferix">
-        <PlanCard
-          badge="FREE"
-          title="Básico"
-          price="Grátis"
-          benefits={['Cálculos essenciais', 'Relatórios locais', 'Offline-first']}
-          action={<button className="secondary-action inline-action" type="button" disabled>Sua licença atual</button>}
-        />
-        <PlanCard
-          badge="PRO"
-          title="Em preparação"
-          price="Beta"
-          benefits={['Sincronização Cloud', 'Todos os cálculos', 'Suporte prioritário']}
-          action={<button className="primary-action inline-action" type="button" disabled={activeUserPlan === 'pro'} onClick={openCheckout}>Quero este plano</button>}
-          featured
-        />
-        <PlanCard
-          badge="VITALÍCIO"
-          title="Planejado"
-          price="Futuro"
-          benefits={['Tudo do Pro', 'Sem mensalidades', 'Vitalício']}
-          action={<button className="ghost-action inline-action" type="button" disabled>Disponível futuramente</button>}
-        />
-      </section>
+      <PageHeader title="Licença e Plano" />
       
-      <ListCard title="Vantagens do Aferix Pro" className="store-comparison-card">
-        {visibleProBenefits.map((benefit) => (
-          <ListItem key={benefit.title} title={benefit.title} />
-        ))}
-        {proPlanBenefits.length > 5 && (
-          <button
-            type="button"
-            className="list-expand-toggle"
-            onClick={() => setShowAllProBenefits((current) => !current)}
-          >
-            {showAllProBenefits ? "Ver menos" : `Ver mais (${hiddenProBenefitsCount})`}
-          </button>
-        )}
-      </ListCard>
-
-      <PanelCard className="pro-preparation-card">
-        <header>
-          <div>
-            <span className="aferix-kicker">Beta Controlado</span>
-            <h2>Acesso Pro Gradual</h2>
-            <p>Os recursos premium serão liberados gradualmente. Sua licença atual é gratuita e vitalícia durante a fase Beta.</p>
+      <div className="aferix-d-flex aferix-flex-column aferix-gap-lg">
+        <Surface elevation={1} padding="lg">
+          <div className="aferix-text-center aferix-mb-md">
+            <Badge tone="brand">CONTA {account.plan.toUpperCase()}</Badge>
+            <h2 className="aferix-font-xl aferix-font-bold">Status da Assinatura</h2>
+            <p className="aferix-text-muted aferix-mt-sm">Sua licença atual é vitalícia durante o período Beta.</p>
           </div>
-        </header>
-      </PanelCard>
 
+          <div className="aferix-divider aferix-my-lg" style={{ height: '1px', background: 'var(--border-soft)' }} />
 
+          <div className="aferix-grid-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+            <div className="aferix-p-md aferix-text-center" style={{ background: 'var(--bg-active)', borderRadius: 'var(--radius-md)' }}>
+              <span className="aferix-d-block aferix-font-xs aferix-text-muted">PLANO ATUAL</span>
+              <strong className="aferix-font-lg">{planStatusTitle(account)}</strong>
+            </div>
+            <div className="aferix-p-md aferix-text-center" style={{ background: 'var(--bg-active)', borderRadius: 'var(--radius-md)' }}>
+              <span className="aferix-d-block aferix-font-xs aferix-text-muted">PRÓXIMA COBRANÇA</span>
+              <strong className="aferix-font-lg">R$ 0,00</strong>
+            </div>
+          </div>
+        </Surface>
+
+        <Surface elevation={1} padding="md">
+          <SectionTitle title="Recursos Habilitados" />
+          <div className="aferix-mt-sm">
+            <ul className="aferix-list-check" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+              {proPlanBenefits.slice(0, 4).map(b => (
+                <li key={b.title} style={{ display: 'flex', gap: '8px', marginBottom: '8px', fontSize: '14px' }}>
+                  <span style={{ color: 'var(--status-success)' }}>✓</span>
+                  {b.title}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </Surface>
+
+        <ContextBanner
+          title="Aferix Pro em Preparação"
+          meta="Novos recursos como sincronismo avançado e multiusuário serão liberados automaticamente para sua conta."
+          icon="⭐"
+        />
+      </div>
     </PageShell>
   );
 }
