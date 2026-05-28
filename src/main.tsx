@@ -5,8 +5,6 @@ import { AppAccessGate } from './features/settings/components/AppAccessGate';
 import './styles/tokens.css';
 import './styles/global.css';
 import './styles/aferixTheme.css';
-import './styles/premiumSystem.css';
-import './styles/aferixUtilities.css';
 
 import { syncService } from './services/SyncService';
 

@@ -6,15 +6,15 @@ import { BUDGET_STATUS } from '../../../domain/budget';
 import { FinanceFacade, type ConsolidatedFinanceRecord } from '../../finance/financeFacade';
 import { ProfileFacade } from '../../settings/profileFacade';
 import { 
-  MetricCard, 
+  KpiCard, 
+  MetricCard,
   Surface, 
   ListCard, 
-  ListItem, 
   FilterChips, 
   QueueEmptyState,
-  Button
+  Button,
+  SectionTitle
 } from '../../../app/components/ui';
-import './ReportWorkspace.css';
 
 interface ReportWorkspaceProps {
   captures: CalculationCapture[];
@@ -22,13 +22,12 @@ interface ReportWorkspaceProps {
   activeWorkOrder?: WorkOrder | null;
 }
 
-type ReportCategory = 'financeiro' | 'clientes' | 'serviços' | 'desempenho';
+type ReportCategory = 'financeiro' | 'clientes' | 'operacao';
 
 const CATEGORIES: Array<{ id: ReportCategory; label: string }> = [
   { id: 'financeiro', label: 'Financeiro' },
   { id: 'clientes', label: 'Clientes' },
-  { id: 'serviços', label: 'Serviços' },
-  { id: 'desempenho', label: 'Desempenho' }
+  { id: 'operacao', label: 'Operação' }
 ];
 
 const moneyFormatter = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -43,21 +42,6 @@ export function ReportWorkspace({ captures: _captures, activeClient: _activeClie
   
   const { budgets: savedBudgets, isLoading } = useBudgetHistory();
   const [financeRecords, setFinanceRecords] = useState<ConsolidatedFinanceRecord[]>([]);
-  const [profileName, setProfileName] = useState('Profissional');
-
-  useEffect(() => {
-    let active = true;
-    async function loadProfileName() {
-      const profile = await ProfileFacade.getProfile();
-      if (!active) return;
-      setProfileName(profile.businessName || profile.professionalName || 'Profissional');
-    }
-
-    void loadProfileName();
-    return () => {
-      active = false;
-    };
-  }, []);
 
   useEffect(() => {
     let active = true;
@@ -67,23 +51,20 @@ export function ReportWorkspace({ captures: _captures, activeClient: _activeClie
     }
     void loadFinance();
     return () => { active = false; };
-  }, [savedBudgets]); // Reload if budgets change
+  }, [savedBudgets]);
 
-  // Calculate Hero Data: Planned vs Actual
   const heroData = useMemo(() => {
     const plannedProfit = savedBudgets
       .filter(b => b.status === BUDGET_STATUS.FINALIZADO)
       .reduce((sum, b) => sum + (b.financialSnapshot?.lucroBruto || 0), 0);
     
     const actualProfit = financeRecords.reduce((sum, r) => sum + r.netProfit, 0);
-
     const delta = actualProfit - plannedProfit;
     const isPositive = delta >= 0;
 
     return { plannedProfit, actualProfit, delta, isPositive };
   }, [savedBudgets, financeRecords]);
 
-  // Category specific data
   const financeStats = useMemo(() => {
     const totalRevenue = financeRecords.reduce((sum, r) => sum + r.receivedAmount, 0);
     const totalCosts = financeRecords.reduce((sum, r) => sum + r.directCosts, 0);
@@ -110,134 +91,103 @@ export function ReportWorkspace({ captures: _captures, activeClient: _activeClie
 
   if (isLoading) {
     return (
-      <div className="report-workspace-container">
-        <Surface>
-          <div className="loading-state-placeholder">Carregando dados financeiros...</div>
-        </Surface>
+      <div style={{ maxWidth: '440px', margin: '0 auto' }}>
+        <QueueEmptyState title="Relatórios" meta="Consolidando dados operacionais..." />
       </div>
     );
   }
 
   return (
-    <div className="report-workspace-container">
-      {/* Hero Card: Planned vs Actual */}
-      <Surface className="report-hero-card">
-        <div className="hero-main-metric">
-          <span>Lucro Realizado (Geral)</span>
-          <strong>{money(heroData.actualProfit)}</strong>
-        </div>
-        <div className="hero-comparison-grid">
-          <div className="comparison-item">
-            <span>Lucro Previsto</span>
-            <strong>{money(heroData.plannedProfit)}</strong>
-          </div>
-          <div className="comparison-item">
-            <span>Diferença</span>
-            <div className={`comparison-delta ${heroData.isPositive ? 'delta-positive' : 'delta-negative'}`}>
-              {heroData.isPositive ? '▲' : '▼'} {money(Math.abs(heroData.delta))}
-            </div>
-            <small className="comparison-note">{heroData.isPositive ? 'Acima do orçado' : 'Abaixo do orçado'}</small>
-          </div>
-        </div>
-      </Surface>
-
-      {/* Category Selector */}
-      <Surface className="report-category-nav">
-        <FilterChips 
-          items={CATEGORIES}
-          active={[activeCategory]}
-          onChange={(active) => setActiveCategory(active[0] || 'financeiro')}
-          ariaLabel="Selecionar categoria de relatório"
+    <div className="aferix-d-flex aferix-flex-column aferix-gap-lg" style={{ maxWidth: '440px', margin: '0 auto', paddingBottom: 'var(--sz-2xl)' }}>
+      
+      {/* 1. HERO KPI (Elevation 2) */}
+      <div className="aferix-mb-md">
+        <KpiCard 
+          label="Lucro Realizado (Histórico)"
+          value={heroData.actualProfit}
+          featured
+          trend={{ 
+            value: heroData.delta === 0 ? 'Exato' : money(Math.abs(heroData.delta)), 
+            isPositive: heroData.isPositive, 
+            label: heroData.isPositive ? 'acima do orçado' : 'abaixo do orçado' 
+          }}
         />
+      </div>
+
+      {/* 2. CATEGORY SELECTOR */}
+      <Surface elevation={1} padding="sm">
+        <div className="aferix-filter-chips-wrapper">
+          <FilterChips 
+            items={CATEGORIES}
+            active={[activeCategory]}
+            onChange={(active) => setActiveCategory(active[0] as ReportCategory || 'financeiro')}
+            ariaLabel="Categoria"
+          />
+        </div>
       </Surface>
 
-      {/* Category Content */}
-      <section className="report-category-content">
+      {/* 3. DYNAMIC CONTENT */}
+      <section className="aferix-d-flex aferix-flex-column aferix-gap-md">
         {activeCategory === 'financeiro' && (
-          <div className="metric-grid">
+          <>
+            <SectionTitle title="Métricas Financeiras" eyebrow="DRE Resumido" />
+            <div className="aferix-grid-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--sz-sm)' }}>
+              <MetricCard label="Faturamento Bruto" value={money(financeStats.totalRevenue)} />
+              <MetricCard label="Custos de Obra" value={money(financeStats.totalCosts)} tone="danger" />
+            </div>
             <MetricCard 
-              label="Faturamento Bruto" 
-              value={money(financeStats.totalRevenue)} 
-            />
-            <MetricCard 
-              label="Custos Operacionais" 
-              value={money(financeStats.totalCosts)} 
-              tone="danger"
-            />
-            <MetricCard 
-              label="Minha Margem Média" 
+              label="Margem Média Histórica" 
               value={`${financeStats.avgMargin.toFixed(1)}%`} 
-              tone={financeStats.avgMargin >= 0 ? 'brand' : 'danger'}
+              tone={financeStats.avgMargin >= 20 ? 'success' : 'warning'}
             />
-          </div>
+          </>
         )}
 
         {activeCategory === 'clientes' && (
-          <ListCard title="Maiores Clientes (Faturamento)">
-            {clientStats.length === 0 ? (
-              <QueueEmptyState title="Nenhum dado disponível" meta="Nenhum dado de cliente disponível para exibição." />
-            ) : visibleClientStats.map((c, i) => (
-              <ListItem 
-                key={i}
-                title={c.name}
-                context={`${c.count} atendimentos`}
-                value={<strong>{money(c.total)}</strong>}
+          <>
+            <SectionTitle title="Maiores Clientes" eyebrow="Por Faturamento" />
+            <ListCard>
+              {clientStats.length === 0 ? (
+                <QueueEmptyState title="Vazio" />
+              ) : visibleClientStats.map((c, i) => (
+                <div key={i} className="aferix-p-md aferix-d-flex aferix-justify-between aferix-align-center" style={{ borderBottom: '1px solid var(--border-dim)' }}>
+                  <div className="aferix-d-flex aferix-flex-column">
+                    <strong className="aferix-font-sm" style={{ color: 'var(--text-primary)' }}>{c.name}</strong>
+                    <small className="aferix-text-muted">{c.count} {c.count === 1 ? 'serviço' : 'serviços'}</small>
+                  </div>
+                  <strong className="tabular-nums" style={{ color: 'var(--brand-primary)', fontSize: '14px' }}>
+                    {money(c.total)}
+                  </strong>
+                </div>
+              ))}
+              {clientStats.length > 5 && (
+                <div className="aferix-p-sm aferix-text-center">
+                  <Button variant="ghost" onClick={() => setShowAllClientStats((current) => !current)}>
+                    {showAllClientStats ? 'Ver menos' : `Ver mais (${hiddenClientStatsCount})`}
+                  </Button>
+                </div>
+              )}
+            </ListCard>
+          </>
+        )}
+
+        {activeCategory === 'operacao' && (
+          <>
+            <SectionTitle title="Funil Operacional" eyebrow="Performance" />
+            <div className="aferix-grid-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--sz-sm)' }}>
+              <MetricCard 
+                label="Serviços Concluídos" 
+                value={financeRecords.length} 
               />
-            ))}
-                      {clientStats.length > 5 && (
-              <div className="report-list-expand-wrap">
-                <Button
-                  variant="ghost"
-                  className="density-toggle-cta"
-                  onClick={() => setShowAllClientStats((current) => !current)}
-                >
-                  {showAllClientStats ? 'Ver menos' : `Ver mais (${hiddenClientStatsCount})`}
-                </Button>
-              </div>
-            )}
-          </ListCard>
-        )}
-
-        {activeCategory === 'serviços' && (
-          <div className="metric-grid">
-            <MetricCard 
-              label="Serviços Concluídos" 
-              value={financeRecords.length} 
-            />
-            <MetricCard 
-              label="Orçamentos Enviados" 
-              value={savedBudgets.filter(b => b.status === BUDGET_STATUS.ENVIADO).length} 
-              tone="brand"
-            />
-          </div>
-        )}
-
-        {activeCategory === 'desempenho' && (
-          <div className="metric-grid">
-            <MetricCard 
-              label="Taxa de Aprovação" 
-              value={`${savedBudgets.length > 0 ? ((savedBudgets.filter(b => b.status === BUDGET_STATUS.FINALIZADO).length / savedBudgets.length) * 100).toFixed(0) : 0}%`} 
-              tone="brand"
-              featured
-            />
-          </div>
+              <MetricCard 
+                label="Taxa de Conversão" 
+                value={`${savedBudgets.length > 0 ? ((savedBudgets.filter(b => b.status === BUDGET_STATUS.FINALIZADO).length / savedBudgets.length) * 100).toFixed(0) : 0}%`} 
+                tone="brand"
+              />
+            </div>
+          </>
         )}
       </section>
-
-      {/* Hidden Print/Document Preview for QA compliance */}
-      <div className="report-document-premium report-document-hidden">
-        <header className="report-doc-header">
-          {profileName === 'Aferix' ? (
-            <img className="report-doc-logo" src="/icons/aferix-wordmark-document.svg" alt="Aferix" />
-          ) : (
-            <div className="doc-branding">
-              <img className="report-doc-logo-sub" src="/icons/aferix-wordmark-document.svg" alt="Aferix" />
-              <h2>{profileName}</h2>
-            </div>
-          )}
-        </header>
-        <QueueEmptyState title="Relatório Completo" meta="Selecione um período para gerar o documento completo." />
-      </div>
     </div>
   );
 }
