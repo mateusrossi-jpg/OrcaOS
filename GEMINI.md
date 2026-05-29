@@ -6,6 +6,8 @@ A partir de 28 de Maio de 2026, **o projeto OrcaOS é a BASE OFICIAL E ÚNICA do
 
 **VISUAL MANDATE:** Todas as decisões de UI devem seguir o [AFERIX VISUAL PROTOCOL](./docs/visual-system/GEMINI_VISUAL_PROTOCOL.md). As imagens em `/docs/lovable-reference` são a fonte da verdade primária.
 
+**HOME CONSTITUTION:** A arquitetura da tela inicial deve respeitar estritamente a [CONSTITUIÇÃO DA HOME](./docs/visual-system/AFERIX_HOME_CONSTITUTION.md). A Home é dona da atenção, os módulos são donos da gestão.
+
 **O que o OrcaOS possui e mantém (O Núcleo):**
 - Lógica operacional, regras de negócio e arquitetura real.
 - Infraestrutura principal: Supabase, Dexie, offline-first, sync, event store.
