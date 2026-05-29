@@ -9,7 +9,7 @@ interface SurfaceCardProps extends HTMLAttributes<HTMLElement> {
 
 /**
  * SurfaceCard: The fundamental physical unit of the Aferix OS.
- * Layered dark glass, atmospheric shadows, and 24px-32px radii.
+ * Solid Graphite Glass: Layered depth, subtle borders, and atmospheric shadows.
  */
 export const SurfaceCard = memo(({ 
   children, 
@@ -28,7 +28,8 @@ export const SurfaceCard = memo(({
   return (
     <Component
       className={cn(
-        "rounded-[var(--radius-card)] bg-[var(--surface-gradient)] border var(--border-soft) shadow-[var(--shadow-soft)] transition-all duration-300",
+        "rounded-[var(--radius-card)] bg-[var(--surface-gradient)] border var(--border-soft) shadow-[var(--shadow-soft)] transition-all duration-300 relative overflow-hidden",
+        "before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-white/[0.05] before:to-transparent before:pointer-events-none", // Glass shine
         paddingMap[padding],
         className
       )}
@@ -66,7 +67,7 @@ export const MetricCard = memo(({
     className={cn(
       "flex flex-col justify-between transition-all duration-500",
       featured 
-        ? "bg-gradient-to-br from-[var(--accent-gold)] to-[var(--accent-gold)]/80 text-black shadow-[var(--shadow-cinematic)] scale-[1.02]" 
+        ? "bg-gradient-to-br from-[var(--accent-gold)] to-[var(--accent-gold)]/80 text-black shadow-[var(--shadow-cinematic)] scale-[1.02] border-none before:hidden" 
         : "hover:brightness-110",
       onClick && "cursor-pointer active:scale-[0.98]",
       className
@@ -75,22 +76,22 @@ export const MetricCard = memo(({
   >
     <div className="flex flex-col gap-xs">
       <span className={cn(
-        "text-ui-xs font-bold uppercase tracking-[0.15em]",
-        featured ? "text-black/60" : "text-[var(--text-muted)]"
+        "text-ui-xs font-bold uppercase tracking-[0.2em]",
+        featured ? "text-black/50" : "text-[var(--text-muted)] opacity-60"
       )}>
         {label}
       </span>
       
       <div className={cn(
-        "num font-bold tracking-tighter",
-        featured ? "text-h1 mt-6" : "text-h2 mt-4"
+        "num font-bold tracking-tighter leading-none",
+        featured ? "text-h1 mt-6" : "text-h2 mt-4 text-[var(--text-primary)]"
       )} style={{ color: featured ? undefined : color }}>
         {value}
       </div>
     </div>
     
     {trend && (
-      <div className={cn("mt-4 flex items-center gap-sm", featured ? "text-black/70" : "opacity-80")}>
+      <div className={cn("mt-6 flex items-center gap-sm", featured ? "text-black/40" : "opacity-40")}>
         {trend}
       </div>
     )}

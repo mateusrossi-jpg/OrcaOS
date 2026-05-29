@@ -5,33 +5,34 @@
 
 :root {
   /* --- 1. BACKGROUNDS & ATMOSPHERE --- */
-  --bg-primary: oklch(0.14 0.005 260);    /* Deep Cinematic Graphite */
-  --bg-secondary: oklch(0.12 0.005 260);  /* Darker base for depth */
-  --bg-surface: oklch(0.18 0.006 260);    /* Standard Card Graphite */
-  --bg-surface-elevated: oklch(0.20 0.007 260); /* Hover/Active States */
-  --bg-surface-glass: rgba(255, 255, 255, 0.04); /* Transparent overlays */
-  --bg-overlay: rgba(0, 0, 0, 0.6);
+  --bg-primary: oklch(0.12 0.005 260);    /* Deeper Cinematic Graphite Base */
+  --bg-secondary: oklch(0.10 0.005 260);  /* Foundations */
+  --bg-surface: oklch(0.16 0.006 260);    /* Solid Glass Graphite */
+  --bg-surface-elevated: oklch(0.18 0.007 260); 
+  --bg-surface-glass: rgba(255, 255, 255, 0.03); /* Whisper thin glass */
+  --bg-overlay: rgba(8, 8, 8, 0.7);
 
-  /* --- 2. CINEMATIC EFFECTS & GLOWS --- */
-  --surface-gradient: linear-gradient(180deg, white/[0.06] 0%, transparent 100%);
-  --surface-gradient-soft: linear-gradient(180deg, white/[0.03] 0%, transparent 100%);
-  --surface-glow: radial-gradient(120% 80% at 0% 0%, oklch(0.82 0.14 85 / 0.12), transparent 60%);
-  --surface-vignette: radial-gradient(circle at 50% 12%, oklch(0.18 0.006 260) 0%, oklch(0.14 0.005 260) 100%);
-  --glow-primary: 0 0 40px -8px oklch(0.82 0.14 85 / 0.25);
-  --glow-success: 0 0 30px -10px oklch(0.78 0.16 155 / 0.3);
+  /* --- 2. THE MATERIAL SYSTEM (SOLID GRAPHITE GLASS) --- */
+  --surface-gradient: linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, transparent 100%);
+  --surface-gradient-soft: linear-gradient(180deg, rgba(255, 255, 255, 0.02) 0%, transparent 100%);
+  --surface-glow: radial-gradient(120% 80% at 0% 0%, oklch(0.82 0.14 85 / 0.08), transparent 60%);
+  --surface-vignette: radial-gradient(circle at 50% 10%, oklch(0.18 0.006 260) 0%, oklch(0.12 0.005 260) 100%);
+  
+  --glow-primary: 0 0 40px -10px oklch(0.82 0.14 85 / 0.15);
+  --glow-success: 0 0 30px -12px oklch(0.78 0.16 155 / 0.2);
 
   /* --- 3. BORDERS & HAIRLINES --- */
-  --border-soft: 1px solid white/[0.04];
-  --border-subtle: 1px solid white/[0.02];
-  --border-focus: 1px solid oklch(0.82 0.14 85 / 0.4);
-  --border-primary: 1px solid oklch(0.82 0.14 85 / 0.2);
+  --border-soft: 1px solid rgba(255, 255, 255, 0.04);
+  --border-subtle: 1px solid rgba(255, 255, 255, 0.02);
+  --border-focus: 1px solid oklch(0.82 0.14 85 / 0.3);
+  --border-primary: 1px solid oklch(0.82 0.14 85 / 0.15);
 
-  /* --- 4. SHADOWS & ELEVATION --- */
-  --shadow-soft: 0 8px 32px -4px rgba(0, 0, 0, 0.4);
-  --shadow-card: 0 12px 40px -8px rgba(0, 0, 0, 0.5);
-  --shadow-cinematic: 0 0 40px -8px oklch(0.82 0.14 85 / 0.2);
-  --shadow-button: 0 10px 30px -8px oklch(0.82 0.14 85 / 0.5);
-  --shadow-inset: inset 0 1px 1px 0 oklch(1 0 0 / 0.04);
+  /* --- 4. SHADOWS & DEPTH --- */
+  --shadow-soft: 0 8px 32px -8px rgba(0, 0, 0, 0.5);
+  --shadow-card: 0 16px 48px -12px rgba(0, 0, 0, 0.6);
+  --shadow-cinematic: 0 0 48px -12px oklch(0.82 0.14 85 / 0.12);
+  --shadow-button: 0 12px 32px -10px oklch(0.82 0.14 85 / 0.4);
+  --shadow-inset: inset 0 1px 1px 0 rgba(255, 255, 255, 0.03);
   
   --elevation-1: var(--shadow-soft), var(--shadow-inset);
   --elevation-2: var(--shadow-card), var(--shadow-inset);

@@ -50,21 +50,46 @@ button {
   cursor: pointer;
 }
 
+:root {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 /* --------------------------------------------------
    LOVABLE UTILITY CLASSES (Unified Design System)
    -------------------------------------------------- */
 
 .glow-gold {
   background: var(--surface-glow), var(--surface-gradient) !important;
-  box-shadow: var(--shadow-cinematic) !important;
+  box-shadow: var(--shadow-cinematic), var(--shadow-button) !important;
+  border: 1px solid oklch(0.82 0.14 85 / 0.1) !important;
 }
 
 .surface-elev {
   background: var(--surface-gradient) !important;
   border: var(--border-soft) !important;
   border-radius: var(--radius-card) !important;
-  box-shadow: var(--shadow-soft) !important;
+  box-shadow: var(--shadow-card) !important;
   transition: all var(--transition-normal) !important;
+  position: relative;
+  overflow: hidden;
+}
+
+.surface-elev::before {
+  content: '';
+  position: absolute;
+  inset-x: 0;
+  top: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+  pointer-events: none;
 }
 
 .hairline {
@@ -75,6 +100,16 @@ button {
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.02em;
 }
+
+/* Atmospheric Overlay */
+.screen-atmosphere {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background: var(--surface-vignette);
+  pointer-events: none;
+}
+
 
 /* --------------------------------------------------
    LAYOUT & SCROLLING

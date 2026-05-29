@@ -4,9 +4,24 @@ ERP PREMIUM • SAAS MOBILE-FIRST • LOCAL-FIRST • OFFLINE-FIRST
 ## 🚨 OFFICIAL CONSOLIDATION DIRECTIVE 🚨
 A partir de 28 de Maio de 2026, **o projeto OrcaOS é a BASE OFICIAL E ÚNICA do sistema.**
 
-**VISUAL MANDATE:** Todas as decisões de UI devem seguir o [AFERIX VISUAL PROTOCOL](./docs/visual-system/GEMINI_VISUAL_PROTOCOL.md). As imagens em `/docs/lovable-reference` são a fonte da verdade primária.
+**DESIGN READY STATUS (29/05/2026):** A fase de descoberta do produto está encerrada. O sistema entra agora em **UX EXECUTION MODE**. 
 
-**HOME CONSTITUTION:** A arquitetura da tela inicial deve respeitar estritamente a [CONSTITUIÇÃO DA HOME](./docs/visual-system/AFERIX_HOME_CONSTITUTION.md). A Home é dona da atenção, os módulos são donos da gestão.
+**🚨 AFERIX EXECUTION LOCK: ACTIVE 🚨**
+Todas as discussões de descoberta e mudanças de arquitetura/domínio estão suspensas por 90 dias. O foco é 100% na implementação das leis congeladas.
+
+**EXECUTION MANDATE:** Qualquer sessão de IA (Gemini, Codex, Antigravity) deve iniciar com o [PROMPT MESTRE](./docs/execution/PROMPTS.md). O redesenho do produto é proibido.
+
+**FROZEN CONSTITUTIONS:**
+- [OFFLINE-FIRST CONSTITUTION](./docs/architecture/AFERIX_OFFLINE_CONSTITUTION.md) (LAW #01)
+- [HOME OPERATING SYSTEM](./docs/visual-system/AFERIX_HOME_CONSTITUTION.md)
+- [PROPOSAL EXPERIENCE](./docs/visual-system/AFERIX_PROPOSAL_CONSTITUTION.md)
+- [NAVIGATION CONSTITUTION](./docs/visual-system/AFERIX_NAVIGATION_CONSTITUTION.md)
+- [COMPONENT CONSTITUTION](./docs/visual-system/AFERIX_COMPONENT_CONSTITUTION.md)
+- [DESIGN SYSTEM CONSTITUTION](./docs/visual-system/AFERIX_DESIGN_SYSTEM_CONSTITUTION.md)
+- [DESIGN EXECUTION CONSTITUTION](./docs/visual-system/AFERIX_DESIGN_EXECUTION_CONSTITUTION.md)
+- [ARCHITECTURAL GOVERNANCE](./docs/visual-system/ARCHITECTURAL_GOVERNANCE.md)
+
+**VISUAL MANDATE:** Todas as decisões de UI devem seguir o [AFERIX VISUAL PROTOCOL](./docs/visual-system/GEMINI_VISUAL_PROTOCOL.md). As imagens em `/docs/lovable-reference` são a fonte da verdade primária.
 
 **O que o OrcaOS possui e mantém (O Núcleo):**
 - Lógica operacional, regras de negócio e arquitetura real.

@@ -1,6 +1,6 @@
-# AFERIX — CONSTITUIÇÃO PERMANENTE DA HOME
+# AFERIX — ESTADO ARQUITETURAL OFICIAL (HOME)
 
-**STATUS: CONGELADA | VERSÃO: DEFINITIVA**
+**STATUS: CONGELADO | VERSÃO: DEFINITIVA (29/05/2026)**
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -8,71 +8,33 @@
 
 A Home não é um módulo.
 A Home é uma camada de coordenação posicionada acima dos módulos.
-Seu objetivo não é exibir dados.
-Seu objetivo é responder uma única pergunta:
-> *“O que devo fazer agora?”*
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-## A LEI FUNDAMENTAL
+A Home não é dona de objetos.
+A Home não é dona de regras de negócio.
+A Home não é dona de cálculos.
+A Home não é dona de estados operacionais.
 
 **A Home é dona da atenção.**
-**Os módulos são donos da gestão.**
-
-A Home pode observar objetos.
-A Home não pode gerenciar objetos.
-A Home pode destacar.
-A Home pode priorizar.
-A Home pode direcionar.
-A Home não pode assumir responsabilidades que pertencem aos módulos.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-## FONTES DE VERDADE DO SISTEMA
+## FONTES DE VERDADE
 
 *   **Operações:** Fonte da verdade dos serviços.
 *   **CRM:** Fonte da verdade dos clientes.
 *   **Agenda:** Fonte da verdade dos compromissos.
-*   **Financeiro:** Fonte da verdade financeira.
-*   **Relatórios:** Fonte da verdade analítica.
-*   **Home:** Motor de priorização operacional.
-
-A Home não cria a verdade.
-A Home consome as verdades produzidas pelos módulos e decide o que merece atenção primeiro.
+*   **Financeiro:** Fonte da verdade das transações.
+*   **Relatórios:** Fonte da verdade da análise histórica.
+*   **Home:** Fonte da verdade das prioridades.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-## MODELO MENTAL OFICIAL DO AFERIX
+## AS 7 LEIS IMUTÁVEIS
 
-*   **Operações** responde: *“O que existe?”*
-*   **CRM** responde: *“Quem existe?”*
-*   **Agenda** responde: *“Quando acontece?”*
-*   **Financeiro** responde: *“Quanto custou ou quanto retornou?”*
-*   **Relatórios** respondem: *“O que aprendemos?”*
-*   **Home** responde: *“O que devo fazer agora?”*
+### 1. FIRST CLICK LAW
+O primeiro clique natural do usuário deve ser operacional. O usuário deve interagir com ações necessárias (bloqueios, pendências, visitas), nunca com gráficos ou análises puras.
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-## AS 5 LEIS IMUTÁVEIS DA HOME
-
-### LEI 1 — FIRST CLICK LAW
-O primeiro clique natural do usuário deve ser operacional.
-O usuário deve clicar em:
-• serviço bloqueado
-• orçamento pendente
-• visita técnica
-• retorno atrasado
-• ação necessária
-
-Nunca em:
-• gráfico
-• KPI
-• relatório
-• análise
-
-Se o primeiro clique natural for analítico, a Home falhou.
-
-### LEI 2 — TEN SECOND LAW
+### 2. TEN SECOND LAW
 Em menos de 10 segundos o usuário deve conseguir responder:
 • O que devo fazer?
 • O que está pendente?
@@ -80,53 +42,29 @@ Em menos de 10 segundos o usuário deve conseguir responder:
 • Estou lucrando?
 • Quanto está gastando?
 
-Se não conseguir responder, a Home falhou.
+### 3. ANTI-CANNIBALIZATION LAW
+A Home não replica módulos. A Home alerta e direciona. Sempre que uma funcionalidade começar a reproduzir uma tela inteira dentro da Home, ela deve ser movida para seu módulo de origem.
 
-### LEI 3 — ANTI-CANNIBALIZATION LAW
-A Home não replica módulos.
-A Home alerta.
-A Home direciona.
-A Home não substitui os módulos core. Sempre que uma funcionalidade começar a reproduzir uma tela inteira dentro da Home, ela deve ser movida para seu módulo de origem.
+### 4. OWNERSHIP LAW
+Objetos pertencem aos módulos. Prioridade pertence à Home. A Home pode exibir um objeto, mas não pode assumir sua gestão ou administração.
 
-### LEI 4 — OWNERSHIP LAW
-Objetos pertencem aos módulos. Prioridade pertence à Home.
-A Home pode exibir um objeto. A Home não pode assumir sua gestão.
+### 5. PRIORITIZATION LAW
+A Home não exibe tudo. A Home decide o que vem primeiro. Se tudo possui o mesmo peso visual ou se tudo aparece na Home, ela falhou em sua missão.
 
-Exemplo:
-**ACEITÁVEL:** “2 serviços bloqueados” -> Clique: → Operações
-**NÃO ACEITÁVEL:** Lista completa de serviços, Filtros, Busca, Status, Histórico.
+### 6. SEMANTIC BLINDNESS LAW
+A Home entende prioridade. A Home não entende significado de negócio. Ela mapeia a severidade do domínio para a prioridade visual, sem interpretar o "porquê" operacional por trás do alerta.
 
-### LEI 5 — PRIORITIZATION LAW
-A Home não exibe tudo. A Home ordena tudo.
-Se tudo aparece na Home, a Home falhou.
-Se tudo possui o mesmo peso visual, a Home falhou.
-A função da Home é determinar: *“O que vem primeiro?”*
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-## HIERARQUIA OFICIAL
-
-1.  **ATENÇÃO AGORA:** Objetos que exigem ação imediata.
-2.  **OPERAÇÃO EM CURSO:** Resumo do estado operacional.
-3.  **RESULTADO GERADO:** Receita, Custos e Lucro.
-4.  **ACESSO RÁPIDO:** Navegação para os módulos.
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-## TESTE CONSTITUCIONAL
-
-Antes de adicionar qualquer card, gráfico, seção ou componente na Home, responder:
-1.  Quem é dono desse objeto?
-2.  Isso é um alerta ou uma tela inteira disfarçada?
-3.  Isso ajuda o usuário a decidir o que fazer agora?
-
-Se qualquer resposta falhar, o elemento não pertence à Home.
+### 7. FLAT DTO LAW
+Nenhuma entidade de domínio completa pode atravessar a fronteira da Home. A comunicação entre os Domínios e a Home deve ser feita exclusivamente via DTOs (Data Transfer Objects) mínimos e planos.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 ## PRINCÍPIO FINAL
 
-A Home não responde: *“O que existe?”* (Isso pertence aos módulos).
-A Home responde: *“O que vem primeiro?”*
+Os módulos respondem:
+**“O que existe?”**
 
-Essa é sua única responsabilidade. E justamente por isso ela é a camada mais estratégica de todo o sistema.
+A Home responde:
+**“O que vem primeiro?”**
+
+Essa é sua única responsabilidade.

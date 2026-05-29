@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ChevronLeft, Users, Mail, Phone, MapPin, Search, Plus, Star, ShieldCheck } from "lucide-react";
+import { ChevronLeft, Users, Mail, Phone, MapPin, Plus, Star, ShieldCheck, Target } from "lucide-react";
 import type { Client, Service as WorkOrder } from '../../../core/types/business';
 import { clientService } from '../../../services/clientService';
 import { 
@@ -57,8 +57,8 @@ const emptyClient = (): ClientDraft => ({
 });
 
 /**
- * ClientWorkOrderWorkspace: Professional CRM & Relationship Intelligence.
- * Mission: Visual Convergence (Intelligence Workspace style).
+ * ClientWorkOrderWorkspace: Relationship Intelligence.
+ * Mission: Executive Composition (Hero Bio-Cards, Narrative HUD).
  */
 export function ClientWorkOrderWorkspace({ 
   initialSection = 'clients', 
@@ -160,9 +160,9 @@ export function ClientWorkOrderWorkspace({
       <OperationalFlowLayout
         header={
           <AppHeader 
-            eyebrow="CLIENT INTELLIGENCE"
-            title="Carteira de Clientes"
-            subtitle="Base estratégica de relacionamentos e histórico de faturamento."
+            eyebrow="CLIENT_INTELLIGENCE"
+            title="Sua Carteira"
+            subtitle="Gestão estratégica de relacionamentos e monitoramento de retenção."
             action={
               <button 
                 onClick={() => setActiveSection('newClient')}
@@ -176,44 +176,59 @@ export function ClientWorkOrderWorkspace({
       >
         {activeSection === 'clients' && (
           <>
-            {/* 1. CRM HUD (P1) */}
+            {/* 1. HERO DOMINANCE: CRM INTELLIGENCE HUD */}
             <Priority.P1>
+              <SurfaceCard className="mb-6 bg-gradient-to-br from-white/[0.05] to-transparent relative overflow-hidden group shadow-card" padding="lg">
+                <div className="flex justify-between items-start relative z-10">
+                   <div className="flex flex-col">
+                      <span className="text-[10px] font-black text-[var(--text-muted)] tracking-[0.25em] flex items-center gap-2 mb-2 uppercase">
+                        <Target className="h-3 w-3" /> RELACIONAMENTOS_ATIVOS
+                      </span>
+                      <div className="num text-[48px] font-bold text-[var(--text-primary)] tracking-tighter leading-none">
+                        {clients.length}
+                      </div>
+                   </div>
+                   <div className="text-right">
+                      <span className="text-[9px] font-black text-[var(--accent-gold)] tracking-[0.2em] block mb-1">RATING_BETA</span>
+                      <span className="text-h2 font-bold text-[var(--accent-gold)] shadow-glow">A+</span>
+                   </div>
+                </div>
+                <div className="absolute top-0 right-0 p-4 opacity-[0.03]">
+                   <Users className="h-24 w-24" />
+                </div>
+              </SurfaceCard>
+
               <SplitMetricLayout>
                 <MetricCard 
-                  label="Contatos Ativos" 
-                  value={clients.length} 
+                  label="Retenção" 
+                  value="100%" 
+                  trend={<ShieldCheck className="h-4 w-4 text-[var(--accent-green)] opacity-60" />}
                 />
                 <MetricCard 
-                  label="Rating Médio" 
-                  value="A+" 
-                  featured
-                  trend={<ShieldCheck className="h-4 w-4 text-black/40" />}
+                  label="Novos (Mês)" 
+                  value={clients.filter(c => (c.createdAt || '').includes(new Date().toISOString().slice(0, 7))).length} 
                 />
               </SplitMetricLayout>
             </Priority.P1>
 
-            {/* 2. SEARCH HUD (P2) */}
+            {/* 2. SEARCH HUD (Reduced card count) */}
             <Priority.P2 className="mb-4">
-              <div className="relative flex items-center h-[56px] rounded-[var(--radius-button)] bg-[var(--bg-surface-glass)] border var(--border-subtle) px-shell focus-within:border-[var(--accent-gold)]/40 focus-within:bg-white/[0.06] transition-all group">
-                <Search className="h-5 w-5 text-[var(--text-muted)] group-focus-within:text-[var(--accent-gold)] transition-colors" />
-                <input 
-                  value={clientSearch}
-                  onChange={(e) => { setClientSearch(e.target.value); setShowAllClients(false); }}
-                  placeholder="Pesquisar inteligência de contatos..."
-                  className="flex-1 bg-transparent border-none outline-none ml-md text-ui-base font-medium text-[var(--text-primary)] placeholder:text-[var(--text-muted)]/40"
-                />
-              </div>
+              <SearchInput 
+                value={clientSearch}
+                onChange={(val) => { setClientSearch(val); setShowAllClients(false); }}
+                placeholder="Pesquisar inteligência de contatos..." 
+              />
             </Priority.P2>
 
-            {/* 3. CLIENT INTELLIGENCE CARDS (P2) */}
+            {/* 3. INTELLIGENCE BIO-CARDS (Object-first) */}
             <Priority.P2 className="flex flex-col">
               <SectionTitle 
-                 action={<span className="text-[10px] font-black text-[var(--text-muted)] opacity-30 tracking-widest">SORT: REVENUE_VOLUME</span>}
+                 action={<span className="text-[10px] font-black text-[var(--text-muted)] opacity-30 tracking-widest uppercase">RANK: REVENUE_VOLUME</span>}
               >
-                Base de Relacionamento
+                Base de Dados de Inteligência
               </SectionTitle>
               
-              <div className="flex flex-col gap-sm pb-40">
+              <div className="flex flex-col gap-md pb-40">
                 {visibleClients.length === 0 ? (
                   <QueueEmptyState 
                     title="Nenhum contato estratégico" 
@@ -224,19 +239,19 @@ export function ClientWorkOrderWorkspace({
                   visibleClients.map((client) => {
                     const initials = client.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() || 'CX';
                     return (
-                      <SurfaceCard key={client.id} className="flex flex-col gap-md group hover:bg-white/[0.08] relative overflow-hidden transition-all duration-300">
-                        <div className="flex items-center gap-lg">
+                      <SurfaceCard key={client.id} className="flex flex-col gap-md group hover:bg-white/[0.08] relative overflow-hidden transition-all duration-300 shadow-soft" padding="md">
+                        <div className="flex items-center gap-lg relative z-10">
                           <div className="h-16 w-16 rounded-2xl bg-white/[0.04] flex items-center justify-center text-[var(--text-primary)] font-bold text-h2 border border-[var(--border-soft)] shadow-inner shrink-0 group-hover:bg-[var(--accent-gold)]/10 group-hover:border-[var(--accent-gold)]/20 group-hover:text-[var(--accent-gold)] transition-all">
                             {initials}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <strong className="block text-ui-md font-bold text-[var(--text-primary)] truncate group-hover:text-[var(--accent-gold)] transition-colors tracking-tight">{client.name.toUpperCase()}</strong>
+                            <strong className="block text-ui-md font-bold text-[var(--text-primary)] truncate group-hover:text-[var(--accent-gold)] transition-colors tracking-tight leading-tight">{client.name.toUpperCase()}</strong>
                             <div className="flex flex-col gap-1 mt-2">
                                <div className="flex items-center gap-2 text-[10px] font-black tracking-widest text-[var(--text-muted)]">
-                                  <Phone className="h-2.5 w-2.5" /> {client.phone || 'SEM TELEFONE'}
+                                  <Phone className="h-2.5 w-2.5" /> {client.phone || 'SEM_TELEFONE'}
                                </div>
-                               <div className="flex items-center gap-2 text-[10px] font-black tracking-widest text-[var(--text-muted)]">
-                                  <Mail className="h-2.5 w-2.5" /> {client.email?.toUpperCase() || 'CONTATO_EMAIL@AFERIX.OFF'}
+                               <div className="flex items-center gap-2 text-[10px] font-black tracking-widest text-[var(--text-muted)] opacity-60">
+                                  <Mail className="h-2.5 w-2.5" /> {client.email?.toUpperCase() || 'SEM_VÍNCULO_DIGITAL'}
                                </div>
                             </div>
                           </div>
@@ -250,7 +265,7 @@ export function ClientWorkOrderWorkspace({
                         </div>
 
                         {(client.address || (client.creditLimit && Number(client.creditLimit) > 0)) && (
-                          <div className="mt-2 pt-4 border-t var(--border-subtle) flex flex-col gap-3">
+                          <div className="mt-2 pt-4 border-t var(--border-subtle) flex flex-col gap-3 relative z-10">
                             {client.address && (
                                <div className="flex items-start gap-2 text-[10px] text-[var(--text-secondary)] opacity-60 font-black tracking-wider uppercase">
                                   <MapPin className="h-3 w-3 shrink-0 mt-0.5" />
@@ -258,7 +273,7 @@ export function ClientWorkOrderWorkspace({
                                </div>
                             )}
                             {client.creditLimit && Number(client.creditLimit) > 0 && (
-                              <div className="flex items-center justify-between mt-1 bg-white/5 p-2 rounded-lg">
+                              <div className="flex items-center justify-between mt-1 bg-white/[0.03] border var(--border-subtle) p-3 rounded-xl">
                                  <span className="text-[9px] font-black tracking-widest text-[var(--text-muted)]">CRÉDITO_ESTRATÉGICO</span>
                                  <span className="text-ui-xs font-bold text-[var(--accent-green)]">
                                     R$ {Number(client.creditLimit).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
@@ -268,9 +283,9 @@ export function ClientWorkOrderWorkspace({
                           </div>
                         )}
                         
-                        {/* Rating Star */}
-                        <div className="absolute top-0 right-0 p-2 opacity-10">
-                           <Star className="h-8 w-8 text-[var(--accent-gold)]" />
+                        {/* Rating Star Watermark */}
+                        <div className="absolute top-0 right-0 p-3 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity pointer-events-none">
+                           <Star className="h-12 w-12 text-[var(--accent-gold)]" />
                         </div>
                       </SurfaceCard>
                     );

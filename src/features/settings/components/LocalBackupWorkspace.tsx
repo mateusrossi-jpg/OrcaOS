@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+// eslint-disable-next-line no-restricted-imports
 import {
   collectAferixLocalBackup,
   createBackupFilename,

@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test } from '@playwright/test';
 
 test.describe('Aferix Visual Convergence Audit', () => {
   test('Capture core screens for audit', async ({ page }) => {
@@ -41,27 +41,27 @@ test.describe('Aferix Visual Convergence Audit', () => {
       await page.click('nav button:nth-child(2)');
       await page.waitForTimeout(1000);
       await page.screenshot({ path: 'screenshots/audit-operations.png' });
-    } catch (e) { console.log('Failed to capture Operations'); }
+    } catch { console.log('Failed to capture Operations'); }
 
     // 3. Finance (Ledger)
     try {
       await page.click('nav button:nth-child(3)');
       await page.waitForTimeout(1000);
       await page.screenshot({ path: 'screenshots/audit-finance.png' });
-    } catch (e) { console.log('Failed to capture Finance'); }
+    } catch { console.log('Failed to capture Finance'); }
 
     // 4. Agenda (History)
     try {
       await page.click('nav button:nth-child(4)');
       await page.waitForTimeout(1000);
       await page.screenshot({ path: 'screenshots/audit-agenda.png' });
-    } catch (e) { console.log('Failed to capture Agenda'); }
+    } catch { console.log('Failed to capture Agenda'); }
 
     // 5. Settings (Menu)
     try {
       await page.click('nav button:nth-child(5)');
       await page.waitForTimeout(1000);
       await page.screenshot({ path: 'screenshots/audit-settings.png' });
-    } catch (e) { console.log('Failed to capture Settings'); }
+    } catch { console.log('Failed to capture Settings'); }
   });
 });

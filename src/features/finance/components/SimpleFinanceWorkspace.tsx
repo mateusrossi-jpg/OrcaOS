@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { TrendingUp, ChevronDown, Landmark, ArrowUpRight, ShieldCheck, CreditCard } from "lucide-react";
+import { TrendingUp, ChevronDown, Landmark, ShieldCheck, CreditCard, Receipt } from "lucide-react";
 import { 
   MoneyValue, 
   MonetaryInput,
@@ -13,12 +13,13 @@ import { useBudgetHistory } from '../../../hooks/useBudgetHistory';
 import { calculateBudget } from '../../../domain/aferixFinanceEngine';
 import { BUDGET_STATUS } from '../../../domain/budget';
 import { formatCurrencyBRL } from '../../../utils/formatters';
+import { cn } from '../../../utils/ui';
 
 // Unified UI Architecture Layers
 import { SemanticScreen } from '../../../ui/runtime';
 import { FinancialInsightLayout } from '../../../ui/layouts';
 import { Priority } from '../../../ui/attention';
-import { AppHeader, MetricCard, SectionTitle, SurfaceCard } from '../../../ui/primitives';
+import { AppHeader, SectionTitle, SurfaceCard } from '../../../ui/primitives';
 
 interface AdjustmentDraft {
   budgetId: string;
@@ -30,8 +31,8 @@ interface AdjustmentDraft {
 }
 
 /**
- * SimpleFinanceWorkspace: Executive ledger/financial controller.
- * Mission: Visual Convergence (Apple Wallet Pro / Mercury / Stripe style).
+ * SimpleFinanceWorkspace: Executive Ledger.
+ * Mission: Executive Composition (Institutional Balance Hero, Continuous Stream).
  */
 export function SimpleFinanceWorkspace() {
   const { budgets, isLoading } = useBudgetHistory();
@@ -102,9 +103,9 @@ export function SimpleFinanceWorkspace() {
       <FinancialInsightLayout
         header={
           <AppHeader
-            eyebrow="AUDITORIA INSTITUCIONAL"
-            title="Livro-razão"
-            subtitle="Consolidação de fluxos financeiros e liquidação de ordens de serviço."
+            eyebrow="AUDITORIA_INSTITUCIONAL"
+            title="Consolidação"
+            subtitle="Auditoria de liquidez e fechamento de resultados operacionais."
             action={
               <button className="flex items-center gap-sm rounded-full border var(--border-soft) bg-[var(--bg-surface-glass)] px-4 py-2 text-ui-xs text-[var(--text-muted)] font-black tracking-widest transition-colors hover:text-[var(--text-primary)]">
                 {capitalizedMonth.toUpperCase()} <ChevronDown className="h-3 w-3" strokeWidth={3} />
@@ -113,48 +114,46 @@ export function SimpleFinanceWorkspace() {
           />
         }
       >
-        {/* 1. FINANCIAL PERFORMANCE HERO (P1) */}
+        {/* 1. HERO DOMINANCE: THE BALANCE OBJECT */}
         <Priority.P1>
-          <SurfaceCard className="mb-6 bg-gradient-to-br from-white/[0.08] to-transparent relative overflow-hidden group border-t-white/10 shadow-2xl">
+          <SurfaceCard className="mb-6 bg-gradient-to-br from-white/[0.08] to-transparent relative overflow-hidden group shadow-card border-t-white/10" padding="lg">
             <div className="flex flex-col relative z-10">
-              <div className="flex items-center justify-between mb-10">
+              <div className="flex items-center justify-between mb-12">
                  <div className="flex items-center gap-2">
                     <Landmark className="h-4 w-4 text-[var(--accent-gold)]" />
-                    <span className="text-[10px] font-black text-[var(--text-muted)] tracking-[0.2em] uppercase">SALDO ACUMULADO</span>
+                    <span className="text-[10px] font-black text-[var(--text-muted)] tracking-[0.25em] uppercase">SALDO_CONSOLIDADO</span>
                  </div>
                  <ShieldCheck className="h-4 w-4 text-[var(--accent-green)] opacity-50" />
               </div>
               
-              <span className="num text-[48px] font-bold text-[var(--text-primary)] leading-none tracking-tighter">
+              <span className="num text-[52px] font-bold text-[var(--text-primary)] leading-none tracking-tighter">
                 {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }).format(stats.profit)}
               </span>
               
-              <div className="mt-10 flex items-center justify-between">
-                 <div className="flex items-center gap-6">
-                    <div className="flex items-center gap-2 text-[var(--accent-green)] font-bold text-ui-xs">
-                      <ArrowUpRight className="h-3.5 w-3.5" strokeWidth={3} />
-                      <span>+18.4%</span>
+              <div className="mt-12 flex items-center justify-between border-t var(--border-subtle) pt-10">
+                 <div className="grid grid-cols-2 gap-xl w-full">
+                    <div className="flex flex-col gap-1">
+                       <span className="text-[9px] font-black text-[var(--text-muted)] tracking-widest uppercase opacity-40">RECEITA_TOTAL</span>
+                       <span className="num text-h3 font-bold text-[var(--text-primary)]">
+                          <MoneyValue value={stats.revenue} compact />
+                       </span>
                     </div>
-                    <div className="flex items-center gap-2 text-[var(--text-muted)] font-bold text-ui-xs opacity-40">
-                      <TrendingUp className="h-3.5 w-3.5" />
-                      <span>ESTÁVEL</span>
+                    <div className="flex flex-col gap-1">
+                       <span className="text-[9px] font-black text-[var(--text-muted)] tracking-widest uppercase opacity-40">MARGEM_REAL</span>
+                       <span className="num text-h3 font-bold text-[var(--accent-green)]">
+                          {stats.margin.toFixed(0)}%
+                       </span>
                     </div>
                  </div>
-                 <CreditCard className="h-5 w-5 text-white/5" />
               </div>
             </div>
             
-            {/* Background Material Patterns */}
-            <div className="absolute top-0 right-0 w-64 h-64 bg-[var(--accent-gold)]/5 blur-[120px] rounded-full -mr-32 -mt-32" />
+            <div className="absolute top-0 right-0 w-64 h-64 bg-[var(--accent-gold)]/5 blur-[120px] rounded-full -mr-32 -mt-32 pointer-events-none" />
+            <CreditCard className="absolute bottom-8 right-8 h-12 w-12 text-white/5 pointer-events-none" />
           </SurfaceCard>
-
-          <div className="grid grid-cols-2 gap-md mb-12">
-            <MetricCard label="Receita Bruta" value={<MoneyValue value={stats.revenue} compact />} />
-            <MetricCard label="Margem Real" value={`${stats.margin.toFixed(0)}%`} featured />
-          </div>
         </Priority.P1>
 
-        {/* 2. LEDGER SEARCH (P2) */}
+        {/* 2. LEDGER SEARCH (Reduced card count) */}
         <Priority.P2 className="mb-6">
           <SearchInput 
             value={recordSearch}
@@ -163,62 +162,70 @@ export function SimpleFinanceWorkspace() {
           />
         </Priority.P2>
 
-        {/* 3. TRANSACTION LIST STREAM (P2) */}
+        {/* 3. CONTINUOUS LEDGER SURFACE (Object-first) */}
         <Priority.P2 className="flex flex-col">
           <SectionTitle 
-             action={<span className="text-[10px] font-black text-[var(--text-muted)] opacity-40 uppercase tracking-widest">STATE: SETTLED</span>}
+             action={<span className="text-[10px] font-black text-[var(--text-muted)] opacity-30 tracking-widest uppercase">FLOW: SETTLED</span>}
           >
-            Linha do Tempo Contábil
+            Linha do Tempo de Liquidações
           </SectionTitle>
           
-          <div className="flex flex-col gap-sm pb-40">
-            {filteredRows.length === 0 ? (
-              <QueueEmptyState 
-                title="Sem lançamentos liquidados" 
-                meta="As operações finalizadas na aba de fluxo serão listadas aqui."
-                icon={<Landmark className="h-8 w-8" />}
-              />
-            ) : (
-              filteredRows.map(row => (
-                <div 
-                  key={row.budgetId} 
-                  className="group flex items-center gap-md p-5 rounded-2xl bg-white/[0.03] border var(--border-subtle) hover:bg-white/[0.06] transition-all cursor-pointer active:scale-[0.98]"
-                  onClick={() => openAdjustment(row)}
-                >
-                   {/* Institutional Dot */}
-                   <div className="h-2 w-2 rounded-full bg-[var(--accent-green)] shadow-glow shrink-0 ml-1" />
-                   
-                   <div className="flex-1 min-w-0">
-                      <strong className="block text-ui-md font-bold text-[var(--text-primary)] truncate group-hover:text-[var(--accent-gold)] transition-colors tracking-tight">{row.title.toUpperCase()}</strong>
-                      <span className="text-[10px] font-black text-[var(--text-secondary)] opacity-40 uppercase tracking-widest">{row.clientName} · {formatDate(row.updatedAt)}</span>
-                   </div>
-                   
-                   <div className="flex flex-col items-end gap-1 shrink-0">
-                      <div className="num text-ui-md font-bold text-[var(--accent-green)] tracking-tight">
-                        +{formatCurrencyBRL(row.netProfit)}
-                      </div>
-                      <div className="text-[8px] font-black text-[var(--text-muted)] opacity-30 uppercase tracking-widest">LIQUIDADO</div>
-                   </div>
+          <SurfaceCard padding="none" className="overflow-hidden mb-40">
+            <div className="flex flex-col">
+              {filteredRows.length === 0 ? (
+                <div className="py-24">
+                  <QueueEmptyState 
+                    title="Sem lançamentos liquidados" 
+                    meta="As operações finalizadas na aba de fluxo serão listadas aqui."
+                    icon={<Landmark className="h-8 w-8" />}
+                  />
                 </div>
-              ))
-            )}
-          </div>
+              ) : (
+                filteredRows.map((row, idx) => (
+                  <div 
+                    key={row.budgetId} 
+                    className={cn(
+                      "group flex items-center gap-md py-6 px-shell transition-all duration-300 hover:bg-white/[0.04] active:scale-[0.99] cursor-pointer",
+                      idx !== 0 && "border-t var(--border-subtle)"
+                    )}
+                    onClick={() => openAdjustment(row)}
+                  >
+                     <div className="h-10 w-10 rounded-xl bg-white/[0.03] border var(--border-subtle) flex items-center justify-center text-[var(--accent-green)] shrink-0 transition-all group-hover:bg-[var(--accent-green)]/10">
+                        <Receipt className="h-4 w-4" />
+                     </div>
+                     
+                     <div className="flex-1 min-w-0 ml-1">
+                        <strong className="block text-ui-md font-bold text-[var(--text-primary)] truncate group-hover:text-[var(--accent-gold)] transition-colors tracking-tight uppercase leading-tight mb-1">{row.title}</strong>
+                        <span className="text-[10px] font-black text-[var(--text-secondary)] opacity-40 uppercase tracking-widest">{row.clientName} · {formatDate(row.updatedAt)}</span>
+                     </div>
+                     
+                     <div className="flex flex-col items-end gap-1 shrink-0 ml-4">
+                        <div className="num text-ui-md font-bold text-[var(--accent-green)] tracking-tight">
+                          +{formatCurrencyBRL(row.netProfit)}
+                        </div>
+                        <div className="text-[8px] font-black text-[var(--text-muted)] opacity-20 uppercase tracking-widest">LIQUIDADO</div>
+                     </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </SurfaceCard>
         </Priority.P2>
 
         {/* 4. MODAL & GUIDE */}
         <Modal
           isOpen={!!editingDraft}
-          title="Consolidação Manual"
+          title="Audit Trail Adjustment"
           confirmLabel="Liquidar Ajuste"
           onClose={() => setEditingDraft(null)}
           onConfirm={saveAdjustment}
         >
           {editingDraft && (
             <div className="flex flex-col gap-lg py-4">
-              <MonetaryInput label="Valor Bruto Final" value={parseAmount(editingDraft.receivedAmount)} onChange={(v: number) => setEditingDraft(d => d ? {...d, receivedAmount: String(v)} : null)} />
+              <MonetaryInput label="Receita Bruta Final" value={parseAmount(editingDraft.receivedAmount)} onChange={(v: number) => setEditingDraft(d => d ? {...d, receivedAmount: String(v)} : null)} />
               <div className="grid grid-cols-2 gap-md">
-                <MonetaryInput label="Material" value={parseAmount(editingDraft.materialCost)} onChange={(v: number) => setEditingDraft(d => d ? {...d, materialCost: String(v)} : null)} />
-                <MonetaryInput label="Logística" value={parseAmount(editingDraft.travelCost)} onChange={(v: number) => setEditingDraft(d => d ? {...d, travelCost: String(v)} : null)} />
+                <MonetaryInput label="Custo Material" value={parseAmount(editingDraft.materialCost)} onChange={(v: number) => setEditingDraft(d => d ? {...d, materialCost: String(v)} : null)} />
+                <MonetaryInput label="Custo Logística" value={parseAmount(editingDraft.travelCost)} onChange={(v: number) => setEditingDraft(d => d ? {...d, travelCost: String(v)} : null)} />
               </div>
               <ContextBanner 
                 title="Protocolo de Auditoria"

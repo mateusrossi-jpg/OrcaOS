@@ -1,4 +1,4 @@
-import React, { memo, useState, useEffect } from 'react';
+import React, { memo, useState } from 'react';
 import { Bell, X, AlertCircle, Info, CheckCircle2 } from 'lucide-react';
 import { cn } from '../../utils/ui';
 

@@ -1,20 +1,23 @@
 import { ReactNode } from 'react';
+import { cn } from '../../utils/ui';
 
 interface PageShellProps {
   children: ReactNode;
   className?: string;
 }
 
+/**
+ * PageShell: The global material container.
+ * Enforces the cinematic atmosphere and vignette for all screens.
+ */
 export function PageShell({ children, className = '' }: PageShellProps) {
   return (
-    <main className={`relative min-h-screen w-full overflow-x-hidden ${className}`.trim()}>
-      {/* Cinematic Background (Unified DNA) */}
-      <div className="screen-atmosphere">
-        <div className="atmosphere-vignette" />
-      </div>
+    <main className={cn("relative min-h-screen w-full bg-[var(--bg-primary)] text-[var(--text-primary)] overflow-x-hidden", className)}>
+      {/* 1. ATMOSPHERIC VIGNETTE (THE SOUP) */}
+      <div className="fixed inset-0 pointer-events-none z-0 bg-[var(--surface-vignette)]" />
 
-      {/* Content Container (Standard Executive Insets) */}
-      <div className="relative z-10 p-6 md:p-8 pb-32">
+      {/* 2. CONTENT CONTAINER (Standard Executive Insets) */}
+      <div className="relative z-10 mx-auto w-full max-w-[440px] flex flex-col p-shell pb-32">
         {children}
       </div>
     </main>
