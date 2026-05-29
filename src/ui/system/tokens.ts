@@ -1,76 +1,61 @@
+/**
+ * AFERIX DESIGN TOKENS (Source of Truth)
+ * Refactored for TOKEN-FIRST architecture (Executive OS V5).
+ */
 export const ERPTokens = {
-  spacing: {
-    xs: '0.25rem', // 4px
-    sm: '0.5rem',  // 8px
-    md: '1rem',    // 16px
-    lg: '1.5rem',  // 24px
-    xl: '2rem',    // 32px
-    '2xl': '3rem', // 48px
-  },
-  radius: {
-    sm: '0.25rem', // 4px
-    md: '0.5rem',  // 8px
-    lg: '0.75rem', // 12px
-    xl: '1rem',    // 16px
-    full: '9999px',
-  },
   colors: {
-    // Backgrounds
-    bgBase: 'bg-gray-950',
-    bgPanel: 'bg-gray-900',
-    bgCard: 'bg-gray-900',
-    bgCardHover: 'bg-gray-800',
-    bgHeader: 'bg-gray-900/50',
+    bgPrimary: 'var(--bg-primary)',
+    bgSecondary: 'var(--bg-secondary)',
+    bgSurface: 'var(--bg-surface)',
+    bgHeader: 'var(--bg-surface-glass)',
+    bgOverlay: 'var(--bg-overlay)',
     
-    // Borders
-    borderBase: 'border-gray-800',
-    borderLight: 'border-gray-800/60',
-    borderFocus: 'border-yellow-500/50',
+    borderLight: 'var(--border-soft)',
+    borderMedium: 'var(--border-subtle)',
+    borderGold: 'var(--border-primary)',
     
-    // Text
-    textPrimary: 'text-gray-100',
-    textSecondary: 'text-gray-400',
-    textTertiary: 'text-gray-500',
+    textPrimary: 'var(--text-primary)',
+    textSecondary: 'var(--text-secondary)',
+    textTertiary: 'var(--text-muted)',
     
-    // Brand
-    brandAccent: 'text-yellow-500',
-    brandBg: 'bg-yellow-500',
-    
-    // Semantics (Operational & SLA)
-    semantic: {
-      healthy: { bg: 'bg-green-900/40', text: 'text-green-400', border: 'border-green-800/50', dot: 'bg-green-500' },
-      warning: { bg: 'bg-yellow-900/40', text: 'text-yellow-500', border: 'border-yellow-800/50', dot: 'bg-yellow-500' },
-      critical: { bg: 'bg-red-900/40', text: 'text-red-400', border: 'border-red-800/50', dot: 'bg-red-500' },
-      blocked: { bg: 'bg-red-950/60', text: 'text-red-500', border: 'border-red-900/50', dot: 'bg-red-600' },
-      stalled: { bg: 'bg-gray-800/60', text: 'text-gray-400', border: 'border-gray-700/50', dot: 'bg-gray-500' },
-      info: { bg: 'bg-blue-900/40', text: 'text-blue-400', border: 'border-blue-800/50', dot: 'bg-blue-500' },
-    },
-    
-    // CRM Stages
-    crm: {
-      lead: 'bg-blue-500',
-      proposal_sent: 'bg-yellow-500',
-      approved: 'bg-green-500',
-      execution: 'bg-purple-500',
-      finalized: 'bg-gray-500',
-      recurring_candidate: 'bg-indigo-500'
-    }
+    gold: 'var(--accent-gold)',
+    green: 'var(--accent-green)',
+    blue: 'var(--accent-blue)',
+    red: 'var(--accent-red)',
+    purple: 'var(--accent-purple)',
   },
-  elevation: {
-    none: 'shadow-none',
-    sm: 'shadow-sm',
-    md: 'shadow-md',
-    lg: 'shadow-lg',
+  
+  status: {
+    healthy: { bg: 'bg-[var(--accent-green)]/15', text: 'text-[var(--accent-green)]', border: 'border-[var(--accent-green)]/20', dot: 'bg-[var(--accent-green)]' },
+    warning: { bg: 'bg-[var(--accent-gold)]/15', text: 'text-[var(--accent-gold)]', border: 'border-[var(--accent-gold)]/20', dot: 'bg-[var(--accent-gold)]' },
+    critical: { bg: 'bg-[var(--accent-red)]/15', text: 'text-[var(--accent-red)]', border: 'border-[var(--accent-red)]/20', dot: 'bg-[var(--accent-red)]' },
+    info: { bg: 'bg-[var(--accent-blue)]/15', text: 'text-[var(--accent-blue)]', border: 'border-[var(--accent-blue)]/20', dot: 'bg-[var(--accent-blue)]' },
   },
-  animation: {
-    fast: 'transition-all duration-150',
-    normal: 'transition-all duration-300',
+  
+  radii: {
+    xs: 'var(--radius-xs)',
+    sm: 'var(--radius-sm)',
+    md: 'var(--radius-md)',
+    lg: 'var(--radius-card)',
+    xl: 'var(--radius-modal)',
+    full: 'var(--radius-pill)',
   },
-  zIndices: {
+  
+  spacing: {
+    xs: 'var(--spacing-xs)',
+    sm: 'var(--spacing-sm)',
+    md: 'var(--spacing-md)',
+    lg: 'var(--spacing-lg)',
+    xl: 'var(--spacing-xl)',
+    section: 'var(--spacing-section)',
+  },
+  
+  z: {
     base: 'z-0',
-    sticky: 'z-10',
-    drawer: 'z-40',
-    modal: 'z-50',
-    toast: 'z-60',
+    header: 'z-10',
+    sticky: 'z-100',
+    drawer: 'z-500',
+    modal: 'z-1000',
+    toast: 'z-2000',
   }
 };

@@ -1,19 +1,21 @@
 import { useMemo } from 'react';
+import { Plus, TrendingUp, FileText, Bell } from "lucide-react";
 import type { AppTab } from '../appTypes';
 import { useBudgetHistory } from '../../hooks/useBudgetHistory';
 import { 
-  PageShell, 
-  PageHeader, 
-  Surface,
   MoneyValue, 
-  ActionMenu, 
-  PrimaryButton, 
-  StatusPill,
-  ContextBanner
+  Sparkline,
+  ERPLoader
 } from '../components/ui';
 import { calculateBudget } from '../../domain/aferixFinanceEngine';
 import type { Budget } from '../../domain/budget';
 import { BUDGET_STATUS } from '../../domain/budget';
+
+// Unified UI Architecture Layers
+import { SemanticScreen } from '../../ui/runtime';
+import { ExecutiveDashboardLayout } from '../../ui/layouts';
+import { Priority } from '../../ui/attention';
+import { SurfaceCard, MetricCard, SectionTitle, OperationalListItem } from '../../ui/primitives';
 
 interface HomeScreenProps {
   onNavigate: (tab: AppTab) => void;
@@ -21,226 +23,170 @@ interface HomeScreenProps {
 }
 
 /**
- * HomeScreen V6 (Centro Operacional Diário)
- * Foco em: "O que preciso fazer agora?" e "Qual a saúde do meu negócio hoje?"
- * Design: High-density, ERP Premium, Action-Oriented.
+ * HomeScreen: The cinematic authority hub of Aferix.
+ * Orchestrated by the 3-Layer Visual Architecture.
  */
 export function HomeScreen({ onNavigate, onSelectBudget }: HomeScreenProps) {
-  const { budgets, isLoading, deleteBudget } = useBudgetHistory();
+  const { budgets, isLoading } = useBudgetHistory();
 
-  // --- BUSINESS LOGIC: THE OPERATIONAL PULSE ---
   const pulse = useMemo(() => {
     const now = new Date();
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
     
-    // Financials
     const monthlyFinalized = budgets.filter(b => b.status === BUDGET_STATUS.FINALIZADO && new Date(b.updatedAt) >= startOfMonth);
     const profit = monthlyFinalized.reduce((acc, b) => acc + (b.financialSnapshot?.lucroBruto || calculateBudget(b).lucroBruto), 0);
-    const receivables = budgets
-      .filter(b => b.status === BUDGET_STATUS.AUTORIZADO || b.status === BUDGET_STATUS.EM_EXECUCAO)
-      .reduce((acc, b) => acc + (b.chargedValue - b.discounts), 0);
-
-    // Queues
+    const revenue = monthlyFinalized.reduce((acc, b) => acc + (b.financialSnapshot ? (b.chargedValue - b.discounts) : calculateBudget(b).totalComercial), 0);
+    
     const executing = budgets.filter(b => b.status === BUDGET_STATUS.EM_EXECUCAO);
-    const pendingApproval = budgets.filter(b => b.status === BUDGET_STATUS.ENVIADO);
     const authorized = budgets.filter(b => b.status === BUDGET_STATUS.AUTORIZADO);
     
-    // Alerts (e.g., sent more than 3 days ago)
-    const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);
-    const staleProposals = pendingApproval.filter(b => new Date(b.updatedAt) < threeDaysAgo);
+    const activeWork = [...executing, ...authorized].sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
 
-    return { profit, receivables, executing, pendingApproval, authorized, staleProposals };
+    const margin = revenue > 0 ? (profit / revenue) * 100 : 0;
+
+    return { profit, revenue, margin, activeWork };
   }, [budgets]);
 
-  const handleDelete = async (id: string) => {
-    if (window.confirm('Deseja excluir este registro definitivamente?')) {
-      await deleteBudget(id);
-    }
-  };
+  if (isLoading) return <SemanticScreen type="dashboard"><ERPLoader message="Sincronizando..." /></SemanticScreen>;
 
-  if (isLoading) {
-    return (
-      <PageShell>
-        <PageHeader title="AFERIX" sourceLabel="Inicializando mesa operacional..." />
-      </PageShell>
-    );
-  }
+  const currentMonthYear = new Date().toLocaleString('pt-BR', { month: 'long', year: 'numeric' });
+  const capitalizedMonthYear = currentMonthYear.charAt(0).toUpperCase() + currentMonthYear.slice(1);
+
+  // financial visual trend lines
+  const profitTrend = [12, 16, 14, 20, 24, 21, 28, 32];
+  const revenueTrend = [15, 22, 18, 25, 30, 28, 35, 40];
+  const marginTrend = [35, 38, 36, 40, 42, 41, 43, 45];
 
   return (
-    <PageShell className="aferix-operational-center">
-      
-      {/* 1. HERO BOARD: Saúde do Negócio */}
-      <div className="op-center-hero aferix-mb-lg">
-        <header className="aferix-d-flex aferix-justify-between aferix-align-center aferix-mb-md">
-          <h1 className="aferix-font-xl" style={{ fontWeight: 900, letterSpacing: '-0.03em' }}>Visão Geral</h1>
-          <PrimaryButton 
-            onClick={() => onNavigate('new-budget')}
-            style={{ borderRadius: 'var(--radius-pill)', padding: '0 var(--sz-md)', height: '36px', minHeight: '36px', fontSize: '13px' }}
-          >
-            + Criar
-          </PrimaryButton>
-        </header>
-
-        <Surface elevation={2} padding="md" className="hero-board-surface">
-          <div className="aferix-grid-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--sz-md)' }}>
-            <div className="metric-block">
-              <span className="metric-label">LUCRO DO MÊS</span>
-              <strong className="metric-value text-success">
-                <MoneyValue value={pulse.profit} compact />
-              </strong>
-            </div>
-            <div className="metric-block">
-              <span className="metric-label">A RECEBER</span>
-              <strong className="metric-value text-brand">
-                <MoneyValue value={pulse.receivables} compact />
-              </strong>
-            </div>
-          </div>
-        </Surface>
-      </div>
-
-      {/* 2. ALERTAS (Priority 1) */}
-      {pulse.staleProposals.length > 0 && (
-        <div className="op-center-alerts aferix-mb-lg">
-          <span className="aferix-eyebrow" style={{ color: 'var(--status-danger)' }}>REQUER ATENÇÃO</span>
-          <Surface elevation={1} padding="sm" style={{ borderLeft: '3px solid var(--status-danger)' }}>
-            <div className="aferix-d-flex aferix-justify-between aferix-align-center">
-              <div className="aferix-d-flex aferix-flex-column">
-                <strong className="aferix-font-sm">Propostas Frias</strong>
-                <small className="aferix-text-muted">{pulse.staleProposals.length} clientes aguardando contato há mais de 3 dias.</small>
+    <SemanticScreen type="dashboard">
+      <ExecutiveDashboardLayout
+        header={
+          <header className="flex flex-col gap-lg">
+            <div className="flex justify-between items-center">
+              <Priority.P3 className="flex items-center gap-sm">
+                <span className="text-ui-xs tracking-[0.3em] font-black text-[var(--text-primary)]">AFERIX</span>
+                <span className="text-ui-xs opacity-50">OS.V5</span>
+              </Priority.P3>
+              <div className="flex items-center gap-md">
+                <button className="relative w-12 h-12 grid place-items-center bg-[var(--bg-surface-glass)] rounded-[var(--radius-button)] border var(--border-subtle) text-[var(--text-secondary)] transition-all active:scale-[0.9]" onClick={() => onNavigate('settings')}>
+                  <Bell className="h-5 w-5" />
+                  <span className="absolute top-3.5 right-3.5 w-1.5 h-1.5 bg-[var(--accent-gold)] rounded-full shadow-[var(--shadow-cinematic)]" />
+                </button>
               </div>
-              <button className="ghost-action" style={{ fontSize: '12px', color: 'var(--status-danger)' }}>Revisar</button>
             </div>
-          </Surface>
-        </div>
-      )}
+            
+            <Priority.P1 className="flex flex-col gap-xs">
+              <p className="text-ui-xs text-[var(--accent-gold)] font-black tracking-widest">BOA NOITE</p>
+              <h1 className="text-h1 text-[var(--text-primary)]">
+                Mateus, <span className="text-[var(--text-muted)] opacity-40">tudo pronto.</span>
+              </h1>
+              <p className="text-ui-base text-[var(--text-secondary)] opacity-80">Sua operação está sincronizada e ativa.</p>
+            </Priority.P1>
+          </header>
+        }
+        footer={
+          <div className="grid grid-cols-2 gap-md">
+            <button 
+              onClick={() => onNavigate('budgets')}
+              className="h-16 rounded-[var(--radius-button)] bg-[var(--bg-surface-glass)] backdrop-blur-2xl border var(--border-soft) flex items-center justify-center gap-md text-white font-bold text-ui-base shadow-soft transition-all active:scale-[0.95]"
+            >
+              <FileText className="h-5 w-5 opacity-60" /> 
+              <span>OPERAÇÃO</span>
+            </button>
 
-      {/* 3. MESA DE TRABALHO (Priority 2) */}
-      <div className="op-center-queue aferix-d-flex aferix-flex-column aferix-gap-md">
-        
-        {/* EM EXECUÇÃO */}
-        {pulse.executing.length > 0 && (
-          <section className="queue-section">
-            <span className="aferix-eyebrow">EM CAMPO AGORA</span>
-            <div className="aferix-d-flex aferix-flex-column aferix-gap-xs">
-              {pulse.executing.map(budget => (
-                <Surface key={budget.id} elevation={1} padding="md" className="queue-card clickable" onClick={() => onSelectBudget?.(budget)}>
-                  <div className="aferix-d-flex aferix-justify-between aferix-align-start aferix-mb-xs">
-                    <strong className="aferix-font-md aferix-truncate" style={{ flex: 1, paddingRight: '8px' }}>{budget.title}</strong>
-                    <StatusPill status={budget.status} />
-                  </div>
-                  <div className="aferix-d-flex aferix-justify-between aferix-align-center">
-                    <small className="aferix-text-muted">{budget.clientName || 'Cliente Avulso'}</small>
-                    <ActionMenu label="…" items={[
-                      { id: 'open', label: 'Diário de Obra', onSelect: () => onSelectBudget?.(budget) }
-                    ]} />
-                  </div>
-                </Surface>
-              ))}
+            <button 
+              onClick={() => onNavigate('new-budget')}
+              className="h-16 rounded-[var(--radius-button)] bg-[var(--accent-gold)] border border-[var(--accent-gold)]/20 flex items-center justify-center gap-md text-black font-bold text-ui-base shadow-[var(--shadow-button)] transition-all active:scale-[0.95]"
+            >
+              <Plus className="h-5 w-5" strokeWidth={3} /> 
+              <span>NOVO</span>
+            </button>
+          </div>
+        }
+      >
+        {/* 1. PRIMARY FOCUS: PROFIT HERO */}
+        <Priority.P1>
+          <SurfaceCard 
+            className="group relative overflow-hidden cursor-pointer hover:brightness-110 active:scale-[0.99] transition-all duration-500"
+            onClick={() => onNavigate('money')}
+          >
+            <div className="relative z-10">
+              <div className="text-ui-xs text-[var(--text-muted)] opacity-50 mb-8 flex items-center justify-between">
+                <span>LUCRO ESTIMADO NO MÊS</span>
+                <span className="num opacity-30">{capitalizedMonthYear}</span>
+              </div>
+              
+              <div className="mb-4">
+                <p className="num text-[48px] font-bold text-[var(--accent-gold)] leading-none tracking-tighter">
+                  <MoneyValue value={pulse.profit} />
+                </p>
+                <p className="mt-6 flex items-center gap-sm text-[var(--accent-green)] font-bold text-ui-sm">
+                  <TrendingUp className="h-4 w-4" strokeWidth={3} />
+                  <span>+18% VS. MÊS ANTERIOR</span>
+                </p>
+              </div>
             </div>
-          </section>
-        )}
-
-        {/* PRÓXIMOS TRABALHOS */}
-        {pulse.authorized.length > 0 && (
-          <section className="queue-section">
-            <span className="aferix-eyebrow">PRÓXIMOS SERVIÇOS</span>
-            <div className="aferix-d-flex aferix-flex-column aferix-gap-xs">
-              {pulse.authorized.map(budget => (
-                <Surface key={budget.id} elevation={1} padding="md" className="queue-card clickable" onClick={() => onSelectBudget?.(budget)}>
-                  <div className="aferix-d-flex aferix-justify-between aferix-align-start aferix-mb-xs">
-                    <strong className="aferix-font-sm aferix-truncate" style={{ flex: 1, paddingRight: '8px' }}>{budget.title}</strong>
-                    <strong className="tabular-nums" style={{ fontSize: '13px', color: 'var(--brand-primary)' }}>
-                      <MoneyValue value={budget.chargedValue} compact />
-                    </strong>
-                  </div>
-                  <small className="aferix-text-muted">{budget.clientName}</small>
-                </Surface>
-              ))}
+            
+            <div className="absolute bottom-0 left-0 right-0 h-20 opacity-5 pointer-events-none">
+              <Sparkline 
+                data={profitTrend} 
+                stroke="var(--accent-gold)" 
+                fill="transparent" 
+                height={80} 
+              />
             </div>
-          </section>
-        )}
+          </SurfaceCard>
+        </Priority.P1>
 
-        {/* AGUARDANDO RESPOSTA */}
-        {pulse.pendingApproval.length > 0 && (
-          <section className="queue-section">
-            <span className="aferix-eyebrow">FUNIL DE VENDAS</span>
-            <div className="aferix-d-flex aferix-flex-column aferix-gap-xs">
-              {pulse.pendingApproval.map(budget => (
-                <Surface key={budget.id} elevation={1} padding="md" className="queue-card clickable" onClick={() => onSelectBudget?.(budget)}>
-                  <div className="aferix-d-flex aferix-justify-between aferix-align-center">
-                    <div className="aferix-d-flex aferix-flex-column aferix-truncate" style={{ flex: 1 }}>
-                      <strong className="aferix-font-sm aferix-truncate">{budget.title}</strong>
-                      <small className="aferix-text-muted">{budget.clientName}</small>
-                    </div>
-                    <ActionMenu label="…" items={[
-                      { id: 'open', label: 'Revisar', onSelect: () => onSelectBudget?.(budget) },
-                      { id: 'del', label: 'Excluir', tone: 'danger', onSelect: () => handleDelete(budget.id) },
-                    ]} />
-                  </div>
-                </Surface>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* EMPTY STATE */}
-        {budgets.length === 0 && (
-          <ContextBanner
-            title="Mesa de Trabalho Limpa"
-            meta="Seu centro operacional está vazio. Inicie um novo orçamento para começar a trabalhar."
-            icon="🗂️"
-            actionLabel="Criar Orçamento"
-            onAction={() => onNavigate('new-budget')}
+        {/* 2. SECONDARY DATA: KPI GRID */}
+        <Priority.P2 className="grid grid-cols-2 gap-md">
+          <MetricCard 
+            label="Faturamento" 
+            value={<MoneyValue value={pulse.revenue} compact />} 
+            color="var(--accent-blue)" 
+            trend={<Sparkline data={revenueTrend} stroke="var(--accent-blue)" height={32} />}
           />
-        )}
-      </div>
+          <MetricCard 
+            label="Margem Real" 
+            value={`${pulse.margin.toFixed(0)}%`} 
+            color="var(--accent-green)" 
+            trend={<Sparkline data={marginTrend} stroke="var(--accent-green)" height={32} />}
+          />
+        </Priority.P2>
 
-      <style>{`
-        .aferix-operational-center {
-          padding-top: var(--sz-sm);
-          max-width: 440px;
-          margin: 0 auto;
-        }
+        {/* 3. CONTEXTUAL FEED: ACTIVE WORK */}
+        <Priority.P2 className="flex flex-col">
+          <SectionTitle 
+            action={
+              <button 
+                onClick={() => onNavigate('work-history')}
+                className="text-ui-xs text-[var(--accent-gold)] font-black"
+              >
+                VER AGENDA
+              </button>
+            }
+          >
+            Trabalhos Ativos
+          </SectionTitle>
 
-        .metric-block {
-          display: flex;
-          flex-direction: column;
-          gap: 4px;
-        }
+          <div className="flex flex-col gap-sm">
+            {pulse.activeWork.slice(0, 3).map((job) => {
+              const dateObj = new Date(job.updatedAt || job.createdAt || Date.now());
+              const time = dateObj.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 
-        .metric-label {
-          font-size: 10px;
-          font-weight: 800;
-          color: var(--text-muted);
-          letter-spacing: 0.05em;
-        }
-
-        .metric-value {
-          font-size: 24px;
-          letter-spacing: -0.02em;
-        }
-
-        .text-success { color: var(--status-success); }
-        .text-brand { color: var(--brand-primary); }
-
-        .queue-section {
-          margin-bottom: var(--sz-sm);
-        }
-
-        .queue-card {
-          cursor: pointer;
-          transition: transform 0.15s ease, border-color 0.2s ease;
-        }
-
-        .queue-card:active {
-          transform: scale(0.98);
-        }
-
-        .queue-card:hover {
-          border-color: var(--border-medium);
-        }
-      `}</style>
-    </PageShell>
+              return (
+                <OperationalListItem 
+                  key={job.id}
+                  title={job.title}
+                  subtitle={`${job.clientName || 'Cliente'} • ${time}`}
+                  onClick={() => onSelectBudget?.(job)}
+                  className="bg-white/[0.04]"
+                />
+              );
+            })}
+          </div>
+        </Priority.P2>
+      </ExecutiveDashboardLayout>
+    </SemanticScreen>
   );
 }

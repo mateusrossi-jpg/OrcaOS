@@ -1,5 +1,5 @@
 import { lazy } from 'react';
-import { PageHeader, PageShell } from '../components/ui';
+import { PageTitle, PageShell } from '../components/ui';
 import type { CalculationCapture } from '../../core/types/workflow';
 import type { Client, WorkOrder } from '../../core/types/business';
 
@@ -8,12 +8,18 @@ const ReportWorkspace = lazy(() => import('../../features/reports/components/Rep
 interface ReportsScreenProps {
   captures: CalculationCapture[];
   context: { activeClient: Client | null; activeWorkOrder: WorkOrder | null };
+  onBack?: () => void;
 }
 
-export function ReportsScreen({ captures, context }: ReportsScreenProps) {
+export function ReportsScreen({ captures, context, onBack }: ReportsScreenProps) {
   return (
-    <PageShell className="wide-screen reports-screen-harmonized">
-      <PageHeader title="Relatórios" />
+    <PageShell>
+      <PageTitle 
+        onBack={onBack}
+        eyebrow="Relatórios e BI" 
+        title="Performance" 
+        subtitle="Métricas baseadas em levantamentos técnicos." 
+      />
       <ReportWorkspace
         captures={captures}
         activeClient={context.activeClient}
@@ -22,3 +28,4 @@ export function ReportsScreen({ captures, context }: ReportsScreenProps) {
     </PageShell>
   );
 }
+

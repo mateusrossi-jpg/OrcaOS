@@ -4,121 +4,124 @@ import { calculateBudget } from '../../../domain/aferixFinanceEngine';
 import { formatCurrencyBRL, formatPercent } from '../../../utils/formatters';
 import { operationalFacade } from '../../workflow/operationalFacade';
 import { 
-  Surface, 
+  Card,
   MoneyValue, 
-  Badge, 
-  SectionTitle, 
-  Button, 
-  ListCard, 
-  ContextBanner 
+  SectionLabel, 
+  ContextBanner,
+  PageTitle,
+  ListItem
 } from '../../../app/components/ui';
+import { cn } from '../../../utils/ui';
+import { Package, ArrowRight } from 'lucide-react';
 
 interface BudgetSummaryViewProps {
   budget: Budget;
   onArchived?: () => void;
 }
 
+/**
+ * BudgetSummaryView V6 (Auditoria de Encerramento)
+ * Purified and focused on final business results.
+ */
 export const BudgetSummaryView: React.FC<BudgetSummaryViewProps> = ({ budget, onArchived }) => {
   const result = calculateBudget(budget);
   const isProfitable = result.lucroBruto > 0;
   
   const handleArchive = async () => {
-    if (window.confirm('Deseja arquivar este orçamento? Ele sairá da sua lista de ativos.')) {
+    if (window.confirm('Arquivar este projeto? Ele sairá da Mesa de Trabalho e entrará no histórico permanente.')) {
       await operationalFacade.archiveBudget(budget.id);
       onArchived?.();
     }
   };
 
   return (
-    <div className="aferix-budget-summary-view aferix-d-flex aferix-flex-column aferix-gap-lg">
-      <header className="aferix-text-center aferix-mb-md">
-        <h2 style={{ fontSize: '24px', fontWeight: 900, color: 'var(--brand-primary)' }}>Missão Cumprida!</h2>
-        <p className="aferix-text-muted">Veja o resumo do resultado alcançado neste projeto.</p>
-      </header>
+    <div className="flex flex-col gap-8 animate-in fade-in duration-500 pb-32">
+      <PageTitle 
+        eyebrow="Operação Finalizada"
+        title="Auditoria de Lucro"
+        subtitle="Confira o desempenho consolidado e a rentabilidade final deste projeto."
+      />
 
-      {/* 1. Card Financeiro de Alto Impacto */}
-      <Surface elevation={2} padding="lg" className="aferix-highlight-profit-card">
-        <div className="aferix-d-flex aferix-justify-between aferix-align-start">
-          <div className="aferix-d-flex aferix-flex-column">
-            <span className="aferix-font-xs aferix-text-muted" style={{ fontWeight: 800, letterSpacing: '0.05em' }}>LUCRO LÍQUIDO REAL</span>
-            <strong style={{ fontSize: '32px', color: isProfitable ? 'var(--status-success)' : 'var(--status-danger)' }}>
+      {/* 1. FINANCIAL RESULT (Executive Polish) */}
+      <Card className="p-8 border-l-4 border-l-[var(--accent-gold)]">
+        <div className="flex justify-between items-start mb-10">
+          <div>
+            <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[var(--accent-gold)] mb-3">Lucro Líquido Consolidado</p>
+            <p className={cn("num text-[48px] font-bold leading-none tracking-tighter", isProfitable ? "text-[var(--accent-gold)]" : "text-[var(--accent-red)]")}>
               {formatCurrencyBRL(result.lucroBruto)}
-            </strong>
+            </p>
           </div>
-          <Badge tone={isProfitable ? 'success' : 'danger'}>
+          <div className="rounded-full bg-[var(--accent-gold)]/10 px-4 py-2 text-[16px] font-bold text-[var(--accent-gold)] border border-[var(--accent-gold)]/20 shadow-glow">
             {formatPercent(result.marginPercent)}
-          </Badge>
-        </div>
-
-        <div className="aferix-divider aferix-my-md" style={{ height: '1px', background: 'var(--border-soft)' }} />
-
-        <div className="aferix-grid-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-          <div>
-            <span className="aferix-d-block aferix-font-xs aferix-text-muted">FATURAMENTO</span>
-            <strong className="aferix-font-md">{formatCurrencyBRL(result.totalComercial)}</strong>
-          </div>
-          <div>
-            <span className="aferix-d-block aferix-font-xs aferix-text-muted">CUSTO TOTAL</span>
-            <strong className="aferix-font-md" style={{ color: 'var(--status-danger)' }}>{formatCurrencyBRL(result.totalCost)}</strong>
           </div>
         </div>
-      </Surface>
 
-      {/* 2. Resumo Operacional */}
-      <div className="aferix-operational-recap">
-        <SectionTitle title="Resumo do Serviço" />
-        <ListCard>
-          {(budget.items || []).slice(0, 5).map((item) => (
-            <div key={item.id} className="aferix-p-md aferix-d-flex aferix-justify-between aferix-align-center" style={{ borderBottom: '1px solid var(--border-dim)' }}>
-              <div className="aferix-d-flex aferix-flex-column">
-                <span className="aferix-font-sm" style={{ fontWeight: 600 }}>{item.description}</span>
-                <small className="aferix-text-muted">{item.quantity} un x {formatCurrencyBRL(item.unitPrice)}</small>
-              </div>
-              <MoneyValue value={item.quantity * item.unitPrice} compact />
-            </div>
+        <div className="grid grid-cols-2 gap-8 border-t var(--border-subtle) pt-8">
+          <div>
+            <p className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest mb-2">Faturamento Real</p>
+            <p className="num text-[22px] font-bold text-[var(--text-primary)]">{formatCurrencyBRL(result.totalComercial)}</p>
+          </div>
+          <div>
+            <p className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest mb-2">Custo Operacional</p>
+            <p className="num text-[22px] font-bold text-[var(--accent-red)] opacity-80">{formatCurrencyBRL(result.totalCost)}</p>
+          </div>
+        </div>
+      </Card>
+
+      {/* 2. OPERATIONAL RECAP */}
+      <div className="flex flex-col gap-4">
+        <SectionLabel className="mt-0">Recapitulação do Escopo</SectionLabel>
+        <div className="flex flex-col gap-2">
+          {(budget.items || []).slice(0, 4).map((item) => (
+            <ListItem
+              key={item.id}
+              title={item.description}
+              context={`${item.quantity} un x ${formatCurrencyBRL(item.unitPrice)}`}
+              value={<MoneyValue value={item.quantity * item.unitPrice} compact />}
+            />
           ))}
-          {budget.items.length > 5 && (
-            <div className="aferix-p-sm aferix-text-center">
-              <small className="aferix-text-muted">e mais {budget.items.length - 5} itens...</small>
+          {budget.items.length > 4 && (
+            <div className="p-5 text-center rounded-xl border border-dashed border-white/5 bg-white/[0.01]">
+              <span className="text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-widest">+ {budget.items.length - 4} itens no escopo</span>
             </div>
           )}
-        </ListCard>
+        </div>
       </div>
 
-      {/* 3. Notas Finais */}
+      {/* 3. NOTES */}
       {(budget.commercialNotes || budget.notes) && (
-        <Surface elevation={1} padding="md">
-          <SectionTitle title="Notas de Encerramento" />
-          {budget.commercialNotes && (
-            <div className="aferix-mb-sm">
-              <span className="aferix-d-block aferix-font-xs aferix-text-muted">PROPOSTA</span>
-              <p className="aferix-font-sm" style={{ margin: 0 }}>{budget.commercialNotes}</p>
-            </div>
-          )}
-          {budget.notes && (
-            <div>
-              <span className="aferix-d-block aferix-font-xs aferix-text-muted">DIÁRIO DE OBRA</span>
-              <p className="aferix-font-sm" style={{ margin: 0 }}>{budget.notes}</p>
-            </div>
-          )}
-        </Surface>
+        <Card className="p-8">
+          <SectionLabel className="mt-0 mb-8">Registro Permanente</SectionLabel>
+          <div className="flex flex-col gap-8">
+            {budget.commercialNotes && (
+              <div>
+                <p className="text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-[0.1em] mb-3">Notas Comerciais</p>
+                <p className="text-[14.5px] font-medium text-[var(--text-secondary)] leading-relaxed">{budget.commercialNotes}</p>
+              </div>
+            )}
+            {budget.notes && (
+              <div>
+                <p className="text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-[0.1em] mb-3">Diário de Execução</p>
+                <p className="text-[14.5px] font-medium text-[var(--text-secondary)] leading-relaxed">{budget.notes}</p>
+              </div>
+            )}
+          </div>
+        </Card>
       )}
 
-      {/* 4. Ação Final */}
-      <div className="aferix-mt-xl">
+      {/* 4. FINAL ACTION */}
+      <div className="flex flex-col gap-4 mt-4">
         <ContextBanner
-          title="Tudo certo com este projeto?"
-          meta="Ao arquivar, ele sairá da sua lista de operações ativas, mas continuará disponível no Histórico Total."
-          icon="📦"
+          title="Consolidar e Arquivar"
+          meta="Este projeto será movido para o histórico e o lucro será computado no seu BI mensal."
+          icon={<Package className="h-5 w-5" />}
         />
-        <Button 
-          variant="secondary" 
+        <button 
           onClick={handleArchive}
-          className="aferix-w-full aferix-mt-md"
-          style={{ minHeight: '52px', fontWeight: 800 }}
+          className="w-full flex items-center justify-center gap-3 rounded-2xl bg-[var(--bg-surface-glass)] border border-[var(--accent-gold)]/30 py-5 text-[15px] font-bold text-[var(--accent-gold)] active:scale-[0.98] transition-all shadow-glow"
         >
-          Arquivar Orçamento
-        </Button>
+          CONSOLIDAR OPERAÇÃO <ArrowRight className="h-5 w-5" />
+        </button>
       </div>
     </div>
   );

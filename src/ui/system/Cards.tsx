@@ -1,56 +1,61 @@
-import React from 'react';
-import { ERPTokens } from './tokens';
+import React, { memo, type ReactNode } from 'react';
+import { cn } from '../../utils/ui';
 
 interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
-  children: React.ReactNode;
+  children: ReactNode;
+  padding?: 'none' | 'sm' | 'md' | 'lg';
   className?: string;
-  onClick?: () => void;
-  hoverable?: boolean;
 }
 
-export function ERPCard({ children, className = '', onClick, hoverable = false, ...props }: CardProps) {
-  const hoverStyles = hoverable ? `hover:${ERPTokens.colors.bgCardHover} hover:border-gray-700 cursor-pointer ${ERPTokens.animation.fast}` : '';
-  
+/**
+ * Aferix OS V5 Card: Primary architectural surface.
+ * Refactored for TOKEN-FIRST architecture.
+ */
+export const Card = memo(function Card({ 
+  children, 
+  padding = 'md', 
+  className = '',
+  ...props 
+}: CardProps) {
+  const paddings = {
+    none: "p-0",
+    sm: "p-4",
+    md: "p-6 md:p-8",
+    lg: "p-8 md:p-12",
+  };
+
   return (
     <div 
-      onClick={onClick}
-      className={`${ERPTokens.colors.bgCard} border ${ERPTokens.colors.borderBase} rounded-lg ${ERPTokens.elevation.sm} overflow-hidden flex flex-col ${hoverStyles} ${className}`}
+      className={cn(
+        "rounded-[var(--radius-card)] bg-[var(--surface-gradient)] border var(--border-soft) shadow-[var(--shadow-soft)] transition-all duration-300",
+        paddings[padding],
+        className
+      )}
       {...props}
     >
       {children}
     </div>
   );
-}
+});
 
-export function ERPCardHeader({ children, className = '', ...props }: CardProps) {
+export const CardHeader = memo(function CardHeader({ children, className = '', ...props }: React.HTMLAttributes<HTMLDivElement>) {
   return (
-    <div className={`px-4 py-3 border-b ${ERPTokens.colors.borderLight} ${ERPTokens.colors.bgHeader} flex items-center justify-between gap-2 ${className}`} {...props}>
+    <div className={cn("px-6 py-5 border-b var(--border-subtle) flex items-center justify-between gap-md", className)} {...props}>
       {children}
     </div>
   );
-}
+});
 
-export function ERPCardContent({ children, className = '', ...props }: CardProps) {
+export const CardFooter = memo(function CardHeader({ children, className = '', ...props }: React.HTMLAttributes<HTMLDivElement>) {
   return (
-    <div className={`p-4 flex flex-col gap-3 flex-1 ${className}`} {...props}>
+    <div className={cn("px-6 py-4 bg-white/5 border-t var(--border-subtle) flex items-center justify-between", className)} {...props}>
       {children}
     </div>
   );
-}
+});
 
-export function ERPCardFooter({ children, className = '', ...props }: CardProps) {
+export const CardLabel = memo(function CardLabel({ label, className = '' }: { label: string; className?: string }) {
   return (
-    <div className={`px-4 py-3 bg-gray-950/30 border-t ${ERPTokens.colors.borderLight} flex items-center justify-between text-xs ${className}`} {...props}>
-      {children}
-    </div>
+    <span className={cn("text-[var(--fs-xs)] uppercase font-bold tracking-[0.15em] text-[var(--text-muted)]", className)}>{label}</span>
   );
-}
-
-export function ERPCardMetric({ label, value, valueColor = ERPTokens.colors.textPrimary, className = '' }: { label: string; value: React.ReactNode; valueColor?: string; className?: string }) {
-  return (
-    <div className={`flex flex-col ${className}`}>
-      <span className={`text-[10px] uppercase font-semibold tracking-wider ${ERPTokens.colors.textTertiary}`}>{label}</span>
-      <span className={`text-lg font-bold ${valueColor}`}>{value}</span>
-    </div>
-  );
-}
+});

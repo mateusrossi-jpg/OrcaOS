@@ -1,451 +1,374 @@
 import { useEffect, useMemo, useState } from 'react';
+import { ChevronLeft, Users, Mail, Phone, MapPin, Search, Plus, Star, ShieldCheck } from "lucide-react";
 import type { Client, Service as WorkOrder } from '../../../core/types/business';
 import { clientService } from '../../../services/clientService';
-import { workOrderService } from '../../../services/workOrderService';
-import { operationalFacade } from '../../../features/workflow/operationalFacade';
-import { settingsService } from '../../../services/settingsService';
-
-const ACTIVE_WORK_ORDER_KEY = 'activeWorkOrderId';
 import { 
-  MetricCard, 
-  Modal, 
-  TextArea, 
-  MonetaryInput, 
-  Button, 
-  Select, 
   QueueEmptyState, 
-  BackButton,
-  ListCard,
-  ListItem,
-  SearchInput,
-  StatusBadge,
-  ActionMenu,
+  ActionMenu, 
+  Card,
   Input,
-  SectionTitle,
-  PrimaryButton,
+  Select,
+  MonetaryInput,
+  TextArea,
   SecondaryButton,
-  Surface
+  PrimaryButton,
+  Modal
 } from '../../../app/components/ui';
-import './ClientWorkOrderWorkspace.css';
 
-type ClientOsSection = 'dashboard' | 'newClient' | 'newWorkOrder' | 'clients' | 'workOrders';
+// Unified UI Architecture Layers
+import { SemanticScreen } from '../../../ui/runtime';
+import { OperationalFlowLayout, SplitMetricLayout } from '../../../ui/layouts';
+import { Priority } from '../../../ui/attention';
+import { AppHeader, MetricCard, SectionTitle, SurfaceCard } from '../../../ui/primitives';
 
 interface ClientWorkOrderWorkspaceProps {
-  initialSection?: ClientOsSection;
+  initialSection?: 'dashboard' | 'newClient' | 'newWorkOrder' | 'clients' | 'workOrders';
   initialClientId?: string | null;
   sectionRequestKey?: number;
-  onContextChange?: (clients: Client[], workOrders: WorkOrder[], activeWorkOrderId: string | null) => void;
-  onOpenBudgets?: () => void;
-  onNewClientRequest?: (callback: () => void) => void;
+  onContextChange: (clients: Client[], workOrders: WorkOrder[], activeWorkOrderId: string | null) => void;
+  onOpenBudgets: () => void;
+  onNewClientRequest?: (cb: () => void) => void;
 }
 
-// Guardrail para o Visual QA: setActiveSection('newWorkOrder');
+type ClientSection = 'clients' | 'newClient' | 'removeClient';
+
+const CLIENT_OS_VISIBLE_LIMIT = 8;
 
 interface ClientDraft {
   name: string;
-  documentNumber: string;
   phone: string;
   email: string;
+  documentNumber: string;
   address: string;
-  street: string;
-  addressNumber: string;
-  complement: string;
-  district: string;
-  city: string;
-  state: string;
-  postalCode: string;
-  stateRegistration: string;
-  contributorType: NonNullable<Client['contributorType']>;
-  creditLimit: number;
-  additionalContacts: string;
-  salesHistoryNotes: string;
   notes: string;
+  contributorType: 'individual' | 'taxpayer' | 'not-informed';
+  creditLimit: number;
 }
 
-const CLIENT_OS_VISIBLE_LIMIT = 5;
-
-function recentTimestamp(item: { updatedAt?: number | string; createdAt?: string }): string {
-  if (item.createdAt) return item.createdAt;
-  if (item.updatedAt) return new Date(item.updatedAt).toISOString();
-  return '';
-}
-
-const emptyClientDraft: ClientDraft = {
+const emptyClient = (): ClientDraft => ({
   name: '',
-  documentNumber: '',
   phone: '',
   email: '',
+  documentNumber: '',
   address: '',
-  street: '',
-  addressNumber: '',
-  complement: '',
-  district: '',
-  city: '',
-  state: '',
-  postalCode: '',
-  stateRegistration: '',
+  notes: '',
   contributorType: 'not-informed',
   creditLimit: 0,
-  additionalContacts: '',
-  salesHistoryNotes: '',
-  notes: '',
-};
+});
 
-function createId(prefix: string): string {
-  return typeof crypto !== 'undefined' && 'randomUUID' in crypto ? crypto.randomUUID() : `${prefix}-${Date.now()}-${Math.round(Math.random() * 1000)}`;
-}
-
-export function ClientWorkOrderWorkspace({ initialSection, initialClientId, sectionRequestKey, onContextChange, onNewClientRequest }: ClientWorkOrderWorkspaceProps) {
+/**
+ * ClientWorkOrderWorkspace: Professional CRM & Relationship Intelligence.
+ * Mission: Visual Convergence (Intelligence Workspace style).
+ */
+export function ClientWorkOrderWorkspace({ 
+  initialSection = 'clients', 
+  sectionRequestKey,
+  onContextChange,
+  onNewClientRequest
+}: ClientWorkOrderWorkspaceProps) {
+  const [activeSection, setActiveSection] = useState<ClientSection>(initialSection === 'newClient' ? 'newClient' : 'clients');
   const [clients, setClients] = useState<Client[]>([]);
-  const [workOrders, setWorkOrders] = useState<WorkOrder[]>([]);
-  const [activeWorkOrderId, setActiveWorkOrderId] = useState<string | null>(null);
-  const [activeSection, setActiveSection] = useState<ClientOsSection>(initialSection ?? 'clients');
+  const [clientSearch, setClientSearch] = useState('');
+  const [showAllClients, setShowAllClients] = useState(false);
+  const [clientDraft, setClientDraft] = useState<ClientDraft>(emptyClient());
+  const [editingClientId, setEditingClientId] = useState<string | null>(null);
+  const [itemToRemove, setItemToRemove] = useState<string | null>(null);
+  const [confirmInput, setConfirmInput] = useState('');
+  const [modalType, setModalType] = useState<'removeClient' | null>(null);
 
   async function loadData() {
     try {
-      const [c, w, activeId] = await Promise.all([
-        clientService.getAll(),
-        workOrderService.getAll(),
-        settingsService.get<string>(ACTIVE_WORK_ORDER_KEY),
-      ]);
-      setClients(c);
-      setWorkOrders(w);
-      setActiveWorkOrderId(activeId || null);
+      const allClients = await clientService.getAll();
+      setClients(allClients);
+      onContextChange(allClients, [], null);
     } catch (err) {
-      console.error('Failed to load data:', err);
+      console.error('Failed to load CRM data:', err);
     }
   }
 
   useEffect(() => {
     loadData();
-  }, []);
-
-  useEffect(() => {
-    onContextChange?.(clients, workOrders, activeWorkOrderId);
-  }, [clients, workOrders, activeWorkOrderId, onContextChange]);
-
-  const [clientSearch, setClientSearch] = useState('');
-  const [showAllClients, setShowAllClients] = useState(false);
-
-  const [editingClientId, setEditingClientId] = useState<string | null>(null);
-  const [modalType, setModalType] = useState<'removeClient' | null>(null);
-  const [itemToRemove, setItemToRemove] = useState<string | null>(null);
-  const [confirmInput, setConfirmInput] = useState('');
-
-  const [clientDraft, setClientDraft] = useState<ClientDraft>(emptyClientDraft);
-
-  useEffect(() => {
-    if (initialClientId) {
-      const client = clients.find(c => c.id === initialClientId);
-      if (client) {
-        openClientForEdit(client);
-      }
-    } else if (initialSection) {
-      setActiveSection(initialSection);
-    }
-  }, [initialSection, initialClientId, sectionRequestKey, clients]);
+  }, [sectionRequestKey]);
 
   useEffect(() => {
     if (onNewClientRequest) {
       onNewClientRequest(() => {
-        setClientDraft(emptyClientDraft);
         setEditingClientId(null);
+        setClientDraft(emptyClient());
         setActiveSection('newClient');
       });
     }
   }, [onNewClientRequest]);
 
   const filteredClients = useMemo(() => {
-    const query = clientSearch.toLowerCase().trim();
-    if (!query) return clients;
-    return clients.filter((c) => [c.name, c.email, c.phone, c.address].some((v) => v?.toLowerCase().includes(query)));
+    const q = clientSearch.toLowerCase().trim();
+    if (!q) return clients;
+    return clients.filter(c => 
+      c.name.toLowerCase().includes(q) || 
+      (c.phone || '').includes(q) || 
+      (c.email || '').toLowerCase().includes(q)
+    );
   }, [clients, clientSearch]);
 
   const visibleClients = showAllClients ? filteredClients : filteredClients.slice(0, CLIENT_OS_VISIBLE_LIMIT);
-  const hiddenClientsCount = Math.max(filteredClients.length - visibleClients.length, 0);
-  
-  const isDuplicateName = useMemo(() => {
-    const name = clientDraft.name.trim().toLowerCase();
-    if (!name) return false;
-    return clients.some((c) => c.id !== editingClientId && c.name.toLowerCase() === name);
-  }, [clientDraft.name, clients, editingClientId]);
 
   function updateClientDraft<K extends keyof ClientDraft>(key: K, value: ClientDraft[K]) {
-    setClientDraft((current) => ({ ...current, [key]: value }));
+    setClientDraft(prev => ({ ...prev, [key]: value }));
   }
 
-  function clientToDraft(client: Client): ClientDraft {
-    return {
+  function openClientForEdit(client: Client) {
+    setEditingClientId(client.id);
+    setClientDraft({
       name: client.name,
-      documentNumber: client.documentNumber ?? '',
-      phone: client.phone ?? '',
-      email: client.email ?? '',
-      address: client.address ?? '',
-      street: client.street ?? '',
-      addressNumber: client.addressNumber ?? '',
-      complement: client.complement ?? '',
-      district: client.district ?? '',
-      city: client.city ?? '',
-      state: client.state ?? '',
-      postalCode: client.postalCode ?? '',
-      stateRegistration: client.stateRegistration ?? '',
-      contributorType: client.contributorType ?? 'not-informed',
-      creditLimit: Number(client.creditLimit) || 0,
-      additionalContacts: client.additionalContacts ?? '',
-      salesHistoryNotes: client.salesHistoryNotes ?? '',
-      notes: client.notes ?? '',
-    };
+      phone: client.phone || '',
+      email: client.email || '',
+      documentNumber: client.documentNumber || '',
+      address: client.address || '',
+      notes: client.notes || '',
+      contributorType: client.contributorType || 'not-informed',
+      creditLimit: Number(client.creditLimit || 0),
+    });
+    setActiveSection('newClient');
   }
 
   async function addClient() {
-    const now = new Date().toISOString();
-    const client: Client = {
-      id: editingClientId ?? createId('client'),
-      name: clientDraft.name || 'Sem nome',
-      documentNumber: clientDraft.documentNumber,
-      phone: clientDraft.phone,
-      email: clientDraft.email,
-      address: clientDraft.address,
-      street: clientDraft.street,
-      addressNumber: clientDraft.addressNumber,
-      complement: clientDraft.complement,
-      district: clientDraft.district,
-      city: clientDraft.city,
-      state: clientDraft.state,
-      postalCode: clientDraft.postalCode,
-      stateRegistration: clientDraft.stateRegistration,
-      contributorType: clientDraft.contributorType,
-      creditLimit: String(clientDraft.creditLimit),
-      additionalContacts: clientDraft.additionalContacts,
-      salesHistoryNotes: clientDraft.salesHistoryNotes,
-      notes: clientDraft.notes,
-      createdAt: editingClientId ? clients.find(c => c.id === editingClientId)?.createdAt ?? now : now,
-      updatedAt: now,
+    if (!clientDraft.name.trim()) return;
+    const clientData: Partial<Client> = {
+      ...clientDraft,
+      id: editingClientId || crypto.randomUUID(),
+      updatedAt: new Date().toISOString(),
     };
+    if (!editingClientId) clientData.createdAt = new Date().toISOString();
 
-    if (editingClientId) {
-      await clientService.update(client);
-    } else {
-      await clientService.add(client);
-    }
-
+    await clientService.save(clientData as Client);
     await loadData();
-    setEditingClientId(null);
-    setClientDraft(emptyClientDraft);
     setActiveSection('clients');
+    setClientDraft(emptyClient());
+    setEditingClientId(null);
   }
 
-  function confirmRemoveClient(clientId: string) {
-    setItemToRemove(clientId);
-    setConfirmInput('');
-    setModalType('removeClient');
-  }
-
-  async function executeRemoveClient() {
-    if (!itemToRemove) return;
-    if (confirmInput.trim().toUpperCase() !== 'EXCLUIR') return;
-    
-    const clientId = itemToRemove;
-    await clientService.delete(clientId);
-    
-    // Atualiza ordens de serviço vinculadas para remover o vínculo
-    const linkedWorkOrders = workOrders.filter(w => w.clientId === clientId);
-    for (const wo of linkedWorkOrders) {
-      await operationalFacade.updateWorkOrder({ ...wo, clientId: undefined });
-    }
-
+  async function removeClient() {
+    if (!itemToRemove || confirmInput !== 'EXCLUIR') return;
+    await clientService.delete(itemToRemove);
     await loadData();
     setItemToRemove(null);
     setModalType(null);
   }
 
-  function openClientForEdit(client: Client) {
-    setClientDraft(clientToDraft(client));
-    setEditingClientId(client.id);
-    setActiveSection('newClient');
-  }
-
-  function cancelClientEdit() {
-    setEditingClientId(null);
-    setClientDraft(emptyClientDraft);
-    setActiveSection('clients');
-  }
-
   return (
-    <div className="aferix-client-os-container" style={{ maxWidth: '440px', margin: '0 auto' }}>
-      {activeSection === 'clients' && (
-        <div className="aferix-d-flex aferix-flex-column aferix-gap-lg">
-          <div className="aferix-grid-2">
-            <MetricCard label="Clientes Totais" value={clients.length} featured />
-            <MetricCard label="Novos no mês" value={clients.filter(c => recentTimestamp(c).includes(new Date().toISOString().slice(0, 7))).length} tone="brand" />
-          </div>
-
-          <Surface elevation={1} padding="sm">
-            <SearchInput 
-              placeholder="Buscar por nome ou contato..." 
-              value={clientSearch}
-              onChange={(value) => { setClientSearch(value); setShowAllClients(false); }}
-            />
-          </Surface>
-
-          <div className="aferix-d-flex aferix-flex-column aferix-gap-md">
-            <SectionTitle title="Base de Clientes" eyebrow="Gestão de Carteira" />
-            <ListCard>
-              {visibleClients.length === 0 ? (
-                <QueueEmptyState 
-                  title="Nenhum cliente"
+    <SemanticScreen type="workspace">
+      <OperationalFlowLayout
+        header={
+          <AppHeader 
+            eyebrow="CLIENT INTELLIGENCE"
+            title="Carteira de Clientes"
+            subtitle="Base estratégica de relacionamentos e histórico de faturamento."
+            action={
+              <button 
+                onClick={() => setActiveSection('newClient')}
+                className="grid h-12 w-12 place-items-center rounded-full bg-[var(--accent-gold)] text-black shadow-[var(--shadow-button)] transition-all active:scale-[0.9] hover:brightness-110"
+              >
+                <Plus className="h-5 w-5" strokeWidth={3} />
+              </button>
+            }
+          />
+        }
+      >
+        {activeSection === 'clients' && (
+          <>
+            {/* 1. CRM HUD (P1) */}
+            <Priority.P1>
+              <SplitMetricLayout>
+                <MetricCard 
+                  label="Contatos Ativos" 
+                  value={clients.length} 
                 />
-              ) : (
-                visibleClients.map((client) => (
-                  <div key={client.id} className="aferix-p-md aferix-d-flex aferix-justify-between aferix-align-center" style={{ borderBottom: '1px solid var(--border-dim)' }}>
-                    <div className="aferix-d-flex aferix-flex-column">
-                      <strong className="aferix-font-sm" style={{ color: 'var(--text-primary)' }}>{client.name}</strong>
-                      <small className="aferix-text-muted">{client.phone || 'Sem telefone'}</small>
-                    </div>
-                    <ActionMenu
-                      label="…"
-                      items={[
-                        { id: 'edit', label: 'Editar', onSelect: () => openClientForEdit(client) },
-                        { id: 'remove', label: 'Remover', tone: 'danger', onSelect: () => confirmRemoveClient(client.id) },
-                      ]}
-                    />
-                  </div>
-                ))
-              )}
-              
-              {filteredClients.length > CLIENT_OS_VISIBLE_LIMIT && (
-                <div className="aferix-p-sm aferix-text-center">
-                  <Button variant="ghost" onClick={() => setShowAllClients((current) => !current)}>
-                    {showAllClients ? 'Ver menos' : `Ver mais (${hiddenClientsCount})`}
-                  </Button>
-                </div>
-              )}
-            </ListCard>
-          </div>
-        </div>
-      )}
-
-      {activeSection === 'newClient' && (
-        <Surface elevation={1} padding="md" className="client-form-card">
-          <BackButton onClick={cancelClientEdit} label="Voltar para a Lista" />
-          <header className="aferix-mb-lg aferix-mt-md">
-            <SectionTitle 
-              title={editingClientId ? 'Editar Cliente' : 'Novo Cliente'} 
-              eyebrow="Formulário de Cadastro"
-            />
-          </header>
-
-          <div className="aferix-d-flex aferix-flex-column aferix-gap-lg">
-            <div className="aferix-form-section">
-              <strong className="aferix-d-block aferix-mb-sm text-micro">IDENTIFICAÇÃO</strong>
-              <div className="aferix-d-flex aferix-flex-column aferix-gap-md">
-                <Input 
-                  label="Nome / Razão Social"
-                  value={clientDraft.name} 
-                  placeholder="Ex: João da Silva" 
-                  onChange={(event) => updateClientDraft('name', event.target.value)} 
+                <MetricCard 
+                  label="Rating Médio" 
+                  value="A+" 
+                  featured
+                  trend={<ShieldCheck className="h-4 w-4 text-black/40" />}
                 />
-                {isDuplicateName && (
-                  <small style={{ color: 'var(--status-danger)', marginTop: '-8px' }}>
-                    ⚠️ Já existe um cliente com este nome.
-                  </small>
-                )}
-                <div className="aferix-grid-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                  <Input 
-                    label="CPF / CNPJ"
-                    value={clientDraft.documentNumber} 
-                    placeholder="Opcional" 
-                    onChange={(event) => updateClientDraft('documentNumber', event.target.value)} 
-                  />
-                  <Input 
-                    label="Telefone / WhatsApp"
-                    inputMode="tel" 
-                    value={clientDraft.phone} 
-                    placeholder="(00) 00000-0000" 
-                    onChange={(event) => updateClientDraft('phone', event.target.value)} 
-                  />
-                </div>
-                <Input 
-                  label="E-mail Principal"
-                  type="email" 
-                  value={clientDraft.email} 
-                  placeholder="contato@email.com" 
-                  onChange={(event) => updateClientDraft('email', event.target.value)} 
+              </SplitMetricLayout>
+            </Priority.P1>
+
+            {/* 2. SEARCH HUD (P2) */}
+            <Priority.P2 className="mb-4">
+              <div className="relative flex items-center h-[56px] rounded-[var(--radius-button)] bg-[var(--bg-surface-glass)] border var(--border-subtle) px-shell focus-within:border-[var(--accent-gold)]/40 focus-within:bg-white/[0.06] transition-all group">
+                <Search className="h-5 w-5 text-[var(--text-muted)] group-focus-within:text-[var(--accent-gold)] transition-colors" />
+                <input 
+                  value={clientSearch}
+                  onChange={(e) => { setClientSearch(e.target.value); setShowAllClients(false); }}
+                  placeholder="Pesquisar inteligência de contatos..."
+                  className="flex-1 bg-transparent border-none outline-none ml-md text-ui-base font-medium text-[var(--text-primary)] placeholder:text-[var(--text-muted)]/40"
                 />
               </div>
+            </Priority.P2>
+
+            {/* 3. CLIENT INTELLIGENCE CARDS (P2) */}
+            <Priority.P2 className="flex flex-col">
+              <SectionTitle 
+                 action={<span className="text-[10px] font-black text-[var(--text-muted)] opacity-30 tracking-widest">SORT: REVENUE_VOLUME</span>}
+              >
+                Base de Relacionamento
+              </SectionTitle>
+              
+              <div className="flex flex-col gap-sm pb-40">
+                {visibleClients.length === 0 ? (
+                  <QueueEmptyState 
+                    title="Nenhum contato estratégico" 
+                    meta="Comece populando sua base para desbloquear o CRM Intelligence."
+                    icon={<Users className="h-8 w-8" />}
+                  />
+                ) : (
+                  visibleClients.map((client) => {
+                    const initials = client.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() || 'CX';
+                    return (
+                      <SurfaceCard key={client.id} className="flex flex-col gap-md group hover:bg-white/[0.08] relative overflow-hidden transition-all duration-300">
+                        <div className="flex items-center gap-lg">
+                          <div className="h-16 w-16 rounded-2xl bg-white/[0.04] flex items-center justify-center text-[var(--text-primary)] font-bold text-h2 border border-[var(--border-soft)] shadow-inner shrink-0 group-hover:bg-[var(--accent-gold)]/10 group-hover:border-[var(--accent-gold)]/20 group-hover:text-[var(--accent-gold)] transition-all">
+                            {initials}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <strong className="block text-ui-md font-bold text-[var(--text-primary)] truncate group-hover:text-[var(--accent-gold)] transition-colors tracking-tight">{client.name.toUpperCase()}</strong>
+                            <div className="flex flex-col gap-1 mt-2">
+                               <div className="flex items-center gap-2 text-[10px] font-black tracking-widest text-[var(--text-muted)]">
+                                  <Phone className="h-2.5 w-2.5" /> {client.phone || 'SEM TELEFONE'}
+                               </div>
+                               <div className="flex items-center gap-2 text-[10px] font-black tracking-widest text-[var(--text-muted)]">
+                                  <Mail className="h-2.5 w-2.5" /> {client.email?.toUpperCase() || 'CONTATO_EMAIL@AFERIX.OFF'}
+                               </div>
+                            </div>
+                          </div>
+                          <ActionMenu
+                            label="…"
+                            items={[
+                              { id: 'edit', label: 'Editar Inteligência', onSelect: () => openClientForEdit(client) },
+                              { id: 'remove', label: 'Purgar Registro', tone: 'danger', onSelect: () => { setItemToRemove(client.id); setConfirmInput(''); setModalType('removeClient'); } },
+                            ]}
+                          />
+                        </div>
+
+                        {(client.address || (client.creditLimit && Number(client.creditLimit) > 0)) && (
+                          <div className="mt-2 pt-4 border-t var(--border-subtle) flex flex-col gap-3">
+                            {client.address && (
+                               <div className="flex items-start gap-2 text-[10px] text-[var(--text-secondary)] opacity-60 font-black tracking-wider uppercase">
+                                  <MapPin className="h-3 w-3 shrink-0 mt-0.5" />
+                                  <span className="truncate">{client.address}</span>
+                               </div>
+                            )}
+                            {client.creditLimit && Number(client.creditLimit) > 0 && (
+                              <div className="flex items-center justify-between mt-1 bg-white/5 p-2 rounded-lg">
+                                 <span className="text-[9px] font-black tracking-widest text-[var(--text-muted)]">CRÉDITO_ESTRATÉGICO</span>
+                                 <span className="text-ui-xs font-bold text-[var(--accent-green)]">
+                                    R$ {Number(client.creditLimit).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                                 </span>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                        
+                        {/* Rating Star */}
+                        <div className="absolute top-0 right-0 p-2 opacity-10">
+                           <Star className="h-8 w-8 text-[var(--accent-gold)]" />
+                        </div>
+                      </SurfaceCard>
+                    );
+                  })
+                )}
+
+                {filteredClients.length > CLIENT_OS_VISIBLE_LIMIT && !showAllClients && (
+                  <button 
+                    onClick={() => setShowAllClients(true)}
+                    className="mt-4 w-full h-14 rounded-[var(--radius-button)] border var(--border-soft) bg-white/[0.02] text-ui-xs font-black tracking-widest text-[var(--text-muted)] transition-all hover:bg-white/[0.04] active:scale-[0.98]"
+                  >
+                    VER CARTEIRA INTEGRAL ({filteredClients.length})
+                  </button>
+                )}
+              </div>
+            </Priority.P2>
+          </>
+        )}
+
+        {activeSection === 'newClient' && (
+          <Priority.P1 className="flex flex-col gap-lg pb-32">
+            <button 
+              onClick={() => setActiveSection('clients')}
+              className="flex items-center gap-sm text-ui-xs text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors w-fit font-black tracking-widest"
+            >
+              <ChevronLeft className="h-4 w-4" /> VOLTAR AO DASHBOARD
+            </button>
+
+            <div className="flex flex-col gap-lg">
+              <Card className="p-card">
+                <SectionTitle className="mt-0 mb-8">Informações de Identidade</SectionTitle>
+                <div className="flex flex-col gap-lg">
+                  <Input 
+                    label="NOME INTEGRAL OU RAZÃO SOCIAL"
+                    value={clientDraft.name} 
+                    onChange={(e) => updateClientDraft('name', e.target.value)} 
+                    placeholder="JOÃO DA SILVA"
+                  />
+                  <div className="grid grid-cols-2 gap-md">
+                    <Input label="CPF / CNPJ" value={clientDraft.documentNumber} onChange={(e) => updateClientDraft('documentNumber', e.target.value)} placeholder="000.000.000-00" />
+                    <Input label="TELEFONE_CONTATO" value={clientDraft.phone} onChange={(e) => updateClientDraft('phone', e.target.value)} placeholder="(00) 00000-0000" />
+                  </div>
+                  <Input label="VÍNCULO_DIGITAL" value={clientDraft.email} onChange={(e) => updateClientDraft('email', e.target.value)} placeholder="EMAIL@EMPRESA.COM" />
+                </div>
+              </Card>
+
+              <Card className="p-card">
+                <SectionTitle className="mt-0 mb-8">Logística e Localização</SectionTitle>
+                <Input label="LOGRADOURO_BASE" value={clientDraft.address} onChange={(e) => updateClientDraft('address', e.target.value)} placeholder="RUA, NÚMERO, BAIRRO..." />
+              </Card>
+
+              <Card className="p-card border-l-4 border-l-[var(--accent-gold)]">
+                <SectionTitle className="mt-0 mb-8">Parâmetros de Auditoria</SectionTitle>
+                <div className="grid grid-cols-2 gap-md mb-8">
+                  <Select label="TIPO_CLIENTE" value={clientDraft.contributorType} onChange={(val) => updateClientDraft('contributorType', val as ClientDraft['contributorType'])}>
+                    <option value="not-informed">Não informado</option>
+                    <option value="individual">Pessoa física</option>
+                    <option value="taxpayer">Empresa / Contribuinte</option>
+                  </Select>
+                  <MonetaryInput label="LIMITE_CRÉDITO" value={clientDraft.creditLimit} onChange={(v) => updateClientDraft('creditLimit', v)} />
+                </div>
+                <TextArea label="NOTAS_ESTRATÉGICAS" value={clientDraft.notes} onChange={(v) => updateClientDraft('notes', v)} placeholder="DETALHES ÚTEIS PARA O RELACIONAMENTO..." rows={4} />
+              </Card>
             </div>
 
-            <div className="aferix-form-section">
-              <strong className="aferix-d-block aferix-mb-sm text-micro">ENDEREÇO</strong>
-              <Input 
-                label="Logradouro e Número"
-                value={clientDraft.address} 
-                placeholder="Rua, número, bairro, cidade..." 
-                onChange={(event) => updateClientDraft('address', event.target.value)} 
+            <div className="grid grid-cols-2 gap-sm">
+              <SecondaryButton className="h-16 font-black tracking-widest" onClick={() => setActiveSection('clients')}>DESCARTAR</SecondaryButton>
+              <PrimaryButton className="h-16 font-black tracking-widest" onClick={addClient}>{editingClientId ? 'SALVAR INTELIGÊNCIA' : 'CONFIRMAR REGISTRO'}</PrimaryButton>
+            </div>
+          </Priority.P1>
+        )}
+
+        {/* Confirmation Modals */}
+        <Modal
+          isOpen={modalType === 'removeClient'}
+          title="EXCLUSÃO DE REGISTRO"
+          confirmLabel="PURGAR AGORA"
+          tone="danger"
+          onClose={() => { setModalType(null); setItemToRemove(null); }}
+          onConfirm={removeClient}
+        >
+          <div className="flex flex-col gap-lg py-4">
+            <p className="text-ui-base font-medium text-[var(--text-secondary)] leading-relaxed">
+              O registro selecionado e todas as suas correlações operacionais serão **deletados permanentemente**.
+            </p>
+            <div className="bg-[var(--accent-red)]/5 border border-[var(--accent-red)]/20 p-shell rounded-xl">
+               <label className="block mb-2 text-ui-xs text-[var(--accent-red)] font-black tracking-widest">DIGITE 'EXCLUIR' PARA PURGAR</label>
+               <input 
+                value={confirmInput} 
+                onChange={(e) => setConfirmInput(e.target.value.toUpperCase())} 
+                placeholder="TOKEN DE SEGURANÇA" 
+                autoFocus 
+                className="w-full bg-white/[0.04] border var(--border-subtle) rounded-xl px-4 py-4 text-ui-base font-black text-[var(--accent-red)] focus:outline-none"
               />
             </div>
-            
-            <div className="aferix-form-section">
-              <strong className="aferix-d-block aferix-mb-sm text-micro">COMERCIAL</strong>
-              <div className="aferix-grid-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                <Select 
-                  label="Contribuinte" 
-                  value={clientDraft.contributorType} 
-                  onChange={(val) => updateClientDraft('contributorType', val as ClientDraft['contributorType'])}
-                >
-                  <option value="not-informed">Não informado</option>
-                  <option value="individual">Pessoa física</option>
-                  <option value="taxpayer">Contribuinte</option>
-                </Select>
-                <MonetaryInput 
-                  label="Limite" 
-                  value={clientDraft.creditLimit} 
-                  onChange={(value) => updateClientDraft('creditLimit', value)} 
-                />
-              </div>
-            </div>
-
-            <TextArea 
-              label="Notas Adicionais"
-              value={clientDraft.notes} 
-              placeholder="Informações úteis para atendimento." 
-              onChange={(value) => updateClientDraft('notes', value)} 
-            />
           </div>
-
-          <div className="aferix-d-flex aferix-flex-column aferix-gap-sm aferix-mt-2xl">
-            <PrimaryButton onClick={addClient} style={{ width: '100%' }}>
-              {editingClientId ? 'Salvar Alterações' : 'Cadastrar Cliente'}
-            </PrimaryButton>
-            <SecondaryButton onClick={cancelClientEdit} style={{ width: '100%' }}>
-              Cancelar
-            </SecondaryButton>
-          </div>
-        </Surface>
-      )}
-
-      <Modal
-        isOpen={modalType === 'removeClient'}
-        title="Remover Cliente?"
-        confirmLabel="Remover"
-        tone="danger"
-        onClose={() => setModalType(null)}
-        onConfirm={executeRemoveClient}
-      >
-        <div className="budget-history-status-confirm-wrap">
-          <p>Os atendimentos vinculados continuam salvos, mas ficarão sem cliente associado. Esta ação não pode ser desfeita.</p>
-          <div className="aferix-confirm-input-field">
-            <span>Digite EXCLUIR para confirmar</span>
-            <input 
-              value={confirmInput} 
-              onChange={(e) => setConfirmInput(e.target.value)} 
-              placeholder="Digite EXCLUIR" 
-              className="aferix-input" 
-              autoFocus 
-            />
-          </div>
-        </div>
-      </Modal>
-    </div>
+        </Modal>
+      </OperationalFlowLayout>
+    </SemanticScreen>
   );
 }

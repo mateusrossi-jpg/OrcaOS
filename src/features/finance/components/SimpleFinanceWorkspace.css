@@ -1,47 +1,6 @@
-/* AFERIX FINANCE WORKSPACE — REFINED STYLES */
+/* ==========================================================================
+   AFERIX FINANCE — EXECUTIVE LEDGER WORKSPACE
+   Unified Design System Integration
+   ========================================================================== */
 
-.simple-finance-workspace {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sz-lg);
-}
-
-.finance-results-panel .panel-list-header {
-  margin-bottom: var(--sz-sm);
-}
-
-.finance-entry-actions {
-  display: flex;
-  justify-content: flex-end;
-}
-
-@media (max-width: 768px) {
-  .dashboard-finance-tiles {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--sz-sm);
-  }
-}
-
-@media (max-width: 480px) {
-  .dashboard-finance-tiles {
-    grid-template-columns: 1fr;
-  }
-}
-
-.finance-list-expand-wrap {
-  padding: var(--sz-md);
-  display: flex;
-  justify-content: center;
-  border-top: 1px solid var(--border-dim);
-}
-
-/* Cleanup of legacy Orca/Hardcoded styles */
-.finance-entry-panel,
-.finance-results-panel {
-  /* Handled by Surface component elevation and padding props */
-}
-
-.metric-card {
-  /* Handled by design system metric-card styles */
-}
+/* Cleanup: Many local styles are now handled by design system global utilities or direct component injection. */

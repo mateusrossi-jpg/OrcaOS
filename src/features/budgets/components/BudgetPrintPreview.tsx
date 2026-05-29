@@ -117,36 +117,45 @@ export function BudgetPrintPreview({
   const logoSource = businessProfile?.logoDataUrl?.trim() || businessProfile?.logoUrl?.trim() || AFERIX_LOGO_LIGHT_URL;
 
   return (
-    <section className="print-preview-shell">
-      <div className="print-preview-header no-print">
-        <div>
-          <h3>{isPremiumReport ? '✨ Prévia do Relatório Premium' : '📄 Prévia do Orçamento Simples'}</h3>
-          <p>Confira os dados antes de enviar ao cliente.</p>
-        </div>
-        <button type="button" className="primary-action inline-action" disabled={hasBlockingIssues} onClick={printBudget}>
-          Imprimir / salvar PDF
-        </button>
+    <section className="min-h-screen">
+      <div className="no-print mb-8">
+        <PageTitle 
+          eyebrow="Visualização"
+          title={isPremiumReport ? 'Relatório Premium' : 'Orçamento Simples'}
+          subtitle="Confira a formatação do documento antes de gerar o PDF."
+          action={
+            <PrimaryButton disabled={hasBlockingIssues} onClick={printBudget}>
+              <FileDown className="h-5 w-5" /> Imprimir / PDF
+            </PrimaryButton>
+          }
+        />
       </div>
 
       {validationIssues.length > 0 && (
-        <div className="print-validation-alert no-print" role="status">
-          <strong>{hasBlockingIssues ? 'Revise antes de gerar o documento' : 'Atenção antes do envio'}</strong>
-          <ul>
+        <div className="no-print mb-8 p-6 rounded-2xl bg-[var(--accent-red)]/5 border border-[var(--accent-red)]/20 shadow-soft" role="status">
+          <strong className="text-[14px] font-bold text-[var(--accent-red)] block mb-3">
+            {hasBlockingIssues ? 'Revise antes de gerar o documento' : 'Atenção antes do envio'}
+          </strong>
+          <ul className="flex flex-col gap-2">
             {validationIssues.map((issue) => (
-              <li className={issue.severity} key={`${issue.code}-${issue.message}`}>{issue.message}</li>
+              <li className={cn("text-[13px] font-medium opacity-80", issue.severity === 'error' ? "text-[var(--accent-red)]" : "text-[var(--accent-gold)]")} key={`${issue.code}-${issue.message}`}>
+                • {issue.message}
+              </li>
             ))}
           </ul>
         </div>
       )}
 
-      <div className="aferix-preview-toolbar no-print">
-        <span className="toolbar-label">Zoom</span>
-        <div className="toolbar-actions">
-          <button type="button" className="toolbar-btn" onClick={() => setZoom(prev => Math.max(0.45, prev - 0.1))}>-</button>
-          <span className="zoom-percentage">{Math.round(zoom * 100)}%</span>
-          <button type="button" className="toolbar-btn" onClick={() => setZoom(prev => Math.min(1.4, prev + 0.1))}>+</button>
-          <button type="button" className="toolbar-btn" onClick={() => setZoom(defaultZoom)}>Reset</button>
+      <div className="no-print mb-10 p-5 rounded-2xl bg-[var(--bg-surface-glass)] border var(--border-soft) flex items-center justify-between shadow-soft">
+        <div className="flex items-center gap-4">
+          <span className="text-[11px] font-bold uppercase tracking-widest text-[var(--text-muted)]">Ajuste de Zoom</span>
+          <div className="flex items-center gap-2 bg-white/[0.04] p-1 rounded-xl border var(--border-subtle)">
+            <button type="button" className="h-9 w-9 grid place-items-center rounded-lg hover:bg-white/5 transition-all text-white font-bold" onClick={() => setZoom(prev => Math.max(0.45, prev - 0.1))}>-</button>
+            <span className="num text-[13px] font-bold w-12 text-center text-[var(--accent-gold)]">{Math.round(zoom * 100)}%</span>
+            <button type="button" className="h-9 w-9 grid place-items-center rounded-lg hover:bg-white/5 transition-all text-white font-bold" onClick={() => setZoom(prev => Math.min(1.4, prev + 0.1))}>+</button>
+          </div>
         </div>
+        <SecondaryButton onClick={() => setZoom(defaultZoom)} className="min-h-[40px] px-4 rounded-xl text-[12px]">Reset</SecondaryButton>
       </div>
 
       <div className="document-preview-container budget-preview-container-layout">

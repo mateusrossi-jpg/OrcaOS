@@ -1,70 +1,11 @@
-/* AFERIX ACTIVE WORK CONTEXT — PURIFIED DARK PREMIUM V1 */
+/* src/app/components/ActiveWorkContextCard.css
+   Refactored for TOKEN-FIRST architecture (Executive OS V5).
+   ---------------------------------------------------------- */
 
-.active-work-context-card {
-  /* Handled by Surface component */
+.active-work-card {
+  transition: all var(--transition-normal);
 }
 
-.context-main-info {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sz-xs);
-}
-
-.context-label {
-  font-size: 12px; /* Purified: min 12px */
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--text-muted);
-  font-weight: 800;
-}
-
-.context-main-info strong {
-  font-size: 18px; /* Standard Body Title */
-  color: var(--text-primary);
-  font-weight: 800;
-  line-height: 1.2;
-}
-
-.context-quick-stats {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--sz-sm);
-}
-
-.stat-item {
-  display: flex;
-  align-items: center;
-  gap: var(--sz-xs);
-  background: var(--bg-active);
-  padding: var(--sz-xs) var(--sz-md);
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border-soft);
-}
-
-.stat-item span {
-  font-size: 12px; /* Purified: min 12px */
-  color: var(--text-muted);
-  font-weight: 700;
-}
-
-.stat-item strong {
-  font-size: 12px; /* Purified: min 12px */
-  color: var(--text-primary);
-  font-weight: 800;
-}
-
-.status-text.in-progress {
-  color: var(--brand-primary);
-}
-
-.status-text.done {
-  color: var(--status-success);
-}
-
-@media (min-width: 768px) {
-  .active-work-context-card {
-    flex-direction: row !important;
-    justify-content: space-between;
-    align-items: center;
-  }
+.active-work-card:active {
+  transform: scale(0.98);
 }

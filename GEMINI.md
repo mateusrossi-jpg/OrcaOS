@@ -1,6 +1,29 @@
 # AFERIX — MASTER PRODUCT EVOLUTION ROADMAP
 ERP PREMIUM • SAAS MOBILE-FIRST • LOCAL-FIRST • OFFLINE-FIRST
 
+## 🚨 OFFICIAL CONSOLIDATION DIRECTIVE 🚨
+A partir de 28 de Maio de 2026, **o projeto OrcaOS é a BASE OFICIAL E ÚNICA do sistema.**
+
+**O que o OrcaOS possui e mantém (O Núcleo):**
+- Lógica operacional, regras de negócio e arquitetura real.
+- Infraestrutura principal: Supabase, Dexie, offline-first, sync, event store.
+- Pipeline financeiro, CRM e controle de execução.
+
+**O papel do projeto Lovable/TanStack (A Casca Visual):**
+- É estritamente a **Referência Visual e Design Authority**.
+- Fornece a UX authority, operational shell reference, ritmo, densidade e estética.
+
+**O que NÃO FAZER:**
+- **NÃO** manter duas arquiteturas.
+- **NÃO** portar lógicas entre stacks ou duplicar código.
+- **NÃO** reconstruir funcionalidades existentes.
+- **NÃO** criar novos wrappers ou abstrações artificiais.
+
+**O Objetivo (O Produto Final):**
+Aplicar o *Design System Aferix* (Premium Dark, business feeling, mobile-first executive experience, spacing, hierarchy) **sobre o núcleo tecnológico OrcaOS**. O OrcaOS deve evoluir para ser o "Aferix ERP Premium Operational System" consolidado.
+
+---
+
 ## Visão Geral
 O Aferix não é apenas um app de orçamentos; é o **Sistema Operacional de Bolso** do prestador de serviço. É um produto premium, técnico, moderno e, acima de tudo, extremamente confiável.
 

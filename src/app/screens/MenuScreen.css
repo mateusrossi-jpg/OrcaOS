@@ -1,0 +1,185 @@
+/* ==========================================================================
+   AFERIX MENUSCREEN — ADJUSTS & SETTINGS STYLE
+   Refactored for TOKEN-FIRST architecture (Executive OS V5).
+   ========================================================================== */
+
+.menu-container {
+  padding-left: var(--spacing-md) !important;
+  padding-right: var(--spacing-md) !important;
+  padding-top: var(--spacing-lg) !important;
+  padding-bottom: 120px !important; /* Contextual offset for nav */
+}
+
+.menu-container h1 {
+  font-size: var(--fs-2xl) !important;
+  font-weight: var(--fw-bold) !important;
+  letter-spacing: -0.02em !important;
+  line-height: 1.1 !important;
+  color: var(--text-primary);
+}
+
+.menu-container p.text-primary {
+  font-size: var(--fs-xs) !important;
+  font-weight: var(--fw-black) !important;
+  letter-spacing: 0.2em !important;
+  text-transform: uppercase !important;
+  color: var(--accent-gold) !important;
+  margin-bottom: var(--spacing-xs) !important;
+}
+
+.menu-container p.text-muted-foreground {
+  font-size: var(--fs-sm) !important;
+  font-weight: var(--fw-medium) !important;
+  line-height: 1.4 !important;
+  color: var(--text-secondary) !important;
+}
+
+/* User Profile card matching the home screen card feeling */
+.menu-profile-card {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md) var(--spacing-lg);
+  background: var(--surface-gradient);
+  border: var(--border-soft);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-soft);
+  cursor: pointer;
+  transition: all var(--transition-soft);
+}
+
+.menu-profile-card:hover {
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateY(-2px);
+}
+
+.menu-profile-avatar {
+  display: grid;
+  height: 56px;
+  width: 56px;
+  place-items: center;
+  border-radius: var(--radius-pill);
+  background: rgba(245, 164, 0, 0.1);
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-black);
+  color: var(--accent-gold);
+  border: 1px solid rgba(245, 164, 0, 0.2);
+}
+
+.menu-profile-details {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.menu-profile-name {
+  font-size: var(--fs-md);
+  font-weight: var(--fw-bold);
+  color: var(--text-primary);
+}
+
+.menu-profile-plan {
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+}
+
+/* Section labels */
+.menu-group-title {
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-black);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--text-muted);
+  opacity: 0.5;
+  margin-bottom: var(--spacing-sm);
+  margin-top: var(--spacing-xl);
+  display: block;
+}
+
+/* Group Stack */
+.menu-group-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+/* Menu list items */
+.menu-group-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+  background: var(--bg-surface-glass);
+  border: var(--border-subtle);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.menu-group-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+  transform: translateX(2px);
+}
+
+.menu-item-icon-wrap {
+  display: grid;
+  height: 36px;
+  width: 36px;
+  place-items: center;
+  border-radius: var(--radius-xs);
+  background: var(--bg-surface-glass);
+  color: var(--text-secondary);
+  transition: all var(--transition-fast);
+}
+
+.menu-group-item:hover .menu-item-icon-wrap {
+  background: rgba(245, 164, 0, 0.15);
+  color: var(--accent-gold);
+}
+
+.menu-item-title {
+  font-size: var(--fs-base);
+  font-weight: var(--fw-semibold);
+  color: var(--text-primary);
+}
+
+.menu-item-desc {
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+  color: var(--text-muted);
+}
+
+.menu-item-chevron {
+  color: var(--text-muted);
+  opacity: 0.2;
+}
+
+/* Sair da conta buttons */
+.menu-logout-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  border-radius: var(--radius-md);
+  background: var(--bg-surface-glass);
+  border: var(--border-subtle);
+  padding: var(--spacing-md);
+  font-size: var(--fs-base);
+  font-weight: var(--fw-bold);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  margin-top: var(--spacing-lg);
+}
+
+.menu-logout-btn:hover {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--accent-red);
+  border-color: rgba(239, 68, 68, 0.2);
+}

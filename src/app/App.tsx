@@ -27,22 +27,21 @@ import { useCalculationCaptures } from '../hooks/useCalculationCaptures';
 import { useAccountPlan } from '../hooks/useAccountPlan';
 import { useAppClients } from './hooks/useAppClients';
 import { realtimeBridge } from '../core/realtime/bridge';
-import { ERPToast } from '../ui/system';
+import { ERPToast, ERPLoader } from '../ui/system';
 import { DebugPanel } from '../features/settings/components/DebugPanel';
 import { multiTabProtection } from '../core/database/multiTabProtection';
 import { cloudSyncService } from '../services/CloudSyncService';
+import { PageShell } from './components/PageShell';
 
 
 function LazyWorkspaceFallback() {
   return (
-    <section className="app-screen">
-      <div className="empty-state-card">
-        <strong>Carregando área de trabalho</strong>
-        <p>Preparando os recursos desta tela.</p>
-      </div>
-    </section>
+    <PageShell className="flex items-center justify-center min-h-[60vh]">
+      <ERPLoader message="Carregando área de trabalho..." />
+    </PageShell>
   );
 }
+
 
 export function App() {
   const [activeTab, setActiveTab] = useState<AppTab>('pulse');
@@ -182,6 +181,7 @@ export function App() {
               sectionRequestKey={clientSectionRequestKey} 
               onOpenBudgets={() => goTo('budgets')} 
               onContextChange={updateContext} 
+              onBack={() => goTo('settings')}
             />
           )}
 
@@ -218,8 +218,9 @@ export function App() {
               onOpenBudget={(budgetId) => openBudgetDetail(budgetId)}
             />
           )}
-          {activeTab === 'catalog' && <CatalogScreen onAddMany={addManyCalculationCaptures} context={context} />}
-          {activeTab === 'reports' && <ReportsScreen captures={captures} context={context} />}
+          {activeTab === 'catalog' && <CatalogScreen onAddMany={addManyCalculationCaptures} context={context} onBack={() => goTo('settings')} />}
+          {activeTab === 'reports' && <ReportsScreen captures={captures} context={context} onBack={() => goTo('settings')} />}
+
           {activeTab === 'store' && <StoreScreen account={account} onAccountChange={() => {}} onBack={() => goTo('settings')} />}
         </Suspense>
       </AppShell>

@@ -1,38 +1,87 @@
 import { useEffect, useRef, memo, type ButtonHTMLAttributes, type HTMLAttributes, type ReactNode } from 'react';
+import { 
+  ChevronRight, 
+  ChevronLeft,
+  MoreHorizontal, 
+  Search, 
+  Plus
+} from "lucide-react";
 import { CompactActionMenu, type CompactActionItem } from '../CompactActionMenu';
 import { MobileActionMenu } from './MobileActionMenu';
 import { useAutoResizeTextArea } from '../../hooks/useAutoResizeTextArea';
 import { PageShell } from '../PageShell';
+import { cn } from '../../../utils/ui';
+
+export { ERPLoader } from '../../../ui/system';
+export { KpiCard } from './KpiCard';
+export { Sparkline } from './Sparkline';
+import { SurfaceCard, type SurfaceCardProps } from './SurfaceCard';
 
 type Tone = 'default' | 'brand' | 'success' | 'danger' | 'muted';
 
 /**
- * PageHeader: título principal da tela, descrição e ação primária.
+ * PageTitle: Premium Operational Header.
+ * Refactored for TOKEN-FIRST architecture (Executive OS V5).
  */
-export function PageHeader({ 
+export function PageTitle({ 
+  eyebrow, 
   title, 
-  sourceLabel, 
-  action, 
-  className = '' 
+  subtitle, 
+  action,
+  onBack
 }: { 
+  eyebrow?: string; 
   title: string; 
-  sourceLabel?: string; 
-  action?: ReactNode; 
-  className?: string 
+  subtitle?: string; 
+  action?: ReactNode;
+  onBack?: () => void;
 }) {
   return (
-    <header className={`page-header screen-header ${className}`.trim()}>
-      <div className="header-content">
-        <h1>{title}</h1>
-        {sourceLabel && <span className="page-header-caption">{sourceLabel}</span>}
+    <div className="mb-12 flex flex-col gap-lg">
+      {onBack && (
+        <button 
+          onClick={onBack} 
+          className="flex w-fit items-center gap-sm text-ui-xs text-[var(--text-muted)] transition-colors hover:text-[var(--text-primary)]"
+        >
+          <ChevronLeft className="h-4 w-4" /> VOLTAR
+        </button>
+      )}
+      <div className="flex items-end justify-between gap-lg">
+        <div className="flex flex-col items-start min-w-0">
+          {eyebrow && <p className="mb-1 text-ui-xs text-[var(--accent-gold)]">{eyebrow}</p>}
+          <h1 className="text-h1 text-[var(--text-primary)] truncate w-full">{title}</h1>
+          {subtitle && <p className="mt-2 text-ui-sm text-[var(--text-secondary)] leading-relaxed max-w-[90%]">{subtitle}</p>}
+        </div>
+        {action && <div className="shrink-0 mb-1">{action}</div>}
       </div>
-      {action && <div className="page-header-action">{action}</div>}
-    </header>
+    </div>
   );
 }
 
 /**
- * Componente de botão base.
+ * SectionLabel: Operational Divider.
+ * Refactored for TOKEN-FIRST architecture.
+ */
+export function SectionLabel({ 
+  children, 
+  action,
+  className = ''
+}: { 
+  children: ReactNode; 
+  action?: ReactNode; 
+  className?: string;
+}) {
+  return (
+    <div className={cn("mb-6 mt-12 flex items-center justify-between", className)}>
+      <h2 className="text-ui-xs text-[var(--text-muted)]">{children}</h2>
+      {action && <div className="shrink-0">{action}</div>}
+    </div>
+  );
+}
+
+/**
+ * Button: Tactile action primitive.
+ * Refactored for TOKEN-FIRST architecture.
  */
 export function Button({
   children,
@@ -44,14 +93,18 @@ export function Button({
   variant?: 'primary' | 'secondary' | 'ghost' | 'danger';
   className?: string;
 } & ButtonHTMLAttributes<HTMLButtonElement>) {
-  const variantClass = 
-    variant === 'primary' ? 'primary-action' : 
-    variant === 'danger' ? 'danger-action' : 
-    variant === 'secondary' ? 'secondary-action' :
-    'ghost-action';
+  const baseClasses = "min-h-[52px] rounded-[var(--radius-button)] px-shell text-ui-base font-bold transition-all duration-300 active:scale-[0.97] flex items-center justify-center gap-sm";
+  
+  const variantClasses = {
+    primary: "bg-[var(--accent-gold)] text-black shadow-[var(--shadow-button)] hover:brightness-105",
+    secondary: "bg-[var(--bg-surface-glass)] border var(--border-soft) text-[var(--text-primary)] hover:bg-white/[0.07]",
+    ghost: "bg-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)]",
+    danger: "bg-[var(--accent-red)]/15 text-[var(--accent-red)] hover:bg-[var(--accent-red)]/25",
+  };
+  
   return (
     <button 
-      className={`${variantClass} ui-button ${className}`.trim()} 
+      className={cn(baseClasses, variantClasses[variant], className)} 
       type="button" 
       {...props}
     >
@@ -62,7 +115,7 @@ export function Button({
 
 export function PrimaryButton(props: Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'type'> & { children: ReactNode }) {
   const { children, className = '', ...rest } = props;
-  return <Button variant="primary" className={`full-page-cta ${className}`.trim()} {...rest}>{children}</Button>;
+  return <Button variant="primary" className={className} {...rest}>{children}</Button>;
 }
 
 export function SecondaryButton(props: Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'type'> & { children: ReactNode }) {
@@ -75,36 +128,65 @@ export function DangerButton(props: Omit<ButtonHTMLAttributes<HTMLButtonElement>
   return <Button variant="danger" className={className} {...rest}>{children}</Button>;
 }
 
+export { PipelineCard } from './PipelineCard';
+export { SurfaceCard };
+
 /**
- * Surface: Componente de base para layout com suporte a elevação e padding semântico.
+ * Surface/Card: Legacy aliases, now powered by SurfaceCard.
  */
-export function Surface({ 
-  children, 
-  className = '', 
-  elevation = 1, 
-  padding = 'md',
-  ...props 
+export function Surface(props: SurfaceCardProps) { return <SurfaceCard {...props} />; }
+export function Card(props: SurfaceCardProps) { return <SurfaceCard {...props} />; }
+
+/**
+ * StatusPill: Premium status badge.
+ * Refactored for TOKEN-FIRST architecture.
+ */
+export const StatusPill = memo(function StatusPill({ 
+  status,
+  className
 }: { 
-  children: ReactNode; 
+  status: string;
   className?: string;
-  elevation?: 0 | 1 | 2;
-  padding?: 'none' | 'sm' | 'md' | 'lg';
-} & HTMLAttributes<HTMLElement>) {
-  const elevationClass = `elevation-${elevation}`;
-  const paddingClass = padding !== 'none' ? `p-${padding}` : '';
+}) {
+  const normalized = (status ?? '').toLowerCase().replace(' ', '_').replace('em_execucao', 'execucao');
   
+  const map: Record<string, string> = {
+    iniciado:   "bg-white/10 text-[var(--text-secondary)]",
+    enviado:    "bg-[var(--accent-gold)]/15 text-[var(--accent-gold)]",
+    aprovado:   "bg-[var(--accent-gold)]/20 text-[var(--accent-gold)] border var(--border-soft)",
+    autorizado: "bg-[var(--accent-gold)]/20 text-[var(--accent-gold)] border var(--border-soft)",
+    execucao:   "bg-[var(--accent-gold)] text-black shadow-[var(--shadow-cinematic)]",
+    finalizado: "bg-white/15 text-[var(--text-primary)]",
+    arquivado:  "bg-white/10 text-[var(--text-muted)]",
+    cancelado:  "bg-[var(--accent-red)]/20 text-[var(--accent-red)] border var(--border-soft)",
+    recusado:   "bg-[var(--accent-red)]/20 text-[var(--accent-red)] border var(--border-soft)",
+  };
+
+  const labels: Record<string, string> = {
+    iniciado: "Iniciado", 
+    enviado: "Enviado", 
+    aprovado: "Aprovado",
+    autorizado: "Autorizado",
+    execucao: "Em execução", 
+    finalizado: "Finalizado", 
+    arquivado: "Arquivado",
+    cancelado: "Cancelado",
+    recusado: "Recusado"
+  };
+
   return (
-    <section 
-      className={`aferix-surface ${elevationClass} ${paddingClass} ${className}`.trim()} 
-      {...props}
-    >
-      {children}
-    </section>
+    <span className={cn("inline-flex items-center px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide rounded-lg transition-all", map[normalized] || map.iniciado, className)}>
+      {labels[normalized] || labelize(status)}
+    </span>
   );
+});
+
+function labelize(s: string) {
+  return s.charAt(0).toUpperCase() + s.slice(1).replace('_', ' ');
 }
 
 /**
- * ListCard: Especialização de Surface para listas.
+ * ListCard: Premium container for operational lists.
  */
 export function ListCard({ 
   title, 
@@ -119,24 +201,22 @@ export function ListCard({
   className?: string;
 } & HTMLAttributes<HTMLElement>) {
   return (
-    <Surface elevation={1} padding="none" className={`list-card ${className}`.trim()} {...props}>
+    <div className={cn("w-full flex flex-col", className)} {...props}>
       {(title || action) && (
-        <header className="card-header" style={{ padding: 'var(--sz-md)' }}>
-          <div>
-            {title && <h3>{title}</h3>}
-          </div>
-          {action && <div className="card-header-action">{action}</div>}
+        <header className="flex items-center justify-between mb-4 px-1">
+          <div>{title && <h3 className="text-ui-xs text-[var(--text-muted)]">{title}</h3>}</div>
+          {action && <div>{action}</div>}
         </header>
       )}
-      <div className="continuous-list">
+      <div className="flex flex-col gap-sm">
         {children}
       </div>
-    </Surface>
+    </div>
   );
 }
 
 /**
- * ListItem: Item de lista compacto e padronizado.
+ * ListItem: Premium Operational Row.
  */
 export const ListItem = memo(function ListItem({
   title,
@@ -157,26 +237,27 @@ export const ListItem = memo(function ListItem({
 }) {
   return (
     <article 
-      className={`operational-card ${onClick ? 'clickable-row' : ''} ${className}`.trim()}
+      className={cn(
+        "flex items-center gap-md py-4 px-shell transition-all duration-200 rounded-[var(--radius-button)] bg-white/[0.03] border var(--border-subtle) group", 
+        onClick && "cursor-pointer hover:bg-white/[0.06] hover:translate-x-0.5 active:scale-[0.99]", 
+        className
+      )}
       onClick={onClick}
     >
-      <div className="operational-card-main">
-        <div className="operational-card-left">
-          <strong className="operational-card-title">{title}</strong>
-          {context && <small className="operational-card-meta">{context}</small>}
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center justify-between gap-sm">
+          <strong className="truncate text-ui-md text-[var(--text-primary)] group-hover:text-[var(--accent-gold)] transition-colors">{title}</strong>
+          {value && <div className="num text-ui-md font-bold text-[var(--text-primary)]">{value}</div>}
         </div>
-        
-        {(value || action) && (
-          <div className="operational-card-right">
-            {value && <div className="operational-card-value">{value}</div>}
-            {action && <div className="operational-card-action">{action}</div>}
-          </div>
-        )}
+        <div className="mt-1 flex items-center justify-between gap-sm">
+          {context && <p className="truncate text-ui-sm text-[var(--text-secondary)] font-medium">{context}</p>}
+          {status && <div className="shrink-0">{status}</div>}
+        </div>
       </div>
-
-      {status && (
-        <div className="operational-card-status-row">
-          {status}
+      {(action || onClick) && (
+        <div className="flex items-center gap-sm ml-1 opacity-40 group-hover:opacity-100 transition-opacity">
+          {action}
+          {onClick && <ChevronRight className="h-4 w-4" />}
         </div>
       )}
     </article>
@@ -184,189 +265,123 @@ export const ListItem = memo(function ListItem({
 });
 
 /**
- * MetricCard: Card de métrica secundário.
+ * EditorialMetric: Ultra-minimal inline metric.
+ */
+export function EditorialMetric({ label, value, color, compact = false }: { label: string; value: ReactNode; color?: string; compact?: boolean }) {
+  return (
+    <div>
+      <p className="text-ui-xs text-[var(--text-secondary)] mb-2">{label}</p>
+      <p className={cn("num font-bold text-[var(--text-primary)] tracking-tight", compact ? "text-h3" : "text-h2")} style={{ color }}>{value}</p>
+    </div>
+  );
+}
+
+/**
+ * MetricCard: Cinematic KPI card.
  */
 export const MetricCard = memo(function MetricCard({
   label,
   value,
-  tone = 'default',
   featured = false,
   className = '',
+  color,
 }: {
   label: string;
   value: ReactNode;
-  tone?: Tone;
   featured?: boolean;
   className?: string;
+  color?: string;
 }) {
   return (
-    <Surface 
-      elevation={featured ? 1 : 0} 
-      padding="md" 
-      className={`aferix-metric-card tone-${tone}${featured ? ' featured' : ''} ${className}`.trim()}
-      style={{ background: featured ? 'var(--bg-surface)' : 'var(--bg-active)' }}
+    <div 
+      className={cn(
+        "p-card rounded-[var(--radius-card)] flex flex-col justify-between transition-all duration-500",
+        featured 
+          ? "bg-gradient-to-br from-[var(--accent-gold)] to-[var(--accent-gold)]/80 text-black shadow-[var(--shadow-cinematic)] scale-[1.02]" 
+          : "bg-[var(--surface-gradient)] border var(--border-soft) shadow-[var(--shadow-soft)]",
+        className
+      )}
     >
-      <span className="metric-label">{label}</span>
-      <strong className="metric-value">{value}</strong>
-    </Surface>
-  );
-});
-
-/**
- * StatusBadge: Badge de status com suporte a ícones de cadeado.
- */
-export const StatusBadge = memo(function StatusBadge({
-  status,
-  children,
-  tone = 'default',
-  syncStatus,
-}: {
-  status?: string;
-  children?: ReactNode;
-  tone?: Tone;
-  syncStatus?: 'synced' | 'pending' | 'deleted';
-}) {
-  if (children) return <Badge tone={tone}>{children}</Badge>;
-
-  const normalized = (status ?? '').toLowerCase().replace(' ', '_');
-  const label = normalized.charAt(0).toUpperCase() + normalized.slice(1).replace('_', ' ');
-
-  let icon = '●';
-  if (['finalizado', 'cancelado', 'recusado', 'arquivado'].includes(normalized)) {
-    icon = '🔒';
-  }
-
-  return (
-    <div className="aferix-status-group aferix-d-flex aferix-align-center aferix-gap-xs">
-      <Badge 
-        tone={tone} 
-        className={`status-badge status-${normalized}`}
-      >
-        {icon} {label}
-      </Badge>
-      {syncStatus === 'synced' && <span title="Sincronizado na Nuvem" style={{ fontSize: '14px', color: 'var(--aferix-success)', opacity: 0.8 }}>☁️</span>}
-      {syncStatus === 'pending' && <span title="Aguardando Sincronismo" style={{ fontSize: '14px', color: 'var(--aferix-warning)', opacity: 0.6 }}>☁️</span>}
+      <p className={cn("text-ui-xs", featured ? "text-black/60" : "text-[var(--text-muted)]")}>{label}</p>
+      <p className={cn("num font-bold tracking-tighter mt-4", featured ? "text-h2" : "text-h3")} style={{ color: featured ? undefined : color }}>{value}</p>
     </div>
   );
 });
 
 export const Badge = memo(function Badge({ children, tone = 'default', className = '' }: { children: ReactNode; tone?: Tone; className?: string }) {
-  return <span className={`aferix-badge tone-${tone} ${className}`.trim()}>{children}</span>;
+  const tones = {
+    default: "bg-white/10 text-[var(--text-secondary)]",
+    brand: "bg-[var(--accent-gold)]/15 text-[var(--accent-gold)]",
+    success: "bg-[var(--accent-gold)]/15 text-[var(--accent-gold)]",
+    danger: "bg-[var(--accent-red)]/20 text-[var(--accent-red)]",
+    muted: "bg-white/5 text-[var(--text-muted)]",
+  };
+  return <span className={cn("inline-flex items-center rounded-lg px-2.5 py-0.5 text-ui-xs border border-transparent", tones[tone], className)}>{children}</span>;
 });
 
 /**
- * StatusPill: Versão premium e compacta do status do orçamento.
- * Implements AFERIX_DESIGN_SPEC.md - Section 4.3
+ * ContextBanner: Action-oriented info banner.
  */
-export const StatusPill = memo(function StatusPill({ 
-  status 
-}: { 
-  status: string 
-}) {
-  const normalized = (status ?? '').toLowerCase().replace(' ', '_');
-  const label = normalized.charAt(0).toUpperCase() + normalized.slice(1).replace('_', ' ');
-
-  let tone: Tone = 'default';
-  if (normalized === 'finalizado') tone = 'success';
-  if (['em_execucao', 'autorizado', 'enviado'].includes(normalized)) tone = 'brand';
-  if (['cancelado', 'recusado'].includes(normalized)) tone = 'danger';
-
-  return (
-    <span className={`aferix-status-pill tone-${tone}`}>
-      {label}
-    </span>
-  );
-});
-
-/**
- * QueueEmptyState: Estado vazio discreto e centralizado.
- */
-export function QueueEmptyState({ 
-  title, 
+export function ContextBanner({
+  title,
   meta,
-  icon, 
-  action, 
-  className = '' 
-}: { 
-  title: string; 
-  meta?: ReactNode;
+  icon,
+  actionLabel,
+  onAction,
+  className = '',
+}: {
+  title: string;
+  meta: string;
   icon?: ReactNode;
-  action?: ReactNode; 
+  actionLabel?: string;
+  onAction?: () => void;
   className?: string;
 }) {
   return (
-    <div className={`premium-empty-state ${className}`.trim()}>
-      {icon && <div className="empty-state-icon">{icon}</div>}
-      <strong>{title}</strong>
-      {meta && <small className="empty-state-meta">{meta}</small>}
-      {action && <div className="empty-state-action">{action}</div>}
+    <div className={cn("flex items-start gap-md p-card rounded-[var(--radius-card)] bg-white/[0.04] border var(--border-soft) shadow-[var(--shadow-soft)]", className)}>
+      <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-[var(--accent-gold)]/15 text-[var(--accent-gold)]">
+        {icon}
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className="text-ui-md font-bold leading-tight text-[var(--text-primary)]">{title}</p>
+        <p className="mt-1 text-ui-sm text-[var(--text-secondary)] leading-relaxed font-medium opacity-80">{meta}</p>
+        {actionLabel && (
+          <button className="mt-4 text-ui-xs text-[var(--accent-gold)] font-bold" onClick={onAction}>
+            {actionLabel}
+          </button>
+        )}
+      </div>
+      {!actionLabel && <ChevronRight className="mt-3 h-4 w-4 text-[var(--text-muted)] opacity-30" />}
     </div>
   );
 }
 
 /**
- * Outros componentes auxiliares padronizados.
+ * MonetaryValue: currency formatting utility.
  */
-export function BackButton({ 
-  label = 'Voltar', 
-  onClick 
-}: { 
-  label?: string; 
-  onClick?: () => void; 
-}) {
+export const MoneyValue = memo(function MoneyValue({ value, compact = false }: { value: number; compact?: boolean }) {
+  const formatted = new Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
+    minimumFractionDigits: compact ? 0 : 2,
+    maximumFractionDigits: compact ? 0 : 2,
+  }).format(Number.isFinite(value) ? value : 0);
+
+  return <span className="num">{formatted}</span>;
+});
+
+/**
+ * Standard Aferix Layout Helpers
+ */
+export function PageHeader(props: { eyebrow?: string; title: string; subtitle?: string; action?: ReactNode; onBack?: () => void }) { return <PageTitle {...props} />; }
+export function SectionHeader(props: { children: ReactNode; action?: ReactNode; className?: string }) { return <SectionLabel {...props} />; }
+export function StatusBadge(props: { status: string; className?: string }) { return <StatusPill {...props} />; }
+export function BackButton({ label = 'Voltar', onClick }: { label?: string; onClick?: () => void }) {
   return (
-    <button 
-      className="aferix-back-button-card" 
-      type="button" 
-      onClick={onClick}
-    >
-      <span className="back-icon">‹</span>
-      <span className="back-label">{label}</span>
+    <button className="flex items-center gap-sm text-ui-sm font-bold text-[var(--text-secondary)] transition-colors hover:text-[var(--text-primary)]" onClick={onClick}>
+      <ChevronLeft className="h-4 w-4" /> {label.toUpperCase()}
     </button>
   );
-}
-
-export function SearchInput({
-  value,
-  onChange,
-  placeholder = 'Buscar...',
-  className = '',
-  disabled = false,
-}: {
-  value: string;
-  onChange: (value: string) => void;
-  placeholder?: string;
-  className?: string;
-  disabled?: boolean;
-}) {
-  return (
-    <div className={`search-input-wrapper ${className}`.trim()}>
-      <input
-        type="text"
-        value={value}
-        placeholder={placeholder}
-        onChange={(e) => onChange(e.target.value)}
-        className="aferix-search-input"
-        disabled={disabled}
-      />
-    </div>
-  );
-}
-
-export function ActionMenu({
-  items,
-  label,
-  align = 'right',
-}: {
-  items: CompactActionItem[];
-  label?: string;
-  align?: 'left' | 'right';
-}) {
-  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
-  if (isMobile) {
-    return <MobileActionMenu items={items} label={label} />;
-  }
-  return <CompactActionMenu items={items} label={label} align={align} />;
 }
 
 export function FilterChips<T extends string>({
@@ -387,12 +402,17 @@ export function FilterChips<T extends string>({
   const selected = Array.isArray(active) ? active : [active];
 
   return (
-    <div className={`filter-chips ${className}`.trim()} role="group" aria-label={ariaLabel}>
+    <div className={cn("flex gap-sm overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden", className)} role="group" aria-label={ariaLabel}>
       {items.map((item) => (
         <button
           key={item.id}
           type="button"
-          className={`filter-chip ${selected.includes(item.id) ? 'active' : ''}`}
+          className={cn(
+            "whitespace-nowrap rounded-full border px-5 py-2 text-ui-sm font-bold transition-all",
+            selected.includes(item.id) 
+              ? "border-[var(--accent-gold)] bg-[var(--accent-gold)] text-black shadow-[var(--shadow-cinematic)]" 
+              : "border-white/[0.05] bg-white/[0.04] text-[var(--text-secondary)] hover:bg-white/[0.08]"
+          )}
           disabled={disabled}
           onClick={() => {
             if (disabled) return;
@@ -411,13 +431,94 @@ export function FilterChips<T extends string>({
   );
 }
 
+export function AferixTabs<T extends string>({
+  items,
+  activeId,
+  onChange,
+  className = "",
+}: {
+  items: Array<{ id: T; label: string }>;
+  activeId: T;
+  onChange: (id: T) => void;
+  className?: string;
+}) {
+  return (
+    <div className={cn("flex gap-1 p-1 bg-white/[0.03] rounded-xl border var(--border-subtle) w-fit", className)} role="tablist">
+      {items.map((item) => (
+        <button
+          key={item.id}
+          type="button"
+          role="tab"
+          aria-selected={activeId === item.id}
+          className={cn(
+            "px-6 py-2.5 rounded-lg text-ui-sm font-bold transition-all duration-300",
+            activeId === item.id 
+              ? "bg-[var(--accent-gold)] text-black shadow-[var(--shadow-soft)] scale-[1.02]" 
+              : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-white/[0.03]"
+          )}
+          onClick={() => onChange(item.id)}
+        >
+          {item.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+/**
+ * QueueEmptyState: Discrete empty context.
+ */
+export function QueueEmptyState({ 
+  title, 
+  meta,
+  icon, 
+  action, 
+  className = '' 
+}: { 
+  title: string; 
+  meta?: ReactNode;
+  icon?: ReactNode;
+  action?: ReactNode; 
+  className?: string;
+}) {
+  return (
+    <div className={cn("p-12 text-center flex flex-col items-center gap-4 rounded-[var(--radius-card)] border border-dashed var(--border-soft) bg-white/[0.01]", className)}>
+      {icon && <div className="text-4xl mb-2 opacity-20">{icon}</div>}
+      <strong className="text-ui-md font-bold tracking-tight text-[var(--text-primary)]">{title}</strong>
+      {meta && <p className="text-ui-sm text-[var(--text-muted)] leading-relaxed max-w-[240px] font-medium opacity-60">{meta}</p>}
+      {action && <div className="mt-4">{action}</div>}
+    </div>
+  );
+}
+
+/**
+ * ActionMenu: Adaptive responsive menu.
+ */
+export function ActionMenu({
+  items,
+  label,
+  align = 'right',
+}: {
+  items: CompactActionItem[];
+  label?: string;
+  align?: 'left' | 'right';
+}) {
+  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
+  if (isMobile) {
+    return <MobileActionMenu items={items} label={label} />;
+  }
+  return <CompactActionMenu items={items} label={label} align={align} />;
+}
+
+/**
+ * Forms: Premium Operational Inputs
+ */
 export function Select({
   label,
   value,
   onChange,
   children,
   className = '',
-  operationalHint,
   disabled = false,
 }: {
   label?: string;
@@ -425,18 +526,24 @@ export function Select({
   onChange: (value: string) => void;
   children: ReactNode;
   className?: string;
-  operationalHint?: string;
   disabled?: boolean;
 }) {
   return (
-    <label className={`aferix-select-field ${className}`.trim()}>
-      {label && <span>{label}</span>}
-      <div className="select-wrapper">
-        <select value={value} onChange={(e) => onChange(e.target.value)} disabled={disabled}>
+    <label className={cn("block", className)}>
+      {label && <span className="block mb-2 text-ui-xs text-[var(--text-muted)]">{label}</span>}
+      <div className="relative">
+        <select 
+          value={value} 
+          onChange={(e) => onChange(e.target.value)} 
+          disabled={disabled}
+          className="w-full bg-white/[0.04] border var(--border-subtle) rounded-[var(--radius-button)] px-4 py-4 text-ui-base font-semibold appearance-none focus:outline-none focus:border-[var(--accent-gold)]/40 transition-all shadow-inset"
+        >
           {children}
         </select>
+        <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none opacity-40 text-[var(--text-muted)]">
+          <MoreHorizontal className="h-4 w-4" />
+        </div>
       </div>
-      {operationalHint && <small>{operationalHint}</small>}
     </label>
   );
 }
@@ -444,18 +551,15 @@ export function Select({
 export function Input({
   label,
   className = '',
-  operationalHint,
   ...props
 }: {
   label?: string;
-  operationalHint?: string;
   className?: string;
 } & React.InputHTMLAttributes<HTMLInputElement>) {
   return (
-    <label className={`aferix-input-field ${className}`.trim()}>
-      {label && <span>{label}</span>}
-      <input {...props} />
-      {operationalHint && <small>{operationalHint}</small>}
+    <label className={cn("block", className)}>
+      {label && <span className="block mb-2 text-ui-xs text-[var(--text-muted)]">{label}</span>}
+      <input {...props} className="w-full bg-white/[0.04] border var(--border-subtle) rounded-[var(--radius-button)] px-4 py-4 text-ui-base font-semibold focus:outline-none focus:border-[var(--accent-gold)]/40 transition-all shadow-inset text-[var(--text-primary)]" />
     </label>
   );
 }
@@ -465,7 +569,6 @@ export function TextArea({
   onChange,
   placeholder,
   label,
-  operationalHint,
   rows = 1,
   className = '',
   disabled = false,
@@ -474,7 +577,6 @@ export function TextArea({
   onChange: (value: string) => void;
   placeholder?: string;
   label?: string;
-  operationalHint?: string;
   rows?: number;
   className?: string;
   disabled?: boolean;
@@ -483,32 +585,20 @@ export function TextArea({
   useAutoResizeTextArea(ref, value);
 
   return (
-    <label className={`aferix-input-field ${className}`.trim()}>
-      {label && <span>{label}</span>}
+    <label className={cn("block", className)}>
+      {label && <span className="block mb-2 text-ui-xs text-[var(--text-muted)]">{label}</span>}
       <textarea
         ref={ref}
-        className="aferix-textarea"
+        className="w-full bg-white/[0.04] border var(--border-subtle) rounded-[var(--radius-button)] px-4 py-4 text-ui-base font-semibold focus:outline-none focus:border-[var(--accent-gold)]/40 transition-all shadow-inset leading-relaxed text-[var(--text-primary)]"
         value={value}
         placeholder={placeholder}
         rows={rows}
         onChange={(e) => onChange(e.target.value)}
         disabled={disabled}
       />
-      {operationalHint && <small>{operationalHint}</small>}
     </label>
   );
 }
-
-export const MoneyValue = memo(function MoneyValue({ value, tone = 'default', compact = false }: { value: number; tone?: Tone; compact?: boolean }) {
-  const formatted = new Intl.NumberFormat('pt-BR', {
-    style: 'currency',
-    currency: 'BRL',
-    minimumFractionDigits: compact ? 0 : 2,
-    maximumFractionDigits: compact ? 0 : 2,
-  }).format(Number.isFinite(value) ? value : 0);
-
-  return <span className={`money-value tone-${tone}${compact ? ' compact' : ''}`}>{formatted}</span>;
-});
 
 export function MonetaryInput({
   value,
@@ -537,10 +627,10 @@ export function MonetaryInput({
   }
 
   return (
-    <label className={`monetary-input-field ${className}`.trim()}>
-      {label && <span>{label}</span>}
-      <div className="monetary-input-wrapper">
-        <span className="currency-prefix">R$</span>
+    <label className={cn("block", className)}>
+      {label && <span className="block mb-2 text-ui-xs text-[var(--text-muted)]">{label}</span>}
+      <div className="flex items-center bg-white/[0.04] border var(--border-subtle) rounded-[var(--radius-button)] px-4 py-4 shadow-inset focus-within:border-[var(--accent-gold)]/40 transition-all">
+        <span className="text-[var(--text-muted)] mr-2 text-ui-sm font-bold tracking-tight">R$</span>
         <input
           type="text"
           inputMode="numeric"
@@ -548,6 +638,7 @@ export function MonetaryInput({
           placeholder={placeholder || '0,00'}
           onChange={handleChange}
           disabled={disabled}
+          className="w-full num font-bold text-[var(--text-primary)] text-ui-md focus:outline-none bg-transparent"
         />
       </div>
     </label>
@@ -575,13 +666,7 @@ export function Modal({
 }) {
   useEffect(() => {
     if (!isOpen) return;
-
-    function handleEsc(e: KeyboardEvent) {
-      if (e.key === 'Escape') {
-        onClose();
-      }
-    }
-
+    const handleEsc = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
     window.addEventListener('keydown', handleEsc);
     return () => window.removeEventListener('keydown', handleEsc);
   }, [isOpen, onClose]);
@@ -589,176 +674,77 @@ export function Modal({
   if (!isOpen) return null;
 
   return (
-    <div className="aferix-modal-overlay" onClick={onClose}>
-      <div className="aferix-modal-card" onClick={(e) => e.stopPropagation()}>
-        <header className="aferix-modal-header">
-          <h2>{title}</h2>
+    <div className="aferix-modal-overlay p-shell" onClick={onClose}>
+      <div className="bg-[var(--bg-surface)] border var(--border-soft) rounded-[var(--radius-modal)] w-full max-w-[440px] shadow-card overflow-hidden animate-in zoom-in-95 duration-300" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
+        <header className="px-shell pt-10 pb-6">
+          <h2 className="text-h3 text-[var(--text-primary)]">{title}</h2>
         </header>
-        <div className="aferix-modal-body">
+        <div className="px-shell py-2 text-[var(--text-secondary)]">
           {children}
         </div>
-        <footer className="aferix-modal-footer">
-          <SecondaryButton onClick={onClose}>{cancelLabel}</SecondaryButton>
+        <footer className="p-shell flex flex-col gap-sm pb-10">
           {onConfirm && (
-            <Button variant={tone === 'danger' ? 'danger' : 'primary'} onClick={onConfirm}>
-              {confirmLabel}
-            </Button>
+            <button 
+              onClick={onConfirm}
+              className={cn(
+                "w-full h-16 rounded-[var(--radius-button)] text-ui-base font-bold transition-all active:scale-[0.98] shadow-button",
+                tone === 'danger' ? "bg-[var(--accent-red)] text-white" : "bg-[var(--accent-gold)] text-black"
+              )}
+            >
+              {confirmLabel.toUpperCase()}
+            </button>
           )}
+          <button onClick={onClose} className="w-full h-12 text-ui-sm font-bold text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors uppercase tracking-widest">{cancelLabel}</button>
         </footer>
       </div>
     </div>
   );
 }
 
-export function SectionTitle({ 
-  title, 
-  eyebrow,
-  action,
-  className = '' 
-}: { 
-  title: string; 
-  eyebrow?: string;
-  action?: ReactNode;
-  className?: string 
-}) {
-  return (
-    <header className={`aferix-section-header ${className}`.trim()}>
-      <div className="aferix-d-flex aferix-flex-column">
-        {eyebrow && <span className="aferix-eyebrow">{eyebrow}</span>}
-        <h3 className="aferix-h3">{title}</h3>
-      </div>
-      {action && <div className="aferix-action-slot">{action}</div>}
-    </header>
-  );
-}
-
-export function FAB({ label, onClick }: { label: string; onClick: () => void }) {
-  return (
-    <button className="aferix-fab" type="button" onClick={onClick} aria-label={label}>
-      {label}
-    </button>
-  );
-}
-
-export function PlanCard({
-  badge,
-  title,
-  price,
-  benefits = [],
-  featured = false,
-  action,
-  className = '',
-}: {
-  badge: string;
-  title: string;
-  price?: string;
-  benefits?: string[];
-  featured?: boolean;
-  action?: ReactNode;
-  className?: string;
-}) {
-  return (
-    <Surface elevation={1} padding="md" className={`plan-card ${featured ? 'featured' : ''} ${className}`.trim()}>
-      {badge && <Badge tone={featured ? 'brand' : 'default'}>{badge}</Badge>}
-      <header className="plan-card-heading">
-        <h2>{title}</h2>
-      </header>
-      {price && <strong className="plan-card-price">{price}</strong>}
-      <div className="plan-card-benefits">
-      {benefits.length > 0 && (
-        <ul>
-          {benefits.map((benefit) => (
-            <li key={benefit}>
-              <span className="benefit-check">✓</span>
-              {benefit}
-            </li>
-          ))}
-        </ul>
-      )}
-      </div>
-      {action && <div className="plan-card-action">{action}</div>}
-    </Surface>
-  );
-}
-
-// Componentes legados ou renomeados para compatibilidade
-export function SectionHeader(props: { title: string; eyebrow?: string; className?: string }) {
-  return <SectionTitle {...props} />;
-}
-
-export function MetricPanel({ title, meta, action, className = '' }: { title: string; meta?: string; action?: ReactNode; className?: string }) {
-  return (
-    <Surface elevation={1} padding="md" className={`info-card ${className}`.trim()}>
-      <div className="info-card-content">
-        <strong>{title}</strong>
-        {meta && <small>{meta}</small>}
-      </div>
-      {action && <div className="info-card-action">{action}</div>}
-    </Surface>
-  );
-}
-
-export function PremiumCard({ children, className = '' }: { children: ReactNode; className?: string }) {
-  return <Surface elevation={1} padding="md" className={`premium-card ${className}`.trim()}>{children}</Surface>;
-}
-
-export function ContextBanner({
-  title,
-  meta,
-  icon,
-  actionLabel,
-  onAction,
-}: {
-  title: string;
-  meta: string;
-  icon?: ReactNode;
-  actionLabel?: string;
-  onAction?: () => void;
-}) {
-  return (
-    <aside className="context-banner aferix-surface elevation-1 p-md">
-      {icon && <span className="context-banner-icon">{icon}</span>}
-      <div className="context-banner-content">
-        <strong>{title}</strong>
-        <small>{meta}</small>
-      </div>
-      {actionLabel && <Button className="context-banner-action" onClick={onAction}>{actionLabel}</Button>}
-    </aside>
-  );
-}
-
-
-export { PageShell };
-export { KpiCard } from './KpiCard';
-export { ConfirmModal } from './ConfirmModal';
-
-export function AferixTabs<T extends string>({
-  items,
-  activeId,
+export function SearchInput({
+  value,
   onChange,
-  variant = "pill",
-  className = "",
+  placeholder = 'Buscar...',
+  className = '',
+  disabled = false,
 }: {
-  items: Array<{ id: T; label: string }>;
-  activeId: T;
-  onChange: (id: T) => void;
-  variant?: "pill" | "line";
+  value: string;
+  onChange: (value: string) => void;
+  placeholder?: string;
   className?: string;
+  disabled?: boolean;
 }) {
   return (
-    <div className={`aferix-tabs aferix-tabs-${variant} ${className}`.trim()} role="tablist">
-      {items.map((item) => (
-        <button
-          key={item.id}
-          type="button"
-          role="tab"
-          aria-selected={activeId === item.id}
-          className={activeId === item.id ? "active" : ""}
-          onClick={() => onChange(item.id)}
-        >
-          {item.label}
-        </button>
-      ))}
+    <div className={cn("flex flex-1 items-center gap-md rounded-[var(--radius-button)] border var(--border-subtle) bg-white/[0.04] px-shell py-4 focus-within:border-[var(--accent-gold)]/40 transition-all shadow-inset", className)}>
+      <Search className="h-5 w-5 text-[var(--text-muted)]" />
+      <input 
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder} 
+        disabled={disabled}
+        className="w-full bg-transparent text-ui-base font-semibold placeholder:text-[var(--text-muted)]/40 focus:outline-none text-[var(--text-primary)]" 
+      />
     </div>
   );
 }
+
+export const FAB = ({ label, onClick }: { label: string; onClick: () => void }) => (
+  <button 
+    onClick={onClick} 
+    className="fixed grid place-items-center rounded-full bg-[var(--accent-gold)] text-black shadow-[var(--shadow-button)] z-toast active:scale-[0.9] transition-all hover:scale-[1.05]"
+    style={{ 
+      bottom: 'var(--fab-bottom)', 
+      right: 'var(--fab-right)', 
+      height: 'var(--control-h-lg)', 
+      width: 'var(--control-h-lg)' 
+    }}
+    aria-label={label}
+  >
+    <Plus className="h-8 w-8" strokeWidth={2.5} />
+  </button>
+);
+
+export function SectionTitle(props: { children: ReactNode; action?: ReactNode; className?: string }) { return <SectionLabel {...props} />; }
+
+export { PageShell };
+export { ConfirmModal } from './ConfirmModal';

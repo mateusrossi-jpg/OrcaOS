@@ -1,0 +1,88 @@
+/* src/app/screens/BudgetsScreen.css
+   Refactored for TOKEN-FIRST architecture (Executive OS V5).
+   ---------------------------------------------------------- */
+
+.budgets-container {
+  padding-bottom: 120px !important;
+}
+
+.budget-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.budget-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md) var(--spacing-lg);
+  background: var(--surface-gradient);
+  border: var(--border-soft);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-soft);
+  transition: all var(--transition-normal);
+  cursor: pointer;
+}
+
+.budget-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-card);
+}
+
+.budget-item:active {
+  transform: scale(0.98);
+}
+
+.budget-item-id {
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-sm);
+  background: var(--bg-surface-glass);
+  border: var(--border-subtle);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-black);
+  color: var(--text-muted);
+}
+
+.budget-item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.budget-item-title {
+  font-size: var(--fs-md);
+  font-weight: var(--fw-bold);
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+
+.budget-item-client {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  opacity: 0.6;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.budget-item-value {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.budget-item-amount {
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-bold);
+  color: var(--accent-gold);
+}
+
+.budget-item-date {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  opacity: 0.4;
+}

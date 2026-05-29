@@ -1,16 +1,13 @@
+/* src/app/components/ui/WorkflowStepper.css
+   Refactored for TOKEN-FIRST architecture (Executive OS V5).
+   ---------------------------------------------------------- */
+
 .aferix-workflow-stepper {
-  position: sticky;
-  top: 0;
-  z-index: var(--z-sticky);
-  background: var(--bg-app);
-  padding: var(--sz-md) var(--sz-md) var(--sz-sm);
-  border-bottom: 1px solid var(--border-soft);
+  background: transparent;
+  padding: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--sz-md);
-  /* Glassmorphism sutil para mobile */
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  gap: var(--spacing-sm);
 }
 
 .stepper-track {
@@ -18,83 +15,66 @@
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  max-width: 600px;
-  margin: 0 auto;
 }
 
 .stepper-node {
-  width: 28px;
-  height: 28px;
+  width: 8px;
+  height: 8px;
   border-radius: var(--radius-pill);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px; /* Purified: min 12px */
-  font-weight: 800;
-  border: 2px solid var(--border-dim);
-  background: var(--bg-elevated);
-  color: var(--text-muted);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: var(--border-subtle);
+  background: var(--bg-surface-elevated);
+  transition: all var(--transition-normal);
   padding: 0;
   flex-shrink: 0;
+  cursor: pointer;
 }
 
 .stepper-node.active {
-  border-color: var(--brand-primary);
-  background: var(--brand-primary);
-  color: var(--brand-text);
-  box-shadow: 0 0 15px var(--brand-soft);
-  transform: scale(1.15);
+  border-color: var(--accent-gold);
+  background: var(--accent-gold);
+  box-shadow: var(--shadow-cinematic);
+  transform: scale(1.5);
 }
 
 .stepper-node.completed {
-  border-color: var(--status-success);
-  background: var(--status-success);
-  color: var(--text-inverse);
+  border-color: var(--accent-green);
+  background: var(--accent-green);
+  opacity: 0.8;
 }
 
 .stepper-line {
   flex: 1;
-  height: 2px;
-  background: var(--border-dim);
-  margin: 0 var(--sz-xs);
-  transition: background 0.3s ease;
+  height: 1px;
+  background: var(--border-subtle);
+  margin: 0 4px;
+  transition: background var(--dur-normal) ease;
 }
 
 .stepper-line.completed {
-  background: var(--status-success);
+  background: var(--accent-green);
+  opacity: 0.3;
 }
 
 .stepper-label {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  text-align: center;
-  gap: var(--sz-xs);
 }
 
 .step-counter {
-  font-size: 12px; /* Purified: min 12px */
+  font-size: var(--fs-xs);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.15em;
   color: var(--text-muted);
-  font-weight: 700;
+  font-weight: var(--fw-black);
+  opacity: 0.6;
 }
 
 .step-name {
-  font-size: 15px;
+  font-size: var(--fs-sm);
   color: var(--text-primary);
-  font-weight: 800;
-}
-
-/* Ajustes para telas muito pequenas */
-@media (max-width: 400px) {
-  .stepper-node {
-    width: 24px;
-    height: 24px;
-    font-size: 12px;
-  }
-  .stepper-node.active {
-    transform: scale(1.1);
-  }
+  font-weight: var(--fw-bold);
+  letter-spacing: -0.01em;
 }

@@ -1,4 +1,5 @@
 import React from 'react';
+import { cn } from '../../../utils/ui';
 
 export interface TimelineEvent {
   readonly id: string;
@@ -12,30 +13,44 @@ interface ExecutionTimelineProps {
 }
 
 /**
- * ExecutionTimeline
- * Append-only visualization of operational events in the field.
- * Consumer-only, virtualized-ready, projection-driven.
+ * ExecutionTimeline: Append-only ledger of field activities.
+ * Refactored for TOKEN-FIRST architecture (Executive OS V5).
  */
 export const ExecutionTimeline: React.FC<ExecutionTimelineProps> = ({ events }) => {
   if (events.length === 0) {
-    return <div className="text-sm text-text-muted text-center py-6">Nenhuma atividade registrada ainda.</div>;
+    return (
+      <div className="text-ui-sm text-[var(--text-muted)] text-center py-12 opacity-40">
+        Nenhuma atividade registrada ainda.
+      </div>
+    );
   }
 
   return (
-    <div className="relative pl-4 border-l-2 border-surface-700 space-y-4 my-6">
+    <div className="relative pl-6 border-l var(--border-subtle) space-y-6 my-8 ml-2">
       {events.map((evt) => (
-        <div key={evt.id} className="relative">
-          <div className={`absolute -left-[21px] w-3 h-3 rounded-full mt-1 ${
-            evt.type === 'BLOCK' ? 'bg-red-500' :
-            evt.type === 'START' || evt.type === 'ARRIVAL' ? 'bg-green-500' :
-            evt.type === 'PAUSE' ? 'bg-orange-500' : 'bg-surface-500'
-          }`} />
-          <div className="bg-surface-800/50 rounded-lg p-3 border border-surface-700">
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-xs font-bold text-text-secondary">{evt.type}</span>
-              <span className="text-xs font-mono text-text-muted">{new Date(evt.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+        <div key={evt.id} className="relative animate-in slide-in-from-left-2 duration-300">
+          <div className={cn(
+            "absolute -left-[31px] w-2.5 h-2.5 rounded-full mt-1.5 border-2 border-[var(--bg-primary)] z-10",
+            evt.type === 'BLOCK' ? 'bg-[var(--accent-red)] shadow-[0_0_8px_var(--accent-red)]' :
+            evt.type === 'START' || evt.type === 'ARRIVAL' ? 'bg-[var(--accent-green)] shadow-[0_0_8px_var(--accent-green)]' :
+            evt.type === 'PAUSE' ? 'bg-[var(--accent-gold)] shadow-[0_0_8px_var(--accent-gold)]' : 'bg-[var(--text-muted)]'
+          )} />
+          
+          <div className="bg-[var(--bg-surface-glass)] rounded-[var(--radius-card)] p-shell border var(--border-subtle) shadow-[var(--shadow-soft)]">
+            <div className="flex items-center justify-between mb-2">
+              <span className={cn(
+                "text-[9px] font-black uppercase tracking-widest",
+                evt.type === 'BLOCK' ? 'text-[var(--accent-red)]' :
+                evt.type === 'START' || evt.type === 'ARRIVAL' ? 'text-[var(--accent-green)]' :
+                evt.type === 'PAUSE' ? 'text-[var(--accent-gold)]' : 'text-[var(--text-muted)]'
+              )}>
+                {evt.type}
+              </span>
+              <span className="num text-ui-xs text-[var(--text-muted)] opacity-40">
+                {new Date(evt.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+              </span>
             </div>
-            <p className="text-sm text-text-primary">{evt.description}</p>
+            <p className="text-ui-sm text-[var(--text-primary)] leading-relaxed">{evt.description}</p>
           </div>
         </div>
       ))}

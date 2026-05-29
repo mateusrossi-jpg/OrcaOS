@@ -1,3 +1,7 @@
+/* src/features/settings/components/AppAccessGate.css
+   Refactored for TOKEN-FIRST architecture (Executive OS V5).
+   ---------------------------------------------------------- */
+
 .app-startup-splash {
   position: fixed;
   inset: 0;
@@ -5,17 +9,11 @@
   display: grid;
   align-content: center;
   justify-items: center;
-  gap: 18px;
+  gap: var(--spacing-md);
   overflow: hidden;
-  background:
-    radial-gradient(circle at 50% 44%, rgba(245, 164, 0, 0.08), transparent 40%),
-    linear-gradient(180deg, var(--aferix-bg-soft), var(--aferix-bg));
-  color: var(--aferix-text);
-  padding: 24px;
-}
-
-.app-startup-splash::before {
-  display: none;
+  background: var(--surface-vignette);
+  color: var(--text-primary);
+  padding: var(--spacing-lg);
 }
 
 .app-startup-mark {
@@ -27,11 +25,7 @@
   border-radius: 0;
   background: transparent;
   box-shadow: none;
-  animation: orcaStartupLogo 900ms cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-
-.app-startup-mark::after {
-  display: none;
+  animation: orcaStartupLogo 900ms var(--ease-premium) both;
 }
 
 .app-startup-mark img {
@@ -42,14 +36,14 @@
 
 .app-startup-copy {
   margin: 0;
-  color: var(--aferix-text-muted);
-  font-size: 0.92rem;
-  font-weight: 600;
-  line-height: 1.35;
+  color: var(--text-muted);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  line-height: 1.4;
   text-align: center;
   opacity: 0;
   transform: translateY(10px);
-  animation: orcaStartupCopy 520ms ease-out 520ms both;
+  animation: orcaStartupCopy 520ms var(--ease-premium) 520ms both;
 }
 
 .app-startup-scan {
@@ -57,31 +51,30 @@
   inset-inline: 14%;
   top: calc(50% + 118px);
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(245, 164, 0, 0.66), transparent);
+  background: linear-gradient(90deg, transparent, var(--accent-gold), transparent);
   opacity: 0;
   transform: translateX(-18%);
-  animation: orcaStartupScan 740ms ease-out 260ms both;
+  animation: orcaStartupScan 740ms var(--ease-premium) 260ms both;
 }
 
 .app-access-gate {
   display: grid;
   min-height: 100vh;
   place-items: center;
-  padding: 18px;
-  background:
-    radial-gradient(circle at 50% 28%, rgba(245, 164, 0, 0.07), transparent 42%),
-    var(--aferix-bg);
-  color: var(--aferix-text);
+  padding: var(--spacing-md);
+  background: var(--surface-vignette);
+  color: var(--text-primary);
 }
 
 .app-access-card {
   display: grid;
-  gap: 14px;
+  gap: var(--spacing-md);
   width: min(100%, 440px);
-  border: 1px solid var(--aferix-border);
-  border-radius: var(--aferix-radius-lg, 16px);
-  padding: 24px;
-  background: linear-gradient(180deg, var(--aferix-surface-raised), var(--aferix-surface));
+  border: var(--border-soft);
+  border-radius: var(--radius-card);
+  padding: var(--spacing-xl);
+  background: var(--surface-gradient);
+  box-shadow: var(--shadow-card);
 }
 
 .app-access-card h1,
@@ -92,59 +85,65 @@
 .app-access-brand {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--spacing-sm);
 }
 
 .app-access-brand img {
-  width: 50px;
-  height: 50px;
-  border: 1px solid var(--aferix-border);
-  border-radius: 12px;
-  background: var(--aferix-bg-soft);
+  width: 52px;
+  height: 52px;
+  border: var(--border-soft);
+  border-radius: var(--radius-sm);
+  background: var(--bg-surface-elevated);
   box-shadow: none;
 }
 
-.app-access-brand div {
-  display: grid;
-  gap: 3px;
-}
-
 .app-access-brand strong {
-  color: var(--aferix-text);
-  font-size: 1rem;
+  color: var(--text-primary);
+  font-size: var(--fs-md);
+  font-weight: var(--fw-bold);
 }
 
 .app-access-card h1 {
-  font-size: clamp(2rem, 9vw, 3rem);
-  line-height: 1.02;
+  font-size: var(--fs-hero);
+  font-weight: var(--fw-bold);
+  line-height: 1;
+  letter-spacing: -0.04em;
 }
 
-.app-access-card p,
-.app-access-card small {
-  color: var(--aferix-text-muted);
-  line-height: 1.55;
+.app-access-card p {
+  color: var(--text-secondary);
+  font-size: var(--fs-base);
+  line-height: 1.5;
 }
 
 .app-access-card label {
   display: grid;
-  gap: 7px;
-  color: var(--aferix-text-muted);
-  font-size: 0.82rem;
-  font-weight: 850;
+  gap: var(--spacing-xs);
+  color: var(--text-muted);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-black);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
 }
 
 .app-access-card input {
   width: 100%;
-  min-height: 52px;
-  border: 1px solid var(--aferix-border);
-  border-radius: var(--aferix-radius-sm, 8px);
-  background: var(--aferix-bg-soft);
-  color: var(--aferix-text);
+  min-height: 56px;
+  border: var(--border-subtle);
+  border-radius: var(--radius-button);
+  background: var(--bg-surface-glass);
+  color: var(--text-primary);
   font: inherit;
-  font-size: 1.15rem;
-  font-weight: 900;
+  font-size: var(--fs-xl);
+  font-weight: var(--fw-black);
   outline: none;
-  padding: 0 14px;
+  padding: 0 var(--spacing-md);
+  box-shadow: var(--shadow-inset);
+  transition: border-color var(--transition-fast);
+}
+
+.app-access-card input:focus {
+  border-color: var(--accent-gold);
 }
 
 @keyframes orcaStartupLogo {
@@ -183,15 +182,5 @@
   100% {
     opacity: 0;
     transform: translateX(20%) scaleX(1);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .app-startup-mark,
-  .app-startup-copy,
-  .app-startup-scan {
-    animation: none;
-    opacity: 1;
-    transform: none;
   }
 }

@@ -1,4 +1,5 @@
 import React from 'react';
+import { ChevronLeft } from 'lucide-react';
 
 interface ExecutionHeaderProps {
   readonly clientName: string;
@@ -7,27 +8,31 @@ interface ExecutionHeaderProps {
   readonly onBack: () => void;
 }
 
+/**
+ * ExecutionHeader: Field-first operational header.
+ * Refactored for TOKEN-FIRST architecture (Executive OS V5).
+ */
 export const ExecutionHeader: React.FC<ExecutionHeaderProps> = ({ clientName, workOrderId, status, onBack }) => {
   return (
-    <div className="sticky top-0 z-10 bg-surface-900 border-b border-surface-800 px-4 py-3 flex items-center justify-between">
-      <div className="flex items-center gap-3">
-        <button onClick={onBack} className="p-2 -ml-2 text-text-muted hover:text-white" aria-label="Voltar">
-          ←
+    <div className="sticky top-0 z-sticky bg-[var(--bg-surface-glass)] backdrop-blur-xl border-b var(--border-subtle) px-shell py-4 flex items-center justify-between">
+      <div className="flex items-center gap-md">
+        <button onClick={onBack} className="p-2 -ml-2 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors" aria-label="Voltar">
+          <ChevronLeft className="h-6 w-6" />
         </button>
         <div>
-          <h1 className="text-lg font-bold text-text-primary leading-tight truncate max-w-[200px]">
+          <h1 className="text-h3 text-[var(--text-primary)] leading-tight truncate max-w-[200px]">
             {clientName}
           </h1>
-          <div className="text-xs font-mono text-text-muted flex items-center gap-2 mt-0.5">
-            <span>#{workOrderId.split('-')[0]}</span>
-            <span className="w-1 h-1 rounded-full bg-surface-600" />
-            <span className="uppercase text-brand-primary">{status}</span>
+          <div className="text-ui-xs text-[var(--text-muted)] flex items-center gap-sm mt-0.5">
+            <span className="opacity-60">#{workOrderId.split('-')[0].toUpperCase()}</span>
+            <span className="w-1 h-1 rounded-full bg-white/10" />
+            <span className="text-[var(--accent-gold)] font-bold">{status.toUpperCase()}</span>
           </div>
         </div>
       </div>
       
-      <div className="w-10 h-10 rounded-full bg-surface-800 flex items-center justify-center border border-surface-700">
-        <span className="text-xl">📍</span>
+      <div className="w-12 h-12 rounded-xl bg-white/[0.04] border var(--border-subtle) flex items-center justify-center transition-all active:scale-[0.95]">
+        <span className="text-xl filter drop-shadow-glow">📍</span>
       </div>
     </div>
   );

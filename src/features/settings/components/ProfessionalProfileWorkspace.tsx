@@ -1,7 +1,17 @@
 import { useEffect, useState, type ChangeEvent } from 'react';
-import { BackButton } from '../../../app/components/ui';
+import { 
+  PageTitle, 
+  PageShell, 
+  Card, 
+  SectionLabel, 
+  Input, 
+  TextArea, 
+  PrimaryButton, 
+  Button
+} from '../../../app/components/ui';
 import { professionalProfileService } from '../../../services/professionalProfileService';
 import { createDefaultProfessionalProfile, type ProfessionalProfile } from '../models/professionalProfile';
+import { ChevronLeft } from 'lucide-react';
 import './ProfessionalProfileWorkspace.css';
 
 export function ProfessionalProfileWorkspace({ onBack }: { onBack?: () => void } = {}) {
@@ -51,91 +61,90 @@ export function ProfessionalProfileWorkspace({ onBack }: { onBack?: () => void }
   }
 
   return (
-    <div className="professional-profile-workspace">
-      {onBack && <BackButton label="Voltar para Configurações" onClick={onBack} />}
+    <PageShell>
+      {onBack && (
+        <button 
+          onClick={onBack} 
+          className="flex items-center gap-1.5 text-[13px] font-bold text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors mb-8"
+        >
+          <ChevronLeft className="h-4 w-4" /> Voltar para Configurações
+        </button>
+      )}
 
-      <section className="professional-profile-header-card">
-        <header>
-          <div>
-            <h2>Perfil Profissional</h2>
-            <p>Dados usados em orçamentos e relatórios.</p>
-          </div>
-        </header>
-      </section>
+      <PageTitle 
+        eyebrow="Configurações" 
+        title="Perfil Profissional" 
+        subtitle="Dados usados em orçamentos e relatórios técnicos."
+      />
 
-      <section className="professional-profile-section">
-        <header>
-          <div>
-            <h2>Logo da empresa</h2>
-            <p>Aparece em orçamentos e relatórios.</p>
-          </div>
-        </header>
-        <div className="professional-logo-editor">
-          <div className="professional-logo-preview">
-            {profile.logoDataUrl || profile.logoUrl ? <img src={profile.logoDataUrl || profile.logoUrl} alt="Logo" /> : <div className="logo-placeholder">MARCA</div>}
-          </div>
-          <div className="professional-logo-copy">
-            <div className="professional-profile-actions">
-              <label className="secondary-action file-action">Upload Logo<input accept="image/*" type="file" onChange={handleLogoFileChange} /></label>
-              {(profile.logoDataUrl || profile.logoUrl) && <button className="ghost-action danger-action" type="button" onClick={removeLogo}>Remover</button>}
+      <div className="flex flex-col gap-8 pb-32">
+        <Card className="p-8">
+          <SectionLabel className="mt-0 mb-6">Logo da empresa</SectionLabel>
+          <div className="flex flex-col items-center gap-6">
+            <div className="h-32 w-32 rounded-3xl bg-[var(--bg-surface-elevated)] border var(--border-soft) flex items-center justify-center overflow-hidden shadow-soft">
+              {profile.logoDataUrl || profile.logoUrl ? (
+                <img src={profile.logoDataUrl || profile.logoUrl} alt="Logo" className="w-full h-full object-contain" />
+              ) : (
+                <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-[var(--text-muted)]">MARCA</span>
+              )}
+            </div>
+            <div className="flex gap-3">
+              <label className="min-h-[48px] rounded-[var(--radius-button)] px-6 text-[13.5px] font-bold transition-all duration-300 active:scale-[0.97] flex items-center justify-center gap-2.5 bg-[var(--bg-surface-glass)] border var(--border-soft) text-[var(--text-primary)] hover:bg-white/[0.07] cursor-pointer">
+                Upload Logo
+                <input accept="image/*" type="file" onChange={handleLogoFileChange} className="hidden" />
+              </label>
+              {(profile.logoDataUrl || profile.logoUrl) && (
+                <Button variant="danger" onClick={removeLogo}>Remover</Button>
+              )}
             </div>
           </div>
-        </div>
-      </section>
+        </Card>
 
-      <section className="professional-profile-section">
-        <header>
-          <div>
-            <h2>Dados da Empresa</h2>
+        <Card className="p-8">
+          <SectionLabel className="mt-0 mb-6">Dados da Empresa</SectionLabel>
+          <div className="flex flex-col gap-6">
+            <div className="grid grid-cols-2 gap-4">
+              <Input label="Nome Profissional" value={profile.professionalName} onChange={e => updateProfile('professionalName', e.target.value)} />
+              <Input label="Nome Empresa" value={profile.businessName} onChange={e => updateProfile('businessName', e.target.value)} />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <Input label="Documento (CPF/CNPJ)" value={profile.document} onChange={e => updateProfile('document', e.target.value)} />
+              <Input label="WhatsApp" value={profile.phone} onChange={e => updateProfile('phone', e.target.value)} />
+            </div>
+            <Input label="Endereço Completo" value={profile.address} onChange={e => updateProfile('address', e.target.value)} />
           </div>
-        </header>
-        <div className="professional-profile-grid">
-          <label className="budget-field"><span>Nome Profissional</span><input value={profile.professionalName} onChange={e => updateProfile('professionalName', e.target.value)} /></label>
-          <label className="budget-field"><span>Nome Empresa</span><input value={profile.businessName} onChange={e => updateProfile('businessName', e.target.value)} /></label>
-          <label className="budget-field"><span>Documento</span><input value={profile.document} onChange={e => updateProfile('document', e.target.value)} /></label>
-          <label className="budget-field"><span>WhatsApp</span><input value={profile.phone} onChange={e => updateProfile('phone', e.target.value)} /></label>
-          <label className="budget-field wide"><span>Endereço Completo</span><input value={profile.address} onChange={e => updateProfile('address', e.target.value)} /></label>
-        </div>
-      </section>
+        </Card>
 
-      <section className="professional-profile-section">
-        <header>
-          <div>
-            <h2>Identificadores Locais</h2>
-            <p>IDs únicos para sincronização de dados entre dispositivos.</p>
+        <Card className="p-8">
+          <SectionLabel className="mt-0 mb-6">Identificadores Locais</SectionLabel>
+          <p className="text-[13.5px] text-[var(--text-muted)] mb-6 leading-relaxed">IDs únicos para sincronização de dados entre dispositivos.</p>
+          <div className="grid grid-cols-2 gap-4 mb-8">
+            <div className="p-4 rounded-xl bg-white/[0.02] border var(--border-subtle)">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)] block mb-2">ID Profissional</span>
+              <code className="text-[11px] text-[var(--text-secondary)] break-all">{profile.professionalId}</code>
+            </div>
+            <div className="p-4 rounded-xl bg-white/[0.02] border var(--border-subtle)">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)] block mb-2">ID Empresa</span>
+              <code className="text-[11px] text-[var(--text-secondary)] break-all">{profile.companyId}</code>
+            </div>
           </div>
-        </header>
-        <div className="professional-profile-id-grid">
-          <div className="professional-profile-id-card">
-            <span>ID Profissional</span>
-            <code>{profile.professionalId}</code>
-          </div>
-          <div className="professional-profile-id-card">
-            <span>ID Empresa</span>
-            <code>{profile.companyId}</code>
-          </div>
-        </div>
-        <div className="professional-profile-actions">
-          <button className="ghost-action" type="button" onClick={() => void regenerateIds()}>Regenerar IDs</button>
-        </div>
-      </section>
+          <Button variant="ghost" className="w-full" onClick={() => void regenerateIds()}>Regenerar IDs</Button>
+        </Card>
 
-      <section className="professional-profile-section">
-        <header>
-          <div>
-            <h2>Padrões de Orçamentos</h2>
+        <Card className="p-8">
+          <SectionLabel className="mt-0 mb-6">Padrões de Orçamentos</SectionLabel>
+          <div className="flex flex-col gap-6">
+            <div className="grid grid-cols-2 gap-4">
+              <Input label="Validade Padrão" value={profile.defaultValidity} onChange={e => updateProfile('defaultValidity', e.target.value)} />
+              <Input label="Garantia Padrão" value={profile.defaultGuarantee} onChange={e => updateProfile('defaultGuarantee', e.target.value)} />
+            </div>
+            <TextArea label="Condições de Pagamento" value={profile.defaultPaymentTerms} onChange={e => updateProfile('defaultPaymentTerms', e.target.value)} rows={2} />
+            <TextArea label="Observações Comerciais" value={profile.commercialNotes} onChange={e => updateProfile('commercialNotes', e.target.value)} rows={2} />
           </div>
-        </header>
-        <div className="professional-profile-grid">
-          <label className="budget-field"><span>Validade</span><input value={profile.defaultValidity} onChange={e => updateProfile('defaultValidity', e.target.value)} /></label>
-          <label className="budget-field"><span>Garantia</span><input value={profile.defaultGuarantee} onChange={e => updateProfile('defaultGuarantee', e.target.value)} /></label>
-          <label className="budget-field wide"><span>Condições de Pagamento</span><textarea value={profile.defaultPaymentTerms} onChange={e => updateProfile('defaultPaymentTerms', e.target.value)} /></label>
-          <label className="budget-field wide"><span>Observações</span><textarea value={profile.commercialNotes} onChange={e => updateProfile('commercialNotes', e.target.value)} /></label>
-        </div>
-        <div className="professional-profile-save-row">
-          <button className="primary-action" type="button" onClick={() => void saveProfile()}>Salvar Alterações</button>
-        </div>
-      </section>
-    </div>
+        </Card>
+
+        <PrimaryButton onClick={() => void saveProfile()}>Salvar Alterações</PrimaryButton>
+      </div>
+    </PageShell>
   );
 }

@@ -37,6 +37,11 @@ export function ProfessionalIdentityCard({ compact = false, contextLabel = 'Iden
 
   return (
     <aside className={compact ? 'professional-identity-card compact' : 'professional-identity-card'}>
+      {!compact && contextLabel && (
+        <header className="mb-2">
+          <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-[var(--text-muted)] opacity-60">{contextLabel}</span>
+        </header>
+      )}
       <div className="professional-identity-main">
         <span className="app-icon tone-blue">ID</span>
         <div>

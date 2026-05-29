@@ -1,5 +1,3 @@
-/* eslint-disable no-restricted-imports */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useEffect, useState } from 'react';
 import {
   collectAferixLocalBackup,
@@ -8,27 +6,30 @@ import {
   parseAferixBackup,
   restoreAferixBackup,
   stringifyAferixBackup,
-  summarizeAferixBackup,
-  summarizeAferixBackupData,
-  type AferixBackupSummary,
-  type AferixBackupDataSummaryItem
 } from '../storage/localBackup';
-import { PrimaryButton, Surface, ContextBanner } from '../../../app/components/ui';
+import { 
+  PrimaryButton, 
+  Card, 
+  ContextBanner, 
+  SectionLabel, 
+  ERPLoader 
+} from '../../../app/components/ui';
+import { Download, Upload, AlertTriangle } from 'lucide-react';
 import './LocalBackupWorkspace.css';
 
+/**
+ * LocalBackupWorkspace: Executive local data management.
+ * Refactored for TOKEN-FIRST architecture (Executive OS V5).
+ */
 export function LocalBackupWorkspace({ includeLinkedSettings: _includeLinkedSettings = true }: { includeLinkedSettings?: boolean }) {
   const [feedback, setFeedback] = useState<string | null>(null);
-  const [summary, setSummary] = useState<AferixBackupSummary | null>(null);
-  const [currentDataSummary, setCurrentDataSummary] = useState<AferixBackupDataSummaryItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRestoring, setIsRestoring] = useState(false);
 
   useEffect(() => {
     async function loadCurrentData() {
       try {
-        const backup = await collectAferixLocalBackup();
-        setSummary(summarizeAferixBackup(backup));
-        setCurrentDataSummary(summarizeAferixBackupData(backup));
+        await collectAferixLocalBackup();
       } catch ( _err ) {
         console.error('Failed to load backup summary:', _err);
       } finally {
@@ -45,7 +46,7 @@ export function LocalBackupWorkspace({ includeLinkedSettings: _includeLinkedSett
       const text = stringifyAferixBackup(backup);
       downloadBackupFile(createBackupFilename(), text);
       setFeedback('Backup exportado com sucesso.');
-    } catch (_e) {
+    } catch {
       setFeedback('Falha ao exportar backup.');
     }
   }
@@ -71,53 +72,55 @@ export function LocalBackupWorkspace({ includeLinkedSettings: _includeLinkedSett
   }
 
   if (isLoading) {
-    return <div className="aferix-panel-card"><p>Carregando sistema de backup...</p></div>;
+    return <ERPLoader message="Carregando sistema de backup..." />;
   }
 
   return (
-    <div className="local-backup-workspace-premium aferix-d-flex aferix-flex-column aferix-gap-md">
-      <Surface className="aferix-d-flex aferix-flex-column aferix-gap-md" style={{ padding: '24px' }}>
-        <div>
-          <h2 className="aferix-font-xl aferix-font-bold">Offline Backup</h2>
-          <p className="aferix-text-muted">Proteja seus dados do ERP exportando localmente para o seu dispositivo.</p>
-        </div>
+    <div className="flex flex-col gap-8">
+      <Card className="p-8">
+        <SectionLabel className="mt-0 mb-6">Backup Offline</SectionLabel>
+        <p className="text-[var(--fs-base)] font-medium text-[var(--text-secondary)] leading-relaxed mb-8">
+          Proteja seus dados do ERP exportando uma cópia criptografada localmente para o seu dispositivo.
+        </p>
 
-        <div className="aferix-mt-sm">
-          <PrimaryButton onClick={handleExport} disabled={isRestoring} style={{ width: '100%', padding: '16px', fontSize: '1.1rem' }}>
-            Exportar Backup de Segurança
-          </PrimaryButton>
-        </div>
-      </Surface>
+        <PrimaryButton 
+          onClick={handleExport} 
+          disabled={isRestoring} 
+          className="w-full h-16"
+        >
+          <Download className="h-5 w-5" /> Exportar Base de Dados
+        </PrimaryButton>
+      </Card>
 
-      <Surface className="aferix-d-flex aferix-flex-column aferix-gap-md" style={{ padding: '24px' }}>
-        <div>
-          <h2 className="aferix-font-lg aferix-font-bold">Restauração</h2>
-          <p className="aferix-text-muted">Importe um arquivo JSON para restaurar seu ERP.</p>
-        </div>
+      <Card className="p-8">
+        <SectionLabel className="mt-0 mb-6">Restauração</SectionLabel>
+        <p className="text-[var(--fs-base)] font-medium text-[var(--text-secondary)] leading-relaxed mb-6">
+          Importe um arquivo de backup anterior para recuperar o estado completo do sistema.
+        </p>
         
         <ContextBanner
-          title="Atenção: Ação Irreversível"
+          title="Ação Irreversível"
           meta="Restaurar um backup substituirá todos os dados atuais deste dispositivo."
-          icon={<span className="nav-icon">⚠️</span>}
+          icon={<AlertTriangle className="h-5 w-5" />}
+          className="mb-8"
         />
 
-        <div className="aferix-mt-sm">
-          <label className="aferix-button aferix-button-secondary" style={{ width: '100%', textAlign: 'center', display: 'block', cursor: 'pointer', padding: '12px' }}>
-            {isRestoring ? 'Restaurando...' : 'Restaurar Backup (JSON)'}
-            <input 
-              type="file" 
-              accept="application/json,.json" 
-              style={{ display: 'none' }} 
-              disabled={isRestoring}
-              onChange={(event) => handleFileImport(event.target.files?.[0] ?? null)} 
-            />
-          </label>
-        </div>
-      </Surface>
+        <label className="min-h-[64px] rounded-[var(--radius-button)] px-6 text-[14.5px] font-bold transition-all duration-300 active:scale-[0.97] flex items-center justify-center gap-3 bg-[var(--bg-surface-glass)] border var(--border-soft) text-[var(--text-primary)] hover:bg-white/[0.08] cursor-pointer">
+          <Upload className="h-5 w-5 opacity-60" />
+          {isRestoring ? 'Processando Restauração...' : 'Importar Arquivo .JSON'}
+          <input 
+            type="file" 
+            accept="application/json,.json" 
+            className="hidden"
+            disabled={isRestoring}
+            onChange={(event) => handleFileImport(event.target.files?.[0] ?? null)} 
+          />
+        </label>
+      </Card>
 
       {feedback && (
-        <div className="aferix-card-warning" style={{ textAlign: 'center', padding: '16px' }}>
-          <strong>{feedback}</strong>
+        <div className="p-6 rounded-2xl bg-[var(--accent-gold)]/10 border border-[var(--accent-gold)]/20 text-center animate-in fade-in">
+          <strong className="text-[var(--accent-gold)] font-bold text-[14px]">{feedback}</strong>
         </div>
       )}
     </div>

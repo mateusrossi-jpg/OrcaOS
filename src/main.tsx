@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { App } from './app/App';
 import { AppAccessGate } from './features/settings/components/AppAccessGate';
-import './styles/tokens.css';
+import './styles/design-system.css';
 import './styles/global.css';
 import './styles/aferixTheme.css';
 

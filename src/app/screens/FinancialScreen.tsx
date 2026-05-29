@@ -1,13 +1,13 @@
 import { lazy } from 'react';
-import { PageHeader, PageShell } from '../components/ui';
+import { PageShell } from '../components/ui';
 
 const SimpleFinanceWorkspace = lazy(() => import('../../features/finance/components/SimpleFinanceWorkspace').then((module) => ({ default: module.SimpleFinanceWorkspace })));
 
 export function FinancialScreen() {
   return (
-    <PageShell className="wide-screen">
-             <PageHeader title="Fluxo de Caixa" sourceLabel="Resultados automáticos baseados em orçamentos finalizados." />
+    <PageShell>
       <SimpleFinanceWorkspace />
     </PageShell>
   );
 }
+

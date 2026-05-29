@@ -1,6 +1,7 @@
 import { lazy, useRef } from 'react';
-import type { Client, WorkOrder } from '../../core/types/business';
-import { PageHeader, Button, PageShell } from '../components/ui';
+import type { Client, Service as WorkOrder } from '../../core/types/business';
+import { PageTitle, PageShell } from '../components/ui';
+import { Plus } from 'lucide-react';
 
 const ClientWorkOrderWorkspace = lazy(() => import('../../features/clients/components/ClientWorkOrderWorkspace').then((module) => ({ default: module.ClientWorkOrderWorkspace })));
 
@@ -10,6 +11,7 @@ interface ClientsScreenProps {
   sectionRequestKey?: number;
   onContextChange: (clients: Client[], workOrders: WorkOrder[], activeWorkOrderId: string | null) => void;
   onOpenBudgets: () => void;
+  onBack?: () => void;
 }
 
 export function ClientsScreen({
@@ -17,18 +19,25 @@ export function ClientsScreen({
   initialClientId,
   sectionRequestKey,
   onContextChange,
-  onOpenBudgets
+  onOpenBudgets,
+  onBack
 }: ClientsScreenProps) {
   const triggerNewClientRef = useRef<(() => void) | null>(null);
 
   return (
-    <PageShell className="wide-screen">
-      <PageHeader
+    <PageShell>
+      <PageTitle
+        onBack={onBack}
+        eyebrow="Operação"
         title="Clientes"
+        subtitle="Gerencie sua carteira de clientes e histórico comercial."
         action={
-          <Button variant="primary" className="full-page-cta" onClick={() => triggerNewClientRef.current?.()}>
-            + Novo Cliente
-          </Button>
+          <button 
+            onClick={() => triggerNewClientRef.current?.()}
+            className="grid h-12 w-12 place-items-center rounded-full bg-[var(--accent-gold)] text-black shadow-[var(--shadow-button)] transition-all active:scale-[0.9]"
+          >
+            <Plus className="h-5 w-5" strokeWidth={3} />
+          </button>
         }
       />
       <ClientWorkOrderWorkspace

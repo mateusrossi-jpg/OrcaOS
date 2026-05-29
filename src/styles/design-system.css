@@ -1,0 +1,152 @@
+/* ==========================================================================
+   AFERIX UNIFIED DESIGN SYSTEM — EXECUTIVE OS V5
+   Central source of truth for all visual tokens.
+   ========================================================================== */
+
+:root {
+  /* --- 1. BACKGROUNDS & ATMOSPHERE --- */
+  --bg-primary: oklch(0.14 0.005 260);    /* Deep Cinematic Graphite */
+  --bg-secondary: oklch(0.12 0.005 260);  /* Darker base for depth */
+  --bg-surface: oklch(0.18 0.006 260);    /* Standard Card Graphite */
+  --bg-surface-elevated: oklch(0.20 0.007 260); /* Hover/Active States */
+  --bg-surface-glass: rgba(255, 255, 255, 0.04); /* Transparent overlays */
+  --bg-overlay: rgba(0, 0, 0, 0.6);
+
+  /* --- 2. CINEMATIC EFFECTS & GLOWS --- */
+  --surface-gradient: linear-gradient(180deg, white/[0.06] 0%, transparent 100%);
+  --surface-gradient-soft: linear-gradient(180deg, white/[0.03] 0%, transparent 100%);
+  --surface-glow: radial-gradient(120% 80% at 0% 0%, oklch(0.82 0.14 85 / 0.12), transparent 60%);
+  --surface-vignette: radial-gradient(circle at 50% 12%, oklch(0.18 0.006 260) 0%, oklch(0.14 0.005 260) 100%);
+  --glow-primary: 0 0 40px -8px oklch(0.82 0.14 85 / 0.25);
+  --glow-success: 0 0 30px -10px oklch(0.78 0.16 155 / 0.3);
+
+  /* --- 3. BORDERS & HAIRLINES --- */
+  --border-soft: 1px solid white/[0.04];
+  --border-subtle: 1px solid white/[0.02];
+  --border-focus: 1px solid oklch(0.82 0.14 85 / 0.4);
+  --border-primary: 1px solid oklch(0.82 0.14 85 / 0.2);
+
+  /* --- 4. SHADOWS & ELEVATION --- */
+  --shadow-soft: 0 8px 32px -4px rgba(0, 0, 0, 0.4);
+  --shadow-card: 0 12px 40px -8px rgba(0, 0, 0, 0.5);
+  --shadow-cinematic: 0 0 40px -8px oklch(0.82 0.14 85 / 0.2);
+  --shadow-button: 0 10px 30px -8px oklch(0.82 0.14 85 / 0.5);
+  --shadow-inset: inset 0 1px 1px 0 oklch(1 0 0 / 0.04);
+  
+  --elevation-1: var(--shadow-soft), var(--shadow-inset);
+  --elevation-2: var(--shadow-card), var(--shadow-inset);
+  --elevation-3: 0 24px 64px -12px rgba(0, 0, 0, 0.6), var(--shadow-inset);
+
+  /* --- 5. TYPOGRAPHY (Inter/SF Pro scale) --- */
+  --text-primary: oklch(0.98 0.005 260);
+  --text-secondary: oklch(0.70 0.01 260);
+  --text-muted: oklch(0.55 0.02 260);
+  --text-disabled: oklch(0.40 0.02 260);
+
+  --fs-xs: 10px;
+  --fs-sm: 12.5px;
+  --fs-base: 14.5px;
+  --fs-md: 16px;
+  --fs-lg: 18px;
+  --fs-xl: 22px;
+  --fs-2xl: 28px;
+  --fs-3xl: 32px;
+  --fs-hero: 48px;
+
+  --fw-regular: 400;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+  --fw-bold: 700;
+  --fw-black: 800;
+
+  /* --- 6. ACCENTS --- */
+  --accent-gold: oklch(0.82 0.14 85);
+  --accent-green: oklch(0.78 0.16 155);
+  --accent-blue: oklch(0.70 0.13 250);
+  --accent-red: oklch(0.68 0.2 25);
+  --accent-purple: oklch(0.70 0.15 310);
+
+  /* --- 7. RADII --- */
+  --radius-xs: 8px;
+  --radius-sm: 12px;
+  --radius-md: 16px;
+  --radius-card: 24px;
+  --radius-button: 16px;
+  --radius-modal: 32px;
+  --radius-pill: 9999px;
+
+  /* --- 8. SPACING (Ritmo Operacional) --- */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --spacing-2xl: 48px;
+  --spacing-section: var(--spacing-2xl);
+  
+  --fab-bottom: 104px;
+  --fab-right: var(--spacing-lg);
+  --control-h: 56px;
+  --control-h-lg: 64px;
+
+  /* --- 9. MOTION --- */
+  --dur-fast: 150ms;
+  --dur-normal: 300ms;
+  --dur-slow: 500ms;
+  --ease-premium: cubic-bezier(0.16, 1, 0.3, 1);
+  
+  --transition-fast: var(--dur-fast) var(--ease-premium);
+  --transition-normal: var(--dur-normal) var(--ease-premium);
+  --transition-slow: var(--dur-slow) var(--ease-premium);
+}
+
+/* Base resets to use the system */
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* --- UTILITY PRIMITIVES (TOKEN-FIRST) --- */
+
+.text-hero    { font-size: var(--fs-hero); font-weight: var(--fw-bold); }
+.text-h1      { font-size: var(--fs-3xl); font-weight: var(--fw-bold); }
+.text-h2      { font-size: var(--fs-2xl); font-weight: var(--fw-bold); }
+.text-h3      { font-size: var(--fs-xl); font-weight: var(--fw-bold); }
+.text-ui-md   { font-size: var(--fs-md); font-weight: var(--fw-semibold); }
+.text-ui-base { font-size: var(--fs-base); font-weight: var(--fw-medium); }
+.text-ui-sm   { font-size: var(--fs-sm); font-weight: var(--fw-medium); }
+.text-ui-xs   { font-size: var(--fs-xs); font-weight: var(--fw-bold); text-transform: uppercase; letter-spacing: 0.15em; }
+
+.bg-primary   { background-color: var(--bg-primary); }
+.bg-surface   { background-color: var(--bg-surface); }
+.bg-glass     { background-color: var(--bg-surface-glass); backdrop-filter: blur(24px) saturate(1.5); -webkit-backdrop-filter: blur(24px); }
+
+.border-soft   { border: var(--border-soft); }
+.border-subtle { border: var(--border-subtle); }
+.border-gold   { border: var(--border-primary); }
+
+.shadow-soft      { box-shadow: var(--shadow-soft); }
+.shadow-card      { box-shadow: var(--shadow-card); }
+.shadow-cinematic { box-shadow: var(--shadow-cinematic); }
+.shadow-button    { box-shadow: var(--shadow-button); }
+
+.gap-xs { gap: var(--spacing-xs); }
+.gap-sm { gap: var(--spacing-sm); }
+.gap-md { gap: var(--spacing-md); }
+.gap-lg { gap: var(--spacing-lg); }
+.gap-xl { gap: var(--spacing-xl); }
+
+.p-shell { padding: var(--spacing-md); }
+.p-card  { padding: var(--spacing-lg); }
+.p-btn   { padding: 0 var(--spacing-md); }
+
+.radius-card   { border-radius: var(--radius-card); }
+.radius-btn    { border-radius: var(--radius-button); }
+.radius-modal  { border-radius: var(--radius-modal); }
+.radius-pill   { border-radius: var(--radius-pill); }
+
+.transition-all-premium { transition: all var(--transition-normal); }
+.active-press:active { transform: scale(0.97); }
+

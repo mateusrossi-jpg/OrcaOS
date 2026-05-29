@@ -38,32 +38,39 @@ export const ExecutionWorkspace: React.FC<ExecutionWorkspaceProps> = ({ workOrde
   };
 
   return (
-    <div className="fixed inset-0 bg-surface-900 z-40 flex flex-col overflow-hidden">
-      <ExecutionHeader 
-        clientName={clientName} 
-        workOrderId={workOrderId} 
-        status={activeState === 'in_progress' ? 'Em andamento' : activeState === 'paused' ? 'Pausado' : 'Aguardando'} 
-        onBack={onExit} 
-      />
-
-      <div className="flex-1 overflow-y-auto p-4 pb-32">
-        <ExecutionPressureCard 
-          slaMinutesRemaining={120} 
-          isBlocked={false} 
-          hasPendingMaterial={false} 
-        />
-
-        <div className="bg-surface-800 border border-surface-700 rounded-xl p-4 mb-4">
-          <h2 className="text-sm font-bold text-text-secondary uppercase tracking-wider mb-2">Instruções</h2>
-          <p className="text-text-primary text-sm leading-relaxed">
-            Verificar vazamento na válvula principal. Trocar o reparo caso necessário. Trazer fotos do antes e depois.
-          </p>
-        </div>
-
-        <ExecutionTimeline events={timeline} />
+    <div className="fixed inset-0 z-40 flex flex-col overflow-hidden">
+      {/* 1. CINEMATIC ATMOSPHERE (Unified DNA) */}
+      <div className="screen-atmosphere">
+        <div className="atmosphere-vignette" />
       </div>
 
-      <ExecutionQuickActions activeState={activeState} onAction={handleAction} />
+      <div className="relative z-10 flex flex-col h-full">
+        <ExecutionHeader 
+          clientName={clientName} 
+          workOrderId={workOrderId} 
+          status={activeState === 'in_progress' ? 'Em andamento' : activeState === 'paused' ? 'Pausado' : 'Aguardando'} 
+          onBack={onExit} 
+        />
+
+        <div className="flex-1 overflow-y-auto p-4 pb-32">
+          <ExecutionPressureCard 
+            slaMinutesRemaining={120} 
+            isBlocked={false} 
+            hasPendingMaterial={false} 
+          />
+
+          <div className="bg-[var(--bg-surface-glass)] backdrop-blur-xl border var(--border-soft) rounded-[var(--radius-card)] p-card mb-4 shadow-[var(--shadow-soft)]">
+            <h2 className="text-ui-xs text-[var(--text-muted)] opacity-50 mb-3">Instruções</h2>
+            <p className="text-[var(--text-primary)] text-ui-base leading-relaxed">
+              Verificar vazamento na válvula principal. Trocar o reparo caso necessário. Trazer fotos do antes e depois.
+            </p>
+          </div>
+
+          <ExecutionTimeline events={timeline} />
+        </div>
+
+        <ExecutionQuickActions activeState={activeState} onAction={handleAction} />
+      </div>
     </div>
   );
 };

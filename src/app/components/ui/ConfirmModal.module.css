@@ -1,65 +1,79 @@
+/* src/app/components/ui/ConfirmModal.module.css
+   Refactored for TOKEN-FIRST architecture (Executive OS V5).
+   ---------------------------------------------------------- */
+
 .confirm-modal-card {
-  background: var(--aferix-surface-2);
-  color: var(--aferix-text);
-  border-radius: 12px;
-  max-width: min(420px, calc(100vw - 32px));
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  border-radius: var(--radius-modal);
+  max-width: min(440px, calc(100vw - 32px));
   width: 100%;
-  padding: 1.5rem;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25);
-  backdrop-filter: blur(4px);
-  animation: scaleIn 0.2s ease-out forwards;
+  padding: var(--spacing-xl);
+  box-shadow: var(--shadow-card);
+  border: var(--border-soft);
+  backdrop-filter: blur(24px) saturate(1.5);
+  -webkit-backdrop-filter: blur(24px) saturate(1.5);
+  animation: scaleIn var(--dur-normal) var(--ease-premium) forwards;
 }
 
 .confirm-modal-header {
-  margin-bottom: 1rem;
+  margin-bottom: var(--spacing-md);
 }
 
 .confirm-modal-header h2 {
   margin: 0;
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: var(--aferix-text);
+  font-size: var(--fs-xl);
+  font-weight: var(--fw-bold);
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
 }
 
 .confirm-modal-body {
-  margin-bottom: 1.5rem;
+  margin-bottom: var(--spacing-xl);
+  font-size: var(--fs-base);
+  font-weight: var(--fw-medium);
+  color: var(--text-secondary);
+  line-height: 1.5;
 }
 
 .confirm-modal-footer {
   display: flex;
-  justify-content: flex-end;
-  gap: 0.75rem;
+  flex-direction: column;
+  gap: var(--spacing-sm);
 }
 
 .confirm-modal-footer button {
-  min-width: 80px;
-  padding: 0.5rem 1rem;
+  min-height: 52px;
+  width: 100%;
+  padding: 0 var(--spacing-md);
   border: none;
-  border-radius: 6px;
-  font-weight: 500;
+  border-radius: var(--radius-button);
+  font-weight: var(--fw-bold);
+  font-size: var(--fs-base);
   cursor: pointer;
-  transition: background 0.2s;
+  transition: all var(--transition-fast);
 }
 
 .confirm-modal-footer .cancel {
   background: transparent;
-  color: var(--aferix-text-secondary);
+  color: var(--text-muted);
 }
 
 .confirm-modal-footer .cancel:hover {
-  background: rgba(255,255,255,0.08);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-primary);
 }
 
 .confirm-modal-footer .confirm {
-  background: var(--aferix-danger);
+  background: var(--accent-red);
   color: #fff;
 }
 
 .confirm-modal-footer .confirm:hover {
-  background: var(--aferix-danger-dark);
+  filter: brightness(1.1);
 }
 
 @keyframes scaleIn {
-  from { transform: scale(0.95); opacity: 0; }
+  from { transform: scale(0.96); opacity: 0; }
   to { transform: scale(1); opacity: 1; }
 }

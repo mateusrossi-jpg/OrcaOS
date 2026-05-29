@@ -3,11 +3,9 @@ import {
   Button,
   Select,
   QueueEmptyState,
-  BackButton,
   TextArea,
   MonetaryInput,
   Modal,
-  ListCard,
   ListItem,
   SearchInput,
   FilterChips,
@@ -16,11 +14,12 @@ import {
   MoneyValue,
   PrimaryButton,
   SecondaryButton,
-  Surface,
-  SectionTitle
+  Card,
+  SectionLabel
 } from '../../../app/components/ui';
 import { catalogService } from '../../../services/catalogService';
 import { type CatalogHubItem, type CatalogHubItemKind, createCatalogId } from '../types/catalogTypes';
+import { ChevronLeft } from 'lucide-react';
 import './PremiumCatalogWorkspace.css';
 
 const CATEGORY_CHIPS: Array<{ id: string; label: string }> = [
@@ -62,6 +61,10 @@ interface PremiumCatalogWorkspaceProps {
   onSendToBudget?: (items: CatalogHubItem[]) => void;
 }
 
+/**
+ * PremiumCatalogWorkspace: Executive item library.
+ * Refactored for TOKEN-FIRST architecture (Executive OS V5).
+ */
 export function PremiumCatalogWorkspace({ onSendToBudget }: PremiumCatalogWorkspaceProps) {
   const [items, setItems] = useState<CatalogHubItem[]>([]);
   const [query, setQuery] = useState('');
@@ -158,16 +161,20 @@ export function PremiumCatalogWorkspace({ onSendToBudget }: PremiumCatalogWorksp
 
   if (view === 'form' && editingItem) {
     return (
-      <div className="premium-catalog-workspace form-view">
-        <BackButton onClick={() => setView('list')} label="Voltar para a Biblioteca" />
+      <div className="flex flex-col gap-lg pb-32">
+        <button 
+          onClick={() => setView('list')} 
+          className="flex items-center gap-sm text-ui-xs text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors w-fit"
+        >
+          <ChevronLeft className="h-4 w-4" /> BIBLIOTECA
+        </button>
 
-        <Surface className="catalog-edit-card">
-          <header className="panel-list-header">
-            <h2>{editingItem.id ? 'Editar Item' : 'Novo Item'}</h2>
-            <p>Configure os detalhes técnicos e comerciais.</p>
-          </header>
+        <Card className="p-card">
+          <SectionLabel className="mt-0 mb-8">
+            {editingItem.id ? 'Editar Item' : 'Novo Item do Catálogo'}
+          </SectionLabel>
 
-          <div className="catalog-form-grid">
+          <div className="flex flex-col gap-lg">
             <Input
               label="Título do Item"
               value={editingItem.title}
@@ -175,76 +182,79 @@ export function PremiumCatalogWorkspace({ onSendToBudget }: PremiumCatalogWorksp
               placeholder="Ex: Disjuntor Din 20A"
             />
 
-            <Select
-              label="Tipo"
-              value={editingItem.kind}
-              onChange={(val) => setEditingItem({ ...editingItem, kind: val as CatalogHubItemKind, itemType: val === 'labor' ? 'service' : 'material' })}
-            >
-              <option value="material">Material</option>
-              <option value="labor">Mão de obra</option>
-              <option value="service">Serviço / Composto</option>
-              <option value="travel">Deslocamento</option>
-              <option value="fee">Taxa / Encargo</option>
-              <option value="custom">Item personalizado</option>
-            </Select>
+            <div className="grid grid-cols-2 gap-md">
+              <Select
+                label="Tipo"
+                value={editingItem.kind}
+                onChange={(val) => setEditingItem({ ...editingItem, kind: val as CatalogHubItemKind, itemType: val === 'labor' ? 'service' : 'material' })}
+              >
+                <option value="material">Material</option>
+                <option value="labor">Mão de obra</option>
+                <option value="service">Serviço / Composto</option>
+                <option value="travel">Deslocamento</option>
+                <option value="fee">Taxa / Encargo</option>
+                <option value="custom">Item personalizado</option>
+              </Select>
 
-            <Input
-              label="Marca / Fabricante"
-              value={editingItem.brand || ''}
-              onChange={(e) => setEditingItem({ ...editingItem, brand: e.target.value })}
-              placeholder="Opcional"
-            />
-
-            <MonetaryInput
-              label="Preço"
-              value={editingItem.defaultUnitValue}
-              onChange={(val) => setEditingItem({ ...editingItem, defaultUnitValue: val })}
-            />
-
-            <Input
-              label="Unidade"
-              value={editingItem.unit}
-              onChange={(e) => setEditingItem({ ...editingItem, unit: e.target.value })}
-              placeholder="un, m, kg..."
-            />
-
-            <div className="catalog-field-wide">
-              <label className="aferix-input-field">
-                <span>Notas Internas</span>
-                <TextArea
-                  value={editingItem.notes || ''}
-                  onChange={(val) => setEditingItem({ ...editingItem, notes: val })}
-                  placeholder="Observações de uso..."
-                />
-              </label>
+              <Input
+                label="Marca / Fabricante"
+                value={editingItem.brand || ''}
+                onChange={(e) => setEditingItem({ ...editingItem, brand: e.target.value })}
+                placeholder="Opcional"
+              />
             </div>
+
+            <div className="grid grid-cols-2 gap-md">
+              <MonetaryInput
+                label="Preço Base"
+                value={editingItem.defaultUnitValue}
+                onChange={(val) => setEditingItem({ ...editingItem, defaultUnitValue: val })}
+              />
+
+              <Input
+                label="Unidade"
+                value={editingItem.unit}
+                onChange={(e) => setEditingItem({ ...editingItem, unit: e.target.value })}
+                placeholder="un, m, kg..."
+              />
+            </div>
+
+            <TextArea
+              label="Notas Internas"
+              value={editingItem.notes || ''}
+              onChange={(val) => setEditingItem({ ...editingItem, notes: val })}
+              placeholder="Observações técnicas de uso..."
+              rows={4}
+            />
           </div>
 
-          <div className="catalog-actions-row-standardized premium-catalog-actions-spacing">
-            <PrimaryButton onClick={handleSave}>
+          <div className="flex flex-col gap-sm mt-12 pt-10 border-t var(--border-subtle)">
+            <PrimaryButton className="h-16" onClick={handleSave}>
               Salvar Alterações
             </PrimaryButton>
-            {editingItem.id && (
-              <Button variant="danger" onClick={() => requestDelete(editingItem)}>
-                Excluir Item
-              </Button>
-            )}
-            <SecondaryButton onClick={() => setView('list')}>
-              Cancelar
-            </SecondaryButton>
+            <div className="grid grid-cols-2 gap-sm">
+              <SecondaryButton onClick={() => setView('list')}>
+                Cancelar
+              </SecondaryButton>
+              {editingItem.id && (
+                <Button variant="danger" onClick={() => requestDelete(editingItem)}>
+                  Excluir
+                </Button>
+              )}
+            </div>
           </div>
-        </Surface>
+        </Card>
 
         <Modal
           isOpen={Boolean(itemPendingDelete)}
-          title="Excluir item do catálogo?"
-          confirmLabel="Excluir"
+          title="Excluir item?"
+          confirmLabel="Excluir Definitivamente"
           tone="danger"
           onClose={() => setItemPendingDelete(null)}
           onConfirm={confirmDelete}
         >
-          <p>
-            {itemPendingDelete ? `O item "${itemPendingDelete.title}" será removido do catálogo.` : 'Este item será removido do catálogo.'}
+          <p className="text-ui-base font-medium text-[var(--text-secondary)] leading-relaxed">
+            {itemPendingDelete ? `O item "${itemPendingDelete.title}" será removido da sua biblioteca operacional de forma permanente.` : 'Este item será removido do catálogo.'}
           </p>
         </Modal>
       </div>
@@ -252,43 +262,40 @@ export function PremiumCatalogWorkspace({ onSendToBudget }: PremiumCatalogWorksp
   }
 
   return (
-    <div className="premium-catalog-workspace aferix-d-flex aferix-flex-column aferix-gap-lg" style={{ maxWidth: '440px', margin: '0 auto' }}>
-      <PrimaryButton className="new-item-cta rounded-pill" onClick={handleNew}>+ Novo Item</PrimaryButton>
+    <div className="flex flex-col gap-lg pb-32">
+      <PrimaryButton className="w-full h-16" onClick={handleNew}>+ Novo Item do Catálogo</PrimaryButton>
 
-      <Surface elevation={1} padding="sm" className="catalog-search-area aferix-d-flex aferix-flex-column aferix-gap-sm">
+      <div className="p-card rounded-[var(--radius-card)] bg-[var(--bg-surface-glass)] border var(--border-soft) shadow-[var(--shadow-soft)] flex flex-col gap-lg">
         <SearchInput
           placeholder="Buscar no catálogo..."
           value={query}
           onChange={(value) => { setQuery(value); setShowAllItems(false); }}
         />
-        <div className="aferix-filter-chips-wrapper">
-          <FilterChips
-            items={CATEGORY_CHIPS}
-            active={[activeChip]}
-            onChange={(active) => { setActiveChip(active[0] || 'all'); setShowAllItems(false); }}
-            ariaLabel="Filtrar catálogo"
-          />
-        </div>
-      </Surface>
+        <FilterChips
+          items={CATEGORY_CHIPS}
+          active={[activeChip]}
+          onChange={(active) => { setActiveChip(active[0] || 'all'); setShowAllItems(false); }}
+          ariaLabel="Filtrar catálogo"
+        />
+      </div>
 
-      <div className="aferix-d-flex aferix-flex-column aferix-gap-md">
-        <SectionTitle title="Biblioteca de Itens" eyebrow="Produtos e Serviços" />
-        <ListCard>
+      <div className="flex flex-col gap-lg">
+        <SectionLabel className="mt-0">Biblioteca de Itens</SectionLabel>
+        
+        <div className="flex flex-col gap-sm">
           {filteredItems.length === 0 ? (
             <QueueEmptyState
               title="Nenhum item encontrado"
+              meta="Ajuste os filtros ou inicie um novo cadastro."
             />
           ) : (
             visibleItems.map((item) => (
-              <div key={item.id} className="aferix-p-md aferix-d-flex aferix-justify-between aferix-align-center" style={{ borderBottom: '1px solid var(--border-dim)' }}>
-                <div className="aferix-d-flex aferix-flex-column">
-                  <strong className="aferix-font-sm" style={{ color: 'var(--text-primary)' }}>{item.title}</strong>
-                  <small className="aferix-text-muted">{itemKindLabel(item.kind)} {item.brand ? `• ${item.brand}` : ''}</small>
-                </div>
-                <div className="aferix-d-flex aferix-align-center aferix-gap-md">
-                  <strong className="tabular-nums" style={{ color: 'var(--brand-primary)', fontSize: '13px' }}>
-                    <MoneyValue value={item.defaultUnitValue} compact />
-                  </strong>
+              <ListItem
+                key={item.id}
+                title={item.title}
+                context={`${itemKindLabel(item.kind)} ${item.brand ? `• ${item.brand}` : ''}`}
+                value={<MoneyValue value={item.defaultUnitValue} compact />}
+                action={
                   <ActionMenu
                     label="…"
                     items={[
@@ -305,24 +312,25 @@ export function PremiumCatalogWorkspace({ onSendToBudget }: PremiumCatalogWorksp
                       { id: 'delete', label: 'Excluir', tone: 'danger' as const, onSelect: () => requestDelete(item) },
                     ].filter(it => it.id !== 'select' || !!onSendToBudget)}
                   />
-                </div>
-              </div>
+                }
+              />
             ))
           )}
 
           {filteredItems.length > CATALOG_VISIBLE_LIMIT && (
-            <div className="aferix-p-sm aferix-text-center">
-              <Button variant="ghost" onClick={() => setShowAllItems((current) => !current)}>
-                {showAllItems ? 'Ver menos' : `Ver mais (${hiddenItemsCount})`}
-              </Button>
-            </div>
+            <button 
+              onClick={() => setShowAllItems((current) => !current)}
+              className="mt-4 w-full h-14 rounded-[var(--radius-button)] border var(--border-soft) bg-white/[0.02] text-ui-xs font-bold text-[var(--text-muted)] transition-all hover:bg-white/[0.04] active:scale-[0.98]"
+            >
+              {showAllItems ? 'VER MENOS' : `VER MAIS (${hiddenItemsCount})`}
+            </button>
           )}
-        </ListCard>
+        </div>
       </div>
 
       <Modal
         isOpen={Boolean(itemPendingSelection)}
-        title="Adicionar ao Orçamento"
+        title="Adicionar ao Projeto"
         confirmLabel="Confirmar Inclusão"
         onClose={() => setItemPendingSelection(null)}
         onConfirm={() => {
@@ -332,8 +340,8 @@ export function PremiumCatalogWorkspace({ onSendToBudget }: PremiumCatalogWorksp
           }
         }}
       >
-        <div className="aferix-d-flex aferix-flex-column aferix-gap-md" style={{ padding: '16px 0' }}>
-          <p>Defina a quantidade de <strong>{itemPendingSelection?.title}</strong>:</p>
+        <div className="flex flex-col gap-lg py-4">
+          <p className="text-ui-base font-medium text-[var(--text-secondary)] leading-relaxed">Defina a quantidade de <strong>{itemPendingSelection?.title}</strong>:</p>
           <Input
             label="Quantidade"
             type="number"
@@ -346,14 +354,14 @@ export function PremiumCatalogWorkspace({ onSendToBudget }: PremiumCatalogWorksp
 
       <Modal
         isOpen={Boolean(itemPendingDelete)}
-        title="Excluir item do catálogo?"
-        confirmLabel="Excluir"
+        title="Excluir item?"
+        confirmLabel="Excluir Definitivamente"
         tone="danger"
         onClose={() => setItemPendingDelete(null)}
         onConfirm={confirmDelete}
       >
-        <p>
-          {itemPendingDelete ? `O item "${itemPendingDelete.title}" será removido do catálogo.` : 'Este item será removido do catálogo.'}
+        <p className="text-ui-base font-medium text-[var(--text-secondary)] leading-relaxed">
+          {itemPendingDelete ? `O item "${itemPendingDelete.title}" será removido da biblioteca operacional de forma permanente.` : 'Este item será removido do catálogo.'}
         </p>
       </Modal>
     </div>

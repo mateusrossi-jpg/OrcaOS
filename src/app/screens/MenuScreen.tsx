@@ -1,22 +1,27 @@
 import { useState, lazy, Suspense } from 'react';
 import { 
-  BackButton, 
-  PageHeader, 
-  PageShell, 
-  Surface, 
-  SectionTitle,
-  ListCard
+  Users, 
+  Package, 
+  LogOut, 
+  Shield,
+  Cloud,
+  Info,
+  Star,
+  FileBarChart,
+  ChevronLeft
+} from "lucide-react";
+import { 
+  ERPLoader,
 } from '../components/ui';
 import type { AferixAccountState } from '../../core/access/accountPlanStorage';
 import { planStatusTitle } from '../utils/planHelpers';
 import type { AppTab } from '../appTypes';
 
-const AppSecurityPanel = lazy(() => import('../../features/settings/components/AppSecurityPanel').then((module) => ({ default: module.AppSecurityPanel })));
-const GoogleDriveBackupPanel = lazy(() => import('../../features/settings/components/GoogleDriveBackupPanel').then((module) => ({ default: module.GoogleDriveBackupPanel })));
-const CloudSyncPanel = lazy(() => import('../../features/settings/components/CloudSyncPanel').then((module) => ({ default: module.CloudSyncPanel })));
-const LocalBackupWorkspace = lazy(() => import('../../features/settings/components/LocalBackupWorkspace').then((module) => ({ default: module.LocalBackupWorkspace })));
-const ProfessionalProfileWorkspace = lazy(() => import('../../features/settings/components/ProfessionalProfileWorkspace').then((module) => ({ default: module.ProfessionalProfileWorkspace })));
-const LegalCompliancePanel = lazy(() => import('../../features/settings/components/LegalCompliancePanel').then((module) => ({ default: module.LegalCompliancePanel })));
+// Unified UI Architecture Layers
+import { SemanticScreen } from '../../ui/runtime';
+import { OperationalFlowLayout } from '../../ui/layouts';
+import { Priority } from '../../ui/attention';
+import { AppHeader, SectionTitle, SurfaceCard, OperationalListItem } from '../../ui/primitives';
 
 interface MenuScreenProps {
   account: AferixAccountState;
@@ -27,173 +32,158 @@ interface MenuScreenProps {
 type MenuSection = 'main' | 'profile' | 'security' | 'backup' | 'about';
 
 /**
- * MenuScreen V5 (The Advanced Settings Hub)
- * Total visual parity: Centered 440px, purified surfaces.
+ * MenuScreen: Executive settings and system adjustments hub.
+ * Mission: Visual Convergence (Cohesive OS Hub style).
  */
 export function MenuScreen({ account, onNavigate }: MenuScreenProps) {
   const [activeSection, setActiveSection] = useState<MenuSection>('main');
   
   const accountLabel = account.status === 'google' || account.status === 'email' || account.status === 'local' ? account.displayName : 'Sem login';
+  const userInitials = accountLabel.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() || 'AX';
 
   const menuGroups = [
     {
       title: 'GESTÃO OPERACIONAL',
       items: [
-        { title: 'Base de Clientes', onClick: () => onNavigate('base'), icon: '👥' },
-        { title: 'Catálogo Profissional', onClick: () => onNavigate('catalog'), icon: '📦' },
-        { title: 'Relatórios e BI', onClick: () => onNavigate('reports'), icon: '📊' },
+        { title: 'Base de Clientes', desc: 'Carteira estratégica e CRM', onClick: () => onNavigate('base'), icon: Users },
+        { title: 'Catálogo Profissional', desc: 'Sua biblioteca de serviços', onClick: () => onNavigate('catalog'), icon: Package },
+        { title: 'Relatórios e BI', desc: 'Inteligência e performance', onClick: () => onNavigate('reports'), icon: FileBarChart },
       ]
     },
     {
-      title: 'SEGURANÇA E DADOS',
+      title: 'SEGURANÇA E NÚCLEO',
       items: [
-        { title: 'Backup e Sincronismo', onClick: () => setActiveSection('backup'), icon: '☁️' },
-        { title: 'Acesso e PIN', onClick: () => setActiveSection('security'), icon: '🔒' },
+        { title: 'Backup e Sincronismo', desc: 'Proteção de dados em nuvem', onClick: () => setActiveSection('backup'), icon: Cloud },
+        { title: 'Acesso e Segurança', desc: 'PIN e autenticação biométrica', onClick: () => setActiveSection('security'), icon: Shield },
       ]
     },
     {
-      title: 'ASSINATURA E PERFIL',
+      title: 'SISTEMA',
       items: [
-        { 
-          title: 'Meu Perfil', 
-          context: `${accountLabel} · ${planStatusTitle(account)}`,
-          onClick: () => setActiveSection('profile'),
-          icon: '👤'
-        },
-        { title: 'Gerenciar Licença', onClick: () => onNavigate('store'), icon: '⭐' },
-        { title: 'Sobre o ERP', onClick: () => setActiveSection('about'), icon: 'ℹ️' },
+        { title: 'Gerenciar Licença', desc: planStatusTitle(account), onClick: () => onNavigate('store'), icon: Star },
+        { title: 'Sobre o Aferix', desc: 'Versão 0.1.0-RC.1', onClick: () => setActiveSection('about'), icon: Info },
       ]
     }
   ];
   
   if (activeSection !== 'main') {
     return (
-      <div className="aferix-settings-detail-container" style={{ maxWidth: '440px', margin: '0 auto' }}>
-        <Suspense fallback={<Surface elevation={1} padding="md"><p>Preparando ambiente...</p></Surface>}>
-          {activeSection === 'profile' && (
-            <Surface elevation={1} padding="md" className="settings-group">
+      <SemanticScreen type="workspace">
+        <OperationalFlowLayout
+          header={
+            <button 
+              onClick={() => setActiveSection('main')} 
+              className="flex items-center gap-sm text-ui-xs text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors font-black tracking-widest"
+            >
+              <ChevronLeft className="h-4 w-4" /> VOLTAR AO MENU
+            </button>
+          }
+        >
+          <Suspense fallback={<ERPLoader message="Carregando módulo..." />}>
+            {activeSection === 'profile' && (
               <ProfessionalProfileWorkspace onBack={() => setActiveSection('main')} />
-            </Surface>
-          )}
-          {activeSection === 'security' && (
-            <Surface elevation={1} padding="md" className="settings-group">
-              <BackButton label="Voltar ao Menu" onClick={() => setActiveSection('main')} />
-              <AppSecurityPanel />
-            </Surface>
-          )}
-          {activeSection === 'backup' && (
-            <Surface elevation={1} padding="md" className="settings-group">
-              <BackButton label="Voltar ao Menu" onClick={() => setActiveSection('main')} />
-              <LocalBackupWorkspace includeLinkedSettings={false} />
-              <CloudSyncPanel />
-              <GoogleDriveBackupPanel />
-            </Surface>
-          )}
-          {activeSection === 'about' && (
-            <Surface elevation={1} padding="md" className="settings-group">
-              <BackButton label="Voltar ao Menu" onClick={() => setActiveSection('main')} />
-              <LegalCompliancePanel />
-              <Surface elevation={0} padding="md" className="aferix-mt-lg">
-                <SectionTitle title="Sobre o Aferix" />
-                <p className="aferix-text-muted text-small">O sistema operacional definitivo para prestadores de serviço técnicos. Versão 0.1.0-rc.1</p>
-              </Surface>
-            </Surface>
-          )}
-        </Suspense>
-      </div>
+            )}
+            {activeSection === 'security' && <AppSecurityPanel />}
+            {activeSection === 'backup' && (
+              <div className="flex flex-col gap-lg">
+                <LocalBackupWorkspace includeLinkedSettings={false} />
+                <CloudSyncPanel />
+                <GoogleDriveBackupPanel />
+              </div>
+            )}
+            {activeSection === 'about' && (
+              <div className="flex flex-col gap-lg">
+                <LegalCompliancePanel />
+                <SurfaceCard>
+                  <SectionTitle className="mt-0">Núcleo do Sistema</SectionTitle>
+                  <p className="text-ui-base font-medium text-[var(--text-secondary)] leading-relaxed">
+                    O Aferix é o sistema operacional definitivo para prestadores de serviço técnicos que buscam precisão matemática e rentabilidade real. 
+                    <br/><br/>
+                    Build 0.1.0-RC.1
+                  </p>
+                </SurfaceCard>
+              </div>
+            )}
+          </Suspense>
+        </OperationalFlowLayout>
+      </SemanticScreen>
     );
   }
 
   return (
-    <div className="aferix-menu-container" style={{ maxWidth: '440px', margin: '0 auto' }}>
-      <PageHeader title="Mais" sourceLabel="Configurações e utilitários técnicos." />
+    <SemanticScreen type="workspace">
+      <OperationalFlowLayout
+        header={
+          <AppHeader eyebrow="SISTEMA" title="Ajustes" subtitle="Controle as preferências globais e a estrutura operacional do seu negócio." />
+        }
+      >
+        {/* 1. IDENTITY HUB (P1) */}
+        <Priority.P1>
+          <SurfaceCard 
+            className="group flex items-center gap-lg cursor-pointer hover:bg-white/[0.08] relative overflow-hidden" 
+            onClick={() => setActiveSection('profile')}
+          >
+            <div className="h-16 w-16 rounded-full bg-[var(--accent-gold)]/10 flex items-center justify-center text-[var(--accent-gold)] font-bold text-h2 border border-[var(--accent-gold)]/20 shadow-glow shrink-0">
+              {userInitials}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-h3 text-[var(--text-primary)] mb-1 truncate">{accountLabel.toUpperCase()}</p>
+              <div className="flex items-center gap-2">
+                 <Star className="h-3 w-3 text-[var(--accent-gold)] fill-current" />
+                 <span className="text-[10px] font-black text-[var(--accent-gold)] tracking-[0.2em]">{planStatusTitle(account).toUpperCase()}</span>
+              </div>
+            </div>
+            
+            {/* Background Texture for the Identity card */}
+            <div className="absolute right-0 top-0 h-full w-24 bg-gradient-to-l from-[var(--accent-gold)]/5 to-transparent pointer-events-none" />
+          </SurfaceCard>
+        </Priority.P1>
 
-      <div className="aferix-d-flex aferix-flex-column aferix-gap-lg aferix-mt-lg">
-        {menuGroups.map((group) => (
-          <div key={group.title} className="menu-group-section">
-            <SectionTitle title={group.title} />
-            <ListCard className="aferix-mt-sm">
-              {group.items.map((item) => (
-                <button
-                  key={item.title}
-                  className="aferix-menu-row-button"
-                  type="button"
-                  onClick={item.onClick}
-                >
-                  <span className="row-icon">{item.icon}</span>
-                  <div className="row-body">
-                    <strong className="row-title">{item.title}</strong>
-                    {'context' in item && <span className="row-context">{item.context}</span>}
-                  </div>
-                  <span className="row-arrow">›</span>
-                </button>
-              ))}
-            </ListCard>
+        {/* 2. SETTINGS LISTS (P2) */}
+        <Priority.P2 className="flex flex-col gap-xl pb-32">
+          {menuGroups.map((group) => (
+            <div key={group.title} className="flex flex-col">
+              <SectionTitle>{group.title}</SectionTitle>
+              <div className="flex flex-col gap-sm">
+                {group.items.map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <OperationalListItem 
+                      key={item.title}
+                      title={item.title.toUpperCase()}
+                      subtitle={item.desc}
+                      action={<Icon className="h-3.5 w-3.5 opacity-60" />}
+                      onClick={item.onClick}
+                    />
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+
+          <div className="mt-8 flex flex-col gap-lg">
+            <button className="h-16 w-full flex items-center justify-center gap-sm rounded-2xl bg-[var(--accent-red)]/10 border border-[var(--accent-red)]/20 text-[var(--accent-red)] font-black text-ui-base transition-all hover:bg-[var(--accent-red)]/20 active:scale-[0.95]">
+              <LogOut className="h-5 w-5" /> DESCONECTAR DISPOSITIVO
+            </button>
+            
+            <Priority.P3 className="text-center mt-6">
+              <p className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.4em] opacity-30">
+                AFERIX OPERATIONAL OS © 2026
+              </p>
+              <p className="text-[8px] font-bold text-[var(--text-muted)] uppercase tracking-[0.2em] opacity-20 mt-1.5">
+                ENGINE.V5 • BUILD.0.1.0-RC.1
+              </p>
+            </Priority.P3>
           </div>
-        ))}
-      </div>
-      
-      <footer className="aferix-mt-2xl aferix-text-center aferix-pb-xl">
-        <p className="aferix-font-xs aferix-text-muted" style={{ opacity: 0.5 }}>AFERIX ERP OPERACIONAL © 2026</p>
-      </footer>
-
-      <style>{`
-        .aferix-menu-row-button {
-          display: flex;
-          align-items: center;
-          width: 100%;
-          padding: var(--sz-md);
-          background: transparent;
-          border: none;
-          border-bottom: 1px solid var(--border-dim);
-          text-align: left;
-          gap: var(--sz-md);
-          cursor: pointer;
-          transition: background 0.2s ease;
-        }
-
-        .aferix-menu-row-button:last-child {
-          border-bottom: none;
-        }
-
-        .aferix-menu-row-button:hover {
-          background: var(--bg-active);
-        }
-
-        .row-icon {
-          font-size: 20px;
-          min-width: 24px;
-          display: flex;
-          justify-content: center;
-        }
-
-        .row-body {
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-          gap: 2px;
-        }
-
-        .row-title {
-          font-size: 14px;
-          font-weight: 700;
-          color: var(--text-primary);
-        }
-
-        .row-context {
-          font-size: 11px;
-          font-weight: 600;
-          color: var(--text-muted);
-          text-transform: uppercase;
-          letter-spacing: 0.02em;
-        }
-
-        .row-arrow {
-          font-size: 20px;
-          color: var(--border-medium);
-          font-weight: 300;
-        }
-      `}</style>
-    </div>
+        </Priority.P2>
+      </OperationalFlowLayout>
+    </SemanticScreen>
   );
 }
+
+const AppSecurityPanel = lazy(() => import('../../features/settings/components/AppSecurityPanel').then((module) => ({ default: module.AppSecurityPanel })));
+const GoogleDriveBackupPanel = lazy(() => import('../../features/settings/components/GoogleDriveBackupPanel').then((module) => ({ default: module.GoogleDriveBackupPanel })));
+const CloudSyncPanel = lazy(() => import('../../features/settings/components/CloudSyncPanel').then((module) => ({ default: module.CloudSyncPanel })));
+const LocalBackupWorkspace = lazy(() => import('../../features/settings/components/LocalBackupWorkspace').then((module) => ({ default: module.LocalBackupWorkspace })));
+const ProfessionalProfileWorkspace = lazy(() => import('../../features/settings/components/ProfessionalProfileWorkspace').then((module) => ({ default: module.ProfessionalProfileWorkspace })));
+const LegalCompliancePanel = lazy(() => import('../../features/settings/components/LegalCompliancePanel').then((module) => ({ default: module.LegalCompliancePanel })));

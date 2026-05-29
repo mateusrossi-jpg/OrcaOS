@@ -1,101 +1,59 @@
-import React, { memo, type ReactNode } from 'react';
-import { Surface, MoneyValue, Badge } from './index';
+import { memo, type ReactNode } from 'react';
+import { Sparkline } from './Sparkline';
+import { cn } from '../../../utils/ui';
 
 interface KpiCardProps {
   label: string;
   value: ReactNode;
-  trend?: {
-    value: string | number;
-    isPositive?: boolean;
-    label?: string;
-  };
-  featured?: boolean;
+  color?: string;
+  trend?: number[];
   className?: string;
+  onClick?: () => void;
 }
 
 /**
- * KpiCard: Componente de alto impacto para métricas operacionais e financeiras.
- * Implements AFERIX_DESIGN_SPEC.md - Section 4.5
+ * KpiCard: High-density KPI card with sparkline support.
+ * Refactored for TOKEN-FIRST architecture (Executive OS V5).
  */
-export const KpiCard = memo(function KpiCard({
-  label,
-  value,
-  trend,
-  featured = false,
-  className = '',
+export const KpiCard = memo(function KpiCard({ 
+  label, 
+  value, 
+  color = "var(--accent-gold)", 
+  trend, 
+  className,
+  onClick
 }: KpiCardProps) {
+  const isTouchActive = onClick ? "active:scale-[0.98] active:brightness-110 transition-all duration-300" : "";
+  
   return (
-    <Surface 
-      elevation={featured ? 2 : 1} 
-      padding="lg" 
-      className={`aferix-kpi-card ${featured ? 'featured' : ''} ${className}`.trim()}
-    >
-      <header className="kpi-header">
-        <span className="kpi-label">{label}</span>
-      </header>
-      
-      <main className="kpi-body">
-        <div className="kpi-value">
-          {typeof value === 'number' ? <MoneyValue value={value} /> : value}
-        </div>
-      </main>
-
-      {trend && (
-        <footer className="kpi-footer">
-          <Badge tone={trend.isPositive ? 'success' : 'danger'}>
-            {trend.isPositive ? '↑' : '↓'} {trend.value}%
-          </Badge>
-          {trend.label && <span className="trend-label">{trend.label}</span>}
-        </footer>
+    <div 
+      onClick={onClick}
+      className={cn(
+        "p-6 relative overflow-hidden bg-[var(--surface-gradient-soft)] border var(--border-soft) rounded-[var(--radius-card)] shadow-[var(--shadow-soft)] flex flex-col justify-between transition-all duration-300", 
+        isTouchActive,
+        className
       )}
-
-      <style>{`
-        .aferix-kpi-card {
-          display: flex;
-          flex-direction: column;
-          gap: var(--sz-sm);
-          min-height: 120px;
-          justify-content: space-between;
-          transition: transform 0.2s ease;
-        }
-
-        .aferix-kpi-card:active {
-          transform: scale(0.98);
-        }
-
-        .kpi-label {
-          font-size: 11px;
-          font-weight: 800;
-          letter-spacing: 0.08em;
-          text-transform: uppercase;
-          color: var(--text-muted);
-        }
-
-        .kpi-value {
-          font-size: 28px;
-          font-weight: 900;
-          color: var(--text-primary);
-          letter-spacing: -0.02em;
-          line-height: 1;
-        }
-
-        .featured .kpi-value {
-          color: var(--brand-primary);
-        }
-
-        .kpi-footer {
-          display: flex;
-          align-items: center;
-          gap: var(--sz-sm);
-          margin-top: var(--sz-xs);
-        }
-
-        .trend-label {
-          font-size: 11px;
-          color: var(--text-muted);
-          font-weight: 600;
-        }
-      `}</style>
-    </Surface>
+    >
+      <div className="relative z-10">
+        <p className="text-[var(--fs-xs)] font-bold uppercase tracking-[0.15em] text-[var(--text-muted)] opacity-60 mb-2">
+          {label}
+        </p>
+        
+        <p className="num text-[var(--fs-xl)] font-bold leading-tight text-[var(--text-primary)]" style={{ color }}>
+          {value}
+        </p>
+      </div>
+      
+      {trend && trend.length > 1 && (
+        <div className="absolute bottom-0 left-0 right-0 h-10 opacity-5 pointer-events-none">
+          <Sparkline 
+            data={trend} 
+            stroke={color} 
+            fill="transparent" 
+            height={40} 
+          />
+        </div>
+      )}
+    </div>
   );
 });

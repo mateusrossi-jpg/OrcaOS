@@ -1,6 +1,10 @@
 import { useEffect, useState } from 'react';
 import './AferixIntro.css';
 
+/**
+ * AferixIntro: Cinematic startup splash screen.
+ * Refactored for TOKEN-FIRST architecture (Executive OS V5).
+ */
 export function AferixIntro() {
   const [phase, setPhase] = useState<'visible' | 'fading' | 'hidden'>('visible');
 
@@ -22,7 +26,7 @@ export function AferixIntro() {
       setPhase('hidden');
       document.body.style.overflow = '';
       sessionStorage.setItem('aferix-intro-seen', 'true');
-    }, 2300);
+    }, 2400);
 
     return () => {
       clearTimeout(fadeTimer);
@@ -34,18 +38,22 @@ export function AferixIntro() {
   if (phase === 'hidden') return null;
 
   return (
-    <div className={`aferix-intro ${phase}`} role="dialog" aria-modal="true">
-      <div className="aferix-intro-glow" />
-      <div className="aferix-intro-content">
-        <img className="aferix-intro-wordmark" src="/icons/aferix-splash-mark.svg" alt="Aferix" />
-        <h1 className="aferix-intro-phrase">
-          Controle seu lucro com clareza
+    <div className={`aferix-intro-screen ${phase}`} role="dialog" aria-modal="true">
+      <div className="intro-content">
+        <div className="intro-logo-container">
+          <img className="intro-wordmark" src="/icons/aferix-splash-mark.svg" alt="Aferix Wordmark" />
+        </div>
+        
+        <h1 className="intro-title">
+          AFERIX
         </h1>
-        <p className="aferix-intro-sub">
-          Gestão financeira para autônomos
+        
+        <p className="intro-subtitle">
+          SISTEMA OPERACIONAL PRESTADOR
         </p>
-        <div className="aferix-intro-loader" aria-hidden="true">
-          <div className="aferix-intro-loader-bar" />
+        
+        <div className="intro-loading-track" aria-hidden="true">
+          <div className="intro-loading-bar" />
         </div>
       </div>
     </div>

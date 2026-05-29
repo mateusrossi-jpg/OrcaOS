@@ -1,7 +1,7 @@
 import type { CalculationCapture } from '../../../core/types/workflow';
 import { PremiumCatalogWorkspace } from './PremiumCatalogWorkspace';
 import type { CatalogHubItem } from '../types/catalogTypes';
-import { Surface } from '../../../app/components/ui';
+import { ContextBanner } from '../../../app/components/ui';
 
 interface CatalogHubWorkspaceWithTaxProps {
   onSendToBudget: (items: CalculationCapture[]) => void;
@@ -9,22 +9,17 @@ interface CatalogHubWorkspaceWithTaxProps {
 
 function convertToCapture(item: CatalogHubItem): CalculationCapture {
   return {
-    id: `cap-${item.id}-${Date.now()}`,
-    module: 'orcamentoTecnico',
-    moduleLabel: 'Catálogo',
-    calculatorLabel: item.kind,
-    destination: item.destination,
+    id: crypto.randomUUID(),
+    title: item.title,
+    clientId: '',
+    workOrderId: '',
+    category: item.kind === 'labor' ? 'service' : 'material',
+    description: item.title,
+    quantity: item.defaultQuantity || 1,
+    unitValue: item.defaultUnitValue || 0,
+    markup: 1,
     createdAt: new Date().toISOString(),
-    summary: `${item.title} (${item.defaultQuantity} ${item.unit})`,
-    details: [item.title, `Unidade: ${item.unit}`, `Valor: ${item.defaultUnitValue}`],
-    itemType: item.itemType || 'material',
-    editableDescription: item.title,
-    technicalNote: item.notes || '',
-    quantity: String(item.defaultQuantity),
-    unitValue: String(item.defaultUnitValue),
-    shouldGenerateBudgetItem: true,
-    convertedToBudgetItem: false,
-    reportReady: true,
+    updatedAt: new Date().toISOString()
   };
 }
 
@@ -38,10 +33,12 @@ export function CatalogHubWorkspace({ onSendToBudget }: CatalogHubWorkspaceWithT
   };
 
   return (
-    <div className="catalog-hub-container" style={{ maxWidth: '440px', margin: '0 auto' }}>
-      <Surface elevation={0} padding="md" className="aferix-mb-md">
-        <p className="aferix-text-muted text-small">Biblioteca de materiais e serviços pré-configurados para agilizar seus orçamentos.</p>
-      </Surface>
+    <div className="flex flex-col gap-6">
+      <ContextBanner
+        title="Biblioteca Inteligente"
+        meta="Materiais e serviços pré-configurados para agilizar seus orçamentos técnicos."
+        icon="📚"
+      />
       
       <PremiumCatalogWorkspace onSendToBudget={handleSelect} />
     </div>

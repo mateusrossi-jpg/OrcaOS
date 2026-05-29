@@ -1,57 +1,53 @@
-import React from 'react';
-import { ERPTokens } from './tokens';
+import React, { memo, type ReactNode } from 'react';
+import { cn } from '../../utils/ui';
 
-export type SemanticStatus = 'healthy' | 'warning' | 'critical' | 'blocked' | 'stalled' | 'info';
-
-interface ERPBadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
-  status?: SemanticStatus;
-  children: React.ReactNode;
-  variant?: 'solid' | 'outline' | 'soft';
+interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
+  children: ReactNode;
+  tone?: 'healthy' | 'warning' | 'critical' | 'info' | 'muted';
   className?: string;
 }
 
-export function ERPBadge({ status = 'info', children, variant = 'soft', className = '', ...props }: ERPBadgeProps) {
-  const semantic = ERPTokens.colors.semantic[status];
-  
-  let styles = '';
-  if (variant === 'soft') {
-    styles = `${semantic.bg} ${semantic.text} border ${semantic.border}`;
-  } else if (variant === 'solid') {
-    styles = `${semantic.dot} text-gray-950 font-bold`; // Using dot color as solid bg
-  } else if (variant === 'outline') {
-    styles = `bg-transparent ${semantic.text} border ${semantic.border}`;
-  }
+/**
+ * Aferix V5 Badge: High-polish semantic indicator.
+ * Refactored for TOKEN-FIRST architecture (Executive OS V5).
+ */
+export const Badge = memo(function Badge({ 
+  children, 
+  tone = 'info', 
+  className = '',
+  ...props 
+}: BadgeProps) {
+  const tones = {
+    healthy:  "bg-[var(--accent-green)]/15 text-[var(--accent-green)] border-[var(--accent-green)]/20",
+    warning:  "bg-[var(--accent-gold)]/15 text-[var(--accent-gold)] border-[var(--accent-gold)]/20",
+    critical: "bg-[var(--accent-red)]/15 text-[var(--accent-red)] border-[var(--accent-red)]/20",
+    info:     "bg-[var(--accent-blue)]/15 text-[var(--accent-blue)] border-[var(--accent-blue)]/20",
+    muted:    "bg-white/5 text-[var(--text-muted)] border-white/5",
+  };
 
   return (
     <span 
-      className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${styles} ${className}`}
+      className={cn(
+        "inline-flex items-center gap-1.5 rounded-lg px-2.5 py-0.5 text-[var(--fs-xs)] font-bold uppercase tracking-wider border",
+        tones[tone],
+        className
+      )}
       {...props}
     >
       {children}
     </span>
   );
-}
+});
 
-// Pre-configured Badges for specific domains
-export function SLABadge({ status, label, ...props }: { status: SemanticStatus; label?: string; className?: string }) {
-  const getDefaultLabel = () => {
-    switch (status) {
-      case 'healthy': return 'No Prazo';
-      case 'warning': return 'Risco SLA';
-      case 'critical': return 'SLA Violado';
-      case 'blocked': return 'Bloqueado';
-      case 'stalled': return 'Paralisado';
-      default: return 'Desconhecido';
-    }
+export const StatusDot = memo(function StatusDot({ tone = 'healthy', className = '' }: { tone?: 'healthy' | 'warning' | 'critical' | 'info', className?: string }) {
+  const tones = {
+    healthy:  "bg-[var(--accent-green)] shadow-[0_0_8px_var(--accent-green)]",
+    warning:  "bg-[var(--accent-gold)] shadow-[0_0_8px_var(--accent-gold)]",
+    critical: "bg-[var(--accent-red)] shadow-[0_0_8px_var(--accent-red)]",
+    info:     "bg-[var(--accent-blue)] shadow-[0_0_8px_var(--accent-blue)]",
   };
-  return <ERPBadge status={status} {...props}>{label || getDefaultLabel()}</ERPBadge>;
-}
 
-export function CRMStageBadge({ stage, label, className = '' }: { stage: keyof typeof ERPTokens.colors.crm; label: string; className?: string }) {
-  const bg = ERPTokens.colors.crm[stage];
   return (
-    <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide text-white ${bg} ${className}`}>
-      {label}
-    </span>
+    <div className={cn("h-1.5 w-1.5 rounded-full animate-pulse", tones[tone], className)} />
   );
-}
+});

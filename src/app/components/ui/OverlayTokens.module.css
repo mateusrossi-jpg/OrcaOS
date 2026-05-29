@@ -1,31 +1,39 @@
-/* Overlay and Sheet tokens – purified dark premium theme */
+/* src/app/components/ui/OverlayTokens.module.css
+   Refactored for TOKEN-FIRST architecture (Executive OS V5).
+   ---------------------------------------------------------- */
 
 /* Backdrop */
 .overlay {
   position: fixed;
   inset: 0;
   background: var(--bg-overlay);
-  backdrop-filter: blur(8px);
-  z-index: var(--z-modal);
+  backdrop-filter: blur(24px) saturate(1.5);
+  -webkit-backdrop-filter: blur(24px) saturate(1.5);
+  z-index: var(--z-modal, 1000);
 }
 
 /* Sheet (centered modal / action sheet) */
 .sheet {
   position: fixed;
   left: 50%;
-  bottom: calc(env(safe-area-inset-bottom, 0px) + 76px); /* 16px + 60px (bottom nav) */
+  bottom: calc(env(safe-area-inset-bottom, 0px) + var(--fab-bottom)); 
   transform: translateX(-50%);
-  width: min(420px, calc(100vw - 32px));
-  max-height: 70vh;
+  width: min(440px, calc(100vw - 32px));
+  max-height: 80vh;
   overflow-y: auto;
-  border-radius: var(--radius-lg);
-  padding: var(--sz-lg);
-  background: var(--bg-elevated);
+  border-radius: var(--radius-modal);
+  padding: var(--spacing-xl);
+  background: var(--bg-surface);
   color: var(--text-primary);
-  border: 1px solid var(--border-soft);
-  box-shadow: var(--shadow-lg);
+  border: var(--border-soft);
+  box-shadow: var(--shadow-card);
   box-sizing: border-box;
-  z-index: var(--z-modal);
+  z-index: calc(var(--z-modal, 1000) + 1);
+  scrollbar-width: none;
+}
+
+.sheet::-webkit-scrollbar {
+  display: none;
 }
 
 @media (min-width: 1025px) {
@@ -42,14 +50,14 @@
 }
 
 @keyframes scaleIn {
-  from { opacity: 0; transform: translate(-50%, 10%) scale(0.95); }
+  from { opacity: 0; transform: translate(-50%, 8px) scale(0.96); }
   to { opacity: 1; transform: translate(-50%, 0) scale(1); }
 }
 
 .overlayFadeIn {
-  animation: fadeIn 150ms ease-out forwards;
+  animation: fadeIn var(--dur-normal) var(--ease-premium) forwards;
 }
 
 .sheetScaleIn {
-  animation: scaleIn 200ms ease-out forwards;
+  animation: scaleIn var(--dur-normal) var(--ease-premium) forwards;
 }

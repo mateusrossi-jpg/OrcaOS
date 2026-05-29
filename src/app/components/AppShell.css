@@ -1,60 +1,102 @@
 /* AFERIX PREMIUM MOBILE SHELL
-   Layout V4 - Specialized for Field Service
-   ----------------------------------------- */
+   Refactored for TOKEN-FIRST architecture (Executive OS V5).
+   ---------------------------------------------------------- */
 
-/* Root centering logic */
 .aferix-shell-root {
   width: 100vw;
   height: 100vh;
   height: 100dvh;
-  background: var(--bg-app);
+  background: var(--bg-primary);
   display: flex;
   justify-content: center;
   overflow: hidden;
 }
 
-/* Mobile bounded container */
 .aferix-mobile-container {
   width: 100%;
-  max-width: 440px;
+  max-width: 440px !important;
   height: 100%;
-  background: var(--bg-app);
+  background: transparent !important;
   position: relative;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 0 40px rgba(0, 0, 0, 0.5); /* Desktop preview shadow */
-  border-left: 1px solid var(--border-dim);
-  border-right: 1px solid var(--border-dim);
 }
 
 /* Sticky Header */
 .aferix-header {
-  height: 60px;
+  height: 56px;
   width: 100%;
-  background: var(--bg-overlay);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--border-soft);
-  display: grid;
-  grid-template-columns: 48px 1fr 48px;
+  background: var(--bg-surface-glass);
+  backdrop-filter: blur(24px) saturate(1.5);
+  -webkit-backdrop-filter: blur(24px) saturate(1.5);
+  display: flex;
   align-items: center;
-  padding: 0 var(--sz-md);
+  justify-content: space-between;
+  padding: 0 var(--spacing-md);
   position: sticky;
   top: 0;
-  z-index: var(--z-sticky);
+  z-index: var(--z-sticky, 100);
   flex-shrink: 0;
+  border-bottom: var(--border-subtle);
 }
 
 .header-brand {
   display: flex;
-  justify-content: center;
   align-items: center;
+  gap: var(--spacing-sm);
 }
 
-.header-actions {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
+.brand-symbol {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-xs);
+  border: var(--border-soft);
+  background: var(--bg-surface);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-black);
+  letter-spacing: 0.15em;
+  color: var(--text-primary);
+}
+
+.brand-text {
+  font-size: var(--fs-base);
+  font-weight: var(--fw-bold);
+  letter-spacing: 0.2em;
+  color: var(--text-primary);
+}
+
+.brand-accent {
+  color: var(--accent-gold);
+}
+
+.notification-trigger {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-pill);
+  border: var(--border-subtle);
+  background: var(--bg-surface-glass);
+  color: var(--text-secondary);
+  position: relative;
+  transition: all var(--transition-fast);
+}
+
+.notification-trigger:active {
+  transform: scale(0.94);
+}
+
+.notification-dot {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-pill);
+  background: var(--accent-gold);
+  box-shadow: 0 0 8px var(--accent-gold);
 }
 
 /* Scrollable Main Content */
@@ -69,64 +111,78 @@
 }
 
 .content-inner {
-  padding: var(--sz-md);
+  padding: var(--spacing-md);
   width: 100%;
   box-sizing: border-box;
 }
 
-/* Fixed Bottom Navigation (5 Pillars Edition) */
+/* Fixed Bottom Navigation */
 .aferix-bottom-nav {
-  height: 64px;
-  background: var(--bg-overlay);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-top: 1px solid var(--border-soft);
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  max-width: 440px;
+  background: rgba(14, 14, 14, 0.7);
+  backdrop-filter: blur(32px) saturate(1.8);
+  -webkit-backdrop-filter: blur(32px) saturate(1.8);
+  border-top: var(--border-subtle);
   display: grid;
-  grid-template-columns: repeat(5, 1fr); /* 5 columns now */
-  padding-bottom: env(safe-area-inset-bottom, 0px);
-  z-index: var(--z-sticky);
-  flex-shrink: 0;
+  grid-template-columns: repeat(5, 1fr);
+  padding: var(--spacing-sm) var(--spacing-sm) calc(max(env(safe-area-inset-bottom), var(--spacing-md)));
+  z-index: 1000;
 }
 
 .nav-item {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 4px;
-  background: transparent;
-  border: 0;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-sm) 0;
+  border-radius: var(--radius-sm);
   color: var(--text-muted);
+  transition: all var(--transition-fast);
   cursor: pointer;
-  transition: all 0.2s ease;
-  user-select: none;
+  position: relative;
+}
+
+.nav-item:active {
+  transform: scale(0.94);
+  background: rgba(255, 255, 255, 0.04);
 }
 
 .nav-item.active {
-  color: var(--brand-primary);
+  color: var(--accent-gold);
 }
 
 .nav-icon {
-  font-size: 20px;
-  line-height: 1;
-  opacity: 0.7;
+  width: 23px;
+  height: 23px;
+  opacity: 0.5;
+  transition: all var(--transition-fast);
 }
 
-.nav-item.active .nav-icon {
+.active .nav-icon {
   opacity: 1;
+  filter: drop-shadow(0 0 8px oklch(0.82 0.14 85 / 0.4));
 }
 
 .nav-label {
-  font-size: 10px;
-  font-weight: 700;
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-bold);
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.12em;
+  opacity: 0.6;
 }
 
-/* Responsive Hide Borders */
-@media (max-width: 440px) {
+.active .nav-label {
+  opacity: 1;
+}
+
+/* Responsive Desktop Preview */
+@media (min-width: 441px) {
   .aferix-mobile-container {
-    border-left: none;
-    border-right: none;
+    box-shadow: var(--shadow-soft);
+    border-left: var(--border-subtle);
+    border-right: var(--border-subtle);
   }
 }

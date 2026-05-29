@@ -1,5 +1,5 @@
-/* AFERIX GLOBAL RESET & FLUIDITY
-   -------------------------------- */
+/* AFERIX GLOBAL RESET & PREMIUM FLUIDITY
+   --------------------------------------- */
 
 :root {
   color-scheme: dark;
@@ -8,6 +8,7 @@
 * {
   box-sizing: border-box;
   -webkit-tap-highlight-color: transparent;
+  border-color: var(--border);
 }
 
 html, body, #root {
@@ -16,13 +17,15 @@ html, body, #root {
   margin: 0;
   padding: 0;
   overflow: hidden; /* AppShell handles scroll */
-  background: var(--bg-app);
-  color: var(--text-primary);
-  font-family: var(--aferix-font);
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
 }
 
 /* Typography Overrides */
@@ -32,64 +35,247 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 strong {
-  color: var(--text-primary);
-}
-
-small {
-  font-size: 12px;
-  color: var(--text-muted);
+  color: var(--foreground);
 }
 
 /* Form Defaults */
 input, select, textarea, button {
   font: inherit;
   color: inherit;
+  background: transparent;
+  border: none;
 }
 
-/* Utilities for Layout (The Purifier) */
+button {
+  cursor: pointer;
+}
+
+/* --------------------------------------------------
+   LOVABLE UTILITY CLASSES (Unified Design System)
+   -------------------------------------------------- */
+
+.glow-gold {
+  background: var(--surface-glow), var(--surface-gradient) !important;
+  box-shadow: var(--shadow-cinematic) !important;
+}
+
+.surface-elev {
+  background: var(--surface-gradient) !important;
+  border: var(--border-soft) !important;
+  border-radius: var(--radius-card) !important;
+  box-shadow: var(--shadow-soft) !important;
+  transition: all var(--transition-normal) !important;
+}
+
+.hairline {
+  border-bottom: var(--border-subtle) !important;
+}
+
+.num {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+/* --------------------------------------------------
+   LAYOUT & SCROLLING
+   -------------------------------------------------- */
+
 .aferix-truncate {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.tabular-nums {
-  font-variant-numeric: tabular-nums;
-}
-
-/* Modal System (Purified) */
+/* Modal System (Cinematic Depth) */
 .aferix-modal-overlay {
   position: fixed;
   inset: 0;
-  background: var(--bg-overlay);
-  backdrop-filter: blur(8px);
+  background: oklch(0.16 0.005 260 / 0.6);
+  backdrop-filter: var(--blur-overlay);
   display: flex;
   align-items: center;
   justify-content: center;
   padding: var(--sz-md);
-  z-index: var(--z-modal);
+  z-index: 1000;
+  animation: fadeIn var(--dur-base) var(--ease-out-expo);
 }
 
 .aferix-modal-card {
-  background: var(--bg-elevated);
-  border: 1px solid var(--border-soft);
-  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-elevation-3);
+  border-radius: var(--radius-2xl);
   width: 100%;
   max-width: 380px;
-  box-shadow: var(--shadow-lg);
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  animation: slideUpModal var(--dur-base) var(--ease-spring);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUpModal {
+  from { opacity: 0; transform: translateY(20px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes cinematicPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+.animate-cinematic-pulse {
+  animation: cinematicPulse 8s ease-in-out infinite;
 }
 
 /* Scrollbar refinement */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 4px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--border-medium);
+  background: oklch(1 0 0 / 0.1);
   border-radius: 10px;
 }
+
+/* --------------------------------------------------
+   WIDE SCREEN GOLDEN HOME REFERENCE INSETS
+   -------------------------------------------------- */
+.wide-screen {
+  padding-left: var(--sz-md, 16px) !important;
+  padding-right: var(--sz-md, 16px) !important;
+  padding-top: 12px !important;
+  /* Scroll termination spacing: Nav height (62px) + breathing room (24px) + Safe Area bottom inset */
+  padding-bottom: calc(86px + max(env(safe-area-inset-bottom), 10px)) !important;
+}
+
+.wide-screen h1 {
+  font-size: 26px !important; /* Compressed OS header scale */
+  font-weight: 700 !important;
+  letter-spacing: -0.025em !important;
+  line-height: 1.1 !important;
+}
+
+.wide-screen p.text-primary {
+  font-size: 8.5px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.22em !important;
+  text-transform: uppercase !important;
+  color: var(--primary) !important;
+  margin-bottom: 2px !important;
+}
+
+.wide-screen p.text-muted-foreground {
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  line-height: 1.3 !important;
+  max-width: 85% !important;
+  margin-top: 4px !important;
+  color: var(--muted-foreground) !important;
+  opacity: 0.75;
+}
+
+.wide-screen > div:first-of-type {
+  margin-bottom: 16px !important;
+}
+
+/* --------------------------------------------------
+   CINEMATIC SYSTEM ATMOSPHERE (Unified Design System)
+   -------------------------------------------------- */
+
+.screen-atmosphere {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+  background: var(--bg-primary);
+}
+
+.atmosphere-vignette {
+  position: absolute;
+  inset: 0;
+  background: var(--surface-vignette);
+  opacity: 0.9;
+  animation: atmosphericBreathing 8s infinite var(--ease-premium);
+}
+
+@keyframes atmosphericBreathing {
+  0%, 100% { opacity: 0.85; }
+  50% { opacity: 0.95; }
+}
+
+/* --------------------------------------------------
+   PREMIUM HIGH-DENSITY INPUT & BUTTON OVERRIDES
+   -------------------------------------------------- */
+.aferix-input-field input,
+.aferix-input-field textarea,
+.aferix-select-field select,
+.monetary-input-wrapper,
+input, select, textarea {
+  min-height: 48px !important;
+  font-size: 14.5px !important;
+  font-weight: 600 !important;
+  border-radius: var(--radius-button) !important;
+  background: var(--bg-surface-glass) !important;
+  border: var(--border-subtle) !important;
+  box-shadow: var(--shadow-inset) !important;
+  padding: 12px 16px !important;
+  color: var(--text-primary) !important;
+  transition: border-color var(--transition-fast), background-color var(--transition-fast);
+}
+
+.aferix-input-field input:focus,
+.aferix-input-field textarea:focus,
+.aferix-select-field select:focus,
+.monetary-input-wrapper:focus-within {
+  border-color: var(--accent-gold) !important;
+  background: rgba(255, 255, 255, 0.06) !important;
+}
+
+.ui-button, .ui-button button, button.primary-action, button.secondary-action {
+  min-height: 48px !important;
+  border-radius: var(--radius-button) !important;
+  font-size: 13.5px !important;
+  font-weight: 700 !important;
+  padding: 0 var(--sz-md, 16px) !important;
+  transition: all var(--transition-fast) !important;
+}
+
+button.primary-action {
+  background: var(--accent-gold) !important;
+  color: #000000 !important;
+  box-shadow: var(--shadow-button) !important;
+}
+
+button.secondary-action {
+  background: var(--bg-surface-glass) !important;
+  border: var(--border-soft) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Uniform, high-density stream styling for secondary pages */
+.client-stream-item {
+  padding: 12px 16px !important;
+  border-radius: var(--radius-card) !important;
+  background: var(--bg-surface) !important;
+  border: var(--border-subtle) !important;
+}
+
+.client-stream-stack {
+  gap: 8px !important;
+}
+
+.client-stream-avatar {
+  width: 32px !important;
+  height: 32px !important;
+  font-size: 11px !important;
+}
+
+
+

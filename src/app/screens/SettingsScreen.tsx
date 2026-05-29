@@ -117,8 +117,9 @@ export function SettingsScreen({ account, onAccountChange: _onAccountChange }: S
 
             <section className="account-registration-card">
               <div className="settings-form-grid">
-                <Input label="Nome profissional" value={nameDraft} placeholder="Ex.: Profissional técnico" onChange={(event) => setNameDraft(event.target.value)} />
-                <Input label="E-mail de acesso" type="email" value={emailDraft} placeholder="profissional@email.com" onChange={(event) => setEmailDraft(event.target.value)} />
+                <Input label="Nome profissional" value={nameDraft} placeholder="Ex.: Profissional técnico" onChange={(event: React.ChangeEvent<HTMLInputElement>) => setNameDraft(event.target.value)} />
+                <Input label="E-mail de acesso" type="email" value={emailDraft} placeholder="profissional@email.com" onChange={(event: React.ChangeEvent<HTMLInputElement>) => setEmailDraft(event.target.value)} />
+
               </div>
               <div className="settings-actions-row-premium">
                 <PrimaryButton disabled={isSigningIn} onClick={registerEmailAccount}>Cadastrar e-mail</PrimaryButton>

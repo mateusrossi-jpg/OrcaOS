@@ -1,10 +1,12 @@
-import React, { ReactNode } from 'react';
+import { ReactNode } from 'react';
 import { Overlay } from './Overlay';
 import sheetStyles from './OverlayTokens.module.css';
-import styles from './MobileActionMenu.module.css'; // for title and menu styling
+import styles from './MobileActionMenu.module.css';
+import { cn } from '../../../utils/ui';
 
-/** Mobile‑only action sheet (bottom sheet) using the shared Overlay system.
- * It renders its children inside a centered sheet with standardized styling.
+/**
+ * ActionSheet: Mobile‑first bottom sheet primitive.
+ * Refactored for TOKEN-FIRST architecture (Executive OS V5).
  */
 export function ActionSheet({
   isOpen,
@@ -22,11 +24,11 @@ export function ActionSheet({
   return (
     <Overlay isOpen={isOpen} onClose={onClose}>
       <div
-        className={sheetStyles.sheet + ' ' + sheetStyles.sheetScaleIn}
+        className={cn(sheetStyles.sheet, sheetStyles.sheetScaleIn)}
         onClick={(e) => e.stopPropagation()}
       >
         {label && <h3 className={styles.title}>{label}</h3>}
-        <div className={styles.menu}>{children}</div>
+        {children}
       </div>
     </Overlay>
   );

@@ -1,46 +1,54 @@
-import React from 'react';
-import { ERPTokens } from './tokens';
+import React, { memo, type ReactNode } from 'react';
+import { cn } from '../../utils/ui';
+import { AlertTriangle, Loader2 } from 'lucide-react';
 
-interface StateProps extends React.HTMLAttributes<HTMLDivElement> {
-  className?: string;
-}
-
-export function ERPLoader({ className = '', message = 'Carregando dados operacionais...' }: StateProps & { message?: string }) {
+/**
+ * ERPLoader: Executive system loading state.
+ * Refactored for TOKEN-FIRST architecture (Executive OS V5).
+ */
+export const ERPLoader = memo(function ERPLoader({ message, className = '' }: { message?: string, className?: string }) {
   return (
-    <div className={`w-full h-full min-h-[200px] flex flex-col items-center justify-center gap-4 ${className}`}>
-      <div className={`animate-spin rounded-full h-8 w-8 border-b-2 ${ERPTokens.colors.borderFocus}`}></div>
-      {message && <span className={`text-sm ${ERPTokens.colors.textSecondary} animate-pulse`}>{message}</span>}
+    <div className={cn("w-full h-full min-h-[200px] flex flex-col items-center justify-center gap-lg", className)}>
+      <div className="relative h-12 w-12">
+        <Loader2 className="h-12 w-12 text-[var(--accent-gold)] animate-spin" />
+      </div>
+      {message && <span className="text-ui-xs text-[var(--accent-gold)] opacity-60 animate-pulse">{message}</span>}
     </div>
   );
-}
+});
 
-export function ERPEmptyState({ title = 'Nenhum registro', description, icon, className = '' }: StateProps & { title?: string; description?: string; icon?: React.ReactNode }) {
+/**
+ * ERPEmptyState: Discrete placeholder for empty contexts.
+ */
+export const ERPEmptyState = memo(function ERPEmptyState({ title, description, icon, action, className = '' }: { title: string, description?: string, icon?: ReactNode, action?: ReactNode, className?: string }) {
   return (
-    <div className={`w-full py-12 flex flex-col items-center justify-center gap-3 border border-dashed ${ERPTokens.colors.borderLight} rounded-xl bg-gray-900/20 ${className}`}>
-      {icon ? (
-        <div className="text-gray-600 mb-2">{icon}</div>
-      ) : (
-        <svg className="w-10 h-10 text-gray-700 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" /></svg>
-      )}
-      <h3 className={`text-sm font-medium ${ERPTokens.colors.textSecondary}`}>{title}</h3>
-      {description && <p className={`text-xs ${ERPTokens.colors.textTertiary} max-w-sm text-center`}>{description}</p>}
+    <div className={cn("w-full py-20 px-shell flex flex-col items-center justify-center gap-md text-center", className)}>
+      {icon && <div className="text-[var(--text-muted)] opacity-20 mb-2">{icon}</div>}
+      <h3 className="text-ui-md text-[var(--text-primary)]">{title}</h3>
+      {description && <p className="text-ui-sm text-[var(--text-muted)] max-w-xs leading-relaxed opacity-60">{description}</p>}
+      {action && <div className="mt-4">{action}</div>}
     </div>
   );
-}
+});
 
-export function ERPErrorState({ title = 'Erro na operação', error, onRetry, className = '' }: StateProps & { title?: string; error?: Error | string; onRetry?: () => void }) {
+/**
+ * ERPErrorState: High-polish error recovery surface.
+ */
+export const ERPErrorState = memo(function ERPErrorState({ title = 'Erro no Sistema', error, onRetry, className = '' }: { title?: string, error?: Error | string | null, onRetry?: () => void, className?: string }) {
   return (
-    <div className={`w-full py-8 px-6 flex flex-col items-center justify-center gap-4 bg-red-950/20 border border-red-900/30 rounded-xl ${className}`}>
-      <svg className="w-10 h-10 text-red-500/70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-      <div className="text-center">
-        <h3 className="text-sm font-medium text-red-400">{title}</h3>
-        {error && <p className="text-xs text-red-500/70 mt-1 max-w-md">{typeof error === 'string' ? error : error.message}</p>}
+    <div className={cn("w-full py-12 px-shell flex flex-col items-center justify-center gap-lg bg-[var(--accent-red)]/5 border border-[var(--accent-red)]/20 rounded-[var(--radius-card)] text-center", className)}>
+      <div className="h-12 w-12 rounded-full bg-[var(--accent-red)]/10 flex items-center justify-center text-[var(--accent-red)]">
+        <AlertTriangle className="h-6 w-6" />
+      </div>
+      <div>
+        <h3 className="text-ui-md text-[var(--accent-red)] font-bold">{title}</h3>
+        {error && <p className="text-ui-sm text-[var(--accent-red)] opacity-60 mt-2 max-w-md leading-relaxed">{typeof error === 'string' ? error : error.message}</p>}
       </div>
       {onRetry && (
-        <button onClick={onRetry} className="mt-2 px-4 py-1.5 bg-red-900/30 hover:bg-red-900/50 text-red-400 text-xs font-medium rounded transition-colors border border-red-800/30">
-          Tentar Novamente
+        <button onClick={onRetry} className="h-12 px-8 bg-[var(--accent-red)]/10 hover:bg-[var(--accent-red)]/20 text-[var(--accent-red)] text-ui-sm font-bold rounded-[var(--radius-button)] transition-all border border-[var(--accent-red)]/20 active:scale-[0.95]">
+          TENTAR NOVAMENTE
         </button>
       )}
     </div>
   );
-}
+});

@@ -121,12 +121,12 @@ export function PricingWorkspace({
         )}
 
         {(activeTab === 'margin' || activeTab === 'markup') && !isPro && (
-          <div className="pro-lock-overlay aferix-card-elevated aferix-mt-lg aferix-text-center aferix-d-flex aferix-flex-column aferix-align-center aferix-gap-md" style={{ padding: '24px' }}>
-            <strong className="aferix-text-yellow aferix-font-md">🔒 Recurso do Aferix Pro</strong>
-            <p className="aferix-text-muted aferix-font-sm" style={{ maxWidth: '320px', margin: '0' }}>
+          <div className="p-8 mt-8 text-center flex flex-col items-center gap-6 rounded-[var(--radius-card)] bg-[var(--surface-gradient)] border var(--border-soft) shadow-[var(--shadow-soft)]">
+            <strong className="text-[var(--accent-gold)] text-[var(--fs-md)] font-bold">🔒 Recurso do Aferix Pro</strong>
+            <p className="text-[var(--text-muted)] text-[var(--fs-sm)] max-w-[320px] leading-relaxed">
               Cálculos avançados de margem real e markup estão disponíveis na versão Pro.
             </p>
-            <Button variant="primary" className="aferix-mt-sm" onClick={onUpgradeRequest}>
+            <Button variant="primary" className="w-full" onClick={onUpgradeRequest}>
               Conhecer Planos
             </Button>
           </div>

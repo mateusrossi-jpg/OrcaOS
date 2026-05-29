@@ -1,10 +1,9 @@
 import { type ReactNode } from 'react';
+import { Home, ClipboardList, Wallet, CalendarDays, MoreHorizontal, Bell } from "lucide-react";
 import type { Client, Service as WorkOrder } from '../../core/types/business';
 import './AppShell.css';
 import type { AppTab } from '../appTypes';
-import { ERPNotificationCenter } from '../../ui/system';
-
-const AFERIX_WORDMARK = '/icons/aferix-wordmark-premium.svg';
+import { cn } from '../../utils/ui';
 
 interface AppShellProps {
   children: ReactNode;
@@ -15,32 +14,39 @@ interface AppShellProps {
 }
 
 /**
- * AppShell V5 (The Premium 5-Pillar Shell)
- * Implements AFERIX_DESIGN_SPEC.md - Section 3
- * Total parity with Lovable design: Resumo, Operação, Financeiro, Agenda, Mais.
+ * AppShell: The high-polish executive operating shell.
+ * Refactored for TOKEN-FIRST architecture (Executive OS V5).
  */
 export function AppShell({ children, activeTab, onNavigate }: AppShellProps) {
   const bottomNavItems = [
-    { id: 'pulse', label: 'Resumo', icon: '🏠' },
-    { id: 'budgets', label: 'Operação', icon: '📑' },
-    { id: 'money', label: 'Financeiro', icon: '💰' },
-    { id: 'work-history', label: 'Agenda', icon: '📅' },
-    { id: 'settings', label: 'Mais', icon: '☰' },
+    { id: 'pulse', label: 'Resumo', icon: Home },
+    { id: 'budgets', label: 'Operação', icon: ClipboardList },
+    { id: 'money', label: 'Financeiro', icon: Wallet },
+    { id: 'work-history', label: 'Agenda', icon: CalendarDays },
+    { id: 'settings', label: 'Mais', icon: MoreHorizontal },
   ];
 
   return (
     <div className="aferix-shell-root">
-      <div className="aferix-mobile-container">
+      <div className={cn("aferix-mobile-container", ["pulse", "budgets"].includes(activeTab) && "cinematic-shell")}>
         {/* Sticky Header */}
-        <header className="aferix-header" role="banner">
-          <div className="header-left"></div>
-          <div className="header-brand">
-            <img src={AFERIX_WORDMARK} alt="AFERIX" height={20} />
-          </div>
-          <div className="header-actions">
-            <ERPNotificationCenter />
-          </div>
-        </header>
+        {!["pulse", "budgets"].includes(activeTab) && (
+          <header className="aferix-header" role="banner">
+            <div className="header-brand">
+              <div className="brand-symbol">A</div>
+              <span className="brand-text">AFERI<span className="brand-accent">X</span></span>
+            </div>
+            <div className="header-actions">
+              <button
+                aria-label="Notificações"
+                className="notification-trigger"
+              >
+                <Bell className="h-4 w-4" />
+                <span className="notification-dot" />
+              </button>
+            </div>
+          </header>
+        )}
 
         {/* Scrollable Content */}
         <main className="aferix-main-content">
@@ -53,16 +59,18 @@ export function AppShell({ children, activeTab, onNavigate }: AppShellProps) {
             const isActive = activeTab === item.id || 
               (item.id === 'settings' && ['settings', 'catalog', 'store', 'reports', 'base'].includes(activeTab)) ||
               (item.id === 'budgets' && ['budgets', 'budgetDetail', 'new-budget'].includes(activeTab));
+            
+            const Icon = item.icon;
 
             return (
               <button
                 key={item.id}
                 type="button"
-                className={`nav-item ${isActive ? 'active' : ''}`}
+                className={cn("nav-item", isActive && "active")}
                 onClick={() => onNavigate(item.id as AppTab)}
                 aria-current={isActive ? 'page' : undefined}
               >
-                <span className="nav-icon">{item.icon}</span>
+                <Icon className={cn("nav-icon", isActive && "icon-active")} strokeWidth={isActive ? 2.5 : 2} />
                 <span className="nav-label">{item.label}</span>
               </button>
             );

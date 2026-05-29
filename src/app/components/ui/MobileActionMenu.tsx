@@ -1,16 +1,17 @@
 import React from 'react';
-import { SecondaryButton } from './index';
+import { Button } from './index';
 import type { CompactActionItem } from '../CompactActionMenu';
 import styles from './MobileActionMenu.module.css';
 import { ActionSheet } from './ActionSheet';
+import { MoreHorizontal } from 'lucide-react';
 
 /**
- * Mobile‑only action menu displayed as a small bottom sheet.
- * It receives the same `items` shape as `CompactActionMenu`.
+ * Mobile‑only action menu: High-polish bottom sheet selector.
+ * Refactored for TOKEN-FIRST architecture (Executive OS V5).
  */
 export function MobileActionMenu({
   items,
-  label = '',
+  label = 'Opções do Registro',
 }: {
   items: CompactActionItem[];
   label?: string;
@@ -21,18 +22,31 @@ export function MobileActionMenu({
 
   return (
     <>
-      {/* Trigger button */}
-      <button className={styles.trigger} onClick={(e) => { e.stopPropagation(); setOpen(true); }} aria-label="Open action menu">⋮</button>
+      <button 
+        className={styles.trigger} 
+        onClick={(e) => { e.stopPropagation(); setOpen(true); }} 
+        aria-label="Abrir menu de ações"
+      >
+        <MoreHorizontal className="h-5 w-5" />
+      </button>
+      
       <ActionSheet isOpen={open} onClose={close} label={label}>
-        {items.map(it => (
-          <SecondaryButton
-            key={it.id}
-            onClick={() => { it.onSelect?.(); close(); }}
-            className={styles.itemButton}
-          >
-            {it.label}
-          </SecondaryButton>
-        ))}
+        <div className={styles.menu}>
+          {items.map(it => (
+            <Button
+              key={it.id}
+              variant={it.tone === 'danger' ? 'danger' : 'secondary'}
+              onClick={(e) => { 
+                e.stopPropagation();
+                it.onSelect?.(); 
+                close(); 
+              }}
+              className={styles.itemButton}
+            >
+              {it.label}
+            </Button>
+          ))}
+        </div>
       </ActionSheet>
     </>
   );

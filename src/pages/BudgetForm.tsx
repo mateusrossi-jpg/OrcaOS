@@ -1,46 +1,42 @@
-import React from 'react';
-import { BUDGET_STATUS, type BudgetItem, type BudgetStatus } from '../domain/budget';
+import React, { useState, useEffect } from 'react';
+import { FileDown, Send, Lock, ArrowRight, X } from "lucide-react";
+import { BUDGET_STATUS } from '../domain/budget';
 import { formatCurrencyBRL, formatPercent } from '../utils/formatters';
 import { useClients } from '../hooks/useClients';
 import { useBudgetForm } from '../hooks/useBudgetForm';
 import { BUDGET_WORKFLOW_MAP, type WorkflowStepId } from '../domain/budgetWorkflow';
 import { WorkflowStepper } from '../app/components/ui/WorkflowStepper';
-import { Client } from '../domain/client';
 import { PremiumCatalogWorkspace } from '../features/catalog/components/PremiumCatalogWorkspace';
 import type { CatalogHubItem } from '../features/catalog/types/catalogTypes';
 import { BudgetSummaryView } from '../features/budgets/components/BudgetSummaryView';
 import { FieldWorkTool } from '../features/budgets/components/FieldWorkTool';
 import { 
   PageShell,
-  PageHeader,
-  Surface,
+  Card,
   Input,
   Select,
   MonetaryInput,
-  PrimaryButton,
-  SecondaryButton,
-  Badge,
-  SectionTitle,
-  ContextBanner,
+  StatusPill,
   TextArea,
   Modal,
-  ListCard,
   MoneyValue,
+  SectionLabel,
+  ContextBanner,
+  PageTitle,
+  ERPLoader
 } from '../app/components/ui';
 import { StickyActionBar } from '../components/StickyActionBar';
+import { cn } from '../utils/ui';
 
 interface BudgetFormProps {
   id?: string | null;
   onBack?: () => void;
 }
 
-const mapStatusToStep = (status: BudgetStatus): WorkflowStepId => {
-  if (status === BUDGET_STATUS.ENVIADO) return 9; // Proposta
-  if (status === BUDGET_STATUS.AUTORIZADO || status === BUDGET_STATUS.EM_EXECUCAO) return 10; // Execução
-  if (status === BUDGET_STATUS.FINALIZADO || status === BUDGET_STATUS.ARQUIVADO) return 11; // Fechamento
-  return 1; // Cliente
-};
-
+/**
+ * BudgetForm V10 (Cinematic Operational Pipeline)
+ * Refactored for Unified Design System.
+ */
 export const BudgetForm: React.FC<BudgetFormProps> = ({ id, onBack }) => {
   const {
     budget,
@@ -55,11 +51,6 @@ export const BudgetForm: React.FC<BudgetFormProps> = ({ id, onBack }) => {
     showFinalizeModal,
     saveDraft,
     markAsSent,
-    markAsAuthorized,
-    markAsRejected,
-    markAsExecuting,
-    archiveBudget,
-    requestFinalize,
     cancelFinalize,
     confirmFinalize,
     error,
@@ -67,457 +58,277 @@ export const BudgetForm: React.FC<BudgetFormProps> = ({ id, onBack }) => {
     isReadOnly,
   } = useBudgetForm(id);
 
-  const [currentStep, setCurrentStep] = React.useState<WorkflowStepId>(1);
+  const [currentStep, setCurrentStep] = useState<WorkflowStepId>(1);
   const { clients } = useClients();
-  const [showCatalog, setShowCatalog] = React.useState(false);
+  const [showCatalog, setShowCatalog] = useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!isLoading && budget.status) {
-      setCurrentStep(mapStatusToStep(budget.status));
+      if (budget.status === BUDGET_STATUS.FINALIZADO) setCurrentStep(11);
+      else if ((budget.status === BUDGET_STATUS.EM_EXECUCAO || budget.status === BUDGET_STATUS.AUTORIZADO) && currentStep < 10) setCurrentStep(10);
+      else if (budget.status === BUDGET_STATUS.ENVIADO && currentStep < 9) setCurrentStep(9);
     }
-  }, [isLoading, budget.status]);
-
-  const handleNavigate = (stepId: WorkflowStepId) => {
-    setCurrentStep(stepId);
-  };
+  }, [isLoading, budget.status, currentStep]);
 
   const handleAddFromCatalog = (items: CatalogHubItem[]) => {
     items.forEach(item => addItem(item));
     setShowCatalog(false);
   };
 
-  if (isLoading) {
-    return (
-      <PageShell>
-        <div className="empty-state-card">
-          <strong>Carregando orçamento...</strong>
-        </div>
-      </PageShell>
-    );
-  }
+  const handleNextStep = async () => {
+    await saveDraft();
+    if (currentStep < 11) {
+      setCurrentStep((prev) => (prev + 1) as WorkflowStepId);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  if (isLoading) return <PageShell><ERPLoader message="Abrindo pipeline..." /></PageShell>;
 
   const services = (budget.items || []).filter(item => item.category !== 'material');
   const materials = (budget.items || []).filter(item => item.category === 'material');
 
   return (
-    <PageShell className={`aferix-budget-form-screen ${isSaving ? 'is-saving' : ''} ${isReadOnly ? 'is-read-only' : ''}`}>
-      <PageHeader 
-        title={currentStep === 11 ? 'Finalização do Projeto' : (budget.title || (id ? 'Editar orçamento' : 'Novo orçamento'))} 
-        sourceLabel={budget.status.toUpperCase()}
-        action={
-          <SecondaryButton onClick={onBack}>
-            Voltar
-          </SecondaryButton>
-        }
+    <PageShell className={cn("pb-48", isSaving && "opacity-70 pointer-events-none")}>
+      
+      {/* 1. CINEMATIC HEADER */}
+      <PageTitle 
+        onBack={onBack}
+        eyebrow="Pipeline Operacional"
+        title={budget.title || 'Novo Projeto'}
+        action={<StatusPill status={budget.status} />}
       />
 
-      {isReadOnly && currentStep < 11 && (
-        <div className="aferix-mb-md">
-          <ContextBanner
-            title={`Orçamento bloqueado para edição (Status: ${budget.status.replace('_', ' ').toUpperCase()})`}
-            meta="Os dados principais, itens e custos não podem mais ser alterados."
-            icon={<span className="nav-icon">🔒</span>}
-          />
-        </div>
-      )}
+      {/* 2. SILENT PROGRESSION HUD */}
+      <div className="mb-12">
+        <WorkflowStepper 
+          currentStep={currentStep} 
+          workflowMap={BUDGET_WORKFLOW_MAP} 
+          onStepClick={(id) => setCurrentStep(id)} 
+        />
+      </div>
 
       {error && (
-        <div className="aferix-card-warning aferix-mb-md">
-          <div className="aferix-d-flex aferix-justify-between aferix-align-center">
-            <span className="aferix-font-bold aferix-font-xs">{error}</span>
-            <button onClick={clearError} className="ghost-action">✕</button>
-          </div>
+        <div className="mb-8 flex items-center justify-between rounded-xl bg-destructive/10 border border-destructive/20 p-shell text-ui-base font-bold text-destructive">
+          <span>{error}</span>
+          <button onClick={clearError} className="p-2 -mr-2"><X className="h-4 w-4" /></button>
         </div>
       )}
 
-      <WorkflowStepper 
-        currentStep={currentStep} 
-        workflowMap={BUDGET_WORKFLOW_MAP} 
-        onStepClick={handleNavigate} 
-      />
+      {isReadOnly && currentStep < 10 && (
+        <ContextBanner
+          title="Stage Locked"
+          meta="Este estágio foi travado para manter a integridade operacional."
+          icon={<Lock className="h-4 w-4" />}
+          className="mb-12"
+        />
+      )}
 
-      <div className="aferix-d-flex aferix-flex-column aferix-gap-md aferix-mt-lg">
-        
-        {/* ETAPA 1: CLIENTE */}
-        {currentStep === 1 && (
-          <Surface elevation={1} padding="md">
-            <SectionTitle title="Vincular Cliente" eyebrow="Passo 1" />
-            <Select
-              label="Selecione um Cliente"
-              value={budget.clientId || ''}
-              onChange={(val) => {
-                const selectedClient = clients.find((c: Client) => c.id === val);
-                updateField('clientId', val);
-                updateField('clientName', selectedClient?.name || '');
-              }}
-              disabled={!permissions.canEditClient}
-            >
-              <option value="">Cliente Avulso (Nome Livre)</option>
-              {clients.map((c: Client) => (
-                <option key={c.id} value={c.id}>{c.name}</option>
-              ))}
-            </Select>
-
-            {!budget.clientId && (
-              <Input
-                label="Nome do Cliente"
-                value={budget.clientName || ''}
-                onChange={(e) => updateField('clientName', e.target.value)}
-                disabled={!permissions.canEditClient}
-                placeholder="Digite o nome completo..."
-              />
-            )}
-          </Surface>
-        )}
-
-        {/* ETAPA 2: ESCOPO */}
-        {currentStep === 2 && (
-          <Surface elevation={1} padding="md">
-            <SectionTitle title="Escopo do Projeto" eyebrow="Passo 2" />
-            <Input
-              label="Título do Orçamento"
-              value={budget.title}
-              onChange={(e) => updateField('title', e.target.value)}
-              disabled={!permissions.canEditTitle}
-              placeholder="Ex: Instalação Elétrica Residencial"
-              autoFocus
-            />
-            <Input
-              label="Prazo Estimado de Execução"
-              value={budget.executionDeadline || ''}
-              onChange={(e) => updateField('executionDeadline', e.target.value)}
-              disabled={!permissions.canEditTitle}
-              placeholder="Ex: 3 dias úteis"
-            />
-          </Surface>
-        )}
-
-        {/* ETAPA 3: TÉCNICO */}
-        {currentStep === 3 && (
-          <Surface elevation={1} padding="md">
-            <SectionTitle title="Levantamento Técnico" eyebrow="Passo 3" />
-            <TextArea
-              label="Descrição do Problema / Necessidade"
-              value={budget.technicalNotes || ''}
-              onChange={(val) => updateField('technicalNotes', val)}
-              disabled={!permissions.canEditNotes}
-              placeholder="Descreva o cenário encontrado no local..."
-              rows={5}
-            />
-          </Surface>
-        )}
-
-        {/* ETAPA 4: SERVIÇOS (M. Obra) */}
-        {currentStep === 4 && (
-          <div className="aferix-items-section">
-            <SectionTitle 
-              title="Mão de Obra e Serviços" 
-              eyebrow="Passo 4"
-              action={
-                permissions.canEditItems && (
-                  <button 
-                    type="button"
-                    className="ghost-action aferix-font-bold" 
-                    onClick={() => setShowCatalog(true)}
-                    style={{ color: 'var(--brand-primary)', fontSize: '0.85rem' }}
-                  >
-                    + Catálogo
-                  </button>
-                )
-              }
-            />
-            <ListCard>
-              {services.length === 0 ? (
-                <div className="aferix-p-md aferix-text-center aferix-text-muted">
-                  <small>Nenhum serviço adicionado.</small>
-                </div>
-              ) : (
-                services.map((item: BudgetItem) => (
-                  <div key={item.id} className="aferix-budget-item-row aferix-d-flex aferix-flex-column aferix-gap-xs" style={{ padding: '12px', borderBottom: '1px solid var(--border-soft)' }}>
-                    <div className="aferix-d-flex aferix-justify-between aferix-align-center">
-                      <strong className="aferix-font-sm">{item.description}</strong>
-                      {permissions.canEditItems && (
-                        <button type="button" className="ghost-action" onClick={() => removeItem(item.id)} style={{ color: 'var(--status-danger)' }}>✕</button>
-                      )}
-                    </div>
-                    <div className="aferix-d-flex aferix-align-center aferix-gap-md">
-                      <div style={{ width: '70px' }}>
-                        <Input
-                          label="Qtd"
-                          type="number"
-                          value={item.quantity}
-                          onChange={(e) => updateItem(item.id, { quantity: Number(e.target.value) })}
-                          disabled={!permissions.canEditItems}
-                        />
-                      </div>
-                      <div style={{ flex: 1 }}>
-                        <MonetaryInput
-                          label="Preço Unit."
-                          value={item.unitPrice}
-                          onChange={(val) => updateItem(item.id, { unitPrice: val })}
-                          disabled={!permissions.canEditItems}
-                        />
-                      </div>
-                      <div className="aferix-text-right" style={{ paddingTop: '14px' }}>
-                        <MoneyValue value={item.quantity * item.unitPrice} compact />
-                      </div>
-                    </div>
-                  </div>
-                ))
-              )}
-            </ListCard>
-          </div>
-        )}
-
-        {/* ETAPA 5: MATERIAIS */}
-        {currentStep === 5 && (
-          <div className="aferix-items-section">
-            <SectionTitle 
-              title="Materiais e Insumos" 
-              eyebrow="Passo 5"
-              action={
-                permissions.canEditItems && (
-                  <button 
-                    type="button"
-                    className="ghost-action aferix-font-bold" 
-                    onClick={() => setShowCatalog(true)}
-                    style={{ color: 'var(--brand-primary)', fontSize: '0.85rem' }}
-                  >
-                    + Catálogo
-                  </button>
-                )
-              }
-            />
-            <ListCard>
-              {materials.length === 0 ? (
-                <div className="aferix-p-md aferix-text-center aferix-text-muted">
-                  <small>Nenhum material adicionado.</small>
-                </div>
-              ) : (
-                materials.map((item: BudgetItem) => (
-                  <div key={item.id} className="aferix-budget-item-row aferix-d-flex aferix-flex-column aferix-gap-xs" style={{ padding: '12px', borderBottom: '1px solid var(--border-soft)' }}>
-                    <div className="aferix-d-flex aferix-justify-between aferix-align-center">
-                      <strong className="aferix-font-sm">{item.description}</strong>
-                      {permissions.canEditItems && (
-                        <button type="button" className="ghost-action" onClick={() => removeItem(item.id)} style={{ color: 'var(--status-danger)' }}>✕</button>
-                      )}
-                    </div>
-                    <div className="aferix-d-flex aferix-align-center aferix-gap-md">
-                      <div style={{ width: '70px' }}>
-                        <Input
-                          label="Qtd"
-                          type="number"
-                          value={item.quantity}
-                          onChange={(e) => updateItem(item.id, { quantity: Number(e.target.value) })}
-                          disabled={!permissions.canEditItems}
-                        />
-                      </div>
-                      <div style={{ flex: 1 }}>
-                        <MonetaryInput
-                          label="Preço Unit."
-                          value={item.unitPrice}
-                          onChange={(val) => updateItem(item.id, { unitPrice: val })}
-                          disabled={!permissions.canEditItems}
-                        />
-                      </div>
-                      <div className="aferix-text-right" style={{ paddingTop: '14px' }}>
-                        <MoneyValue value={item.quantity * item.unitPrice} compact />
-                      </div>
-                    </div>
-                  </div>
-                ))
-              )}
-            </ListCard>
-          </div>
-        )}
-
-        {/* ETAPA 6: LOGÍSTICA (CUSTOS DIRETOS) */}
-        {currentStep === 6 && (
-          <Surface elevation={1} padding="md">
-            <SectionTitle title="Logística e Outros Custos" eyebrow="Passo 6" />
-            <div className="aferix-form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-              <MonetaryInput label="Viagem/Transporte" value={budget.travelCost} onChange={(val) => updateField('travelCost', val)} disabled={!permissions.canEditFinancials} />
-              <MonetaryInput label="Ajudante / Terceiros" value={budget.helperCost} onChange={(val) => updateField('helperCost', val)} disabled={!permissions.canEditFinancials} />
-              <MonetaryInput label="Compras Avulsas (Material Extra)" value={budget.materialCost} onChange={(val) => updateField('materialCost', val)} disabled={!permissions.canEditFinancials} />
-              <MonetaryInput label="Outros Custos" value={budget.otherCosts} onChange={(val) => updateField('otherCosts', val)} disabled={!permissions.canEditFinancials} />
-            </div>
-          </Surface>
-        )}
-
-        {/* ETAPA 7: TAXAS (DEDUÇÕES) */}
-        {currentStep === 7 && (
-          <Surface elevation={1} padding="md">
-            <SectionTitle title="Impostos e Descontos" eyebrow="Passo 7" />
-            <div className="aferix-form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-              <MonetaryInput label="Taxas (NF/Cartão)" value={budget.fees} onChange={(val) => updateField('fees', val)} disabled={!permissions.canEditFinancials} />
-              <MonetaryInput label="Desconto Comercial" value={budget.discounts} onChange={(val) => updateField('discounts', val)} disabled={!permissions.canEditFinancials} />
-            </div>
-          </Surface>
-        )}
-
-        {/* ETAPA 8: ESTRATÉGIA (ANÁLISE DE LUCRO) */}
-        {currentStep === 8 && (
-          <Surface elevation={2} padding="md">
-            <SectionTitle title="Preço de Venda e Margem" eyebrow="Passo 8" />
-            <MonetaryInput
-              label="Preço Final Proposto"
-              value={budget.chargedValue}
-              onChange={(val) => updateField('chargedValue', val)}
-              disabled={!permissions.canEditFinancials}
-            />
-            <div className="aferix-mt-lg aferix-p-md" style={{ background: 'var(--bg-app)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-soft)' }}>
-              <div className="aferix-d-flex aferix-justify-between aferix-align-center">
-                <div>
-                  <span className="aferix-d-block aferix-font-xs aferix-text-muted">LUCRO ESTIMADO</span>
-                  <strong className="aferix-font-xl" style={{ color: 'var(--status-success)' }}>{formatCurrencyBRL(preview?.grossProfit || 0)}</strong>
-                </div>
-                <Badge tone="success">{formatPercent(preview?.marginPercent || 0)}</Badge>
-              </div>
-            </div>
-          </Surface>
-        )}
-
-        {/* ETAPA 9: PROPOSTA */}
-        {currentStep === 9 && (
-          <Surface elevation={1} padding="md">
-            <SectionTitle title="Termos da Proposta" eyebrow="Passo 9" />
-            <TextArea
-              label="Condições para o Cliente"
-              value={budget.commercialNotes || ''}
-              onChange={(val) => updateField('commercialNotes', val)}
-              disabled={!permissions.canEditNotes}
-              placeholder="Descreva condições de pagamento, prazos e garantias..."
-              rows={5}
-            />
-          </Surface>
-        )}
-...
-        {/* ETAPA 10: EXECUÇÃO */}
-        {currentStep === 10 && (
-          <FieldWorkTool 
-            budget={budget} 
-            onUpdateNotes={(val) => updateField('notes', val)} 
-            isReadOnly={!permissions.canEditNotes}
-          />
-        )}
-
-        {/* ETAPA 11: FECHAMENTO */}
-        {currentStep === 11 && (
-          <BudgetSummaryView budget={budget} onArchived={onBack} />
-        )}
-
-        {/* Sticky Action Bar */}
-        {currentStep < 11 && (
-          <StickyActionBar
-            onCancel={onBack}
-            disabled={isSaving}
-            actions={
-              <div className="aferix-d-flex aferix-gap-sm aferix-w-full">
-                <button 
-                  type="button" 
-                  className="sticky-save" 
-                  style={{ flex: 2 }}
-                  onClick={async () => {
-                    await saveDraft();
-                    setCurrentStep((prev) => (prev + 1) as WorkflowStepId);
+      {/* 3. EDITORIAL STAGES */}
+      
+      <div className="flex flex-col gap-lg">
+        {/* IDENTIFICAÇÃO */}
+        {(currentStep <= 3) && (
+          <div className="flex flex-col gap-md animate-in fade-in slide-in-from-right-4 duration-500">
+            <Card className="p-card">
+              <SectionLabel className="mt-0 mb-8 text-primary">Contratante</SectionLabel>
+              <div className="flex flex-col gap-md">
+                <Select
+                  label="Selecionar Cliente"
+                  value={budget.clientId || ''}
+                  onChange={(val: string) => {
+                    const client = clients.find(c => c.id === val);
+                    updateField('clientId', val);
+                    updateField('clientName', client?.name || '');
                   }}
-                  disabled={isSaving}
+                  disabled={!permissions.canEditClient}
                 >
-                  {BUDGET_WORKFLOW_MAP[currentStep].actionLabel}
-                </button>
-                {currentStep >= 9 && budget.status === BUDGET_STATUS.INICIADO && (
-                  <button type="button" className="sticky-secondary" style={{ flex: 1 }} onClick={markAsSent} disabled={isSaving}>
-                    Enviar
-                  </button>
+                  <option value="">Cliente Avulso</option>
+                  {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                </Select>
+                {!budget.clientId && (
+                  <Input
+                    label="Nome do Cliente"
+                    value={budget.clientName || ''}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateField('clientName', e.target.value)}
+                    disabled={!permissions.canEditClient}
+                  />
                 )}
               </div>
-            }
-          />
+            </Card>
+
+            <Card className="p-card">
+              <SectionLabel className="mt-0 mb-8 text-primary">Escopo do Serviço</SectionLabel>
+              <div className="flex flex-col gap-md">
+                <Input label="Título do Projeto" value={budget.title} onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateField('title', e.target.value)} disabled={!permissions.canEditTitle} placeholder="Ex: Reforma Elétrica Residencial" />
+                <TextArea label="Levantamento Técnico Inicial" value={budget.technicalNotes || ''} onChange={(val: string) => updateField('technicalNotes', val)} disabled={!permissions.canEditNotes} rows={5} placeholder="Descreva os problemas encontrados e a solução proposta..." />
+              </div>
+            </Card>
+          </div>
+        )}
+
+        {/* LEVANTAMENTO DE ITENS & MATERIAIS */}
+        {(currentStep === 4 || currentStep === 5) && (
+          <div className="flex flex-col gap-md animate-in fade-in slide-in-from-right-4 duration-500">
+            <Card className="p-card">
+              <SectionLabel 
+                className="mt-0 mb-8 text-primary" 
+                action={<button onClick={() => setShowCatalog(true)} className="text-ui-xs text-[var(--accent-gold)] font-bold">+ CATÁLOGO</button>}
+              >
+                {currentStep === 4 ? "Mão de Obra e Serviços" : "Insumos e Materiais"}
+              </SectionLabel>
+              
+              <div className="flex flex-col gap-sm">
+                {(currentStep === 4 ? services : materials).length === 0 ? (
+                  <div className="py-20 text-center rounded-2xl border border-dashed border-white/5 bg-white/[0.01]">
+                    <p className="text-ui-xs text-[var(--text-muted)] opacity-40">Nenhum item lançado</p>
+                  </div>
+                ) : (
+                  (currentStep === 4 ? services : materials).map(item => (
+                    <div key={item.id} className="p-5 rounded-xl bg-white/[0.02] border var(--border-subtle) flex flex-col gap-md transition-all hover:bg-white/[0.04]">
+                      <div className="flex justify-between items-start gap-4">
+                        <span className="text-ui-md text-[var(--text-primary)]">{item.description}</span>
+                        {permissions.canEditItems && (
+                          <button onClick={() => removeItem(item.id)} className="text-[var(--accent-red)] p-1.5 -mr-1.5 opacity-40 hover:opacity-100 transition-opacity">
+                            <X className="h-4 w-4" />
+                          </button>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <div className="w-24">
+                          <Input label="Qtde" type="number" value={item.quantity} onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateItem(item.id, { quantity: Number(e.target.value) })} disabled={!permissions.canEditItems} />
+                        </div>
+                        <div className="flex-1">
+                          <MonetaryInput label="Valor Unitário" value={item.unitPrice} onChange={(val: number) => updateItem(item.id, { unitPrice: val })} disabled={!permissions.canEditItems} />
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </Card>
+          </div>
+        )}
+
+        {/* CUSTOS & MARGEM */}
+        {(currentStep >= 6 && currentStep <= 8) && (
+          <div className="flex flex-col gap-md animate-in fade-in slide-in-from-right-4 duration-500">
+            <Card className="p-card border-l-4 border-l-[var(--accent-gold)]">
+              <SectionLabel className="mt-0 mb-8 text-primary">Preço de Venda Final</SectionLabel>
+              <div className="flex flex-col mb-10">
+                <span className="num text-hero leading-none tracking-tighter text-[var(--accent-gold)] mb-4">
+                  <MoneyValue value={budget.chargedValue} />
+                </span>
+                <div className="flex items-center gap-4 text-ui-xs text-[var(--text-muted)] opacity-60">
+                  <span className="flex items-center gap-2">LUCRO: <MoneyValue value={preview?.grossProfit || 0} compact /></span>
+                  <span className="opacity-20">|</span>
+                  <span className="flex items-center gap-2">MARGEM: {formatPercent(preview?.marginPercent || 0)}</span>
+                </div>
+              </div>
+              <MonetaryInput label="Valor Proposto ao Cliente" value={budget.chargedValue} onChange={(v: number) => updateField('chargedValue', v)} disabled={!permissions.canEditFinancials} />
+            </Card>
+            
+            <Card className="p-card">
+              <SectionLabel className="mt-0 mb-8 text-primary">Custos Logísticos</SectionLabel>
+              <div className="grid grid-cols-2 gap-4">
+                <MonetaryInput label="Logística / Transporte" value={budget.travelCost} onChange={(v: number) => updateField('travelCost', v)} disabled={!permissions.canEditFinancials} />
+                <MonetaryInput label="Ajudantes / Diárias" value={budget.helperCost} onChange={(v: number) => updateField('helperCost', v)} disabled={!permissions.canEditFinancials} />
+              </div>
+            </Card>
+          </div>
+        )}
+
+        {/* ENVIO E PROPOSTA */}
+        {currentStep === 9 && (
+          <div className="flex flex-col gap-md animate-in fade-in slide-in-from-right-4 duration-500">
+            <Card className="p-card">
+              <SectionLabel className="mt-0 mb-8 text-primary">Contrato e Garantia</SectionLabel>
+              <TextArea
+                label="Notas para o Cliente"
+                value={budget.commercialNotes || ''}
+                onChange={(val: string) => updateField('commercialNotes', val)}
+                disabled={!permissions.canEditNotes}
+                placeholder="Termos da garantia, prazos, condições de parcelamento..."
+                rows={8}
+              />
+            </Card>
+          </div>
+        )}
+
+        {/* EXECUÇÃO */}
+        {currentStep === 10 && (
+          <div className="animate-in fade-in duration-500">
+            <FieldWorkTool budget={budget} onUpdateNotes={(v: string) => updateField('notes', v)} isReadOnly={!permissions.canEditNotes} />
+          </div>
+        )}
+
+        {/* FINALIZAÇÃO */}
+        {currentStep === 11 && (
+          <div className="animate-in zoom-in-95 duration-500">
+            <BudgetSummaryView budget={budget} onArchived={onBack} />
+          </div>
         )}
       </div>
 
-      {/* Sticky Preview */}
-      {currentStep < 11 && (
-        <div className="aferix-sticky-preview">
-          <ContextBanner
-            title={`Margem: ${formatPercent(preview?.marginPercent || 0)}`}
-            meta={`Lucro: ${formatCurrencyBRL(preview?.grossProfit || 0)} • Custo: ${formatCurrencyBRL(preview?.totalCost || 0)}`}
-            icon={<span className="nav-icon">💰</span>}
-          />
-        </div>
-      )}
+      {/* 4. FAST FOOTER ACTIONS (Cinematic) */}
+      <StickyActionBar
+        actions={
+          <div className="flex w-full gap-sm p-shell">
+            <button 
+              onClick={handleNextStep}
+              className="flex-[4] h-16 flex items-center justify-center gap-3 rounded-[var(--radius-card)] bg-[var(--text-primary)] text-[var(--bg-primary)] py-5 text-ui-base font-bold shadow-card active:scale-[0.97] transition-all"
+            >
+              {BUDGET_WORKFLOW_MAP[currentStep]?.actionLabel?.toUpperCase() || "CONTINUAR"} <ArrowRight className="h-5 w-5" strokeWidth={3} />
+            </button>
+            
+            {currentStep === 9 && budget.status === BUDGET_STATUS.INICIADO && (
+              <button onClick={markAsSent} className="flex-[1.5] h-16 rounded-[var(--radius-card)] border var(--border-soft) bg-[var(--bg-surface-glass)] backdrop-blur-xl py-5 text-ui-sm font-bold text-white active:scale-[0.95] transition-all flex items-center justify-center">
+                <Send className="h-5 w-5" strokeWidth={2.5} />
+              </button>
+            )}
 
-      {/* Finalize Modal */}
-      {showFinalizeModal && (
-        <div className="aferix-modal-overlay">
-          <div className="aferix-modal-card">
-            <header className="aferix-modal-header">
-              <h2>Revisão de Fechamento</h2>
-            </header>
-            <div className="aferix-modal-body aferix-d-flex aferix-flex-column aferix-gap-md">
-              <div className="aferix-d-flex aferix-justify-between">
-                <span className="aferix-text-muted">Receita Líquida</span>
-                <strong className="aferix-font-lg">{formatCurrencyBRL((budget.chargedValue - budget.discounts) || 0)}</strong>
-              </div>
-              <div className="aferix-d-flex aferix-justify-between">
-                <span className="aferix-text-muted">Custo Total Real</span>
-                <strong className="aferix-text-red">{formatCurrencyBRL(preview?.totalCost || 0)}</strong>
-              </div>
-              <Surface elevation={2} className="aferix-mt-sm" padding="sm">
-                <div className="aferix-d-flex aferix-justify-between aferix-align-center">
-                  <div className="aferix-d-flex aferix-flex-column">
-                    <span className="aferix-font-xs aferix-text-muted">LUCRO REAL</span>
-                    <strong className="aferix-font-xl" style={{ color: 'var(--status-success)' }}>{formatCurrencyBRL(preview?.grossProfit || 0)}</strong>
-                  </div>
-                  <Badge tone="success">{formatPercent(preview?.marginPercent || 0)}</Badge>
-                </div>
-              </Surface>
+            <button onClick={() => window.print()} className="w-16 h-16 grid place-items-center rounded-[var(--radius-card)] border var(--border-soft) bg-[var(--bg-surface-glass)] backdrop-blur-xl text-[var(--text-muted)] active:scale-[0.95] transition-all shrink-0">
+              <FileDown className="h-5 w-5" />
+            </button>
+          </div>
+        }
+      />
+
+      {/* Finalize Modal & Catalog remain the same but purified in visual */}
+      <Modal
+        isOpen={showFinalizeModal}
+        title="Auditoria Real"
+        confirmLabel="Consolidar Caixa"
+        onClose={cancelFinalize}
+        onConfirm={confirmFinalize}
+      >
+        <div className="flex flex-col gap-lg py-4">
+          <p className="text-ui-base font-medium text-[var(--text-secondary)] leading-relaxed">Confirme os valores reais para fechar o caixa desta operação.</p>
+          <div className="flex flex-col gap-md">
+            <div className="flex justify-between items-center border-b var(--border-subtle) pb-4">
+              <span className="text-ui-xs text-[var(--text-muted)]">Faturamento</span>
+              <strong className="num text-h3 text-[var(--text-primary)]"><MoneyValue value={budget.chargedValue - budget.discounts} /></strong>
             </div>
-            <footer className="aferix-modal-footer">
-              <SecondaryButton onClick={cancelFinalize}>Revisar</SecondaryButton>
-              <PrimaryButton onClick={confirmFinalize}>Confirmar e Finalizar</PrimaryButton>
-            </footer>
+            <div className="flex justify-between items-center border-b var(--border-subtle) pb-4">
+              <span className="text-ui-xs text-[var(--text-muted)]">Custos Totais</span>
+              <strong className="num text-h3 text-[var(--accent-red)]"><MoneyValue value={preview?.totalCost || 0} /></strong>
+            </div>
+            <div className="pt-2">
+              <span className="text-ui-xs text-[var(--accent-gold)] block mb-3">Lucro Líquido Real</span>
+              <p className="num text-hero font-bold text-[var(--accent-gold)] leading-none tracking-tighter">{formatCurrencyBRL(preview?.grossProfit || 0)}</p>
+            </div>
           </div>
         </div>
-      )}
+      </Modal>
 
-      {/* Catalog Modal */}
       {showCatalog && (
-        <Modal
-          isOpen={showCatalog}
-          title="Selecionar do Catálogo"
-          onClose={() => setShowCatalog(false)}
-        >
-          <div style={{ margin: '-16px', maxHeight: '70vh', overflowY: 'auto' }}>
+        <Modal isOpen={showCatalog} title="CATÁLOGO PROFISSIONAL" onClose={() => setShowCatalog(false)}>
+          <div className="-m-8 max-h-[80vh] overflow-y-auto custom-scrollbar">
             <PremiumCatalogWorkspace onSendToBudget={handleAddFromCatalog} />
           </div>
         </Modal>
       )}
 
-      <style>{`
-          .aferix-sticky-preview {
-            position: fixed;
-            bottom: calc(env(safe-area-inset-bottom, 0px) + 72px);
-            left: 12px;
-            right: 12px;
-            z-index: 90;
-            opacity: 0.9;
-            transform: scale(0.95);
-          }
-          .aferix-budget-form-screen.is-saving {
-            opacity: 0.7;
-            pointer-events: none;
-          }
-          @media (max-width: 768px) {
-            .aferix-sticky-preview {
-              bottom: calc(76px + env(safe-area-inset-bottom, 0px));
-            }
-          }
-          button {
-            min-height: 48px;
-            min-width: 48px;
-          }
-        `}</style>
     </PageShell>
   );
 };

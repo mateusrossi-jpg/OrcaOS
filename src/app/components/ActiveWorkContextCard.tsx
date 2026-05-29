@@ -1,5 +1,5 @@
 import type { Client, Service as WorkOrder } from '../../core/types/business';
-import { Surface } from './ui';
+import { Card } from './ui';
 import './ActiveWorkContextCard.css';
 
 interface ActiveWorkContextCardProps {
@@ -7,35 +7,39 @@ interface ActiveWorkContextCardProps {
   activeWorkOrder: WorkOrder | null;
 }
 
+/**
+ * ActiveWorkContextCard: Professional context HUD.
+ * Refactored for TOKEN-FIRST architecture (Executive OS V5).
+ */
 export function ActiveWorkContextCard({ activeClient, activeWorkOrder }: ActiveWorkContextCardProps) {
   return (
-    <Surface elevation={1} padding="md" className="active-work-context-card aferix-mb-md">
-      <div className="context-main-info">
-        <span className="context-label">Serviço em Foco</span>
+    <Card className="p-card mb-lg">
+      <div className="flex flex-col gap-xs">
+        <span className="text-ui-xs text-[var(--accent-gold)] mb-1">Serviço em Foco</span>
         {activeWorkOrder ? (
-          <div className="aferix-d-flex aferix-flex-column">
-            <strong>{activeWorkOrder.title}</strong>
-            <small className="aferix-text-muted">{activeClient?.name ?? 'Cliente Avulso'}</small>
+          <div className="flex flex-col">
+            <strong className="text-ui-md font-bold text-[var(--text-primary)] leading-tight">{activeWorkOrder.title}</strong>
+            <p className="text-ui-sm font-medium text-[var(--text-muted)] mt-1">{activeClient?.name ?? 'Cliente Avulso'}</p>
           </div>
         ) : (
-          <div className="aferix-d-flex aferix-flex-column">
-            <strong>Nenhum serviço selecionado</strong>
-            <small className="aferix-text-muted">Vincule um atendimento para organizar seus cálculos.</small>
+          <div className="flex flex-col">
+            <strong className="text-ui-md font-bold text-[var(--text-muted)] opacity-50">Nenhum serviço selecionado</strong>
+            <p className="text-ui-sm font-medium text-[var(--text-muted)] opacity-30 mt-1">Vincule um atendimento para organizar seus cálculos.</p>
           </div>
         )}
       </div>
       {activeWorkOrder && (
-        <div className="context-quick-stats aferix-d-flex aferix-gap-sm aferix-mt-sm">
-          <div className="stat-item">
-            <span>PRIORIDADE</span>
-            <strong>{activeWorkOrder.priority || 'Normal'}</strong>
+        <div className="flex gap-lg mt-6 pt-6 border-t var(--border-subtle)">
+          <div className="flex flex-col gap-1">
+            <span className="text-[9px] font-bold uppercase tracking-widest text-[var(--text-muted)]">PRIORIDADE</span>
+            <strong className="text-ui-xs font-bold text-[var(--text-primary)] uppercase">{activeWorkOrder.priority || 'Normal'}</strong>
           </div>
-          <div className="stat-item">
-            <span>STATUS</span>
-            <strong className={`status-text ${activeWorkOrder.status}`}>{activeWorkOrder.status === 'in-progress' ? 'Executando' : 'Concluído'}</strong>
+          <div className="flex flex-col gap-1">
+            <span className="text-[9px] font-bold uppercase tracking-widest text-[var(--text-muted)]">STATUS</span>
+            <strong className="text-ui-xs font-bold text-[var(--accent-gold)] uppercase">{activeWorkOrder.status === 'in-progress' ? 'Executando' : 'Concluído'}</strong>
           </div>
         </div>
       )}
-    </Surface>
+    </Card>
   );
 }

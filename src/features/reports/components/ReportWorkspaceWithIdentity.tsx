@@ -13,7 +13,8 @@ export function ReportWorkspaceWithIdentity(props: ReportWorkspaceWithIdentityPr
   return (
     <>
       <ProfessionalIdentityCard contextLabel="Identidade do relatório" />
-      <ReportWorkspace {...props} />
+      <ReportWorkspace {...props} context={{ businessName: 'Aferix' }} />
     </>
   );
 }
+

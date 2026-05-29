@@ -1,8 +1,19 @@
 import { useState, useEffect } from 'react';
-import { Button } from '../../../app/components/ui';
+import { 
+  Button, 
+  Card, 
+  SectionLabel, 
+  ContextBanner, 
+  MetricCard 
+} from '../../../app/components/ui';
 import { cloudSyncService } from '../../../services/CloudSyncService';
 import { isCloudEnabled } from '../../../core/cloud/supabaseClient';
+import { Cloud, CloudOff } from 'lucide-react';
 
+/**
+ * CloudSyncPanel: Executive cloud synchronization control.
+ * Refactored for TOKEN-FIRST architecture (Executive OS V5).
+ */
 export function CloudSyncPanel() {
   const [unsyncedCount, setUnsyncedEvents] = useState(0);
   const [isBusy, setIsBusy] = useState(false);
@@ -38,50 +49,51 @@ export function CloudSyncPanel() {
 
   if (!isCloudEnabled) {
     return (
-      <section className="google-drive-backup-premium" style={{ opacity: 0.6, pointerEvents: 'none' }}>
-        <div className="backup-panel-header">
-          <h2>Sincronização Multi-Dispositivo</h2>
-          <p>Indisponível: Chaves de API não configuradas.</p>
-        </div>
-      </section>
+      <div className="opacity-60 pointer-events-none grayscale">
+        <ContextBanner
+          title="Sincronização Multi-Dispositivo"
+          meta="Indisponível: Chaves de API não configuradas no ambiente."
+          icon={<CloudOff className="h-5 w-5" />}
+        />
+      </div>
     );
   }
 
   return (
-    <section className="google-drive-backup-premium">
-      <div className="backup-panel-header">
-        <h2>Sincronização Ativa</h2>
-        <p>Seus dados operacionais são protegidos e sincronizados em tempo real entre seus dispositivos.</p>
-      </div>
+    <div className="flex flex-col gap-8">
+      <Card className="p-8">
+        <SectionLabel className="mt-0 mb-6">Sincronização Cloud</SectionLabel>
+        <p className="text-[var(--fs-base)] font-medium text-[var(--text-secondary)] leading-relaxed mb-10">
+          Seus dados operacionais são protegidos e sincronizados em tempo real entre seus dispositivos através do núcleo Aferix.
+        </p>
 
-      <div className="backup-actions-grid-premium">
-        <div className="backup-status-card">
-          <span>Eventos Pendentes</span>
-          <strong style={{ color: unsyncedCount > 0 ? 'var(--aferix-warning)' : 'var(--aferix-success)' }}>
-            {unsyncedCount} alteração(ões)
-          </strong>
+        <div className="grid grid-cols-2 gap-4 mb-8">
+          <MetricCard 
+            label="Fila de Sincronismo" 
+            value={unsyncedCount} 
+            color={unsyncedCount > 0 ? 'var(--accent-gold)' : 'var(--accent-green)'}
+          />
+          <div className="p-6 rounded-2xl bg-white/[0.02] border var(--border-subtle) flex flex-col justify-center items-center gap-2">
+            <Cloud className={unsyncedCount > 0 ? "text-[var(--accent-gold)] animate-pulse" : "text-[var(--accent-green)]"} />
+            <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)]">ESTADO_CLOUD</span>
+          </div>
         </div>
 
-        <div className="backup-main-actions">
-          <Button 
-            variant="primary" 
-            disabled={isBusy} 
-            onClick={handleSync}
-          >
-            {isBusy ? 'Sincronizando...' : 'Sincronizar Agora'}
-          </Button>
-        </div>
-      </div>
+        <Button 
+          variant="primary" 
+          className="w-full"
+          disabled={isBusy} 
+          onClick={handleSync}
+        >
+          {isBusy ? 'Processando...' : 'Sincronizar Agora'}
+        </Button>
 
-      {feedback && <div className="backup-feedback-message" style={{ marginTop: '12px' }}>{feedback}</div>}
-      
-      <style>{`
-        .google-drive-backup-premium {
-          margin-bottom: 24px;
-          padding-bottom: 24px;
-          border-bottom: 1px solid var(--aferix-border, rgba(255,255,255,0.08));
-        }
-      `}</style>
-    </section>
+        {feedback && (
+          <p className="mt-6 text-[13px] font-bold text-center text-[var(--accent-gold)] animate-in fade-in">
+            {feedback}
+          </p>
+        )}
+      </Card>
+    </div>
   );
 }

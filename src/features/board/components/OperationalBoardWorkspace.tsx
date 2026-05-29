@@ -126,10 +126,25 @@ export function OperationalBoardWorkspace() {
 
   return (
     <div className="kanban-board-container">
-      <div className="kanban-board-header">
-        <h2>Execução Operacional</h2>
-        {loading && <span className="kanban-syncing-badge">Sincronizando...</span>}
+      {/* 1. CINEMATIC ATMOSPHERE (Unified DNA) */}
+      <div className="screen-atmosphere">
+        <div className="atmosphere-vignette" />
       </div>
+
+      {/* 2. EXECUTIVE HEADER (Premium Operational) */}
+      <div className="kanban-board-header">
+        <div className="kanban-board-title-wrap">
+          <p className="text-ui-xs text-[var(--accent-gold)]">Operação</p>
+          <h2 className="text-h2 text-[var(--text-primary)]">Fluxo <span className="opacity-40">Operacional</span></h2>
+          <p className="text-ui-sm text-[var(--text-secondary)] opacity-80 mt-1">Gerencie seu pipeline de orçamentos e execuções.</p>
+        </div>
+        <div className="kanban-syncing-badge">
+          <div className="kanban-telemetry-dot" />
+          <span className="text-ui-sm font-bold uppercase tracking-widest opacity-60">{loading ? 'Sincronizando' : 'Ativo'}</span>
+        </div>
+      </div>
+
+      {/* 3. EDGE-TO-EDGE COLUMNS */}
       <div className="kanban-board-columns">
         {columns.map(col => (
           <div
@@ -139,7 +154,7 @@ export function OperationalBoardWorkspace() {
             onDragOver={handleDragOver}
           >
             <div className="kanban-column-header">
-              <h3>{col.title}</h3>
+              <h3 className="text-ui-xs opacity-50">{col.title}</h3>
               <span className="kanban-column-count">{board[col.key].length}</span>
             </div>
             <div className="kanban-column-content">
@@ -154,18 +169,19 @@ export function OperationalBoardWorkspace() {
                   <div className="kanban-card-title">{card.title}</div>
                   <div className="kanban-card-client">{card.clientName}</div>
                   <div className="kanban-card-metrics">
-                    R$ {card.revenue.toFixed(2)} ({card.margin}%)
-                  </div>
-                  <div className="kanban-card-footer">
-                    <span>{card.aging} dias</span>
+                    R$ {card.revenue.toFixed(2)}
                   </div>
                   {(card.slaBreached || card.overdue || card.stalledWorkflow) && (
                     <div className="kanban-card-sla-badges">
-                      {card.slaBreached && <span className="kanban-badge kanban-badge-danger">SLA Breached</span>}
-                      {card.overdue && <span className="kanban-badge kanban-badge-danger">Overdue</span>}
-                      {card.stalledWorkflow && <span className="kanban-badge kanban-badge-warning">Stalled</span>}
+                      {card.slaBreached && <span className="kanban-badge kanban-badge-danger">SLA_BREACH</span>}
+                      {card.overdue && <span className="kanban-badge kanban-badge-danger">OVERDUE</span>}
+                      {card.stalledWorkflow && <span className="kanban-badge kanban-badge-warning">STALLED</span>}
                     </div>
                   )}
+                  <div className="kanban-card-footer">
+                    <span>{card.margin}% Margem</span>
+                    <span>{card.aging}d</span>
+                  </div>
                 </div>
               ))}
             </div>

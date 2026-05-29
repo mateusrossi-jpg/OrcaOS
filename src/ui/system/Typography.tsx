@@ -1,32 +1,37 @@
-import React from 'react';
-import { ERPTokens } from './tokens';
+import React, { memo, type ReactNode, type ElementType } from 'react';
+import { cn } from '../../utils/ui';
 
-interface TextProps extends React.HTMLAttributes<HTMLElement> {
-  children: React.ReactNode;
+interface TypographyProps extends React.HTMLAttributes<HTMLElement> {
+  children: ReactNode;
+  as?: ElementType;
   className?: string;
-  as?: React.ElementType;
 }
 
-export function ERPDisplay({ children, className = '', as: Component = 'h1', ...props }: TextProps) {
-  return <Component className={`text-2xl sm:text-3xl font-bold ${ERPTokens.colors.textPrimary} ${className}`} {...props}>{children}</Component>;
-}
+/**
+ * Aferix OS Typography: Unified semantic hierarchy.
+ * Refactored for TOKEN-FIRST architecture (Executive OS V5).
+ */
 
-export function ERPSectionTitle({ children, className = '', as: Component = 'h2', ...props }: TextProps) {
-  return <Component className={`text-lg font-bold ${ERPTokens.colors.textPrimary} ${className}`} {...props}>{children}</Component>;
-}
+export const Title = memo(function Title({ children, as: Component = 'h2', className = '', ...props }: TypographyProps) {
+  return <Component className={cn("text-[var(--fs-2xl)] font-bold leading-tight tracking-tight text-[var(--text-primary)]", className)} {...props}>{children}</Component>;
+});
 
-export function ERPCardTitle({ children, className = '', as: Component = 'h3', ...props }: TextProps) {
-  return <Component className={`text-sm font-semibold ${ERPTokens.colors.textPrimary} ${className}`} {...props}>{children}</Component>;
-}
+export const Subtitle = memo(function Subtitle({ children, as: Component = 'p', className = '', ...props }: TypographyProps) {
+  return <Component className={cn("text-[var(--fs-base)] font-semibold text-[var(--text-primary)]", className)} {...props}>{children}</Component>;
+});
 
-export function ERPMetric({ children, className = '', as: Component = 'span', ...props }: TextProps) {
-  return <Component className={`text-xl font-bold ${ERPTokens.colors.textPrimary} ${className}`} {...props}>{children}</Component>;
-}
+export const Body = memo(function Body({ children, as: Component = 'p', className = '', ...props }: TypographyProps) {
+  return <Component className={cn("text-[var(--fs-sm)] font-semibold text-[var(--text-primary)]", className)} {...props}>{children}</Component>;
+});
 
-export function ERPLabel({ children, className = '', as: Component = 'span', ...props }: TextProps) {
-  return <Component className={`text-xs font-semibold uppercase tracking-wider ${ERPTokens.colors.textSecondary} ${className}`} {...props}>{children}</Component>;
-}
+export const Heading = memo(function Heading({ children, as: Component = 'h1', className = '', ...props }: TypographyProps) {
+  return <Component className={cn("text-[var(--fs-3xl)] font-bold leading-none text-[var(--text-primary)] num", className)} {...props}>{children}</Component>;
+});
 
-export function ERPCaption({ children, className = '', as: Component = 'p', ...props }: TextProps) {
-  return <Component className={`text-xs ${ERPTokens.colors.textTertiary} ${className}`} {...props}>{children}</Component>;
-}
+export const Label = memo(function Label({ children, as: Component = 'span', className = '', ...props }: TypographyProps) {
+  return <Component className={cn("text-[var(--fs-xs)] font-bold uppercase tracking-[0.15em] text-[var(--text-muted)]", className)} {...props}>{children}</Component>;
+});
+
+export const Small = memo(function Small({ children, as: Component = 'small', className = '', ...props }: TypographyProps) {
+  return <Component className={cn("text-[var(--fs-sm)] text-[var(--text-muted)] font-medium", className)} {...props}>{children}</Component>;
+});

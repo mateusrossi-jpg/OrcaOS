@@ -8,7 +8,7 @@ type InputAdapterProps = Omit<React.ComponentProps<typeof BaseInput>, 'onChange'
 };
 
 export const InputAdapter: React.FC<InputAdapterProps> = ({ onValueChange, ...rest }) => (
-  <BaseInput {...rest} onChange={(e) => onValueChange((e.target as HTMLInputElement).value)} />
+  <BaseInput {...rest} onChange={(e: React.ChangeEvent<HTMLInputElement>) => onValueChange((e.target as HTMLInputElement).value)} />
 );
 
 type TextAreaAdapterProps = Omit<React.HTMLAttributes<HTMLTextAreaElement>, 'onChange'> & {
@@ -24,7 +24,7 @@ export const TextAreaAdapter: React.FC<TextAreaAdapterProps> = ({ onValueChange,
     rows={rows}
     value={value}
     className={className}
-    onChange={(e) => onValueChange(e.target.value)}
+    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => onValueChange(e.target.value)}
     {...rest}
   />
 );

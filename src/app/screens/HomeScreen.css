@@ -1,0 +1,53 @@
+/* src/app/screens/HomeScreen.css
+   Refactored for TOKEN-FIRST architecture (Executive OS V5).
+   ---------------------------------------------------------- */
+
+.home-container {
+  padding-bottom: 160px !important; /* Contextual offset for primary launchers */
+}
+
+/* Secondary launchers/shortcuts */
+.home-shortcuts {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-xl);
+}
+
+.home-shortcut-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-lg);
+  background: var(--bg-surface-glass);
+  border: var(--border-subtle);
+  border-radius: var(--radius-card);
+  transition: all var(--transition-normal);
+  cursor: pointer;
+}
+
+.home-shortcut-btn:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
+}
+
+.home-shortcut-btn:active {
+  transform: scale(0.96);
+}
+
+.home-shortcut-icon {
+  width: 28px;
+  height: 28px;
+  color: var(--accent-gold);
+  opacity: 0.8;
+}
+
+.home-shortcut-label {
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-black);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+}
