@@ -3,7 +3,7 @@
    ---------------------------------------------------------- */
 
 .home-container {
-  padding-bottom: 160px !important; /* Contextual offset for primary launchers */
+  padding-bottom: calc(var(--spacing-2xl) * 3.5) !important; /* Contextual offset for primary launchers */
 }
 
 /* Secondary launchers/shortcuts */

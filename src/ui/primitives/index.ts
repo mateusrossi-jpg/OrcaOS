@@ -9,3 +9,4 @@ export * from './Controls';
 export * from './Editorial';
 export * from './Overlays';
 export * from './Navigation';
+export * from './AferixComponents';
