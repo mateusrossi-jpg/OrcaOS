@@ -4,6 +4,8 @@ ERP PREMIUM • SAAS MOBILE-FIRST • LOCAL-FIRST • OFFLINE-FIRST
 ## 🚨 OFFICIAL CONSOLIDATION DIRECTIVE 🚨
 A partir de 28 de Maio de 2026, **o projeto OrcaOS é a BASE OFICIAL E ÚNICA do sistema.**
 
+**VISUAL MANDATE:** Todas as decisões de UI devem seguir o [AFERIX VISUAL PROTOCOL](./docs/visual-system/GEMINI_VISUAL_PROTOCOL.md). As imagens em `/docs/lovable-reference` são a fonte da verdade primária.
+
 **O que o OrcaOS possui e mantém (O Núcleo):**
 - Lógica operacional, regras de negócio e arquitetura real.
 - Infraestrutura principal: Supabase, Dexie, offline-first, sync, event store.
