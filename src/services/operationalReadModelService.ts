@@ -7,15 +7,28 @@ import {
   OperationalBoardProjection,
   OperationalCardProjection,
   ClientPipelineProjection,
-  OperationalActivityProjection
+  OperationalActivityProjection,
+  ClientCRMProjection,
+  ClientCRMStatus,
+  CRMAlertHubProjection,
+  ClientDossierProjection,
+  AssetDossierProjection
 } from '../domain/operationalProjections';
-import { BudgetStatus } from '../domain/budget';
+import { Budget, BudgetStatus } from '../domain/budget';
 import { ClientProposalStatus } from '../features/clientPortal/storage/clientProposalStorage';
-import { ServiceStatus } from '../core/types/business';
+import { ServiceStatus, WorkOrder, Client } from '../core/types/business';
 import { BudgetPersistenceService } from './BudgetPersistenceService';
 import { QueueWorkflowInput } from '../core/workflow/queueEngine';
 import { operationalFeedService } from './operationalFeedService';
 import { getOperationalEventSeverity } from '../domain/eventSeverity';
+import { clientService } from './clientService';
+import { workOrderService } from './workOrderService';
+import { SimpleFinanceService } from './SimpleFinanceService';
+import { SimpleFinanceRecord } from '../domain/finance';
+import { assetService } from './assetService';
+import { Asset } from '../domain/asset';
+import { maintenancePlanScheduler } from './MaintenanceSchedulerService';
+import { contractBillingScheduler } from './ContractBillingSchedulerService';
 
 type Mutable<T> = {
   -readonly [P in keyof T]: T[P];
@@ -33,6 +46,7 @@ export class OperationalReadModelService {
   private boardCache: OperationalBoardProjection | null = null;
 
   private crmPipelineCache: Record<string, ClientPipelineProjection> | null = null;
+  private crmListCache: ClientCRMProjection[] | null = null;
   private activityCache: OperationalActivityProjection[] | null = null;
 
   constructor() {
@@ -49,10 +63,213 @@ export class OperationalReadModelService {
       case 'pipeline': this.pipelineCache = null; break;
       case 'metrics': this.metricsCache = null; break;
       case 'board': this.boardCache = null; break;
-      case 'crm': this.crmPipelineCache = null; break;
+      case 'crm': 
+        this.crmPipelineCache = null; 
+        this.crmListCache = null;
+        break;
       case 'activity': this.activityCache = null; break;
       case 'feed': operationalFeedService.invalidateFeed(); break;
     }
+  }
+
+  async getCRMProjection(): Promise<ClientCRMProjection[]> {
+    if (this.crmListCache) return this.crmListCache;
+
+    try {
+      console.log('[ReadModel] Starting CRM projection build...');
+      const [allClients, allWorkOrders, allBudgets, allFinance] = await Promise.all([
+        clientService.getAll().catch(e => { console.error('Clients load failed', e); return []; }),
+        workOrderService.getAll().catch(e => { console.error('WorkOrders load failed', e); return []; }),
+        new BudgetPersistenceService().listBudgets().catch(e => { console.error('Budgets load failed', e); return []; }),
+        new SimpleFinanceService().listRecords().catch(e => { console.error('Finance load failed', e); return []; })
+      ]);
+
+      const now = new Date();
+      console.log('[ReadModel] CRM Sources loaded:', { clients: allClients.length, wos: allWorkOrders.length, budgets: allBudgets.length, finance: allFinance.length });
+
+      // 1. Group Data by Client
+      const clientMap = new Map<string, {
+        totalRevenue: number;
+        openBalance: number;
+        woCount: number;
+        budgetCount: number;
+        lastInteraction: string;
+      }>();
+
+      allClients.forEach((c: Client) => {
+        if (c && c.id) {
+          clientMap.set(c.id, { 
+            totalRevenue: 0, openBalance: 0, woCount: 0, budgetCount: 0, lastInteraction: c.createdAt || now.toISOString() 
+          });
+        }
+      });
+
+      allFinance.forEach((f: SimpleFinanceRecord) => {
+        const wo = allWorkOrders.find((w: WorkOrder) => w.id === f.workOrderId);
+        if (wo) {
+          const stats = clientMap.get(wo.clientId);
+          if (stats) {
+            stats.totalRevenue += (f.receivedValue || 0);
+            stats.openBalance += (f.openBalance || 0);
+          }
+        }
+      });
+
+      allWorkOrders.forEach((wo: WorkOrder) => {
+        const stats = clientMap.get(wo.clientId);
+        if (stats) {
+          stats.woCount++;
+          if (safeTimestamp(wo.updatedAt || '') > safeTimestamp(stats.lastInteraction)) {
+            stats.lastInteraction = wo.updatedAt!;
+          }
+        }
+      });
+
+      allBudgets.forEach((b: Budget) => {
+        if (!b.clientId) return;
+        const stats = clientMap.get(b.clientId);
+        if (stats) {
+          stats.budgetCount++;
+          if (safeTimestamp(b.updatedAt || '') > safeTimestamp(stats.lastInteraction)) {
+            stats.lastInteraction = b.updatedAt;
+          }
+        }
+      });
+
+      // 2. Calculate Percentile for VIP (Top 20%)
+      const revenues = Array.from(clientMap.values()).map(s => s.totalRevenue).sort((a, b) => a - b);
+      const vipThreshold = revenues.length > 0 ? revenues[Math.floor(revenues.length * 0.8)] : 0;
+
+      // 3. Materialize CRM Projection
+      const crmList: ClientCRMProjection[] = allClients.map((client: Client) => {
+        const stats = clientMap.get(client.id) || { totalRevenue: 0, openBalance: 0, woCount: 0, budgetCount: 0, lastInteraction: client.createdAt };
+        const daysInactive = Math.floor((now.getTime() - safeTimestamp(stats.lastInteraction)) / (1000 * 60 * 60 * 24));
+        
+        const status: ClientCRMStatus[] = [];
+        if (daysInactive < 30) status.push('ACTIVE');
+        else if (daysInactive < 90) status.push('WARM');
+        else if (daysInactive < 180) status.push('INACTIVE');
+        else status.push('AT_RISK');
+
+        if (stats.openBalance > 0) status.push('DEBTOR');
+        if (stats.totalRevenue > 0 && stats.totalRevenue >= vipThreshold && revenues.length >= 5) status.push('VIP');
+
+        // 4. Relationship Score (0-100)
+        let score = 0;
+        score += Math.max(0, 40 - (daysInactive / 2)); // Recency (40 pts)
+        score += Math.min(30, stats.woCount * 5); // Frequency (30 pts)
+        score += (status.includes('VIP') ? 30 : 15); // Monetary (30 pts)
+        if (stats.openBalance > 0) score -= 50; // Debt Penalty
+        
+        return {
+          clientId: client.id,
+          clientName: client.name,
+          totalRevenue: stats.totalRevenue,
+          openBalance: stats.openBalance,
+          totalWorkOrders: stats.woCount,
+          totalBudgets: stats.budgetCount,
+          lastInteractionAt: stats.lastInteraction,
+          daysInactive,
+          relationshipStatus: status,
+          relationshipScore: Math.max(0, Math.min(100, score))
+        };
+      });
+
+      this.crmListCache = crmList;
+      return crmList;
+    } catch (err) {
+      console.error('[ReadModel] getCRMProjection critical failure:', err);
+      return [];
+    }
+  }
+
+  async getCRMAlertHubProjection(): Promise<CRMAlertHubProjection> {
+    const crm = await this.getCRMProjection();
+    const allBudgets = await new BudgetPersistenceService().listBudgets();
+    const now = new Date();
+
+    return {
+      debtors: crm.filter(c => c.relationshipStatus.includes('DEBTOR')),
+      inactive: crm.filter(c => c.relationshipStatus.includes('INACTIVE') || c.relationshipStatus.includes('AT_RISK')),
+      vipInactive: crm.filter(c => c.relationshipStatus.includes('VIP') && (c.relationshipStatus.includes('INACTIVE') || c.relationshipStatus.includes('AT_RISK'))),
+      commercialFollowUp: allBudgets.filter((b: Budget) => b.status === 'enviado' && (now.getTime() - safeTimestamp(b.updatedAt)) / (1000*60*60*24) > 3),
+      stalledBudgets: allBudgets.filter((b: Budget) => b.status === 'em_revisao' || b.status === 'pausado')
+    };
+  }
+
+  async getClientDossier(clientId: string): Promise<ClientDossierProjection | null> {
+    const crm = await this.getCRMProjection();
+    const summary = crm.find(c => c.clientId === clientId);
+    if (!summary) return null;
+
+    const timeline = await this.getClientTimeline(clientId);
+
+    return {
+      summary,
+      timeline
+    };
+  }
+
+  async getAsset360Projection(assetId: string): Promise<AssetDossierProjection | null> {
+    const asset = await assetService.getById(assetId);
+    if (!asset) return null;
+
+    const allEvents = await operationalTimelineService.getGlobalTimeline();
+    const assetEvents = allEvents.filter(e => 
+      e.aggregateId === assetId || 
+      (e.metadata?.assetId === assetId) ||
+      (Array.isArray(e.metadata?.assetIds) && e.metadata?.assetIds.includes(assetId))
+    );
+
+    const timeline: OperationalActivityProjection[] = assetEvents.map(e => ({
+      id: e.id,
+      aggregateId: e.aggregateId,
+      aggregateType: e.aggregateType,
+      actor: e.actor,
+      eventType: e.eventType,
+      title: e.eventType, // Simplified for now, reuse feed logic later
+      description: `Evento técnico registrado para o ativo ${asset.tag || asset.name}`,
+      timestamp: e.timestamp,
+      severity: getOperationalEventSeverity(e.eventType)
+    }));
+
+    // Calculate Maintenance Metrics
+    let totalCost = 0;
+    let lastMaintenanceDate: string | undefined = undefined;
+    let failureCount = 0;
+
+    assetEvents.forEach(e => {
+      if (e.eventType === 'WORKORDER_COMPLETED') {
+        const val = Number(e.snapshot?.executedValue) || 0;
+        totalCost += val;
+        if (!lastMaintenanceDate || new Date(e.timestamp) > new Date(lastMaintenanceDate)) {
+          lastMaintenanceDate = e.timestamp;
+        }
+      }
+      if (e.eventType.includes('FAILURE') || (e.eventType as string) === 'TECHNICAL_FAILURE_REPORTED') {
+        failureCount++;
+      }
+    });
+
+    // Asset Health Score Algorithm (0-100)
+    let score = 100;
+    score -= (failureCount * 20); // Penalty for failures
+    if (asset.assetStatus === 'CRITICAL') score -= 50;
+    if (asset.assetStatus === 'MAINTENANCE') score -= 10;
+    
+    const daysSinceMaintenance = lastMaintenanceDate 
+      ? Math.floor((new Date().getTime() - new Date(lastMaintenanceDate).getTime()) / (1000*60*60*24))
+      : 365;
+
+    if (daysSinceMaintenance > 180) score -= 20; // Needs preventive
+
+    return {
+      asset,
+      healthScore: Math.max(0, score),
+      totalMaintenanceCost: totalCost,
+      lastMaintenanceDate,
+      timeline
+    };
   }
 
   /**
@@ -126,9 +343,9 @@ export class OperationalReadModelService {
       if (evt.eventType === 'PROPOSAL_APPROVED') totalProposalsApproved++;
       if (evt.eventType === 'WORKORDER_COMPLETED') totalWorkOrdersCompleted++;
       if (evt.eventType === 'FINANCE_RECORD_REALIZED') {
-        const amount = Number(evt.snapshot?.revenue) || 0;
-        const adjustment = Number(evt.snapshot?.receivedAmount) || 0;
-        revenueRealized += (amount + adjustment);
+        // FASE 1B: A receita agora vem estritamente de pagamentos registrados contra uma OS
+        const amount = Number(evt.metadata?.paymentAmount) || Number(evt.snapshot?.receivedValue) || 0;
+        revenueRealized += amount;
       }
     }
 
@@ -235,6 +452,34 @@ export class OperationalReadModelService {
     return crm;
   }
 
+  async getClientTimeline(clientId: string): Promise<OperationalActivityProjection[]> {
+    const allEvents = await operationalTimelineService.getGlobalTimeline();
+    
+    // FASE 1D: Filter by metadata.clientId
+    const clientEvents = allEvents.filter(evt => evt.metadata?.clientId === clientId);
+    
+    // Map to activity projection
+    const timeline: OperationalActivityProjection[] = clientEvents.map(evt => {
+      return {
+        id: evt.id,
+        aggregateId: evt.aggregateId,
+        aggregateType: evt.aggregateType,
+        actor: evt.actor,
+        eventType: evt.eventType,
+        title: `Ação: ${evt.eventType}`,
+        description: `Evento registrado via ${evt.source}`,
+        timestamp: evt.timestamp,
+        severity: getOperationalEventSeverity(evt.eventType),
+        correlationId: evt.metadata?.correlationId || evt.correlationId
+      };
+    });
+    
+    // Sort chronologically (oldest first)
+    timeline.sort((a, b) => safeTimestamp(a.timestamp) - safeTimestamp(b.timestamp));
+    
+    return timeline;
+  }
+
   async getActivityProjection(): Promise<OperationalActivityProjection[]> {
     if (this.activityCache) return this.activityCache;
     
@@ -308,9 +553,19 @@ export class OperationalReadModelService {
     const allEvents = await operationalTimelineService.getGlobalTimeline();
     operationalFeedService.rebuildFromEvents(allEvents);
 
+    // Trigger Scheduler for Recurrence (Fase 3D/3F)
+    try {
+      await maintenancePlanScheduler.processActivePlans();
+      await contractBillingScheduler.processContractBilling();
+    } catch (err) {
+      console.error('[ReadModel] Scheduler error:', err);
+    }
+
     await this.getPipelineProjection();
     await this.getMetricsProjection();
     await this.getBoardProjection();
+    await this.getCRMProjection();
+    await this.getCRMAlertHubProjection();
     await this.getClientPipelineProjection();
     await this.getActivityProjection();
   }

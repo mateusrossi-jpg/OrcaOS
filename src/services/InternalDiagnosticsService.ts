@@ -115,9 +115,11 @@ export class InternalDiagnosticsService {
     }
 
     const opReport = operationalConsistencyService.generateOperationalReport(allBudgets);
-    opReport.anomalies.forEach(a => {
-      if (a.severity === 'critical') criticalIssues.push(`[OpAnomaly] ${a.budgetId}: ${a.issue}`);
-      else warnings.push(`[OpAnomaly] ${a.budgetId}: ${a.issue}`);
+    opReport.anomalies.forEach((a, idx) => {
+      const shortId = a.budgetId.slice(0, 8);
+      const message = `ANOMALIA #${idx + 1}: Orçamento "${a.budgetTitle}" (${shortId}) - ${a.issue}`;
+      if (a.severity === 'critical') criticalIssues.push(message);
+      else warnings.push(message);
     });
 
     const perfWarnings = performanceAuditService.detectLargeCollections([

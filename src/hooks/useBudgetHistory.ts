@@ -33,6 +33,33 @@ export function useBudgetHistory() {
     }
   }, []);
 
+  // Duplicate a budget and refresh list
+  const duplicateBudget = useCallback(async (id: string) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const original = await persistence.getBudget(id);
+      if (!original) throw new Error('Orçamento original não encontrado.');
+      const clone: Budget = {
+        ...original,
+        id: typeof crypto !== 'undefined' && 'randomUUID' in crypto ? crypto.randomUUID() : `budget-${Date.now()}`,
+        title: `${original.title} (Cópia)`,
+        status: BUDGET_STATUS.INICIADO,
+        syncStatus: 'pending',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      await operationalFacade.saveBudget(clone);
+      await loadBudgets();
+    } catch (e) {
+      const err = e as Error;
+      console.error('Failed to duplicate budget:', err);
+      setError(err.message || 'Erro ao duplicar o orçamento.');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [loadBudgets]);
+
   // Delete a budget and refresh list
   const deleteBudget = useCallback(async (id: string) => {
     if (isLoading) return;
@@ -73,6 +100,7 @@ export function useBudgetHistory() {
     setFilter,
     refresh: loadBudgets,
     deleteBudget,
+    duplicateBudget,
     error,
     clearError: () => setError(null),
   };

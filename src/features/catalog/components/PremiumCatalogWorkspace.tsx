@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo, useState, useEffect, memo } from 'react';
 import {
   Button,
   Select,
@@ -14,34 +14,45 @@ import {
   MoneyValue,
   PrimaryButton,
   SecondaryButton,
-  Card,
-  SectionLabel
+  DangerButton
 } from '../../../app/components/ui';
 import { catalogService } from '../../../services/catalogService';
 import { type CatalogHubItem, type CatalogHubItemKind, createCatalogId } from '../types/catalogTypes';
-import { ChevronLeft } from 'lucide-react';
-import './PremiumCatalogWorkspace.css';
+import { ChevronLeft, Plus, BookOpen, Package, Wrench, Info, Activity, History, Briefcase, Boxes, ChevronRight, BarChart } from 'lucide-react';
+
+// Unified UI Architecture Layers
+import { SemanticScreen } from '../../../ui/runtime';
+import { OperationalFlowLayout } from '../../../ui/layouts';
+import { 
+  SurfaceCard,
+  ScreenContainer,
+  SectionLabel,
+  ExecutiveSummaryGrid,
+  ValueBlock,
+  SemanticBadge,
+  InteractiveRow,
+  AppHeader,
+  OpsChip,
+  Stack,
+  Section,
+  Title,
+  Subtitle,
+  Body,
+  Heading,
+  Value,
+  FinancialValue,
+  ERPLoader
+} from '../../../ui/system';
 
 const CATEGORY_CHIPS: Array<{ id: string; label: string }> = [
-  { id: 'all', label: 'Todos' },
-  { id: 'material', label: 'Materiais' },
-  { id: 'labor', label: 'Mão de obra' },
-  { id: 'service', label: 'Serviços compostos' },
-  { id: 'travel', label: 'Deslocamento' },
-  { id: 'fee', label: 'Taxas' },
-  { id: 'custom', label: 'Personalizados' },
+  { id: 'all', label: 'TODOS' },
+  { id: 'material', label: 'MATERIAIS' },
+  { id: 'labor', label: 'MÃO_DE_OBRA' },
+  { id: 'service', label: 'SERVIÇOS' },
+  { id: 'travel', label: 'LOGÍSTICA' },
 ];
 
-function itemKindLabel(kind: CatalogHubItemKind): string {
-  if (kind === 'material') return 'Material';
-  if (kind === 'labor') return 'Mão de obra';
-  if (kind === 'service') return 'Serviço';
-  if (kind === 'travel') return 'Deslocamento';
-  if (kind === 'fee') return 'Taxa';
-  return 'Item';
-}
-
-const CATALOG_VISIBLE_LIMIT = 5;
+const CATALOG_VISIBLE_LIMIT = 10;
 
 const emptyItem = (kind: CatalogHubItemKind = 'material'): CatalogHubItem => ({
   id: '',
@@ -59,13 +70,14 @@ const emptyItem = (kind: CatalogHubItemKind = 'material'): CatalogHubItem => ({
 
 interface PremiumCatalogWorkspaceProps {
   onSendToBudget?: (items: CatalogHubItem[]) => void;
+  onBack?: () => void;
 }
 
 /**
  * PremiumCatalogWorkspace: Executive item library.
- * Refactored for TOKEN-FIRST architecture (Executive OS V5).
+ * Aligned with AFERIX VISUAL PROTOCOL (Phase 4).
  */
-export function PremiumCatalogWorkspace({ onSendToBudget }: PremiumCatalogWorkspaceProps) {
+export function PremiumCatalogWorkspace({ onSendToBudget, onBack }: PremiumCatalogWorkspaceProps) {
   const [items, setItems] = useState<CatalogHubItem[]>([]);
   const [query, setQuery] = useState('');
   const [activeChip, setActiveChip] = useState('all');
@@ -75,26 +87,23 @@ export function PremiumCatalogWorkspace({ onSendToBudget }: PremiumCatalogWorksp
   const [itemPendingSelection, setItemPendingSelection] = useState<CatalogHubItem | null>(null);
   const [pendingQuantity, setPendingQuantity] = useState(1);
   const [showAllItems, setShowAllItems] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   async function loadData() {
+    setIsLoading(true);
     try {
       const data = await catalogService.getAll();
       setItems(data);
-    } catch (err) {
-      console.error('Failed to load catalog items:', err);
-    }
+    } catch (err) { console.error(err); } finally { setIsLoading(false); }
   }
 
-  useEffect(() => {
-    loadData();
-  }, []);
+  useEffect(() => { loadData(); }, []);
 
   const filteredItems = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
     return items.filter((item) => {
       const chipMatch = activeChip === 'all' || item.kind === activeChip;
-      const textMatch = !normalizedQuery ||
-        [item.title, item.category, item.brand, item.model, item.reference].filter(Boolean).join(' ').toLowerCase().includes(normalizedQuery);
+      const textMatch = !normalizedQuery || [item.title, item.category, item.brand, item.model].filter(Boolean).join(' ').toLowerCase().includes(normalizedQuery);
       return chipMatch && textMatch;
     });
   }, [items, activeChip, query]);
@@ -107,46 +116,10 @@ export function PremiumCatalogWorkspace({ onSendToBudget }: PremiumCatalogWorksp
     setView('form');
   }
 
-  async function handleDuplicate(item: CatalogHubItem) {
-    const now = new Date().toISOString();
-    const duplicatedItem: CatalogHubItem = {
-      ...item,
-      id: createCatalogId('item'),
-      title: `${item.title} (cópia)`,
-      createdAt: now,
-      updatedAt: now,
-    };
-    await catalogService.save(duplicatedItem);
-    await loadData();
-  }
-
-  function handleNew() {
-    setEditingItem(emptyItem(activeChip !== 'all' ? activeChip as CatalogHubItemKind : 'material'));
-    setView('form');
-  }
-
-  function requestDelete(item: CatalogHubItem) {
-    setItemPendingDelete(item);
-  }
-
-  async function confirmDelete() {
-    if (!itemPendingDelete) return;
-    const deletingId = itemPendingDelete.id;
-    await catalogService.delete(deletingId);
-    await loadData();
-    if (editingItem?.id === deletingId) {
-      setEditingItem(null);
-      setView('list');
-    }
-    setItemPendingDelete(null);
-  }
-
   async function handleSave() {
     if (!editingItem || !editingItem.title.trim()) return;
-
     const now = new Date().toISOString();
     const itemToSave = { ...editingItem, updatedAt: now };
-
     if (!itemToSave.id) {
       itemToSave.id = createCatalogId('item');
       itemToSave.createdAt = now;
@@ -155,215 +128,184 @@ export function PremiumCatalogWorkspace({ onSendToBudget }: PremiumCatalogWorksp
     await loadData();
     setView('list');
     setEditingItem(null);
-    setQuery('');
-    setActiveChip('all');
   }
+
+  async function confirmDelete() {
+    if (!itemPendingDelete) return;
+    await catalogService.delete(itemPendingDelete.id);
+    await loadData();
+    setView('list');
+    setItemPendingDelete(null);
+  }
+
+  const materialsCount = useMemo(() => items.filter(i => i.kind === 'material').length, [items]);
+  const laborsCount = useMemo(() => items.filter(i => i.kind === 'labor').length, [items]);
 
   if (view === 'form' && editingItem) {
     return (
-      <div className="flex flex-col gap-lg pb-32">
-        <button 
-          onClick={() => setView('list')} 
-          className="flex items-center gap-sm text-ui-xs text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors w-fit"
-        >
-          <ChevronLeft className="h-4 w-4" /> BIBLIOTECA
-        </button>
+      <ScreenContainer className="pb-32">
+         <AppHeader title={editingItem.id ? 'Editar Item.' : 'Novo Item.'} onBack={() => setView('list')} />
 
-        <Card className="p-card">
-          <SectionLabel className="mt-0 mb-8">
-            {editingItem.id ? 'Editar Item' : 'Novo Item do Catálogo'}
-          </SectionLabel>
+         <div className="px-4 flex flex-col gap-6">
+            <SurfaceCard padding="lg">
+               <SectionLabel className="mb-8">Dados do Catálogo</SectionLabel>
+               <div className="flex flex-col gap-6">
+                  <Input label="Título do Item" value={editingItem.title} onChange={(e) => setEditingItem({ ...editingItem, title: e.target.value })} placeholder="Ex: Disjuntor Din 20A" />
+                  <Select label="Tipo de Recurso" value={editingItem.kind} onChange={(val) => setEditingItem({ ...editingItem, kind: val as CatalogHubItemKind, itemType: val === 'labor' ? 'service' : 'material' })}>
+                    <option value="material">Material</option>
+                    <option value="labor">Mão de obra</option>
+                    <option value="service">Serviço / Composto</option>
+                    <option value="travel">Deslocamento</option>
+                  </Select>
+                  <div className="grid grid-cols-2 gap-4">
+                     <Input label="Marca / Fabricante" value={editingItem.brand || ''} onChange={(e) => setEditingItem({ ...editingItem, brand: e.target.value })} placeholder="Opcional" />
+                     <Input label="Unidade" value={editingItem.unit} onChange={(e) => setEditingItem({ ...editingItem, unit: e.target.value })} placeholder="un, m, kg..." />
+                  </div>
+                  <MonetaryInput label="Preço Base (Referência)" value={editingItem.defaultUnitValue} onChange={(val) => setEditingItem({ ...editingItem, defaultUnitValue: val })} />
+                  <TextArea label="Notas Técnicas" value={editingItem.notes || ''} onChange={(val) => setEditingItem({ ...editingItem, notes: val })} placeholder="Observações para o orçamento..." rows={4} />
+               </div>
+            </SurfaceCard>
 
-          <div className="flex flex-col gap-lg">
-            <Input
-              label="Título do Item"
-              value={editingItem.title}
-              onChange={(e) => setEditingItem({ ...editingItem, title: e.target.value })}
-              placeholder="Ex: Disjuntor Din 20A"
-            />
-
-            <div className="grid grid-cols-2 gap-md">
-              <Select
-                label="Tipo"
-                value={editingItem.kind}
-                onChange={(val) => setEditingItem({ ...editingItem, kind: val as CatalogHubItemKind, itemType: val === 'labor' ? 'service' : 'material' })}
-              >
-                <option value="material">Material</option>
-                <option value="labor">Mão de obra</option>
-                <option value="service">Serviço / Composto</option>
-                <option value="travel">Deslocamento</option>
-                <option value="fee">Taxa / Encargo</option>
-                <option value="custom">Item personalizado</option>
-              </Select>
-
-              <Input
-                label="Marca / Fabricante"
-                value={editingItem.brand || ''}
-                onChange={(e) => setEditingItem({ ...editingItem, brand: e.target.value })}
-                placeholder="Opcional"
-              />
+            <div className="flex flex-col gap-3 mt-4">
+               <PrimaryButton 
+                 onClick={handleSave} 
+                 className="h-16 w-full !rounded-2xl !text-[13px] font-black"
+               >
+                 SALVAR ALTERAÇÕES
+               </PrimaryButton>
+               <div className="grid grid-cols-2 gap-3">
+                  <SecondaryButton 
+                    onClick={() => setView('list')} 
+                    className="h-14 !rounded-2xl !text-[11px]"
+                  >
+                    CANCELAR
+                  </SecondaryButton>
+                  {editingItem.id && (
+                    <DangerButton 
+                      onClick={() => setItemPendingDelete(editingItem)} 
+                      className="h-14 !rounded-2xl !text-[11px]"
+                    >
+                      EXCLUIR
+                    </DangerButton>
+                  )}
+               </div>
             </div>
-
-            <div className="grid grid-cols-2 gap-md">
-              <MonetaryInput
-                label="Preço Base"
-                value={editingItem.defaultUnitValue}
-                onChange={(val) => setEditingItem({ ...editingItem, defaultUnitValue: val })}
-              />
-
-              <Input
-                label="Unidade"
-                value={editingItem.unit}
-                onChange={(e) => setEditingItem({ ...editingItem, unit: e.target.value })}
-                placeholder="un, m, kg..."
-              />
-            </div>
-
-            <TextArea
-              label="Notas Internas"
-              value={editingItem.notes || ''}
-              onChange={(val) => setEditingItem({ ...editingItem, notes: val })}
-              placeholder="Observações técnicas de uso..."
-              rows={4}
-            />
-          </div>
-
-          <div className="flex flex-col gap-sm mt-12 pt-10 border-t var(--border-subtle)">
-            <PrimaryButton className="h-16" onClick={handleSave}>
-              Salvar Alterações
-            </PrimaryButton>
-            <div className="grid grid-cols-2 gap-sm">
-              <SecondaryButton onClick={() => setView('list')}>
-                Cancelar
-              </SecondaryButton>
-              {editingItem.id && (
-                <Button variant="danger" onClick={() => requestDelete(editingItem)}>
-                  Excluir
-                </Button>
-              )}
-            </div>
-          </div>
-        </Card>
-
-        <Modal
-          isOpen={Boolean(itemPendingDelete)}
-          title="Excluir item?"
-          confirmLabel="Excluir Definitivamente"
-          tone="danger"
-          onClose={() => setItemPendingDelete(null)}
-          onConfirm={confirmDelete}
-        >
-          <p className="text-ui-base font-medium text-[var(--text-secondary)] leading-relaxed">
-            {itemPendingDelete ? `O item "${itemPendingDelete.title}" será removido da sua biblioteca operacional de forma permanente.` : 'Este item será removido do catálogo.'}
-          </p>
-        </Modal>
-      </div>
+         </div>
+      </ScreenContainer>
     );
   }
 
+  const chips = (
+    <>
+      <OpsChip icon={<BarChart size={11} />} label={`${items.length} itens`} accent={false} />
+      <OpsChip icon={<Package size={11} />} label={`${materialsCount} materiais`} accent={false} />
+      <OpsChip icon={<Wrench size={11} />} label={`${laborsCount} serviços`} accent="green" />
+    </>
+  );
+
   return (
-    <div className="flex flex-col gap-lg pb-32">
-      <PrimaryButton className="w-full h-16" onClick={handleNew}>+ Novo Item do Catálogo</PrimaryButton>
+    <ScreenContainer className="pb-32">
+      <AppHeader 
+        title="Catálogo." 
+        onBack={onBack}
+        chips={chips}
+        action={
+          <button 
+            onClick={() => { setEditingItem(emptyItem('material')); setView('form'); }} 
+            className="grid h-[42px] w-[42px] place-items-center rounded-[14px] bg-white/[0.04] border border-white/[0.08] text-[var(--accent-gold)] hover:bg-white/10 active:scale-95 transition-all shadow-[var(--shadow-soft)]"
+            title="Novo Item de Catálogo"
+          >
+            <Plus size={18} strokeWidth={2.5} />
+          </button>
+        }
+      />
 
-      <div className="p-card rounded-[var(--radius-card)] bg-[var(--bg-surface-glass)] border var(--border-soft) shadow-[var(--shadow-soft)] flex flex-col gap-lg">
-        <SearchInput
-          placeholder="Buscar no catálogo..."
-          value={query}
-          onChange={(value) => { setQuery(value); setShowAllItems(false); }}
-        />
-        <FilterChips
-          items={CATEGORY_CHIPS}
-          active={[activeChip]}
-          onChange={(active) => { setActiveChip(active[0] || 'all'); setShowAllItems(false); }}
-          ariaLabel="Filtrar catálogo"
-        />
-      </div>
-
-      <div className="flex flex-col gap-lg">
-        <SectionLabel className="mt-0">Biblioteca de Itens</SectionLabel>
+      <div className="px-4 flex flex-col gap-8">
         
-        <div className="flex flex-col gap-sm">
-          {filteredItems.length === 0 ? (
-            <QueueEmptyState
-              title="Nenhum item encontrado"
-              meta="Ajuste os filtros ou inicie um novo cadastro."
-            />
-          ) : (
-            visibleItems.map((item) => (
-              <ListItem
-                key={item.id}
-                title={item.title}
-                context={`${itemKindLabel(item.kind)} ${item.brand ? `• ${item.brand}` : ''}`}
-                value={<MoneyValue value={item.defaultUnitValue} compact />}
-                action={
-                  <ActionMenu
-                    label="…"
-                    items={[
-                      { 
-                        id: 'select', 
-                        label: 'Adicionar ao Orçamento', 
-                        onSelect: () => {
-                          setItemPendingSelection(item);
-                          setPendingQuantity(item.defaultQuantity || 1);
-                        },
-                      },
-                      { id: 'edit', label: 'Editar', onSelect: () => handleEdit(item) },
-                      { id: 'duplicate', label: 'Duplicar', onSelect: () => handleDuplicate(item) },
-                      { id: 'delete', label: 'Excluir', tone: 'danger' as const, onSelect: () => requestDelete(item) },
-                    ].filter(it => it.id !== 'select' || !!onSendToBudget)}
-                  />
-                }
-              />
-            ))
-          )}
+        {/* 1. LIBRARY HERO */}
+        <Section className="gap-3">
+          <SectionLabel className="ml-2">Biblioteca Estratégica</SectionLabel>
+          <SurfaceCard variant="cinematic" padding="lg">
+             <div className="flex items-center justify-between mb-8">
+                <SectionLabel className="text-[var(--accent-gold)]">Patrimônio Técnico</SectionLabel>
+                <div className="flex items-center gap-2 bg-white/[0.04] border border-white/[0.07] px-2.5 py-1 rounded-lg">
+                   <Activity size={11} className="text-[var(--accent-green)]" />
+                   <Value className="text-[11px]">Sincronizado</Value>
+                </div>
+             </div>
+             <Heading className="text-[32px] mb-3">
+                {items.length} Itens
+             </Heading>
+             <Body className="text-[var(--accent-gold)] font-bold tracking-tight">
+                Base de Insumos e Mão de Obra
+             </Body>
+          </SurfaceCard>
+        </Section>
 
-          {filteredItems.length > CATALOG_VISIBLE_LIMIT && (
-            <button 
-              onClick={() => setShowAllItems((current) => !current)}
-              className="mt-4 w-full h-14 rounded-[var(--radius-button)] border var(--border-soft) bg-white/[0.02] text-ui-xs font-bold text-[var(--text-muted)] transition-all hover:bg-white/[0.04] active:scale-[0.98]"
-            >
-              {showAllItems ? 'VER MENOS' : `VER MAIS (${hiddenItemsCount})`}
-            </button>
-          )}
-        </div>
+        <Section className="gap-2">
+          <SearchInput placeholder="Localizar item..." value={query} onChange={(value) => { setQuery(value); setShowAllItems(false); }} />
+          <FilterChips items={CATEGORY_CHIPS} active={[activeChip]} onChange={(active) => { setActiveChip(active[0] || 'all'); setShowAllItems(false); }} />
+        </Section>
+
+        <Section className="gap-3 pb-12">
+            <SectionLabel className="ml-2">Inventário Operacional</SectionLabel>
+            {isLoading ? (
+              <div className="py-20"><ERPLoader message="Recuperando biblioteca..." /></div>
+            ) : filteredItems.length === 0 ? (
+              <SurfaceCard padding="lg" className="text-center border-dashed opacity-50"><Body className="font-mono text-[10px] font-bold opacity-20">NENHUM_ITEM_MAPEADO</Body></SurfaceCard>
+            ) : (
+              <SurfaceCard padding="none">
+                <Stack className="gap-0">
+                  {visibleItems.map((item, idx) => (
+                    <InteractiveRow 
+                      key={item.id} 
+                      onClick={() => handleEdit(item)}
+                      leftSlot={
+                        <div className="w-9 h-9 rounded-xl bg-white/[0.03] border border-white/[0.07] grid place-items-center">
+                          {item.kind === 'labor' ? <Wrench size={14} className="text-[var(--accent-green)]" /> : <Package size={14} className="text-[var(--accent-gold)]" />}
+                        </div>
+                      }
+                    >
+                       <div className="flex items-center gap-4 w-full">
+                          <div className="flex-1 min-w-0">
+                             <Body className="truncate leading-tight uppercase">{item.title}</Body>
+                             <div className="flex items-center gap-2 mt-0.5">
+                                <SectionLabel className="!text-[9px] !text-[#505050]">{item.kind}</SectionLabel>
+                                <div className="w-0.5 h-0.5 rounded-full bg-[#3A3A3A]" />
+                                <Subtitle className="text-[10px] truncate opacity-40 uppercase font-bold">{item.brand || 'PADRÃO'}</Subtitle>
+                             </div>
+                          </div>
+                          <Stack className="items-end gap-0.5 shrink-0">
+                             <FinancialValue value={item.defaultUnitValue} compact className="text-[13px] text-white" />
+                             <SectionLabel className="!text-[8.5px] !text-[#3C3C3C]">{item.unit}</SectionLabel>
+                          </Stack>
+                       </div>
+                    </InteractiveRow>
+                  ))}
+                </Stack>
+              </SurfaceCard>
+            )}
+
+            {filteredItems.length > CATALOG_VISIBLE_LIMIT && (
+              <button 
+                onClick={() => setShowAllItems((current) => !current)}
+                className="w-full h-14 rounded-2xl border border-white/5 bg-white/[0.02] text-[10px] font-bold text-white/20 tracking-[0.3em] font-mono transition-all hover:bg-white/[0.04] active:scale-[0.98]"
+              >
+                {showAllItems ? 'OCULTAR_ITENS' : `VER_MAIS_ITENS (${hiddenItemsCount})`}
+              </button>
+            )}
+        </Section>
       </div>
 
-      <Modal
-        isOpen={Boolean(itemPendingSelection)}
-        title="Adicionar ao Projeto"
-        confirmLabel="Confirmar Inclusão"
-        onClose={() => setItemPendingSelection(null)}
-        onConfirm={() => {
-          if (itemPendingSelection && onSendToBudget) {
-            onSendToBudget([{ ...itemPendingSelection, defaultQuantity: pendingQuantity }]);
-            setItemPendingSelection(null);
-          }
-        }}
-      >
-        <div className="flex flex-col gap-lg py-4">
-          <p className="text-ui-base font-medium text-[var(--text-secondary)] leading-relaxed">Defina a quantidade de <strong>{itemPendingSelection?.title}</strong>:</p>
-          <Input
-            label="Quantidade"
-            type="number"
-            value={pendingQuantity}
-            onChange={(e) => setPendingQuantity(Number(e.target.value))}
-            autoFocus
-          />
-        </div>
+      <Modal isOpen={Boolean(itemPendingDelete)} title="Excluir item?" confirmLabel="Excluir" tone="danger" onClose={() => setItemPendingDelete(null)} onConfirm={confirmDelete}>
+        <Subtitle className="leading-relaxed">Esta ação removerá o item "{itemPendingDelete?.title}" permanentemente da biblioteca.</Subtitle>
       </Modal>
 
-      <Modal
-        isOpen={Boolean(itemPendingDelete)}
-        title="Excluir item?"
-        confirmLabel="Excluir Definitivamente"
-        tone="danger"
-        onClose={() => setItemPendingDelete(null)}
-        onConfirm={confirmDelete}
-      >
-        <p className="text-ui-base font-medium text-[var(--text-secondary)] leading-relaxed">
-          {itemPendingDelete ? `O item "${itemPendingDelete.title}" será removido da biblioteca operacional de forma permanente.` : 'Este item será removido do catálogo.'}
-        </p>
+      <Modal isOpen={Boolean(itemPendingSelection)} title="Adicionar" confirmLabel="Confirmar" onClose={() => setItemPendingSelection(null)} onConfirm={() => { if (itemPendingSelection && onSendToBudget) { onSendToBudget([{ ...itemPendingSelection, defaultQuantity: pendingQuantity }]); setItemPendingSelection(null); } }}>
+        <div className="flex flex-col gap-6 py-4">
+          <Input label="Quantidade" type="number" value={pendingQuantity} onChange={(e) => setPendingQuantity(Number(e.target.value))} autoFocus />
+        </div>
       </Modal>
-    </div>
+    </ScreenContainer>
   );
 }

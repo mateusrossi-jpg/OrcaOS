@@ -68,8 +68,8 @@
 
 .primary-action {
   background: var(--accent-gold) !important;
-  color: #000000 !important;
-  box-shadow: var(--shadow-button) !important;
+  color: var(--bg-primary) !important;
+  box-shadow: var(--shadow-primary) !important;
 }
 
 .secondary-action {

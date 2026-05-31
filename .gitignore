@@ -24,3 +24,6 @@ pnpm-debug.log*
 .aider*
 .antigravitycli/
 
+
+.gemini/
+gha-creds-*.json

@@ -1,10 +1,13 @@
 import { useEffect, useRef, memo, type ButtonHTMLAttributes, type HTMLAttributes, type ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 import { 
   ChevronRight, 
   ChevronLeft,
   MoreHorizontal, 
   Search, 
-  Plus
+  Plus,
+  ChevronDown,
+  X as CloseIcon
 } from "lucide-react";
 import { CompactActionMenu, type CompactActionItem } from '../CompactActionMenu';
 import { MobileActionMenu } from './MobileActionMenu';
@@ -12,7 +15,23 @@ import { useAutoResizeTextArea } from '../../hooks/useAutoResizeTextArea';
 import { PageShell } from '../PageShell';
 import { cn } from '../../../utils/ui';
 
-export { ERPLoader } from '../../../ui/system';
+export { 
+  ERPLoader,
+  AppHeader as PageTitle,
+  AppHeader as PageHeader,
+  SectionLabel,
+  SurfaceCard,
+  SurfaceCard as Card,
+  SurfaceCard as Surface,
+  SemanticBadge as Badge
+} from '../../../ui/system';
+
+export { 
+  MetricCard, 
+  SectionTitle, 
+  SearchInput 
+} from '../../../ui/primitives';
+
 export { KpiCard } from './KpiCard';
 export { Sparkline } from './Sparkline';
 import { SurfaceCard, type SurfaceCardProps } from './SurfaceCard';
@@ -20,91 +39,35 @@ import { SurfaceCard, type SurfaceCardProps } from './SurfaceCard';
 type Tone = 'default' | 'brand' | 'success' | 'danger' | 'muted';
 
 /**
- * PageTitle: Premium Operational Header.
- * Refactored for TOKEN-FIRST architecture (Executive OS V5).
- */
-export function PageTitle({ 
-  eyebrow, 
-  title, 
-  subtitle, 
-  action,
-  onBack
-}: { 
-  eyebrow?: string; 
-  title: string; 
-  subtitle?: string; 
-  action?: ReactNode;
-  onBack?: () => void;
-}) {
-  return (
-    <div className="mb-12 flex flex-col gap-lg">
-      {onBack && (
-        <button 
-          onClick={onBack} 
-          className="flex w-fit items-center gap-sm text-ui-xs text-[var(--text-muted)] transition-colors hover:text-[var(--text-primary)]"
-        >
-          <ChevronLeft className="h-4 w-4" /> VOLTAR
-        </button>
-      )}
-      <div className="flex items-end justify-between gap-lg">
-        <div className="flex flex-col items-start min-w-0">
-          {eyebrow && <p className="mb-1 text-ui-xs text-[var(--accent-gold)]">{eyebrow}</p>}
-          <h1 className="text-h1 text-[var(--text-primary)] truncate w-full">{title}</h1>
-          {subtitle && <p className="mt-2 text-ui-sm text-[var(--text-secondary)] leading-relaxed max-w-[90%]">{subtitle}</p>}
-        </div>
-        {action && <div className="shrink-0 mb-1">{action}</div>}
-      </div>
-    </div>
-  );
-}
-
-/**
- * SectionLabel: Operational Divider.
- * Refactored for TOKEN-FIRST architecture.
- */
-export function SectionLabel({ 
-  children, 
-  action,
-  className = ''
-}: { 
-  children: ReactNode; 
-  action?: ReactNode; 
-  className?: string;
-}) {
-  return (
-    <div className={cn("mb-6 mt-12 flex items-center justify-between", className)}>
-      <h2 className="text-ui-xs text-[var(--text-muted)]">{children}</h2>
-      {action && <div className="shrink-0">{action}</div>}
-    </div>
-  );
-}
-
-/**
  * Button: Tactile action primitive.
- * Refactored for TOKEN-FIRST architecture.
+ * Refactored for BICOLOR AUTHORITY & VISUAL CONTAINMENT (Phase 4H).
  */
 export function Button({
   children,
   variant = 'secondary',
   className = '',
+  tone,
   ...props
 }: {
   children: ReactNode;
   variant?: 'primary' | 'secondary' | 'ghost' | 'danger';
   className?: string;
+  tone?: Tone;
 } & ButtonHTMLAttributes<HTMLButtonElement>) {
-  const baseClasses = "min-h-[52px] rounded-[var(--radius-button)] px-shell text-ui-base font-bold transition-all duration-300 active:scale-[0.97] flex items-center justify-center gap-sm";
+  const baseClasses = "min-h-[52px] rounded-[16px] px-shell text-[14px] font-bold transition-all duration-300 active:scale-[0.97] flex items-center justify-center gap-sm select-none relative overflow-visible";
   
+  const effectiveVariant = tone === 'danger' ? 'danger' : variant;
+
   const variantClasses = {
-    primary: "bg-[var(--accent-gold)] text-black shadow-[var(--shadow-button)] hover:brightness-105",
-    secondary: "bg-[var(--bg-surface-glass)] border var(--border-soft) text-[var(--text-primary)] hover:bg-white/[0.07]",
-    ghost: "bg-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)]",
-    danger: "bg-[var(--accent-red)]/15 text-[var(--accent-red)] hover:bg-[var(--accent-red)]/25",
+    primary: "aferix-btn-primary hover:brightness-105 active:brightness-95",
+    secondary: "aferix-btn-secondary hover:bg-white/[0.06] active:bg-white/[0.08]",
+    ghost: "bg-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-white/[0.04]",
+    danger: "aferix-btn-danger hover:brightness-105 active:brightness-95",
   };
   
   return (
     <button 
-      className={cn(baseClasses, variantClasses[variant], className)} 
+      className={cn(baseClasses, variantClasses[effectiveVariant], className)} 
       type="button" 
       {...props}
     >
@@ -113,9 +76,9 @@ export function Button({
   );
 }
 
-export function PrimaryButton(props: Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'type'> & { children: ReactNode }) {
-  const { children, className = '', ...rest } = props;
-  return <Button variant="primary" className={className} {...rest}>{children}</Button>;
+export function PrimaryButton(props: Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'type'> & { children: ReactNode, tone?: Tone }) {
+  const { children, className = '', tone, ...rest } = props;
+  return <Button variant="primary" className={className} tone={tone} {...rest}>{children}</Button>;
 }
 
 export function SecondaryButton(props: Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'type'> & { children: ReactNode }) {
@@ -127,63 +90,8 @@ export function DangerButton(props: Omit<ButtonHTMLAttributes<HTMLButtonElement>
   const { children, className = '', ...rest } = props;
   return <Button variant="danger" className={className} {...rest}>{children}</Button>;
 }
-
 export { PipelineCard } from './PipelineCard';
-export { SurfaceCard };
-
-/**
- * Surface/Card: Legacy aliases, now powered by SurfaceCard.
- */
-export function Surface(props: SurfaceCardProps) { return <SurfaceCard {...props} />; }
-export function Card(props: SurfaceCardProps) { return <SurfaceCard {...props} />; }
-
-/**
- * StatusPill: Premium status badge.
- * Refactored for TOKEN-FIRST architecture.
- */
-export const StatusPill = memo(function StatusPill({ 
-  status,
-  className
-}: { 
-  status: string;
-  className?: string;
-}) {
-  const normalized = (status ?? '').toLowerCase().replace(' ', '_').replace('em_execucao', 'execucao');
-  
-  const map: Record<string, string> = {
-    iniciado:   "bg-white/10 text-[var(--text-secondary)]",
-    enviado:    "bg-[var(--accent-gold)]/15 text-[var(--accent-gold)]",
-    aprovado:   "bg-[var(--accent-gold)]/20 text-[var(--accent-gold)] border var(--border-soft)",
-    autorizado: "bg-[var(--accent-gold)]/20 text-[var(--accent-gold)] border var(--border-soft)",
-    execucao:   "bg-[var(--accent-gold)] text-black shadow-[var(--shadow-cinematic)]",
-    finalizado: "bg-white/15 text-[var(--text-primary)]",
-    arquivado:  "bg-white/10 text-[var(--text-muted)]",
-    cancelado:  "bg-[var(--accent-red)]/20 text-[var(--accent-red)] border var(--border-soft)",
-    recusado:   "bg-[var(--accent-red)]/20 text-[var(--accent-red)] border var(--border-soft)",
-  };
-
-  const labels: Record<string, string> = {
-    iniciado: "Iniciado", 
-    enviado: "Enviado", 
-    aprovado: "Aprovado",
-    autorizado: "Autorizado",
-    execucao: "Em execução", 
-    finalizado: "Finalizado", 
-    arquivado: "Arquivado",
-    cancelado: "Cancelado",
-    recusado: "Recusado"
-  };
-
-  return (
-    <span className={cn("inline-flex items-center px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide rounded-lg transition-all", map[normalized] || map.iniciado, className)}>
-      {labels[normalized] || labelize(status)}
-    </span>
-  );
-});
-
-function labelize(s: string) {
-  return s.charAt(0).toUpperCase() + s.slice(1).replace('_', ' ');
-}
+export { StatusPill, StatusPill as StatusBadge } from '../../../ui/system';
 
 /**
  * ListCard: Premium container for operational lists.
@@ -204,7 +112,7 @@ export function ListCard({
     <div className={cn("w-full flex flex-col", className)} {...props}>
       {(title || action) && (
         <header className="flex items-center justify-between mb-4 px-1">
-          <div>{title && <h3 className="text-ui-xs text-[var(--text-muted)]">{title}</h3>}</div>
+          <div>{title && <h3 className="text-ui-xs text-[#505050]">{title}</h3>}</div>
           {action && <div>{action}</div>}
         </header>
       )}
@@ -236,31 +144,44 @@ export const ListItem = memo(function ListItem({
   className?: string;
 }) {
   return (
-    <article 
+    <button 
+      onClick={onClick}
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: "12px",
+        width: "100%",
+        padding: "13px 20px",
+        borderTop: "1px solid rgba(255,255,255,0.05)",
+        background: "none",
+        cursor: onClick ? "pointer" : "default",
+        textAlign: "left",
+        transition: "background 0.12s ease",
+      }}
       className={cn(
-        "flex items-center gap-md py-4 px-shell transition-all duration-200 rounded-[var(--radius-button)] bg-white/[0.03] border var(--border-subtle) group", 
-        onClick && "cursor-pointer hover:bg-white/[0.06] hover:translate-x-0.5 active:scale-[0.99]", 
+        onClick && "hover:bg-white/[0.02] active:bg-white/[0.04]",
         className
       )}
-      onClick={onClick}
     >
-      <div className="min-w-0 flex-1">
-        <div className="flex items-center justify-between gap-sm">
-          <strong className="truncate text-ui-md text-[var(--text-primary)] group-hover:text-[var(--accent-gold)] transition-colors">{title}</strong>
-          {value && <div className="num text-ui-md font-bold text-[var(--text-primary)]">{value}</div>}
+      <div className="flex-1 min-w-0">
+        <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "2px" }}>
+          <strong style={{ fontSize: "14px", fontWeight: 700, color: "var(--text-primary)", lineHeight: 1.3, margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{title}</strong>
         </div>
-        <div className="mt-1 flex items-center justify-between gap-sm">
-          {context && <p className="truncate text-ui-sm text-[var(--text-secondary)] font-medium">{context}</p>}
-          {status && <div className="shrink-0">{status}</div>}
-        </div>
+        {context && <p style={{ fontSize: "11px", color: "var(--text-secondary)", margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", opacity: 0.6 }}>{context}</p>}
       </div>
+      
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "2px", flexShrink: 0 }}>
+        {value && <span className="num text-[13px] font-bold text-white">{value}</span>}
+        {status && <div className="scale-75 origin-right">{status}</div>}
+      </div>
+
       {(action || onClick) && (
-        <div className="flex items-center gap-sm ml-1 opacity-40 group-hover:opacity-100 transition-opacity">
+        <div className="flex items-center gap-2 ml-1 opacity-20 shrink-0">
           {action}
-          {onClick && <ChevronRight className="h-4 w-4" />}
+          {onClick && <ChevronRight size={13} />}
         </div>
       )}
-    </article>
+    </button>
   );
 });
 
@@ -270,54 +191,11 @@ export const ListItem = memo(function ListItem({
 export function EditorialMetric({ label, value, color, compact = false }: { label: string; value: ReactNode; color?: string; compact?: boolean }) {
   return (
     <div>
-      <p className="text-ui-xs text-[var(--text-secondary)] mb-2">{label}</p>
-      <p className={cn("num font-bold text-[var(--text-primary)] tracking-tight", compact ? "text-h3" : "text-h2")} style={{ color }}>{value}</p>
+      <p className="font-mono text-[9px] font-bold tracking-widest text-[var(--text-muted)] mb-2 uppercase">{label}</p>
+      <p className={cn("num font-bold text-[#EFEFEF] tracking-tight", compact ? "text-h3" : "text-h2")} style={{ color }}>{value}</p>
     </div>
   );
 }
-
-/**
- * MetricCard: Cinematic KPI card.
- */
-export const MetricCard = memo(function MetricCard({
-  label,
-  value,
-  featured = false,
-  className = '',
-  color,
-}: {
-  label: string;
-  value: ReactNode;
-  featured?: boolean;
-  className?: string;
-  color?: string;
-}) {
-  return (
-    <div 
-      className={cn(
-        "p-card rounded-[var(--radius-card)] flex flex-col justify-between transition-all duration-500",
-        featured 
-          ? "bg-gradient-to-br from-[var(--accent-gold)] to-[var(--accent-gold)]/80 text-black shadow-[var(--shadow-cinematic)] scale-[1.02]" 
-          : "bg-[var(--surface-gradient)] border var(--border-soft) shadow-[var(--shadow-soft)]",
-        className
-      )}
-    >
-      <p className={cn("text-ui-xs", featured ? "text-black/60" : "text-[var(--text-muted)]")}>{label}</p>
-      <p className={cn("num font-bold tracking-tighter mt-4", featured ? "text-h2" : "text-h3")} style={{ color: featured ? undefined : color }}>{value}</p>
-    </div>
-  );
-});
-
-export const Badge = memo(function Badge({ children, tone = 'default', className = '' }: { children: ReactNode; tone?: Tone; className?: string }) {
-  const tones = {
-    default: "bg-white/10 text-[var(--text-secondary)]",
-    brand: "bg-[var(--accent-gold)]/15 text-[var(--accent-gold)]",
-    success: "bg-[var(--accent-gold)]/15 text-[var(--accent-gold)]",
-    danger: "bg-[var(--accent-red)]/20 text-[var(--accent-red)]",
-    muted: "bg-white/5 text-[var(--text-muted)]",
-  };
-  return <span className={cn("inline-flex items-center rounded-lg px-2.5 py-0.5 text-ui-xs border border-transparent", tones[tone], className)}>{children}</span>;
-});
 
 /**
  * ContextBanner: Action-oriented info banner.
@@ -338,20 +216,20 @@ export function ContextBanner({
   className?: string;
 }) {
   return (
-    <div className={cn("flex items-start gap-md p-card rounded-[var(--radius-card)] bg-white/[0.04] border var(--border-soft) shadow-[var(--shadow-soft)]", className)}>
-      <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-[var(--accent-gold)]/15 text-[var(--accent-gold)]">
+    <div className={cn("flex items-start gap-5 p-6 rounded-[22px] bg-white/[0.02] border border-white/[0.06] shadow-[0_4px_24px_rgba(0,0,0,0.3)]", className)}>
+      <div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-[var(--accent-gold)]/10 text-[var(--accent-gold)] border border-[var(--accent-gold)]/20">
         {icon}
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-ui-md font-bold leading-tight text-[var(--text-primary)]">{title}</p>
-        <p className="mt-1 text-ui-sm text-[var(--text-secondary)] leading-relaxed font-medium opacity-80">{meta}</p>
+        <p className="text-[15px] font-bold leading-tight text-[var(--text-primary)]">{title}</p>
+        <p className="mt-1.5 text-[12.5px] text-[var(--text-secondary)] leading-relaxed font-medium opacity-60">{meta}</p>
         {actionLabel && (
-          <button className="mt-4 text-ui-xs text-[var(--accent-gold)] font-bold" onClick={onAction}>
+          <button className="mt-4 text-[11px] font-black font-mono text-[var(--accent-gold)] uppercase tracking-widest" onClick={onAction}>
             {actionLabel}
           </button>
         )}
       </div>
-      {!actionLabel && <ChevronRight className="mt-3 h-4 w-4 text-[var(--text-muted)] opacity-30" />}
+      {!actionLabel && <ChevronRight className="mt-4 h-4 w-4 text-[var(--text-tertiary)] opacity-40" />}
     </div>
   );
 }
@@ -373,12 +251,9 @@ export const MoneyValue = memo(function MoneyValue({ value, compact = false }: {
 /**
  * Standard Aferix Layout Helpers
  */
-export function PageHeader(props: { eyebrow?: string; title: string; subtitle?: string; action?: ReactNode; onBack?: () => void }) { return <PageTitle {...props} />; }
-export function SectionHeader(props: { children: ReactNode; action?: ReactNode; className?: string }) { return <SectionLabel {...props} />; }
-export function StatusBadge(props: { status: string; className?: string }) { return <StatusPill {...props} />; }
 export function BackButton({ label = 'Voltar', onClick }: { label?: string; onClick?: () => void }) {
   return (
-    <button className="flex items-center gap-sm text-ui-sm font-bold text-[var(--text-secondary)] transition-colors hover:text-[var(--text-primary)]" onClick={onClick}>
+    <button className="flex items-center gap-sm text-ui-sm font-bold text-[#808080] transition-colors hover:text-[#EFEFEF]" onClick={onClick}>
       <ChevronLeft className="h-4 w-4" /> {label.toUpperCase()}
     </button>
   );
@@ -410,8 +285,8 @@ export function FilterChips<T extends string>({
           className={cn(
             "whitespace-nowrap rounded-full border px-5 py-2 text-ui-sm font-bold transition-all",
             selected.includes(item.id) 
-              ? "border-[var(--accent-gold)] bg-[var(--accent-gold)] text-black shadow-[var(--shadow-cinematic)]" 
-              : "border-white/[0.05] bg-white/[0.04] text-[var(--text-secondary)] hover:bg-white/[0.08]"
+              ? "border-[var(--accent-gold)] bg-[var(--accent-gold)] text-black shadow-[var(--shadow-primary)]" 
+              : "border-white/[0.05] bg-white/[0.04] text-[#808080] hover:bg-white/[0.08]"
           )}
           disabled={disabled}
           onClick={() => {
@@ -443,7 +318,7 @@ export function AferixTabs<T extends string>({
   className?: string;
 }) {
   return (
-    <div className={cn("flex gap-1 p-1 bg-white/[0.03] rounded-xl border var(--border-subtle) w-fit", className)} role="tablist">
+    <div className={cn("flex gap-1.5 p-1.5 bg-white/[0.03] rounded-[14px] border border-white/[0.06] w-fit", className)} role="tablist">
       {items.map((item) => (
         <button
           key={item.id}
@@ -451,10 +326,10 @@ export function AferixTabs<T extends string>({
           role="tab"
           aria-selected={activeId === item.id}
           className={cn(
-            "px-6 py-2.5 rounded-lg text-ui-sm font-bold transition-all duration-300",
+            "px-6 py-2 rounded-[10px] text-[12px] font-bold transition-all duration-300",
             activeId === item.id 
-              ? "bg-[var(--accent-gold)] text-black shadow-[var(--shadow-soft)] scale-[1.02]" 
-              : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-white/[0.03]"
+              ? "bg-[var(--accent-gold)] text-black shadow-[var(--shadow-soft)]" 
+              : "text-[#808080] hover:text-[#EFEFEF] hover:bg-white/[0.03]"
           )}
           onClick={() => onChange(item.id)}
         >
@@ -482,10 +357,10 @@ export function QueueEmptyState({
   className?: string;
 }) {
   return (
-    <div className={cn("p-12 text-center flex flex-col items-center gap-4 rounded-[var(--radius-card)] border border-dashed var(--border-soft) bg-white/[0.01]", className)}>
-      {icon && <div className="text-4xl mb-2 opacity-20">{icon}</div>}
-      <strong className="text-ui-md font-bold tracking-tight text-[var(--text-primary)]">{title}</strong>
-      {meta && <p className="text-ui-sm text-[var(--text-muted)] leading-relaxed max-w-[240px] font-medium opacity-60">{meta}</p>}
+    <div className={cn("p-12 text-center flex flex-col items-center gap-4 rounded-[22px] border border-dashed border-white/[0.08] bg-white/[0.01]", className)}>
+      {icon && <div className="mb-2 opacity-20">{icon}</div>}
+      <strong className="text-[15px] font-bold tracking-tight text-[#EFEFEF]">{title}</strong>
+      {meta && <p className="text-[13px] text-[#808080] leading-relaxed max-w-[240px] font-medium opacity-60">{meta}</p>}
       {action && <div className="mt-4">{action}</div>}
     </div>
   );
@@ -512,6 +387,7 @@ export function ActionMenu({
 
 /**
  * Forms: Premium Operational Inputs
+ * Refactored for absolute Home DNA parity (Phase 4H).
  */
 export function Select({
   label,
@@ -529,19 +405,19 @@ export function Select({
   disabled?: boolean;
 }) {
   return (
-    <label className={cn("block", className)}>
-      {label && <span className="block mb-2 text-ui-xs text-[var(--text-muted)]">{label}</span>}
+    <label className={cn("block group", className)}>
+      {label && <span className="block mb-2.5 text-[10px] font-bold font-mono text-[#3C3C3C] uppercase tracking-[0.2em] ml-1">{label}</span>}
       <div className="relative">
         <select 
           value={value} 
           onChange={(e) => onChange(e.target.value)} 
           disabled={disabled}
-          className="w-full bg-white/[0.04] border var(--border-subtle) rounded-[var(--radius-button)] px-4 py-4 text-ui-base font-semibold appearance-none focus:outline-none focus:border-[var(--accent-gold)]/40 transition-all shadow-inset"
+          className="w-full bg-white/[0.03] border border-white/[0.05] rounded-[16px] px-5 py-4 text-[14.5px] font-semibold appearance-none focus:outline-none focus:border-[var(--accent-gold)]/30 focus:bg-white/[0.05] transition-all text-[#EFEFEF]"
         >
           {children}
         </select>
-        <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none opacity-40 text-[var(--text-muted)]">
-          <MoreHorizontal className="h-4 w-4" />
+        <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none opacity-20 text-[#EFEFEF] group-focus-within:opacity-50 group-focus-within:text-[var(--accent-gold)] transition-all">
+          <ChevronDown className="h-4 w-4" strokeWidth={2.5} />
         </div>
       </div>
     </label>
@@ -558,8 +434,11 @@ export function Input({
 } & React.InputHTMLAttributes<HTMLInputElement>) {
   return (
     <label className={cn("block", className)}>
-      {label && <span className="block mb-2 text-ui-xs text-[var(--text-muted)]">{label}</span>}
-      <input {...props} className="w-full bg-white/[0.04] border var(--border-subtle) rounded-[var(--radius-button)] px-4 py-4 text-ui-base font-semibold focus:outline-none focus:border-[var(--accent-gold)]/40 transition-all shadow-inset text-[var(--text-primary)]" />
+      {label && <span className="block mb-2.5 text-[10px] font-bold font-mono text-[#3C3C3C] uppercase tracking-[0.2em] ml-1">{label}</span>}
+      <input 
+        {...props} 
+        className="w-full bg-white/[0.03] border border-white/[0.05] rounded-[16px] px-5 py-4 text-[14.5px] font-semibold focus:outline-none focus:border-[var(--accent-gold)]/30 focus:bg-white/[0.05] transition-all text-[#EFEFEF] placeholder:text-white/10" 
+      />
     </label>
   );
 }
@@ -586,10 +465,10 @@ export function TextArea({
 
   return (
     <label className={cn("block", className)}>
-      {label && <span className="block mb-2 text-ui-xs text-[var(--text-muted)]">{label}</span>}
+      {label && <span className="block mb-2.5 text-[10px] font-bold font-mono text-[#3C3C3C] uppercase tracking-[0.2em] ml-1">{label}</span>}
       <textarea
         ref={ref}
-        className="w-full bg-white/[0.04] border var(--border-subtle) rounded-[var(--radius-button)] px-4 py-4 text-ui-base font-semibold focus:outline-none focus:border-[var(--accent-gold)]/40 transition-all shadow-inset leading-relaxed text-[var(--text-primary)]"
+        className="w-full bg-white/[0.03] border border-white/[0.05] rounded-[16px] px-5 py-4 text-[14.5px] font-semibold focus:outline-none focus:border-[var(--accent-gold)]/30 focus:bg-white/[0.05] transition-all leading-relaxed text-[#EFEFEF] placeholder:text-white/10 min-h-[100px] resize-none"
         value={value}
         placeholder={placeholder}
         rows={rows}
@@ -628,9 +507,9 @@ export function MonetaryInput({
 
   return (
     <label className={cn("block", className)}>
-      {label && <span className="block mb-2 text-ui-xs text-[var(--text-muted)]">{label}</span>}
-      <div className="flex items-center bg-white/[0.04] border var(--border-subtle) rounded-[var(--radius-button)] px-4 py-4 shadow-inset focus-within:border-[var(--accent-gold)]/40 transition-all">
-        <span className="text-[var(--text-muted)] mr-2 text-ui-sm font-bold tracking-tight">R$</span>
+      {label && <span className="block mb-2.5 text-[10px] font-bold font-mono text-[#3C3C3C] uppercase tracking-[0.2em] ml-1">{label}</span>}
+      <div className="flex items-center bg-white/[0.03] border border-white/[0.05] rounded-[16px] px-5 py-4 focus-within:border-[var(--accent-gold)]/30 focus-within:bg-white/[0.05] transition-all group">
+        <span className="text-white/20 mr-3 text-[12px] font-bold tracking-tight font-mono group-focus-within:text-[var(--accent-gold)]/50 transition-colors">R$</span>
         <input
           type="text"
           inputMode="numeric"
@@ -638,13 +517,17 @@ export function MonetaryInput({
           placeholder={placeholder || '0,00'}
           onChange={handleChange}
           disabled={disabled}
-          className="w-full num font-bold text-[var(--text-primary)] text-ui-md focus:outline-none bg-transparent"
+          className="w-full font-mono text-[18px] font-bold text-[#EFEFEF] focus:outline-none bg-transparent placeholder:text-white/5"
         />
       </div>
     </label>
   );
 }
 
+/**
+ * Modal: Adaptive Command Drawer.
+ * Refactored for absolute responsiveness & BICOLOR AUTHORITY (Phase 4H).
+ */
 export function Modal({
   isOpen,
   title,
@@ -668,70 +551,87 @@ export function Modal({
     if (!isOpen) return;
     const handleEsc = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
     window.addEventListener('keydown', handleEsc);
-    return () => window.removeEventListener('keydown', handleEsc);
+    document.body.style.overflow = 'hidden';
+    return () => {
+      window.removeEventListener('keydown', handleEsc);
+      document.body.style.overflow = '';
+    };
   }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
-  return (
-    <div className="aferix-modal-overlay p-shell" onClick={onClose}>
-      <div className="bg-[var(--bg-surface)] border var(--border-soft) rounded-[var(--radius-modal)] w-full max-w-[440px] shadow-card overflow-hidden animate-in zoom-in-95 duration-300" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
-        <header className="px-shell pt-10 pb-6">
-          <h2 className="text-h3 text-[var(--text-primary)]">{title}</h2>
+  return createPortal(
+    <div 
+      className="fixed inset-0 z-[3000] flex items-end sm:items-center justify-center p-0 sm:p-4" 
+      style={{ backgroundColor: "rgba(0,0,0,0.88)", backdropFilter: "blur(40px)", WebkitBackdropFilter: "blur(40px)" }} 
+      onClick={onClose}
+    >
+      <div 
+        className={cn(
+          "bg-[#0F0F0F] border border-white/[0.08] rounded-t-[32px] sm:rounded-[32px] shadow-[0_32px_120px_rgba(0,0,0,1)]",
+          "w-full max-w-[430px] overflow-hidden relative flex flex-col",
+          "animate-in fade-in slide-in-from-bottom-full sm:slide-in-from-bottom-8 sm:zoom-in-95 duration-700 cubic-bezier(0.16, 1, 0.3, 1)"
+        )}
+        style={{ maxHeight: "90vh" }}
+        onClick={(e: React.MouseEvent) => e.stopPropagation()}
+      >
+        {/* Cinematic Ambient Glow */}
+        <div 
+          className="absolute -top-[120px] -right-[120px] w-[300px] h-[300px] rounded-full pointer-events-none select-none opacity-40 z-0"
+          style={{ background: 'radial-gradient(circle, rgba(var(--accent-gold-rgb),0.12) 0%, transparent 70%)' }}
+        />
+
+        {/* Mobile Pull Bar */}
+        <div className="sm:hidden flex justify-center pt-3 pb-1 relative z-10">
+           <div className="w-12 h-1.5 rounded-full bg-white/[0.08]" />
+        </div>
+
+        <button 
+          onClick={onClose}
+          className="absolute top-6 right-6 h-10 w-10 rounded-full bg-white/[0.03] border border-white/5 flex items-center justify-center text-white/20 hover:text-white transition-colors z-20"
+        >
+          <CloseIcon size={16} />
+        </button>
+
+        <header className="px-8 pt-10 sm:pt-12 pb-6 text-center relative z-10">
+           <span className="block mb-3 text-[9px] font-black font-mono text-[#4A4A4A] uppercase tracking-[0.35em]">COMANDO_OPERACIONAL</span>
+           <h2 className="text-[24px] font-bold text-[#EFEFEF] tracking-tightest leading-tight">{title}</h2>
         </header>
-        <div className="px-shell py-2 text-[var(--text-secondary)]">
+        
+        <div className="px-8 sm:px-10 py-2 text-[#808080] flex-1 overflow-y-auto scrollbar-none relative z-10 mb-2">
           {children}
         </div>
-        <footer className="p-shell flex flex-col gap-sm pb-10">
+        
+        <footer 
+          className="p-8 sm:p-10 pt-6 flex flex-col gap-3 relative z-10 bg-gradient-to-t from-[#0F0F0F] via-[#0F0F0F] to-transparent"
+          style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 32px)" }}
+        >
           {onConfirm && (
-            <button 
+            <PrimaryButton 
               onClick={onConfirm}
-              className={cn(
-                "w-full h-16 rounded-[var(--radius-button)] text-ui-base font-bold transition-all active:scale-[0.98] shadow-button",
-                tone === 'danger' ? "bg-[var(--accent-red)] text-white" : "bg-[var(--accent-gold)] text-black"
-              )}
+              tone={tone}
+              className="w-full h-[60px] !rounded-[16px] !text-[12px] font-black uppercase tracking-[0.2em] shadow-[var(--shadow-primary)]"
             >
               {confirmLabel.toUpperCase()}
-            </button>
+            </PrimaryButton>
           )}
-          <button onClick={onClose} className="w-full h-12 text-ui-sm font-bold text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors uppercase tracking-widest">{cancelLabel}</button>
+          <DangerButton 
+            onClick={onClose} 
+            className="w-full h-[52px] !rounded-[14px] !text-[10px] font-bold uppercase tracking-[0.3em] font-mono"
+          >
+            {cancelLabel.toUpperCase()}
+          </DangerButton>
         </footer>
       </div>
-    </div>
-  );
-}
-
-export function SearchInput({
-  value,
-  onChange,
-  placeholder = 'Buscar...',
-  className = '',
-  disabled = false,
-}: {
-  value: string;
-  onChange: (value: string) => void;
-  placeholder?: string;
-  className?: string;
-  disabled?: boolean;
-}) {
-  return (
-    <div className={cn("flex flex-1 items-center gap-md rounded-[var(--radius-button)] border var(--border-subtle) bg-white/[0.04] px-shell py-4 focus-within:border-[var(--accent-gold)]/40 transition-all shadow-inset", className)}>
-      <Search className="h-5 w-5 text-[var(--text-muted)]" />
-      <input 
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder} 
-        disabled={disabled}
-        className="w-full bg-transparent text-ui-base font-semibold placeholder:text-[var(--text-muted)]/40 focus:outline-none text-[var(--text-primary)]" 
-      />
-    </div>
+    </div>,
+    document.body
   );
 }
 
 export const FAB = ({ label, onClick }: { label: string; onClick: () => void }) => (
   <button 
     onClick={onClick} 
-    className="fixed grid place-items-center rounded-full bg-[var(--accent-gold)] text-black shadow-[var(--shadow-button)] z-toast active:scale-[0.9] transition-all hover:scale-[1.05]"
+    className="fixed grid place-items-center rounded-full bg-[var(--accent-gold)] text-black shadow-[var(--shadow-primary)] z-toast active:scale-[0.9] transition-all hover:scale-[1.05]"
     style={{ 
       bottom: 'var(--fab-bottom)', 
       right: 'var(--fab-right)', 
@@ -743,8 +643,6 @@ export const FAB = ({ label, onClick }: { label: string; onClick: () => void }) 
     <Plus className="h-8 w-8" strokeWidth={2.5} />
   </button>
 );
-
-export function SectionTitle(props: { children: ReactNode; action?: ReactNode; className?: string }) { return <SectionLabel {...props} />; }
 
 export { PageShell };
 export { ConfirmModal } from './ConfirmModal';

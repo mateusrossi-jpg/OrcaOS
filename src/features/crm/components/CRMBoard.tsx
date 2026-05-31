@@ -3,7 +3,8 @@ import { ClientPipelineProjection } from '../../../domain/operationalProjections
 import { operationalReadModelService } from '../../../services/operationalReadModelService';
 import { operationalSubscriptionService } from '../../../services/operationalSubscriptionService';
 import { CRMColumn } from './CRMColumn';
-import { OperationalDashboardLayout, ERPLoader, ERPTokens } from '../../../ui/system';
+import { ERPLoader, ERPTokens } from '../../../ui/system';
+import { OperationalFlowLayout } from '../../../ui/layouts';
 
 interface CRMBoardProps {
   onClientClick?: (clientId: string) => void;
@@ -70,27 +71,27 @@ export function CRMBoard({ onClientClick }: CRMBoardProps) {
       <div className="flex items-center gap-4">
         <div className="text-right">
           <span className={`text-xs ${ERPTokens.colors.textTertiary} uppercase font-semibold`}>Total Base</span>
-          <p className={`text-xl font-bold ${ERPTokens.colors.brandAccent}`}>{Object.keys(pipeline).length}</p>
+          <p className={`text-xl font-bold ${ERPTokens.colors.gold}`}>{Object.keys(pipeline).length}</p>
         </div>
       </div>
     </div>
   );
 
   return (
-    <OperationalDashboardLayout header={header}>
+    <OperationalFlowLayout header={header}>
       <div className="flex gap-4 h-full min-h-[500px]">
           <CRMColumn 
-            title="Leads / Oportunidades" 
-            clients={columns.leads} 
-            accentColor="bg-blue-500" 
+            title="Leads / Oportunidades"
+            clients={columns.leads}
+            accentColor="bg-amber-500"
             onCardClick={onClientClick}
-          />
-          <CRMColumn 
-            title="Propostas Enviadas" 
-            clients={columns.proposals} 
-            accentColor="bg-yellow-500" 
+            />
+            <CRMColumn
+            title="Propostas Enviadas"
+            clients={columns.proposals}
+            accentColor="bg-orange-500"
             onCardClick={onClientClick}
-          />
+            />
           <CRMColumn 
             title="Aprovados / Ganho" 
             clients={columns.approved} 
@@ -116,6 +117,6 @@ export function CRMBoard({ onClientClick }: CRMBoardProps) {
             onCardClick={onClientClick}
           />
         </div>
-    </OperationalDashboardLayout>
+    </OperationalFlowLayout>
   );
 }

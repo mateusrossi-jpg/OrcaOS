@@ -1,49 +1,111 @@
 import React, { memo, type ReactNode } from 'react';
 import { cn } from '../../utils/ui';
+import { Zap, ShieldCheck } from 'lucide-react';
 
-interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
-  children: ReactNode;
-  tone?: 'healthy' | 'warning' | 'critical' | 'info' | 'muted';
+export type BadgeVariant = 'default' | 'accent' | 'success' | 'danger' | 'warning' | 'info' | 'muted';
+
+interface BadgeProps extends React.HTMLAttributes<HTMLDivElement> {
+  children?: ReactNode;
+  label?: string;
+  icon?: ReactNode;
+  variant?: BadgeVariant;
   className?: string;
 }
 
 /**
- * Aferix V5 Badge: High-polish semantic indicator.
- * Refactored for TOKEN-FIRST architecture (Executive OS V5).
+ * Aferix OS V5 Badge: High-polish semantic indicator.
+ * Unified for TOKEN-FIRST architecture and Phase 4 UX Hardening.
  */
 export const Badge = memo(function Badge({ 
   children, 
-  tone = 'info', 
+  label,
+  icon,
+  variant = 'default', 
   className = '',
   ...props 
 }: BadgeProps) {
-  const tones = {
-    healthy:  "bg-[var(--accent-green)]/15 text-[var(--accent-green)] border-[var(--accent-green)]/20",
-    warning:  "bg-[var(--accent-gold)]/15 text-[var(--accent-gold)] border-[var(--accent-gold)]/20",
-    critical: "bg-[var(--accent-red)]/15 text-[var(--accent-red)] border-[var(--accent-red)]/20",
-    info:     "bg-[var(--accent-blue)]/15 text-[var(--accent-blue)] border-[var(--accent-blue)]/20",
-    muted:    "bg-white/5 text-[var(--text-muted)] border-white/5",
+  const styles: Record<BadgeVariant, { bg: string, border: string, text: string }> = {
+    default: { bg: 'bg-white/[0.04]', border: 'border-white/[0.07]', text: 'text-[var(--text-secondary)]' },
+    accent:  { bg: 'bg-[oklch(from_var(--accent-gold)_l_c_h_/_0.08)]', border: 'border-[oklch(from_var(--accent-gold)_l_c_h_/_0.15)]', text: 'text-[var(--accent-gold)]' },
+    success: { bg: 'bg-[oklch(from_var(--accent-green)_l_c_h_/_0.08)]', border: 'border-[oklch(from_var(--accent-green)_l_c_h_/_0.15)]', text: 'text-[var(--accent-green)]' },
+    danger:  { bg: 'bg-[oklch(from_var(--accent-red)_l_c_h_/_0.08)]', border: 'border-[oklch(from_var(--accent-red)_l_c_h_/_0.15)]', text: 'text-[var(--accent-red)]' },
+    warning: { bg: 'bg-[oklch(from_var(--accent-gold)_l_c_h_/_0.08)]', border: 'border-[oklch(from_var(--accent-gold)_l_c_h_/_0.15)]', text: 'text-[var(--accent-gold)]' },
+    info:    { bg: 'bg-[oklch(from_var(--accent-blue)_l_c_h_/_0.08)]', border: 'border-[oklch(from_var(--accent-blue)_l_c_h_/_0.15)]', text: 'text-[var(--accent-blue)]' },
+    muted:   { bg: 'bg-white/[0.02]', border: 'border-white/[0.05]', text: 'text-[var(--text-tertiary)]' }
   };
 
+  const activeStyle = styles[variant] || styles.default;
+
   return (
-    <span 
+    <div 
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-lg px-2.5 py-0.5 text-[var(--fs-xs)] font-bold uppercase tracking-wider border",
-        tones[tone],
+        "inline-flex items-center gap-1.5 border rounded-[6px] px-2 py-0.5 select-none",
+        activeStyle.bg,
+        activeStyle.border,
         className
       )}
       {...props}
     >
-      {children}
-    </span>
+      {icon && <span className={cn("flex shrink-0", activeStyle.text)}>{icon}</span>}
+      <span className={cn("font-mono text-[9.5px] font-bold tracking-wider whitespace-nowrap uppercase", activeStyle.text)}>
+        {label || children}
+      </span>
+    </div>
   );
 });
 
-export const StatusDot = memo(function StatusDot({ tone = 'healthy', className = '' }: { tone?: 'healthy' | 'warning' | 'critical' | 'info', className?: string }) {
+/**
+ * StatusPill: Authoritative lifecycle indicator.
+ * Implements "Solid Gold" standard for approved/live states.
+ */
+export const StatusPill = memo(function StatusPill({ status, className = '' }: { status: string, className?: string }) {
+  const s = (status ?? '').toLowerCase().replace(' ', '_').replace('em_execucao', 'execucao');
+  
+  const configs: Record<string, { label: string, variant: BadgeVariant }> = {
+    iniciado:   { label: 'RASCUNHO',  variant: 'default' },
+    enviado:    { label: 'ENVIADO',   variant: 'accent'  },
+    aprovado:   { label: 'APROVADO',  variant: 'accent'  },
+    autorizado: { label: 'AUTORIZADO',variant: 'accent'  },
+    execucao:   { label: 'EXECUÇÃO',  variant: 'accent'  },
+    finalizado: { label: 'HISTÓRICO', variant: 'success' },
+    done:       { label: 'CONCLUÍDO', variant: 'success' },
+    paid:       { label: 'PAGO',      variant: 'success' },
+    partial:    { label: 'PARCIAL',   variant: 'warning' },
+    pending:    { label: 'PENDENTE',  variant: 'danger'  },
+    cancelled:  { label: 'CANCELADO', variant: 'danger'  },
+    rejected:   { label: 'RECUSADO',  variant: 'danger'  },
+  };
+
+  const config = configs[s] || { label: s.toUpperCase(), variant: 'default' };
+
+  // SOLID GOLD AUTHORITY (Approval Standard)
+  const isSolidGold = ['aprovado', 'autorizado', 'execucao'].includes(s);
+
+  if (isSolidGold) {
+    return (
+      <div className={cn(
+        "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[6px] bg-[var(--accent-gold)] text-black font-bold text-[9.5px] tracking-wider uppercase shadow-[0_4px_12px_rgba(212,169,78,0.25)]", 
+        s === 'execucao' && "animate-pulse",
+        className
+      )}>
+        {s === 'execucao' && <Zap size={10} fill="currentColor" />}
+        {(s === 'autorizado' || s === 'aprovado') && <ShieldCheck size={10} strokeWidth={3} />}
+        {config.label}
+      </div>
+    );
+  }
+
+  return <Badge label={config.label} variant={config.variant} className={className} />;
+});
+
+/**
+ * StatusDot: Subtle pulse indicator for live states.
+ */
+export const StatusDot = memo(function StatusDot({ tone = 'success', className = '' }: { tone?: 'success' | 'warning' | 'danger' | 'info', className?: string }) {
   const tones = {
-    healthy:  "bg-[var(--accent-green)] shadow-[0_0_8px_var(--accent-green)]",
+    success:  "bg-[var(--accent-green)] shadow-[0_0_8px_var(--accent-green)]",
     warning:  "bg-[var(--accent-gold)] shadow-[0_0_8px_var(--accent-gold)]",
-    critical: "bg-[var(--accent-red)] shadow-[0_0_8px_var(--accent-red)]",
+    danger: "bg-[var(--accent-red)] shadow-[0_0_8px_var(--accent-red)]",
     info:     "bg-[var(--accent-blue)] shadow-[0_0_8px_var(--accent-blue)]",
   };
 
@@ -51,3 +113,36 @@ export const StatusDot = memo(function StatusDot({ tone = 'healthy', className =
     <div className={cn("h-1.5 w-1.5 rounded-full animate-pulse", tones[tone], className)} />
   );
 });
+
+/**
+ * OpsChip: Technical chip for operational context.
+ */
+export type ChipAccent = false | "red" | "orange" | "green" | "blue";
+export const OpsChip = memo(function OpsChip({ icon, label, accent }: { icon: ReactNode, label: string, accent: ChipAccent }) {
+  const styles: Record<string, { bg: string, border: string, text: string }> = {
+    red:    { bg: "bg-[oklch(from_var(--accent-red)_l_c_h_/_0.08)]", border: "border-[oklch(from_var(--accent-red)_l_c_h_/_0.15)]", text: "var(--accent-red)" },
+    orange: { bg: "bg-[oklch(from_var(--accent-gold)_l_c_h_/_0.08)]", border: "border-[oklch(from_var(--accent-gold)_l_c_h_/_0.15)]", text: "var(--accent-gold)" },
+    green:  { bg: "bg-[oklch(from_var(--accent-green)_l_c_h_/_0.08)]", border: "border-[oklch(from_var(--accent-green)_l_c_h_/_0.15)]", text: "var(--accent-green)" },
+    blue:   { bg: "bg-[oklch(from_var(--accent-blue)_l_c_h_/_0.08)]", border: "border-[oklch(from_var(--accent-blue)_l_c_h_/_0.15)]", text: "var(--accent-blue)" },
+    default: { bg: "bg-white/[0.04]", border: "border-white/[0.07]", text: "var(--text-secondary)" }
+  };
+
+  const style = accent ? styles[accent] : styles.default;
+
+  return (
+    <div 
+      className={cn("inline-flex items-center gap-1.5 rounded-[10px] px-[11px] py-[5px] border", style.bg, style.border)}
+    >
+      <span className="flex shrink-0" style={{ color: style.text.startsWith('var') ? `var(${style.text.match(/var\(([^)]+)\)/)?.[1]})` : style.text }}>{icon}</span>
+      <span 
+        className="font-mono text-[10px] font-bold tracking-[0.03em] whitespace-nowrap"
+        style={{ color: style.text.startsWith('var') ? `var(${style.text.match(/var\(([^)]+)\)/)?.[1]})` : style.text }}
+      >
+        {label}
+      </span>
+    </div>
+  );
+});
+
+// Alias for backward compatibility
+export const SemanticBadge = Badge;

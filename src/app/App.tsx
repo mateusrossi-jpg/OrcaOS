@@ -8,10 +8,11 @@ import { HomeScreen } from './screens/HomeScreen';
 import { CatalogScreen } from './screens/CatalogScreen';
 import { ReportsScreen } from './screens/ReportsScreen';
 import { FinancialScreen } from './screens/FinancialScreen';
-import { ClientsScreen } from './screens/ClientsScreen';
+import { OperationsScreen } from './screens/OperationsScreen';
 import { StoreScreen } from './screens/StoreScreen';
 import { MenuScreen } from './screens/MenuScreen';
 import { BudgetsScreen } from './screens/BudgetsScreen';
+import { ClientsWorkspace } from '../features/clients/components/ClientsWorkspace';
 import { BudgetForm } from '../pages/BudgetForm';
 import { BudgetHistoryPage } from '../pages/BudgetHistoryPage';
 import { RuntimeErrorBoundary } from './components/RuntimeErrorBoundary';
@@ -47,9 +48,8 @@ export function App() {
   const [activeTab, setActiveTab] = useState<AppTab>('pulse');
   const [selectedBudgetId, setSelectedBudgetId] = useState<string | null>(null);
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
-  const [clientInitialSection, setClientInitialSection] = useState<'dashboard' | 'newClient' | 'newWorkOrder' | 'clients' | 'workOrders'>('dashboard');
-  const [clientSectionRequestKey, setClientSectionRequestKey] = useState(0);
   const [budgetResetKey, setBudgetResetKey] = useState(0);
+  const [tacticalAction, setTacticalAction] = useState<string | null>(null);
   
   const { captures, addManyCalculationCaptures: addCaptures, refreshCaptures } = useCalculationCaptures();
   
@@ -121,8 +121,16 @@ export function App() {
     addCaptures(items.map(attachActiveWorkOrder));
   }
 
-  function goTo(tab: AppTab) {
+  function goTo(tab: AppTab | string) {
     if (!canNavigate()) return;
+    
+    // Tactical Actions Handling (Fase 4D)
+    if (tab === 'new-os') {
+      setTacticalAction('new-os');
+      setActiveTab('base');
+      return;
+    }
+
     if (tab === 'new-budget') {
       setSelectedBudgetId('new');
       setBudgetResetKey((current) => current + 1);
@@ -134,13 +142,12 @@ export function App() {
       setSelectedBudgetId(null);
     }
 
-    if (tab === 'base') {
-      setClientInitialSection('clients');
-      setClientSectionRequestKey((current) => current + 1);
-    } else {
+    if (tab !== 'base') {
       setSelectedClientId(null);
     }
-    setActiveTab(tab);
+
+    setTacticalAction(null);
+    setActiveTab(tab as AppTab);
   }
 
   function openBudgetForEdit(budgetId: string, workOrderId?: string | null) {
@@ -163,7 +170,8 @@ export function App() {
       <ERPToast />
       <DebugPanel />
       <AferixIntro />
-      <AppShell activeTab={activeTab} activeClient={activeClient} activeWorkOrder={activeWorkOrder} onNavigate={goTo}>
+      
+      <AppShell activeTab={activeTab} onNavigate={goTo}>
         <Suspense fallback={<LazyWorkspaceFallback />}>
           {activeTab === 'pulse' && (
             <HomeScreen
@@ -173,19 +181,19 @@ export function App() {
               }}
             />
           )}
-          
+
           {activeTab === 'base' && (
-            <ClientsScreen 
-              initialSection={clientInitialSection} 
-              initialClientId={selectedClientId}
-              sectionRequestKey={clientSectionRequestKey} 
+            <OperationsScreen 
               onOpenBudgets={() => goTo('budgets')} 
               onContextChange={updateContext} 
-              onBack={() => goTo('settings')}
+              onNavigate={goTo}
+              initialAction={tacticalAction}
+              onActionConsummated={() => setTacticalAction(null)}
             />
           )}
 
           {activeTab === 'money' && <FinancialScreen />}
+          {activeTab === 'clients' && <ClientsWorkspace onNavigate={goTo} />}
           {activeTab === 'settings' && <MenuScreen account={account} onAccountChange={() => {}} onNavigate={goTo} />}
 
           {activeTab === 'budgets' && (

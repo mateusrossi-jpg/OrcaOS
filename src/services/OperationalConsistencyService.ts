@@ -3,6 +3,7 @@ import { aferixLogger } from '../core/debug/aferixLogger';
 
 export type OperationalAnomaly = {
   budgetId: string;
+  budgetTitle: string;
   issue: string;
   severity: 'low' | 'high' | 'critical';
 };
@@ -38,14 +39,31 @@ export const operationalConsistencyService = {
     const anomalies: OperationalAnomaly[] = [];
     
     for (const b of budgets) {
+      const budgetTitle = b.title || 'ORÇAMENTO_SEM_TITULO';
+
       if (!this.validateBudgetLifecycle(b)) {
-        anomalies.push({ budgetId: b.id, issue: 'Lifecycle transition invalid', severity: 'high' });
+        anomalies.push({ 
+          budgetId: b.id, 
+          budgetTitle,
+          issue: 'Ciclo de vida inválido ou transição incompleta', 
+          severity: 'high' 
+        });
       }
       if (!this.validateFinancialConsistency(b)) {
-        anomalies.push({ budgetId: b.id, issue: 'Financial inconsistency', severity: 'critical' });
+        anomalies.push({ 
+          budgetId: b.id, 
+          budgetTitle,
+          issue: 'Inconsistência financeira (valores negativos)', 
+          severity: 'critical' 
+        });
       }
       if (b.status === 'finalizado' && !b.clientId) {
-        anomalies.push({ budgetId: b.id, issue: 'Finalized without client', severity: 'critical' });
+        anomalies.push({ 
+          budgetId: b.id, 
+          budgetTitle,
+          issue: 'Finalizado sem vínculo com cliente', 
+          severity: 'critical' 
+        });
       }
     }
     

@@ -47,8 +47,8 @@ export function validateWorkOrderIntegrity(workOrder: WorkOrder): boolean {
     aferixLogger.error('Aferix Integrity', 'WorkOrder missing ID', workOrder);
     return false;
   }
-  if (!workOrder.budgetId) {
-    aferixLogger.error('Aferix Integrity', 'WorkOrder missing budgetId', workOrder);
+  if (!workOrder.clientId) {
+    aferixLogger.error('Aferix Integrity', 'WorkOrder missing clientId (orphan OS not allowed)', workOrder);
     return false;
   }
   if (!workOrder.syncStatus || !['pending', 'synced', 'deleted'].includes(workOrder.syncStatus)) {

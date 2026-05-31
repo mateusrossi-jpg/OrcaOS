@@ -2,6 +2,7 @@ import { BudgetStatus } from './budget';
 import { ClientProposalStatus } from '../features/clientPortal/storage/clientProposalStorage';
 import { ServiceStatus } from '../core/types/business';
 import { EventSeverity } from './eventSeverity';
+import { Asset } from './asset';
 
 export interface OperationalPipelineProjection {
   readonly budgetId: string;
@@ -63,6 +64,29 @@ export interface ClientPipelineProjection {
   readonly activeBudgets: number;
 }
 
+export type ClientCRMStatus = 'ACTIVE' | 'WARM' | 'INACTIVE' | 'AT_RISK' | 'DEBTOR' | 'VIP';
+
+export interface ClientCRMProjection {
+  readonly clientId: string;
+  readonly clientName: string;
+  readonly totalRevenue: number;
+  readonly openBalance: number;
+  readonly totalWorkOrders: number;
+  readonly totalBudgets: number;
+  readonly lastInteractionAt: string;
+  readonly daysInactive: number;
+  readonly relationshipStatus: ClientCRMStatus[];
+  readonly relationshipScore: number; // 0-100
+}
+
+export interface CRMAlertHubProjection {
+  readonly debtors: readonly ClientCRMProjection[];
+  readonly inactive: readonly ClientCRMProjection[];
+  readonly vipInactive: readonly ClientCRMProjection[];
+  readonly commercialFollowUp: readonly any[]; // Proposals needing attention
+  readonly stalledBudgets: readonly any[]; // Budgets not moving
+}
+
 export interface OperationalActivityProjection {
   readonly id: string;
   readonly aggregateId: string;
@@ -74,6 +98,19 @@ export interface OperationalActivityProjection {
   readonly timestamp: string;
   readonly severity: EventSeverity;
   readonly correlationId?: string;
+}
+
+export interface ClientDossierProjection {
+  readonly summary: ClientCRMProjection;
+  readonly timeline: readonly OperationalActivityProjection[];
+}
+
+export interface AssetDossierProjection {
+  readonly asset: Asset;
+  readonly healthScore: number;
+  readonly totalMaintenanceCost: number;
+  readonly lastMaintenanceDate?: string;
+  readonly timeline: readonly OperationalActivityProjection[];
 }
 
 export interface RecurringMaintenanceProjection {

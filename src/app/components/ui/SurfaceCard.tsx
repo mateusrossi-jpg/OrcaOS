@@ -3,7 +3,7 @@ import { cn } from '../../../utils/ui';
 
 export type PaddingSize = 'none' | 'sm' | 'md' | 'lg';
 
-interface SurfaceCardProps extends HTMLAttributes<HTMLElement> {
+export interface SurfaceCardProps extends HTMLAttributes<HTMLElement> {
   children: ReactNode;
   padding?: PaddingSize;
 }

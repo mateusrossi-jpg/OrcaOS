@@ -5,7 +5,7 @@
 
 import { BudgetRepository } from '../repositories/budgetRepository';
 import { DexieBudgetRepository } from '../repositories/dexieBudgetRepository';
-import { Budget } from '../domain/budget';
+import { Budget, BUDGET_STATUS } from '../domain/budget';
 import { invariant, assertValidBudgetStatus, assertValidDateString } from '../core/validation/invariant';
 
 /**
@@ -23,7 +23,12 @@ export class BudgetPersistenceService {
 
   private validateBudget(budget: Budget): void {
     invariant(budget.id, 'Budget must have a valid ID');
-    invariant(budget.title, 'Budget must have a title');
+    
+    // Only enforce title for non-draft statuses to allow progressive entry in UI
+    if (budget.status !== BUDGET_STATUS.INICIADO) {
+      invariant(budget.title, 'Budget must have a title');
+    }
+    
     assertValidBudgetStatus(budget.status);
     assertValidDateString(budget.createdAt, 'createdAt');
   }

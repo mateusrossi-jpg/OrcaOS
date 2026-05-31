@@ -25,6 +25,10 @@ export interface ProfessionalProfileRecord extends ProfessionalProfile {
 }
 
 import { SimpleFinanceRecord } from '../domain/finance';
+import { Site } from '../domain/site';
+import { Asset } from '../domain/asset';
+import { MaintenancePlan } from '../domain/maintenancePlan';
+import { Contract } from '../domain/contract';
 
 export class AferixDatabase extends Dexie {
   budgets!: Table<Budget>;
@@ -41,6 +45,10 @@ export class AferixDatabase extends Dexie {
   accountPlan!: Table<AferixAccountState & { id: string }>;
   simpleFinanceRecords!: Table<SimpleFinanceRecord>;
   operationalEvents!: Table<OperationalEvent>;
+  sites!: Table<Site>;
+  assets!: Table<Asset>;
+  maintenancePlans!: Table<MaintenancePlan>;
+  contracts!: Table<Contract>;
 
   constructor() {
     super('AferixDatabase');
@@ -51,7 +59,10 @@ export class AferixDatabase extends Dexie {
     // Version 11: Added operationalEvents table
     // Version 12: Added syncStatus index (P97)
     // Version 13: Added syncStatus to operationalEvents (P108 - Cloud Sync)
-    this.version(13).stores({
+    // Version 14: Added sites and assets tables (Fase 3B)
+    // Version 15: Added maintenancePlans table (Fase 3D)
+    // Version 16: Added contracts table (Fase 3E)
+    this.version(16).stores({
       budgets: 'id, syncStatus',
       clients: 'id, syncStatus',
       workOrders: 'id, syncStatus',
@@ -66,6 +77,10 @@ export class AferixDatabase extends Dexie {
       accountPlan: 'id',
       simpleFinanceRecords: 'id, sourceBudgetId',
       operationalEvents: 'id, aggregateId, aggregateType, eventType, timestamp, correlationId, syncStatus',
+      sites: 'id, clientId, isMain, syncStatus',
+      assets: 'id, clientId, siteId, tag, syncStatus',
+      maintenancePlans: 'id, assetId, clientId, siteId, nextExecutionDate, isActive, syncStatus',
+      contracts: 'id, clientId, status, startDate, billingFrequency, syncStatus'
     });
   }
 }

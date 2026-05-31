@@ -1,72 +1,79 @@
-import { useMemo, useState } from 'react';
-import { TrendingUp, ChevronDown, Landmark, ShieldCheck, CreditCard, Receipt } from "lucide-react";
+import { useMemo, useState, useEffect, memo } from 'react';
+import { TrendingUp, ChevronDown, Landmark, ShieldCheck, CreditCard, Receipt, DollarSign, AlertCircle, FileSignature, LandmarkIcon, Activity, ChevronRight, Clock, FileText, BarChart } from "lucide-react";
 import { 
   MoneyValue, 
   MonetaryInput,
   SearchInput,
   QueueEmptyState,
   Modal,
-  ContextBanner,
-  ERPLoader
+  ContextBanner
 } from '../../../app/components/ui';
-import { useBudgetHistory } from '../../../hooks/useBudgetHistory';
-import { calculateBudget } from '../../../domain/aferixFinanceEngine';
-import { BUDGET_STATUS } from '../../../domain/budget';
+import { SimpleFinanceService } from '../../../services/SimpleFinanceService';
+import { SimpleFinanceRecord } from '../../../domain/finance';
 import { formatCurrencyBRL } from '../../../utils/formatters';
 import { cn } from '../../../utils/ui';
+import { operationalFacade } from '../../workflow/operationalFacade';
 
 // Unified UI Architecture Layers
-import { SemanticScreen } from '../../../ui/runtime';
-import { FinancialInsightLayout } from '../../../ui/layouts';
-import { Priority } from '../../../ui/attention';
-import { AppHeader, SectionTitle, SurfaceCard } from '../../../ui/primitives';
+import { 
+  SurfaceCard,
+  ScreenContainer,
+  SectionLabel,
+  ExecutiveSummaryGrid,
+  ValueBlock,
+  InteractiveRow,
+  StatusPill,
+  SemanticBadge,
+  AppHeader,
+  OpsChip,
+  Stack,
+  Section,
+  Title,
+  Subtitle,
+  Body,
+  Heading,
+  Value,
+  FinancialValue,
+  ERPLoader
+} from '../../../ui/system';
 
 interface AdjustmentDraft {
-  budgetId: string;
+  workOrderId: string;
   receivedAmount: string;
-  materialCost: string;
-  travelCost: string;
-  cardFee: string;
-  otherCosts: string;
 }
 
 /**
  * SimpleFinanceWorkspace: Executive Ledger.
- * Mission: Executive Composition (Institutional Balance Hero, Continuous Stream).
+ * Aligned with AFERIX VISUAL PROTOCOL (Phase 4).
  */
 export function SimpleFinanceWorkspace() {
-  const { budgets, isLoading } = useBudgetHistory();
+  const [records, setRecords] = useState<SimpleFinanceRecord[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [recordSearch, setRecordSearch] = useState('');
   const [editingDraft, setEditingDraft] = useState<AdjustmentDraft | null>(null);
 
-  const finalizedBudgets = useMemo(() => {
-    return budgets.filter(b => b.status === BUDGET_STATUS.FINALIZADO);
-  }, [budgets]);
+  const fetchRecords = async () => {
+    setIsLoading(true);
+    const service = new SimpleFinanceService();
+    const data = await service.listRecords();
+    setRecords(data);
+    setIsLoading(false);
+  };
+
+  useEffect(() => {
+    fetchRecords();
+  }, []);
 
   const rows = useMemo(() => {
-    return finalizedBudgets.map(b => {
-      const calc = calculateBudget(b);
-      const snapshot = b.financialSnapshot;
-      
-      return {
-        budgetId: b.id,
-        title: b.title || 'Serviço s/ título',
-        clientName: b.clientName || 'Cliente Avulso',
-        updatedAt: b.updatedAt,
-        revenue: snapshot ? (b.chargedValue - b.discounts) : calc.totalComercial,
-        costs: snapshot ? snapshot.custoTotal : calc.totalCost,
-        netProfit: snapshot ? snapshot.lucroBruto : calc.lucroBruto,
-        margin: snapshot ? snapshot.margemPercent : calc.marginPercent,
-      };
-    }).sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
-  }, [finalizedBudgets]);
+    return records.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
+  }, [records]);
 
   const stats = useMemo(() => {
-    const revenue = rows.reduce((acc, r) => acc + r.revenue, 0);
-    const costs = rows.reduce((acc, r) => acc + r.costs, 0);
-    const profit = revenue - costs;
-    const margin = revenue > 0 ? (profit / revenue) * 100 : 0;
-    return { revenue, costs, profit, margin };
+    const revenue = rows.reduce((acc, r) => acc + r.receivedValue, 0);
+    const expected = rows.reduce((acc, r) => acc + r.expectedValue, 0);
+    const pending = rows.reduce((acc, r) => acc + (r.status !== 'paid' ? r.openBalance : 0), 0);
+    const margin = expected > 0 ? (revenue / expected) * 100 : 0;
+    return { revenue, expected, pending, margin };
   }, [rows]);
 
   const filteredRows = useMemo(() => {
@@ -75,175 +82,145 @@ export function SimpleFinanceWorkspace() {
     return rows.filter(r => r.title.toLowerCase().includes(q) || r.clientName.toLowerCase().includes(q));
   }, [rows, recordSearch]);
 
-  if (isLoading) return <SemanticScreen type="finance"><ERPLoader message="Sincronizando livro-razão..." /></SemanticScreen>;
-
   const currentMonth = new Date().toLocaleString('pt-BR', { month: 'long' });
   const capitalizedMonth = currentMonth.charAt(0).toUpperCase() + currentMonth.slice(1);
 
-  function openAdjustment(row: typeof rows[0]) {
-    setEditingDraft({
-      budgetId: row.budgetId,
-      receivedAmount: String(row.revenue),
-      materialCost: '0',
-      travelCost: '0',
-      cardFee: '0',
-      otherCosts: '0',
-    });
+  async function saveAdjustment() {
+    if (!editingDraft) return;
+    try {
+      await operationalFacade.registerPayment(editingDraft.workOrderId, Number(editingDraft.receivedAmount) || 0);
+      await fetchRecords();
+    } catch (e) { console.error(e); } finally { setEditingDraft(null); }
   }
 
-  function saveAdjustment() {
-    setEditingDraft(null);
-  }
+  if (isLoading) return <ScreenContainer className="items-center justify-center"><ERPLoader message="Sincronizando caixa..." /></ScreenContainer>;
 
-  const parseAmount = (val: string) => Number(val) || 0;
-  const formatDate = (d: string) => new Date(d).toLocaleDateString('pt-BR');
+  const chips = (
+    <>
+      <OpsChip icon={<BarChart size={11} />} label={`${rows.length} lançamentos`} accent={false} />
+      <OpsChip icon={<TrendingUp size={11} />} label={`${stats.margin.toFixed(0)}% realizado`} accent="green" />
+      <OpsChip icon={<FileText size={11} />} label="CONSOLIDADO" accent={false} />
+    </>
+  );
 
   return (
-    <SemanticScreen type="finance">
-      <FinancialInsightLayout
-        header={
-          <AppHeader
-            eyebrow="AUDITORIA_INSTITUCIONAL"
-            title="Consolidação"
-            subtitle="Auditoria de liquidez e fechamento de resultados operacionais."
-            action={
-              <button className="flex items-center gap-sm rounded-full border var(--border-soft) bg-[var(--bg-surface-glass)] px-4 py-2 text-ui-xs text-[var(--text-muted)] font-black tracking-widest transition-colors hover:text-[var(--text-primary)]">
-                {capitalizedMonth.toUpperCase()} <ChevronDown className="h-3 w-3" strokeWidth={3} />
-              </button>
-            }
-          />
-        }
-      >
-        {/* 1. HERO DOMINANCE: THE BALANCE OBJECT */}
-        <Priority.P1>
-          <SurfaceCard className="mb-6 bg-gradient-to-br from-white/[0.08] to-transparent relative overflow-hidden group shadow-card border-t-white/10" padding="lg">
-            <div className="flex flex-col relative z-10">
-              <div className="flex items-center justify-between mb-12">
-                 <div className="flex items-center gap-2">
-                    <Landmark className="h-4 w-4 text-[var(--accent-gold)]" />
-                    <span className="text-[10px] font-black text-[var(--text-muted)] tracking-[0.25em] uppercase">SALDO_CONSOLIDADO</span>
-                 </div>
-                 <ShieldCheck className="h-4 w-4 text-[var(--accent-green)] opacity-50" />
-              </div>
-              
-              <span className="num text-[52px] font-bold text-[var(--text-primary)] leading-none tracking-tighter">
-                {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }).format(stats.profit)}
-              </span>
-              
-              <div className="mt-12 flex items-center justify-between border-t var(--border-subtle) pt-10">
-                 <div className="grid grid-cols-2 gap-xl w-full">
-                    <div className="flex flex-col gap-1">
-                       <span className="text-[9px] font-black text-[var(--text-muted)] tracking-widest uppercase opacity-40">RECEITA_TOTAL</span>
-                       <span className="num text-h3 font-bold text-[var(--text-primary)]">
-                          <MoneyValue value={stats.revenue} compact />
-                       </span>
-                    </div>
-                    <div className="flex flex-col gap-1">
-                       <span className="text-[9px] font-black text-[var(--text-muted)] tracking-widest uppercase opacity-40">MARGEM_REAL</span>
-                       <span className="num text-h3 font-bold text-[var(--accent-green)]">
-                          {stats.margin.toFixed(0)}%
-                       </span>
-                    </div>
-                 </div>
-              </div>
-            </div>
-            
-            <div className="absolute top-0 right-0 w-64 h-64 bg-[var(--accent-gold)]/5 blur-[120px] rounded-full -mr-32 -mt-32 pointer-events-none" />
-            <CreditCard className="absolute bottom-8 right-8 h-12 w-12 text-white/5 pointer-events-none" />
-          </SurfaceCard>
-        </Priority.P1>
+    <ScreenContainer className="pb-32">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden pb-[124px] scrollbar-none">
+        
+        {/* ━━━ AUTHORITATIVE HEADER ━━━ */}
+        <AppHeader 
+          title="Caixa."
+          action={
+            <button 
+              className="flex items-center h-[42px] gap-2 rounded-[14px] bg-white/[0.04] border border-white/[0.08] px-4 text-[10px] text-[var(--text-secondary)] font-black tracking-widest hover:bg-white/10 active:scale-95 transition-all shadow-[var(--shadow-soft)]"
+            >
+              {capitalizedMonth.toUpperCase()} <ChevronDown className="h-3 w-3 text-[var(--accent-gold)]" strokeWidth={3} />
+            </button>
+          }
+          chips={chips}
+        />
 
-        {/* 2. LEDGER SEARCH (Reduced card count) */}
-        <Priority.P2 className="mb-6">
-          <SearchInput 
-            value={recordSearch}
-            onChange={setRecordSearch}
-            placeholder="Pesquisar entrada contábil..." 
-          />
-        </Priority.P2>
-
-        {/* 3. CONTINUOUS LEDGER SURFACE (Object-first) */}
-        <Priority.P2 className="flex flex-col">
-          <SectionTitle 
-             action={<span className="text-[10px] font-black text-[var(--text-muted)] opacity-30 tracking-widest uppercase">FLOW: SETTLED</span>}
-          >
-            Linha do Tempo de Liquidações
-          </SectionTitle>
+        <div className="px-4 flex flex-col gap-8">
           
-          <SurfaceCard padding="none" className="overflow-hidden mb-40">
-            <div className="flex flex-col">
-              {filteredRows.length === 0 ? (
-                <div className="py-24">
-                  <QueueEmptyState 
-                    title="Sem lançamentos liquidados" 
-                    meta="As operações finalizadas na aba de fluxo serão listadas aqui."
-                    icon={<Landmark className="h-8 w-8" />}
-                  />
-                </div>
-              ) : (
-                filteredRows.map((row, idx) => (
-                  <div 
-                    key={row.budgetId} 
-                    className={cn(
-                      "group flex items-center gap-md py-6 px-shell transition-all duration-300 hover:bg-white/[0.04] active:scale-[0.99] cursor-pointer",
-                      idx !== 0 && "border-t var(--border-subtle)"
-                    )}
-                    onClick={() => openAdjustment(row)}
-                  >
-                     <div className="h-10 w-10 rounded-xl bg-white/[0.03] border var(--border-subtle) flex items-center justify-center text-[var(--accent-green)] shrink-0 transition-all group-hover:bg-[var(--accent-green)]/10">
-                        <Receipt className="h-4 w-4" />
-                     </div>
-                     
-                     <div className="flex-1 min-w-0 ml-1">
-                        <strong className="block text-ui-md font-bold text-[var(--text-primary)] truncate group-hover:text-[var(--accent-gold)] transition-colors tracking-tight uppercase leading-tight mb-1">{row.title}</strong>
-                        <span className="text-[10px] font-black text-[var(--text-secondary)] opacity-40 uppercase tracking-widest">{row.clientName} · {formatDate(row.updatedAt)}</span>
-                     </div>
-                     
-                     <div className="flex flex-col items-end gap-1 shrink-0 ml-4">
-                        <div className="num text-ui-md font-bold text-[var(--accent-green)] tracking-tight">
-                          +{formatCurrencyBRL(row.netProfit)}
-                        </div>
-                        <div className="text-[8px] font-black text-[var(--text-muted)] opacity-20 uppercase tracking-widest">LIQUIDADO</div>
-                     </div>
+          {/* 1. FINANCIAL HERO */}
+          <Section className="gap-3">
+            <SectionLabel className="ml-2">Fluxo de Caixa Realizado</SectionLabel>
+            <SurfaceCard variant="cinematic" padding="lg">
+               <div className="flex items-center justify-between mb-8">
+                  <SectionLabel className="text-[var(--accent-gold)]">Consolidação de Receita</SectionLabel>
+                  <div className="flex items-center gap-2 bg-white/[0.04] border border-white/[0.07] px-2.5 py-1 rounded-lg">
+                     <Activity size={11} className="text-[var(--accent-green)]" />
+                     <Value className="text-[11px]">Realizado</Value>
                   </div>
-                ))
-              )}
-            </div>
-          </SurfaceCard>
-        </Priority.P2>
+               </div>
+               
+               <Heading className="text-[32px] mb-3">
+                  {formatCurrencyBRL(stats.revenue)}
+               </Heading>
+               <Body className="text-[var(--accent-gold)] font-bold tracking-tight">
+                  Total Liquidado no Período
+               </Body>
 
-        {/* 4. MODAL & GUIDE */}
-        <Modal
-          isOpen={!!editingDraft}
-          title="Audit Trail Adjustment"
-          confirmLabel="Liquidar Ajuste"
-          onClose={() => setEditingDraft(null)}
-          onConfirm={saveAdjustment}
-        >
-          {editingDraft && (
-            <div className="flex flex-col gap-lg py-4">
-              <MonetaryInput label="Receita Bruta Final" value={parseAmount(editingDraft.receivedAmount)} onChange={(v: number) => setEditingDraft(d => d ? {...d, receivedAmount: String(v)} : null)} />
-              <div className="grid grid-cols-2 gap-md">
-                <MonetaryInput label="Custo Material" value={parseAmount(editingDraft.materialCost)} onChange={(v: number) => setEditingDraft(d => d ? {...d, materialCost: String(v)} : null)} />
-                <MonetaryInput label="Custo Logística" value={parseAmount(editingDraft.travelCost)} onChange={(v: number) => setEditingDraft(d => d ? {...d, travelCost: String(v)} : null)} />
-              </div>
-              <ContextBanner 
-                title="Protocolo de Auditoria"
-                meta="Esta operação será imortalizada na trilha de eventos do sistema."
-                className="mt-6"
-              />
-            </div>
-          )}
-        </Modal>
+               <div className="bg-white/[0.025] border border-white/[0.07] rounded-2xl p-4 flex flex-col gap-2.5 mt-6">
+                  <div className="flex justify-between items-center">
+                     <SectionLabel className="!text-[8.5px]">Valor Esperado</SectionLabel>
+                     <Value className="text-sm">{formatCurrencyBRL(stats.expected)}</Value>
+                  </div>
+                  <div className="flex justify-between items-center">
+                     <SectionLabel className="!text-[8.5px]">Saldo em Aberto</SectionLabel>
+                     <Value className="text-sm text-[var(--accent-red)]">{formatCurrencyBRL(stats.pending)}</Value>
+                  </div>
+               </div>
+            </SurfaceCard>
+          </Section>
 
-        <div className="fixed bottom-24 left-6 right-6 z-50">
-          <ContextBanner
-            title="Consolidação Contábil"
-            meta="Gere relatórios BI avançados para análise de longo prazo."
-            icon={<TrendingUp className="h-5 w-5" />}
-          />
+          {/* 2. REVENUE ALERT HUB */}
+          <ExecutiveSummaryGrid>
+             <ValueBlock label="Margem" value={`${stats.margin.toFixed(0)}%`} icon={<Activity size={12} />} variant="success" />
+             <ValueBlock label="Recorrência" value={rows.filter(r => r.title.includes('[RECORRENTE]')).length} icon={<FileSignature size={12} />} variant="warning" />
+          </ExecutiveSummaryGrid>
+
+          {/* 3. CONTINUOUS LEDGER */}
+          <Section className="gap-3">
+            <SearchInput value={recordSearch} onChange={setRecordSearch} placeholder="Pesquisar lançamento..." />
+            
+            <SurfaceCard padding="none">
+               <div className="flex items-center justify-between px-5 pt-[18px] pb-[14px]">
+                  <SectionLabel>Histórico de Recebimentos</SectionLabel>
+                  <Receipt size={12} className="text-[#3A3A3A]" />
+               </div>
+
+               {filteredRows.length === 0 ? (
+                 <div className="py-20 text-center opacity-30">
+                    <Body className="font-mono text-[10px] font-black tracking-widest uppercase">LIVRO_RAZÃO_LIMPO</Body>
+                 </div>
+               ) : (
+                 <Stack className="gap-0">
+                  {filteredRows.map((row, idx) => (
+                      <InteractiveRow 
+                        key={row.id}
+                        onClick={() => setEditingDraft({ workOrderId: row.workOrderId, receivedAmount: '' })}
+                        leftSlot={
+                          <div className="w-9 h-9 rounded-xl bg-white/[0.03] border border-white/[0.07] grid place-items-center">
+                             {row.title.includes('[RECORRENTE]') ? <Clock size={16} className="text-[var(--accent-gold)]" /> : <DollarSign size={16} className="text-white/40" />}
+                          </div>
+                        }
+                      >
+                         <div className="flex items-center gap-4 w-full">
+                            <div className="flex-1 min-w-0">
+                               <Body className="truncate leading-tight uppercase">
+                                  {row.title.replace('[RECORRENTE]', '').trim()}
+                               </Body>
+                               <Subtitle className="text-[11px] truncate opacity-60 mt-0.5 uppercase font-mono tracking-wider">
+                                  {row.clientName} · {new Date(row.updatedAt).toLocaleDateString('pt-BR')}
+                               </Subtitle>
+                            </div>
+                            <Stack className="items-end gap-1 shrink-0">
+                               <FinancialValue value={row.receivedValue} compact className={cn("text-[13px]", row.status === 'paid' ? "text-[var(--accent-green)]" : "text-white")} />
+                               <StatusPill status={row.status} className="scale-75 origin-right" />
+                            </Stack>
+                         </div>
+                      </InteractiveRow>
+                  ))}
+                 </Stack>
+               )}
+               <div className="h-1" />
+            </SurfaceCard>
+          </Section>
+
+          <ContextBanner title="Consolidação Ativa" meta="Fluxo financeiro auditado por Event Store imutável." icon={<ShieldCheck size={14} />} />
         </div>
-      </FinancialInsightLayout>
-    </SemanticScreen>
+      </div>
+
+      <Modal isOpen={!!editingDraft} title="Registrar Pagamento" confirmLabel="Confirmar" onClose={() => setEditingDraft(null)} onConfirm={saveAdjustment}>
+        {editingDraft && (
+          <div className="flex flex-col gap-6 py-4">
+            <MonetaryInput label="Valor Recebido" value={Number(editingDraft.receivedAmount) || 0} onChange={(v) => setEditingDraft(d => d ? {...d, receivedAmount: String(v)} : null)} />
+            <ContextBanner title="Integridade" meta="Esta ação atualizará o saldo devedor no CRM." icon={<ShieldCheck size={14} />} />
+          </div>
+        )}
+      </Modal>
+
+    </ScreenContainer>
   );
 }

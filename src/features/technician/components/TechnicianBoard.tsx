@@ -4,7 +4,8 @@ import { operationalSubscriptionService } from '../../../services/operationalSub
 import { QueueWorkflowInput, sortOperationalQueue, buildQueueSummary } from '../../../core/workflow/queueEngine';
 import { TechnicianQueue } from './TechnicianQueue';
 import { OperationalPressureCard } from '../../sla/components/OperationalPressureCard';
-import { OperationalDashboardLayout, ERPLoader, ERPTokens } from '../../../ui/system';
+import { ERPLoader, ERPTokens } from '../../../ui/system';
+import { OperationalFlowLayout } from '../../../ui/layouts';
 
 export function TechnicianBoard() {
   const [workflows, setWorkflows] = useState<QueueWorkflowInput[]>([]);
@@ -70,17 +71,17 @@ export function TechnicianBoard() {
   );
 
   return (
-    <OperationalDashboardLayout header={header}>
+    <OperationalFlowLayout header={header}>
       <div className="flex gap-4 h-full min-h-[500px]">
-          <TechnicianQueue 
-            title="Execução Ativa" 
-            workflows={queues.execution} 
-            accentColor="bg-blue-500" 
+          <TechnicianQueue
+            title="Execução Ativa"
+            workflows={queues.execution}
+            accentColor="bg-amber-500"
           />
-          <TechnicianQueue 
-            title="Fila de Espera (Autorizados)" 
-            workflows={queues.authorized} 
-            accentColor="bg-yellow-500" 
+          <TechnicianQueue
+            title="Fila de Espera (Autorizados)"
+            workflows={queues.authorized}
+            accentColor="bg-orange-500"
           />
           <TechnicianQueue 
             title="Impedimentos / Bloqueios" 
@@ -93,6 +94,6 @@ export function TechnicianBoard() {
             accentColor="bg-green-500" 
           />
         </div>
-    </OperationalDashboardLayout>
+    </OperationalFlowLayout>
   );
 }

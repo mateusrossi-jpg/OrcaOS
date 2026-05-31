@@ -15,6 +15,7 @@ export const BUDGET_STATUS = {
   ARQUIVADO: 'arquivado',
   RECUSADO: 'recusado',
   CANCELADO: 'cancelado',
+  PAUSADO: 'pausado',
 } as const;
 
 export type BudgetStatus = typeof BUDGET_STATUS[keyof typeof BUDGET_STATUS];
@@ -41,6 +42,7 @@ export interface Budget {
   id: string;
   clientId?: string;
   clientName?: string; // Fallback/livre UI
+  siteId?: string; // Optional (Fase 3C)
   title: string;
   status: BudgetStatus;
   

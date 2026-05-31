@@ -1,25 +1,37 @@
-import { useState, useMemo } from 'react';
-import { Plus, Terminal, Activity, ChevronRight, ListFilter } from "lucide-react";
+import { useState, useMemo, memo, useEffect } from 'react';
+import { Plus, Clock, Eye, MessageSquare, Target, TrendingUp } from "lucide-react";
 import { useBudgetHistory } from '../../hooks/useBudgetHistory';
 import { calculateBudget } from '../../domain/aferixFinanceEngine';
+// ── Unified UI Architecture ──────────────────────────────────────────────────
 import { 
-  MoneyValue,
-  ERPLoader,
-  SearchInput,
-  FilterChips,
+  ScreenContainer, 
+  SurfaceCard, 
+  SectionLabel,
+  SemanticBadge,
   StatusPill,
-  QueueEmptyState,
-  Sparkline
-} from '../components/ui';
+  AppHeader,
+  OpsChip,
+  InteractiveRow,
+  Stack,
+  Section,
+  Title,
+  Subtitle,
+  Body,
+  Value,
+  FinancialValue,
+  ExecutiveGrid,
+  ValueBlock,
+  ERPLoader,
+  Heading
+} from '../../ui/system';
+import { MoneyValue, FilterChips, SearchInput } from '../components/ui';
 import type { Budget } from '../../domain/budget';
 import { BUDGET_STATUS } from '../../domain/budget';
-import { cn } from '../../utils/ui';
-
-// Unified UI Architecture Layers
-import { SemanticScreen } from '../../ui/runtime';
-import { OperationalFlowLayout } from '../../ui/layouts';
-import { Priority } from '../../ui/attention';
-import { AppHeader, SurfaceCard } from '../../ui/primitives';
+import { operationalReadModelService } from '../../services/operationalReadModelService';
+import { clientProposalService } from '../../services/clientProposalService';
+import { clientService } from '../../services/clientService';
+import { ClientProposal } from '../../features/clientPortal/storage/clientProposalStorage';
+import { Client } from '../../domain/client';
 
 interface BudgetsScreenProps {
   onSelectBudget: (budget: Budget) => void;
@@ -28,10 +40,10 @@ interface BudgetsScreenProps {
 
 const FILTER_ITEMS = [
   { id: 'all',                         label: 'TODOS'      },
+  { id: 'viewed',                      label: 'VISUALIZADOS'},
   { id: BUDGET_STATUS.ENVIADO,         label: 'ENVIADOS'   },
   { id: BUDGET_STATUS.AUTORIZADO,      label: 'APROVADOS'  },
-  { id: BUDGET_STATUS.EM_EXECUCAO,     label: 'EXECUÇÃO'   },
-  { id: BUDGET_STATUS.FINALIZADO,      label: 'FINALIZADOS'},
+  { id: BUDGET_STATUS.FINALIZADO,      label: 'HISTÓRICO'  },
 ];
 
 function formatCompactDate(dateStr: string | number | Date): string {
@@ -42,19 +54,74 @@ function formatCompactDate(dateStr: string | number | Date): string {
 }
 
 /**
- * BudgetsScreen: Operational Command Center.
- * Mission: Executive Composition (Object-first Pipeline, Single Surface).
+ * BudgetsScreen: Sales Hub & Conversion Pipeline.
+ * Refactored for absolute Home DNA parity (Phase 4D).
  */
-export function BudgetsScreen({ onSelectBudget, onNewBudget }: BudgetsScreenProps) {
+export const BudgetsScreen = memo(function BudgetsScreen({ onSelectBudget, onNewBudget }: BudgetsScreenProps) {
   const { budgets, isLoading } = useBudgetHistory();
+  const [proposals, setProposals] = useState<ClientProposal[]>([]);
+  const [clients, setClients] = useState<Client[]>([]);
   const [search, setSearch] = useState("");
   const [activeFilter, setActiveFilter] = useState<string>('all');
+  const [alertHub, setAlertHub] = useState<any>(null);
+
+  async function loadAncillary() {
+    const [props, hub, allClients] = await Promise.all([
+      clientProposalService.getAll(),
+      operationalReadModelService.getCRMAlertHubProjection(),
+      clientService.getAll()
+    ]);
+    setProposals(props);
+    setAlertHub(hub);
+    setClients(allClients);
+  }
+
+  useEffect(() => {
+    loadAncillary();
+  }, [budgets]);
+
+  const clientPhoneMap = useMemo(() => {
+    const map = new Map<string, string>();
+    clients.forEach(c => map.set(c.id, c.phone || ''));
+    return map;
+  }, [clients]);
+
+  const proposalMap = useMemo(() => {
+    const map = new Map<string, ClientProposal>();
+    proposals.forEach(p => {
+      if (p.budgetId) map.set(p.budgetId, p);
+    });
+    return map;
+  }, [proposals]);
+
+  const conversionData = useMemo(() => {
+    const list = (budgets || []).map(b => {
+      const proposal = proposalMap.get(b.id);
+      return {
+        ...b,
+        proposalStatus: proposal?.status || 'draft',
+        isViewed: proposal?.status === 'viewed'
+      };
+    });
+
+    const draft = list.filter(b => b.status === 'iniciado');
+    const viewed = list.filter(b => b.proposalStatus === 'viewed');
+    const sent = list.filter(b => b.status === 'enviado' && b.proposalStatus !== 'viewed');
+    const negotiation = list.filter(b => b.status === 'em_revisao');
+    const approved = list.filter(b => b.status === 'autorizado' || b.status === 'em_execucao');
+    const rejected = list.filter(b => b.status === 'recusado');
+
+    return { draft, viewed, sent, negotiation, approved, rejected, all: list };
+  }, [budgets, proposalMap]);
 
   const filteredBudgets = useMemo(() => {
-    let list = budgets || [];
-    if (activeFilter !== 'all') {
+    let list = conversionData.all;
+    if (activeFilter === 'viewed') {
+      list = conversionData.viewed;
+    } else if (activeFilter !== 'all') {
       list = list.filter(b => b.status === activeFilter);
     }
+
     const q = search.toLowerCase().trim();
     if (q) {
       list = list.filter(b =>
@@ -63,169 +130,182 @@ export function BudgetsScreen({ onSelectBudget, onNewBudget }: BudgetsScreenProp
       );
     }
     return list;
-  }, [budgets, search, activeFilter]);
+  }, [conversionData, search, activeFilter]);
 
-  const stats = useMemo(() => {
-    let approvedValue = 0, executionValue = 0;
-    const volumes = [5, 8, 4, 10, 12, 7, 15, 9];
+  if (isLoading) {
+    return (
+      <ScreenContainer className="items-center justify-center">
+        <ERPLoader message="Carregando Pipeline..." />
+      </ScreenContainer>
+    );
+  }
 
-    (budgets || []).forEach(b => {
-      const totals = calculateBudget(b);
-      const val = totals.totalComercial;
-      if (b.status === BUDGET_STATUS.AUTORIZADO)      { approvedValue += val; }
-      else if (b.status === BUDGET_STATUS.EM_EXECUCAO) { executionValue += val; }
-    });
+  const renderBudgetCard = (budget: any, idx: number) => {
+    const totals = calculateBudget(budget);
+    const isHighPriority = budget.proposalStatus === 'viewed';
 
-    return { approvedValue, executionValue, volumes };
-  }, [budgets]);
-
-  if (isLoading) return <SemanticScreen type="operational"><ERPLoader message="Inicializando Command Center..." /></SemanticScreen>;
-
-  return (
-    <SemanticScreen type="operational">
-      <OperationalFlowLayout
-        header={
-          <AppHeader 
-            eyebrow="SYSTEM_COMMAND"
-            title="Pipeline Ativo"
-            subtitle="Monitoramento tático de execuções e fluxo de propostas em tempo real."
-            action={
-              <button 
-                onClick={onNewBudget}
-                className="grid h-12 w-12 place-items-center rounded-full bg-[var(--accent-gold)] text-black shadow-[var(--shadow-button)] transition-all active:scale-[0.9] hover:brightness-110"
-              >
-                <Plus className="h-5 w-5" strokeWidth={3} />
-              </button>
-            }
-          />
+    return (
+      <InteractiveRow 
+        key={budget.id} 
+        onClick={() => onSelectBudget(budget)}
+        className={idx !== 0 ? "border-t border-white/[0.05]" : ""}
+        leftSlot={
+          <div className="w-9 h-9 rounded-xl bg-white/[0.03] border border-white/[0.07] grid place-items-center">
+            <span className="text-lg leading-none">
+              {isHighPriority ? "👁️" : "📄"}
+            </span>
+          </div>
         }
       >
-        {/* 1. HERO DOMINANCE: INTEGRATED COMMAND HUD */}
-        <Priority.P1>
-          <SurfaceCard className="mb-6 relative overflow-hidden group shadow-card border-l-4 border-l-[var(--accent-gold)]" padding="lg">
-            <div className="flex justify-between items-start relative z-10">
-              <div className="flex flex-col">
-                <span className="text-[10px] font-black text-[var(--accent-gold)] tracking-[0.25em] flex items-center gap-2 mb-2">
-                  <Activity className="h-3 w-3 animate-pulse" /> 
-                  EXECUÇÃO_PRESENTE
-                </span>
-                <div className="num text-[48px] font-bold text-[var(--text-primary)] tracking-tighter leading-none">
-                  <MoneyValue value={stats.executionValue} />
-                </div>
-              </div>
-              
-              {/* Context Beats */}
-              <div className="flex flex-col gap-6 items-end">
-                 <div className="text-right">
-                    <span className="text-[9px] font-black text-[var(--text-muted)] tracking-widest block opacity-40 mb-1">CAPACIDADE</span>
-                    <span className="text-h3 font-bold text-[var(--accent-green)]">84%</span>
-                 </div>
-                 <div className="text-right">
-                    <span className="text-[9px] font-black text-[var(--text-muted)] tracking-widest block opacity-40 mb-1">APROVADOS</span>
-                    <span className="text-h3 font-bold text-[var(--text-primary)] tracking-tight">
-                       <MoneyValue value={stats.approvedValue} compact />
-                    </span>
-                 </div>
-              </div>
-            </div>
-            
-            <div className="absolute bottom-0 left-0 right-0 h-16 opacity-5 pointer-events-none">
-              <Sparkline data={stats.volumes} stroke="var(--accent-gold)" height={64} />
-            </div>
-          </SurfaceCard>
-        </Priority.P1>
-
-        {/* 2. OPERATIONAL SEARCH HUD (Reduced card count) */}
-        <Priority.P2 className="flex flex-col gap-md">
-          <div className="flex items-center gap-md">
-            <SearchInput 
-              value={search}
-              onChange={setSearch}
-              placeholder="Localizar operação..." 
-              className="flex-1"
-            />
-            <button className="h-[56px] w-[56px] grid place-items-center bg-[var(--bg-surface-glass)] border var(--border-soft) rounded-[var(--radius-button)] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-all">
-              <ListFilter className="h-5 w-5" />
-            </button>
-          </div>
-          
-          <FilterChips 
-            items={FILTER_ITEMS}
-            active={[activeFilter]}
-            onChange={(active) => setActiveFilter(active[0] || 'all')}
-          />
-        </Priority.P2>
-
-        {/* 3. CONTINUOUS PIPELINE SURFACE (Object-first) */}
-        <Priority.P2 className="flex flex-col">
-          <SurfaceCard padding="none" className="overflow-hidden mb-40">
-            <div className="flex flex-col">
-              {filteredBudgets.length === 0 ? (
-                <div className="py-24">
-                  <QueueEmptyState 
-                    title="Nenhuma operação em tela" 
-                    meta="Refine sua busca ou inicie um novo ciclo operacional." 
-                    icon={<Terminal className="h-8 w-8" />}
-                  />
-                </div>
-              ) : (
-                filteredBudgets.map((budget, idx) => {
-                  const totals = calculateBudget(budget);
-                  const margin = totals.totalComercial > 0 ? (totals.lucroBruto / totals.totalComercial) * 100 : 0;
-                  const isExecuting = budget.status === BUDGET_STATUS.EM_EXECUCAO;
-
-                  return (
-                    <div 
-                      key={budget.id} 
-                      className={cn(
-                        "group flex items-center gap-md py-7 px-shell transition-all duration-300 hover:bg-white/[0.04] active:scale-[0.99] cursor-pointer relative",
-                        idx !== 0 && "border-t var(--border-subtle)"
-                      )}
-                      onClick={() => onSelectBudget(budget)}
-                    >
-                      {/* Active State Indicator */}
-                      {isExecuting && (
-                         <div className="absolute left-0 top-0 bottom-0 w-1 bg-[var(--accent-gold)] shadow-glow z-10" />
-                      )}
-
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-2">
-                           <StatusPill status={budget.status} />
-                           <span className="text-[10px] font-black text-[var(--text-muted)] opacity-30 tracking-widest">
-                              ID_{budget.id.split('-')[0].toUpperCase()}
-                           </span>
-                        </div>
-                        <strong className="block text-ui-md font-bold text-[var(--text-primary)] truncate group-hover:text-[var(--accent-gold)] transition-colors tracking-tight uppercase leading-tight mb-1">
-                          {budget.title || 'PROJETO_SEM_TÍTULO'}
-                        </strong>
-                        <p className="text-[10px] font-medium text-[var(--text-secondary)] opacity-50 truncate uppercase tracking-widest">
-                           {budget.clientName || 'CLIENTE_AVULSO'} · {formatCompactDate(budget.updatedAt || budget.createdAt || Date.now())}
-                        </p>
-                      </div>
-
-                      <div className="shrink-0 text-right flex flex-col items-end gap-1 ml-4">
-                        <div className="num text-ui-md font-bold text-[var(--accent-gold)] tracking-tight">
-                          <MoneyValue value={totals.totalComercial} compact />
-                        </div>
-                        <div className={cn(
-                          "text-[9px] font-black px-1.5 py-0.5 rounded bg-white/5",
-                          margin > 40 ? "text-[var(--accent-green)]" : "text-[var(--text-muted)] opacity-60"
-                        )}>
-                          {margin.toFixed(0)}%_MARGEM
-                        </div>
-                      </div>
-                      
-                      <div className="ml-4 opacity-10 group-hover:opacity-100 group-hover:translate-x-1 transition-all">
-                        <ChevronRight className="h-4 w-4 text-[var(--text-muted)]" />
-                      </div>
-                    </div>
-                  );
-                })
+        <div className="flex items-center gap-4 w-full">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-1.5 mb-0.5">
+              <Body className="truncate leading-tight">
+                {budget.title || 'PROJETO_SEM_TÍTULO'}
+              </Body>
+              {isHighPriority && (
+                <div className="w-1.5 h-1.5 rounded-full bg-[var(--accent-gold)] shrink-0" />
               )}
             </div>
-          </SurfaceCard>
-        </Priority.P2>
-      </OperationalFlowLayout>
-    </SemanticScreen>
+            <Subtitle className="text-[11px] truncate uppercase font-mono tracking-wider opacity-60">
+               {budget.clientName || 'CLIENTE_AVULSO'} · {formatCompactDate(budget.updatedAt || budget.createdAt || Date.now())}
+            </Subtitle>
+          </div>
+          <Stack className="items-end gap-1 shrink-0">
+             <FinancialValue value={totals.totalComercial} compact className="text-[13px] text-white" />
+             <StatusPill status={budget.status} className="scale-75 origin-right" />
+          </Stack>
+        </div>
+      </InteractiveRow>
+    );
+  };
+
+  const chips = (
+    <>
+      <OpsChip icon={<Eye size={11} />} label={`${conversionData.viewed.length} visualizados`} accent={conversionData.viewed.length > 0 ? "orange" : false} />
+      <OpsChip icon={<MessageSquare size={11} />} label={`${alertHub?.commercialFollowUp?.length || 0} follow-ups`} accent={(alertHub?.commercialFollowUp?.length || 0) > 0 ? "red" : false} />
+      <OpsChip icon={<Clock size={11} />} label={`${conversionData.draft.length} rascunhos`} accent={false} />
+    </>
   );
+
+  return (
+    <ScreenContainer className="pb-32">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden pb-[124px] scrollbar-none">
+        
+        {/* ━━━ AUTHORITATIVE HEADER ━━━ */}
+        <AppHeader 
+          title="Vendas."
+          action={
+            <button 
+              onClick={onNewBudget}
+              className="flex h-[42px] items-center gap-2 px-3 rounded-[14px] bg-[var(--accent-gold)] text-[#050505] hover:brightness-110 active:scale-95 transition-all shadow-[var(--shadow-primary)]"
+              title="Nova Proposta"
+            >
+              <Plus size={18} strokeWidth={2.5} />
+              <span className="text-[11px] font-bold uppercase tracking-widest hidden sm:block">Proposta</span>
+            </button>
+          }
+          chips={chips}
+        />
+
+        <div className="px-4 flex flex-col gap-8">
+          
+          {/* 1. SALES HUB HERO */}
+          <Section className="gap-3">
+            <SectionLabel className="ml-2">Pipeline de Conversão</SectionLabel>
+            <SurfaceCard variant="cinematic" padding="lg">
+               <div className="flex items-center justify-between mb-8">
+                  <SectionLabel className="text-[var(--accent-gold)]">Performance Comercial</SectionLabel>
+                  <div className="flex items-center gap-2 bg-white/[0.04] border border-white/[0.07] px-2.5 py-1 rounded-lg">
+                     <Target size={11} className="text-[var(--accent-gold)]" />
+                     <Value className="text-[11px]">64%</Value>
+                  </div>
+               </div>
+               
+               <Heading className="text-[32px] mb-3">
+                  {formatCurrencyBRL(conversionData.all.reduce((acc, b) => acc + (b.chargedValue || 0), 0))}
+               </Heading>
+               <Body className="text-[var(--accent-gold)] font-bold tracking-tight">
+                  Valor Total em Negociação
+               </Body>
+
+               <div className="bg-white/[0.025] border border-white/[0.07] rounded-2xl p-4 flex flex-col gap-2.5 mt-6">
+                  <div className="flex justify-between items-center">
+                     <SectionLabel className="!text-[8.5px]">Visualizadas</SectionLabel>
+                     <Value className="text-sm">{conversionData.viewed.length}</Value>
+                  </div>
+                  <div className="flex justify-between items-center">
+                     <SectionLabel className="!text-[8.5px]">Aguardando Follow-up</SectionLabel>
+                     <Value className="text-sm text-[var(--accent-red)]">{alertHub?.commercialFollowUp?.length || 0}</Value>
+                  </div>
+               </div>
+            </SurfaceCard>
+          </Section>
+
+          {/* 2. SEARCH & FILTER */}
+          <Section className="gap-2">
+            <SearchInput value={search} onChange={setSearch} placeholder="Localizar proposta..." />
+            <FilterChips items={FILTER_ITEMS} active={[activeFilter]} onChange={(active) => setActiveFilter(active[0] || 'all')} />
+          </Section>
+
+          {/* 3. CONVERSION QUEUES */}
+          <Section className="gap-3">
+             <SurfaceCard padding="none">
+                <div className="flex items-center justify-between px-5 pt-[18px] pb-[14px]">
+                   <SectionLabel>Fila de Atendimento</SectionLabel>
+                   <TrendingUp size={12} className="text-[#3A3A3A]" />
+                </div>
+                
+                {activeFilter === 'all' ? (
+                  <>
+                    {conversionData.viewed.length > 0 && (
+                      <Stack className="gap-0">
+                        <div className="px-5 py-2 bg-[var(--accent-gold)]/5 border-t border-white/[0.07]">
+                           <span className="text-[9px] font-black text-[var(--accent-gold)] font-mono uppercase tracking-wider">PRIORIDADE_MÁXIMA_VISUALIZADA</span>
+                        </div>
+                        {conversionData.viewed.map((b, i) => renderBudgetCard(b, i))}
+                      </Stack>
+                    )}
+
+                    {alertHub?.commercialFollowUp?.length > 0 && (
+                      <Stack className="gap-0">
+                        <div className="px-5 py-2 bg-[var(--accent-red)]/5 border-t border-white/[0.07]">
+                           <span className="text-[9px] font-black text-[var(--accent-red)] font-mono uppercase tracking-wider">REQUER_FOLLOW_UP_3D</span>
+                        </div>
+                        {alertHub.commercialFollowUp.map((b: any, i: number) => renderBudgetCard(b, i))}
+                      </Stack>
+                    )}
+
+                    {conversionData.draft.length > 0 && (
+                      <Stack className="gap-0">
+                        <div className="px-5 py-2 border-t border-white/[0.07]">
+                           <SectionLabel className="!text-[8px]">Rascunhos e Preparação</SectionLabel>
+                        </div>
+                        {conversionData.draft.map((b, i) => renderBudgetCard(b, i))}
+                      </Stack>
+                    )}
+                  </>
+                ) : (
+                  <Stack className="gap-0">
+                    {filteredBudgets.length === 0 ? (
+                      <div className="py-20 text-center opacity-30">
+                        <Body className="font-mono text-[10px] font-black tracking-widest">NENHUM_REGISTRO</Body>
+                      </div>
+                    ) : (
+                      filteredBudgets.map((b, i) => renderBudgetCard(b, i))
+                    )}
+                  </Stack>
+                )}
+                <div className="h-1" />
+             </SurfaceCard>
+          </Section>
+
+        </div>
+      </div>
+    </ScreenContainer>
+  );
+});
+
+function formatCurrencyBRL(val: number) {
+  return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }).format(val);
 }

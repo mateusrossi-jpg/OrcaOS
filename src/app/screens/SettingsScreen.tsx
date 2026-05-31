@@ -92,12 +92,11 @@ export function SettingsScreen({ account, onAccountChange: _onAccountChange }: S
           { id: 'backup', label: 'Backup' },
           { id: 'about', label: 'Sobre' },
         ]}
-        variant="pill"
       />
 
       <div className="settings-content-area">
         {activeTab === 'account' && (
-          <Surface elevation={1} padding="md" className="settings-group account-settings-panel">
+          <Surface padding="md" className="settings-group account-settings-panel">
             <div className="settings-panel-title">
               <h2>Sua Conta</h2>
             </div>
@@ -146,7 +145,7 @@ export function SettingsScreen({ account, onAccountChange: _onAccountChange }: S
         {activeTab === 'about' && (
           <div className="aferix-d-flex aferix-flex-column aferix-gap-md">
             <LegalCompliancePanel />
-            <Surface elevation={1} padding="md">
+            <Surface padding="md">
               <div className="settings-panel-title">
                 <h2>Sobre o Aferix</h2>
                 <p className="aferix-text-muted aferix-mt-sm">Versão MVP · Local-first ERP</p>

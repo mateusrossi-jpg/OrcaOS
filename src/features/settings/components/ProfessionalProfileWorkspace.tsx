@@ -14,7 +14,7 @@ import { createDefaultProfessionalProfile, type ProfessionalProfile } from '../m
 import { ChevronLeft } from 'lucide-react';
 import './ProfessionalProfileWorkspace.css';
 
-export function ProfessionalProfileWorkspace({ onBack }: { onBack?: () => void } = {}) {
+export function ProfessionalProfileWorkspace({ onBack, hideTitle }: { onBack?: () => void; hideTitle?: boolean } = {}) {
   const [profile, setProfile] = useState<ProfessionalProfile>(() => createDefaultProfessionalProfile());
 
   useEffect(() => {
@@ -65,27 +65,29 @@ export function ProfessionalProfileWorkspace({ onBack }: { onBack?: () => void }
       {onBack && (
         <button 
           onClick={onBack} 
-          className="flex items-center gap-1.5 text-[13px] font-bold text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors mb-8"
+          className="flex items-center gap-1.5 text-ui-xs font-black font-mono text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors mb-8 uppercase tracking-widest"
         >
-          <ChevronLeft className="h-4 w-4" /> Voltar para Configurações
+          <ChevronLeft className="h-4 w-4" /> VOLTAR AO MENU
         </button>
       )}
 
-      <PageTitle 
-        eyebrow="Configurações" 
-        title="Perfil Profissional" 
-        subtitle="Dados usados em orçamentos e relatórios técnicos."
-      />
+      {!hideTitle && (
+        <PageTitle 
+          eyebrow="Configurações" 
+          title="Perfil Profissional" 
+          subtitle="Dados usados em orçamentos e relatórios técnicos."
+        />
+      )}
 
       <div className="flex flex-col gap-8 pb-32">
-        <Card className="p-8">
-          <SectionLabel className="mt-0 mb-6">Logo da empresa</SectionLabel>
+        <Card className="p-8 bg-gradient-to-br from-white/[0.04] to-transparent border-t-white/10" padding="lg">
+          <SectionLabel className="mt-0 mb-6 font-mono">Logo da empresa</SectionLabel>
           <div className="flex flex-col items-center gap-6">
             <div className="h-32 w-32 rounded-3xl bg-[var(--bg-surface-elevated)] border var(--border-soft) flex items-center justify-center overflow-hidden shadow-soft">
               {profile.logoDataUrl || profile.logoUrl ? (
                 <img src={profile.logoDataUrl || profile.logoUrl} alt="Logo" className="w-full h-full object-contain" />
               ) : (
-                <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-[var(--text-muted)]">MARCA</span>
+                <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--text-muted)] font-mono">MARCA</span>
               )}
             </div>
             <div className="flex gap-3">
@@ -100,50 +102,44 @@ export function ProfessionalProfileWorkspace({ onBack }: { onBack?: () => void }
           </div>
         </Card>
 
-        <Card className="p-8">
-          <SectionLabel className="mt-0 mb-6">Dados da Empresa</SectionLabel>
+        <Card className="p-8 bg-gradient-to-br from-white/[0.04] to-transparent border-t-white/10" padding="lg">
+          <SectionLabel className="mt-0 mb-6 font-mono">Dados da Empresa</SectionLabel>
           <div className="flex flex-col gap-6">
-            <div className="grid grid-cols-2 gap-4">
-              <Input label="Nome Profissional" value={profile.professionalName} onChange={e => updateProfile('professionalName', e.target.value)} />
-              <Input label="Nome Empresa" value={profile.businessName} onChange={e => updateProfile('businessName', e.target.value)} />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <Input label="Documento (CPF/CNPJ)" value={profile.document} onChange={e => updateProfile('document', e.target.value)} />
-              <Input label="WhatsApp" value={profile.phone} onChange={e => updateProfile('phone', e.target.value)} />
-            </div>
+            <Input label="Nome Profissional" value={profile.professionalName} onChange={e => updateProfile('professionalName', e.target.value)} />
+            <Input label="Nome Empresa" value={profile.businessName} onChange={e => updateProfile('businessName', e.target.value)} />
+            <Input label="Documento (CPF/CNPJ)" value={profile.document} onChange={e => updateProfile('document', e.target.value)} />
+            <Input label="WhatsApp" value={profile.phone} onChange={e => updateProfile('phone', e.target.value)} />
             <Input label="Endereço Completo" value={profile.address} onChange={e => updateProfile('address', e.target.value)} />
           </div>
         </Card>
 
-        <Card className="p-8">
-          <SectionLabel className="mt-0 mb-6">Identificadores Locais</SectionLabel>
+        <Card className="p-8 bg-gradient-to-br from-white/[0.04] to-transparent border-t-white/10" padding="lg">
+          <SectionLabel className="mt-0 mb-6 font-mono">Identificadores Locais</SectionLabel>
           <p className="text-[13.5px] text-[var(--text-muted)] mb-6 leading-relaxed">IDs únicos para sincronização de dados entre dispositivos.</p>
-          <div className="grid grid-cols-2 gap-4 mb-8">
-            <div className="p-4 rounded-xl bg-white/[0.02] border var(--border-subtle)">
-              <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)] block mb-2">ID Profissional</span>
-              <code className="text-[11px] text-[var(--text-secondary)] break-all">{profile.professionalId}</code>
+          <div className="flex flex-col gap-4 mb-8">
+            <div className="p-4 rounded-[20px] bg-white/[0.02] border var(--border-subtle)">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)] block mb-2 font-mono">ID Profissional</span>
+              <code className="text-[11px] text-[var(--text-secondary)] break-all font-mono">{profile.professionalId}</code>
             </div>
-            <div className="p-4 rounded-xl bg-white/[0.02] border var(--border-subtle)">
-              <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)] block mb-2">ID Empresa</span>
-              <code className="text-[11px] text-[var(--text-secondary)] break-all">{profile.companyId}</code>
+            <div className="p-4 rounded-[20px] bg-white/[0.02] border var(--border-subtle)">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)] block mb-2 font-mono">ID Empresa</span>
+              <code className="text-[11px] text-[var(--text-secondary)] break-all font-mono">{profile.companyId}</code>
             </div>
           </div>
-          <Button variant="ghost" className="w-full" onClick={() => void regenerateIds()}>Regenerar IDs</Button>
+          <Button variant="ghost" className="w-full font-black tracking-widest" onClick={() => void regenerateIds()}>Regenerar IDs</Button>
         </Card>
 
-        <Card className="p-8">
-          <SectionLabel className="mt-0 mb-6">Padrões de Orçamentos</SectionLabel>
+        <Card className="p-8 bg-gradient-to-br from-white/[0.04] to-transparent border-t-white/10" padding="lg">
+          <SectionLabel className="mt-0 mb-6 font-mono">Padrões de Orçamentos</SectionLabel>
           <div className="flex flex-col gap-6">
-            <div className="grid grid-cols-2 gap-4">
-              <Input label="Validade Padrão" value={profile.defaultValidity} onChange={e => updateProfile('defaultValidity', e.target.value)} />
-              <Input label="Garantia Padrão" value={profile.defaultGuarantee} onChange={e => updateProfile('defaultGuarantee', e.target.value)} />
-            </div>
-            <TextArea label="Condições de Pagamento" value={profile.defaultPaymentTerms} onChange={e => updateProfile('defaultPaymentTerms', e.target.value)} rows={2} />
-            <TextArea label="Observações Comerciais" value={profile.commercialNotes} onChange={e => updateProfile('commercialNotes', e.target.value)} rows={2} />
+            <Input label="Validade Padrão" value={profile.defaultValidity} onChange={e => updateProfile('defaultValidity', e.target.value)} />
+            <Input label="Garantia Padrão" value={profile.defaultGuarantee} onChange={e => updateProfile('defaultGuarantee', e.target.value)} />
+            <TextArea label="Condições de Pagamento" value={profile.defaultPaymentTerms} onChange={e => updateProfile('defaultPaymentTerms', e)} rows={2} />
+            <TextArea label="Observações Comerciais" value={profile.commercialNotes} onChange={e => updateProfile('commercialNotes', e)} rows={2} />
           </div>
         </Card>
 
-        <PrimaryButton onClick={() => void saveProfile()}>Salvar Alterações</PrimaryButton>
+        <PrimaryButton className="font-black tracking-widest h-16" onClick={() => void saveProfile()}>Salvar Alterações</PrimaryButton>
       </div>
     </PageShell>
   );

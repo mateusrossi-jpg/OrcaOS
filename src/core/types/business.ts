@@ -70,12 +70,14 @@ export interface OperationalSnapshot {
   fingerprint: string;
 }
 
-export type ServiceStatus = 'in-progress' | 'done' | 'cancelled';
+export type ServiceStatus = 'draft' | 'scheduled' | 'in-progress' | 'done' | 'cancelled';
 
 export interface Service {
   id: string;
-  clientId?: string;
-  budgetId?: string; // Vínculo com o orçamento aprovado/autorizado
+  clientId: string; // Mandatory for all Work Orders
+  siteId?: string; // Optional (Fase 3B)
+  assetIds?: string[]; // Optional (Fase 3B)
+  budgetId?: string; // Optional for OS Avulsa
   title: string;
   description?: string;
   address?: string;
@@ -83,6 +85,11 @@ export interface Service {
   status: ServiceStatus;
   scheduledDate?: string;
   paymentStatus: 'pending' | 'partial' | 'paid';
+  
+  // Execution Core
+  items?: BudgetItem[];
+  executedValue?: number;
+  
   createdAt?: string;
   updatedAt?: string;
   syncStatus?: 'synced' | 'pending' | 'deleted';

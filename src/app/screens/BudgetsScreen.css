@@ -3,7 +3,7 @@
    ---------------------------------------------------------- */
 
 .budgets-container {
-  padding-bottom: 120px !important;
+  padding-bottom: calc(var(--spacing-2xl) * 2.5) !important;
 }
 
 .budget-list {

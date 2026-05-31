@@ -1,102 +1,36 @@
 /* AFERIX PREMIUM MOBILE SHELL
-   Refactored for TOKEN-FIRST architecture (Executive OS V5).
+   Cleaned up and refactored for Universal HomeScreen Bottom Nav.
    ---------------------------------------------------------- */
 
 .aferix-shell-root {
   width: 100vw;
-  height: 100vh;
   height: 100dvh;
   background: var(--bg-primary);
   display: flex;
   justify-content: center;
   overflow: hidden;
+  position: relative;
+}
+
+/* System Atmosphere Vignette */
+.aferix-shell-root::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background: radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.03) 0%, transparent 75%);
 }
 
 .aferix-mobile-container {
   width: 100%;
-  max-width: 440px !important;
+  max-width: 430px !important;
   height: 100%;
   background: transparent !important;
   position: relative;
   display: flex;
   flex-direction: column;
-}
-
-/* Sticky Header */
-.aferix-header {
-  height: 56px;
-  width: 100%;
-  background: var(--bg-surface-glass);
-  backdrop-filter: blur(24px) saturate(1.5);
-  -webkit-backdrop-filter: blur(24px) saturate(1.5);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 var(--spacing-md);
-  position: sticky;
-  top: 0;
-  z-index: var(--z-sticky, 100);
-  flex-shrink: 0;
-  border-bottom: var(--border-subtle);
-}
-
-.header-brand {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-}
-
-.brand-symbol {
-  width: 32px;
-  height: 32px;
-  display: grid;
-  place-items: center;
-  border-radius: var(--radius-xs);
-  border: var(--border-soft);
-  background: var(--bg-surface);
-  font-size: var(--fs-xs);
-  font-weight: var(--fw-black);
-  letter-spacing: 0.15em;
-  color: var(--text-primary);
-}
-
-.brand-text {
-  font-size: var(--fs-base);
-  font-weight: var(--fw-bold);
-  letter-spacing: 0.2em;
-  color: var(--text-primary);
-}
-
-.brand-accent {
-  color: var(--accent-gold);
-}
-
-.notification-trigger {
-  width: 40px;
-  height: 40px;
-  display: grid;
-  place-items: center;
-  border-radius: var(--radius-pill);
-  border: var(--border-subtle);
-  background: var(--bg-surface-glass);
-  color: var(--text-secondary);
-  position: relative;
-  transition: all var(--transition-fast);
-}
-
-.notification-trigger:active {
-  transform: scale(0.94);
-}
-
-.notification-dot {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  width: 6px;
-  height: 6px;
-  border-radius: var(--radius-pill);
-  background: var(--accent-gold);
-  box-shadow: 0 0 8px var(--accent-gold);
+  z-index: 10;
 }
 
 /* Scrollable Main Content */
@@ -110,80 +44,120 @@
   flex-direction: column;
 }
 
+.aferix-main-content::-webkit-scrollbar {
+  display: none;
+}
+
 .content-inner {
-  padding: var(--spacing-md);
+  padding: 0 0 160px;
   width: 100%;
   box-sizing: border-box;
 }
 
-/* Fixed Bottom Navigation */
-.aferix-bottom-nav {
+/* ━━━ TACTICAL ACTION BAR ━━━ */
+.tactical-menu-container {
   position: fixed;
-  bottom: 0;
+  bottom: 110px;
+  left: 50%;
   width: 100%;
-  max-width: 440px;
-  background: rgba(10, 10, 10, 0.8);
-  backdrop-filter: blur(40px) saturate(1.8);
-  -webkit-backdrop-filter: blur(40px) saturate(1.8);
-  border-top: 1px solid rgba(255, 255, 255, 0.04);
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  padding: var(--spacing-sm) var(--spacing-sm) calc(max(env(safe-area-inset-bottom), var(--spacing-md)));
-  z-index: 1000;
-  box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.4);
+  max-width: 430px;
+  padding: 0 20px;
+  z-index: 1001;
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.nav-item {
+.tactical-menu-inner {
+  background: rgba(10, 10, 10, 0.92);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 22px;
+  padding: 10px;
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6);
+}
+
+.tactical-menu-inner::-webkit-scrollbar {
+  display: none;
+}
+
+.tactical-menu-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.tactical-menu-btn:active {
+  transform: scale(0.95);
+}
+
+/* ━━━ BOTTOM NAV ━━━ */
+.bottom-nav-container {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 430px;
+  padding: 0 16px 32px;
+  background: linear-gradient(to top, var(--bg-primary) 60%, transparent);
+  pointer-events: none;
+  z-index: 1000;
+}
+
+.bottom-nav-inner {
+  background: rgba(12, 12, 12, 0.96);
+  backdrop-filter: blur(32px);
+  -webkit-backdrop-filter: blur(32px);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 24px;
+  padding: 10px 6px;
+  display: grid;
+  pointer-events: all;
+  box-shadow: 0 -1px 0 rgba(255, 255, 255, 0.04) inset, 0 24px 60px rgba(0, 0, 0, 0.7);
+}
+
+.nav-tab-btn {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--spacing-xs);
-  padding: var(--spacing-sm) 0;
-  border-radius: var(--radius-sm);
-  color: var(--text-muted);
-  transition: all var(--transition-fast);
+  gap: 4px;
+  padding: 8px 4px;
+  background: none;
+  border: none;
   cursor: pointer;
+  border-radius: 14px;
   position: relative;
+  transition: all 0.2s ease;
 }
 
-.nav-item:active {
-  transform: scale(0.92);
-  background: rgba(255, 255, 255, 0.03);
+.nav-tab-btn-active-bg {
+  position: absolute;
+  top: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background-color: var(--accent-gold);
+  opacity: 0.08;
 }
 
-.nav-item.active {
-  color: var(--accent-gold);
+.nav-tab-icon {
+  position: relative;
+  z-index: 1;
+  transition: color 0.15s ease;
 }
 
-.nav-icon {
-  width: 22px;
-  height: 22px;
-  opacity: 0.4;
-  transition: all var(--transition-fast);
-}
-
-.active .nav-icon {
-  opacity: 1;
-  filter: drop-shadow(0 0 12px oklch(0.82 0.14 85 / 0.3));
-}
-
-.nav-label {
-  font-size: 9px;
-  font-weight: var(--fw-black);
+.nav-tab-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 8.5px;
+  letter-spacing: 0.04em;
+  transition: color 0.15s ease;
   text-transform: uppercase;
-  letter-spacing: 0.18em;
-  opacity: 0.4;
-}
-
-.active .nav-label {
-  opacity: 1;
-}
-
-/* Responsive Desktop Preview */
-@media (min-width: 441px) {
-  .aferix-mobile-container {
-    box-shadow: var(--shadow-soft);
-    border-left: var(--border-subtle);
-    border-right: var(--border-subtle);
-  }
 }

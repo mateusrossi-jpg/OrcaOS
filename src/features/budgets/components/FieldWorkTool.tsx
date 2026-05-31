@@ -1,13 +1,20 @@
-import React from 'react';
+import React, { memo, useState } from 'react';
 import { Budget } from '../../../domain/budget';
+import { formatCurrencyBRL } from '../../../utils/formatters';
 import { 
-  Card,
-  SectionLabel, 
   TextArea, 
-  ContextBanner,
-  Badge,
-  ListItem
+  ContextBanner
 } from '../../../app/components/ui';
+
+import { 
+  SurfaceCard,
+  SectionLabel,
+  InteractiveRow,
+  SemanticBadge,
+  StatusPill
+} from '../../../ui/system';
+
+import { CheckCircle2, Circle, Clock, Info, User } from 'lucide-react';
 
 interface FieldWorkToolProps {
   budget: Budget;
@@ -16,89 +23,127 @@ interface FieldWorkToolProps {
 }
 
 /**
- * FieldWorkTool: A ferramenta de campo do profissional.
- * Foco em checklist de execução e diário de obra.
+ * FieldWorkTool V2: A ferramenta de campo do profissional.
+ * Refactored for absolute executive DNA parity (Phase 4G).
  */
-export const FieldWorkTool: React.FC<FieldWorkToolProps> = ({ budget, onUpdateNotes, isReadOnly }) => {
-  const services = budget.items.filter(it => it.category !== 'material');
+export const FieldWorkTool: React.FC<FieldWorkToolProps> = memo(({ budget, onUpdateNotes, isReadOnly }) => {
+  const services = budget.items.filter(it => it.category === 'labor');
   const materials = budget.items.filter(it => it.category === 'material');
+  
+  // Local state for interactive checklist (visual only for now)
+  const [completedItems, setCompletedItems] = useState<Set<string>>(new Set());
+
+  const toggleItem = (id: string) => {
+    const newSet = new Set(completedItems);
+    if (newSet.has(id)) newSet.delete(id);
+    else newSet.add(id);
+    setCompletedItems(newSet);
+  };
 
   return (
-    <div className="flex flex-col gap-8 pb-10">
+    <div className="flex flex-col gap-8 pb-20 animate-in fade-in duration-500">
       
-      {/* 1. INFO DO CLIENTE (Quick Access) */}
-      <Card className="p-6 border-l-4 border-l-[var(--accent-gold)]">
-        <div className="flex justify-between items-center">
-          <div className="flex flex-col">
-            <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest mb-1">CLIENTE EM FOCO</span>
-            <strong className="text-[17px] font-bold text-white">{budget.clientName || 'Cliente não informado'}</strong>
+      {/* 1. CLIENT FOCUS HERO */}
+      <div className="flex flex-col gap-3">
+        <SectionLabel style={{ marginLeft: "8px" }}>Status da Execução</SectionLabel>
+        <SurfaceCard padding="lg" className="border-l-[3px] border-l-[#D4A94E]">
+          <div className="flex justify-between items-center">
+            <div className="flex flex-col">
+              <span className="text-[10px] font-black tracking-[0.15em] text-[#808080] uppercase mb-1.5 font-mono flex items-center gap-2">
+                 <User size={10} /> CONTRATANTE_ATIVO
+              </span>
+              <strong className="text-[18px] font-bold text-white tracking-tight">{budget.clientName || 'Cliente não informado'}</strong>
+            </div>
+            <StatusPill status={budget.status} />
           </div>
-          <Badge tone="brand">EM EXECUÇÃO</Badge>
-        </div>
-      </Card>
+        </SurfaceCard>
+      </div>
 
-      {/* 2. CHECKLIST DE SERVIÇOS */}
-      <div className="flex flex-col gap-4">
-        <SectionLabel className="mt-0">Checklist de Serviços</SectionLabel>
-        <div className="flex flex-col gap-2">
+      {/* 2. SERVICES CHECKLIST */}
+      <div className="flex flex-col gap-3">
+        <SectionLabel style={{ marginLeft: "8px" }}>Checklist de Serviços</SectionLabel>
+        <SurfaceCard padding="none" className="overflow-hidden">
           {services.length === 0 ? (
-            <div className="p-10 text-center rounded-2xl border border-dashed border-white/5 bg-white/[0.01] text-[var(--text-muted)] opacity-50">Nenhum serviço técnico listado.</div>
+            <div className="py-16 flex flex-col items-center justify-center text-center opacity-20">
+               <Info size={32} className="mb-4" />
+               <span className="text-[10px] font-bold tracking-widest uppercase font-mono">Nenhum serviço listado.</span>
+            </div>
           ) : (
-            services.map(item => (
-              <div key={item.id} className="flex items-center gap-5 p-5 rounded-xl bg-white/[0.03] border var(--border-subtle) transition-all active:scale-[0.98]">
-                <input 
-                  type="checkbox" 
-                  className="h-6 w-6 rounded-lg bg-white/[0.05] border var(--border-soft) checked:bg-[var(--accent-gold)] transition-all cursor-pointer"
-                />
-                <div className="flex flex-col">
-                  <span className="text-[15.5px] font-bold text-white">{item.description}</span>
-                  <p className="text-[12px] font-medium text-[var(--text-muted)] opacity-60 uppercase tracking-widest mt-0.5">{item.quantity} un planejada(s)</p>
-                </div>
-              </div>
-            ))
+            services.map((item, idx) => {
+              const isDone = completedItems.has(item.id);
+              return (
+                <InteractiveRow 
+                  key={item.id}
+                  onClick={() => toggleItem(item.id)}
+                  className={idx !== 0 ? "border-t border-white/[0.05]" : ""}
+                  leftSlot={
+                    <div className="shrink-0">
+                      {isDone 
+                        ? <CheckCircle2 size={20} className="text-[#2ECC71] fill-[#2ECC71]/10" /> 
+                        : <Circle size={20} className="text-white/10" />
+                      }
+                    </div>
+                  }
+                >
+                  <div className="flex flex-col gap-0.5">
+                    <span className={isDone ? "text-[15px] font-bold text-[#505050] line-through transition-all" : "text-[15px] font-bold text-white transition-all"}>
+                      {item.description}
+                    </span>
+                    <span className="text-[10px] font-mono text-white/20 uppercase tracking-widest">
+                      {item.quantity} UNIDADES PLANEJADAS
+                    </span>
+                  </div>
+                </InteractiveRow>
+              );
+            })
           )}
-        </div>
+        </SurfaceCard>
       </div>
 
-      {/* 3. LISTA DE MATERIAIS */}
-      <div className="flex flex-col gap-4">
-        <SectionLabel className="mt-0">Materiais e Insumos</SectionLabel>
-        <div className="flex flex-col gap-2">
-          {materials.length === 0 ? (
-            <div className="p-10 text-center rounded-2xl border border-dashed border-white/5 bg-white/[0.01] text-[var(--text-muted)] opacity-50">Nenhum material vinculado.</div>
-          ) : (
-            materials.map(item => (
-              <ListItem
+      {/* 3. MATERIALS LIST */}
+      {materials.length > 0 && (
+        <div className="flex flex-col gap-3">
+          <SectionLabel style={{ marginLeft: "8px" }}>Materiais e Insumos</SectionLabel>
+          <SurfaceCard padding="none" className="overflow-hidden bg-[#141414]">
+            {materials.map((item, idx) => (
+              <InteractiveRow 
                 key={item.id}
-                title={item.description}
-                status={<Badge tone="default">{item.quantity} un</Badge>}
-                className="bg-white/[0.02]"
-              />
-            ))
-          )}
+                className={idx !== 0 ? "border-t border-white/[0.05]" : ""}
+              >
+                <div className="flex justify-between items-center w-full">
+                   <span className="text-[14px] font-bold text-[#808080]">{item.description}</span>
+                   <SemanticBadge label={`${item.quantity} UN`} variant="default" className="scale-90 origin-right" />
+                </div>
+              </InteractiveRow>
+            ))}
+          </SurfaceCard>
         </div>
-      </div>
+      )}
 
-      {/* 4. DIÁRIO DE OBRA */}
-      <div className="flex flex-col gap-4">
-        <SectionLabel className="mt-0">Diário de Obra</SectionLabel>
-        <Card className="p-6">
-          <TextArea
-            label="Notas de Campo (Privado)"
-            value={budget.notes || ''}
-            onChange={onUpdateNotes}
-            disabled={isReadOnly}
-            placeholder="Relate o andamento, dificuldades encontradas ou mudanças no projeto original..."
-            rows={6}
-          />
-        </Card>
+      {/* 4. WORK DIARY */}
+      <div className="flex flex-col gap-3">
+        <SectionLabel style={{ marginLeft: "8px" }}>Diário de Obra</SectionLabel>
+        <SurfaceCard padding="lg">
+           <TextArea
+             label="Notas de Campo (Privado)"
+             value={budget.notes || ''}
+             onChange={onUpdateNotes}
+             disabled={isReadOnly}
+             placeholder="Relate o andamento, dificuldades ou alterações..."
+             rows={6}
+           />
+           <div className="mt-6 flex items-center gap-3 opacity-30">
+              <Clock size={12} />
+              <span className="text-[9px] font-black uppercase tracking-widest font-mono">Atualizado em tempo real</span>
+           </div>
+        </SurfaceCard>
       </div>
 
       <ContextBanner
         title="Dica de Campo"
-        meta="Registre qualquer custo extra no diário para não esquecer de cobrar ou ajustar no fechamento."
-        icon="💡"
+        meta="Registre custos extras aqui para não esquecer de cobrar ou ajustar no fechamento."
+        icon={<Info size={14} />}
       />
     </div>
   );
-};
+});

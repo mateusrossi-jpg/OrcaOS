@@ -6,6 +6,7 @@ export const BUDGET_OPEN_STATUSES: BudgetStatus[] = [
   'enviado',
   'autorizado',
   'em_execucao',
+  'pausado',
 ];
 
 export const BUDGET_CLOSED_STATUSES: BudgetStatus[] = [
@@ -40,6 +41,7 @@ const ALLOWED_BUDGET_TRANSITIONS: Record<BudgetStatus, BudgetStatus[]> = {
   arquivado: ['iniciado'],
   recusado: ['iniciado'],
   cancelado: [],
+  pausado: ['em_execucao', 'cancelado'],
 };
 
 export function canBudgetTransitionTo(from: BudgetStatus, to: BudgetStatus): boolean {

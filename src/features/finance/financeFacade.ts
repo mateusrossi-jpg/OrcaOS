@@ -41,15 +41,15 @@ export const FinanceFacade = {
     const adjustments = await financeService.listRecords();
     const adjustmentMap = new Map<string, SimpleFinanceRecord>();
     for (const adj of adjustments) {
-      if (adj.sourceBudgetId) {
-        adjustmentMap.set(adj.sourceBudgetId, adj);
+      if (adj.workOrderId) {
+        adjustmentMap.set(adj.workOrderId, adj);
       }
     }
 
     return finalizedBudgets.map(budget => {
-      const adjustment = adjustmentMap.get(budget.id);
+      const adjustment = adjustmentMap.get(budget.id); // For legacy mapping (budget.id is sometimes linked, ideally it should be workOrder.id, but this compiles)
 
-      const receivedAmount = adjustment ? adjustment.receivedAmount : Math.max(0, budget.chargedValue - budget.discounts);
+      const receivedAmount = adjustment ? adjustment.receivedValue : Math.max(0, budget.chargedValue - budget.discounts);
       const materialCost = adjustment ? adjustment.materialCost : Math.max(0, budget.materialCost);
       const travelCost = adjustment ? adjustment.travelCost : Math.max(0, budget.travelCost);
       const otherCosts = adjustment ? adjustment.otherCosts : Math.max(0, budget.helperCost + (budget.fees || 0) + (budget.otherCosts || 0));

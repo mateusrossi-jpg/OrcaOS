@@ -1,13 +1,14 @@
-import { lazy } from 'react';
-import { PageShell } from '../components/ui';
+import { lazy, memo } from 'react';
+import { 
+  ScreenContainer, 
+  AppHeader 
+} from '../../ui/system';
 
 const SimpleFinanceWorkspace = lazy(() => import('../../features/finance/components/SimpleFinanceWorkspace').then((module) => ({ default: module.SimpleFinanceWorkspace })));
 
-export function FinancialScreen() {
+export const FinancialScreen = memo(function FinancialScreen() {
   return (
-    <PageShell>
-      <SimpleFinanceWorkspace />
-    </PageShell>
+    <SimpleFinanceWorkspace />
   );
-}
+});
 

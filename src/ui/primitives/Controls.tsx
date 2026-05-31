@@ -21,10 +21,10 @@ export const ExecutiveButton = memo(({
   const base = "relative inline-flex items-center justify-center font-bold tracking-tight transition-all duration-300 active:scale-[0.97] disabled:opacity-40 disabled:pointer-events-none gap-sm overflow-hidden";
   
   const variants = {
-    primary: "bg-[var(--accent-gold)] text-black shadow-[var(--shadow-button)] hover:brightness-110",
-    secondary: "bg-[var(--bg-surface-elevated)] text-[var(--text-primary)] border var(--border-soft) shadow-soft hover:bg-white/[0.08]",
-    glass: "bg-[var(--bg-surface-glass)] backdrop-blur-xl text-[var(--text-primary)] border var(--border-soft) hover:bg-white/[0.12]",
-    danger: "bg-[var(--accent-red)]/10 text-[var(--accent-red)] border border-[var(--accent-red)]/20 hover:bg-[var(--accent-red)]/20",
+    primary: "bg-[var(--btn-primary-bg)] text-[var(--btn-primary-text)] shadow-[var(--shadow-button)] hover:brightness-105 active:brightness-95",
+    secondary: "bg-[var(--btn-secondary-bg)] text-[var(--text-primary)] border border-[var(--btn-secondary-border)] hover:bg-white/[0.06] active:bg-white/[0.08]",
+    glass: "bg-[var(--btn-glass-bg)] backdrop-blur-xl text-[var(--text-primary)] border border-white/[0.08] hover:bg-white/[0.05]",
+    danger: "bg-[var(--btn-danger-bg)] text-[oklch(0.75_0.14_25)] border border-[oklch(0.75_0.14_25)]/20 hover:bg-[oklch(0.75_0.14_25)]/15",
     ghost: "bg-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-white/[0.04]",
   };
 
@@ -41,21 +41,24 @@ export const ExecutiveButton = memo(({
   );
 });
 
-interface SearchInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+interface SearchInputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'onChange'> {
+  onChange?: (value: string) => void;
   onClear?: () => void;
 }
 
 /**
  * SearchInput: Authority-driven unified search field.
+ * Refactored for absolute Home DNA parity (Phase 4H).
  */
-export const SearchInput = memo(({ className, ...props }: SearchInputProps) => (
+export const SearchInput = memo(({ className, onChange, ...props }: SearchInputProps) => (
   <div className={cn(
-    "relative flex items-center h-[56px] rounded-[var(--radius-button)] bg-[var(--bg-surface-glass)] border var(--border-subtle) px-shell focus-within:border-[var(--accent-gold)]/40 focus-within:bg-white/[0.06] transition-all shadow-inset group",
+    "relative flex items-center h-[56px] rounded-[16px] bg-white/[0.03] border border-white/[0.06] px-5 focus-within:border-[var(--accent-gold)]/30 focus-within:bg-white/[0.05] transition-all shadow-inset group",
     className
   )}>
-    <Search className="h-5 w-5 text-[var(--text-muted)] group-focus-within:text-[var(--accent-gold)] transition-colors" />
-    <input 
-      className="flex-1 bg-transparent border-none outline-none ml-md text-ui-base font-medium text-[var(--text-primary)] placeholder:text-[var(--text-muted)]/40"
+    <Search size={18} className="text-white/20 group-focus-within:text-[var(--accent-gold)] transition-colors shrink-0" />
+    <input
+      className="flex-1 bg-transparent border-none outline-none ml-4 text-[14px] font-semibold text-[var(--text-primary)] placeholder:text-white/10"
+      onChange={(e) => onChange?.(e.target.value)}
       {...props}
     />
   </div>

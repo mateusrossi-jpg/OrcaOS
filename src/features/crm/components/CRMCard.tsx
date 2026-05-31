@@ -1,6 +1,6 @@
 import React from 'react';
 import { ClientPipelineProjection } from '../../../domain/operationalProjections';
-import { ERPCard, ERPCardContent } from '../../../ui/system';
+import { TypeBCard } from '../../../ui/primitives/AferixComponents';
 
 interface CRMCardProps {
   client: ClientPipelineProjection;
@@ -17,10 +17,9 @@ export function CRMCard({ client, onClick }: CRMCardProps) {
   };
 
   return (
-    <ERPCard onClick={() => onClick?.(client.clientId)} hoverable>
-      <ERPCardContent className="p-3 gap-2">
-        <div className="flex justify-between items-start">
-          <h4 className="text-gray-200 font-medium text-sm truncate pr-2">{client.clientName}</h4>
+    <TypeBCard onClick={() => onClick?.(client.clientId)} className="p-3 flex flex-col gap-2">
+      <div className="flex justify-between items-start">
+        <h4 className="text-gray-200 font-medium text-sm truncate pr-2">{client.clientName}</h4>
         {client.activeBudgets > 1 && (
           <span className="bg-yellow-900/30 text-yellow-500 text-[10px] px-1.5 py-0.5 rounded-full whitespace-nowrap">
             {client.activeBudgets} orçamentos
@@ -36,12 +35,11 @@ export function CRMCard({ client, onClick }: CRMCardProps) {
           </span>
         </div>
         
-          <div className={`text-xs flex items-center gap-1 ${getAgingColor()}`}>
-            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-            {agingDays}d
-          </div>
+        <div className={`text-xs flex items-center gap-1 ${getAgingColor()}`}>
+          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+          {agingDays}d
         </div>
-      </ERPCardContent>
-    </ERPCard>
+      </div>
+    </TypeBCard>
   );
 }

@@ -35,7 +35,7 @@ export function Overlay({ isOpen, onClose, children }: { isOpen: boolean; onClos
   return createPortal(
     <div
       ref={backdropRef}
-      className={cn(overlayStyles.overlay, overlayStyles.overlayFadeIn)}
+      className="fixed inset-0 bg-black/40 backdrop-blur-md z-50 flex items-center justify-center p-4"
       onClick={handleClick}
     >
       {children}

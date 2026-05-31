@@ -1,6 +1,5 @@
-import { lazy } from 'react';
+import { lazy, memo } from 'react';
 import type { CalculationCapture } from '../../core/types/workflow';
-import { PageTitle, PageShell } from '../components/ui';
 
 const CatalogHubWorkspace = lazy(() => import('../../features/catalog/components/CatalogHubWorkspaceWithTax').then((module) => ({ default: module.CatalogHubWorkspace })));
 
@@ -10,18 +9,8 @@ interface CatalogScreenProps {
   onBack?: () => void;
 }
 
-export function CatalogScreen({ onAddMany, context: _context, onBack }: CatalogScreenProps) {
+export const CatalogScreen = memo(function CatalogScreen({ onAddMany, context: _context, onBack }: CatalogScreenProps) {
   return (
-    <PageShell>
-      <PageTitle 
-        onBack={onBack}
-        eyebrow="Configurações" 
-        title="Catálogo" 
-        subtitle="Gerencie sua biblioteca de serviços e materiais padrão." 
-      />
-
-      <CatalogHubWorkspace onSendToBudget={onAddMany} />
-    </PageShell>
+    <CatalogHubWorkspace onSendToBudget={onAddMany} onBack={onBack} />
   );
-}
-
+});

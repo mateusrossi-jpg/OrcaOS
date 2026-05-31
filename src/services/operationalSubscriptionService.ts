@@ -15,6 +15,17 @@ const ProjectionInvalidationMap: Record<string, ProjectionName[]> = {
   'PROPOSAL_APPROVED': ['pipeline', 'metrics', 'board', 'crm', 'activity', 'feed'],
   'WORKORDER_COMPLETED': ['pipeline', 'metrics', 'board', 'activity', 'feed'],
   'FINANCE_RECORD_REALIZED': ['metrics', 'activity', 'feed'],
+  'SITE_CREATED': ['crm', 'activity', 'feed'],
+  'SITE_UPDATED': ['crm', 'activity', 'feed'],
+  'ASSET_REGISTERED': ['crm', 'activity', 'feed'],
+  'ASSET_UPDATED': ['crm', 'activity', 'feed'],
+  'WORKORDER_ASSET_LINKED': ['activity', 'feed'],
+  'MAINTENANCE_PLAN_CREATED': ['activity', 'feed'],
+  'MAINTENANCE_PLAN_UPDATED': ['activity', 'feed'],
+  'PREVENTIVE_WORKORDER_GENERATED': ['pipeline', 'board', 'activity', 'feed'],
+  'CONTRACT_CREATED': ['activity', 'feed'],
+  'CONTRACT_UPDATED': ['activity', 'feed'],
+  'RECURRING_BILLING_GENERATED': ['metrics', 'activity', 'feed'],
   '*': ['pipeline', 'metrics', 'board', 'crm', 'activity', 'feed'] // Fallback
 };
 

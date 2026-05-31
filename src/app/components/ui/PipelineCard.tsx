@@ -54,7 +54,7 @@ export const PipelineCard = memo(function PipelineCard({
           <div className="mt-4 flex items-center gap-sm">
             <span className="text-[9px] font-black uppercase tracking-widest text-[var(--text-muted)] opacity-40">MARGEM</span>
             <span className={cn(
-              "num text-ui-xs font-bold px-2 py-0.5 rounded-md",
+              "num text-[9px] font-bold px-2 py-0.5 rounded-[6px] uppercase tracking-widest bg-white/[0.04] text-white/40 border border-white/5",
               margin > 30 ? "bg-[var(--accent-green)]/15 text-[var(--accent-green)]" : "bg-white/5 text-[var(--text-muted)]"
             )}>
               {margin.toFixed(0)}%

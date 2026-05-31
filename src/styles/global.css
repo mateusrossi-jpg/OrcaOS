@@ -1,3 +1,5 @@
+@import "tailwindcss";
+
 /* AFERIX GLOBAL RESET & PREMIUM FLUIDITY
    --------------------------------------- */
 
@@ -8,7 +10,6 @@
 * {
   box-sizing: border-box;
   -webkit-tap-highlight-color: transparent;
-  border-color: var(--border);
 }
 
 html, body, #root {
@@ -17,25 +18,26 @@ html, body, #root {
   margin: 0;
   padding: 0;
   overflow: hidden; /* AppShell handles scroll */
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-sans);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-variant-numeric: tabular-nums;
-  line-height: 1.2;
+  line-height: 1.4;
 }
 
 /* Typography Overrides */
 h1, h2, h3, h4, h5, h6 {
   margin: 0;
   letter-spacing: -0.02em;
+  color: var(--text-primary);
 }
 
 strong {
-  color: var(--foreground);
+  color: var(--text-primary);
 }
 
 /* Form Defaults */
@@ -50,16 +52,9 @@ button {
   cursor: pointer;
 }
 
-:root {
-  background-color: var(--bg-primary);
-  color: var(--text-primary);
-}
-
 body {
   background-color: var(--bg-primary);
   color: var(--text-primary);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
 /* --------------------------------------------------
@@ -67,9 +62,9 @@ body {
    -------------------------------------------------- */
 
 .glow-gold {
-  background: var(--surface-glow), var(--surface-gradient) !important;
-  box-shadow: var(--shadow-cinematic), var(--shadow-button) !important;
-  border: 1px solid oklch(0.82 0.14 85 / 0.1) !important;
+  background: var(--surface-gradient) !important;
+  box-shadow: var(--shadow-card), 0 0 40px -15px var(--accent-gold) !important;
+  border: var(--border-primary) !important;
 }
 
 .surface-elev {
@@ -252,48 +247,53 @@ body {
 .aferix-input-field textarea,
 .aferix-select-field select,
 .monetary-input-wrapper,
-input, select, textarea {
-  min-height: 48px !important;
-  font-size: 14.5px !important;
-  font-weight: 600 !important;
-  border-radius: var(--radius-button) !important;
-  background: var(--bg-surface-glass) !important;
-  border: var(--border-subtle) !important;
-  box-shadow: var(--shadow-inset) !important;
-  padding: 12px 16px !important;
-  color: var(--text-primary) !important;
-  transition: border-color var(--transition-fast), background-color var(--transition-fast);
+input:not([type="button"]):not([type="submit"]), select, textarea {
+  min-height: 48px;
+  font-size: 14.5px;
+  font-weight: 600;
+  border-radius: 16px;
+  background-color: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 12px 16px;
+  color: var(--text-primary);
+  transition: all var(--transition-fast);
+  outline: none;
 }
 
 .aferix-input-field input:focus,
 .aferix-input-field textarea:focus,
 .aferix-select-field select:focus,
-.monetary-input-wrapper:focus-within {
-  border-color: var(--accent-gold) !important;
-  background: rgba(255, 255, 255, 0.06) !important;
+.monetary-input-wrapper:focus-within,
+input:focus, select:focus, textarea:focus {
+  border-color: rgba(212, 169, 78, 0.3);
+  background-color: rgba(255, 255, 255, 0.05);
 }
 
 .ui-button, .ui-button button, button.primary-action, button.secondary-action {
-  min-height: 48px !important;
-  border-radius: var(--radius-button) !important;
-  font-size: 13.5px !important;
-  font-weight: 700 !important;
-  padding: 0 var(--sz-md, 16px) !important;
-  transition: all var(--transition-fast) !important;
+  min-height: 48px;
+  border-radius: var(--radius-button);
+  font-size: 13.5px;
+  font-weight: 700;
+  padding: 0 var(--sz-md, 16px);
+  transition: all var(--transition-fast);
+  position: relative;
+  overflow: visible;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 button.primary-action {
-  background: var(--accent-gold) !important;
-  color: #000000 !important;
-  box-shadow: var(--shadow-button) !important;
+  background-color: var(--accent-gold);
+  color: #000000;
+  box-shadow: var(--shadow-primary);
 }
 
 button.secondary-action {
-  background: var(--bg-surface-glass) !important;
-  border: var(--border-soft) !important;
-  color: var(--text-primary) !important;
+  background-color: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  color: var(--text-primary);
 }
-
 /* Uniform, high-density stream styling for secondary pages */
 .client-stream-item {
   padding: 12px 16px !important;
@@ -310,6 +310,65 @@ button.secondary-action {
   width: 32px !important;
   height: 32px !important;
   font-size: 11px !important;
+}
+
+/* --- DESIGN PROTOCOL ADDITIONS --- */
+.centered-container {
+  width: 100%;
+  max-width: 440px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  padding-left: var(--spacing-md, 16px) !important;
+  padding-right: var(--spacing-md, 16px) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  box-sizing: border-box !important;
+}
+
+.display-hero {
+  font-size: 32px !important;
+  font-weight: 600 !important; /* semi-bold */
+  line-height: 1.25 !important;
+  letter-spacing: -0.02em !important;
+  color: var(--text-primary) !important;
+}
+
+.gold-eyebrow {
+  font-size: 11px !important;
+  text-transform: uppercase !important;
+  color: var(--accent-gold) !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.15em !important;
+}
+
+.status-pill-compact {
+  padding: 3px 6px !important;
+  font-size: 8px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.05em !important;
+  border-radius: 4px !important;
+  text-transform: uppercase !important;
+  border: none !important;
+  box-shadow: none !important;
+  line-height: 1 !important;
+  width: fit-content !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* Force 10% opacity for backgrounds on compact status pills */
+.status-pill-compact[class*="bg-white/"] {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.status-pill-compact[class*="bg-[var(--accent-gold)]"] {
+  background-color: rgba(212, 169, 78, 0.1) !important;
+  color: var(--accent-gold) !important;
+}
+
+.status-pill-compact[class*="bg-[var(--accent-red)]"] {
+  background-color: rgba(192, 57, 43, 0.1) !important;
 }
 
 

@@ -16,14 +16,16 @@ function isRecord(value: unknown): value is SimpleFinanceRecord {
     typeof record.id === 'string' &&
     typeof record.title === 'string' &&
     typeof record.clientName === 'string' &&
-    (record.status === 'forecast' || record.status === 'realized' || typeof record.status === 'undefined') &&
-    isNumber(record.receivedAmount) &&
+    (record.status === 'pending' || record.status === 'partial' || record.status === 'paid' || typeof record.status === 'undefined') &&
+    isNumber(record.expectedValue) &&
+    isNumber(record.receivedValue) &&
+    isNumber(record.openBalance) &&
     isNumber(record.materialCost) &&
     isNumber(record.travelCost) &&
     isNumber(record.cardFee) &&
     isNumber(record.estimatedTax) &&
     isNumber(record.otherCosts) &&
-    (typeof record.sourceBudgetId === 'string' || typeof record.sourceBudgetId === 'undefined') &&
+    (typeof record.workOrderId === 'string' || typeof record.workOrderId === 'undefined') &&
     typeof record.createdAt === 'string' &&
     typeof record.updatedAt === 'string'
   );

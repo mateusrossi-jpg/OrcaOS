@@ -1,5 +1,4 @@
-import { lazy } from 'react';
-import { PageTitle, PageShell } from '../components/ui';
+import { lazy, memo } from 'react';
 import type { CalculationCapture } from '../../core/types/workflow';
 import type { Client, WorkOrder } from '../../core/types/business';
 
@@ -11,21 +10,13 @@ interface ReportsScreenProps {
   onBack?: () => void;
 }
 
-export function ReportsScreen({ captures, context, onBack }: ReportsScreenProps) {
+export const ReportsScreen = memo(function ReportsScreen({ captures, context, onBack }: ReportsScreenProps) {
   return (
-    <PageShell>
-      <PageTitle 
-        onBack={onBack}
-        eyebrow="Relatórios e BI" 
-        title="Performance" 
-        subtitle="Métricas baseadas em levantamentos técnicos." 
-      />
-      <ReportWorkspace
-        captures={captures}
-        activeClient={context.activeClient}
-        activeWorkOrder={context.activeWorkOrder}
-      />
-    </PageShell>
+    <ReportWorkspace
+      captures={captures}
+      activeClient={context.activeClient}
+      activeWorkOrder={context.activeWorkOrder}
+      onBack={onBack}
+    />
   );
-}
-
+});

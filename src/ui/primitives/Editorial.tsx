@@ -41,41 +41,6 @@ export function SegmentedTabs<T extends string>({
 }
 
 /**
- * StatusPill: Authority-driven semantic badge.
- */
-export const StatusPill = memo(({ 
-  status, 
-  className 
-}: { 
-  status: string; 
-  className?: string;
-}) => {
-  const s = (status ?? '').toLowerCase().replace(' ', '_');
-  
-  const map: Record<string, string> = {
-    iniciado:   "bg-white/10 text-[var(--text-secondary)]",
-    enviado:    "bg-[var(--accent-gold)]/15 text-[var(--accent-gold)]",
-    aprovado:   "bg-[var(--accent-gold)]/20 text-[var(--accent-gold)] border var(--border-subtle)",
-    autorizado: "bg-[var(--accent-gold)]/20 text-[var(--accent-gold)] border var(--border-subtle)",
-    execucao:   "bg-[var(--accent-gold)] text-black shadow-glow",
-    finalizado: "bg-[var(--accent-green)]/15 text-[var(--accent-green)]",
-    arquivado:  "bg-white/5 text-[var(--text-muted)] opacity-50",
-    cancelado:  "bg-[var(--accent-red)]/15 text-[var(--accent-red)]",
-    recusado:   "bg-[var(--accent-red)]/15 text-[var(--accent-red)]",
-  };
-
-  return (
-    <span className={cn(
-      "inline-flex items-center px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.15em] rounded-md transition-all", 
-      map[s] || map.iniciado, 
-      className
-    )}>
-      {status}
-    </span>
-  );
-});
-
-/**
  * FinancialValue:Authority-driven authority-driven financial display.
  */
 export const FinancialValue = memo(({ value, compact = false, className }: { value: number; compact?: boolean; className?: string }) => {

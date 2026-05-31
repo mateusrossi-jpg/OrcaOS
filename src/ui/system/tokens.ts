@@ -16,13 +16,13 @@ export const ERPTokens = {
     
     textPrimary: 'var(--text-primary)',
     textSecondary: 'var(--text-secondary)',
-    textTertiary: 'var(--text-muted)',
+    textTertiary: 'var(--text-tertiary)',
+    textMuted: 'var(--text-muted)',
     
     gold: 'var(--accent-gold)',
     green: 'var(--accent-green)',
     blue: 'var(--accent-blue)',
     red: 'var(--accent-red)',
-    purple: 'var(--accent-purple)',
   },
   
   status: {

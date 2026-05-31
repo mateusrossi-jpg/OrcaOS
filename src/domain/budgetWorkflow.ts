@@ -19,7 +19,7 @@ export const BUDGET_WORKFLOW_MAP: Record<WorkflowStepId, WorkflowStep> = {
     fields: ['clientId', 'clientName'],
     requiredFields: ['clientName'],
     isLockedAfterStatus: ['autorizado', 'em_execucao', 'finalizado'],
-    actionLabel: 'Próximo: Escopo',
+    actionLabel: 'Escopo',
     icon: '👤',
   },
   2: {
@@ -29,7 +29,7 @@ export const BUDGET_WORKFLOW_MAP: Record<WorkflowStepId, WorkflowStep> = {
     fields: ['title', 'executionDeadline'],
     requiredFields: ['title'],
     isLockedAfterStatus: ['autorizado', 'em_execucao', 'finalizado'],
-    actionLabel: 'Próximo: Téc.',
+    actionLabel: 'Técnico',
     icon: '🎯',
   },
   3: {
@@ -39,7 +39,7 @@ export const BUDGET_WORKFLOW_MAP: Record<WorkflowStepId, WorkflowStep> = {
     fields: ['technicalNotes'],
     requiredFields: [],
     isLockedAfterStatus: ['autorizado', 'em_execucao', 'finalizado'],
-    actionLabel: 'Próximo: M. Obra',
+    actionLabel: 'M. Obra',
     icon: '🔍',
   },
   4: {
@@ -49,7 +49,7 @@ export const BUDGET_WORKFLOW_MAP: Record<WorkflowStepId, WorkflowStep> = {
     fields: ['items'],
     requiredFields: [],
     isLockedAfterStatus: ['autorizado', 'em_execucao', 'finalizado'],
-    actionLabel: 'Próximo: Materiais',
+    actionLabel: 'Materiais',
     icon: '🛠️',
   },
   5: {
@@ -59,7 +59,7 @@ export const BUDGET_WORKFLOW_MAP: Record<WorkflowStepId, WorkflowStep> = {
     fields: ['items'],
     requiredFields: [],
     isLockedAfterStatus: ['autorizado', 'em_execucao', 'finalizado'],
-    actionLabel: 'Próximo: Logística',
+    actionLabel: 'Logística',
     icon: '📦',
   },
   6: {
@@ -69,7 +69,7 @@ export const BUDGET_WORKFLOW_MAP: Record<WorkflowStepId, WorkflowStep> = {
     fields: ['helperCost', 'travelCost', 'otherCosts'],
     requiredFields: [],
     isLockedAfterStatus: ['autorizado', 'em_execucao', 'finalizado'],
-    actionLabel: 'Próximo: Taxas',
+    actionLabel: 'Taxas',
     icon: '🚚',
   },
   7: {
@@ -79,7 +79,7 @@ export const BUDGET_WORKFLOW_MAP: Record<WorkflowStepId, WorkflowStep> = {
     fields: ['fees', 'discounts'],
     requiredFields: [],
     isLockedAfterStatus: ['autorizado', 'em_execucao', 'finalizado'],
-    actionLabel: 'Próximo: Estratégia',
+    actionLabel: 'Estratégia',
     icon: '📉',
   },
   8: {
@@ -89,7 +89,7 @@ export const BUDGET_WORKFLOW_MAP: Record<WorkflowStepId, WorkflowStep> = {
     fields: ['chargedValue'],
     requiredFields: ['chargedValue'],
     isLockedAfterStatus: ['autorizado', 'em_execucao', 'finalizado'],
-    actionLabel: 'Próximo: Proposta',
+    actionLabel: 'Proposta',
     icon: '💰',
   },
   9: {
