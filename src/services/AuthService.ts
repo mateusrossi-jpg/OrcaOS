@@ -57,13 +57,19 @@ export class AuthService {
   }
 
   static getActiveUser(): TeamMember | null {
-    const data = localStorage.getItem(this.ACTIVE_USER_KEY);
-    return data ? JSON.parse(data) : null;
+    try {
+      if (typeof localStorage === 'undefined') return null;
+      const data = localStorage.getItem(this.ACTIVE_USER_KEY);
+      return data ? JSON.parse(data) : null;
+    } catch (e) {
+      return null;
+    }
   }
 
   static async createTeamMember(data: Omit<TeamMember, 'id' | 'createdAt'>): Promise<TeamMember> {
     const currentUser = this.getActiveUser();
-    if (currentUser?.role !== 'OWNER' && currentUser?.role !== 'MANAGER') {
+    // Allow creation if no user exists (first setup) or if current user is admin
+    if (currentUser && currentUser.role !== 'OWNER' && currentUser.role !== 'MANAGER') {
       throw new Error('Unauthorized: Only Owners and Managers can create team members.');
     }
 

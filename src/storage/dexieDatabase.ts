@@ -291,8 +291,9 @@ export class AferixDatabase extends Dexie {
     });
 
     this.version(28).stores({
-      workOrders: 'id, companyId, workspaceId, attendanceId, clientId, budgetId, syncStatus',
-      simpleFinanceRecords: 'id, companyId, aggregateId, sourceBudgetId, workOrderId'
+      budgets: 'id, companyId, workspaceId, attendanceId, clientId, status, syncStatus',
+      workOrders: 'id, companyId, workspaceId, attendanceId, clientId, budgetId, status, syncStatus',
+      simpleFinanceRecords: 'id, companyId, aggregateId, workOrderId'
     });
   }
 }

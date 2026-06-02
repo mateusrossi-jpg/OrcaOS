@@ -253,11 +253,7 @@ export function App() {
           <Suspense fallback={<LazyWorkspaceFallback />}>
           {/* New Multi-Profile Workspaces */}
           {activeTab === 'dashboard' && (
-            <HomeScreen
-              account={account}
-              onNavigate={goTo}
-              role={role}
-            />
+            <OwnerWorkspace onNavigate={goTo} />
           )}
           {activeTab === 'agenda' && <FieldWorkspace onNavigate={goTo} />}
           {activeTab === 'assets' && <AssetsWorkspace />}
