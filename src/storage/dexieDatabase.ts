@@ -289,6 +289,11 @@ export class AferixDatabase extends Dexie {
     this.version(27).stores({
       teamMembers: 'id, companyId, workspaceId, email, role, status'
     });
+
+    this.version(28).stores({
+      workOrders: 'id, companyId, workspaceId, attendanceId, clientId, budgetId, syncStatus',
+      simpleFinanceRecords: 'id, companyId, aggregateId, sourceBudgetId, workOrderId'
+    });
   }
 }
 
