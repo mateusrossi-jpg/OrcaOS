@@ -15,3 +15,23 @@ appendEvent@http://100.113.184.42:5173/src/services/operationalFeedService.ts:13
 handleEventFanout@http://100.113.184.42:5173/src/services/operationalSubscriptionService.ts:121:37
 @http://100.113.184.42:5173/src/services/operationalSubscriptionService.ts:111:26
 @http://100.113.184.42:5173/src/services/operationalEventService.ts:37:8
+12:36:31 PM [vite] (client) hmr update /src/styles/global.css
+12:37:14 PM [vite] (client) page reload src/storage/dexieDatabase.ts
+12:38:30 PM [vite] (client) hmr update /src/styles/global.css, /src/app/App.tsx, /src/features/settings/components/DebugPanel.tsx, /src/features/workspace/screens/TeamWorkspace.tsx, /src/app/screens/MenuScreen.tsx, /src/features/auth/components/RoleSelectionScreen.tsx
+12:39:08 PM [vite] (client) hmr update /src/features/workspace/components/RoleShells.tsx, /src/styles/global.css
+12:41:33 PM [vite] (client) hmr update /src/app/App.tsx, /src/styles/global.css
+12:43:07 PM [vite] (client) hmr update /src/app/App.tsx, /src/styles/global.css
+12:45:00 PM [vite] (client) hmr update /src/app/screens/MenuScreen.tsx, /src/styles/global.css
+1:14:06 PM [vite] (client) hmr update /src/features/clients/components/ClientsWorkspace.tsx, /src/styles/global.css
+1:17:55 PM [vite] (client) hmr update /src/styles/global.css, /src/features/clients/components/Asset360Modal.tsx
+1:18:37 PM [vite] (client) hmr update /src/styles/global.css, /src/features/clients/components/Asset360Modal.tsx
+1:19:07 PM [vite] (client) hmr update /src/styles/global.css, /src/features/execution/components/ChecklistExecutionPanel.tsx
+1:19:46 PM [vite] (client) hmr update /src/styles/global.css, /src/features/execution/components/ChecklistExecutionPanel.tsx
+1:20:20 PM [vite] (client) hmr update /src/styles/global.css, /src/features/execution/components/ExecutionCockpit.tsx
+1:20:34 PM [vite] (client) hmr update /src/styles/global.css, /src/features/execution/components/ExecutionCockpit.tsx
+1:21:09 PM [vite] (client) hmr update /src/styles/global.css
+1:22:06 PM [vite] (client) hmr update /src/styles/global.css, /src/features/execution/components/ExecutionClosingFlow.tsx
+1:22:20 PM [vite] (client) hmr update /src/styles/global.css
+1:22:20 PM [vite] (client) hmr update /src/styles/global.css
+1:23:22 PM [vite] (client) hmr update /src/styles/global.css, /src/ui/primitives/Editorial.tsx
+1:24:01 PM [vite] (client) hmr update /src/styles/global.css, /src/app/components/ui/index.tsx

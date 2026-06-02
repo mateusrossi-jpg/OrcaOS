@@ -94,20 +94,6 @@ export const ExecutionCockpit: React.FC<ExecutionCockpitProps> = ({ workOrderId,
     }
   };
 
-  const activeAssetIndex = assets.findIndex(a => a.id === activeAssetId);
-
-  const handlePrevious = () => {
-    if (activeAssetIndex > 0) setActiveAssetId(assets[activeAssetIndex - 1].id);
-  };
-
-  const handleNext = () => {
-    if (activeAssetIndex < assets.length - 1) {
-      setActiveAssetId(assets[activeAssetIndex + 1].id);
-    } else {
-      setActiveAssetId(null);
-    }
-  };
-
   const handleFinish = () => {
     setIsFinishing(true);
   };
@@ -126,7 +112,8 @@ export const ExecutionCockpit: React.FC<ExecutionCockpitProps> = ({ workOrderId,
   }
 
   if (activeAssetId) {
-    const activeAsset = assets[activeAssetIndex];
+    const activeAsset = assets.find(a => a.id === activeAssetId);
+    if (!activeAsset) return null;
     return (
       <ChecklistExecutionPanel
         assetName={activeAsset.name}
@@ -139,10 +126,6 @@ export const ExecutionCockpit: React.FC<ExecutionCockpitProps> = ({ workOrderId,
         measurementTemplates={[]}
         onClose={() => setActiveAssetId(null)}
         onSave={(ex) => handleSaveExecution(activeAssetId, ex)}
-        onNext={handleNext}
-        onPrevious={handlePrevious}
-        isFirst={activeAssetIndex === 0}
-        isLast={activeAssetIndex === assets.length - 1}
       />
     );
   }

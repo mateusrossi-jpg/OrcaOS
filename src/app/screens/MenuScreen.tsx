@@ -25,6 +25,7 @@ import type { AferixAccountState } from '../../core/access/accountPlanStorage';
 import { planStatusTitle } from '../utils/planHelpers';
 import type { AppTab } from '../appTypes';
 import { cn } from '../../utils/ui';
+import { useRole } from '../../hooks/useRole';
 
 // ── Unified UI Architecture ──────────────────────────────────────────────────
 import { 
@@ -60,30 +61,44 @@ type MenuSection = 'main' | 'profile' | 'security' | 'backup' | 'about' | 'diagn
  */
 export const MenuScreen = memo(function MenuScreen({ account, onNavigate }: MenuScreenProps) {
   const [activeSection, setActiveSection] = useState<MenuSection>('main');
+  const { role } = useRole();
   
   const accountLabel = account.status === 'google' || account.status === 'email' || account.status === 'local' ? account.displayName : 'Sem login';
   const userInitials = accountLabel.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() || 'AX';
 
-  const menuGroups = [
-    {
-      title: 'Gestão Operacional',
-      items: [
-        { title: 'Base de Clientes', desc: 'Carteira estratégica e CRM', onClick: () => onNavigate('clients'), icon: Users },
-        { title: 'Catálogo Profissional', desc: 'Sua biblioteca de serviços', onClick: () => onNavigate('catalog'), icon: Package },
-        { title: 'Relatórios e BI', desc: 'Inteligência e performance', onClick: () => onNavigate('reports'), icon: FileBarChart },
-        { title: 'Licença e Assinatura', desc: 'Plano e recursos', onClick: () => onNavigate('store'), icon: Star },
-        { title: 'Alternar Perfil (Teste)', desc: 'Trocar a experiência do usuário', onClick: () => window.dispatchEvent(new Event('aferix_open_debug')), icon: Users },
-      ]
-    },
-    {
-      title: 'Segurança e Núcleo',
-      items: [
-        { title: 'Backup e Sincronismo', desc: 'Proteção de dados em nuvem', onClick: () => setActiveSection('backup'), icon: Cloud },
-        { title: 'Acesso e Segurança', desc: 'PIN e autenticação biométrica', onClick: () => setActiveSection('security'), icon: Shield },
-        { title: 'Diagnósticos de Sistema', desc: 'Resiliência e integridade offline', onClick: () => setActiveSection('diagnostics'), icon: Activity },
-      ]
-    }
-  ];
+  const isOwnerOrSolo = role === 'OWNER' || role === 'SOLO';
+  const isManager = role === 'MANAGER';
+  const isSales = role === 'SALES';
+
+  const operationalItems = [];
+  if (isOwnerOrSolo || isManager || isSales) {
+    operationalItems.push({ title: 'Base de Clientes', desc: 'Carteira estratégica e CRM', onClick: () => onNavigate('clients'), icon: Users });
+    operationalItems.push({ title: 'Catálogo Profissional', desc: 'Sua biblioteca de serviços', onClick: () => onNavigate('catalog'), icon: Package });
+  }
+  if (isOwnerOrSolo || isManager) {
+    operationalItems.push({ title: 'Relatórios e BI', desc: 'Inteligência e performance', onClick: () => onNavigate('reports'), icon: FileBarChart });
+  }
+  if (isOwnerOrSolo) {
+    operationalItems.push({ title: 'Licença e Assinatura', desc: 'Plano e recursos', onClick: () => onNavigate('store'), icon: Star });
+    operationalItems.push({ title: 'Alternar Perfil (Teste)', desc: 'Trocar a experiência do usuário', onClick: () => window.dispatchEvent(new Event('aferix_open_debug')), icon: Users });
+  }
+
+  const securityItems = [];
+  if (isOwnerOrSolo || isManager) {
+    securityItems.push({ title: 'Diagnósticos de Sistema', desc: 'Resiliência e integridade offline', onClick: () => setActiveSection('diagnostics'), icon: Activity });
+  }
+  if (isOwnerOrSolo) {
+    securityItems.push({ title: 'Backup e Sincronismo', desc: 'Proteção de dados em nuvem', onClick: () => setActiveSection('backup'), icon: Cloud });
+    securityItems.push({ title: 'Acesso e Segurança', desc: 'PIN e autenticação biométrica', onClick: () => setActiveSection('security'), icon: Shield });
+  }
+
+  const menuGroups = [];
+  if (operationalItems.length > 0) {
+    menuGroups.push({ title: 'Gestão Operacional', items: operationalItems });
+  }
+  if (securityItems.length > 0) {
+    menuGroups.push({ title: 'Segurança e Núcleo', items: securityItems });
+  }
 
   const titleMap: Record<MenuSection, string> = {
     main: 'Ajustes.',
@@ -110,10 +125,12 @@ export const MenuScreen = memo(function MenuScreen({ account, onNavigate }: Menu
         {activeSection === 'main' ? (
           <>
             {/* ━━━ EXECUTIVE COCKPIT ━━━ */}
-            <ExecutiveSummaryGrid>
-               <ValueBlock label="Licença" value={account.plan === 'pro' ? 'PREMIUM' : 'FREE'} icon={<Star size={12} />} variant={account.plan === 'pro' ? "warning" : "default"} />
-               <ValueBlock label="Segurança" value="PROTEGIDO" icon={<ShieldCheck size={12} />} variant="success" />
-            </ExecutiveSummaryGrid>
+            {isOwnerOrSolo && (
+              <ExecutiveSummaryGrid>
+                 <ValueBlock label="Licença" value={account.plan === 'pro' ? 'PREMIUM' : 'FREE'} icon={<Star size={12} />} variant={account.plan === 'pro' ? "warning" : "default"} />
+                 <ValueBlock label="Segurança" value="PROTEGIDO" icon={<ShieldCheck size={12} />} variant="success" />
+              </ExecutiveSummaryGrid>
+            )}
 
             {/* 1. IDENTITY HUB */}
             <SurfaceCard className="bg-[var(--accent-gold)]/5 border-[var(--accent-gold)]/20" padding="lg" onClick={() => setActiveSection('profile')}>

@@ -1,4 +1,4 @@
-export type AferixRole = 'FIELD' | 'SALES' | 'MANAGER' | 'OWNER' | 'CUSTOMER';
+export type AferixRole = 'FIELD' | 'SALES' | 'MANAGER' | 'OWNER' | 'CUSTOMER' | 'SOLO';
 
 export interface RoleConfig {
   features: string[];
@@ -11,20 +11,24 @@ export const RoleFeatureMatrix: Record<AferixRole, RoleConfig> = {
     defaultRoute: '/field'
   },
   SALES: {
-    features: ['REVENUE_INBOX', 'PROPOSALS', 'APPROVALS', 'FORECAST'],
+    features: ['REVENUE_INBOX', 'PROPOSALS', 'APPROVALS', 'FORECAST', 'CLIENTS'],
     defaultRoute: '/sales'
   },
   MANAGER: {
-    features: ['OPERATIONS', 'REVENUE', 'CONTRACTS', 'TEAM', 'CRITICAL_CLIENTS'],
+    features: ['OPERATIONS', 'REVENUE', 'CONTRACTS', 'TEAM', 'CRITICAL_CLIENTS', 'AGENDA', 'DISPATCH'],
     defaultRoute: '/manager'
   },
   OWNER: {
-    features: ['MRR', 'REVENUE_ALL', 'CHURN', 'WORKFORCE', 'PROPOSALS_ALL', 'CONTRACTS_ALL'],
+    features: ['MRR', 'REVENUE_ALL', 'CHURN', 'WORKFORCE', 'PROPOSALS_ALL', 'CONTRACTS_ALL', 'TEAM', 'CLIENTS'],
     defaultRoute: '/owner'
   },
   CUSTOMER: {
     features: ['PORTAL'],
     defaultRoute: '/portal'
+  },
+  SOLO: {
+    features: ['AGENDA', 'CHECKLIST', 'ASSETS', 'SIGNATURES', 'REVENUE_INBOX', 'PROPOSALS', 'CLIENTS', 'CONTRACTS', 'MRR', 'SETTINGS_ALL'],
+    defaultRoute: '/solo'
   }
 };
 

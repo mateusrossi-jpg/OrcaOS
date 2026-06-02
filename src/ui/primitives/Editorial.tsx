@@ -1,45 +1,6 @@
 import React, { memo, type ReactNode } from 'react';
 import { cn } from '../../utils/ui';
 
-interface SegmentedTabsProps<T extends string> {
-  items: Array<{ id: T; label: string }>;
-  activeId: T;
-  onChange: (id: T) => void;
-  className?: string;
-}
-
-/**
- * SegmentedTabs: iOS-style high-polish switch.
- */
-export function SegmentedTabs<T extends string>({
-  items,
-  activeId,
-  onChange,
-  className
-}: SegmentedTabsProps<T>) {
-  return (
-    <div className={cn("flex gap-1 p-1 bg-white/[0.04] rounded-xl border var(--border-subtle) w-fit", className)} role="tablist">
-      {items.map((item) => (
-        <button
-          key={item.id}
-          type="button"
-          role="tab"
-          aria-selected={activeId === item.id}
-          className={cn(
-            "px-6 py-2 rounded-lg text-ui-xs font-black transition-all duration-300 tracking-wider",
-            activeId === item.id 
-              ? "bg-[var(--accent-gold)] text-black shadow-soft scale-[1.03] z-10" 
-              : "text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-white/[0.04]"
-          )}
-          onClick={() => onChange(item.id)}
-        >
-          {item.label.toUpperCase()}
-        </button>
-      ))}
-    </div>
-  );
-}
-
 /**
  * FinancialValue:Authority-driven authority-driven financial display.
  */

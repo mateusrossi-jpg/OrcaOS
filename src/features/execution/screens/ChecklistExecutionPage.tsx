@@ -81,8 +81,8 @@ export const ChecklistExecutionPage: React.FC = () => {
           <span className="text-[10px] text-[var(--accent-green)] font-bold tracking-widest uppercase flex items-center gap-1">
             <Check size={12} /> Salvo Automaticamente
           </span>
-          <button className="w-full max-w-md bg-white text-[#050505] font-black text-sm uppercase tracking-widest py-5 rounded-xl flex items-center justify-center gap-2 shadow-lg active:scale-95 transition-transform">
-            PRÓXIMO ATIVO <ChevronRight size={18} />
+          <button className="w-full max-w-md bg-white text-[#050505] font-black text-sm uppercase tracking-widest py-4 rounded-xl flex items-center justify-center gap-2 active:scale-95 transition-transform">
+            SALVAR E VOLTAR
           </button>
         </div>
       )}

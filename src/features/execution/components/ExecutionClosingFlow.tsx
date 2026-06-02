@@ -108,7 +108,7 @@ export const ExecutionClosingFlow: React.FC<ExecutionClosingFlowProps> = ({
           </SecondaryButton>
 
           <button onClick={handleNextOS} className="mt-6 py-4 w-full rounded-xl bg-[var(--accent-gold)] text-black font-black tracking-widest text-[13px] shadow-[var(--glow-gold)] transition-colors active:scale-95">
-            AVANÇAR PARA FATURAMENTO
+            VOLTAR PARA AGENDA
           </button>
         </div>
       </div>

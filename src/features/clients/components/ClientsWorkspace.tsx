@@ -81,6 +81,7 @@ import { HeroCard } from '../../../components/HeroCard';
 /**
  * ClientsWorkspace: Strategic Asset Hub.
  * Aligned with AFERIX VISUAL PROTOCOL (Phase 4).
+ * SCROLL-FIRST ENFORCED.
  */
 export function ClientsWorkspace({ onNavigate }: { onNavigate: (tab: any) => void }) {
   const [crmList, setCrmList] = useState<ClientCRMProjection[]>([]);
@@ -92,7 +93,6 @@ export function ClientsWorkspace({ onNavigate }: { onNavigate: (tab: any) => voi
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
   const [clientTimeline, setClientTimeline] = useState<any[]>([]);
   const [isLoadingTimeline, setIsLoadingTimeline] = useState(false);
-  const [activeDossierTab, setActiveDossierTab] = useState<'resumo' | 'patrimonio' | 'contratos' | 'cadastro'>('resumo');
   const [fullClientData, setFullClientData] = useState<Client | null>(null);
   
   const [sites, setSites] = useState<Site[]>([]);
@@ -151,21 +151,31 @@ export function ClientsWorkspace({ onNavigate }: { onNavigate: (tab: any) => voi
 
   async function openClient360(clientId: string) {
     setSelectedClientId(clientId);
-    setActiveDossierTab('resumo');
     setIsLoadingTimeline(true);
+    setIsLoadingPatrimony(true);
     try {
-      const [timeline, client] = await Promise.all([
+      const [timeline, client, s, a, c] = await Promise.all([
         operationalReadModelService.getClientTimeline(clientId),
-        clientService.getById(clientId)
+        clientService.getById(clientId),
+        siteService.getByClientId(clientId),
+        assetService.getByClientId(clientId),
+        contractService.getByClientId(clientId)
       ]);
       setClientTimeline(timeline || []);
       setFullClientData(client || null);
+      setSites(s || []);
+      setAssets(a || []);
+      setContracts(c || []);
     } catch (err) { 
       console.error('Timeline/Client Load Failed:', err); 
       setClientTimeline([]);
       setFullClientData(null);
+      setSites([]);
+      setAssets([]);
+      setContracts([]);
     } finally { 
       setIsLoadingTimeline(false); 
+      setIsLoadingPatrimony(false);
     }
   }
 
@@ -178,31 +188,6 @@ export function ClientsWorkspace({ onNavigate }: { onNavigate: (tab: any) => voi
       console.error('Failed to update client', err);
     }
   };
-
-  async function refreshPatrimony() {
-    if (!selectedClientId) return;
-    setIsLoadingPatrimony(true);
-    try {
-      const [s, a, c] = await Promise.all([
-        siteService.getByClientId(selectedClientId),
-        assetService.getByClientId(selectedClientId),
-        contractService.getByClientId(selectedClientId)
-      ]);
-      setSites(s || []);
-      setAssets(a || []);
-      setContracts(c || []);
-    } catch (e) { 
-      console.error('Patrimony Load Failed:', e); 
-    } finally { 
-      setIsLoadingPatrimony(false); 
-    }
-  }
-
-  useEffect(() => {
-    if (selectedClientId && (activeDossierTab === 'patrimonio' || activeDossierTab === 'contratos')) {
-      refreshPatrimony();
-    }
-  }, [selectedClientId, activeDossierTab]);
 
   const filteredCRM = useMemo(() => {
     const q = search.toLowerCase().trim();
@@ -355,6 +340,7 @@ export function ClientsWorkspace({ onNavigate }: { onNavigate: (tab: any) => voi
 
       <Modal isOpen={!!selectedClientId} onClose={() => setSelectedClientId(null)} title={(selectedClientSummary?.clientName || "Dossiê").toUpperCase()} confirmLabel="Fechar" onConfirm={() => setSelectedClientId(null)}>
          <Section className="gap-8 pt-6">
+            {/* AÇÕES RÁPIDAS */}
             <div className="flex gap-3">
                <button 
                  onClick={() => openWhatsApp(fullClientData?.phone || '')}
@@ -372,6 +358,7 @@ export function ClientsWorkspace({ onNavigate }: { onNavigate: (tab: any) => voi
                )}
             </div>
             
+            {/* RESUMO FINANCEIRO */}
             <ExecutiveSummaryGrid>
                <ValueBlock label="VALOR_LTV" value={formatCurrencyBRL(selectedClientSummary?.totalRevenue || 0)} variant="success" />
                <ValueBlock label="PROJETOS_OS" value={`${selectedClientSummary?.totalWorkOrders} UN`} />
@@ -379,150 +366,134 @@ export function ClientsWorkspace({ onNavigate }: { onNavigate: (tab: any) => voi
                <ValueBlock label="PENDÊNCIAS" value={formatCurrencyBRL(selectedClientSummary?.openBalance || 0)} variant={selectedClientSummary?.openBalance ? "danger" : "default"} />
             </ExecutiveSummaryGrid>
 
-            <div className="flex gap-8 border-b border-white/[0.05] px-1 overflow-x-auto scrollbar-none">
-               {['resumo', 'patrimonio', 'contratos', 'cadastro'].map(t => (
-                 <button 
-                   key={t} 
-                   onClick={() => setActiveDossierTab(t as any)} 
-                   className={cn(
-                     "pb-4 text-[10px] font-black tracking-[0.2em] transition-all whitespace-nowrap relative",
-                     activeDossierTab === t ? "text-white" : "text-[var(--text-tertiary)]"
-                   )}
-                 >
-                   {t.toUpperCase()}
-                   {activeDossierTab === t && (
-                     <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[var(--accent-gold)] shadow-[0_0_8px_var(--accent-gold)]" />
-                   )}
-                 </button>
-               ))}
+            {/* SEÇÃO 1: INFORMAÇÕES GERAIS */}
+            <div className="flex flex-col gap-8">
+              <SectionLabel className="!text-[10px] !text-[var(--accent-gold)]">Informações Gerais</SectionLabel>
+              
+              <SurfaceCard padding="lg" variant="elevated" className="border-l-4 border-l-[var(--accent-gold)] bg-gradient-to-r from-[var(--accent-gold)]/5 to-transparent">
+                 <div className="flex items-center gap-2 mb-4">
+                   <span className="text-[14px]">📌</span>
+                   <SectionLabel className="!text-[9px] !text-[var(--accent-gold)] uppercase tracking-[0.25em]">CONTEXTO_FIXADO</SectionLabel>
+                 </div>
+                 <Body className="text-[#EFEFEF] italic font-medium leading-relaxed">"Cliente estratégico com alto nível de exigência técnica. Priorizar agendamentos matinais e acesso via portaria B."</Body>
+              </SurfaceCard>
+
+              {fullClientData && (
+                <div className="flex flex-col gap-6">
+                   <Input label="Razão Social / Nome Completo" value={fullClientData.name} onChange={e => setFullClientData({...fullClientData, name: e.target.value})} />
+                   <div className="flex gap-4">
+                      <Input label="CPF/CNPJ" value={fullClientData.documentNumber || ''} onChange={e => setFullClientData({...fullClientData, documentNumber: e.target.value})} className="flex-1" />
+                      <Input label="Telefone" value={fullClientData.phone || ''} onChange={e => setFullClientData({...fullClientData, phone: e.target.value})} className="flex-1" />
+                   </div>
+                   <Input label="E-mail principal" value={fullClientData.email || ''} onChange={e => setFullClientData({...fullClientData, email: e.target.value})} />
+                   <PrimaryButton onClick={handleSaveFullClient} className="min-h-[44px] rounded-[var(--radius-md)] text-[12px] font-black tracking-[0.2em] mt-2">ATUALIZAR DADOS</PrimaryButton>
+                </div>
+              )}
             </div>
 
-            {activeDossierTab === 'resumo' && (
-              <div className="flex flex-col gap-8 pl-1">
-                 <SurfaceCard padding="lg" variant="elevated" className="border-l-4 border-l-[var(--accent-gold)] bg-gradient-to-r from-[var(--accent-gold)]/5 to-transparent">
-                   <div className="flex items-center gap-2 mb-4">
-                     <span className="text-[14px]">📌</span>
-                     <SectionLabel className="!text-[9px] !text-[var(--accent-gold)] uppercase tracking-[0.25em]">CONTEXTO_FIXADO</SectionLabel>
-                   </div>
-                   <Body className="text-[#EFEFEF] italic font-medium leading-relaxed">"Cliente estratégico com alto nível de exigência técnica. Priorizar agendamentos matinais e acesso via portaria B."</Body>
-                 </SurfaceCard>
-
-                 <div className="flex flex-col gap-8 relative">
-                   <div className="absolute left-[7px] top-2 bottom-2 w-px bg-white/[0.08]" />
-                   {clientTimeline.map((evt) => (
-                      <div key={evt.id} className="flex gap-6 relative">
-                         <div className={cn(
-                           "w-3.5 h-3.5 rounded-full bg-[var(--bg-primary)] border-[3px] z-10 mt-1 shrink-0",
-                           evt.severity === 'critical' ? "border-[var(--accent-red)] shadow-[0_0_10px_var(--accent-red)]" : "border-[var(--accent-gold)] shadow-[0_0_10px_var(--accent-gold)]"
-                         )} />
-                         <div className="flex-1">
-                            <div className="flex justify-between items-baseline mb-1">
-                               <Body className="font-black text-[13px] uppercase tracking-tight">{evt.title}</Body>
-                               <span className="font-mono text-[9px] font-bold text-white/30 tracking-widest">{new Date(evt.timestamp).toLocaleDateString('pt-BR')}</span>
-                            </div>
-                            <Subtitle className="text-[12px] opacity-60 leading-relaxed font-medium">{evt.description}</Subtitle>
-                         </div>
-                      </div>
+            {/* SEÇÃO 2: LOCAIS (SITES) */}
+            <Section className="gap-6 pt-8 border-t border-white/[0.06]">
+               <div className="flex items-center justify-between">
+                  <SectionLabel className="!text-[10px] !text-[var(--accent-gold)]">Locais de Atendimento</SectionLabel>
+                  <button onClick={() => setIsSiteModalOpen(true)} className="flex items-center gap-2 text-white text-[10px] font-black uppercase tracking-[0.2em] bg-white/[0.05] px-3 py-1.5 rounded-lg border border-white/[0.1]">
+                    <Plus size={12} /> NOVO_SITE
+                  </button>
+               </div>
+               {sites.length > 0 ? (
+                 <div className="flex flex-col gap-3">
+                   {sites.map(s => (
+                     <div key={s.id} className="p-5 bg-[#0B0F14] border border-white/[0.05] rounded-[20px] flex items-center justify-between">
+                       <div className="min-w-0 pr-4">
+                         <div className="text-[13px] font-black text-white mb-1 uppercase tracking-tight truncate">{s.name}</div>
+                         <div className="text-[11px] font-mono font-bold text-white/30 leading-tight uppercase tracking-wider truncate">{s.fullAddress}</div>
+                       </div>
+                       <button onClick={() => openExternalGPS(s.fullAddress)} className="h-10 w-10 flex items-center justify-center bg-white/[0.03] border border-white/[0.08] rounded-xl text-[var(--accent-gold)] active:scale-95 transition-all">
+                         <Navigation size={16} />
+                       </button>
+                     </div>
                    ))}
                  </div>
-              </div>
-            )}
-            
-            {activeDossierTab === 'patrimonio' && (
-              <Stack className="gap-6">
-                 <div className="flex justify-between items-center px-1">
-                    <SectionLabel className="!text-[10px] !text-[var(--accent-gold)]">Ativos e Patrimônio</SectionLabel>
-                    <button onClick={async () => {
-                       const name = window.prompt("Nome do novo ativo:");
-                       if (name && selectedClientId) {
-                          // Try to find the first site for this client to attach the asset
-                          const sites = await db.sites.where('clientId').equals(selectedClientId).toArray();
-                          const siteId = sites.length > 0 ? sites[0].id : 'default-site';
-                          await db.assets.add({
-                             id: crypto.randomUUID(),
-                             companyId: 'default-company',
-                             clientId: selectedClientId,
-                             siteId,
-                             name,
-                             tag: Math.floor(Math.random() * 10000).toString(),
-                             category: 'EQUIPMENT',
-                             status: 'active',
-                             createdAt: new Date().toISOString()
-                          });
-                          loadClientData(selectedClientId);
-                          window.dispatchEvent(new CustomEvent('aferix_toast', { detail: { type: 'success', message: 'Ativo cadastrado.' } }));
-                       }
-                    }} className="text-[9px] text-white font-black font-mono tracking-[0.2em] bg-white/[0.05] px-3 py-1.5 rounded-lg border border-white/[0.1]">+ CADASTRAR</button>
+               ) : (
+                 <div className="py-12 text-center border border-dashed border-white/[0.08] rounded-[20px] opacity-20">
+                    <SectionLabel className="!text-[10px]">SEM_LOCAIS_MAPEADOS</SectionLabel>
                  </div>
-                 <SurfaceCard padding="none" className="overflow-hidden border-white/[0.08]">
-                    <Stack className="gap-0">
-                      {assets.map((a, idx) => (
-                        <InteractiveRow key={a.id} hasChevron onClick={() => setSelectedAssetId(a.id)} className={idx !== 0 ? "border-t border-white/[0.06]" : ""}>
-                          <div className="flex items-center gap-4">
-                            <div className="w-10 h-10 rounded-xl bg-white/[0.03] border border-white/[0.05] grid place-items-center">
-                               <Package size={18} className="text-[var(--accent-gold)]" />
-                            </div>
-                            <Stack className="gap-0.5">
-                              <Body className="font-black text-[14px] uppercase">{a.name}</Body>
-                              <span className="font-mono text-[9px] font-bold text-white/20 tracking-[0.2em]">ID_{a.tag} · {a.category.toUpperCase()}</span>
-                            </Stack>
+               )}
+            </Section>
+
+            {/* SEÇÃO 3: ATIVOS E PATRIMÔNIO */}
+            <Stack className="gap-6 pt-8 border-t border-white/[0.06]">
+               <div className="flex justify-between items-center px-1">
+                  <SectionLabel className="!text-[10px] !text-[var(--accent-gold)]">Ativos e Patrimônio</SectionLabel>
+                  <button onClick={async () => {
+                     const name = window.prompt("Nome do novo ativo:");
+                     if (name && selectedClientId) {
+                        const loadedSites = await siteService.getByClientId(selectedClientId);
+                        const siteId = loadedSites.length > 0 ? loadedSites[0].id : 'default-site';
+                        await db.assets.add({
+                           id: crypto.randomUUID(),
+                           companyId: 'default-company',
+                           clientId: selectedClientId,
+                           siteId,
+                           name,
+                           tag: Math.floor(Math.random() * 10000).toString(),
+                           category: 'EQUIPMENT',
+                           status: 'active',
+                           createdAt: new Date().toISOString()
+                        });
+                        // force reload
+                        const newAssets = await assetService.getByClientId(selectedClientId);
+                        setAssets(newAssets);
+                        window.dispatchEvent(new CustomEvent('aferix_toast', { detail: { type: 'success', message: 'Ativo cadastrado.' } }));
+                     }
+                  }} className="text-[9px] text-white font-black font-mono tracking-[0.2em] bg-white/[0.05] px-3 py-1.5 rounded-lg border border-white/[0.1]">+ CADASTRAR</button>
+               </div>
+               <SurfaceCard padding="none" className="overflow-hidden border-white/[0.08]">
+                  <Stack className="gap-0">
+                    {assets.map((a, idx) => (
+                      <InteractiveRow key={a.id} hasChevron onClick={() => setSelectedAssetId(a.id)} className={idx !== 0 ? "border-t border-white/[0.06]" : ""}>
+                        <div className="flex items-center gap-4">
+                          <div className="w-10 h-10 rounded-xl bg-white/[0.03] border border-white/[0.05] grid place-items-center">
+                             <Package size={18} className="text-[var(--accent-gold)]" />
                           </div>
-                        </InteractiveRow>
-                      ))}
-                      {assets.length === 0 && (
-                        <div className="py-20 text-center opacity-20">
-                           <SectionLabel className="!text-[10px]">PATRIMÔNIO_ZERO</SectionLabel>
+                          <Stack className="gap-0.5">
+                            <Body className="font-black text-[14px] uppercase">{a.name}</Body>
+                            <span className="font-mono text-[9px] font-bold text-white/20 tracking-[0.2em]">ID_{a.tag} · {a.category.toUpperCase()}</span>
+                          </Stack>
                         </div>
-                      )}
-                    </Stack>
-                 </SurfaceCard>
-              </Stack>
-            )}
-
-            {activeDossierTab === 'cadastro' && fullClientData && (
-              <div className="flex flex-col gap-10 py-2 pb-32">
-                 <div className="flex flex-col gap-6">
-                    <Input label="Razão Social / Nome Completo" value={fullClientData.name} onChange={e => setFullClientData({...fullClientData, name: e.target.value})} />
-                    <div className="flex gap-4">
-                       <Input label="CPF/CNPJ" value={fullClientData.documentNumber || ''} onChange={e => setFullClientData({...fullClientData, documentNumber: e.target.value})} className="flex-1" />
-                       <Input label="Telefone" value={fullClientData.phone || ''} onChange={e => setFullClientData({...fullClientData, phone: e.target.value})} className="flex-1" />
-                    </div>
-                    <Input label="E-mail principal" value={fullClientData.email || ''} onChange={e => setFullClientData({...fullClientData, email: e.target.value})} />
-                 </div>
-
-                 <Section className="gap-6 pt-8 border-t border-white/[0.06]">
-                    <div className="flex items-center justify-between">
-                       <SectionLabel className="!text-[10px] !text-[var(--accent-gold)]">Locais de Atendimento</SectionLabel>
-                       <button onClick={() => setIsSiteModalOpen(true)} className="flex items-center gap-2 text-white text-[10px] font-black uppercase tracking-[0.2em] bg-white/[0.05] px-3 py-1.5 rounded-lg border border-white/[0.1]">
-                         <Plus size={12} /> NOVO_SITE
-                       </button>
-                    </div>
-                    {sites.length > 0 ? (
-                      <div className="flex flex-col gap-3">
-                        {sites.map(s => (
-                          <div key={s.id} className="p-5 bg-[#0B0F14] border border-white/[0.05] rounded-[20px] flex items-center justify-between">
-                            <div className="min-w-0 pr-4">
-                              <div className="text-[13px] font-black text-white mb-1 uppercase tracking-tight truncate">{s.name}</div>
-                              <div className="text-[11px] font-mono font-bold text-white/30 leading-tight uppercase tracking-wider truncate">{s.fullAddress}</div>
-                            </div>
-                            <button onClick={() => openExternalGPS(s.fullAddress)} className="h-10 w-10 flex items-center justify-center bg-white/[0.03] border border-white/[0.08] rounded-xl text-[var(--accent-gold)] active:scale-95 transition-all">
-                              <Navigation size={16} />
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="py-12 text-center border border-dashed border-white/[0.08] rounded-[20px] opacity-20">
-                         <SectionLabel className="!text-[10px]">SEM_LOCAIS_MAPEADOS</SectionLabel>
+                      </InteractiveRow>
+                    ))}
+                    {assets.length === 0 && (
+                      <div className="py-20 text-center opacity-20">
+                         <SectionLabel className="!text-[10px]">PATRIMÔNIO_ZERO</SectionLabel>
                       </div>
                     )}
-                 </Section>
+                  </Stack>
+               </SurfaceCard>
+            </Stack>
 
-                 <div className="mt-4 flex gap-4">
-                    <PrimaryButton onClick={handleSaveFullClient} className="flex-1 min-h-[44px] rounded-[var(--radius-md)] text-[12px] font-black tracking-[0.2em]">ATUALIZAR_DOSSIÊ_EXECUTIVO</PrimaryButton>
-                 </div>
+            {/* SEÇÃO 4: HISTÓRICO (TIMELINE) */}
+            <Section className="gap-6 pt-8 border-t border-white/[0.06]">
+              <SectionLabel className="!text-[10px] !text-[var(--accent-gold)]">Histórico Recente</SectionLabel>
+              <div className="flex flex-col gap-8 relative">
+                <div className="absolute left-[7px] top-2 bottom-2 w-px bg-white/[0.08]" />
+                {clientTimeline.map((evt) => (
+                   <div key={evt.id} className="flex gap-6 relative">
+                      <div className={cn(
+                        "w-3.5 h-3.5 rounded-full bg-[var(--bg-primary)] border-[3px] z-10 mt-1 shrink-0",
+                        evt.severity === 'critical' ? "border-[var(--accent-red)] shadow-[0_0_10px_var(--accent-red)]" : "border-[var(--accent-gold)] shadow-[0_0_10px_var(--accent-gold)]"
+                      )} />
+                      <div className="flex-1">
+                         <div className="flex justify-between items-baseline mb-1">
+                            <Body className="font-black text-[13px] uppercase tracking-tight">{evt.title}</Body>
+                            <span className="font-mono text-[9px] font-bold text-white/30 tracking-widest">{new Date(evt.timestamp).toLocaleDateString('pt-BR')}</span>
+                         </div>
+                         <Subtitle className="text-[12px] opacity-60 leading-relaxed font-medium">{evt.description}</Subtitle>
+                      </div>
+                   </div>
+                ))}
               </div>
-            )}
+            </Section>
+
          </Section>
       </Modal>
 

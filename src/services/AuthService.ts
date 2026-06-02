@@ -17,6 +17,20 @@ export class AuthService {
         createdAt: new Date().toISOString()
       });
     }
+
+    const soloExists = await db.teamMembers.where('email').equals('solo@aferix.com').first();
+    if (!soloExists) {
+      await db.teamMembers.add({
+        id: 'solo-123',
+        companyId: 'solo-company',
+        workspaceId: 'solo-workspace',
+        name: 'Profissional Autônomo',
+        email: 'solo@aferix.com',
+        role: 'SOLO',
+        status: 'active',
+        createdAt: new Date().toISOString()
+      });
+    }
   }
 
   static async login(email: string): Promise<TeamMember | null> {

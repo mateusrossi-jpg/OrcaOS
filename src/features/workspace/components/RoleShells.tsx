@@ -76,3 +76,14 @@ export function CustomerShell(props: ShellProps) {
   ];
   return <ShellLayout {...props} tabs={tabs} />;
 }
+
+export function SoloShell(props: ShellProps) {
+  const tabs = [
+    { id: 'dashboard', icon: Home, label: 'MEU NEGÓCIO' },
+    { id: 'agenda', icon: Calendar, label: 'AGENDA / OS' },
+    { id: 'money', icon: DollarSign, label: 'FINANCEIRO' },
+    { id: 'clients', icon: Users, label: 'CLIENTES' },
+    { id: 'settings', icon: Menu, label: 'MENU' },
+  ];
+  return <ShellLayout {...props} tabs={tabs} />;
+}

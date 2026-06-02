@@ -25,10 +25,6 @@ interface ChecklistExecutionPanelProps {
   measurementTemplates: MeasurementTemplate[];
   onClose: () => void;
   onSave: (execution: Partial<AssetExecution>) => void;
-  onNext?: () => void;
-  onPrevious?: () => void;
-  isFirst?: boolean;
-  isLast?: boolean;
 }
 
 export const ChecklistExecutionPanel: React.FC<ChecklistExecutionPanelProps> = ({
@@ -37,11 +33,7 @@ export const ChecklistExecutionPanel: React.FC<ChecklistExecutionPanelProps> = (
   templateItems,
   measurementTemplates,
   onClose,
-  onSave,
-  onNext,
-  onPrevious,
-  isFirst,
-  isLast
+  onSave
 }) => {
   const [measurements, setMeasurements] = useState<Record<string, any>>(initialExecution.measurements || {});
   
@@ -213,31 +205,13 @@ export const ChecklistExecutionPanel: React.FC<ChecklistExecutionPanelProps> = (
 
       {/* RODAPÉ FIXO DE NAVEGAÇÃO DE BATALHA */}
       <div className="absolute bottom-0 left-0 right-0 p-4 bg-surface-900/90 backdrop-blur-md border-t border-surface-800 flex gap-3">
-        <SecondaryButton 
-          onClick={onPrevious}
-          disabled={isFirst}
-          className="flex-1 justify-center py-4 rounded-xl opacity-80 disabled:opacity-30 border-white/[0.05]"
+        <PrimaryButton 
+          onClick={onClose}
+          className="flex-1 justify-center py-4 rounded-xl shadow-[var(--glow-gold)] font-black"
         >
-          <ChevronLeft size={20} className="mr-1" />
-          <span className="text-[12px]">ANTERIOR</span>
-        </SecondaryButton>
-
-        {isLast ? (
-          <PrimaryButton 
-            onClick={onClose}
-            className="flex-1 justify-center py-4 rounded-xl shadow-[var(--glow-gold)] font-black"
-          >
-            <span className="text-[12px] tracking-widest">CONCLUIR</span>
-          </PrimaryButton>
-        ) : (
-          <PrimaryButton 
-            onClick={onNext}
-            className="flex-1 justify-center py-4 rounded-xl shadow-[var(--glow-gold)] font-black"
-          >
-            <span className="text-[12px] tracking-widest">PRÓXIMO</span>
-            <ChevronRight size={20} className="ml-1" />
-          </PrimaryButton>
-        )}
+          <span className="text-[12px] tracking-widest">SALVAR E VOLTAR</span>
+          <ChevronRight size={20} className="ml-1" />
+        </PrimaryButton>
       </div>
 
       {activeAnomalyItem && (

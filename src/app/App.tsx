@@ -2,7 +2,7 @@ import { Suspense, useEffect, useState } from 'react';
 import type { CalculationCapture } from '../core/types/workflow';
 import { AppShell } from './components/AppShell';
 import { useRole } from '../hooks/useRole';
-import { OwnerShell, FieldShell, SalesShell, ManagerShell, CustomerShell } from '../features/workspace/components/RoleShells';
+import { OwnerShell, FieldShell, SalesShell, ManagerShell, CustomerShell, SoloShell } from '../features/workspace/components/RoleShells';
 import { FieldWorkspace } from '../features/workspace/screens/FieldWorkspace';
 import { AssetsWorkspace } from '../features/workspace/screens/AssetsWorkspace';
 import { ChecklistsWorkspace } from '../features/workspace/screens/ChecklistsWorkspace';
@@ -80,6 +80,7 @@ export function App() {
     SALES: SalesShell,
     MANAGER: ManagerShell,
     CUSTOMER: CustomerShell,
+    SOLO: SoloShell,
   }[role] || OwnerShell;
 
   useEffect(() => {
@@ -89,7 +90,8 @@ export function App() {
       FIELD: 'base',
       SALES: 'pipeline',
       MANAGER: 'map',
-      CUSTOMER: 'home'
+      CUSTOMER: 'home',
+      SOLO: 'dashboard'
     };
     if (defaultTabs[role]) {
       setActiveTab(defaultTabs[role] as AppTab);

@@ -62,7 +62,7 @@ interface Asset360ModalProps {
 export function Asset360Modal({ assetId, onClose }: Asset360ModalProps) {
   const [projection, setProjection] = useState<AssetDossierProjection | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState<'info' | 'planos'>('info');
+  
   
   // Maintenance Plans State
   const [plans, setPlans] = useState<MaintenancePlan[]>([]);
@@ -166,64 +166,47 @@ export function Asset360Modal({ assetId, onClose }: Asset360ModalProps) {
                />
             </ExecutiveSummaryGrid>
 
-            {/* TAB NAV */}
-            <div className="flex gap-6 border-b border-white/[0.07] px-1">
-               <button 
-                onClick={() => setActiveTab('info')}
-                className={cn(
-                  "pb-3 text-[11px] font-black tracking-widest transition-all",
-                  activeTab === 'info' ? "border-b-2 border-[var(--accent-gold)] text-white" : "text-[var(--text-tertiary)]"
-                )}
-               >HISTÓRICO</button>
-               <button 
-                onClick={() => setActiveTab('planos')}
-                className={cn(
-                  "pb-3 text-[11px] font-black tracking-widest transition-all",
-                  activeTab === 'planos' ? "border-b-2 border-[var(--accent-gold)] text-white" : "text-[var(--text-tertiary)]"
-                )}
-               >PLANO_PREVENTIVO</button>
-            </div>
+            {/* SEÇÃO 1: HISTÓRICO (SCROLL-FIRST) */}
+            <Section className="gap-6 mt-4">
+              <ContextBanner 
+                title={projection.asset.name} 
+                meta={`${projection.asset.manufacturer || 'Fabricante N/D'} · Mod: ${projection.asset.model || 'N/D'} · SN: ${projection.asset.serialNumber || 'N/D'}`}
+                icon={<Settings size={14} />}
+              />
 
-            {activeTab === 'info' ? (
-              <Section className="gap-6">
-                <ContextBanner 
-                  title={projection.asset.name} 
-                  meta={`${projection.asset.manufacturer || 'Fabricante N/D'} · Mod: ${projection.asset.model || 'N/D'} · SN: ${projection.asset.serialNumber || 'N/D'}`}
-                  icon={<Settings size={14} />}
-                />
-
-                <Stack className="gap-4">
-                  <SectionLabel className="ml-1">Linha do Tempo Técnica</SectionLabel>
+              <Stack className="gap-4">
+                <SectionLabel className="ml-1">Linha do Tempo Técnica</SectionLabel>
+                
+                <div className="flex flex-col gap-6 pl-2 relative">
+                  <div className="absolute left-[15px] top-2 bottom-2 w-px bg-white/[0.07]" />
                   
-                  <div className="flex flex-col gap-6 pl-2 relative">
-                    <div className="absolute left-[15px] top-2 bottom-2 w-px bg-white/[0.07]" />
-                    
-                    {projection.timeline.length === 0 ? (
-                      <div className="py-12 text-center opacity-20">
-                          <Body className="font-mono text-[11px] font-black uppercase tracking-widest">MEMÓRIA_VAZIA</Body>
-                      </div>
-                    ) : (
-                      projection.timeline.map((evt) => (
-                          <div key={evt.id} className="flex gap-4 relative">
-                            <div className={cn(
-                              "w-3.5 h-3.5 rounded-full bg-[#050505] border-2 z-10 mt-1 shrink-0",
-                              evt.severity === 'critical' ? "border-[var(--accent-red)]" : "border-[var(--accent-gold)]"
-                            )} />
-                            <div className="flex-1 min-w-0">
-                                <div className="flex justify-between items-start">
-                                  <Body className="font-bold leading-tight">{evt.title}</Body>
-                                  <SectionLabel className="!text-[9px] mt-0.5">{new Date(evt.timestamp).toLocaleDateString('pt-BR')}</SectionLabel>
-                                </div>
-                                <Subtitle className="mt-1 opacity-60 leading-relaxed">{evt.description}</Subtitle>
-                            </div>
+                  {projection.timeline.length === 0 ? (
+                    <div className="py-12 text-center opacity-20">
+                        <Body className="font-mono text-[11px] font-black uppercase tracking-widest">MEMÓRIA_VAZIA</Body>
+                    </div>
+                  ) : (
+                    projection.timeline.map((evt) => (
+                        <div key={evt.id} className="flex gap-4 relative">
+                          <div className={cn(
+                            "w-3.5 h-3.5 rounded-full bg-[#050505] border-2 z-10 mt-1 shrink-0",
+                            evt.severity === 'critical' ? "border-[var(--accent-red)]" : "border-[var(--accent-gold)]"
+                          )} />
+                          <div className="flex-1 min-w-0">
+                              <div className="flex justify-between items-start">
+                                <Body className="font-bold leading-tight">{evt.title}</Body>
+                                <SectionLabel className="!text-[9px] mt-0.5">{new Date(evt.timestamp).toLocaleDateString('pt-BR')}</SectionLabel>
+                              </div>
+                              <Subtitle className="mt-1 opacity-60 leading-relaxed">{evt.description}</Subtitle>
                           </div>
-                      ))
-                    )}
-                  </div>
-                </Stack>
-              </Section>
-            ) : (
-              <Section className="gap-6">
+                        </div>
+                    ))
+                  )}
+                </div>
+              </Stack>
+            </Section>
+
+            {/* SEÇÃO 2: PLANOS DE MANUTENÇÃO (PMOC) */}
+            <Section className="gap-6 pt-8 border-t border-white/[0.06]">
                  <div className="flex justify-between items-center px-1">
                     <SectionLabel>Planos de Recorrência</SectionLabel>
                     {!isCreatingPlan && (
@@ -309,8 +292,7 @@ export function Asset360Modal({ assetId, onClose }: Asset360ModalProps) {
                    meta="OSs rascunho são geradas automaticamente 7 dias antes da execução para preparação da equipe."
                    icon={<History size={14} />}
                  />
-              </Section>
-            )}
+            </Section>
           </Section>
         )}
       </div>

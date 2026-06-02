@@ -306,40 +306,6 @@ export function FilterChips<T extends string>({
   );
 }
 
-export function AferixTabs<T extends string>({
-  items,
-  activeId,
-  onChange,
-  className = "",
-}: {
-  items: Array<{ id: T; label: string }>;
-  activeId: T;
-  onChange: (id: T) => void;
-  className?: string;
-}) {
-  return (
-    <div className={cn("flex gap-1.5 p-1.5 bg-white/[0.03] rounded-[var(--radius-sm)] border border-white/[0.06] w-fit", className)} role="tablist">
-      {items.map((item) => (
-        <button
-          key={item.id}
-          type="button"
-          role="tab"
-          aria-selected={activeId === item.id}
-          className={cn(
-            "min-h-[40px] px-6 rounded-[10px] text-[12.5px] font-bold transition-all flex items-center justify-center active:scale-[0.97]",
-            activeId === item.id 
-              ? "bg-[var(--accent-gold)] text-black shadow-[var(--shadow-soft)]" 
-              : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-white/[0.03]"
-          )}
-          onClick={() => onChange(item.id)}
-        >
-          {item.label}
-        </button>
-      ))}
-    </div>
-  );
-}
-
 /**
  * QueueEmptyState: Discrete empty context.
  */
