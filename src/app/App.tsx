@@ -15,7 +15,7 @@ import { BudgetsScreen } from './screens/BudgetsScreen';
 import { AttendanceListScreen } from './screens/AttendanceListScreen';
 import { AttendanceDetailScreen } from './screens/AttendanceDetailScreen';
 import { ClientsWorkspace } from '../features/clients/components/ClientsWorkspace';
-import { BudgetForm } from '../pages/BudgetForm';
+import { ProposalGeneratorPage } from '../features/proposal/screens/ProposalGeneratorPage';
 import { QuickServiceForm } from '../pages/QuickServiceForm';
 import { RuntimeErrorBoundary } from './components/RuntimeErrorBoundary';
 import { Modal, PrimaryButton } from './components/ui';
@@ -260,7 +260,7 @@ export function App() {
               </div>
             ) : selectedBudgetId ? (
               <RuntimeErrorBoundary>
-                <BudgetForm 
+                <ProposalGeneratorPage 
                   key={`${selectedBudgetId}-${budgetResetKey}`}
                   id={selectedBudgetId === 'new' ? null : selectedBudgetId}
                   onBack={() => {

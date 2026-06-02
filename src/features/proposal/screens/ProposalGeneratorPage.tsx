@@ -8,7 +8,9 @@ interface LineItem {
   unitPrice: number;
 }
 
-export const ProposalGeneratorPage: React.FC = () => {
+interface ProposalGeneratorPageProps { id?: string | null; onBack?: () => void; }
+
+export const ProposalGeneratorPage: React.FC<ProposalGeneratorPageProps> = ({ id, onBack }) => {
   const [materials, setMaterials] = useState<LineItem[]>([
     { id: '1', name: 'Placa Principal Brastemp', qty: 1, unitPrice: 450.00 },
     { id: '2', name: 'Gás R410a (kg)', qty: 0.8, unitPrice: 150.00 },
@@ -68,7 +70,7 @@ export const ProposalGeneratorPage: React.FC = () => {
       =========================================== */}
       <div className="bg-surface-900 border-b border-surface-800 p-4 pt-12 flex flex-col z-30 shadow-md sticky top-0">
         <div className="flex items-center gap-3 mb-4">
-          <button className="w-10 h-10 flex items-center justify-center bg-surface-800 rounded-full hover:bg-surface-700 transition-colors">
+          <button onClick={onBack} className="w-10 h-10 flex items-center justify-center bg-surface-800 rounded-full hover:bg-surface-700 transition-colors">
             <ArrowLeft size={20} className="text-white" />
           </button>
           <div className="flex flex-col">
