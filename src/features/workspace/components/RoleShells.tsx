@@ -71,7 +71,7 @@ export function CustomerShell(props: ShellProps) {
     { id: 'home', icon: Home, label: 'HOME' },
     { id: 'reports', icon: ClipboardList, label: 'LAUDOS' },
     { id: 'budgets', icon: Target, label: 'PROPOSTAS' },
-    { id: 'contracts', icon: FileText, label: 'CONTRATOS' },
+    
     { id: 'settings', icon: Menu, label: 'MENU' },
   ];
   return <ShellLayout {...props} tabs={tabs} />;

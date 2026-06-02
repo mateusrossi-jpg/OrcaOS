@@ -205,7 +205,24 @@ export function Asset360Modal({ assetId, onClose }: Asset360ModalProps) {
               </Stack>
             </Section>
 
-            {/* SEÇÃO 2: PLANOS DE MANUTENÇÃO (PMOC) */}
+            {/* SEÇÃO 2: GARANTIAS E PROTEÇÃO (INTEGRAÇÃO OPERACIONAL) */}
+            <Section className="gap-4 pt-8 border-t border-white/[0.06]">
+              <SectionLabel className="!text-[var(--accent-green)] ml-1 flex items-center gap-2">
+                <ShieldCheck size={14} /> Garantia & Proteção
+              </SectionLabel>
+              <SurfaceCard padding="lg" className="bg-[var(--accent-green)]/5 border-[var(--accent-green)]/20 relative overflow-hidden">
+                <div className="absolute top-0 right-0 p-4 opacity-10">
+                   <ShieldCheck size={48} className="text-[var(--accent-green)]" />
+                </div>
+                <Body className="font-black text-white uppercase tracking-tight">Ativo Coberto</Body>
+                <Subtitle className="mt-1 text-[var(--accent-green)] font-bold uppercase tracking-widest text-[10px]">Proteção Aferix até Dez/2026</Subtitle>
+                <div className="mt-4 pt-4 border-t border-white/5">
+                   <p className="text-[11px] text-white/40 leading-relaxed italic">"Garantia de 12 meses ativada na instalação. Cobre defeitos de fabricação e mão de obra de re-execução."</p>
+                </div>
+              </SurfaceCard>
+            </Section>
+
+            {/* SEÇÃO 3: PLANOS DE MANUTENÇÃO (PMOC) */}
             <Section className="gap-6 pt-8 border-t border-white/[0.06]">
                  <div className="flex justify-between items-center px-1">
                     <SectionLabel>Planos de Recorrência</SectionLabel>

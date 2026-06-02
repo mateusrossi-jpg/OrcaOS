@@ -12,7 +12,6 @@ import { SalesWorkspace } from '../features/workspace/screens/SalesWorkspace';
 import { ManagerWorkspace } from '../features/workspace/screens/ManagerWorkspace';
 import { TeamWorkspace } from '../features/workspace/screens/TeamWorkspace';
 import { DispatchBoardPage } from '../features/dispatch/screens/DispatchBoardPage';
-import { ContractControlCenter } from '../features/contracts/screens/ContractControlCenter';
 import { RevenueInboxPage } from '../features/revenue/screens/RevenueInboxPage';
 import { ClientPortalPage } from '../features/clientPortal/screens/ClientPortalPage';
 import { AferixIntro } from './components/AferixIntro';
@@ -148,10 +147,11 @@ export function App() {
     };
   }, [refreshClients]);
 
-  // FASE 3: Cloud Sync Background Task
+  // FASE 3: Cloud Sync Background Task (Push & Pull)
   useEffect(() => {
     const interval = setInterval(() => {
       void cloudSyncService.syncLocalToCloud();
+      void cloudSyncService.syncCloudToLocal();
     }, 30000); // 30s
     return () => clearInterval(interval);
   }, []);
@@ -256,9 +256,10 @@ export function App() {
             <HomeScreen
               account={account}
               onNavigate={goTo}
+              role={role}
             />
           )}
-          {activeTab === 'agenda' && <FieldWorkspace />}
+          {activeTab === 'agenda' && <FieldWorkspace onNavigate={goTo} />}
           {activeTab === 'assets' && <AssetsWorkspace />}
           {activeTab === 'checklists' && <ChecklistsWorkspace />}
           {activeTab === 'diagnostics' && <DiagnosticsWorkspace />}
@@ -266,7 +267,6 @@ export function App() {
           {activeTab === 'map' && <ManagerWorkspace />}
           {activeTab === 'team' && <TeamWorkspace />}
           {activeTab === 'dispatch' && <DispatchBoardPage />}
-          {activeTab === 'contracts' && <ContractControlCenter />}
           {activeTab === 'anomalies' && <RevenueInboxPage />}
           {activeTab === 'home' && <ClientPortalPage />}
           

@@ -15,7 +15,9 @@ import {
   HardDrive,
   Cpu,
   Lock,
-  History
+  History,
+  Building,
+  Key
 } from "lucide-react";
 import { 
   ERPLoader,
@@ -55,9 +57,17 @@ interface MenuScreenProps {
 
 type MenuSection = 'main' | 'profile' | 'security' | 'backup' | 'about' | 'diagnostics';
 
+// Dynamic lazy components
+const ProfessionalProfileWorkspace = lazy(() => import('../../features/settings/components/ProfessionalProfileWorkspace').then((module) => ({ default: module.ProfessionalProfileWorkspace })));
+const AppSecurityPanel = lazy(() => import('../../features/settings/components/AppSecurityPanel').then((module) => ({ default: module.AppSecurityPanel })));
+const LocalBackupWorkspace = lazy(() => import('../../features/settings/components/LocalBackupWorkspace').then((module) => ({ default: module.LocalBackupWorkspace })));
+const CloudSyncPanel = lazy(() => import('../../features/settings/components/CloudSyncPanel').then((module) => ({ default: module.CloudSyncPanel })));
+const GoogleDriveBackupPanel = lazy(() => import('../../features/settings/components/GoogleDriveBackupPanel').then((module) => ({ default: module.GoogleDriveBackupPanel })));
+const OfflineDiagnosticsPanel = lazy(() => import('../../features/settings/components/OfflineDiagnosticsPanel').then((module) => ({ default: module.OfflineDiagnosticsPanel })));
+
 /**
- * MenuScreen: Executive settings and system adjustments hub.
- * Aligned with AFERIX VISUAL PROTOCOL (Phase 4).
+ * MenuScreen: Administration & Governance Hub.
+ * Refactored for Business Flow Foundation (Phase 4).
  */
 export const MenuScreen = memo(function MenuScreen({ account, onNavigate }: MenuScreenProps) {
   const [activeSection, setActiveSection] = useState<MenuSection>('main');
@@ -66,42 +76,43 @@ export const MenuScreen = memo(function MenuScreen({ account, onNavigate }: Menu
   const accountLabel = account.status === 'google' || account.status === 'email' || account.status === 'local' ? account.displayName : 'Sem login';
   const userInitials = accountLabel.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() || 'AX';
 
-  const isOwnerOrSolo = role === 'OWNER' || role === 'SOLO';
+  const isOwner = role === 'OWNER';
+  const isSolo = role === 'SOLO';
   const isManager = role === 'MANAGER';
   const isSales = role === 'SALES';
 
-  const operationalItems = [];
-  if (isOwnerOrSolo || isManager || isSales) {
-    operationalItems.push({ title: 'Base de Clientes', desc: 'Carteira estratégica e CRM', onClick: () => onNavigate('clients'), icon: Users });
-    operationalItems.push({ title: 'Catálogo Profissional', desc: 'Sua biblioteca de serviços', onClick: () => onNavigate('catalog'), icon: Package });
-  }
-  if (isOwnerOrSolo || isManager) {
-    operationalItems.push({ title: 'Relatórios e BI', desc: 'Inteligência e performance', onClick: () => onNavigate('reports'), icon: FileBarChart });
-  }
-  if (isOwnerOrSolo) {
-    operationalItems.push({ title: 'Licença e Assinatura', desc: 'Plano e recursos', onClick: () => onNavigate('store'), icon: Star });
-    operationalItems.push({ title: 'Alternar Perfil (Teste)', desc: 'Trocar a experiência do usuário', onClick: () => window.dispatchEvent(new Event('aferix_open_debug')), icon: Users });
+  const adminItems = [];
+  
+  // Enterprise Administration
+  if (isOwner || isManager) {
+    adminItems.push({ title: 'Gestão de Empresa', desc: 'Dados fiscais e identidade', onClick: () => {}, icon: Building });
+    adminItems.push({ title: 'Equipe e Acessos', desc: 'Controle de prestadores e permissões', onClick: () => onNavigate('team'), icon: Users });
   }
 
-  const securityItems = [];
-  if (isOwnerOrSolo || isManager) {
-    securityItems.push({ title: 'Diagnósticos de Sistema', desc: 'Resiliência e integridade offline', onClick: () => setActiveSection('diagnostics'), icon: Activity });
+  // System Security & Cloud
+  if (isOwner || isSolo) {
+    adminItems.push({ title: 'Licença e Assinatura', desc: 'Plano e recursos ativos', onClick: () => onNavigate('store'), icon: Star });
+    adminItems.push({ title: 'Backup e Sincronismo', desc: 'Proteção de dados em nuvem', onClick: () => setActiveSection('backup'), icon: Cloud });
+    adminItems.push({ title: 'Acesso e Segurança', desc: 'PIN e autenticação biométrica', onClick: () => setActiveSection('security'), icon: Shield });
   }
-  if (isOwnerOrSolo) {
-    securityItems.push({ title: 'Backup e Sincronismo', desc: 'Proteção de dados em nuvem', onClick: () => setActiveSection('backup'), icon: Cloud });
-    securityItems.push({ title: 'Acesso e Segurança', desc: 'PIN e autenticação biométrica', onClick: () => setActiveSection('security'), icon: Shield });
+
+  // Technical Diagnostics
+  if (isOwner || isSolo || isManager) {
+    adminItems.push({ title: 'Integridade do Sistema', desc: 'Diagnósticos técnicos offline', onClick: () => setActiveSection('diagnostics'), icon: Activity });
   }
+
+  // Common items
+  const supportItems = [
+    { title: 'Central de Ajuda', desc: 'Tutoriais e suporte técnico', onClick: () => {}, icon: Info },
+    { title: 'Alternar Perfil (Debug)', desc: 'Simular outras roles de acesso', onClick: () => window.dispatchEvent(new Event('aferix_open_debug')), icon: Cpu },
+  ];
 
   const menuGroups = [];
-  if (operationalItems.length > 0) {
-    menuGroups.push({ title: 'Gestão Operacional', items: operationalItems });
-  }
-  if (securityItems.length > 0) {
-    menuGroups.push({ title: 'Segurança e Núcleo', items: securityItems });
-  }
+  if (adminItems.length > 0) menuGroups.push({ title: 'Administração', items: adminItems });
+  menuGroups.push({ title: 'Suporte e Debug', items: supportItems });
 
   const titleMap: Record<MenuSection, string> = {
-    main: 'Ajustes.',
+    main: 'Administração.',
     profile: 'Perfil.',
     security: 'Segurança.',
     backup: 'Backup.',
@@ -113,8 +124,6 @@ export const MenuScreen = memo(function MenuScreen({ account, onNavigate }: Menu
 
   return (
     <ScreenContainer className="pb-32">
-      
-      {/* ━━━ AUTHORITATIVE HEADER ━━━ */}
       <AppHeader 
         title={titleMap[activeSection]}
         onBack={isSubSection ? () => setActiveSection('main') : undefined}
@@ -124,15 +133,12 @@ export const MenuScreen = memo(function MenuScreen({ account, onNavigate }: Menu
         
         {activeSection === 'main' ? (
           <>
-            {/* ━━━ EXECUTIVE COCKPIT ━━━ */}
-            {isOwnerOrSolo && (
-              <ExecutiveSummaryGrid>
-                 <ValueBlock label="Licença" value={account.plan === 'pro' ? 'PREMIUM' : 'FREE'} icon={<Star size={12} />} variant={account.plan === 'pro' ? "warning" : "default"} />
-                 <ValueBlock label="Segurança" value="PROTEGIDO" icon={<ShieldCheck size={12} />} variant="success" />
-              </ExecutiveSummaryGrid>
-            )}
+            <ExecutiveSummaryGrid>
+                 <ValueBlock label="Plano" value={account.plan === 'pro' ? 'PREMIUM' : 'FREE'} icon={<Star size={12} />} variant={account.plan === 'pro' ? "warning" : "default"} />
+                 <ValueBlock label="Segurança" value="ATIVO" icon={<ShieldCheck size={12} />} variant="success" />
+            </ExecutiveSummaryGrid>
 
-            {/* 1. IDENTITY HUB */}
+            {/* IDENTITY HUB */}
             <SurfaceCard className="bg-[var(--accent-gold)]/5 border-[var(--accent-gold)]/20" padding="lg" onClick={() => setActiveSection('profile')}>
                <div className="flex items-center gap-4">
                   <div className="h-14 w-14 rounded-full bg-[var(--accent-gold)]/10 border border-[var(--accent-gold)]/20 flex items-center justify-center text-[var(--accent-gold)] font-bold text-xl">
@@ -149,7 +155,7 @@ export const MenuScreen = memo(function MenuScreen({ account, onNavigate }: Menu
                </div>
             </SurfaceCard>
 
-            {/* 2. MENU GROUPS */}
+            {/* MENU GROUPS */}
             {menuGroups.map((group) => (
               <Section key={group.title} className="gap-3">
                  <SectionLabel className="ml-2">{group.title}</SectionLabel>
@@ -168,7 +174,7 @@ export const MenuScreen = memo(function MenuScreen({ account, onNavigate }: Menu
                           }
                         >
                            <Stack className="gap-0.5">
-                              <Body className="leading-tight">{item.title}</Body>
+                              <Body className="leading-tight text-[13px] font-bold uppercase tracking-tight">{item.title}</Body>
                               <Subtitle className="text-[11px] opacity-40">{item.desc}</Subtitle>
                            </Stack>
                         </InteractiveRow>
@@ -212,10 +218,3 @@ export const MenuScreen = memo(function MenuScreen({ account, onNavigate }: Menu
     </ScreenContainer>
   );
 });
-
-const AppSecurityPanel = lazy(() => import('../../features/settings/components/AppSecurityPanel').then((module) => ({ default: module.AppSecurityPanel })));
-const GoogleDriveBackupPanel = lazy(() => import('../../features/settings/components/GoogleDriveBackupPanel').then((module) => ({ default: module.GoogleDriveBackupPanel })));
-const CloudSyncPanel = lazy(() => import('../../features/settings/components/CloudSyncPanel').then((module) => ({ default: module.CloudSyncPanel })));
-const LocalBackupWorkspace = lazy(() => import('../../features/settings/components/LocalBackupWorkspace').then((module) => ({ default: module.LocalBackupWorkspace })));
-const ProfessionalProfileWorkspace = lazy(() => import('../../features/settings/components/ProfessionalProfileWorkspace').then((module) => ({ default: module.ProfessionalProfileWorkspace })));
-const OfflineDiagnosticsPanel = lazy(() => import('../../features/settings/components/OfflineDiagnosticsPanel').then((module) => ({ default: module.OfflineDiagnosticsPanel })));

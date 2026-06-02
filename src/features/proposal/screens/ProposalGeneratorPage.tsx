@@ -10,6 +10,8 @@ import { BudgetPersistenceService } from '../../../services/BudgetPersistenceSer
 import { Client } from '../../../domain/client';
 import { BUDGET_STATUS } from '../../../domain/budget';
 import { Select, Input } from '../../../app/components/ui';
+import { clientProposalService } from "../../../services/clientProposalService";
+import { createClientProposalDraft } from "../../clientPortal/storage/clientProposalStorage";
 interface LineItem {
   id: string;
   name: string;
@@ -204,6 +206,8 @@ export const ProposalGeneratorPage: React.FC<ProposalGeneratorPageProps> = ({ id
     }
   };
 
+
+// ... inside handleSendToClient ...
   const handleSendToClient = async () => {
     if (isInvalid) {
       trustLayer.emit({ type: 'error', title: 'Validação', description: 'Preencha o Título, o Cliente e adicione pelo menos um item (Material/Serviço/Extra).', status: 'local' });
@@ -214,11 +218,51 @@ export const ProposalGeneratorPage: React.FC<ProposalGeneratorPageProps> = ({ id
       const budgetId = id || crypto.randomUUID();
       const budget = createBudgetPayload(BUDGET_STATUS.ENVIADO, budgetId);
 
+      // 1. Save the internal Budget
       await operationalFacade.saveBudget(budget as any);
       await operationalFacade.changeBudgetStatus(budgetId, BUDGET_STATUS.ENVIADO, budget as any);
       
+      // 2. CREATE REAL CLIENT PROPOSAL (For Portal/External view)
+      const publicProposal = createClientProposalDraft({
+         budgetId,
+         companyId: 'default-company',
+         clientId: budget.clientId,
+         clientName: budget.clientName,
+         title: budget.title,
+         summary: budget.description,
+         total: budget.chargedValue,
+         subtotal: budget.chargedValue - budget.fees,
+         status: 'sent',
+         items: budget.items.map(i => ({
+            id: i.id,
+            description: i.description,
+            quantity: i.quantity,
+            unitPrice: i.unitPrice,
+            totalPrice: i.quantity * i.unitPrice,
+            category: i.category as any,
+            visibleToClient: true
+         }))
+      });
+      
+      await clientProposalService.add(publicProposal);
+      
+      const publicLink = `https://aferix.com/portal/p/${publicProposal.publicToken}`;
+      
       setFormData(prev => ({...prev, status: BUDGET_STATUS.ENVIADO}));
-      trustLayer.emit({ type: 'success', title: 'Proposta enviada ao cliente com sucesso.', status: 'synced' });
+      
+      // Haptic/Toast with Link
+      if (navigator.clipboard) {
+         await navigator.clipboard.writeText(publicLink);
+      }
+      
+      trustLayer.emit({ 
+         type: 'success', 
+         title: 'Proposta Enviada!', 
+         description: 'Link de aprovação copiado para sua área de transferência.', 
+         status: 'synced' 
+      });
+      
+      if (onBack) onBack();
     } catch (e) {
       trustLayer.emit({ type: 'error', title: 'Erro ao enviar', description: (e as Error).message, status: 'local' });
     } finally {

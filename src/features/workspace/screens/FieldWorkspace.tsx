@@ -1,8 +1,16 @@
 import React from 'react';
-import { Play, Calendar, MapPin, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Play, Calendar, MapPin, AlertCircle, CheckCircle2, Zap } from 'lucide-react';
 import { ScreenContainer, AppHeader, Section, SectionLabel, SurfaceCard, OpsChip } from "../../../ui/system";
 
-export const FieldWorkspace: React.FC = () => {
+interface FieldWorkspaceProps {
+  onNavigate?: (tab: string) => void;
+}
+
+/**
+ * FieldWorkspace: The Technician's Mission Control.
+ * Refactored for Operational Flow Unification (Phase 3).
+ */
+export const FieldWorkspace: React.FC<FieldWorkspaceProps> = ({ onNavigate }) => {
   return (
     <ScreenContainer className="pb-32 bg-[var(--bg-primary)]">
       <AppHeader title="Rota de Hoje" subtitle="3 Serviços Agendados" />
@@ -17,6 +25,13 @@ export const FieldWorkspace: React.FC = () => {
               <span className="text-xl font-black tracking-[0.1em] uppercase">INICIAR SERVIÇO</span>
               <span className="text-[10px] font-bold opacity-80 uppercase tracking-widest mt-1">Hospital Santa Casa • 09:00</span>
             </div>
+          </button>
+          
+          <button 
+            onClick={() => onNavigate?.('new-quick-service')}
+            className="w-full bg-white/[0.03] border border-white/[0.08] text-white/60 rounded-2xl py-4 flex items-center justify-center gap-2 text-[11px] font-black uppercase tracking-widest active:bg-white/5 transition-all"
+          >
+            <Zap size={14} className="text-[var(--accent-gold)]" /> NOVO ATENDIMENTO EXPRESSO
           </button>
         </Section>
 
@@ -68,6 +83,7 @@ export const FieldWorkspace: React.FC = () => {
             </div>
           </div>
         </Section>
+
       </div>
     </ScreenContainer>
   );
