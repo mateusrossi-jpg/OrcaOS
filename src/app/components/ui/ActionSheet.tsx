@@ -29,7 +29,7 @@ export const ActionSheet = memo(function ActionSheet({
       onClick={onClose}
     >
       <div 
-        className="bg-[#0F0F0F] border-t border-white/[0.1] rounded-t-[32px] w-full max-w-[430px] animate-in slide-in-from-bottom-full duration-500 cubic-bezier(0.16, 1, 0.3, 1) relative overflow-hidden shadow-[0_-12px_64px_rgba(0,0,0,1)]"
+        className="bg-[#0F0F0F] border-t border-white/[0.1] rounded-t-[var(--radius-modal)] w-full max-w-[430px] animate-in slide-in-from-bottom-full duration-500 cubic-bezier(0.16, 1, 0.3, 1) relative overflow-hidden shadow-[0_-12px_64px_rgba(0,0,0,1)]"
         onClick={e => e.stopPropagation()}
       >
          {/* Cinematic Ambient Glow */}
@@ -44,7 +44,7 @@ export const ActionSheet = memo(function ActionSheet({
          </div>
 
          <header className="px-8 pt-6 pb-4 text-center relative z-10">
-            <span className="block mb-2 text-[9px] font-black font-mono text-[#4A4A4A] uppercase tracking-[0.35em]">{label}</span>
+            <span className="block mb-2 text-[9px] font-black font-mono text-[var(--text-tertiary)] uppercase tracking-[0.35em]">{label}</span>
          </header>
 
          <div className="px-6 pb-12 pt-2 relative z-10 flex flex-col gap-2 max-h-[70vh] overflow-y-auto scrollbar-none">

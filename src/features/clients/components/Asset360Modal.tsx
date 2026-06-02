@@ -286,7 +286,7 @@ export function Asset360Modal({ assetId, onClose }: Asset360ModalProps) {
                                       "w-9 h-9 rounded-xl border grid place-items-center shrink-0",
                                       plan.isActive ? "bg-[var(--accent-green)]/10 border-[var(--accent-green)]/20" : "bg-white/[0.03] border-white/[0.07]"
                                     )}>
-                                        <Zap size={18} className={plan.isActive ? "text-[var(--accent-green)]" : "text-[#3C3C3C]"} fill={plan.isActive ? "currentColor" : "none"} />
+                                        <Zap size={18} className={plan.isActive ? "text-[var(--accent-green)]" : "text-[var(--text-tertiary)]"} fill={plan.isActive ? "currentColor" : "none"} />
                                     </div>
                                     <div className="flex-1 min-w-0">
                                         <Body className="font-bold truncate">{plan.title}</Body>

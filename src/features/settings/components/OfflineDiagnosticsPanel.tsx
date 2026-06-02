@@ -37,16 +37,16 @@ const diagnosticsService = new InternalDiagnosticsService();
 
 // ── tokens ────────────────────────────────────────────────────────────────
 const C = {
-  bg: "#050505",
-  surface: "#0F0F0F",
-  surfaceElevated: "#141414",
+  bg: "var(--bg-primary)",
+  surface: "var(--surface)",
+  surfaceElevated: "var(--surface-elevated)",
   surfaceBorder: "rgba(255,255,255,0.07)",
-  gold: "#D4A94E",
-  red: "#C0392B",
-  green: "#2ECC71",
-  textPrimary: "#EFEFEF",
-  textSecondary: "#808080",
-  textTertiary: "#3C3C3C",
+  gold: "var(--accent-gold)",
+  red: "var(--accent-red)",
+  green: "var(--accent-green)",
+  textPrimary: "var(--text-primary)",
+  textSecondary: "var(--text-secondary)",
+  textTertiary: "var(--text-tertiary)",
 };
 
 /**
@@ -115,17 +115,17 @@ export const OfflineDiagnosticsPanel = memo(function OfflineDiagnosticsPanel() {
         <SectionLabel style={{ marginLeft: "8px" }}>Status da Integridade</SectionLabel>
         <SurfaceCard variant="cinematic" padding="lg">
            <div className="flex items-center justify-between mb-8">
-              <SectionLabel className={isHealthy ? "!text-[#2ECC71]" : "!text-[#C0392B]"}>BI_DATA_PULSE</SectionLabel>
+              <SectionLabel className={isHealthy ? "!text-[var(--accent-green)]" : "!text-[var(--accent-red)]"}>BI_DATA_PULSE</SectionLabel>
               <div className="flex items-center gap-2 bg-white/[0.04] border border-white/[0.07] px-2.5 py-1 rounded-lg">
-                 <Activity size={11} className={isHealthy ? "text-[#2ECC71]" : "text-[#C0392B] animate-pulse"} />
+                 <Activity size={11} className={isHealthy ? "text-[var(--accent-green)]" : "text-[var(--accent-red)] animate-pulse"} />
                  <span className="num text-[11px] font-bold text-white">{score}% RATING</span>
               </div>
            </div>
            
-           <h2 style={{ fontSize: "28px", fontWeight: 800, color: "#EFEFEF", lineHeight: 1.1, letterSpacing: "-0.025em" }}>
+           <h2 style={{ fontSize: "28px", fontWeight: 800, color: "var(--text-primary)", lineHeight: 1.1, letterSpacing: "-0.025em" }}>
               {isHealthy ? 'Banco de dados saudável e consolidado.' : 'Ações de integridade requeridas.'}
            </h2>
-           <p style={{ fontSize: "14px", fontWeight: 600, color: isHealthy ? "#D4A94E" : "#808080", marginTop: "12px" }}>
+           <p style={{ fontSize: "14px", fontWeight: 600, color: isHealthy ? "var(--accent-gold)" : "var(--text-secondary)", marginTop: "12px" }}>
               {isHealthy ? 'Seus dados estão protegidos e auditados.' : 'Detectamos desvios na trilha operacional.'}
            </p>
 
@@ -136,15 +136,15 @@ export const OfflineDiagnosticsPanel = memo(function OfflineDiagnosticsPanel() {
               </div>
               <div className="flex justify-between items-center">
                  <SectionLabel className="!text-[8.5px]">Pendentes de Sync</SectionLabel>
-                 <span className={cn("num text-sm font-bold", report?.pendingSyncCount ? "text-[#D4A94E]" : "text-white")}>{report?.pendingSyncCount}</span>
+                 <span className={cn("num text-sm font-bold", report?.pendingSyncCount ? "text-[var(--accent-gold)]" : "text-white")}>{report?.pendingSyncCount}</span>
               </div>
            </div>
         </SurfaceCard>
       </div>
 
       {feedback && (
-        <div className="bg-[#D4A94E]/10 border border-[#D4A94E]/20 rounded-xl p-4 text-center">
-           <span className="text-[10px] font-bold text-[#D4A94E] font-mono tracking-widest uppercase">{feedback}</span>
+        <div className="bg-[var(--accent-gold)]/10 border-[var(--accent-gold)]/20 rounded-xl p-4 text-center">
+           <span className="text-[10px] font-bold text-[var(--accent-gold)] font-mono tracking-widest uppercase">{feedback}</span>
         </div>
       )}
 
@@ -154,7 +154,7 @@ export const OfflineDiagnosticsPanel = memo(function OfflineDiagnosticsPanel() {
            <SurfaceCard padding="none" className="overflow-hidden">
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "18px 20px 14px" }}>
                  <SectionLabel>Anomalias e Detecções</SectionLabel>
-                 <Terminal size={12} style={{ color: "#3A3A3A" }} />
+                 <Terminal size={12} style={{ color: "var(--text-tertiary)" }} />
               </div>
 
               {criticalIssues.map((issue, idx) => (
@@ -165,10 +165,10 @@ export const OfflineDiagnosticsPanel = memo(function OfflineDiagnosticsPanel() {
                     borderTop: `1px solid ${C.surfaceBorder}`, backgroundColor: "rgba(192,57,43,0.05)"
                   }}
                 >
-                   <ShieldAlert size={16} color="#C0392B" className="shrink-0" />
+                   <ShieldAlert size={16} className="shrink-0 text-[var(--accent-red)]" />
                    <div style={{ flex: 1 }}>
                       <p style={{ fontSize: "13px", fontWeight: 700, color: "#EFEFEF", margin: 0 }}>{issue.split(':')[0]}</p>
-                      <p style={{ fontSize: "11px", color: "#505050", margin: "2px 0 0 0", fontFamily: "'DM Mono', monospace" }}>{issue.split(':')[1] || 'CRITICAL_DRIFT'}</p>
+                      <p style={{ fontSize: "11px", color: "var(--text-secondary)", margin: "2px 0 0 0", fontFamily: "'DM Mono', monospace" }}>{issue.split(':')[1] || 'CRITICAL_DRIFT'}</p>
                    </div>
                    <SemanticBadge label="BLOQUEADO" variant="danger" className="scale-75 origin-right" />
                 </div>
@@ -182,7 +182,7 @@ export const OfflineDiagnosticsPanel = memo(function OfflineDiagnosticsPanel() {
                     borderTop: `1px solid ${C.surfaceBorder}`
                   }}
                 >
-                   <AlertTriangle size={16} color="#D4A94E" className="shrink-0 opacity-40" />
+                   <AlertTriangle size={16} className="shrink-0 opacity-40 text-[var(--accent-gold)]" />
                    <div style={{ flex: 1 }}>
                       <p style={{ fontSize: "13px", fontWeight: 600, color: "#808080", margin: 0 }}>{issue}</p>
                    </div>
@@ -199,27 +199,27 @@ export const OfflineDiagnosticsPanel = memo(function OfflineDiagnosticsPanel() {
         <SectionLabel style={{ marginLeft: "8px" }}>Ações de Resiliência</SectionLabel>
         <SurfaceCard padding="lg">
            <div className="flex items-center gap-4 mb-8">
-              <div className="h-10 w-10 rounded-xl bg-white/[0.03] border border-white/5 flex items-center justify-center">
-                 <Wrench size={18} color="#D4A94E" />
+              <div className="h-10 w-10 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)] flex items-center justify-center">
+                 <Wrench size={18} className="text-[var(--accent-gold)]" />
               </div>
               <div className="flex flex-col">
-                 <strong className="text-[15px] font-bold text-white uppercase tracking-tight">Diagnóstico e Autocura</strong>
-                 <span className="text-[11px] text-[#505050] font-medium leading-relaxed">Índices locais, event store e drifts financeiros.</span>
+                 <strong className="text-[15px] font-bold text-[var(--text-primary)] uppercase tracking-tight">Diagnóstico e Autocura</strong>
+                 <span className="text-[11px] text-[var(--text-secondary)] font-medium leading-relaxed">Índices locais, event store e drifts financeiros.</span>
               </div>
            </div>
 
-           <div className="flex gap-3">
+           <div className="flex gap-3 items-center">
               <SecondaryButton 
                 onClick={handleRecovery}
                 disabled={isRecovering}
-                className="flex-1 h-14 !rounded-2xl !text-[10px] !tracking-[0.2em] font-mono"
+                className="flex-1 h-14 !rounded-2xl !text-[10px] !tracking-[0.2em] font-mono flex items-center justify-center"
               >
                  {isRecovering ? 'PROCESSANDO...' : 'REINDEXAR_DEXIE'}
               </SecondaryButton>
               <PrimaryButton 
                 onClick={handleSync}
                 disabled={isSyncing}
-                className="flex-1 h-14 !rounded-2xl !text-[10px] !tracking-[0.2em] font-mono"
+                className="flex-1 h-14 !rounded-2xl !text-[10px] !tracking-[0.2em] font-mono flex items-center justify-center"
               >
                  {isSyncing ? 'SINCRONIZANDO...' : 'SINCRONIZAR_CLOUD'}
               </PrimaryButton>

@@ -1,17 +1,24 @@
 // src/components/StickyActionBar.tsx
 /**
- * Fixed footer with primary Save and secondary Cancel actions.
- * Respects the safe‑area inset on mobile devices.
+ * Unified Sticky Action Bar – premium dark theme.
+ * Provides Save/Cancel actions (or custom actions) fixed to the bottom of the viewport.
+ * Uses the Aferix Design System components for consistent styling.
  */
 import React from 'react';
-import './StickyActionBar.css';
+import { PrimaryButton, DangerButton } from '../app/components/ui';
 
 interface StickyActionBarProps {
+  /** Called when the primary (save) action is triggered */
   onSave?: () => void;
+  /** Called when the secondary (cancel) action is triggered */
   onCancel?: () => void;
+  /** Label for the primary action button */
   saveLabel?: string;
+  /** Label for the secondary action button */
   cancelLabel?: string;
+  /** Disable both buttons */
   disabled?: boolean;
+  /** Optional custom JSX actions; when provided the default Save button is omitted. */
   actions?: React.ReactNode;
 }
 
@@ -23,17 +30,26 @@ export const StickyActionBar: React.FC<StickyActionBarProps> = ({
   disabled = false,
   actions,
 }) => (
-  <div className="sticky-action-bar" role="toolbar">
+  <div className="sticky-action-bar surface-elev animate-fade-in" role="toolbar">
     {actions}
     {!actions && onSave && (
-      <button className="sticky-save" onClick={onSave} disabled={disabled}>
+      <PrimaryButton
+        onClick={onSave}
+        disabled={disabled}
+
+      >
         {saveLabel}
-      </button>
+      </PrimaryButton>
     )}
+    {/* Cancel/Back button */}
     {onCancel && (
-      <button className="sticky-cancel" onClick={onCancel} disabled={disabled}>
+      <DangerButton
+        onClick={onCancel}
+        disabled={disabled}
+
+      >
         {cancelLabel}
-      </button>
+      </DangerButton>
     )}
   </div>
 );

@@ -33,10 +33,10 @@ export const Card = memo(function Card({
   };
 
   const variants = {
-    default: "bg-[var(--bg-surface)] border border-white/[0.04]",
-    elevated: "bg-[var(--bg-surface-elevated)] border border-white/[0.08] shadow-[var(--shadow-card)]",
-    glass: "bg-[var(--bg-surface-glass)] backdrop-blur-xl border border-white/[0.04]",
-    cinematic: "bg-[var(--bg-surface)] border border-white/[0.04] shadow-[var(--shadow-cinematic)]",
+    default: "bg-gradient-to-b from-[#0c0f16]/95 to-[#05070a]/98 border border-white/[0.06] shadow-[0_1px_0_rgba(255,255,255,0.03)_inset,0_4px_24px_rgba(0,0,0,0.5)]",
+    elevated: "bg-gradient-to-b from-[#141924]/98 to-[#0a0d14]/99 border border-white/[0.12] shadow-[0_1px_0_rgba(255,255,255,0.06)_inset,0_12px_40px_rgba(0,0,0,0.7)]",
+    glass: "bg-white/[0.02] backdrop-blur-2xl border border-white/[0.08] shadow-[0_1px_0_rgba(255,255,255,0.03)_inset]",
+    cinematic: "bg-gradient-to-b from-[#0e131d]/98 to-[#06080e]/99 border border-white/[0.08] shadow-[0_1px_0_rgba(255,255,255,0.05)_inset,0_16px_56px_rgba(0,0,0,0.85)]",
   };
 
   return (
@@ -93,7 +93,7 @@ export const CardFooter = memo(function CardFooter({ children, className = '', .
 
 export const CardLabel = memo(function CardLabel({ label, className = '' }: { label: string; className?: string }) {
   return (
-    <span className={cn("font-mono text-[9.5px] font-bold tracking-[0.18em] text-[#3C3C3C] uppercase select-none", className)}>
+    <span className={cn("font-mono text-[9.5px] font-bold tracking-[0.18em] text-[var(--text-tertiary)] uppercase select-none", className)}>
       {label}
     </span>
   );
@@ -133,27 +133,37 @@ export const ValueBlock = memo(function ValueBlock({
 }) {
   const variantStyles = {
     default: "border-white/5",
-    danger:  "border-[var(--accent-red)]/20 bg-[var(--accent-red)]/5",
-    success: "border-[var(--accent-green)]/20 bg-[var(--accent-green)]/5",
-    warning: "border-[var(--accent-gold)]/20 bg-[var(--accent-gold)]/5",
+    danger:  "border-[var(--accent-red)]/30",
+    success: "border-[var(--accent-green)]/30",
+    warning: "border-[var(--accent-gold)]/30",
   };
 
+  const textStyles = {
+    default: "text-white",
+    danger:  "text-[var(--accent-red)]",
+    success: "text-[var(--accent-green)]",
+    warning: "text-[var(--accent-gold)]",
+  };
+
+  // Rule 5: Zero states must look valid. If value is exactly 0 or "0" or "0%", we should handle it gracefully, but fundamentally we rely on the styling.
+  
   return (
     <div className={cn(
-      "flex flex-col gap-1.5 p-4 rounded-2xl bg-white/[0.02] border transition-all hover:bg-white/[0.04]", 
+      "flex flex-col gap-0.5 p-4 rounded-2xl bg-[#111111] border transition-all active:scale-95", 
       variantStyles[variant]
     )}>
-      <div className="flex items-center gap-2 opacity-40">
-        {icon}
-        <CardLabel label={label} className="!text-[9px]" />
-      </div>
-      <div className={cn(
-        "text-xl font-bold tracking-tight num mt-1", 
-        variant === 'danger' ? "text-[var(--accent-red)]" : 
-        variant === 'success' ? "text-[var(--accent-green)]" : 
-        variant === 'warning' ? "text-[var(--accent-gold)]" : "text-white"
-      )}>
+      {/* 1. Value dominates (Top position, huge font) */}
+      <div className="text-2xl font-black tracking-tight num text-white flex items-center gap-2">
+        {icon && <span className={textStyles[variant]}>{icon}</span>}
         {value}
+      </div>
+      
+      {/* 2. Label is secondary (Bottom position, clear contrast AA minimum) */}
+      <div className={cn(
+        "text-[10px] uppercase font-bold tracking-widest opacity-70 mt-1",
+        textStyles[variant] === 'text-white' ? 'text-white/70' : textStyles[variant]
+      )}>
+        {label}
       </div>
     </div>
   );
@@ -191,7 +201,7 @@ export const InteractiveRow = memo(function InteractiveRow({
       <div className="flex-1 flex flex-col min-w-0">{children}</div>
       {(rightSlot || (isClickable && hasChevron)) && (
         <div className="shrink-0 flex items-center ml-auto">
-          {rightSlot || <ChevronRight size={13} className="text-[#3C3C3C] opacity-40" />}
+          {rightSlot || <ChevronRight size={13} className="text-[var(--text-tertiary)]" />}
         </div>
       )}
     </div>

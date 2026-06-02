@@ -30,7 +30,7 @@ export const PipelineCard = memo(function PipelineCard({
     <div 
       onClick={onClick}
       className={cn(
-        "group flex items-center p-card rounded-[var(--radius-card)] cursor-pointer transition-all duration-300 active:scale-[0.98]",
+        "group flex items-center p-card rounded-[8px] cursor-pointer transition-all duration-300 active:scale-[0.98]",
         "bg-[var(--surface-gradient)] border var(--border-soft) shadow-[var(--shadow-soft)] hover:bg-white/[0.08]",
         className
       )}

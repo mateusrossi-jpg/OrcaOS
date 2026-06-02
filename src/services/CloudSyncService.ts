@@ -145,7 +145,7 @@ export class CloudSyncService {
       // Busca se o envelope já existe no Supabase (verificação causal)
       const { data, error } = await supabase
         .from('sync_envelopes')
-        .select('timestamp, sequence')
+        .select('timestamp, sequence, payload')
         .eq('event_id', event.id)
         .maybeSingle();
 
@@ -168,6 +168,12 @@ export class CloudSyncService {
             remoteTime
           );
           aferixLogger.warn('CloudSync', `Conflict LWW: Ignorando evento local ${event.id} em favor de alteração remota mais recente.`);
+          
+          // FASE 2.6: Aplicar snapshot vencedor localmente
+          if (data.payload && data.payload.snapshot) {
+            await this.applyWinningSnapshot(event.aggregateType, event.aggregateId, data.payload.snapshot);
+          }
+
           // Marca como sincronizado localmente pois a verdade remota ganha
           await db.operationalEvents.update(event.id, { syncStatus: 'synced' } as Record<string, unknown>);
           await this.propagateAggregateSyncStatus(event.aggregateType, event.aggregateId);
@@ -193,7 +199,7 @@ export class CloudSyncService {
    * Envia os eventos locais na fila (em ordem rigorosa) para a nuvem.
    */
   async syncLocalToCloud(): Promise<{ sent: number; errors: number }> {
-    // 1. Verificações prévias de conexão e concorrência
+    // 1. Verificações prévios de conexão e concorrência
     if (!isCloudEnabled) return { sent: 0, errors: 0 };
     if (!this.isOnlineState) {
       this.notifyListeners();
@@ -249,7 +255,7 @@ export class CloudSyncService {
         const { error } = await supabase.from('sync_envelopes').insert({
           envelope_id: `env-${event.id}`,
           event_id: event.id,
-          device_id: typeof window !== 'undefined' ? ((window as any).AFERIX_INSTALLATION_ID || 'browser') : 'test-environment',
+          device_id: this.getInstallationId(),
           user_id: session.user.id,
           aggregate_id: event.aggregateId,
           aggregate_type: event.aggregateType,
@@ -295,12 +301,11 @@ export class CloudSyncService {
 
       if (sentCount > 0) {
         aferixLogger.audit('CloudSync', `Replicou ${sentCount} eventos com sucesso para a nuvem.`);
-        // FIX P2-02: Prevent startup degradation by compacting synchronized operational events
         await this.compactSyncedEvents();
+        await this.compactSoftDeletedRecords();
       }
     } catch (err) {
       aferixLogger.error('CloudSync', 'Sync queue processing failed', err);
-      // Tentativa de autocura na persistência caso dê crash na leitura
       await databaseRecoveryService.attemptSoftRecovery().catch(() => {});
     } finally {
       this.isSyncing = false;
@@ -312,8 +317,6 @@ export class CloudSyncService {
 
   /**
    * Compacts the operational events log by removing successfully synced events
-   * that are older than a threshold, preventing IndexedDB growth and startup degradation.
-   * Keeps the most recent synced events to preserve recent audit history, offline reliability, and conflict resolution.
    */
   async compactSyncedEvents(keepCount = 100): Promise<number> {
     try {
@@ -325,7 +328,6 @@ export class CloudSyncService {
         return 0;
       }
 
-      // Sort chronological order (oldest first)
       syncedEvents.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
 
       const eventsToDelete = syncedEvents.slice(0, syncedEvents.length - keepCount);
@@ -343,19 +345,315 @@ export class CloudSyncService {
     }
   }
 
+  /**
+   * FASE 2.6 Compactador de Soft Deleted
+   * Deleta fisicamente os registros tombstones sincronizados com idade superior a 90 dias.
+   */
+  async compactSoftDeletedRecords(daysThreshold = 90): Promise<void> {
+    try {
+      const now = Date.now();
+      const cutoffTime = now - (daysThreshold * 24 * 60 * 60 * 1000);
+
+      const filterFn = (record: any) => 
+        record.isDeleted === true && 
+        record.syncStatus === 'synced' && 
+        record.deletedAt && 
+        new Date(record.deletedAt).getTime() < cutoffTime;
+
+      const attendances = await db.attendances.filter(filterFn).toArray();
+      if (attendances.length > 0) {
+        await db.attendances.bulkDelete(attendances.map(a => a.id));
+      }
+
+      const budgets = await db.budgets.filter(filterFn).toArray();
+      if (budgets.length > 0) {
+        await db.budgets.bulkDelete(budgets.map(b => b.id));
+      }
+
+      const workOrders = await db.workOrders.filter(filterFn).toArray();
+      if (workOrders.length > 0) {
+        await db.workOrders.bulkDelete(workOrders.map(w => w.id));
+      }
+
+      const finances = await db.simpleFinanceRecords.filter(filterFn).toArray();
+      if (finances.length > 0) {
+        await db.simpleFinanceRecords.bulkDelete(finances.map(f => f.id));
+      }
+
+      aferixLogger.audit('CloudSync', `Compactor soft-deleted tombstones completed.`);
+    } catch (err) {
+      aferixLogger.error('CloudSync', 'Soft deleted records compaction failed', err);
+    }
+  }
+
+  /**
+   * FASE 2.6: Aplica o snapshot vencedor remoto localmente no IndexedDB.
+   */
+  async applyWinningSnapshot(aggregateType: string, aggregateId: string, snapshot: any): Promise<void> {
+    if (!snapshot) return;
+
+    try {
+      const normalizedType = aggregateType.toLowerCase();
+      if (normalizedType === 'budget') {
+        const existing = await db.budgets.get(aggregateId);
+        if (existing) {
+          await db.budgets.put({ ...existing, ...snapshot, syncStatus: 'synced' });
+        } else {
+          await db.budgets.put({ ...snapshot, id: aggregateId, syncStatus: 'synced' });
+        }
+      } else if (normalizedType === 'workorder') {
+        const existing = await db.workOrders.get(aggregateId);
+        if (existing) {
+          await db.workOrders.put({ ...existing, ...snapshot, syncStatus: 'synced' });
+        } else {
+          await db.workOrders.put({ ...snapshot, id: aggregateId, syncStatus: 'synced' });
+        }
+      } else if (normalizedType === 'attendance') {
+        const existing = await db.attendances.get(aggregateId);
+        if (existing) {
+          await db.attendances.put({ ...existing, ...snapshot, syncStatus: 'synced' });
+        } else {
+          await db.attendances.put({ ...snapshot, id: aggregateId, syncStatus: 'synced' });
+        }
+      } else if (normalizedType === 'client') {
+        const existing = await db.clients.get(aggregateId);
+        if (existing) {
+          await db.clients.put({ ...existing, ...snapshot, syncStatus: 'synced' });
+        } else {
+          await db.clients.put({ ...snapshot, id: aggregateId, syncStatus: 'synced' });
+        }
+      }
+
+      // Adiciona evento de reconciliação na base local
+      await db.operationalEvents.add({
+        id: `rec-${Date.now()}-${crypto.randomUUID().slice(0, 8)}`,
+        aggregateId,
+        aggregateType: aggregateType as any,
+        eventType: 'RECONCILIATION_COMPLETED' as any,
+        timestamp: new Date().toISOString(),
+        actor: 'system-sync',
+        source: 'cloud',
+        metadata: { reconciliation: true },
+        createdAt: new Date().toISOString(),
+        syncStatus: 'synced'
+      } as any);
+
+      aferixLogger.audit('CloudSync', `Reconciliation of winning snapshot finished for ${aggregateType}:${aggregateId}`);
+    } catch (err) {
+      aferixLogger.error('CloudSync', `Failed to apply winning snapshot for ${aggregateType}:${aggregateId}`, err);
+    }
+  }
+
   private async propagateAggregateSyncStatus(aggregateType: string, aggregateId: string): Promise<void> {
     try {
-      if (aggregateType === 'client') {
+      const normalized = aggregateType.toLowerCase();
+      if (normalized === 'client') {
         await db.clients.update(aggregateId, { syncStatus: 'synced', syncUpdatedAt: Date.now() });
-      } else if (aggregateType === 'budget') {
+      } else if (normalized === 'budget') {
         await db.budgets.update(aggregateId, { syncStatus: 'synced', syncUpdatedAt: Date.now() });
-      } else if (aggregateType === 'workOrder') {
+      } else if (normalized === 'workorder') {
         await db.workOrders.update(aggregateId, { syncStatus: 'synced', syncUpdatedAt: Date.now() });
+      } else if (normalized === 'attendance') {
+        await db.attendances.update(aggregateId, { syncStatus: 'synced', syncUpdatedAt: Date.now() });
       }
     } catch (err) {
       aferixLogger.warn('CloudSync', `Failed to propagate sync status to ${aggregateType}:${aggregateId}`, err);
     }
   }
+
+  getInstallationId(): string {
+    try {
+      if (typeof localStorage !== 'undefined' && localStorage) {
+        let id = localStorage.getItem('AFERIX_INSTALLATION_ID');
+        if (!id) {
+          id = 'dev-' + crypto.randomUUID().slice(0, 8);
+          localStorage.setItem('AFERIX_INSTALLATION_ID', id);
+        }
+        return id;
+      }
+    } catch (e) {
+      // Fallback
+    }
+
+    try {
+      if (typeof window !== 'undefined' && window) {
+        const win = window as any;
+        if (win.AFERIX_INSTALLATION_ID) {
+          return win.AFERIX_INSTALLATION_ID;
+        }
+      }
+    } catch (e) {
+      // Fallback
+    }
+
+    return 'test-environment';
+  }
+
+  private mapAggregateTypeToTable(aggregateType: string): string | null {
+    const norm = aggregateType.toLowerCase();
+    if (norm === 'attendance') return 'attendances';
+    if (norm === 'budget') return 'budgets';
+    if (norm === 'workorder') return 'workOrders';
+    if (norm === 'client') return 'clients';
+    return null;
+  }
+
+  async syncCloudToLocal(): Promise<{ pulled: number; errors: number }> {
+    if (!isCloudEnabled) return { pulled: 0, errors: 0 };
+    if (!this.isOnlineState) return { pulled: 0, errors: 0 };
+
+    let session;
+    try {
+      const { data } = await supabase.auth.getSession();
+      session = data.session;
+    } catch (e) {
+      aferixLogger.warn('CloudSync', 'Sem sessão Supabase ativa para pull.');
+    }
+
+    if (!session) return { pulled: 0, errors: 0 };
+
+    try {
+      const lastSeqRecord = await db.settings.get('last_synced_sequence');
+      const lastSeq = lastSeqRecord ? (lastSeqRecord.value as number) : 0;
+
+      const { data: maxSeqData, error: maxSeqError } = await supabase
+        .from('sync_envelopes')
+        .select('sequence')
+        .order('sequence', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (maxSeqError) {
+        aferixLogger.warn('CloudSync', 'Erro ao obter max sequence na nuvem', maxSeqError);
+      }
+
+      const maxSeq = maxSeqData ? Number(maxSeqData.sequence) : 0;
+      const distance = maxSeq - lastSeq;
+
+      // 1. Bulk Snapshot Fallback quando o delta de sequence > 10000
+      if (distance > 10000) {
+        aferixLogger.warn('CloudSync', `Lookback delta ${distance} excede 10.000. Ativando Bulk Snapshot Fallback.`);
+        const { data: bulkEnvelopes, error: bulkError } = await supabase
+          .from('sync_envelopes')
+          .select('sequence, envelope_id, event_id, device_id, aggregate_type, aggregate_id, payload, timestamp')
+          .gt('sequence', lastSeq)
+          .order('sequence', { ascending: false })
+          .limit(1000);
+
+        if (bulkError) {
+          aferixLogger.error('CloudSync', 'Erro no bulk snapshot fallback', bulkError);
+          return { pulled: 0, errors: 1 };
+        }
+
+        let processed = 0;
+        if (bulkEnvelopes && bulkEnvelopes.length > 0) {
+          await db.transaction('rw', [db.budgets, db.attendances, db.workOrders, db.clients, db.settings, db.operationalEvents], async () => {
+            const seen = new Set<string>();
+            for (const env of bulkEnvelopes) {
+              const key = `${env.aggregate_type}:${env.aggregate_id}`;
+              if (seen.has(key)) continue;
+              seen.add(key);
+
+              if (env.device_id === this.getInstallationId()) continue;
+
+              const targetTable = this.mapAggregateTypeToTable(env.aggregate_type);
+              if (targetTable && env.payload?.snapshot) {
+                await (db as any)[targetTable].put({
+                  ...env.payload.snapshot,
+                  id: env.aggregate_id,
+                  syncStatus: 'synced',
+                  syncUpdatedAt: Date.now()
+                });
+                processed++;
+              }
+            }
+            await db.settings.put({ key: 'last_synced_sequence', value: maxSeq });
+          });
+        }
+        return { pulled: processed, errors: 0 };
+      }
+
+      // 2. Pull Incremental Padrão com Buffer Temporal de 5 segundos contra invisibilidade de commits concorrentes
+      const ageBufferTime = new Date(Date.now() - 5000).toISOString();
+
+      const { data: envelopes, error: pullError } = await supabase
+        .from('sync_envelopes')
+        .select('sequence, envelope_id, event_id, device_id, aggregate_type, aggregate_id, payload, timestamp')
+        .gt('sequence', lastSeq)
+        .lt('timestamp', ageBufferTime)
+        .order('sequence', { ascending: true })
+        .limit(100);
+
+      if (pullError) {
+        aferixLogger.error('CloudSync', 'Erro ao carregar envelopes de sync', pullError);
+        return { pulled: 0, errors: 1 };
+      }
+
+      if (!envelopes || envelopes.length === 0) {
+        return { pulled: 0, errors: 0 };
+      }
+
+      let processed = 0;
+      await db.transaction('rw', [db.budgets, db.attendances, db.workOrders, db.clients, db.settings, db.operationalEvents], async () => {
+        let currentSeq = lastSeq;
+        for (const env of envelopes) {
+          currentSeq = Number(env.sequence);
+
+          // Echo prevention
+          if (env.device_id === this.getInstallationId()) {
+            continue;
+          }
+
+          const remoteTime = new Date(env.timestamp).getTime();
+          const targetTable = this.mapAggregateTypeToTable(env.aggregate_type);
+
+          if (targetTable) {
+            const localRecord = await (db as any)[targetTable].get(env.aggregate_id);
+
+            // Reconciliação LWW: Se local for pendente e mais novo, ignora pull
+            if (localRecord &&
+                localRecord.syncStatus === 'pending' &&
+                localRecord.updatedAt &&
+                new Date(localRecord.updatedAt).getTime() > remoteTime) {
+              continue;
+            }
+
+            const snapshot = env.payload?.snapshot;
+            if (snapshot) {
+              await (db as any)[targetTable].put({
+                ...snapshot,
+                id: env.aggregate_id,
+                syncStatus: 'synced',
+                syncUpdatedAt: Date.now()
+              });
+              processed++;
+            }
+          }
+
+          // Idempotency: Gravação do evento de reconciliação
+          await db.operationalEvents.put({
+            id: env.event_id,
+            aggregateId: env.aggregate_id,
+            aggregateType: env.aggregate_type as any,
+            eventType: 'RECONCILIATION_COMPLETED' as any,
+            timestamp: env.timestamp,
+            actor: env.payload?.actor || 'system-sync',
+            syncStatus: 'synced',
+            createdAt: new Date().toISOString()
+          });
+        }
+
+        await db.settings.put({ key: 'last_synced_sequence', value: currentSeq });
+      });
+
+      return { pulled: processed, errors: 0 };
+    } catch (err) {
+      aferixLogger.error('CloudSync', 'Pull engine execution failed', err);
+      return { pulled: 0, errors: 1 };
+    }
+  }
 }
 
 export const cloudSyncService = CloudSyncService.getInstance();
+
+

@@ -48,13 +48,13 @@ export const BudgetSummaryView: React.FC<BudgetSummaryViewProps> = memo(({ budge
         <SurfaceCard variant="cinematic" padding="lg">
           <div className="flex justify-between items-start mb-10">
             <div className="flex flex-col">
-              <span className="text-[10px] font-black tracking-[0.25em] text-[#D4A94E] uppercase mb-4 font-mono">Lucro_Líquido_Final</span>
-              <p className="num text-[48px] font-bold leading-none tracking-tightest text-white">
+              <span className="text-[10px] font-black tracking-[0.25em] text-[var(--accent-gold)] uppercase mb-4 font-mono">Lucro_Líquido_Final</span>
+              <p className={cn("num text-[48px] font-bold leading-none tracking-tightest", "text-[var(--accent-gold)]")}>
                 {formatCurrencyBRL(result.lucroBruto)}
               </p>
             </div>
             <div className="flex items-center gap-2 bg-white/[0.04] border border-white/[0.07] px-3 py-1.5 rounded-xl">
-               <TrendingUp size={12} className="text-[#2ECC71]" />
+               <TrendingUp size={12} className="text-[var(--accent-green)]" />
                <span className="num text-[13px] font-bold text-white">{formatPercent(result.marginPercent)}</span>
             </div>
           </div>
@@ -99,7 +99,7 @@ export const BudgetSummaryView: React.FC<BudgetSummaryViewProps> = memo(({ budge
           ))}
           {budget.items.length > 5 && (
             <div className="p-5 text-center bg-white/[0.01] border-t border-white/[0.05]">
-              <span className="text-[10px] font-bold text-[#505050] uppercase tracking-widest font-mono">
+              <span className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-widest font-mono">
                 + {budget.items.length - 5} ITENS ADICIONAIS NO REGISTRO
               </span>
             </div>
@@ -111,14 +111,14 @@ export const BudgetSummaryView: React.FC<BudgetSummaryViewProps> = memo(({ budge
       {(budget.commercialNotes || budget.notes) && (
         <div className="flex flex-col gap-3">
            <SectionLabel style={{ marginLeft: "8px" }}>Registro Técnico Permanente</SectionLabel>
-           <SurfaceCard padding="lg" className="bg-[#141414]">
+           <SurfaceCard padding="lg" className="border-l-[3px] border-l-[var(--accent-gold)]">
               {budget.commercialNotes && (
                 <div className="mb-8 last:mb-0">
                   <div className="flex items-center gap-2 mb-3 opacity-30">
                      <FileText size={11} />
                      <span className="text-[9px] font-black uppercase tracking-widest font-mono">Notas Comerciais</span>
                   </div>
-                  <p className="text-[14px] font-medium text-[#808080] leading-relaxed">{budget.commercialNotes}</p>
+                  <p className="text-[14px] font-medium text-[var(--text-secondary)] leading-relaxed">{budget.commercialNotes}</p>
                 </div>
               )}
               {budget.notes && (
@@ -127,7 +127,7 @@ export const BudgetSummaryView: React.FC<BudgetSummaryViewProps> = memo(({ budge
                      <Clock size={11} />
                      <span className="text-[9px] font-black uppercase tracking-widest font-mono">Diário de Execução</span>
                   </div>
-                  <p className="text-[14px] font-medium text-[#808080] leading-relaxed">{budget.notes}</p>
+                  <p className="text-[14px] font-medium text-[var(--text-secondary)] leading-relaxed">{budget.notes}</p>
                 </div>
               )}
            </SurfaceCard>
@@ -143,7 +143,7 @@ export const BudgetSummaryView: React.FC<BudgetSummaryViewProps> = memo(({ budge
         />
         <button 
           onClick={handleArchive}
-          className="w-full flex items-center justify-center gap-3 h-16 rounded-2xl bg-[#D4A94E] text-black text-[14px] font-bold shadow-[0_8px_32px_rgba(212,169,78,0.15)] active:scale-[0.98] transition-all uppercase tracking-widest"
+          className="w-full flex items-center justify-center gap-3 h-16 rounded-2xl bg-[var(--accent-gold)] text-black text-[14px] font-bold shadow-[0_8px_32px_rgba(212,169,78,0.15)] active:scale-[0.98] transition-all uppercase tracking-widest"
         >
           CONSOLIDAR OPERAÇÃO <ArrowRight className="h-5 w-5" strokeWidth={3} />
         </button>

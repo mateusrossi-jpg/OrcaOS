@@ -1,6 +1,8 @@
 export type MaintenanceFrequency = 'monthly' | 'bimonthly' | 'quarterly' | 'semiannual' | 'annual';
 
-export interface MaintenancePlan {
+import { MultiTenantEntity } from '../core/types/business';
+
+export interface MaintenancePlan extends MultiTenantEntity {
   id: string;
   assetId: string;
   clientId: string;

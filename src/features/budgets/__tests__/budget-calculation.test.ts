@@ -15,7 +15,8 @@ describe('Budget Calculation Engine', () => {
 
   const sampleBudget: Budget = {
     id: 'b-1',
-    title: 'Test Budget',
+      siteId: 'site-1',
+      title: 'Test Budget',
     status: 'iniciado',
     items: sampleItems,
     chargedValue: 0,

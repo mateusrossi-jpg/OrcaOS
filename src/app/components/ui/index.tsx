@@ -54,12 +54,12 @@ export function Button({
   className?: string;
   tone?: Tone;
 } & ButtonHTMLAttributes<HTMLButtonElement>) {
-  const baseClasses = "min-h-[52px] rounded-[16px] px-shell text-[14px] font-bold transition-all duration-300 active:scale-[0.97] flex items-center justify-center gap-sm select-none relative overflow-visible";
+  const baseClasses = "min-h-[48px] rounded-[var(--radius-button,16px)] px-6 py-3 text-[14px] font-bold transition-all duration-300 active:scale-[0.97] flex items-center justify-center gap-sm select-none relative overflow-visible disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-gold)]";
   
   const effectiveVariant = tone === 'danger' ? 'danger' : variant;
 
   const variantClasses = {
-    primary: "aferix-btn-primary hover:brightness-105 active:brightness-95",
+    primary: "aferix-btn-primary hover:brightness-105 active:brightness-95 focus-visible:ring-2 focus-visible:ring-[var(--accent-gold)]",
     secondary: "aferix-btn-secondary hover:bg-white/[0.06] active:bg-white/[0.08]",
     ghost: "bg-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-white/[0.04]",
     danger: "aferix-btn-danger hover:brightness-105 active:brightness-95",
@@ -112,7 +112,7 @@ export function ListCard({
     <div className={cn("w-full flex flex-col", className)} {...props}>
       {(title || action) && (
         <header className="flex items-center justify-between mb-4 px-1">
-          <div>{title && <h3 className="text-ui-xs text-[#505050]">{title}</h3>}</div>
+          <div>{title && <h3 className="text-ui-xs text-[var(--text-muted)]">{title}</h3>}</div>
           {action && <div>{action}</div>}
         </header>
       )}
@@ -216,7 +216,7 @@ export function ContextBanner({
   className?: string;
 }) {
   return (
-    <div className={cn("flex items-start gap-5 p-6 rounded-[22px] bg-white/[0.02] border border-white/[0.06] shadow-[0_4px_24px_rgba(0,0,0,0.3)]", className)}>
+    <div className={cn("flex items-start gap-5 p-6 rounded-[var(--radius-card)] bg-white/[0.02] border border-white/[0.06] shadow-[0_4px_24px_rgba(0,0,0,0.3)]", className)}>
       <div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-[var(--accent-gold)]/10 text-[var(--accent-gold)] border border-[var(--accent-gold)]/20">
         {icon}
       </div>
@@ -253,7 +253,7 @@ export const MoneyValue = memo(function MoneyValue({ value, compact = false }: {
  */
 export function BackButton({ label = 'Voltar', onClick }: { label?: string; onClick?: () => void }) {
   return (
-    <button className="flex items-center gap-sm text-ui-sm font-bold text-[#808080] transition-colors hover:text-[#EFEFEF]" onClick={onClick}>
+    <button className="flex items-center gap-sm text-ui-sm font-bold text-[var(--text-secondary)] transition-colors hover:text-[var(--text-primary)]" onClick={onClick}>
       <ChevronLeft className="h-4 w-4" /> {label.toUpperCase()}
     </button>
   );
@@ -283,10 +283,10 @@ export function FilterChips<T extends string>({
           key={item.id}
           type="button"
           className={cn(
-            "whitespace-nowrap rounded-full border px-5 py-2 text-ui-sm font-bold transition-all",
+            "whitespace-nowrap rounded-full border min-h-[42px] px-6 text-ui-sm font-bold transition-all flex items-center justify-center active:scale-[0.97]",
             selected.includes(item.id) 
               ? "border-[var(--accent-gold)] bg-[var(--accent-gold)] text-black shadow-[var(--shadow-primary)]" 
-              : "border-white/[0.05] bg-white/[0.04] text-[#808080] hover:bg-white/[0.08]"
+              : "border-white/[0.05] bg-white/[0.04] text-[var(--text-secondary)] hover:bg-white/[0.08] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-gold)]"
           )}
           disabled={disabled}
           onClick={() => {
@@ -318,7 +318,7 @@ export function AferixTabs<T extends string>({
   className?: string;
 }) {
   return (
-    <div className={cn("flex gap-1.5 p-1.5 bg-white/[0.03] rounded-[14px] border border-white/[0.06] w-fit", className)} role="tablist">
+    <div className={cn("flex gap-1.5 p-1.5 bg-white/[0.03] rounded-[var(--radius-sm)] border border-white/[0.06] w-fit", className)} role="tablist">
       {items.map((item) => (
         <button
           key={item.id}
@@ -326,10 +326,10 @@ export function AferixTabs<T extends string>({
           role="tab"
           aria-selected={activeId === item.id}
           className={cn(
-            "px-6 py-2 rounded-[10px] text-[12px] font-bold transition-all duration-300",
+            "min-h-[40px] px-6 rounded-[10px] text-[12.5px] font-bold transition-all flex items-center justify-center active:scale-[0.97]",
             activeId === item.id 
               ? "bg-[var(--accent-gold)] text-black shadow-[var(--shadow-soft)]" 
-              : "text-[#808080] hover:text-[#EFEFEF] hover:bg-white/[0.03]"
+              : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-white/[0.03]"
           )}
           onClick={() => onChange(item.id)}
         >
@@ -357,10 +357,10 @@ export function QueueEmptyState({
   className?: string;
 }) {
   return (
-    <div className={cn("p-12 text-center flex flex-col items-center gap-4 rounded-[22px] border border-dashed border-white/[0.08] bg-white/[0.01]", className)}>
+    <div className={cn("p-12 text-center flex flex-col items-center gap-4 rounded-[var(--radius-card)] border border-dashed border-white/[0.08] bg-white/[0.01]", className)}>
       {icon && <div className="mb-2 opacity-20">{icon}</div>}
       <strong className="text-[15px] font-bold tracking-tight text-[#EFEFEF]">{title}</strong>
-      {meta && <p className="text-[13px] text-[#808080] leading-relaxed max-w-[240px] font-medium opacity-60">{meta}</p>}
+      {meta && <p className="text-[13px] text-[var(--text-secondary)] leading-relaxed max-w-[240px] font-medium opacity-60">{meta}</p>}
       {action && <div className="mt-4">{action}</div>}
     </div>
   );
@@ -387,7 +387,7 @@ export function ActionMenu({
 
 /**
  * Forms: Premium Operational Inputs
- * Refactored for absolute Home DNA parity (Phase 4H).
+ * Refactored for absolute Physical Environment consistency (Phase 4H).
  */
 export function Select({
   label,
@@ -406,18 +406,18 @@ export function Select({
 }) {
   return (
     <label className={cn("block group", className)}>
-      {label && <span className="block mb-2.5 text-[10px] font-bold font-mono text-[#3C3C3C] uppercase tracking-[0.2em] ml-1">{label}</span>}
+      {label && <span className="block mb-3 text-[9.5px] font-black font-mono text-[var(--text-secondary)] uppercase tracking-[0.25em] ml-1 opacity-70">{label}</span>}
       <div className="relative">
         <select 
           value={value} 
           onChange={(e) => onChange(e.target.value)} 
           disabled={disabled}
-          className="w-full bg-white/[0.03] border border-white/[0.05] rounded-[16px] px-5 py-4 text-[14.5px] font-semibold appearance-none focus:outline-none focus:border-[var(--accent-gold)]/30 focus:bg-white/[0.05] transition-all text-[#EFEFEF]"
+          className="w-full min-h-[44px] bg-[var(--bg-surface)] border border-white/[0.06] rounded-[8px] px-6 py-5 text-[15px] font-semibold appearance-none focus:outline-none focus:border-[var(--accent-gold)]/40 focus:ring-4 focus:ring-[var(--accent-gold)]/5 transition-all text-[var(--text-primary)] disabled:opacity-50"
         >
           {children}
         </select>
-        <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none opacity-20 text-[#EFEFEF] group-focus-within:opacity-50 group-focus-within:text-[var(--accent-gold)] transition-all">
-          <ChevronDown className="h-4 w-4" strokeWidth={2.5} />
+        <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none text-[var(--text-secondary)] group-focus-within:text-[var(--accent-gold)] transition-colors">
+          <ChevronDown className="h-4 w-4" strokeWidth={3} />
         </div>
       </div>
     </label>
@@ -433,11 +433,11 @@ export function Input({
   className?: string;
 } & React.InputHTMLAttributes<HTMLInputElement>) {
   return (
-    <label className={cn("block", className)}>
-      {label && <span className="block mb-2.5 text-[10px] font-bold font-mono text-[#3C3C3C] uppercase tracking-[0.2em] ml-1">{label}</span>}
+    <label className={cn("block group", className)}>
+      {label && <span className="block mb-3 text-[9.5px] font-black font-mono text-[var(--text-secondary)] uppercase tracking-[0.25em] ml-1 opacity-70">{label}</span>}
       <input 
         {...props} 
-        className="w-full bg-white/[0.03] border border-white/[0.05] rounded-[16px] px-5 py-4 text-[14.5px] font-semibold focus:outline-none focus:border-[var(--accent-gold)]/30 focus:bg-white/[0.05] transition-all text-[#EFEFEF] placeholder:text-white/10" 
+        className="w-full min-h-[44px] bg-[var(--bg-surface)] border border-white/[0.06] rounded-[8px] px-6 py-5 text-[15px] font-semibold appearance-none focus:outline-none focus:border-[var(--accent-gold)]/40 focus:ring-4 focus:ring-[var(--accent-gold)]/5 transition-all text-[var(--text-primary)] disabled:opacity-50 placeholder:text-[var(--text-tertiary)] placeholder:font-medium" 
       />
     </label>
   );
@@ -464,11 +464,11 @@ export function TextArea({
   useAutoResizeTextArea(ref, value);
 
   return (
-    <label className={cn("block", className)}>
-      {label && <span className="block mb-2.5 text-[10px] font-bold font-mono text-[#3C3C3C] uppercase tracking-[0.2em] ml-1">{label}</span>}
+    <label className={cn("block group", className)}>
+      {label && <span className="block mb-3 text-[9.5px] font-black font-mono text-[var(--text-secondary)] uppercase tracking-[0.25em] ml-1 opacity-70">{label}</span>}
       <textarea
         ref={ref}
-        className="w-full bg-white/[0.03] border border-white/[0.05] rounded-[16px] px-5 py-4 text-[14.5px] font-semibold focus:outline-none focus:border-[var(--accent-gold)]/30 focus:bg-white/[0.05] transition-all leading-relaxed text-[#EFEFEF] placeholder:text-white/10 min-h-[100px] resize-none"
+        className="w-full bg-[var(--bg-surface)] border border-white/[0.06] rounded-[8px] px-6 py-5 text-[15px] font-semibold focus:outline-none focus:border-[var(--accent-gold)]/40 focus:ring-4 focus:ring-[var(--accent-gold)]/5 transition-all leading-relaxed text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] placeholder:font-medium min-h-[120px] resize-none disabled:opacity-50"
         value={value}
         placeholder={placeholder}
         rows={rows}
@@ -506,10 +506,10 @@ export function MonetaryInput({
   }
 
   return (
-    <label className={cn("block", className)}>
-      {label && <span className="block mb-2.5 text-[10px] font-bold font-mono text-[#3C3C3C] uppercase tracking-[0.2em] ml-1">{label}</span>}
-      <div className="flex items-center bg-white/[0.03] border border-white/[0.05] rounded-[16px] px-5 py-4 focus-within:border-[var(--accent-gold)]/30 focus-within:bg-white/[0.05] transition-all group">
-        <span className="text-white/20 mr-3 text-[12px] font-bold tracking-tight font-mono group-focus-within:text-[var(--accent-gold)]/50 transition-colors">R$</span>
+    <label className={cn("block group", className)}>
+      {label && <span className="block mb-3 text-[9.5px] font-black font-mono text-[var(--text-secondary)] uppercase tracking-[0.25em] ml-1 opacity-70">{label}</span>}
+      <div className="flex items-center bg-[var(--bg-surface)] border border-white/[0.06] rounded-[8px] px-6 py-5 focus-within:border-[var(--accent-gold)]/40 focus-within:ring-4 focus-within:ring-[var(--accent-gold)]/5 transition-all">
+        <span className="text-[var(--text-tertiary)] mr-4 text-[12px] font-bold tracking-widest font-mono group-focus-within:text-[var(--accent-gold)] transition-colors">R$</span>
         <input
           type="text"
           inputMode="numeric"
@@ -517,7 +517,7 @@ export function MonetaryInput({
           placeholder={placeholder || '0,00'}
           onChange={handleChange}
           disabled={disabled}
-          className="w-full font-mono text-[18px] font-bold text-[#EFEFEF] focus:outline-none bg-transparent placeholder:text-white/5"
+          className="w-full font-mono text-[20px] font-black text-[#EFEFEF] focus:outline-none bg-transparent placeholder:text-white/5"
         />
       </div>
     </label>
@@ -563,12 +563,12 @@ export function Modal({
   return createPortal(
     <div 
       className="fixed inset-0 z-[3000] flex items-end sm:items-center justify-center p-0 sm:p-4" 
-      style={{ backgroundColor: "rgba(0,0,0,0.88)", backdropFilter: "blur(40px)", WebkitBackdropFilter: "blur(40px)" }} 
+      style={{ backgroundColor: 'rgba(0,0,0,0.88)', backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)' }} 
       onClick={onClose}
     >
       <div 
         className={cn(
-          "bg-[#0F0F0F] border border-white/[0.08] rounded-t-[32px] sm:rounded-[32px] shadow-[0_32px_120px_rgba(0,0,0,1)]",
+          "bg-[var(--bg-primary)] border border-white/[0.08] rounded-t-[32px] sm:rounded-[32px] shadow-[0_32px_120px_rgba(0,0,0,1)]",
           "w-full max-w-[430px] overflow-hidden relative flex flex-col",
           "animate-in fade-in slide-in-from-bottom-full sm:slide-in-from-bottom-8 sm:zoom-in-95 duration-700 cubic-bezier(0.16, 1, 0.3, 1)"
         )}
@@ -594,11 +594,11 @@ export function Modal({
         </button>
 
         <header className="px-8 pt-10 sm:pt-12 pb-6 text-center relative z-10">
-           <span className="block mb-3 text-[9px] font-black font-mono text-[#4A4A4A] uppercase tracking-[0.35em]">COMANDO_OPERACIONAL</span>
-           <h2 className="text-[24px] font-bold text-[#EFEFEF] tracking-tightest leading-tight">{title}</h2>
+           <span className="block mb-3 text-[9px] font-black font-mono text-[var(--text-tertiary)] uppercase tracking-[0.35em]">COMANDO_OPERACIONAL</span>
+           <h2 className="text-[24px] font-bold text-[var(--text-primary)] tracking-tightest leading-tight">{title}</h2>
         </header>
         
-        <div className="px-8 sm:px-10 py-2 text-[#808080] flex-1 overflow-y-auto scrollbar-none relative z-10 mb-2">
+        <div className="px-8 sm:px-10 py-2 text-[var(--text-secondary)] flex-1 overflow-y-auto scrollbar-none relative z-10 mb-2">
           {children}
         </div>
         
@@ -610,14 +610,14 @@ export function Modal({
             <PrimaryButton 
               onClick={onConfirm}
               tone={tone}
-              className="w-full h-[60px] !rounded-[16px] !text-[12px] font-black uppercase tracking-[0.2em] shadow-[var(--shadow-primary)]"
+              className="w-full h-[44px] rounded-[8px] text-[12px] font-black uppercase tracking-[0.2em] shadow-[var(--shadow-primary)]"
             >
               {confirmLabel.toUpperCase()}
             </PrimaryButton>
           )}
           <DangerButton 
             onClick={onClose} 
-            className="w-full h-[52px] !rounded-[14px] !text-[10px] font-bold uppercase tracking-[0.3em] font-mono"
+            className="w-full h-[44px] rounded-[8px] text-[12px] font-bold uppercase tracking-[0.3em] font-mono"
           >
             {cancelLabel.toUpperCase()}
           </DangerButton>

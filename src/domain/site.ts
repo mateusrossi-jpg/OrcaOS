@@ -1,4 +1,6 @@
-export interface Site {
+import { MultiTenantEntity } from '../core/types/business';
+
+export interface Site extends MultiTenantEntity {
   id: string;
   clientId: string;
   name: string;

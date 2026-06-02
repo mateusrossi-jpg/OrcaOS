@@ -29,7 +29,7 @@ export const KpiCard = memo(function KpiCard({
     <div 
       onClick={onClick}
       className={cn(
-        "p-6 relative overflow-hidden bg-[var(--surface-gradient-soft)] border var(--border-soft) rounded-[var(--radius-card)] shadow-[var(--shadow-soft)] flex flex-col justify-between transition-all duration-300", 
+        "p-6 relative overflow-hidden bg-[var(--surface-gradient-soft)] border var(--border-soft) rounded-[8px] shadow-[var(--shadow-soft)] flex flex-col justify-between transition-all duration-300", 
         isTouchActive,
         className
       )}

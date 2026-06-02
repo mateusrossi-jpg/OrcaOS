@@ -23,7 +23,9 @@ import {
   FileBadge,
   UserCheck,
   UserPlus,
-  Star
+  Star,
+  Navigation,
+  MessageCircle
 } from "lucide-react";
 import { 
   SearchInput,
@@ -70,7 +72,10 @@ import { Asset, AssetType } from '../../../domain/asset';
 import { Contract, BillingFrequency } from '../../../domain/contract';
 import { Client } from '../../../domain/client';
 import { Asset360Modal } from './Asset360Modal';
+import { FastSiteCreationModal } from './FastSiteCreationModal';
+import { openWhatsApp, openExternalGPS } from '../../../utils/mobility';
 import { cn } from '../../../utils/ui';
+import { HeroCard } from '../../../components/HeroCard';
 
 /**
  * ClientsWorkspace: Strategic Asset Hub.
@@ -98,6 +103,7 @@ export function ClientsWorkspace({ onNavigate }: { onNavigate: (tab: any) => voi
   const [clientDraft, setClientDraft] = useState({ name: '', email: '', phone: '' });
 
   const [selectedAssetId, setSelectedAssetId] = useState<string | null>(null);
+  const [isSiteModalOpen, setIsSiteModalOpen] = useState(false);
 
   async function loadData() {
     setIsLoading(true);
@@ -165,7 +171,7 @@ export function ClientsWorkspace({ onNavigate }: { onNavigate: (tab: any) => voi
   const handleSaveFullClient = async () => {
     if (!fullClientData) return;
     try {
-      await clientService.update(fullClientData.id, fullClientData);
+      await clientService.update(fullClientData);
       await loadData(); // refresh summary list
     } catch(err) {
       console.error('Failed to update client', err);
@@ -207,7 +213,6 @@ export function ClientsWorkspace({ onNavigate }: { onNavigate: (tab: any) => voi
     <>
       <OpsChip icon={<UserCheck size={11} />} label={`${crmList.length} ativos`} accent={false} />
       <OpsChip icon={<AlertTriangle size={11} />} label={`${alertHub?.debtors.length || 0} inadimplentes`} accent={(alertHub?.debtors.length || 0) > 0 ? "red" : false} />
-      <OpsChip icon={<Star size={11} />} label="Fidelity 360º" accent={false} />
     </>
   );
 
@@ -229,52 +234,46 @@ export function ClientsWorkspace({ onNavigate }: { onNavigate: (tab: any) => voi
         
         {/* ━━━ AUTHORITATIVE HEADER ━━━ */}
         <AppHeader 
-          title="Relacionamento."
-          action={
-            <button 
-              onClick={() => setIsCreatingClient(true)}
-              className="flex h-[42px] items-center gap-2 px-3 rounded-[14px] bg-[var(--accent-gold)] text-[#050505] hover:brightness-110 active:scale-95 transition-all shadow-[var(--shadow-primary)]"
-              title="Novo Cliente Estratégico"
-            >
-              <UserPlus size={18} strokeWidth={2.5} />
-              <span className="text-[11px] font-bold uppercase tracking-widest hidden sm:block">Cliente</span>
-            </button>
-          }
+          title="Clientes."
           chips={chips}
         />
 
-        <div className="px-6 flex flex-col gap-8">
+        <div className="px-6 py-8 flex flex-col gap-12">
           
           {/* 1. CRM HUB HERO */}
           <Section className="gap-4">
-            <SectionLabel className="ml-1">Saúde da Rede</SectionLabel>
-            <SurfaceCard variant="cinematic" padding="lg" className="glow-gold">
-               <div className="flex items-center justify-between mb-8">
-                  <SectionLabel className="text-[var(--accent-gold)] !opacity-100">Estratégia de Base</SectionLabel>
-                  <div className="flex items-center gap-2 bg-white/[0.05] border border-white/[0.1] px-3 py-1.5 rounded-xl">
-                     <Activity size={12} className="text-[var(--accent-green)]" />
-                     <Value className="text-[11px] font-bold">SCORE: 84%</Value>
+            <div className="relative overflow-hidden rounded-[28px] bg-gradient-to-b from-[#141924]/95 to-[#080b11]/98 border border-[var(--accent-gold)]/25 shadow-[0_1px_0_rgba(255,255,255,0.06)_inset,0_0_32px_rgba(212,169,78,0.06),0_20px_50px_rgba(0,0,0,0.9)] p-6 animate-scale-pop">
+              {/* Gold ambient radial glow */}
+              <div className="absolute top-0 right-0 w-56 h-56 rounded-full bg-[var(--accent-gold)]/10 blur-[80px] pointer-events-none" />
+              
+              <div className="flex flex-col gap-4">
+                <span className="text-[10px] font-bold font-mono tracking-[0.25em] text-[var(--accent-gold)]">ESTRATÉGIA DE BASE</span>
+                <div className="flex items-baseline justify-between mt-1">
+                  <h3 className="text-[32px] font-black text-white leading-none tracking-tight">{crmList.length} CONTATOS</h3>
+                  <div className="flex items-baseline gap-4">
+                    <Stack className="gap-0.5 items-end">
+                       <SectionLabel className="!text-[8px] opacity-40 uppercase tracking-widest font-mono">LTV Acumulado</SectionLabel>
+                       <FinancialValue value={crmList.reduce((acc, c) => acc + (c.totalRevenue || 0), 0)} className="text-sm font-mono opacity-80" />
+                    </Stack>
+                    <div className="h-6 w-px bg-white/10" />
+                    <Stack className="gap-0.5 items-end">
+                       <SectionLabel className="!text-[8px] opacity-40 uppercase tracking-widest font-mono">Saldo Devedor</SectionLabel>
+                       <FinancialValue value={crmList.reduce((acc, c) => acc + (c.openBalance || 0), 0)} className="text-sm font-mono text-[var(--accent-red)]" />
+                    </Stack>
                   </div>
-               </div>
-               
-               <Heading className="text-[34px] mb-3 leading-none">
-                  {crmList.length} Contatos
-               </Heading>
-               <Body className="text-[var(--accent-gold)] font-bold tracking-tight uppercase text-[10px] opacity-80">
-                  Base Estratégica Mapeada
-               </Body>
+                </div>
+              </div>
+            </div>
+          </Section>
 
-               <div className="bg-black/20 border border-white/[0.05] rounded-2xl p-5 flex flex-col gap-3 mt-8">
-                  <div className="flex justify-between items-center">
-                     <SectionLabel className="!text-[9px]">Saldo Devedor Ativo</SectionLabel>
-                     <FinancialValue value={crmList.reduce((acc, c) => acc + (c.openBalance || 0), 0)} className="text-[15px] text-[var(--accent-red)] font-bold" />
-                  </div>
-                  <div className="flex justify-between items-center">
-                     <SectionLabel className="!text-[9px]">LTV Acumulado</SectionLabel>
-                     <FinancialValue value={crmList.reduce((acc, c) => acc + (c.totalRevenue || 0), 0)} className="text-[15px] text-white font-bold" />
-                  </div>
-               </div>
-            </SurfaceCard>
+          {/* HERO ACTION */}
+          <Section className="gap-4">
+             <button 
+                onClick={() => setIsCreatingClient(true)} 
+                className="w-full h-14 bg-[var(--accent-gold)] text-black font-black text-[12px] tracking-[0.22em] shadow-[0_0_24px_rgba(255,200,0,0.25)] rounded-xl active:scale-[0.98] transition-all flex items-center justify-center gap-2 uppercase"
+             >
+                NOVO CLIENTE <UserPlus className="h-3.5 w-3.5" />
+             </button>
           </Section>
 
           {/* 2. SEARCH & LIST */}
@@ -317,22 +316,22 @@ export function ClientsWorkspace({ onNavigate }: { onNavigate: (tab: any) => voi
                         <div className="flex items-center gap-4 w-full">
                           <div className="flex-1 min-w-0">
                              <div className="flex items-center gap-2 mb-1">
-                                <Body className="truncate leading-tight uppercase font-bold text-[13px]">
+                                <Body className="truncate leading-tight uppercase font-black tracking-tight text-white text-[14px]">
                                   {crm.clientName || 'Cliente sem nome'}
                                 </Body>
                                 {crm.relationshipScore > 80 && <div className="w-1.5 h-1.5 rounded-full bg-[var(--accent-green)] shrink-0 shadow-[0_0_8px_var(--accent-green)]" />}
                              </div>
-                             <Subtitle className="text-[10px] truncate opacity-50 uppercase font-mono tracking-widest">
-                                SCORE: {crm.relationshipScore}% · {crm.daysInactive === 0 ? 'INTERAÇÃO_HOJE' : `${crm.daysInactive}D_INATIVO`}
+                             <Subtitle className="text-[11px] truncate text-[var(--text-secondary)] font-medium">
+                                {crm.daysInactive === 0 ? 'Ativo hoje' : `Inativo há ${crm.daysInactive} dias`} · Score: {crm.relationshipScore}%
                              </Subtitle>
                           </div>
-                          <Stack className="items-end gap-1.5 shrink-0">
+                          <Stack className="items-end gap-1 shrink-0">
                              <FinancialValue 
                                value={crm.openBalance > 0 ? crm.openBalance : crm.totalRevenue} 
                                compact 
-                               className={cn("text-[14px] font-bold", crm.openBalance > 0 ? "text-[var(--accent-red)]" : "text-white")} 
+                               className={cn("text-[14px] font-mono font-bold", crm.openBalance > 0 ? "text-[var(--accent-red)]" : "text-[var(--accent-gold)]")} 
                              />
-                             <SectionLabel className="!text-[8px] !text-[var(--text-tertiary)] uppercase tracking-tighter">{crm.openBalance > 0 ? 'DEVEDOR' : 'LTV_ACUM'}</SectionLabel>
+                             <SectionLabel className="!text-[8px] !text-[var(--text-tertiary)] uppercase tracking-widest font-mono">{crm.openBalance > 0 ? 'DEVEDOR' : 'LTV ACUM'}</SectionLabel>
                           </Stack>
                         </div>
                       </InteractiveRow>
@@ -354,77 +353,114 @@ export function ClientsWorkspace({ onNavigate }: { onNavigate: (tab: any) => voi
       <Asset360Modal assetId={selectedAssetId} onClose={() => setSelectedAssetId(null)} />
 
       <Modal isOpen={!!selectedClientId} onClose={() => setSelectedClientId(null)} title={(selectedClientSummary?.clientName || "Dossiê").toUpperCase()} confirmLabel="Fechar" onConfirm={() => setSelectedClientId(null)}>
-         <Section className="gap-6 pt-4">
+         <Section className="gap-8 pt-6">
+            <div className="flex gap-3">
+               <button 
+                 onClick={() => openWhatsApp(fullClientData?.phone || '')}
+                 className="flex-1 min-h-[44px] flex items-center justify-center gap-3 rounded-[8px] bg-[var(--accent-green)]/10 text-[var(--accent-green)] font-black text-[11px] uppercase tracking-widest border border-[var(--accent-green)]/20 active:bg-[var(--accent-green)]/20 transition-all shadow-[0_4px_12px_rgba(37,211,102,0.1)]"
+               >
+                 <MessageCircle size={16} /> WHATSAPP
+               </button>
+               {sites.length > 0 && (
+                 <button 
+                   onClick={() => openExternalGPS(sites[0]?.fullAddress || '')}
+                   className="flex-1 min-h-[44px] flex items-center justify-center gap-3 rounded-[8px] bg-white/[0.04] text-white font-black text-[11px] uppercase tracking-widest border border-white/[0.08] active:bg-white/10 transition-all"
+                 >
+                   <Navigation size={16} /> NAVEGAR
+                 </button>
+               )}
+            </div>
+            
             <ExecutiveSummaryGrid>
-               <ValueBlock label="LTV Total" value={formatCurrencyBRL(selectedClientSummary?.totalRevenue || 0)} />
-               <ValueBlock label="Saldo Aberto" value={formatCurrencyBRL(selectedClientSummary?.openBalance || 0)} variant={selectedClientSummary?.openBalance ? "danger" : "default"} />
-               <ValueBlock label="Fidelity Score" value={`${selectedClientSummary?.relationshipScore || 0}%`} variant={(selectedClientSummary?.relationshipScore || 0) > 70 ? "success" : "default"} />
-               <ValueBlock label="Histórico" value={`${selectedClientSummary?.totalWorkOrders} OSs`} />
+               <ValueBlock label="VALOR_LTV" value={formatCurrencyBRL(selectedClientSummary?.totalRevenue || 0)} variant="success" />
+               <ValueBlock label="PROJETOS_OS" value={`${selectedClientSummary?.totalWorkOrders} UN`} />
+               <ValueBlock label="RETORNOS" value="0" />
+               <ValueBlock label="PENDÊNCIAS" value={formatCurrencyBRL(selectedClientSummary?.openBalance || 0)} variant={selectedClientSummary?.openBalance ? "danger" : "default"} />
             </ExecutiveSummaryGrid>
 
-            <div className="flex gap-6 border-b border-white/[0.07] px-1 overflow-x-auto scrollbar-none">
+            <div className="flex gap-8 border-b border-white/[0.05] px-1 overflow-x-auto scrollbar-none">
                {['resumo', 'patrimonio', 'contratos', 'cadastro'].map(t => (
                  <button 
                    key={t} 
                    onClick={() => setActiveDossierTab(t as any)} 
                    className={cn(
-                     "pb-3 text-[11px] font-black tracking-widest transition-all whitespace-nowrap",
-                     activeDossierTab === t ? "border-b-2 border-[var(--accent-gold)] text-white" : "text-[var(--text-secondary)]"
+                     "pb-4 text-[10px] font-black tracking-[0.2em] transition-all whitespace-nowrap relative",
+                     activeDossierTab === t ? "text-white" : "text-[var(--text-tertiary)]"
                    )}
                  >
                    {t.toUpperCase()}
+                   {activeDossierTab === t && (
+                     <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[var(--accent-gold)] shadow-[0_0_8px_var(--accent-gold)]" />
+                   )}
                  </button>
                ))}
             </div>
 
             {activeDossierTab === 'resumo' && (
-              <div className="flex flex-col gap-6 pl-2 relative">
-                 <div className="absolute left-[15px] top-2 bottom-2 w-px bg-white/[0.07]" />
-                 {clientTimeline.map((evt) => (
-                    <div key={evt.id} className="flex gap-4 relative">
-                       <div className={cn(
-                         "w-3.5 h-3.5 rounded-full bg-[#050505] border-2 z-10 mt-1 shrink-0",
-                         evt.severity === 'critical' ? "border-[var(--accent-red)]" : "border-[var(--accent-gold)]"
-                       )} />
-                       <div className="flex-1">
-                          <div className="flex justify-between items-start">
-                             <Body className="font-bold">{evt.title}</Body>
-                             <SectionLabel className="!text-[9px] mt-1">{new Date(evt.timestamp).toLocaleDateString('pt-BR')}</SectionLabel>
-                          </div>
-                          <Subtitle className="mt-1 opacity-60 leading-relaxed">{evt.description}</Subtitle>
-                       </div>
-                    </div>
-                 ))}
+              <div className="flex flex-col gap-8 pl-1">
+                 <SurfaceCard padding="lg" variant="elevated" className="border-l-4 border-l-[var(--accent-gold)] bg-gradient-to-r from-[var(--accent-gold)]/5 to-transparent">
+                   <div className="flex items-center gap-2 mb-4">
+                     <span className="text-[14px]">📌</span>
+                     <SectionLabel className="!text-[9px] !text-[var(--accent-gold)] uppercase tracking-[0.25em]">CONTEXTO_FIXADO</SectionLabel>
+                   </div>
+                   <Body className="text-[#EFEFEF] italic font-medium leading-relaxed">"Cliente estratégico com alto nível de exigência técnica. Priorizar agendamentos matinais e acesso via portaria B."</Body>
+                 </SurfaceCard>
+
+                 <div className="flex flex-col gap-8 relative">
+                   <div className="absolute left-[7px] top-2 bottom-2 w-px bg-white/[0.08]" />
+                   {clientTimeline.map((evt) => (
+                      <div key={evt.id} className="flex gap-6 relative">
+                         <div className={cn(
+                           "w-3.5 h-3.5 rounded-full bg-[var(--bg-primary)] border-[3px] z-10 mt-1 shrink-0",
+                           evt.severity === 'critical' ? "border-[var(--accent-red)] shadow-[0_0_10px_var(--accent-red)]" : "border-[var(--accent-gold)] shadow-[0_0_10px_var(--accent-gold)]"
+                         )} />
+                         <div className="flex-1">
+                            <div className="flex justify-between items-baseline mb-1">
+                               <Body className="font-black text-[13px] uppercase tracking-tight">{evt.title}</Body>
+                               <span className="font-mono text-[9px] font-bold text-white/30 tracking-widest">{new Date(evt.timestamp).toLocaleDateString('pt-BR')}</span>
+                            </div>
+                            <Subtitle className="text-[12px] opacity-60 leading-relaxed font-medium">{evt.description}</Subtitle>
+                         </div>
+                      </div>
+                   ))}
+                 </div>
               </div>
             )}
             
             {activeDossierTab === 'patrimonio' && (
-              <Stack className="gap-4">
+              <Stack className="gap-6">
                  <div className="flex justify-between items-center px-1">
-                    <SectionLabel>Ativos do Cliente</SectionLabel>
-                    <button onClick={() => {}} className="text-[10px] text-[var(--accent-gold)] font-black font-mono tracking-wider">+ CADASTRAR</button>
+                    <SectionLabel className="!text-[10px] !text-[var(--accent-gold)]">Ativos e Patrimônio</SectionLabel>
+                    <button onClick={() => {}} className="text-[9px] text-white font-black font-mono tracking-[0.2em] bg-white/[0.05] px-3 py-1.5 rounded-lg border border-white/[0.1]">+ CADASTRAR</button>
                  </div>
-                 <SurfaceCard padding="none">
+                 <SurfaceCard padding="none" className="overflow-hidden border-white/[0.08]">
                     <Stack className="gap-0">
-                      {assets.map(a => (
-                        <InteractiveRow key={a.id} hasChevron onClick={() => setSelectedAssetId(a.id)}>
+                      {assets.map((a, idx) => (
+                        <InteractiveRow key={a.id} hasChevron onClick={() => setSelectedAssetId(a.id)} className={idx !== 0 ? "border-t border-white/[0.06]" : ""}>
                           <div className="flex items-center gap-4">
-                            <Package size={14} className="text-[var(--accent-gold)]" />
+                            <div className="w-10 h-10 rounded-xl bg-white/[0.03] border border-white/[0.05] grid place-items-center">
+                               <Package size={18} className="text-[var(--accent-gold)]" />
+                            </div>
                             <Stack className="gap-0.5">
-                              <Body className="font-bold">{a.name}</Body>
-                              <SectionLabel className="!text-[10px] opacity-30">TAG_{a.tag} · {a.category}</SectionLabel>
+                              <Body className="font-black text-[14px] uppercase">{a.name}</Body>
+                              <span className="font-mono text-[9px] font-bold text-white/20 tracking-[0.2em]">ID_{a.tag} · {a.category.toUpperCase()}</span>
                             </Stack>
                           </div>
                         </InteractiveRow>
                       ))}
+                      {assets.length === 0 && (
+                        <div className="py-20 text-center opacity-20">
+                           <SectionLabel className="!text-[10px]">PATRIMÔNIO_ZERO</SectionLabel>
+                        </div>
+                      )}
                     </Stack>
                  </SurfaceCard>
               </Stack>
             )}
 
             {activeDossierTab === 'cadastro' && fullClientData && (
-              <div className="flex flex-col gap-6 py-2">
-                 <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-10 py-2">
+                 <div className="flex flex-col gap-6">
                     <Input label="Razão Social / Nome Completo" value={fullClientData.name} onChange={e => setFullClientData({...fullClientData, name: e.target.value})} />
                     <div className="flex gap-4">
                        <Input label="CPF/CNPJ" value={fullClientData.documentNumber || ''} onChange={e => setFullClientData({...fullClientData, documentNumber: e.target.value})} className="flex-1" />
@@ -433,57 +469,36 @@ export function ClientsWorkspace({ onNavigate }: { onNavigate: (tab: any) => voi
                     <Input label="E-mail principal" value={fullClientData.email || ''} onChange={e => setFullClientData({...fullClientData, email: e.target.value})} />
                  </div>
 
-                 <Section className="gap-4 pt-4 border-t border-white/[0.05]">
-                    <SectionLabel>Endereço Oficial</SectionLabel>
-                    <div className="flex gap-4">
-                       <Input label="CEP" value={fullClientData.postalCode || ''} onChange={e => setFullClientData({...fullClientData, postalCode: e.target.value})} className="w-1/3" />
-                       <Input label="Logradouro" value={fullClientData.street || ''} onChange={e => setFullClientData({...fullClientData, street: e.target.value})} className="flex-1" />
+                 <Section className="gap-6 pt-8 border-t border-white/[0.06]">
+                    <div className="flex items-center justify-between">
+                       <SectionLabel className="!text-[10px] !text-[var(--accent-gold)]">Locais de Atendimento</SectionLabel>
+                       <button onClick={() => setIsSiteModalOpen(true)} className="flex items-center gap-2 text-white text-[10px] font-black uppercase tracking-[0.2em] bg-white/[0.05] px-3 py-1.5 rounded-lg border border-white/[0.1]">
+                         <Plus size={12} /> NOVO_SITE
+                       </button>
                     </div>
-                    <div className="flex gap-4">
-                       <Input label="Número" value={fullClientData.addressNumber || ''} onChange={e => setFullClientData({...fullClientData, addressNumber: e.target.value})} className="w-1/3" />
-                       <Input label="Bairro" value={fullClientData.district || ''} onChange={e => setFullClientData({...fullClientData, district: e.target.value})} className="flex-1" />
-                    </div>
-                    <div className="flex gap-4">
-                       <Input label="Cidade" value={fullClientData.city || ''} onChange={e => setFullClientData({...fullClientData, city: e.target.value})} className="flex-[2]" />
-                       <Input label="UF" value={fullClientData.state || ''} onChange={e => setFullClientData({...fullClientData, state: e.target.value})} className="flex-1" />
-                    </div>
-                    <Input label="Complemento" value={fullClientData.complement || ''} onChange={e => setFullClientData({...fullClientData, complement: e.target.value})} />
-                 </Section>
-
-                 <Section className="gap-4 pt-4 border-t border-white/[0.05]">
-                    <SectionLabel>Informações Financeiras</SectionLabel>
-                    <div className="flex gap-4">
-                       <div className="flex-1 flex flex-col gap-2">
-                          <label className="text-[10px] font-bold tracking-widest text-[var(--text-secondary)] uppercase ml-1">Contribuinte</label>
-                          <Select 
-                             value={fullClientData.contributorType || 'not-informed'} 
-                             onChange={e => setFullClientData({...fullClientData, contributorType: e.target.value as any})}
-                          >
-                             <option value="not-informed">Não Informado</option>
-                             <option value="individual">Pessoa Física</option>
-                             <option value="taxpayer">Contrib. ICMS</option>
-                             <option value="exempt">Isento</option>
-                             <option value="non-taxpayer">Não Contribuinte</option>
-                          </Select>
-                       </div>
-                       <Input label="Inscrição Estadual" value={fullClientData.stateRegistration || ''} onChange={e => setFullClientData({...fullClientData, stateRegistration: e.target.value})} className="flex-1" />
-                    </div>
-                    <Input label="Limite de Crédito (R$)" value={fullClientData.creditLimit || ''} onChange={e => setFullClientData({...fullClientData, creditLimit: e.target.value})} />
-                 </Section>
-
-                 <Section className="gap-4 pt-4 border-t border-white/[0.05]">
-                    <SectionLabel>Inteligência</SectionLabel>
-                    <TextArea 
-                       label="Notas e Comportamento" 
-                       value={fullClientData.notes || ''} 
-                       onChange={e => setFullClientData({...fullClientData, notes: e.target.value})}
-                       placeholder="Informações relevantes sobre restrições de horários, comportamento, nível de exigência..."
-                       rows={4}
-                    />
+                    {sites.length > 0 ? (
+                      <div className="flex flex-col gap-3">
+                        {sites.map(s => (
+                          <div key={s.id} className="p-5 bg-[#0B0F14] border border-white/[0.05] rounded-[20px] flex items-center justify-between">
+                            <div className="min-w-0 pr-4">
+                              <div className="text-[13px] font-black text-white mb-1 uppercase tracking-tight truncate">{s.name}</div>
+                              <div className="text-[11px] font-mono font-bold text-white/30 leading-tight uppercase tracking-wider truncate">{s.fullAddress}</div>
+                            </div>
+                            <button onClick={() => openExternalGPS(s.fullAddress)} className="h-10 w-10 flex items-center justify-center bg-white/[0.03] border border-white/[0.08] rounded-xl text-[var(--accent-gold)] active:scale-95 transition-all">
+                              <Navigation size={16} />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="py-12 text-center border border-dashed border-white/[0.08] rounded-[20px] opacity-20">
+                         <SectionLabel className="!text-[10px]">SEM_LOCAIS_MAPEADOS</SectionLabel>
+                      </div>
+                    )}
                  </Section>
 
                  <div className="mt-4 flex gap-4">
-                    <PrimaryButton onClick={handleSaveFullClient} className="flex-1">ATUALIZAR CADASTRO</PrimaryButton>
+                    <PrimaryButton onClick={handleSaveFullClient} className="flex-1 min-h-[44px] rounded-[var(--radius-md)] text-[12px] font-black tracking-[0.2em]">ATUALIZAR_DOSSIÊ_EXECUTIVO</PrimaryButton>
                  </div>
               </div>
             )}
@@ -503,6 +518,19 @@ export function ClientsWorkspace({ onNavigate }: { onNavigate: (tab: any) => voi
            <Input label="E-mail (Opcional)" value={clientDraft.email} onChange={e => setClientDraft({ ...clientDraft, email: e.target.value })} placeholder="email@exemplo.com" />
         </div>
       </Modal>
+
+      {isSiteModalOpen && selectedClientId && (
+        <FastSiteCreationModal 
+          clientId={selectedClientId} 
+          isOpen={isSiteModalOpen} 
+          onClose={() => setIsSiteModalOpen(false)} 
+          onSuccess={async (siteId) => {
+             setIsSiteModalOpen(false);
+             const updatedSites = await siteService.getByClientId(selectedClientId);
+             if (updatedSites) setSites(updatedSites);
+          }} 
+        />
+      )}
 
     </ScreenContainer>
   );

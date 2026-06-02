@@ -12,6 +12,22 @@ Todas as discussões de descoberta e mudanças de arquitetura/domínio estão su
 **EXECUTION MANDATE:** Qualquer sessão de IA (Gemini, Codex, Antigravity) deve iniciar com o [PROMPT MESTRE](./docs/execution/PROMPTS.md). O redesenho do produto é proibido.
 
 **FROZEN CONSTITUTIONS:**
+- [POSICIONAMENTO OFICIAL V1](./docs/product/AFERIX_POSICIONAMENTO_V1.md) (PRODUCT SCOPE & GOVERNANCE)
+- [AFERIX/ORÇAOS/ENDAP CONSTITUTION V1](./docs/product/AFERIX_ORCAOS_ENDAP_CONSTITUTION_V1.md) (ECOSYSTEM BOUNDARIES CONSTITUTION)
+- [AFERIX/ORÇAOS/ENDAP BOUNDARIES AUDIT](./docs/product/AFERIX_ORCAOS_ENDAP_BOUNDARIES_AUDIT.md) (PORTFOLIO BOUNDARIES AUDIT)
+- [AFERIX ECOSYSTEM STRATEGY 2030](./docs/product/AFERIX_ECOSYSTEM_STRATEGY_2030.md) (PORTFOLIO STRATEGY)
+- [AFERIX PLATFORM ARCHITECTURE](./docs/product/AFERIX_PLATFORM_ARCHITECTURE.md) (SHARED PLATFORM SERVICES)
+- [AFERIX PLATFORM CONSTITUTION](./docs/product/AFERIX_PLATFORM_CONSTITUTION.md) (PLATFORM SSOT RULES)
+- [AFERIX EVENT BUS ARCHITECTURE](./docs/product/AFERIX_EVENT_BUS_ARCHITECTURE.md) (EVENT BUS SCHEMAS)
+- [AFERIX SAAS STRATEGY 2030](./docs/product/AFERIX_SAAS_STRATEGY_2030.md) (SAAS PLAN STRATEGY)
+- [AFERIX FIRST REVENUE AUDIT](./docs/product/AFERIX_FIRST_REVENUE_AUDIT.md) (REVENUE CRITICAL PATH)
+- [AFERIX FIRST CUSTOMER BLUEPRINT](./docs/product/AFERIX_FIRST_CUSTOMER_BLUEPRINT.md) (REVENUE FLOW AUDIT)
+- [AFERIX 30-DAY REVENUE PLAN](./docs/product/AFERIX_30_DAY_REVENUE_PLAN.md) (REVENUE PLAN)
+- [AFERIX PMOC PILOT AUDIT](./docs/product/AFERIX_PMOC_PILOT_AUDIT.md) (PMOC AUDIT REPORT)
+- [AFERIX PMOC BLOCKERS](./docs/product/AFERIX_PMOC_BLOCKERS.md) (PMOC BLOCKER FILES)
+- [AFERIX FIRST PAYING CUSTOMER BACKLOG](./docs/product/AFERIX_FIRST_PAYING_CUSTOMER_BACKLOG.md) (PMOC TACTICAL BACKLOG)
+- [AFERIX FIRST CUSTOMER KILL TEST](./docs/product/AFERIX_FIRST_CUSTOMER_KILL_TEST.md) (REVENUE FLOW AUDIT)
+- [AFERIX FIRST CUSTOMER EXECUTION PLAN](./docs/product/AFERIX_FIRST_CUSTOMER_EXECUTION_PLAN.md) (DESIGN EXECUTION CONSTITUTION)
 - [OFFLINE-FIRST CONSTITUTION](./docs/architecture/AFERIX_OFFLINE_CONSTITUTION.md) (LAW #01)
 - [HOME OPERATING SYSTEM](./docs/visual-system/AFERIX_HOME_CONSTITUTION.md)
 - [PROPOSAL EXPERIENCE](./docs/visual-system/AFERIX_PROPOSAL_CONSTITUTION.md)
@@ -49,6 +65,12 @@ O Aferix não é apenas um app de orçamentos; é o **Sistema Operacional de Bol
 ## Regra de Ouro (Core Mandate)
 **TUDO GIRA EM TORNO DO ORÇAMENTO.**
 O orçamento é o núcleo: cliente, lucro, execução, evidências e financeiro emanam dele.
+
+### 🛡️ Regra Estratégica: Core vs Vertical
+O Core deve sempre ser mais importante que qualquer vertical. Toda nova funcionalidade deve obrigatoriamente responder:
+*“Isso serve apenas para um nicho ou fortalece a plataforma inteira?”*
+* **Se fortalecer o Core:** **PRIORIDADE ALTA.** Implementado na fundação global do sistema.
+* **Se servir apenas para um nicho:** **MÓDULO OU TEMPLATE.** Implementado exclusivamente como uma camada externa, extensão isolada ou template configurável, sem poluir a arquitetura do Core.
 
 ---
 

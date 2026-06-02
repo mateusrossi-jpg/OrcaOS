@@ -1,5 +1,7 @@
+import { useEffect, useState } from 'react';
 import type { Client, Service as WorkOrder } from '../../core/types/business';
 import { Card } from './ui';
+import { db } from '../../storage/dexieDatabase';
 import './ActiveWorkContextCard.css';
 
 interface ActiveWorkContextCardProps {
@@ -7,11 +9,47 @@ interface ActiveWorkContextCardProps {
   activeWorkOrder: WorkOrder | null;
 }
 
+const STATUS_LABELS: Record<string, string> = {
+  iniciado: 'Iniciado',
+  autorizado: 'Autorizado',
+  em_execucao: 'Executando',
+  finalizado: 'Concluído',
+  cancelado: 'Cancelado',
+  arquivado: 'Arquivado'
+};
+
 /**
  * ActiveWorkContextCard: Professional context HUD.
  * Refactored for TOKEN-FIRST architecture (Executive OS V5).
+ * Consumes Attendance.status as the unified source of truth.
  */
 export function ActiveWorkContextCard({ activeClient, activeWorkOrder }: ActiveWorkContextCardProps) {
+  const [statusLabel, setStatusLabel] = useState('N/A');
+
+  useEffect(() => {
+    if (!activeWorkOrder) return;
+
+    async function loadAttendanceStatus() {
+      try {
+        const att = activeWorkOrder.attendanceId 
+          ? await db.attendances.get(activeWorkOrder.attendanceId)
+          : undefined;
+
+        if (att) {
+          setStatusLabel(STATUS_LABELS[att.status] || att.status);
+        } else {
+          // Fallback to legacy work order status
+          setStatusLabel(activeWorkOrder.status === 'in-progress' ? 'Executando' : 'Concluído');
+        }
+      } catch (err) {
+        console.error('Error fetching attendance status for HUD:', err);
+        setStatusLabel(activeWorkOrder.status === 'in-progress' ? 'Executando' : 'Concluído');
+      }
+    }
+
+    loadAttendanceStatus();
+  }, [activeWorkOrder]);
+
   return (
     <Card className="p-card mb-lg">
       <div className="flex flex-col gap-xs">
@@ -36,7 +74,7 @@ export function ActiveWorkContextCard({ activeClient, activeWorkOrder }: ActiveW
           </div>
           <div className="flex flex-col gap-1">
             <span className="text-[9px] font-bold uppercase tracking-widest text-[var(--text-muted)]">STATUS</span>
-            <strong className="text-ui-xs font-bold text-[var(--accent-gold)] uppercase">{activeWorkOrder.status === 'in-progress' ? 'Executando' : 'Concluído'}</strong>
+            <strong className="text-ui-xs font-bold text-[var(--accent-gold)] uppercase">{statusLabel}</strong>
           </div>
         </div>
       )}

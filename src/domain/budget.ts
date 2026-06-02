@@ -38,11 +38,14 @@ export interface BudgetItem {
   catalogId?: string;
 }
 
-export interface Budget {
+import { MultiTenantEntity } from '../core/types/business';
+
+export interface Budget extends MultiTenantEntity {
   id: string;
   clientId?: string;
   clientName?: string; // Fallback/livre UI
-  siteId?: string; // Optional (Fase 3C)
+  siteId: string; // Mandatory (Site-First Architecture)
+  attendanceId?: string; // Reference to Attendance (1:N)
   title: string;
   status: BudgetStatus;
   
@@ -75,4 +78,14 @@ export interface Budget {
   finalizedAt?: string;
   
   financialSnapshot?: FinancialSnapshot;
+
+  // Soft Delete fields (FASE 2.6)
+  deletedAt?: string | null;
+  deletedBy?: string | null;
+  isDeleted?: boolean;
+
+  // Budget Exclusivity fields (FASE 2.6)
+  budgetGroupId?: string;
+  selectionMode?: 'exclusive' | 'combinable';
+  isPrimary?: boolean;
 }

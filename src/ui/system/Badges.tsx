@@ -25,13 +25,13 @@ export const Badge = memo(function Badge({
   ...props 
 }: BadgeProps) {
   const styles: Record<BadgeVariant, { bg: string, border: string, text: string }> = {
-    default: { bg: 'bg-white/[0.04]', border: 'border-white/[0.07]', text: 'text-[var(--text-secondary)]' },
-    accent:  { bg: 'bg-[oklch(from_var(--accent-gold)_l_c_h_/_0.08)]', border: 'border-[oklch(from_var(--accent-gold)_l_c_h_/_0.15)]', text: 'text-[var(--accent-gold)]' },
-    success: { bg: 'bg-[oklch(from_var(--accent-green)_l_c_h_/_0.08)]', border: 'border-[oklch(from_var(--accent-green)_l_c_h_/_0.15)]', text: 'text-[var(--accent-green)]' },
-    danger:  { bg: 'bg-[oklch(from_var(--accent-red)_l_c_h_/_0.08)]', border: 'border-[oklch(from_var(--accent-red)_l_c_h_/_0.15)]', text: 'text-[var(--accent-red)]' },
-    warning: { bg: 'bg-[oklch(from_var(--accent-gold)_l_c_h_/_0.08)]', border: 'border-[oklch(from_var(--accent-gold)_l_c_h_/_0.15)]', text: 'text-[var(--accent-gold)]' },
-    info:    { bg: 'bg-[oklch(from_var(--accent-blue)_l_c_h_/_0.08)]', border: 'border-[oklch(from_var(--accent-blue)_l_c_h_/_0.15)]', text: 'text-[var(--accent-blue)]' },
-    muted:   { bg: 'bg-white/[0.02]', border: 'border-white/[0.05]', text: 'text-[var(--text-tertiary)]' }
+    default: { bg: 'bg-white/[0.06]', border: 'border-white/[0.12]', text: 'text-[var(--text-secondary)]' },
+    accent:  { bg: 'bg-[oklch(from_var(--accent-gold)_l_c_h_/_0.12)]', border: 'border-[oklch(from_var(--accent-gold)_l_c_h_/_0.25)]', text: 'text-[var(--accent-gold)]' },
+    success: { bg: 'bg-[oklch(from_var(--accent-green)_l_c_h_/_0.12)]', border: 'border-[oklch(from_var(--accent-green)_l_c_h_/_0.25)]', text: 'text-[var(--accent-green)]' },
+    danger:  { bg: 'bg-[oklch(from_var(--accent-red)_l_c_h_/_0.12)]', border: 'border-[oklch(from_var(--accent-red)_l_c_h_/_0.25)]', text: 'text-[var(--accent-red)]' },
+    warning: { bg: 'bg-[oklch(from_var(--accent-gold)_l_c_h_/_0.12)]', border: 'border-[oklch(from_var(--accent-gold)_l_c_h_/_0.25)]', text: 'text-[var(--accent-gold)]' },
+    info:    { bg: 'bg-[oklch(from_var(--accent-blue)_l_c_h_/_0.12)]', border: 'border-[oklch(from_var(--accent-blue)_l_c_h_/_0.25)]', text: 'text-[var(--accent-blue)]' },
+    muted:   { bg: 'bg-white/[0.04]', border: 'border-white/[0.08]', text: 'text-[var(--text-tertiary)]' }
   };
 
   const activeStyle = styles[variant] || styles.default;
@@ -118,7 +118,7 @@ export const StatusDot = memo(function StatusDot({ tone = 'success', className =
  * OpsChip: Technical chip for operational context.
  */
 export type ChipAccent = false | "red" | "orange" | "green" | "blue";
-export const OpsChip = memo(function OpsChip({ icon, label, accent }: { icon: ReactNode, label: string, accent: ChipAccent }) {
+export const OpsChip = memo(function OpsChip({ icon, label, accent, onClick }: { icon: ReactNode, label: string, accent: ChipAccent, onClick?: () => void }) {
   const styles: Record<string, { bg: string, border: string, text: string }> = {
     red:    { bg: "bg-[oklch(from_var(--accent-red)_l_c_h_/_0.08)]", border: "border-[oklch(from_var(--accent-red)_l_c_h_/_0.15)]", text: "var(--accent-red)" },
     orange: { bg: "bg-[oklch(from_var(--accent-gold)_l_c_h_/_0.08)]", border: "border-[oklch(from_var(--accent-gold)_l_c_h_/_0.15)]", text: "var(--accent-gold)" },
@@ -128,15 +128,22 @@ export const OpsChip = memo(function OpsChip({ icon, label, accent }: { icon: Re
   };
 
   const style = accent ? styles[accent] : styles.default;
+  const isClickable = !!onClick;
 
   return (
     <div 
-      className={cn("inline-flex items-center gap-1.5 rounded-[10px] px-[11px] py-[5px] border", style.bg, style.border)}
+      onClick={onClick}
+      className={cn(
+        "inline-flex items-center gap-1.5 rounded-[10px] px-[11px] py-[5px] border transition-all select-none", 
+        style.bg, 
+        style.border,
+        isClickable && "cursor-pointer active:scale-95 hover:brightness-110"
+      )}
     >
-      <span className="flex shrink-0" style={{ color: style.text.startsWith('var') ? `var(${style.text.match(/var\(([^)]+)\)/)?.[1]})` : style.text }}>{icon}</span>
+      <span className="flex shrink-0" style={{ color: style.text }}>{icon}</span>
       <span 
         className="font-mono text-[10px] font-bold tracking-[0.03em] whitespace-nowrap"
-        style={{ color: style.text.startsWith('var') ? `var(${style.text.match(/var\(([^)]+)\)/)?.[1]})` : style.text }}
+        style={{ color: style.text }}
       >
         {label}
       </span>

@@ -62,6 +62,10 @@ export interface ClientPipelineProjection {
   readonly totalRevenue: number;
   readonly lastInteractionAt: string;
   readonly activeBudgets: number;
+  readonly revenuePlanned?: number;
+  readonly revenueExecuted?: number;
+  readonly totalProposals?: number;
+  readonly totalProposalsApproved?: number;
 }
 
 export type ClientCRMStatus = 'ACTIVE' | 'WARM' | 'INACTIVE' | 'AT_RISK' | 'DEBTOR' | 'VIP';

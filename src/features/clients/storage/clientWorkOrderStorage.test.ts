@@ -31,6 +31,7 @@ describe('clientWorkOrderStorage', () => {
   const mockWorkOrder: WorkOrder = {
     id: 'os-1',
     clientId: 'client-1',
+      siteId: 'site-1',
     title: 'Test Service',
     status: 'in-progress',
     priority: 'normal',

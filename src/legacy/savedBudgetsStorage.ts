@@ -66,6 +66,7 @@ export function mapToNewBudget(record: SavedBudgetRecord): NewBudget {
   return {
     id: record.id,
     clientId: record.clientId,
+    siteId: '',
     clientName: record.clientName,
     title: record.title,
     status: record.status as unknown as NewBudget['status'],

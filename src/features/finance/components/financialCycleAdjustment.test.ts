@@ -26,6 +26,7 @@ describe('AFERIX FINANCIAL CYCLE ADJUSTMENT PERSISTENCE TEST', () => {
     const initialBudget: Budget = {
       id: budgetId,
       clientId: 'client-123',
+      siteId: 'site-1',
       clientName: 'Roberto Carlos',
       title: 'Instalação Elétrica Premium',
       status: BUDGET_STATUS.INICIADO,
@@ -66,6 +67,7 @@ describe('AFERIX FINANCIAL CYCLE ADJUSTMENT PERSISTENCE TEST', () => {
     await operationalFacade.createWorkOrder({
       id: workOrderId,
       clientId: 'client-123',
+      siteId: 'site-1',
       title: 'OS Teste',
       status: 'done',
       paymentStatus: 'pending',

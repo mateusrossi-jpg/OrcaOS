@@ -1,10 +1,11 @@
 export type AssetType = 'EQUIPMENT' | 'SYSTEM' | 'INFRASTRUCTURE' | 'INSTALLATION';
 export type AssetStatus = 'ACTIVE' | 'MAINTENANCE' | 'CRITICAL' | 'REPLACED' | 'DECOMMISSIONED';
 
-export interface Asset {
+import { MultiTenantEntity } from '../core/types/business';
+
+export interface Asset extends MultiTenantEntity {
   id: string;
-  clientId: string;
-  siteId: string;
+  // clientId and siteId are now part of MultiTenantEntity
   name: string;
   assetType: AssetType;
   category: string;

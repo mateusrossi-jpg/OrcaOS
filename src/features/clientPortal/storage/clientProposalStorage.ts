@@ -1,4 +1,5 @@
 import { safeJsonParse } from '../../../core/runtime/safeGuards';
+import { MultiTenantEntity } from '../../../core/types/business';
 
 export type ClientProposalStatus = 'draft' | 'sent' | 'viewed' | 'approved' | 'rejected' | 'expired';
 
@@ -24,13 +25,11 @@ export interface ClientPurchaseMaterialItem {
   requiredBeforeService?: boolean;
 }
 
-export interface ClientProposal {
+export interface ClientProposal extends MultiTenantEntity {
   id: string;
   publicToken: string;
   status: ClientProposalStatus;
   professionalId?: string;
-  companyId?: string;
-  clientId?: string;
   workOrderId?: string;
   budgetId?: string;
   title: string;

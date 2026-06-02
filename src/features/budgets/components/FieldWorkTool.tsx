@@ -46,10 +46,10 @@ export const FieldWorkTool: React.FC<FieldWorkToolProps> = memo(({ budget, onUpd
       {/* 1. CLIENT FOCUS HERO */}
       <div className="flex flex-col gap-3">
         <SectionLabel style={{ marginLeft: "8px" }}>Status da Execução</SectionLabel>
-        <SurfaceCard padding="lg" className="border-l-[3px] border-l-[#D4A94E]">
+        <SurfaceCard padding="lg" className="border-l-[3px] border-l-[var(--accent-gold)]">
           <div className="flex justify-between items-center">
             <div className="flex flex-col">
-              <span className="text-[10px] font-black tracking-[0.15em] text-[#808080] uppercase mb-1.5 font-mono flex items-center gap-2">
+              <span className="text-[10px] font-black tracking-[0.15em] text-[var(--text-muted)] uppercase mb-1.5 font-mono flex items-center gap-2">
                  <User size={10} /> CONTRATANTE_ATIVO
               </span>
               <strong className="text-[18px] font-bold text-white tracking-tight">{budget.clientName || 'Cliente não informado'}</strong>
@@ -79,14 +79,14 @@ export const FieldWorkTool: React.FC<FieldWorkToolProps> = memo(({ budget, onUpd
                   leftSlot={
                     <div className="shrink-0">
                       {isDone 
-                        ? <CheckCircle2 size={20} className="text-[#2ECC71] fill-[#2ECC71]/10" /> 
+                        ? <CheckCircle2 size={20} className="text-[var(--accent-green)] fill-[var(--accent-green)]/10" /> 
                         : <Circle size={20} className="text-white/10" />
                       }
                     </div>
                   }
                 >
                   <div className="flex flex-col gap-0.5">
-                    <span className={isDone ? "text-[15px] font-bold text-[#505050] line-through transition-all" : "text-[15px] font-bold text-white transition-all"}>
+                    <span className={isDone ? "text-[15px] font-bold text-[var(--text-secondary)] line-through transition-all" : "text-[15px] font-bold text-white transition-all"}>
                       {item.description}
                     </span>
                     <span className="text-[10px] font-mono text-white/20 uppercase tracking-widest">
@@ -111,7 +111,7 @@ export const FieldWorkTool: React.FC<FieldWorkToolProps> = memo(({ budget, onUpd
                 className={idx !== 0 ? "border-t border-white/[0.05]" : ""}
               >
                 <div className="flex justify-between items-center w-full">
-                   <span className="text-[14px] font-bold text-[#808080]">{item.description}</span>
+                   <span className="text-[14px] font-bold text-[var(--text-secondary)]">{item.description}</span>
                    <SemanticBadge label={`${item.quantity} UN`} variant="default" className="scale-90 origin-right" />
                 </div>
               </InteractiveRow>

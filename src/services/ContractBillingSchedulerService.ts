@@ -38,11 +38,15 @@ export class ContractBillingSchedulerService {
   private async generateContractInvoice(contract: Contract): Promise<void> {
     const financeService = new SimpleFinanceService();
     const recordId = typeof crypto !== 'undefined' && 'randomUUID' in crypto ? crypto.randomUUID() : `fin-rec-${Date.now()}`;
+    const competenceMonth = `${new Date().getMonth() + 1}/${new Date().getFullYear()}`;
+    const client = { name: 'Cliente Desconhecido' }; // Mock placeholder as per requirements
     
     await financeService.saveRecord({
       id: recordId,
-      title: `[RECORRENTE] Mensalidade: ${contract.title} (${contract.id.slice(0, 8)})`,
-      clientName: `Contrato: ${contract.clientId}`, // Placeholder, usually client name fetched from service
+      title: `${contract.title} - ${competenceMonth}`,
+      clientId: contract.clientId,
+      siteId: contract.siteIds?.[0], // Pick first site if available
+      clientName: client?.name || 'Cliente Desconhecido', // Placeholder, usually client name fetched from service
       status: 'pending',
       workOrderId: `contract-${contract.id}`, // Linked to contract virtual "WorkOrder"
       expectedValue: contract.billingAmount,

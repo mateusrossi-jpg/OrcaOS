@@ -1,7 +1,9 @@
 export type ContractStatus = 'active' | 'suspended' | 'expired' | 'draft';
 export type BillingFrequency = 'monthly' | 'quarterly' | 'semiannual' | 'annual';
 
-export interface Contract {
+import { MultiTenantEntity } from '../core/types/business';
+
+export interface Contract extends MultiTenantEntity {
   id: string;
   clientId: string;
   title: string;

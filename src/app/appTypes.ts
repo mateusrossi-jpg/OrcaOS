@@ -1,6 +1,6 @@
 import type { Client, WorkOrder } from '../core/types/business';
 
-export type AppTab = 'pulse' | 'new-budget' | 'budgets' | 'work-history' | 'base' | 'money' | 'reports' | 'settings' | 'catalog' | 'store' | 'budgetDetail' | 'clients';
+export type AppTab = 'pulse' | 'new-budget' | 'new-quick-service' | 'budgets' | 'work-history' | 'base' | 'money' | 'reports' | 'settings' | 'catalog' | 'store' | 'budgetDetail' | 'clients' | 'attendances';
 export type ModuleTone = 'blue' | 'gray' | 'green' | 'orange' | 'muted';
 export type AppIconGlyph = 'home' | 'document' | 'clients' | 'finance' | 'chart' | 'settings' | 'store';
 export type AppNavItem = { id: AppTab; label: string; description?: string; icon: AppIconGlyph };

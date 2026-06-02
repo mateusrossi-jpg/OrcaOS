@@ -5,7 +5,8 @@ import type { Budget } from '../types/business';
 describe('Budget Validation', () => {
   const validBudget: Budget = {
     id: 'b-1',
-    title: 'Orçamento Teste',
+      siteId: 'site-1',
+      title: 'Orçamento Teste',
     status: 'iniciado',
     items: [
       { id: 'item-1', description: 'Instalação de tomada', quantity: 2, unitPrice: 80, category: 'labor' },

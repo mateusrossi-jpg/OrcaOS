@@ -12,10 +12,14 @@ import { OperationsScreen } from './screens/OperationsScreen';
 import { StoreScreen } from './screens/StoreScreen';
 import { MenuScreen } from './screens/MenuScreen';
 import { BudgetsScreen } from './screens/BudgetsScreen';
+import { AttendanceListScreen } from './screens/AttendanceListScreen';
+import { AttendanceDetailScreen } from './screens/AttendanceDetailScreen';
 import { ClientsWorkspace } from '../features/clients/components/ClientsWorkspace';
 import { BudgetForm } from '../pages/BudgetForm';
-import { BudgetHistoryPage } from '../pages/BudgetHistoryPage';
+import { QuickServiceForm } from '../pages/QuickServiceForm';
 import { RuntimeErrorBoundary } from './components/RuntimeErrorBoundary';
+import { Modal, PrimaryButton } from './components/ui';
+import { Target, Zap } from 'lucide-react';
 import { LegacyBudgetMigrationService } from '../legacy/LegacyBudgetMigrationService';
 import { clientMigrationService } from '../services/ClientMigrationService';
 import { catalogMigrationService } from '../services/CatalogMigrationService';
@@ -33,6 +37,7 @@ import { DebugPanel } from '../features/settings/components/DebugPanel';
 import { multiTabProtection } from '../core/database/multiTabProtection';
 import { cloudSyncService } from '../services/CloudSyncService';
 import { PageShell } from './components/PageShell';
+import { db } from '../storage/dexieDatabase';
 
 
 function LazyWorkspaceFallback() {
@@ -48,6 +53,7 @@ export function App() {
   const [activeTab, setActiveTab] = useState<AppTab>('pulse');
   const [selectedBudgetId, setSelectedBudgetId] = useState<string | null>(null);
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
+  const [selectedAttendanceId, setSelectedAttendanceId] = useState<string | null>(null);
   const [budgetResetKey, setBudgetResetKey] = useState(0);
   const [tacticalAction, setTacticalAction] = useState<string | null>(null);
   
@@ -125,15 +131,37 @@ export function App() {
     if (!canNavigate()) return;
     
     // Tactical Actions Handling (Fase 4D)
-    if (tab === 'new-os') {
-      setTacticalAction('new-os');
-      setActiveTab('base');
+    if (tab === 'new-budget') {
+      const attendanceId = typeof crypto !== 'undefined' && 'randomUUID' in crypto 
+        ? crypto.randomUUID() 
+        : Math.random().toString(36).substring(2) + Date.now().toString(36);
+      
+      const newAttendance = {
+        id: attendanceId,
+        clientId: '',
+        siteId: '',
+        status: 'iniciado' as const,
+        companyId: 'default-company',
+        workspaceId: 'default-workspace',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+
+      db.attendances.add(newAttendance).catch(err => {
+        console.error("Erro ao iniciar atendimento inicial:", err);
+      });
+
+      localStorage.setItem('aferix_active_attendance_id', attendanceId);
+
+      setSelectedBudgetId('new');
+      setBudgetResetKey(prev => prev + 1);
+      setActiveTab('budgets');
       return;
     }
 
-    if (tab === 'new-budget') {
-      setSelectedBudgetId('new');
-      setBudgetResetKey((current) => current + 1);
+    if (tab === 'new-quick-service') {
+      setSelectedBudgetId('new-quick-service');
+      setBudgetResetKey(prev => prev + 1);
       setActiveTab('budgets');
       return;
     }
@@ -144,6 +172,10 @@ export function App() {
 
     if (tab !== 'base') {
       setSelectedClientId(null);
+    }
+
+    if (tab === 'attendances') {
+      setSelectedAttendanceId(null);
     }
 
     setTacticalAction(null);
@@ -175,6 +207,7 @@ export function App() {
         <Suspense fallback={<LazyWorkspaceFallback />}>
           {activeTab === 'pulse' && (
             <HomeScreen
+              account={account}
               onNavigate={goTo}
               onSelectBudget={(budget) => {
                 openBudgetForEdit(budget.id);
@@ -194,10 +227,38 @@ export function App() {
 
           {activeTab === 'money' && <FinancialScreen />}
           {activeTab === 'clients' && <ClientsWorkspace onNavigate={goTo} />}
+          {activeTab === 'attendances' && (
+            selectedAttendanceId ? (
+              <AttendanceDetailScreen 
+                id={selectedAttendanceId} 
+                onBack={() => setSelectedAttendanceId(null)} 
+                onNavigate={goTo}
+                onOpenBudget={(budgetId) => openBudgetForEdit(budgetId)}
+                onOpenWorkOrder={(workOrderId) => {
+                  updateContext(clients, workOrders, workOrderId);
+                  setActiveTab('base');
+                }}
+              />
+            ) : (
+              <AttendanceListScreen 
+                onNavigate={goTo} 
+                onSelectAttendance={(id) => setSelectedAttendanceId(id)} 
+              />
+            )
+          )}
           {activeTab === 'settings' && <MenuScreen account={account} onAccountChange={() => {}} onNavigate={goTo} />}
 
           {activeTab === 'budgets' && (
-            selectedBudgetId ? (
+            selectedBudgetId === 'new-quick-service' ? (
+              <div className="absolute inset-0 z-50 bg-[#050505] flex flex-col">
+                <QuickServiceForm 
+                  key={budgetResetKey} 
+                  onBack={() => {
+                    setSelectedBudgetId(null);
+                  }} 
+                />
+              </div>
+            ) : selectedBudgetId ? (
               <RuntimeErrorBoundary>
                 <BudgetForm 
                   key={`${selectedBudgetId}-${budgetResetKey}`}
@@ -209,9 +270,12 @@ export function App() {
               </RuntimeErrorBoundary>
             ) : (
               <BudgetsScreen 
-                onNewBudget={() => {
-                  setSelectedBudgetId('new');
-                  setBudgetResetKey(prev => prev + 1);
+                onNewBudget={(type) => {
+                  if (type === 'quick') {
+                    goTo('new-quick-service');
+                  } else {
+                    goTo('new-budget');
+                  }
                 }}
                 onSelectBudget={(budget) => {
                   setSelectedBudgetId(budget.id);
@@ -220,12 +284,7 @@ export function App() {
             )
           )}
 
-          {activeTab === 'work-history' && (
-            <BudgetHistoryPage 
-              onNewBudget={() => goTo('new-budget')}
-              onOpenBudget={(budgetId) => openBudgetDetail(budgetId)}
-            />
-          )}
+
           {activeTab === 'catalog' && <CatalogScreen onAddMany={addManyCalculationCaptures} context={context} onBack={() => goTo('settings')} />}
           {activeTab === 'reports' && <ReportsScreen captures={captures} context={context} onBack={() => goTo('settings')} />}
 

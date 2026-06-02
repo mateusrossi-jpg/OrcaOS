@@ -72,14 +72,43 @@ export interface OperationalSnapshot {
 
 export type ServiceStatus = 'draft' | 'scheduled' | 'in-progress' | 'done' | 'cancelled';
 
-export interface Service {
+export interface MultiTenantEntity {
+  /** Tenant / Company identifier */
+  companyId: string;
+  /** Workspace (e.g., Service, Commercial, Finance, Management) */
+  workspaceId: string;
+  /** Optional profile (role / permission set) */
+  profileId?: string;
+  /** Owner user – useful for audit trails */
+  userId?: string;
+}
+
+/**
+ * Sync status casing hardening enum.
+ */
+export enum AggregateType {
+  ATTENDANCE = 'attendance',
+  BUDGET = 'budget',
+  WORKORDER = 'workorder',
+  CONTRACT = 'contract',
+  ASSET = 'asset'
+}
+
+/**
+ * Service (Work Order) now carries tenancy information.
+ * Existing fields are kept unchanged.
+ */
+export interface Service extends MultiTenantEntity {
   id: string;
+  /** [DERIVADO/CACHE] O cliente real é definido pelo Site. Este campo existe apenas para cache rápido de leitura no CRM. */
   clientId: string; // Mandatory for all Work Orders
-  siteId?: string; // Optional (Fase 3B)
+  siteId: string; // Mandatory (Site-First Architecture) - Source of Truth
   assetIds?: string[]; // Optional (Fase 3B)
   budgetId?: string; // Optional for OS Avulsa
+  attendanceId?: string; // Reference to Attendance (1:N)
   title: string;
   description?: string;
+  /** @deprecated O endereço está migrando integralmente para o Site (Site-First Architecture) */
   address?: string;
   priority?: 'low' | 'normal' | 'high' | 'urgent';
   status: ServiceStatus;
@@ -90,10 +119,20 @@ export interface Service {
   items?: BudgetItem[];
   executedValue?: number;
   
+  /** Indica visualmente e logicamente que esta OS sofreu um acionamento de garantia/retorno */
+  hasTechnicalReturn?: boolean;
+  /** Link rápido para os retornos associados a esta OS original */
+  technicalReturnIds?: string[];
+  
   createdAt?: string;
   updatedAt?: string;
   syncStatus?: 'synced' | 'pending' | 'deleted';
   syncUpdatedAt?: number;
+
+  // Soft Delete fields (FASE 2.6)
+  deletedAt?: string | null;
+  deletedBy?: string | null;
+  isDeleted?: boolean;
 }
 
 export type WorkOrder = Service;

@@ -25,7 +25,7 @@ export const ScreenContainer = memo(function ScreenContainer({
   return (
     <div
       className={cn(
-        "relative flex flex-col flex-1 w-full",
+        "relative flex flex-col flex-1 w-full page-fade-in",
         className
       )}
       {...props}
@@ -48,12 +48,12 @@ interface AppHeaderProps {
 /**
  * AppHeader: Authoritative page header with DM Mono metadata.
  */
-export const AppHeader = memo(function AppHeader({ 
-  title, 
-  eyebrow, 
-  subtitle, 
-  action, 
-  onBack, 
+export const AppHeader = memo(function AppHeader({
+  title,
+  eyebrow,
+  subtitle,
+  action,
+  onBack,
   chips,
   className = ''
 }: AppHeaderProps) {
@@ -61,37 +61,40 @@ export const AppHeader = memo(function AppHeader({
   const DAY = today.toLocaleDateString("pt-BR", { weekday: "long" }).toUpperCase();
   const DATE_STR = today.toLocaleDateString("pt-BR", { day: "numeric", month: "long" }).toUpperCase();
 
+  const safeTop = "pt-[calc(env(safe-area-inset-top)+12px)]"; 
+  const headingClass = "text-[var(--fs-xl)] font-black leading-tight tracking-tight text-white";
+
   return (
-    <header className={cn("px-6 pt-12 pb-6 flex flex-col gap-6", className)}>
+    <header className={cn(`w-full ${safeTop} px-6 pb-2 flex flex-col gap-1 border-b border-white/[0.05] bg-[#050505]/45 backdrop-blur-md`, className)}>
       {onBack && (
-        <button 
-          onClick={onBack} 
-          className="flex items-center gap-1 text-[var(--text-muted)] hover:text-white transition-colors font-mono text-[9px] uppercase tracking-wider w-fit"
+        <button
+          onClick={onBack}
+          className="flex items-center gap-1 text-[var(--text-muted)] hover:text-white transition-all font-mono text-[10px] uppercase tracking-[0.2em] w-fit mb-0.5 -ml-2 -mt-1 p-2 pr-4 rounded-xl active:bg-white/[0.04] active:scale-[0.98]"
         >
           <ChevronLeft className="h-4 w-4 text-[var(--accent-gold)]" /> Voltar
         </button>
       )}
 
-      <div className="flex justify-between items-center w-full min-h-[42px]">
+      <div className="flex justify-between items-center w-full min-h-[38px]">
         <div className="flex flex-col justify-center">
           {eyebrow ? (
             <Eyebrow>{eyebrow}</Eyebrow>
           ) : (
-            <div className="flex items-center gap-2 mb-1.5">
-              <Label className="!text-[9px] tracking-[0.22em]">{DAY}</Label>
-              <span className="w-0.5 h-0.5 rounded-full bg-[#3C3C3C]" />
-              <Label className="!text-[9px] tracking-[0.14em]">{DATE_STR}</Label>
+            <div className="flex items-center gap-1.5 mb-1">
+              <Label className="!text-[9px] tracking-[0.22em] text-[var(--accent-gold)] font-semibold">{DAY}</Label>
+              <span className="w-0.5 h-0.5 rounded-full bg-[var(--text-tertiary)]" />
+              <Label className="!text-[9px] tracking-[0.14em] text-[var(--text-muted)]">{DATE_STR}</Label>
             </div>
           )}
-          <Heading>{title}</Heading>
-          {subtitle && <Subtitle className="mt-2 max-w-[90%]">{subtitle}</Subtitle>}
+          <Heading className={headingClass}>{title}</Heading>
+          {subtitle && <Subtitle className="mt-1 text-[11px] text-[var(--text-secondary)] leading-relaxed max-w-[90%]">{subtitle}</Subtitle>}
         </div>
-        {action && <div className="flex items-center">{action}</div>}
+        {action && <div className="flex items-center gap-2">{action}</div>}
       </div>
 
       {chips && (
-        <div className="flex gap-2 overflow-x-auto scrollbar-none pb-0.5 mt-2">
-           {chips}
+        <div className="flex gap-2.5 overflow-x-auto scrollbar-none pb-0.5 mt-1">
+          {chips}
         </div>
       )}
     </header>
@@ -102,8 +105,11 @@ export const AppHeader = memo(function AppHeader({
  * Header: Standard sticky header for sub-pages.
  */
 export const Header = memo(function Header({ children, className = '', ...props }: LayoutProps) {
+  // Consistent sub‑page header: same height and safe‑area handling as AppHeader
+  const headerHeight = "min-h-[56px]";
+  const safeTop = "pt-[calc(env(safe-area-inset-top)+6px)]";
   return (
-    <div className={cn("flex items-center justify-between gap-4 py-4 px-6 bg-[var(--bg-surface-glass)] backdrop-blur-xl border-b var(--border-subtle)", className)} {...props}>
+    <div className={cn(`${headerHeight} ${safeTop} flex items-center justify-between gap-4 py-2 px-5 bg-[var(--bg-surface-glass)] backdrop-blur-xl border-b var(--border-subtle)`, className)} {...props}>
       {children}
     </div>
   );

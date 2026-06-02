@@ -1,0 +1,50 @@
+{
+  "typography": {
+    "fontFamily": "Inter, sans-serif",
+    "sizes": {
+      "h1": "2rem",
+      "h2": "1.75rem",
+      "h3": "1.5rem",
+      "body": "0.875rem",
+      "caption": "0.75rem"
+    },
+    "lineHeight": {
+      "h1": "2.5rem",
+      "h2": "2.25rem",
+      "h3": "2rem",
+      "body": "1.25rem"
+    }
+  },
+  "spacing": {
+    "grid": "4px",
+    "padding": {
+      "sm": "8px",
+      "md": "12px",
+      "lg": "16px"
+    },
+    "margin": {
+      "sm": "8px",
+      "md": "12px",
+      "lg": "16px"
+    }
+  },
+  "contrast": {
+    "minRatio": 4.5,
+    "foregroundColors": ["#FFFFFF", "#F5F5F5", "#FFC700"],
+    "backgroundColors": ["#0A0A0A", "#1A1A1A", "#212121"]
+  },
+  "components": {
+    "allowed": [
+      "SurfaceCard",
+      "PrimaryCTA",
+      "KpiCard",
+      "WorkflowStepper",
+      "MobileActionMenu",
+      "SuggestionCard"
+    ],
+    "aliases": {
+      "Button": "PrimaryCTA",
+      "Card": "SurfaceCard"
+    }
+  }
+}

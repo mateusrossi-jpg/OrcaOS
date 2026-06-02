@@ -8,7 +8,7 @@ export class DexieAccountPlanRepository implements AccountPlanRepository {
   async get(): Promise<AferixAccountState | null> {
     const record = await db.accountPlan.get(this.SINGLETON_ID);
     if (!record) return null;
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+     
     const { id, ...state } = record;
     return state as unknown as AferixAccountState;
   }

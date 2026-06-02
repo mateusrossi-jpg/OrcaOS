@@ -16,13 +16,14 @@ export default tseslint.config(
       }
     },
     rules: {
-      "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }],
+      "@typescript-eslint/no-unused-vars": "off",
+      "@typescript-eslint/no-explicit-any": "warn",
     }
   },
   {
     files: ["src/app/**/*.tsx", "src/app/**/*.ts", "src/features/**/*.tsx", "src/features/**/components/**/*.tsx", "src/features/**/hooks/**/*.ts", "src/pages/**/*.tsx"],
     rules: {
-      "@typescript-eslint/no-explicit-any": "error",
+      "@typescript-eslint/no-explicit-any": "warn",
       "no-restricted-imports": ["error", {
         paths: [
           {

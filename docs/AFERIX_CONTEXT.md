@@ -2,8 +2,12 @@
 
 Este documento é a ÚNICA fonte de verdade sobre a arquitetura e fluxo atual do Aferix. Qualquer informação contrária (em prompts antigos, documentação legada ou código morto) deve ser ignorada e reportada.
 
-## 1. Visão do Produto
+## 1. Visão do Produto e Posicionamento
 * **Produto**: Aferix.
+* **Missão**: Centralizar toda a operação de empresas de serviços técnicos em uma única plataforma (Elétrica, Climatização, PMOC, Energia Solar, Automação, CFTV, etc. - veja o [Posicionamento Oficial V1](./product/AFERIX_POSICIONAMENTO_V1.md)).
+* **Regra Estratégica Core vs Vertical**: O Core (Clientes, Ativos, Sites, Contratos, Ordens de Serviço, Checklists, Relatórios, etc.) deve sempre ser mais importante que qualquer vertical. Se uma nova funcionalidade fortalece o Core: **PRIORIDADE ALTA**. Se servir apenas para um nicho: **Módulo ou Template** externo.
+* **Governança de Fronteiras**: O escopo do Aferix está rigidamente isolado em relação ao **OrçaOS** (Precificação/Orçamentos) e **ENDAP** (Engenharia/IoT) conforme a [Constituição de Fronteiras](./product/AFERIX_ORCAOS_ENDAP_CONSTITUTION_V1.md), a [Auditoria de Fronteiras](./product/AFERIX_ORCAOS_ENDAP_BOUNDARIES_AUDIT.md) e a [Estratégia de Ecossistema 2030](./product/AFERIX_ECOSYSTEM_STRATEGY_2030.md), respondendo às definições e contratos técnicos da [Plataforma Central](./product/AFERIX_PLATFORM_ARCHITECTURE.md), da [Constituição da Plataforma](./product/AFERIX_PLATFORM_CONSTITUTION.md), do [Event Bus](./product/AFERIX_EVENT_BUS_ARCHITECTURE.md) e da [Estratégia SaaS 2030](./product/AFERIX_SAAS_STRATEGY_2030.md).
+* **Roteiro de Primeira Receita (30 Dias)**: Para maximizar a velocidade de validação e MRR, o foco exclusivo de curto prazo está consolidado na [Auditoria de Primeira Receita](./product/AFERIX_FIRST_REVENUE_AUDIT.md), no [Fluxo Crítico do Cliente](./product/AFERIX_FIRST_CUSTOMER_BLUEPRINT.md) e no [Plano de Ação de 30 Dias](./product/AFERIX_30_DAY_REVENUE_PLAN.md), sendo guiado tecnicamente pelo [Laudo de Auditoria PMOC](./product/AFERIX_PMOC_PILOT_AUDIT.md), [Mapeamento de Bloqueadores PMOC](./product/AFERIX_PMOC_BLOCKERS.md) e [Backlog de Implementação](./product/AFERIX_FIRST_PAYING_CUSTOMER_BACKLOG.md), validado comercialmente pelo [First Customer Kill Test](./product/AFERIX_FIRST_CUSTOMER_KILL_TEST.md) e estruturado pelo [Plano de Execução Técnica](./product/AFERIX_FIRST_CUSTOMER_EXECUTION_PLAN.md).
 * **Foco atual**: Orçamento, gestão financeira e operação para prestadores de serviço / autônomos.
 * **Identidade Visual**: Dark Premium com amarelo/dourado como accent principal. Tema claro não existe. Sem teal/cyan como destaque.
 

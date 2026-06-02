@@ -1,100 +1,257 @@
-/* ==========================================================================
-   AFERIX UNIFIED DESIGN SYSTEM — EXECUTIVE OS V5 (AUTHORITY)
-   Bit-perfect synchronization with HomeScreen.tsx reference.
-   ========================================================================== */
-
+/* AFERIX UNIFIED DESIGN SYSTEM — EXECUTIVE OS V5 (AUTHORITY)
+   -----------------------------------------------------------
+   Updated: 2026-05-31 – added full token set for premium dark UI.
+*/
 :root {
-  /* --- 1. BACKGROUNDS & ATMOSPHERE (AFERIX V5) --- */
-  --bg-primary: oklch(0.14 0.005 260); /* Cinematic Graphite */
-  --bg-secondary: oklch(0.12 0.005 260);
-  --bg-surface: oklch(0.18 0.006 260);
-  --bg-surface-elevated: oklch(0.22 0.006 260);
+  /* -------------------------------------------------------------------
+     1. COLORS – Premium Dark Palette (Physical Environment)
+     ------------------------------------------------------------------- */
+  --bg-primary: #050505;              /* Absolute Deep */
+  --bg-secondary: #080A0E;            /* Navy Deep */
+  --bg-surface: #0B0F14;              /* Surface base */
+  --bg-surface-elevated: #10141B;     /* Elevated base */
   --bg-surface-glass: rgba(255, 255, 255, 0.015);
   --bg-overlay: rgba(12, 12, 12, 0.95);
 
-  /* --- TEXT VARIABLES (EXECUTIVE PREMIUM) --- */
-  --text-primary: #EFEFEF;
-  --text-secondary: #808080;
-  --text-muted: #505050;
-  --text-tertiary: #3C3C3C;
+  --text-primary: #FFFFFF;            /* Full crisp white */
+  --text-secondary: #A8AEC0;          /* Crisp light slate-gray (optimized for sunlight readability) */
+  --text-muted: #787E92;              /* Highly legible auxiliary gray */
+  --text-tertiary: #585E70;           /* Highly legible label gray */
 
-  /* --- 2. MATERIAL SYSTEM (PREMIUM FINISH) --- */
-  --accent-gold: oklch(0.82 0.14 85); /* Official Aferix Gold - High authority */
-  --accent-green: oklch(0.78 0.16 155); /* Official Success Green */
-  --accent-red: oklch(0.68 0.2 25); /* Official Alert Red */
-  --accent-blue: oklch(0.70 0.12 230); /* Proportional blue accent */
-  
-  /* --- BUTTONS & CONTROLS (BALANCED DARK) --- */
+  --accent-gold: oklch(0.82 0.14 85);   /* official Aferix gold */
+  --accent-green: oklch(0.78 0.16 155); /* success */
+  --accent-red: oklch(0.68 0.20 25);   /* danger */
+  --accent-blue: oklch(0.70 0.12 230);
+
+  /* -------------------------------------------------------------------
+     2. BUTTONS & CONTROLS
+     ------------------------------------------------------------------- */
   --btn-primary-bg: var(--accent-gold);
-  --btn-primary-text: #050505; /* Softer than pure black */
+  --btn-primary-text: #050505;               /* softer than pure black */
   --btn-secondary-bg: rgba(255, 255, 255, 0.05);
-  --btn-secondary-border: rgba(255, 255, 255, 0.08);
+  --btn-secondary-border: rgba(255, 255, 255, 0.07);
   --btn-glass-bg: rgba(255, 255, 255, 0.03);
-  --btn-danger-bg: rgba(oklch(0.56 0.07 25), 0.15);
-  
+  --btn-danger-bg: rgba(212, 64, 45, 0.15);   /* derived from accent‑red */
+
   --border-soft: 1px solid rgba(255, 255, 255, 0.08);
   --border-subtle: 1px solid rgba(255, 255, 255, 0.12);
   --border-primary: 1px solid rgba(191, 155, 87, 0.25);
 
-  /* --- 3. GEOMETRY & SPACING (AUTHORITY) --- */
+  /* -------------------------------------------------------------------
+     3. GEOMETRY & SPACING
+     ------------------------------------------------------------------- */
   --radius-xs: 8px;
   --radius-sm: 12px;
-  --radius-md: 16px; /* Buttons */
-  --radius-card: 24px; /* Standard Card */
+  --radius-md: 16px;          /* Buttons */
+  --radius-card: 24px;        /* Standard Card */
   --radius-modal: 32px;
   --radius-pill: 9999px;
 
   --spacing-xs: 4px;
-  --spacing-sm: 12px; /* Related items Stacking */
-  --spacing-md: 16px; /* Mobile screen margin */
-  --spacing-lg: 24px; /* Standard Stacking / Desktop margin */
+  --spacing-sm: 12px;         /* Stacking between related items */
+  --spacing-md: 16px;         /* Mobile screen margin */
+  --spacing-lg: 24px;         /* Desktop margin */
   --spacing-xl: 32px;
   --spacing-section: 48px;
 
-  /* --- 4. CINEMATIC DEPTH & GLOWS (HOME PARITY) --- */
+  /* -------------------------------------------------------------------
+     4. TYPOGRAPHY – Premium Hierarchy
+     ------------------------------------------------------------------- */
+  --fs-hero: 64px; /* monumental number */
+  --fs-2xl: 26px;
+  --fs-xl: 20px;
+  --fs-lg: 18px;
+  --fs-md: 16px;
+  --fs-sm: 14px;
+  --fs-xs: 12px;
+
+  --fw-black: 900;
+  --fw-bold: 700;
+  --fw-semibold: 600;
+  --fw-medium: 500;
+  --fw-regular: 400;
+
+  /* -------------------------------------------------------------------
+     5. SHADOWS & GLOWS – Cinematic Depth
+     ------------------------------------------------------------------- */
   --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.4);
   --shadow-dock: 0 -1px 0 rgba(255, 255, 255, 0.04) inset, 0 24px 60px rgba(0, 0, 0, 0.7);
-  
   --shadow-primary: 0 4px 16px rgba(191, 155, 87, 0.08), 0 1px 0 rgba(255, 255, 255, 0.15) inset;
   --shadow-danger: 0 4px 16px rgba(192, 57, 43, 0.1), 0 1px 0 rgba(255, 255, 255, 0.1) inset;
-  --shadow-button: var(--shadow-primary);
   --shadow-cinematic: 0 12px 48px rgba(0, 0, 0, 0.6);
+
+  /* -------------------------------------------------------------------
+     6. TRANSITIONS & ANIMATIONS
+     ------------------------------------------------------------------- */
+  --transition-fast: 150ms ease-out;
+  --transition-normal: 300ms cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-base: 400ms;
+  --ease-out-expo: cubic-bezier(0.19, 1, 0.22, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* -------------------------------------------------------------------
+     7. Misc utilities – reusable across components
+     ------------------------------------------------------------------- */
+  --surface-gradient: linear-gradient(145deg, oklch(0.22 0.006 260), oklch(0.18 0.006 260));
+  --blur-overlay: blur(12px);
+  --fab-bottom: 104px;
+  --fab-right: 24px;
+  --control-h-lg: 56px;
 }
 
-/* ━━━ AUTHORITATIVE BUTTON FILL PROTOCOL (Phase 4I) ━━━ */
+/* -------------------------------------------------------------------
+   GLOBAL UTILITIES – lightweight class‑based API
+   ------------------------------------------------------------------- */
+/* Buttons – thin wrapper using the token variables above */
 .aferix-btn-primary {
   background-color: var(--btn-primary-bg) !important;
   color: var(--btn-primary-text) !important;
   box-shadow: var(--shadow-primary) !important;
-}
-
-.aferix-btn-danger {
-  background-color: var(--btn-danger-bg) !important;
-  color: oklch(0.75 0.14 25) !important;
-  border: 1px solid rgba(oklch(0.65 0.18 25), 0.2) !important;
+  transition: var(--transition-normal) !important;
 }
 
 .aferix-btn-secondary {
   background-color: var(--btn-secondary-bg) !important;
-  border: 1px solid var(--btn-secondary-border) !important;
+  border: var(--btn-secondary-border) !important;
   color: var(--text-primary) !important;
+  transition: var(--transition-normal) !important;
 }
 
-body {
-  background-color: var(--bg-primary);
+.aferix-btn-danger {
+  background-color: var(--btn-danger-bg) !important;
+  color: #EFEFEF !important;
+  border: 1px solid rgba(212, 64, 45, 0.2) !important;
+  transition: var(--transition-normal) !important;
+}
+
+/* Micro‑animations – use via .animate‑fade‑in, .animate‑scale‑pop, etc. */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.animate-fade-in { animation: fadeIn var(--dur-base) var(--ease-out-expo) forwards; }
+
+@keyframes scalePop {
+  0%   { transform: scale(0.94); opacity: 0; }
+  100% { transform: scale(1);    opacity: 1; }
+}
+.animate-scale-pop { animation: scalePop var(--dur-base) var(--ease-spring) forwards; }
+/* Respect reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-in,
+  .animate-scale-pop {
+    animation: none !important;
+  }
+}
+
+/* -------------------------------------------------------------------
+   COMPONENT‑LEVEL OVERRIDES – ensure premium appearance
+   ------------------------------------------------------------------- */
+/* InlineAlert – uses surface‑elev and subtle accent */
+.inline-alert {
+  box-shadow: var(--shadow-card);
+  padding: var(--spacing-sm);
+  border-radius: var(--radius-sm);
+  font-size: var(--fs-sm);
+  border-left: 4px solid var(--accent-gold);
+}
+.surface-elev {
+  box-shadow: var(--shadow-card);
+}
+
+/* OperationalDock – premium physical dock */
+.operational-dock {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: auto;
+  min-width: 280px;
+  max-width: 90vw;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: rgba(11, 15, 20, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 24px;
+  box-shadow: 
+    0 20px 40px rgba(0,0,0,0.6),
+    0 0 0 1px rgba(255,255,255,0.02) inset;
+  z-index: 1000;
+}
+
+.operational-dock-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  min-width: 44px;
+  height: auto;
+  min-height: 44px;
+  padding: 4px 0;
+  border-radius: 18px;
+  background-color: transparent;
+  color: var(--text-secondary);
+  border: 1px solid transparent;
+  transition: all var(--transition-normal);
+  flex-shrink: 0;
+  cursor: pointer;
+  position: relative;
+}
+
+.operational-dock-nav:hover:not(:disabled) {
   color: var(--text-primary);
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  line-height: 1.2;
-  margin: 0;
+  background-color: rgba(255, 255, 255, 0.05);
 }
 
-.num, .tabular-nums { 
-  font-variant-numeric: tabular-nums !important; 
+.operational-dock-nav.active {
+  color: var(--accent-gold);
+  background-color: rgba(227, 185, 72, 0.08);
+  border-color: rgba(227, 185, 72, 0.2);
+  box-shadow: 0 0 15px rgba(227, 185, 72, 0.05);
+}
+
+/* HeroCard – The dominant element */
+.hero-card {
+  border-radius: 32px;
+  padding: 48px 32px;
+  background: linear-gradient(145deg, #0B0F14, #050505);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: var(--shadow-cinematic);
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+}
+
+.hero-card-value {
+  font-size: var(--fs-hero);
+  font-weight: var(--fw-black);
+  line-height: 1;
+  color: var(--accent-gold);
   letter-spacing: -0.02em;
 }
 
-.text-hero { font-size: var(--fs-hero); font-weight: var(--fw-black); letter-spacing: -0.04em; }
-.text-h1   { font-size: var(--fs-2xl); font-weight: var(--fw-bold); letter-spacing: -0.025em; }
-.text-h2   { font-size: var(--fs-xl); font-weight: var(--fw-semibold); }
-.text-ui-xs { font-family: 'DM Mono', monospace; font-size: 9.5px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.18em; color: var(--text-tertiary); }
+.hero-card-subtitle {
+  font-family: monospace;
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-secondary);
+  margin-top: var(--spacing-sm);
+}

@@ -11,6 +11,7 @@ describe.skip('Beta Workflow Simulation', () => {
     const mockBudget: Budget = {
       id: 'beta-1',
       clientId: 'client-1',
+      siteId: 'site-1',
       title: 'Instalação Beta',
       items: [
         { id: 'item-1', description: 'Mão de obra', quantity: 1, unitPrice: 500, category: 'labor' }

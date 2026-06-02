@@ -92,11 +92,11 @@ export const StoreScreen = memo(function StoreScreen({ account, onBack }: StoreS
                 >
                    <div className="flex items-center gap-4 w-full">
                       <div style={{ width: "36px", height: "36px", borderRadius: "10px", backgroundColor: "rgba(50,215,75,0.05)", border: "1px solid rgba(50,215,75,0.15)", display: "grid", placeItems: "center" }} className="shrink-0">
-                         <CheckCircle2 className="h-4 w-4 text-[#2ECC71]" />
+                         <CheckCircle2 className="h-4 w-4 text-[var(--accent-green)]" />
                       </div>
                       <div className="flex flex-col">
                          <span className="text-[14px] font-bold text-white uppercase">{b.title}</span>
-                         <span className="text-[10px] text-[#505050] font-medium uppercase tracking-wider">{b.description?.slice(0, 40)}...</span>
+                         <span className="text-[10px] text-[var(--text-secondary)] font-medium uppercase tracking-wider">{b.description?.slice(0, 40)}...</span>
                       </div>
                    </div>
                 </InteractiveRow>
@@ -104,12 +104,12 @@ export const StoreScreen = memo(function StoreScreen({ account, onBack }: StoreS
            </SurfaceCard>
         </div>
 
-        <SurfaceCard className="bg-[#D4A94E]/5 border-[#D4A94E]/20" padding="lg">
+        <SurfaceCard className="bg-[var(--accent-gold)]/5 border-[var(--accent-gold)]/20" padding="lg">
           <div className="flex items-start gap-4">
-            <Star className="h-5 w-5 text-[#D4A94E] shrink-0" fill="currentColor" />
+            <Star className="h-5 w-5 text-[var(--accent-gold)] shrink-0" fill="currentColor" />
             <div>
-              <p className="text-sm font-bold text-[#D4A94E] mb-1 uppercase tracking-tight">Vantagem Exclusiva Beta</p>
-              <p className="text-[11px] text-[#D4A94E]/60 leading-relaxed">Você possui acesso a todos os futuros módulos Pro sem custo adicional como agradecimento por ser um dos primeiros usuários do Aferix.</p>
+              <p className="text-sm font-bold text-[var(--accent-gold)] mb-1 uppercase tracking-tight">Vantagem Exclusiva Beta</p>
+              <p className="text-[11px] text-[var(--accent-gold)]/60 leading-relaxed">Você possui acesso a todos os futuros módulos Pro sem custo adicional como agradecimento por ser um dos primeiros usuários do Aferix.</p>
             </div>
           </div>
         </SurfaceCard>

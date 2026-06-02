@@ -1,3 +1,4 @@
+/* eslint-disable no-restricted-imports */
 import 'fake-indexeddb/auto';
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { db } from '../storage/dexieDatabase';
@@ -56,6 +57,7 @@ describe('AFERIX COMPLETE REVENUE FLOW INTEGRATION TEST', () => {
     const budgetDraft: Budget = {
       id: budgetId,
       clientId: client.id,
+      siteId: 'site-1',
       clientName: client.name,
       title: 'Instalação Elétrica Premium',
       status: BUDGET_STATUS.INICIADO,
@@ -121,6 +123,7 @@ describe('AFERIX COMPLETE REVENUE FLOW INTEGRATION TEST', () => {
     const workOrderDraft: WorkOrder = {
       id: workOrderId,
       clientId: client.id,
+      siteId: 'site-1',
       budgetId: budgetId,
       title: budgetDraft.title,
       description: 'Executar instalação conforme checklist técnico aprovado',
@@ -132,8 +135,9 @@ describe('AFERIX COMPLETE REVENUE FLOW INTEGRATION TEST', () => {
       updatedAt: new Date().toISOString()
     };
 
-    // Creating a Work Order must AUTOMATICALLY advance budget status to 'em_execucao'
+    // Creating a Work Order must AUTOMATICALLY advance budget status to 'em_execucao' (Decoupled: now we do it explicitly!)
     await operationalFacade.createWorkOrder(workOrderDraft);
+    await operationalFacade.executeBudget(budgetId);
 
     currentBudget = await budgetPersistence.getBudget(budgetId);
     const savedWorkOrder = await workOrderService.getById(workOrderId);
@@ -147,8 +151,9 @@ describe('AFERIX COMPLETE REVENUE FLOW INTEGRATION TEST', () => {
     await operationalFacade.updateWorkOrder(activeWorkOrder);
 
     // STAGE 7: Complete Work Order
-    // Completing the OS must AUTOMATICALLY finalize the budget and realise the BI figures
+    // Completing the OS must AUTOMATICALLY finalize the budget and realise the BI figures (Decoupled: now we do it explicitly!)
     await operationalFacade.completeWorkOrder(workOrderId, 1200, 0);
+    await operationalFacade.finalizeBudgetCycle(budgetId);
 
     const completedWorkOrder = await workOrderService.getById(workOrderId);
     currentBudget = await budgetPersistence.getBudget(budgetId);

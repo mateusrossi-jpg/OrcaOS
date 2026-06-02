@@ -19,14 +19,15 @@ export const ERPLoader = memo(function ERPLoader({ message, className = '' }: { 
 
 /**
  * ERPEmptyState: Discrete placeholder for empty contexts.
+ * Refactored for monumental technical authority (Phase 4H).
  */
 export const ERPEmptyState = memo(function ERPEmptyState({ title, description, icon, action, className = '' }: { title: string, description?: string, icon?: ReactNode, action?: ReactNode, className?: string }) {
   return (
-    <div className={cn("w-full py-20 px-6 flex flex-col items-center justify-center gap-4 text-center", className)}>
-      {icon && <div className="text-[var(--text-muted)] opacity-20 mb-4">{icon}</div>}
-      <h3 className="text-lg font-bold text-[var(--text-primary)]">{title}</h3>
-      {description && <p className="text-sm font-medium text-[var(--text-secondary)] max-w-xs leading-relaxed opacity-60">{description}</p>}
-      {action && <div className="mt-6">{action}</div>}
+    <div className={cn("w-full py-32 px-10 flex flex-col items-center justify-center gap-6 text-center animate-in fade-in duration-700", className)}>
+      {icon && <div className="text-[var(--text-muted)] opacity-10 mb-6 scale-150">{icon}</div>}
+      <h3 className="font-mono text-[10px] font-black tracking-[0.4em] text-[var(--text-tertiary)] uppercase">{title}</h3>
+      {description && <p className="text-[13px] font-medium text-[var(--text-secondary)] max-w-[260px] leading-relaxed opacity-40">{description}</p>}
+      {action && <div className="mt-8 w-full max-w-[240px]">{action}</div>}
     </div>
   );
 });

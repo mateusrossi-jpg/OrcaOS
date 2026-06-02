@@ -4,12 +4,15 @@ export default {
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
+  safelist: [
+    { pattern: /surface-elev/ },
+  ],
   theme: {
     extend: {
       colors: {
-        // Map Aferix design system variables if needed, but Tailwind classes like bg-[#0F0F0F] will be processed dynamically
+        // map Aferix design system variables if needed
       },
     },
   },
   plugins: [],
-}
+};

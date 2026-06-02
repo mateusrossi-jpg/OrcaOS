@@ -177,8 +177,8 @@ body {
    WIDE SCREEN GOLDEN HOME REFERENCE INSETS
    -------------------------------------------------- */
 .wide-screen {
-  padding-left: var(--sz-md, 16px) !important;
-  padding-right: var(--sz-md, 16px) !important;
+  padding-left: 24px !important;
+  padding-right: 24px !important;
   padding-top: 12px !important;
   /* Scroll termination spacing: Nav height (62px) + breathing room (24px) + Safe Area bottom inset */
   padding-bottom: calc(86px + max(env(safe-area-inset-bottom), 10px)) !important;
@@ -371,5 +371,68 @@ button.secondary-action {
   background-color: rgba(192, 57, 43, 0.1) !important;
 }
 
+/* --------------------------------------------------
+   AFERIX PREMIUM MOTION DESIGN SYSTEM
+   -------------------------------------------------- */
 
+@keyframes pageFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
+.page-fade-in {
+  animation: pageFadeIn 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Premium micro-interactive scale feedback */
+.cursor-pointer {
+  transition: background-color 0.2s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.cursor-pointer:active {
+  transform: scale(0.99) !important;
+}
+
+.surface-elev {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.surface-elev:active {
+  transform: scale(0.995) !important;
+}
+
+/* Linear-style high-end skeleton shimmer loading state */
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.shimmer-premium {
+  position: relative;
+  overflow: hidden;
+}
+
+.shimmer-premium::after {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  transform: translateX(-100%);
+  background-image: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.02) 25%,
+    rgba(255, 255, 255, 0.07) 60%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  animation: shimmer 1.6s infinite;
+  content: '';
+}

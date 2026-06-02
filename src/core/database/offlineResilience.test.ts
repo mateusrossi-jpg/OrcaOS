@@ -90,6 +90,7 @@ describe('AFERIX SYSTEMATIC OFFLINE RESILIENCE AND CRASH RECOVERY', () => {
     const budgetDraft: Budget = {
       id: budgetId,
       clientId: client.id,
+      siteId: 'site-1',
       clientName: client.name,
       title: 'Manutenção Hidráulica Predial',
       status: BUDGET_STATUS.INICIADO,
@@ -138,6 +139,7 @@ describe('AFERIX SYSTEMATIC OFFLINE RESILIENCE AND CRASH RECOVERY', () => {
     const workOrderDraft: WorkOrder = {
       id: workOrderId,
       clientId: client.id,
+      siteId: 'site-1',
       budgetId: budgetId,
       title: budgetDraft.title,
       description: 'Executar trocas hidráulicas prediais',
@@ -149,12 +151,14 @@ describe('AFERIX SYSTEMATIC OFFLINE RESILIENCE AND CRASH RECOVERY', () => {
       updatedAt: new Date().toISOString()
     };
     await operationalFacade.createWorkOrder(workOrderDraft);
+    await operationalFacade.executeBudget(budgetId);
 
     // STEP 6: Complete Work Order Offline
     await operationalFacade.completeWorkOrder(workOrderId, 3800, 0);
 
     // STEP 7: Register Payment Offline
     await operationalFacade.registerPayment(workOrderId, 3800);
+    await operationalFacade.finalizeBudgetCycle(budgetId);
 
     // Validate that ALL mutations executed successfully in local Dexie
     const localClient = await clientService.getById(client.id);

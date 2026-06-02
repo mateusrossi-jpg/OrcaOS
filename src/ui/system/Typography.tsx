@@ -19,7 +19,7 @@ export const SectionLabel = memo(function SectionLabel({ children, className = '
   return (
     <p
       className={cn(
-        "font-mono text-[9.5px] font-medium tracking-[0.18em] text-[#3C3C3C] uppercase select-none m-0",
+        "font-mono text-[9.5px] font-bold tracking-[0.18em] text-[var(--text-secondary)] uppercase select-none m-0",
         className
       )}
       {...props}
@@ -104,7 +104,7 @@ export const Label = memo(function Label({ children, as: Component = 'span', cla
   return (
     <Component 
       className={cn(
-        "font-mono text-[9.5px] font-bold tracking-[0.18em] text-[#3C3C3C] uppercase select-none", 
+        "font-mono text-[9.5px] font-bold tracking-[0.18em] text-[var(--text-secondary)] uppercase select-none", 
         className
       )} 
       {...props}

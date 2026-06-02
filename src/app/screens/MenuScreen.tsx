@@ -94,13 +94,6 @@ export const MenuScreen = memo(function MenuScreen({ account, onNavigate }: Menu
 
   const isSubSection = activeSection !== 'main';
 
-  const chips = (
-    <>
-       <OpsChip icon={<Lock size={11} />} label="PIN_ATIVO" accent={false} />
-       <OpsChip icon={<History size={11} />} label="SYNC_OK" accent="green" />
-    </>
-  );
-
   return (
     <ScreenContainer className="pb-32">
       
@@ -108,10 +101,9 @@ export const MenuScreen = memo(function MenuScreen({ account, onNavigate }: Menu
       <AppHeader 
         title={titleMap[activeSection]}
         onBack={isSubSection ? () => setActiveSection('main') : undefined}
-        chips={!isSubSection ? chips : undefined}
       />
 
-      <div className="px-4 flex flex-col gap-8">
+      <div className="px-6 py-8 flex flex-col gap-12">
         
         {activeSection === 'main' ? (
           <>
@@ -122,15 +114,15 @@ export const MenuScreen = memo(function MenuScreen({ account, onNavigate }: Menu
             </ExecutiveSummaryGrid>
 
             {/* 1. IDENTITY HUB */}
-            <SurfaceCard variant="cinematic" padding="lg" onClick={() => setActiveSection('profile')}>
+            <SurfaceCard className="bg-[var(--accent-gold)]/5 border-[var(--accent-gold)]/20" padding="lg" onClick={() => setActiveSection('profile')}>
                <div className="flex items-center gap-4">
-                  <div className="h-14 w-14 rounded-full bg-[#D4A94E]/10 border border-[#D4A94E]/20 flex items-center justify-center text-[#D4A94E] font-bold text-xl">
+                  <div className="h-14 w-14 rounded-full bg-[var(--accent-gold)]/10 border border-[var(--accent-gold)]/20 flex items-center justify-center text-[var(--accent-gold)] font-bold text-xl">
                     {userInitials}
                   </div>
                   <div className="flex-1 min-w-0">
                     <Body className="truncate font-bold uppercase">{accountLabel}</Body>
                     <div className="flex items-center gap-2 mt-1">
-                       <Star className="h-3 w-3 text-[#D4A94E] fill-current" />
+                       <Star className="h-3 w-3 text-[var(--accent-gold)] fill-current" />
                        <SectionLabel className="text-[var(--accent-gold)] tracking-[0.2em]">{planStatusTitle(account)}</SectionLabel>
                     </div>
                   </div>
@@ -172,6 +164,7 @@ export const MenuScreen = memo(function MenuScreen({ account, onNavigate }: Menu
                   <LogOut size={16} className="mr-3" /> DESCONECTAR_ESTA_SESSÃO
                </DangerButton>
                <div className="text-center opacity-20">
+                  <p className="text-sm font-bold text-[var(--accent-gold)] mb-1 uppercase tracking-tight">Vantagem Exclusiva Beta</p>
                   <Body className="text-[9px] font-bold font-mono uppercase tracking-[0.4em]">Aferix OS v0.1.0-RC1</Body>
                </div>
             </Section>

@@ -1,173 +1,168 @@
-import { memo } from "react";
-import {
-  MapPin,
-  User,
-  CalendarDays,
-  Clock,
-  AlertTriangle,
-  Activity,
-  Terminal,
-  ArrowRight
-} from "lucide-react";
+import { memo, useState } from "react";
 import type { AppTab } from "../appTypes";
-import { useHomeAttentionStack } from "../hooks/useHomeAttentionStack";
+import { ScreenContainer, Title, Body, AppHeader } from '../../ui/system';
+import { PrimaryButton, SecondaryButton, Input, Select, Modal } from '../components/ui';
+import { db } from '../../storage/dexieDatabase';
 
-// ── Unified UI Architecture ──────────────────────────────────────────────────
-import { 
-  ScreenContainer, 
-  SurfaceCard, 
-  SectionLabel,
-  SemanticBadge,
-  AppHeader,
-  OpsChip,
-  InteractiveRow,
-  Stack,
-  Section,
-  Title,
-  Subtitle,
-  Body,
-  Value
-} from '../../ui/system';
-import { MoneyValue } from '../components/ui';
+const generateId = () => typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2) + Date.now().toString(36);
 
 interface HomeScreenProps {
   onNavigate: (tab: AppTab) => void;
-  onSelectBudget?: (budget: { id: string }) => void;
+  account?: any;
 }
 
-/**
- * AFERIX HOME V25 (EXECUTIVE COCKPIT)
- * Directly connected to route 'pulse'.
- * Aligned with AFERIX VISUAL PROTOCOL (Phase 4).
- */
 export const HomeScreen = memo(function HomeScreen({
   onNavigate,
-  onSelectBudget,
+  account,
 }: HomeScreenProps) {
-  const { p0, p1, p2, commandStatus, nextEvent } = useHomeAttentionStack();
+  const [isExpressModalOpen, setIsExpressModalOpen] = useState(false);
+  const [expressTitle, setExpressTitle] = useState('');
+  const [expressType, setExpressType] = useState('Climatização');
 
-  const chips = (
-    <>
-      <OpsChip icon={<Activity size={11} />} label={`${p2.executingCount} ao vivo`} accent={p2.executingCount > 0 ? "orange" : false} />
-      <OpsChip icon={<CalendarDays size={11} />} label={`${p2.todayJobsCount} hoje`} accent={p2.todayJobsCount > 0 ? "blue" : false} />
-      <OpsChip icon={<Clock size={11} />} label="09:42 uptime" accent={false} />
-    </>
-  );
+  const handleCreateExpressOS = async () => {
+    if (!expressTitle) return;
+
+    // Criar Cliente Avulso, Local Atual, OS nos bastidores (FASE 2)
+    const companyId = 'express-company';
+    const workspaceId = 'express-workspace';
+    const now = new Date().toISOString();
+    const clientId = generateId();
+    const siteId = generateId();
+    const workOrderId = generateId();
+
+    await db.transaction('rw', db.clients, db.sites, db.workOrders, async () => {
+      await db.clients.add({
+        id: clientId,
+        companyId,
+        workspaceId,
+        name: 'Cliente Avulso (Express)',
+        createdAt: now,
+        updatedAt: now,
+        syncStatus: 'pending'
+      });
+
+      await db.sites.add({
+        id: siteId,
+        companyId,
+        workspaceId,
+        clientId,
+        name: 'Local Atual',
+        fullAddress: 'Endereço não informado',
+        isMain: true,
+        createdAt: now,
+        updatedAt: now,
+        syncStatus: 'pending'
+      });
+
+      await db.workOrders.add({
+        id: workOrderId,
+        companyId,
+        workspaceId,
+        clientId,
+        siteId,
+        title: expressTitle,
+        description: `OS Gerada via Express (${expressType})`,
+        status: 'in-progress',
+        paymentStatus: 'pending',
+        createdAt: now,
+        updatedAt: now,
+        syncStatus: 'pending'
+      });
+    });
+
+    setIsExpressModalOpen(false);
+    
+    // Na próxima fase (P0) isso deve direcionar direto pro Cockpit refatorado, 
+    // mas por hora navegamos para a view 'base' com a OS selecionada.
+    // Como a integração state/context completa será feita depois, enviamos pra 'base'.
+    onNavigate('base');
+  };
+
+  const handleTestNow = async () => {
+    // FASE 2: Testar Agora utiliza o DemoBootstrapService que já preparamos (Shopping Exemplo)
+    const { DemoBootstrapService } = await import('../../services/DemoBootstrapService');
+    await DemoBootstrapService.bootstrapIfEmpty();
+    onNavigate('base');
+  };
 
   return (
-    <ScreenContainer className="pb-32">
-      <div className="flex-1 overflow-y-auto overflow-x-hidden pb-[124px] scrollbar-none">
+    <ScreenContainer className="pb-32 bg-surface-900 flex flex-col items-center justify-center min-h-[90vh]">
+      
+      <div className="w-full max-w-sm px-6 py-12 flex flex-col gap-12 text-center animate-fade-in">
         
-        {/* ━━━ AUTHORITATIVE HEADER ━━━ */}
-        <AppHeader 
-          title="Bom dia, Mateus."
-          action={
-            <button 
-              onClick={() => onNavigate('settings')}
-              className="grid h-[42px] w-[42px] place-items-center rounded-[16px] bg-white/[0.04] border border-white/[0.04] text-[#808080] hover:bg-white/10 active:scale-95 transition-all shadow-[var(--shadow-soft)]"
-              title="Menu Executivo"
-            >
-              <User size={18} strokeWidth={2} />
-            </button>
-          }
-          chips={chips}
-        />
+        <div className="flex flex-col gap-4">
+          <div className="mx-auto w-16 h-16 bg-brand-500 rounded-2xl flex items-center justify-center shadow-[0_0_40px_rgba(212,169,78,0.3)]">
+            <span className="text-surface-900 font-black text-2xl tracking-tighter">A</span>
+          </div>
+          <h1 className="text-3xl font-black text-white tracking-tight mt-4">AFERIX</h1>
+          <p className="text-text-secondary text-lg leading-relaxed">
+            O jeito mais rápido de gerar <br/>
+            <span className="text-white font-bold">laudos técnicos profissionais.</span>
+          </p>
+        </div>
 
-        <div className="px-4 flex flex-col gap-12">
-          
-          {/* 1. MISSION BRIEFING (P0 - URGENCIES) */}
-          <Section className="gap-3">
-            <SectionLabel className="ml-2">Missão do Dia</SectionLabel>
-            {p0.length === 0 ? (
-               <SurfaceCard variant="cinematic" padding="lg">
-                  <div className="flex items-center justify-between mb-8">
-                     <SectionLabel>Status Global</SectionLabel>
-                     <Activity className="h-3 w-3 text-emerald-400 animate-pulse" />
-                  </div>
-                  <Title className="text-[28px] leading-[1.1]">
-                     Tudo sob controle.
-                  </Title>
-                  <Body className="text-[var(--accent-gold)] mt-3">
-                     Nenhuma urgência detectada no radar.
-                  </Body>
-               </SurfaceCard>
-            ) : (
-               p0.map((alert) => (
-                <SurfaceCard key={alert.id} variant="cinematic" padding="lg" className="border-l-4 border-l-[var(--accent-red)]">
-                  <div className="flex items-center justify-between mb-8">
-                    <SemanticBadge label={alert.type.toUpperCase()} variant="danger" />
-                    <AlertTriangle className="h-3 w-3 text-[var(--accent-red)]" />
-                  </div>
-                  <Title>{alert.title}</Title>
-                  <Subtitle className="mt-3 opacity-40">{alert.subtitle}</Subtitle>
-                </SurfaceCard>
-               ))
-            )}
-          </Section>
+        <div className="flex flex-col gap-4">
+          <PrimaryButton 
+            onClick={handleTestNow}
+            className="w-full py-5 text-[14px] shadow-[0_0_24px_rgba(212,169,78,0.25)] rounded-xl"
+          >
+            TESTAR AGORA (DEMO)
+          </PrimaryButton>
 
-          {/* 2. COMMAND STREAM (P1 - FRICTIONS) */}
-          <Section className="gap-3">
-             <SurfaceCard padding="none">
-                <div className="flex items-center justify-between px-5 pt-[18px] pb-[14px]">
-                   <SectionLabel>Atritos na Fila</SectionLabel>
-                   <Terminal size={12} className="text-[#3A3A3A]" />
-                </div>
-                
-                {p1.length === 0 ? (
-                  <div className="py-8 px-5 text-center">
-                    <Body className="text-[#3C3C3C] font-mono text-[11px] uppercase">FILA_LIMPA</Body>
-                  </div>
-                ) : (
-                  p1.map((item, idx) => (
-                    <InteractiveRow 
-                      key={item.id}
-                      onClick={() => onNavigate('base')}
-                      className={idx !== 0 ? "border-t border-white/[0.05]" : ""}
-                      leftSlot={
-                        <div className="w-9 h-9 rounded-xl bg-white/[0.03] border border-white/[0.07] grid place-items-center">
-                           <span className="text-lg leading-none">{item.type === 'viewed_proposal' ? "👁️" : "⚠️"}</span>
-                        </div>
-                      }
-                    >
-                       <Stack className="gap-0.5">
-                          <Body className="truncate">{item.title}</Body>
-                          <Subtitle className="text-[11.5px]">{item.subtitle}</Subtitle>
-                       </Stack>
-                    </InteractiveRow>
-                  ))
-                )}
-                <div className="h-1" />
-             </SurfaceCard>
-          </Section>
+          <SecondaryButton 
+            onClick={() => setIsExpressModalOpen(true)}
+            className="w-full py-5 text-[14px] bg-white/[0.04] border-white/[0.08] hover:bg-white/[0.08] rounded-xl"
+          >
+            NOVA OS EXPRESSA
+          </SecondaryButton>
 
-          {/* 3. CONTINUITY (P2 - NEXT) */}
-          <Section className="gap-3">
-             <SectionLabel className="ml-2">Próximo na Agenda</SectionLabel>
-             {nextEvent ? (
-                <SurfaceCard padding="lg" onClick={() => onNavigate('base')} className="group active:scale-[0.98]">
-                   <div className="flex items-center gap-4 mb-6">
-                      <div className="h-10 w-10 rounded-xl bg-[#D4A94E]/10 border border-[#D4A94E]/20 flex items-center justify-center">
-                         <MapPin size={18} className="text-[var(--accent-gold)]" />
-                      </div>
-                      <Stack className="gap-0.5">
-                         <Title className="text-base uppercase">{nextEvent.title}</Title>
-                         <SectionLabel className="text-[#505050] tracking-widest">{nextEvent.subtitle}</SectionLabel>
-                      </Stack>
-                   </div>
-                   <div className="flex items-center justify-between mt-4 pt-6 border-t border-white/5">
-                      <span className="text-[11px] font-bold text-white/40 uppercase tracking-widest">Abrir Roteiro</span>
-                      <ArrowRight size={14} className="text-[var(--accent-gold)] group-hover:translate-x-1 transition-transform" />
-                   </div>
-                </SurfaceCard>
-             ) : (
-                <SurfaceCard padding="lg" className="opacity-50">
-                   <p className="text-center font-mono text-[10px] font-bold text-[#3C3C3C]">AGENDA_LIVRE</p>
-                </SurfaceCard>
-             )}
-          </Section>
-
+          <button 
+            className="mt-6 text-sm font-bold text-text-muted hover:text-text-secondary tracking-widest uppercase transition-colors"
+            onClick={() => onNavigate('pulse')}
+          >
+            ENTRAR NA EMPRESA
+          </button>
         </div>
       </div>
+
+      {isExpressModalOpen && (
+        <Modal 
+          isOpen={true} 
+          onClose={() => setIsExpressModalOpen(false)}
+          title="Nova OS Expressa"
+        >
+          <div className="flex flex-col gap-5 py-4">
+            <Input 
+              label="Título" 
+              placeholder="Ex: PMOC Shopping Central" 
+              value={expressTitle}
+              onChange={e => setExpressTitle(e.target.value)}
+              autoFocus
+            />
+            
+            <Select 
+              label="Tipo de Serviço"
+              value={expressType}
+              onChange={val => setExpressType(val)}
+            >
+              <option value="Climatização">Climatização</option>
+              <option value="Elétrica">Elétrica</option>
+              <option value="Solar">Solar</option>
+              <option value="Hidráulica">Hidráulica</option>
+              <option value="Automação">Automação</option>
+            </Select>
+
+            <PrimaryButton 
+              onClick={handleCreateExpressOS} 
+              disabled={!expressTitle}
+              className="mt-4 py-4 rounded-xl"
+            >
+              INICIAR SERVIÇO
+            </PrimaryButton>
+          </div>
+        </Modal>
+      )}
+
     </ScreenContainer>
   );
 });

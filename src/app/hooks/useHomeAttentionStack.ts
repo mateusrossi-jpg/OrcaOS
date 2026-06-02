@@ -1,3 +1,4 @@
+/* eslint-disable no-restricted-imports */
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useBudgetHistory } from '../../hooks/useBudgetHistory';
 import { BUDGET_STATUS } from '../../domain/budget';
@@ -6,6 +7,8 @@ import { ClientProposal } from '../../features/clientPortal/storage/clientPropos
 import { workOrderService } from '../../services/workOrderService';
 import { WorkOrder, Client } from '../../core/types/business';
 import { clientService } from '../../services/clientService';
+import { siteService } from '../../services/siteService';
+import { Site } from '../../domain/site';
 import { SimpleFinanceService } from '../../services/SimpleFinanceService';
 import { SimpleFinanceRecord } from '../../domain/finance';
 import { useFinancialCycleSummary } from '../../features/finance/hooks/useFinancialCycleSummary';
@@ -13,6 +16,16 @@ import { useOperationsSummary } from '../../features/operations/hooks/useOperati
 import { useCloudSyncState, SyncState } from '../../hooks/useCloudSyncState';
 import { MaintenancePlan } from '../../domain/maintenancePlan';
 import { maintenancePlanService } from '../../services/maintenancePlanService';
+import { db } from '../../storage/dexieDatabase';
+import { Attendance } from '../../domain/attendance';
+
+export interface ActivityEvent {
+  id: string;
+  type: 'proposal_approved' | 'budget_created' | 'service_started' | 'service_completed' | 'payment_received' | 'client_created' | 'site_registered';
+  title: string;
+  subtitle: string;
+  timestamp: string;
+}
 
 export interface AttentionItem {
   id: string;
@@ -62,6 +75,7 @@ export interface HomeAttentionStack {
     };
   };
   nextEvent?: AttentionItem;
+  timelineEvents: ActivityEvent[];
   refresh: () => Promise<void>;
 }
 
@@ -73,26 +87,40 @@ export function useHomeAttentionStack(): HomeAttentionStack {
 
   const [proposals, setProposals] = useState<ClientProposal[]>([]);
   const [workOrders, setWorkOrders] = useState<WorkOrder[]>([]);
+  const [attendances, setAttendances] = useState<Attendance[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
+  const [sites, setSites] = useState<Site[]>([]);
   const [maintenancePlans, setMaintenancePlans] = useState<MaintenancePlan[]>([]);
   const [financeRecords, setFinanceRecords] = useState<SimpleFinanceRecord[]>([]);
   const [isDataLoading, setIsDataLoading] = useState(true);
 
+  const findAttendanceForWorkOrder = useCallback((wo: WorkOrder) => {
+    return attendances.find(a => a.id === wo.attendanceId) ?? 
+           (wo.budgetId ? attendances.find(a => {
+             const b = budgets.find(bg => bg.id === wo.budgetId);
+             return b && b.attendanceId === a.id;
+           }) : undefined);
+  }, [attendances, budgets]);
+
   const loadData = useCallback(async () => {
     try {
       const financeService = new SimpleFinanceService();
-      const [allProposals, allWorkOrders, allClients, allFinance, allPlans] = await Promise.all([
+      const [allProposals, allWorkOrders, allClients, allFinance, allPlans, allSites, allAttendances] = await Promise.all([
         clientProposalService.getAll(),
         workOrderService.getAll(),
         clientService.getAll(),
         financeService.listRecords(),
-        maintenancePlanService.getAll()
+        maintenancePlanService.getAll(),
+        siteService.getAll(),
+        db.attendances.toArray()
       ]);
       setProposals(allProposals);
       setWorkOrders(allWorkOrders);
       setClients(allClients);
       setFinanceRecords(allFinance);
       setMaintenancePlans(allPlans);
+      setSites(allSites);
+      setAttendances(allAttendances);
     } catch (e) {
       console.error('[AttentionStack] Failed to load ancillary data:', e);
     } finally {
@@ -118,7 +146,9 @@ export function useHomeAttentionStack(): HomeAttentionStack {
 
     // 1. Blocked Work Orders (From WorkOrders only, not Budgets)
     workOrders.forEach((wo) => {
-      if (wo.status === 'in-progress' && wo.priority === 'urgent') {
+      const att = findAttendanceForWorkOrder(wo);
+      const attStatus = att ? att.status : wo.status;
+      if (attStatus === 'em_execucao' && wo.priority === 'urgent') {
         list.push({
           id: wo.id,
           type: 'blocked_wo',
@@ -164,7 +194,9 @@ export function useHomeAttentionStack(): HomeAttentionStack {
     // 4. Overdue Visits (Visita Atrasada)
     const todayStr = new Date().toISOString().split('T')[0];
     workOrders.forEach((wo) => {
-      if (wo.status === 'scheduled' && wo.scheduledDate && wo.scheduledDate < todayStr) {
+      const att = findAttendanceForWorkOrder(wo);
+      const attStatus = att ? att.status : wo.status;
+      if (attStatus === 'autorizado' && wo.scheduledDate && wo.scheduledDate < todayStr) {
         list.push({
           id: wo.id,
           type: 'late_visit',
@@ -193,14 +225,16 @@ export function useHomeAttentionStack(): HomeAttentionStack {
     });
 
     return list;
-  }, [workOrders, proposals, financeRecords, maintenancePlans]);
+  }, [workOrders, proposals, financeRecords, maintenancePlans, attendances]);
 
   const p1 = useMemo<AttentionItem[]>(() => {
     const list: AttentionItem[] = [];
 
     // 1. Awaiting Scheduling (Only read from WorkOrder draft)
     workOrders.forEach((wo) => {
-      if (wo.status === 'draft') {
+      const att = findAttendanceForWorkOrder(wo);
+      const attStatus = att ? att.status : wo.status;
+      if (attStatus === 'iniciado') {
         list.push({
           id: wo.id,
           type: 'approved_proposal', // Reusing the type to keep UI intact
@@ -272,7 +306,7 @@ export function useHomeAttentionStack(): HomeAttentionStack {
     });
 
     return list;
-  }, [budgets, proposals, workOrders, maintenancePlans]);
+  }, [budgets, proposals, workOrders, maintenancePlans, attendances]);
 
   const p2 = useMemo(() => {
     const list: AttentionItem[] = [];
@@ -280,19 +314,25 @@ export function useHomeAttentionStack(): HomeAttentionStack {
 
     // Today's Jobs (WorkOrders that are scheduled for today)
     workOrders.forEach((wo) => {
-      if (wo.status === 'scheduled' && wo.scheduledDate?.startsWith(todayStr)) {
+      const att = findAttendanceForWorkOrder(wo);
+      const attStatus = att ? att.status : wo.status;
+      if (attStatus === 'autorizado' && wo.scheduledDate?.startsWith(todayStr)) {
         const client = clients.find(c => c.id === wo.clientId);
+        const site = sites.find(s => s.id === wo.siteId);
+        const siteName = site ? ` — ${site.name}` : '';
         list.push({
           id: wo.id,
           type: 'today_job',
           title: wo.title,
-          subtitle: `${client?.name || 'Cliente'}`,
+          subtitle: `${client?.name || 'Cliente'}${siteName}`,
           severity: 'low',
           actionLabel: 'Detalhes',
           metadata: { 
             workOrderId: wo.id, 
-            status: wo.status, 
-            date: wo.scheduledDate
+            status: attStatus, 
+            date: wo.scheduledDate,
+            phone: client?.phone,
+            address: site?.fullAddress
           }
         });
       }
@@ -301,7 +341,7 @@ export function useHomeAttentionStack(): HomeAttentionStack {
     // Receivables (Saldo Aberto real from Finance)
     const receivables = financeRecords.reduce((sum, record) => sum + record.openBalance, 0);
 
-    const executingCount = workOrders.filter(wo => wo.status === 'in-progress').length;
+    const executingCount = attendances.filter(att => att.status === 'em_execucao').length;
 
     return {
       todayJobs: list,
@@ -310,7 +350,7 @@ export function useHomeAttentionStack(): HomeAttentionStack {
       receivables,
       revenueKPIs: financialSummary
     };
-  }, [workOrders, clients, financeRecords, financialSummary]);
+  }, [workOrders, clients, financeRecords, financialSummary, attendances, sites]);
 
   const recommendedAction = useMemo(() => {
     // V8.5 logic: Factual and direct
@@ -423,11 +463,134 @@ export function useHomeAttentionStack(): HomeAttentionStack {
   }, [p0, p1]);
 
   const nextEvent = useMemo(() => {
+    const inProgress = workOrders.find(wo => {
+      if (wo.status !== 'in-progress') return false;
+      const att = attendances.find(a => a.id === wo.attendanceId);
+      return att ? att.status === 'em_execucao' : true;
+    });
+    if (inProgress) {
+      const client = clients.find(c => c.id === inProgress.clientId);
+      const site = sites.find(s => s.id === inProgress.siteId);
+      return {
+          id: inProgress.id,
+          type: 'today_job',
+          title: inProgress.title,
+          subtitle: `${client?.name || 'Cliente'}${site ? ` — ${site.name}` : ''}`,
+          severity: 'high',
+          actionLabel: 'Continuar',
+          metadata: { 
+            workOrderId: inProgress.id, 
+            status: inProgress.status, 
+            date: inProgress.scheduledDate,
+            phone: client?.phone,
+            address: site?.fullAddress
+          }
+      } as AttentionItem;
+    }
     if (p2.todayJobs.length > 0) {
       return p2.todayJobs[0];
     }
     return undefined;
-  }, [p2.todayJobs]);
+  }, [workOrders, clients, sites, p2.todayJobs, attendances]);
+
+  const timelineEvents = useMemo<ActivityEvent[]>(() => {
+    const events: ActivityEvent[] = [];
+
+    // 1. Budgets (created, approved)
+    (budgets || []).forEach(b => {
+      if (b.createdAt) {
+        events.push({
+          id: `${b.id}-created`,
+          type: 'budget_created',
+          title: 'Nova Proposta Criada',
+          subtitle: `${b.clientName || 'Cliente avulso'} · ${b.title}`,
+          timestamp: b.createdAt
+        });
+      }
+      const bStatus = b.status as string;
+      if (bStatus === BUDGET_STATUS.AUTORIZADO || bStatus === BUDGET_STATUS.EM_EXECUCAO || bStatus === 'autorizado') {
+        events.push({
+          id: `${b.id}-approved`,
+          type: 'proposal_approved',
+          title: 'Orçamento Aprovado',
+          subtitle: `${b.clientName || 'Cliente avulso'} · ${b.title}`,
+          timestamp: b.updatedAt || b.createdAt || new Date().toISOString()
+        });
+      }
+    });
+
+    // 2. Work Orders (started, completed)
+    workOrders.forEach(wo => {
+      const client = clients.find(c => c.id === wo.clientId);
+      const clientName = client?.name || 'Cliente';
+      const att = findAttendanceForWorkOrder(wo);
+      const attStatus = att ? att.status : wo.status;
+
+      if (attStatus === 'em_execucao') {
+        events.push({
+          id: `${wo.id}-started`,
+          type: 'service_started',
+          title: 'Atendimento Iniciado',
+          subtitle: `${clientName} · ${wo.title}`,
+          timestamp: wo.updatedAt || wo.createdAt || new Date().toISOString()
+        });
+      }
+      if (attStatus === 'finalizado' || attStatus === 'concluido') {
+        events.push({
+          id: `${wo.id}-completed`,
+          type: 'service_completed',
+          title: 'Serviço Concluído',
+          subtitle: `${clientName} · ${wo.title}`,
+          timestamp: wo.updatedAt || wo.createdAt || new Date().toISOString()
+        });
+      }
+    });
+
+    // 3. Finance records (payment received)
+    financeRecords.forEach(f => {
+      if (f.receivedValue > 0) {
+        events.push({
+          id: `${f.id}-payment`,
+          type: 'payment_received',
+          title: 'Pagamento Confirmado',
+          subtitle: `${f.clientName || 'Cliente'} · Recebido R$ ${f.receivedValue.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`,
+          timestamp: f.updatedAt || f.createdAt || new Date().toISOString()
+        });
+      }
+    });
+
+    // 4. Clients
+    clients.forEach(c => {
+      if (c.createdAt) {
+        events.push({
+          id: `${c.id}-client`,
+          type: 'client_created',
+          title: 'Cliente Cadastrado',
+          subtitle: c.name,
+          timestamp: c.createdAt
+        });
+      }
+    });
+
+    // 5. Sites
+    sites.forEach(s => {
+      if (s.createdAt) {
+        events.push({
+          id: `${s.id}-site`,
+          type: 'site_registered',
+          title: 'Ponto de Visita Ativado',
+          subtitle: s.name,
+          timestamp: s.createdAt
+        });
+      }
+    });
+
+    // Sort by timestamp desc and limit to top 5
+    return events
+      .filter(e => e.timestamp)
+      .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+      .slice(0, 5);
+  }, [budgets, workOrders, financeRecords, clients, sites, attendances]);
 
   const isLoading = isBudgetsLoading || isDataLoading;
 
@@ -442,6 +605,7 @@ export function useHomeAttentionStack(): HomeAttentionStack {
     recommendedAction,
     commandStatus,
     nextEvent,
+    timelineEvents,
     refresh: refreshAll
   };
 }

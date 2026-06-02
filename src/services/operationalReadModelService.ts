@@ -23,6 +23,7 @@ import { operationalFeedService } from './operationalFeedService';
 import { getOperationalEventSeverity } from '../domain/eventSeverity';
 import { clientService } from './clientService';
 import { workOrderService } from './workOrderService';
+import { db } from '../storage/dexieDatabase';
 import { SimpleFinanceService } from './SimpleFinanceService';
 import { SimpleFinanceRecord } from '../domain/finance';
 import { assetService } from './assetService';
@@ -105,8 +106,9 @@ export class OperationalReadModelService {
       });
 
       allFinance.forEach((f: SimpleFinanceRecord) => {
+        if (f.isDeleted) return;
         const wo = allWorkOrders.find((w: WorkOrder) => w.id === f.workOrderId);
-        if (wo) {
+        if (wo && !wo.isDeleted) {
           const stats = clientMap.get(wo.clientId);
           if (stats) {
             stats.totalRevenue += (f.receivedValue || 0);
@@ -116,6 +118,7 @@ export class OperationalReadModelService {
       });
 
       allWorkOrders.forEach((wo: WorkOrder) => {
+        if (wo.isDeleted) return;
         const stats = clientMap.get(wo.clientId);
         if (stats) {
           stats.woCount++;
@@ -126,7 +129,7 @@ export class OperationalReadModelService {
       });
 
       allBudgets.forEach((b: Budget) => {
-        if (!b.clientId) return;
+        if (!b.clientId || b.isDeleted) return;
         const stats = clientMap.get(b.clientId);
         if (stats) {
           stats.budgetCount++;
@@ -419,37 +422,102 @@ export class OperationalReadModelService {
   async getClientPipelineProjection(): Promise<Record<string, ClientPipelineProjection>> {
     if (this.crmPipelineCache) return this.crmPipelineCache;
     
-    // Very simplified CRM pipeline derived from events
-    const allEvents = await operationalTimelineService.getGlobalTimeline();
-    const crm: Record<string, Mutable<ClientPipelineProjection>> = {};
-    
-    for (const evt of allEvents) {
-      // Logic for CRM pipeline extraction would go here
-      // For now, we mock basic aggregation to fulfill readiness without creating parallel tables
-      const clientId = evt.aggregateId; // assuming correlation or derived
-      if (!crm[clientId]) {
-        crm[clientId] = {
-          clientId,
-          clientName: 'Client ' + clientId,
-          status: 'lead',
-          totalRevenue: 0,
-          lastInteractionAt: evt.timestamp,
-          activeBudgets: 1
-        };
+    try {
+      const [allAttendances, allClients, allBudgets] = await Promise.all([
+        db.attendances.toArray(),
+        clientService.getAll(),
+        new BudgetPersistenceService().listBudgets()
+      ]);
+      
+      const crm: Record<string, Mutable<ClientPipelineProjection>> = {};
+      
+      const statusPriority: Record<string, number> = {
+        'lead': 1,
+        'proposal_sent': 2,
+        'approved': 3,
+        'execution': 4,
+        'finalized': 5,
+        'recurring_candidate': 6
+      };
+      
+      for (const att of allAttendances) {
+        if (att.status === 'cancelado' || att.status === 'arquivado' || att.isDeleted) continue;
+        
+        const client = allClients.find(c => c.id === att.clientId);
+        if (!client) continue;
+        
+        // Find ALL budgets associated with this attendance
+        const attBudgets = allBudgets.filter(b => b.attendanceId === att.id && !b.isDeleted);
+        
+        // Receita do Atendimento: Somatório de AUTORIZADO, EM_EXECUCAO, FINALIZADO
+        const validBudgetsForRevenue = attBudgets.filter(b => 
+          b.status === 'autorizado' || b.status === 'em_execucao' || b.status === 'finalizado'
+        );
+        
+        let revenuePlanned = 0;
+        for (const b of validBudgetsForRevenue) {
+          if (b.budgetGroupId && b.selectionMode === 'exclusive') {
+            if (b.isPrimary) {
+              revenuePlanned += (b.chargedValue || 0);
+            }
+          } else {
+            revenuePlanned += (b.chargedValue || 0);
+          }
+        }
+
+        const revenueExecuted = att.revenueExecuted || 0;
+        
+        const totalProposals = attBudgets.length;
+        const totalProposalsApproved = validBudgetsForRevenue.length;
+        
+        let crmStatus: ClientPipelineProjection['status'] = 'lead';
+        if (att.status === 'iniciado') {
+          if (attBudgets.some(b => b.status === 'enviado' || b.status === 'em_revisao')) {
+            crmStatus = 'proposal_sent';
+          } else {
+            crmStatus = 'lead';
+          }
+        } else if (att.status === 'autorizado') {
+          crmStatus = 'approved';
+        } else if (att.status === 'em_execucao') {
+          crmStatus = 'execution';
+        } else if (att.status === 'finalizado' || att.status === 'concluido') {
+          crmStatus = 'finalized';
+        }
+        
+        const existing = crm[client.id];
+        if (!existing || statusPriority[crmStatus] > statusPriority[existing.status]) {
+          crm[client.id] = {
+            clientId: client.id,
+            clientName: client.name,
+            status: crmStatus,
+            totalRevenue: existing ? existing.totalRevenue + revenuePlanned : revenuePlanned,
+            revenuePlanned: existing && existing.revenuePlanned ? existing.revenuePlanned + revenuePlanned : revenuePlanned,
+            revenueExecuted: existing && existing.revenueExecuted ? existing.revenueExecuted + revenueExecuted : revenueExecuted,
+            totalProposals: existing && existing.totalProposals ? existing.totalProposals + totalProposals : totalProposals,
+            totalProposalsApproved: existing && existing.totalProposalsApproved ? existing.totalProposalsApproved + totalProposalsApproved : totalProposalsApproved,
+            lastInteractionAt: att.updatedAt || att.createdAt || new Date().toISOString(),
+            activeBudgets: existing ? existing.activeBudgets + validBudgetsForRevenue.length : validBudgetsForRevenue.length
+          };
+        } else if (existing) {
+          crm[client.id] = {
+            ...existing,
+            totalRevenue: existing.totalRevenue + revenuePlanned,
+            revenuePlanned: (existing.revenuePlanned || 0) + revenuePlanned,
+            revenueExecuted: (existing.revenueExecuted || 0) + revenueExecuted,
+            totalProposals: (existing.totalProposals || 0) + totalProposals,
+            totalProposalsApproved: (existing.totalProposalsApproved || 0) + totalProposalsApproved,
+            activeBudgets: existing.activeBudgets + validBudgetsForRevenue.length
+          };
+        }
       }
       
-      if (evt.eventType === 'PROPOSAL_SENT') crm[clientId].status = 'proposal_sent';
-      if (evt.eventType === 'PROPOSAL_APPROVED') crm[clientId].status = 'approved';
-      if (evt.eventType === 'BUDGET_EXECUTION_STARTED') crm[clientId].status = 'execution';
-      if (evt.eventType === 'BUDGET_FINALIZED') crm[clientId].status = 'finalized';
-      
-      if (safeTimestamp(evt.timestamp) > safeTimestamp(crm[clientId].lastInteractionAt)) {
-        crm[clientId].lastInteractionAt = evt.timestamp;
-      }
+      this.crmPipelineCache = crm;
+      return crm;
+    } catch (err) {
+      console.error('Error computing CRM pipeline projection:', err);
+      return {};
     }
-    
-    this.crmPipelineCache = crm;
-    return crm;
   }
 
   async getClientTimeline(clientId: string): Promise<OperationalActivityProjection[]> {

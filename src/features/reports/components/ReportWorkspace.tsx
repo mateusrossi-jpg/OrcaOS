@@ -31,6 +31,7 @@ import {
   FinancialValue,
   ERPLoader
 } from '../../../ui/system';
+import { HeroCard } from '../../../components/HeroCard';
 
 interface ReportWorkspaceProps {
   captures: CalculationCapture[];
@@ -79,7 +80,6 @@ export const ReportWorkspace = memo(function ReportWorkspace({ captures, onBack 
     <>
        <OpsChip icon={<BarChart size={11} />} label={`${captures.length} transações`} accent={false} />
        <OpsChip icon={<TrendingUp size={11} />} label={`${financeStats.avgMargin.toFixed(0)}% margem`} accent="green" />
-       <OpsChip icon={<FileText size={11} />} label="BI_REAL_TIME" accent={false} />
     </>
   );
 
@@ -90,49 +90,51 @@ export const ReportWorkspace = memo(function ReportWorkspace({ captures, onBack 
         title="Performance." 
         onBack={onBack} 
         chips={chips} 
-        action={
-          <div className="flex items-center gap-2 bg-[var(--accent-gold)]/10 px-3 py-2 rounded-xl border border-[var(--accent-gold)]/20 mt-1">
-            <Activity className="h-3 w-3 text-[var(--accent-gold)] animate-pulse" />
-            <SectionLabel className="!text-[10px] !text-[var(--accent-gold)]">LIVE</SectionLabel>
-          </div>
-        } 
       />
 
-      <div className="px-4 flex flex-col gap-8">
+      <div className="px-6 py-8 flex flex-col gap-12">
         
         {/* ━━━ EXECUTIVE BI COCKPIT ━━━ */}
-        <ExecutiveSummaryGrid>
-           <ValueBlock label="Receita Bruta" value={formatCurrencyBRL(financeStats.totalRevenue)} icon={<Target size={12} />} variant="warning" />
-           <ValueBlock label="Margem Média" value={`${financeStats.avgMargin.toFixed(0)}%`} icon={<TrendingUp size={12} />} variant="success" />
-        </ExecutiveSummaryGrid>
+        <Section className="gap-4">
+          <ExecutiveSummaryGrid>
+             <ValueBlock label="Receita Bruta" value={formatCurrencyBRL(financeStats.totalRevenue)} icon={<Target size={12} />} variant="warning" />
+             <ValueBlock label="Margem Média" value={`${financeStats.avgMargin.toFixed(0)}%`} icon={<TrendingUp size={12} />} variant="success" />
+          </ExecutiveSummaryGrid>
+        </Section>
 
         <Section className="gap-2">
           <FilterChips items={CATEGORIES} active={[activeCategory]} onChange={(active) => setActiveCategory(active[0] as ReportCategory || 'financeiro')} />
         </Section>
 
-        <Section className="gap-10 pb-12">
+        <Section className="gap-6 pb-12">
           {activeCategory === 'financeiro' && (
-            <Section className="gap-6">
+            <Section className="gap-4">
                <SectionLabel className="ml-2">Fluxo de Rentabilidade</SectionLabel>
                
-               <SurfaceCard variant="cinematic" padding="lg">
-                  <div className="flex justify-between items-end mb-8">
-                     <Stack className="gap-2">
-                        <SectionLabel className="!text-[9px]">TENDÊNCIA_RECEITA</SectionLabel>
-                        <Heading className="text-[32px] leading-none">{formatCurrencyBRL(financeStats.totalRevenue)}</Heading>
-                     </Stack>
-                     <div className="h-10 w-24 opacity-60">
-                        <Sparkline data={financeStats.revenueTrend} stroke="var(--accent-gold)" height={40} />
-                     </div>
+               <div className="relative overflow-hidden rounded-[28px] bg-gradient-to-b from-[#141924]/95 to-[#080b11]/98 border border-[var(--accent-gold)]/25 shadow-[0_1px_0_rgba(255,255,255,0.06)_inset,0_0_32px_rgba(212,169,78,0.06),0_20px_50px_rgba(0,0,0,0.9)] p-6 animate-scale-pop">
+                  {/* Gold ambient radial glow */}
+                  <div className="absolute top-0 right-0 w-56 h-56 rounded-full bg-[var(--accent-gold)]/10 blur-[80px] pointer-events-none" />
+                  
+                  <div className="flex flex-col gap-4">
+                    <span className="text-[10px] font-bold font-mono tracking-[0.25em] text-[var(--accent-gold)] font-bold">TENDÊNCIA DE RECEITA TOTAL</span>
+                    <div className="flex items-baseline justify-between mt-1">
+                      <h3 className="text-[32px] font-black text-white leading-none tracking-tight">{formatCurrencyBRL(financeStats.totalRevenue)}</h3>
+                    </div>
+                    
+                    <div className="flex flex-col gap-6 mt-2">
+                      <div className="h-10 w-full opacity-60">
+                         <Sparkline data={financeStats.revenueTrend} stroke="var(--accent-gold)" height={40} />
+                      </div>
+                      <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+                         <div className="h-full bg-[var(--accent-green)] w-[64%] shadow-[0_0_12px_var(--accent-green)]" />
+                      </div>
+                      <div className="flex justify-between">
+                         <SectionLabel className="!text-[9px] opacity-30">Custo: {formatCurrencyBRL(financeStats.totalCosts)}</SectionLabel>
+                         <SectionLabel className="!text-[9px] !text-[var(--accent-green)] font-bold">Lucro: {formatCurrencyBRL(financeStats.totalProfit)}</SectionLabel>
+                      </div>
+                    </div>
                   </div>
-                  <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
-                     <div className="h-full bg-[var(--accent-green)] w-[64%] shadow-[0_0_12px_var(--accent-green)]" />
-                  </div>
-                  <div className="flex justify-between mt-4">
-                     <SectionLabel className="!text-[10px] opacity-30">Custo: {formatCurrencyBRL(financeStats.totalCosts)}</SectionLabel>
-                     <SectionLabel className="!text-[10px] !text-[var(--accent-green)]">Lucro: {formatCurrencyBRL(financeStats.totalProfit)}</SectionLabel>
-                  </div>
-               </SurfaceCard>
+                </div>
 
                <div className="grid grid-cols-2 gap-3">
                   <SurfaceCard padding="md" className="gap-1">

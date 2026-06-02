@@ -47,7 +47,7 @@ export class RuntimeErrorBoundary extends Component<Props, State> {
               onClick={() => window.location.href = '/'}
               className="w-full h-16 bg-[var(--bg-surface-glass)] hover:bg-white/[0.08] text-[var(--text-primary)] border var(--border-soft) rounded-[var(--radius-button)] font-black uppercase tracking-widest transition-all active:scale-[0.98]"
             >
-              Reiniciar ERP
+              Reiniciar Sistema
             </button>
           </div>
         </div>

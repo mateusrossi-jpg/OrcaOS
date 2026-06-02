@@ -61,7 +61,7 @@ export function ProfessionalProfileWorkspace({ onBack, hideTitle }: { onBack?: (
   }
 
   return (
-    <PageShell>
+    <>
       {onBack && (
         <button 
           onClick={onBack} 
@@ -141,6 +141,6 @@ export function ProfessionalProfileWorkspace({ onBack, hideTitle }: { onBack?: (
 
         <PrimaryButton className="font-black tracking-widest h-16" onClick={() => void saveProfile()}>Salvar Alterações</PrimaryButton>
       </div>
-    </PageShell>
+    </>
   );
 }

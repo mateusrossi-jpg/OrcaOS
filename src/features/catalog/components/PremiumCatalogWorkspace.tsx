@@ -146,9 +146,9 @@ export function PremiumCatalogWorkspace({ onSendToBudget, onBack }: PremiumCatal
       <ScreenContainer className="pb-32">
          <AppHeader title={editingItem.id ? 'Editar Item.' : 'Novo Item.'} onBack={() => setView('list')} />
 
-         <div className="px-4 flex flex-col gap-6">
+         <div className="px-6 py-4 flex flex-col gap-6">
             <SurfaceCard padding="lg">
-               <SectionLabel className="mb-8">Dados do Catálogo</SectionLabel>
+               <SectionLabel className="mb-4">Dados do Catálogo</SectionLabel>
                <div className="flex flex-col gap-6">
                   <Input label="Título do Item" value={editingItem.title} onChange={(e) => setEditingItem({ ...editingItem, title: e.target.value })} placeholder="Ex: Disjuntor Din 20A" />
                   <Select label="Tipo de Recurso" value={editingItem.kind} onChange={(val) => setEditingItem({ ...editingItem, kind: val as CatalogHubItemKind, itemType: val === 'labor' ? 'service' : 'material' })}>
@@ -220,17 +220,17 @@ export function PremiumCatalogWorkspace({ onSendToBudget, onBack }: PremiumCatal
         }
       />
 
-      <div className="px-4 flex flex-col gap-8">
+      <div className="px-6 py-8 flex flex-col gap-12">
         
         {/* 1. LIBRARY HERO */}
-        <Section className="gap-3">
+        <Section className="gap-4">
           <SectionLabel className="ml-2">Biblioteca Estratégica</SectionLabel>
           <SurfaceCard variant="cinematic" padding="lg">
-             <div className="flex items-center justify-between mb-8">
+             <div className="flex items-center justify-between mb-3">
                 <SectionLabel className="text-[var(--accent-gold)]">Patrimônio Técnico</SectionLabel>
                 <div className="flex items-center gap-2 bg-white/[0.04] border border-white/[0.07] px-2.5 py-1 rounded-lg">
                    <Activity size={11} className="text-[var(--accent-green)]" />
-                   <Value className="text-[11px]">Sincronizado</Value>
+                   <Value className="text-11px">Sincronizado</Value>
                 </div>
              </div>
              <Heading className="text-[32px] mb-3">
@@ -266,20 +266,20 @@ export function PremiumCatalogWorkspace({ onSendToBudget, onBack }: PremiumCatal
                         </div>
                       }
                     >
-                       <div className="flex items-center gap-4 w-full">
-                          <div className="flex-1 min-w-0">
-                             <Body className="truncate leading-tight uppercase">{item.title}</Body>
-                             <div className="flex items-center gap-2 mt-0.5">
-                                <SectionLabel className="!text-[9px] !text-[#505050]">{item.kind}</SectionLabel>
-                                <div className="w-0.5 h-0.5 rounded-full bg-[#3A3A3A]" />
-                                <Subtitle className="text-[10px] truncate opacity-40 uppercase font-bold">{item.brand || 'PADRÃO'}</Subtitle>
-                             </div>
-                          </div>
-                          <Stack className="items-end gap-0.5 shrink-0">
-                             <FinancialValue value={item.defaultUnitValue} compact className="text-[13px] text-white" />
-                             <SectionLabel className="!text-[8.5px] !text-[#3C3C3C]">{item.unit}</SectionLabel>
-                          </Stack>
-                       </div>
+                        <div className="flex items-center gap-4 w-full">
+                           <div className="flex-1 min-w-0">
+                              <Body className="truncate leading-tight uppercase font-black tracking-tight text-white text-[13.5px]">{item.title}</Body>
+                              <div className="flex items-center gap-2 mt-0.5">
+                                 <SectionLabel className="!text-[9px] !text-[var(--text-muted)] font-mono">{item.kind.toUpperCase()}</SectionLabel>
+                                 <div className="w-0.5 h-0.5 rounded-full bg-white/10" />
+                                 <Subtitle className="text-[11px] truncate text-[var(--text-secondary)] font-medium">{item.brand || 'PADRÃO'}</Subtitle>
+                              </div>
+                           </div>
+                           <Stack className="items-end gap-0.5 shrink-0">
+                              <FinancialValue value={item.defaultUnitValue} compact className="text-[13.5px] font-mono text-[var(--accent-gold)] font-bold" />
+                              <SectionLabel className="!text-[8px] !text-[var(--text-tertiary)] uppercase font-mono tracking-widest">{item.unit}</SectionLabel>
+                           </Stack>
+                        </div>
                     </InteractiveRow>
                   ))}
                 </Stack>

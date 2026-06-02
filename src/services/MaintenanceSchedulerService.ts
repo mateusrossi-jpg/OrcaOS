@@ -4,6 +4,8 @@ import { workOrderService } from './workOrderService';
 import { operationalEventService } from './operationalEventService';
 import { MaintenancePlan } from '../domain/maintenancePlan';
 
+import { db } from '../storage/dexieDatabase';
+
 export class MaintenanceSchedulerService {
   /**
    * Scans all active maintenance plans and generates WorkOrder drafts for upcoming dates.
@@ -43,6 +45,30 @@ export class MaintenanceSchedulerService {
   }
 
   private async generatePreventiveOS(plan: MaintenancePlan): Promise<void> {
+    const attendanceId = typeof crypto !== 'undefined' && 'randomUUID' in crypto 
+      ? crypto.randomUUID() 
+      : `att-prev-${Date.now()}`;
+    
+    const newAttendance = {
+      id: attendanceId,
+      clientId: plan.clientId,
+      siteId: plan.siteId || 'default-site',
+      status: 'iniciado' as const,
+      companyId: 'default-company',
+      workspaceId: 'default-workspace',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      progress: 0,
+      totalWorkOrders: 0,
+      completedWorkOrders: 0,
+      totalBudgets: 0,
+      authorizedBudgets: 0,
+      revenueExecuted: 0,
+      revenuePlanned: 0
+    };
+
+    await db.attendances.add(newAttendance);
+
     const newOsId = typeof crypto !== 'undefined' && 'randomUUID' in crypto ? crypto.randomUUID() : `os-prev-${Date.now()}`;
     
     await operationalFacade.createWorkOrder({
@@ -57,9 +83,10 @@ export class MaintenanceSchedulerService {
       paymentStatus: 'pending',
       executedValue: 0,
       items: [],
+      attendanceId: attendanceId,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
-    });
+    } as any);
 
     await operationalEventService.emitEvent({
       aggregateId: plan.id,

@@ -30,6 +30,8 @@ export class SimpleFinanceService {
     const record: SimpleFinanceRecord = {
       id: existingRecord?.id ?? input.id ?? (typeof crypto !== 'undefined' && 'randomUUID' in crypto ? crypto.randomUUID() : `finance-${Date.now()}`),
       title: input.title,
+      clientId: input.clientId,
+      siteId: input.siteId,
       clientName: input.clientName,
       status,
       workOrderId: input.workOrderId,
@@ -56,7 +58,23 @@ export class SimpleFinanceService {
   async registerPayment(workOrderId: string, amount: number): Promise<SimpleFinanceRecord | null> {
     const currentRecords = await this.listRecords();
     const record = currentRecords.find((r) => r.workOrderId === workOrderId);
-    if (!record) return null;
+    if (!record) {
+      // No existing record, create a new one with expected and received values set to amount
+      return this.saveRecord({
+        title: `Finance for ${workOrderId}`,
+        clientId: '',
+        siteId: '',
+        clientName: '',
+        workOrderId,
+        expectedValue: amount,
+        receivedValue: amount,
+        materialCost: 0,
+        travelCost: 0,
+        cardFee: 0,
+        estimatedTax: 0,
+        otherCosts: 0
+      });
+    }
     
     const newReceived = record.receivedValue + amount;
     

@@ -8,6 +8,7 @@ import { Budget, BUDGET_STATUS, BudgetStatus, type BudgetItem } from '../domain/
 import { calculateBudget } from '../domain/aferixFinanceEngine';
 import { BudgetPersistenceService } from '../services/BudgetPersistenceService';
 import { operationalFacade } from '../features/workflow/operationalFacade';
+import { trustLayer } from '../core/trust/TrustLayer';
 import type { CatalogHubItem } from '../features/catalog/types/catalogTypes';
 
 const persistenceService = new BudgetPersistenceService();
@@ -35,6 +36,7 @@ export function useBudgetForm(initialBudgetId?: string | null) {
     id: generateId(),
     title: '',
     clientId: '',
+    siteId: '',
     status: BUDGET_STATUS.INICIADO,
     chargedValue: 0,
     materialCost: 0,
@@ -135,6 +137,12 @@ export function useBudgetForm(initialBudgetId?: string | null) {
       await operationalFacade.saveBudget(budget);
       const updated = await persistenceService.getBudget(budget.id);
       if (updated) setBudget(updated);
+      trustLayer.emit({
+        type: 'success',
+        title: 'Orçamento Salvo',
+        description: 'As alterações foram salvas localmente.',
+        status: 'local'
+      });
     } catch (e) {
       console.error('Failed to save draft:', e);
       const message = e instanceof Error ? e.message : 'Erro ao salvar o rascunho do orçamento.';
@@ -152,6 +160,12 @@ export function useBudgetForm(initialBudgetId?: string | null) {
       await operationalFacade.changeBudgetStatus(budget.id, newStatus, budget);
       const updated = await persistenceService.getBudget(budget.id);
       if (updated) setBudget(updated);
+      trustLayer.emit({
+        type: 'success',
+        title: 'Status Atualizado',
+        description: `Orçamento alterado para ${newStatus}.`,
+        status: 'synced'
+      });
     } catch (e) {
       console.error('Failed to change status:', e);
       const message = e instanceof Error ? e.message : 'Erro ao alterar o status do orçamento.';
@@ -178,6 +192,12 @@ export function useBudgetForm(initialBudgetId?: string | null) {
       await operationalFacade.finalizeBudget(budget.id, budget);
       const finalized = await persistenceService.getBudget(budget.id);
       if (finalized) setBudget(finalized);
+      trustLayer.emit({
+        type: 'success',
+        title: 'Orçamento Finalizado',
+        description: `A OS foi enviada para o Financeiro.`,
+        status: 'synced'
+      });
     } catch (e) {
       console.error('Failed to finalize budget:', e);
       const message = e instanceof Error ? e.message : 'Erro ao finalizar o orçamento.';

@@ -1,4 +1,4 @@
-export type EventAggregateType = 'budget' | 'proposal' | 'workorder' | 'client' | 'finance' | 'site' | 'asset' | 'maintenance_plan' | 'contract';
+export type EventAggregateType = 'budget' | 'proposal' | 'workorder' | 'client' | 'finance' | 'site' | 'asset' | 'maintenance_plan' | 'contract' | 'dispatch';
 
 export type OperationalEventType =
   | 'BUDGET_CREATED'
@@ -29,7 +29,23 @@ export type OperationalEventType =
   | 'SITE_ARCHIVED'
   | 'ASSET_REGISTERED'
   | 'ASSET_UPDATED'
-  | 'ASSET_ARCHIVED'
+  | 'ASSET_MAINTAINED'
+  | 'KNOWLEDGE_CREATED'
+  | 'CASE_SOLVED'
+  | 'CASE_REUSED'
+  | 'PLAYBOOK_CREATED'
+  | 'KNOWLEDGE_RATED'
+  // CUSTOMER SUCCESS EVENTS
+  | 'CUSTOMER_HEALTH_CHANGED'
+  | 'CUSTOMER_AT_RISK'
+  | 'RETENTION_ACTION_CREATED'
+  | 'RETENTION_ACTION_COMPLETED'
+  // INVENTORY EVENTS
+  | 'ITEM_RESERVED'
+  | 'STOCK_LOW'
+  | 'PURCHASE_REQUEST_CREATED'
+  | 'PURCHASE_ORDER_CREATED'
+  | 'STOCK_REPLENISHED'
   | 'TECHNICAL_FAILURE_REPORTED'
   | 'WORKORDER_ASSET_LINKED'
   | 'MAINTENANCE_PLAN_CREATED'
@@ -39,7 +55,25 @@ export type OperationalEventType =
   | 'CONTRACT_CREATED'
   | 'CONTRACT_UPDATED'
   | 'CONTRACT_ARCHIVED'
-  | 'RECURRING_BILLING_GENERATED';
+  | 'RECURRING_BILLING_GENERATED'
+  | 'DISPATCH_CREATED'
+  | 'TECHNICIAN_ASSIGNED'
+  | 'SERVICE_STARTED'
+  | 'SERVICE_COMPLETED'
+  | 'SLA_BREACHED'
+  | 'EMERGENCY_ESCALATED'
+  | 'CONTRACT_RENEWAL_STARTED'
+  | 'CONTRACT_RENEWAL_GENERATED'
+  | 'CONTRACT_RENEWED'
+  | 'CONTRACT_EXPIRED'
+  | 'CONTRACT_AT_RISK'
+  | 'CHURN_RISK_DETECTED'
+  | 'WARRANTY_CREATED'
+  | 'WARRANTY_EXPIRING'
+  | 'WARRANTY_CLAIMED'
+  | 'WARRANTY_RESOLVED'
+  | 'RECURRENCE_DETECTED'
+  | 'WARRANTY_ALERT';
 
 export interface FinancialDiff {
   field: string;
