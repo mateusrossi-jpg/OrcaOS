@@ -329,7 +329,7 @@ export const BudgetsScreen = memo(function BudgetsScreen({ onSelectBudget, onNew
 
   return (
     <ScreenContainer className="pb-32">
-      <div className="flex-1 overflow-y-auto overflow-x-hidden pb-[124px] scrollbar-none">
+      <div className="flex flex-col">
         {/* ━━━ AUTHORITATIVE HEADER ━━━ */}
         <AppHeader 
           title="Propostas."

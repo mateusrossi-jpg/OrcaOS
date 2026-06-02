@@ -144,7 +144,7 @@ export const operationalFacade = {
       id: crypto.randomUUID(),
       clientId: budget?.clientId || '',
       siteId: budget?.siteId || 'default-site',
-      title: `OS para orçamento ${budgetId}`,
+      title: budget?.title || `Projeto/OS ${budgetId.substring(0,6)}`,
       status: 'draft' as const,
       paymentStatus: 'pending' as const,
       budgetId,

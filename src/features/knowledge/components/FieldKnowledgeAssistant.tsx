@@ -1,4 +1,4 @@
-import React, from 'react';
+import React from 'react';
 import { Lightbulb, CheckCircle, Clock } from 'lucide-react';
 import { KnowledgeCase, KnowledgeSolution } from '../../../domain/knowledge';
 

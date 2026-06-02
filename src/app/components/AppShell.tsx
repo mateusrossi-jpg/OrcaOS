@@ -1,5 +1,5 @@
 import { type ReactNode, memo } from 'react';
-import { Home, LayoutGrid, DollarSign, Target, ClipboardList } from "lucide-react";
+import { Home, LayoutGrid, DollarSign, Target, ClipboardList, Menu } from "lucide-react";
 import './AppShell.css';
 import type { AppTab } from '../appTypes';
 import { OperationalDock, NavigationItem } from '../../components/OperationalDock';
@@ -12,10 +12,10 @@ interface AppShellProps {
 
 const NAV_TABS = [
   { id: 'pulse' as AppTab, icon: Home, label: 'PULSO' },
-  { id: 'attendances' as AppTab, icon: ClipboardList, label: 'ATENDIMENTOS' },
+  { id: 'attendances' as AppTab, icon: ClipboardList, label: 'AGENDA' },
   { id: 'budgets' as AppTab, icon: Target, label: 'PROPOSTAS' },
   { id: 'base' as AppTab, icon: LayoutGrid, label: 'EXECUÇÃO' },
-  { id: 'money' as AppTab, icon: DollarSign, label: 'FINANCEIRO' },
+  { id: 'settings' as AppTab, icon: Menu, label: 'GESTÃO' },
 ];
 
 /**

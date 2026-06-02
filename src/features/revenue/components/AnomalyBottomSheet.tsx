@@ -5,7 +5,7 @@ import { PrimaryButton, Input, Select } from '../../../app/components/ui';
 interface AnomalyBottomSheetProps {
   itemKey: string;
   itemDescription: string;
-  onSave: (anomalyData: { title: string; description: string; recommendedAction: string; severity: 'low'|'medium'|'high'|'critical' }) => void;
+  onSave: (anomalyData: { title: string; description: string; recommendedAction: string; severity: 'low'|'medium'|'high'|'critical'; photoUuids: string[] }) => void;
   onClose: () => void;
 }
 
@@ -13,13 +13,15 @@ export const AnomalyBottomSheet: React.FC<AnomalyBottomSheetProps> = ({ itemKey,
   const [description, setDescription] = useState('');
   const [recommendedAction, setRecommendedAction] = useState('');
   const [severity, setSeverity] = useState<'low'|'medium'|'high'|'critical'>('medium');
+  const [photos, setPhotos] = useState<string[]>([]);
 
   const handleSave = () => {
     onSave({
       title: `Falha: ${itemDescription}`,
       description,
       recommendedAction,
-      severity
+      severity,
+      photoUuids: photos
     });
   };
 
@@ -37,15 +39,39 @@ export const AnomalyBottomSheet: React.FC<AnomalyBottomSheetProps> = ({ itemKey,
         </div>
 
         <div className="flex gap-4 mb-6">
-          <button className="flex-1 bg-surface-800 border border-surface-700 rounded-2xl py-6 flex flex-col items-center justify-center gap-2 active:bg-surface-700 transition-colors">
-            <Camera size={32} className="text-[var(--accent-blue)]" />
-            <span className="text-xs font-bold text-text-secondary">FOTOGRAFAR</span>
-          </button>
+          <div className="flex-1 relative">
+            <input 
+              type="file" 
+              accept="image/*"
+              capture="environment"
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+              onChange={(e) => {
+                if (e.target.files && e.target.files.length > 0) {
+                  const url = URL.createObjectURL(e.target.files[0]);
+                  setPhotos(prev => [...prev, url]);
+                }
+              }}
+            />
+            <div className="bg-surface-800 border border-surface-700 rounded-2xl py-6 flex flex-col items-center justify-center gap-2 transition-colors">
+              <Camera size={32} className="text-[var(--accent-blue)]" />
+              <span className="text-xs font-bold text-text-secondary">FOTOGRAFAR</span>
+            </div>
+          </div>
           <button className="flex-1 bg-surface-800 border border-surface-700 rounded-2xl py-6 flex flex-col items-center justify-center gap-2 active:bg-surface-700 transition-colors">
             <Mic size={32} className="text-[var(--accent-purple)]" />
             <span className="text-xs font-bold text-text-secondary">DITAR ÁUDIO</span>
           </button>
         </div>
+
+        {photos.length > 0 && (
+          <div className="mb-6 flex gap-2 overflow-x-auto pb-2 snap-x">
+            {photos.map((src, i) => (
+              <div key={i} className="relative w-16 h-16 rounded-lg overflow-hidden border border-surface-600 shrink-0 snap-start">
+                <img src={src} alt="Evidência" className="w-full h-full object-cover" />
+              </div>
+            ))}
+          </div>
+        )}
 
         <div className="space-y-4 mb-8">
           <Input 
@@ -63,21 +89,20 @@ export const AnomalyBottomSheet: React.FC<AnomalyBottomSheetProps> = ({ itemKey,
           <Select
             label="Gravidade"
             value={severity}
-            onChange={e => setSeverity(e.target.value as any)}
-            options={[
-              { value: 'low', label: 'Baixa (Monitorar)' },
-              { value: 'medium', label: 'Média (Programar reparo)' },
-              { value: 'high', label: 'Alta (Risco operacional)' },
-              { value: 'critical', label: 'Crítica (Parada imediata)' }
-            ]}
-          />
+            onChange={val => setSeverity(val as any)}
+          >
+            <option value="low">Baixa (Monitorar)</option>
+            <option value="medium">Média (Programar reparo)</option>
+            <option value="high">Alta (Risco operacional)</option>
+            <option value="critical">Crítica (Parada imediata)</option>
+          </Select>
         </div>
 
         <div className="flex gap-3">
           <button onClick={onClose} className="flex-1 py-4 rounded-2xl font-bold text-text-secondary bg-surface-800 active:bg-surface-700">
             CANCELAR
           </button>
-          <PrimaryButton onClick={handleSave} className="flex-1 py-4 rounded-2xl shadow-[0_0_20px_rgba(212,169,78,0.3)]">
+          <PrimaryButton onClick={handleSave} className="flex-1 py-4 rounded-2xl shadow-[var(--glow-gold)]">
             SALVAR FALHA
           </PrimaryButton>
         </div>

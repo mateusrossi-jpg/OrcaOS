@@ -1,6 +1,20 @@
 import { Suspense, useEffect, useState } from 'react';
 import type { CalculationCapture } from '../core/types/workflow';
 import { AppShell } from './components/AppShell';
+import { useRole } from '../hooks/useRole';
+import { OwnerShell, FieldShell, SalesShell, ManagerShell, CustomerShell } from '../features/workspace/components/RoleShells';
+import { FieldWorkspace } from '../features/workspace/screens/FieldWorkspace';
+import { AssetsWorkspace } from '../features/workspace/screens/AssetsWorkspace';
+import { ChecklistsWorkspace } from '../features/workspace/screens/ChecklistsWorkspace';
+import { DiagnosticsWorkspace } from '../features/workspace/screens/DiagnosticsWorkspace';
+import { OwnerWorkspace } from '../features/workspace/screens/OwnerWorkspace';
+import { SalesWorkspace } from '../features/workspace/screens/SalesWorkspace';
+import { ManagerWorkspace } from '../features/workspace/screens/ManagerWorkspace';
+import { TeamWorkspace } from '../features/workspace/screens/TeamWorkspace';
+import { DispatchBoardPage } from '../features/dispatch/screens/DispatchBoardPage';
+import { ContractControlCenter } from '../features/contracts/screens/ContractControlCenter';
+import { RevenueInboxPage } from '../features/revenue/screens/RevenueInboxPage';
+import { ClientPortalPage } from '../features/clientPortal/screens/ClientPortalPage';
 import { AferixIntro } from './components/AferixIntro';
 import type { AppTab } from './appTypes';
 // LEGACY: Storage access replaced with Dexie migration
@@ -48,8 +62,11 @@ function LazyWorkspaceFallback() {
   );
 }
 
+import { RoleSelectionScreen } from '../features/auth/components/RoleSelectionScreen';
+
 
 export function App() {
+  const { role, hasSelectedRole } = useRole();
   const [activeTab, setActiveTab] = useState<AppTab>('pulse');
   const [selectedBudgetId, setSelectedBudgetId] = useState<string | null>(null);
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
@@ -57,6 +74,28 @@ export function App() {
   const [budgetResetKey, setBudgetResetKey] = useState(0);
   const [tacticalAction, setTacticalAction] = useState<string | null>(null);
   
+  const ActiveShell = {
+    OWNER: OwnerShell,
+    FIELD: FieldShell,
+    SALES: SalesShell,
+    MANAGER: ManagerShell,
+    CUSTOMER: CustomerShell,
+  }[role] || OwnerShell;
+
+  useEffect(() => {
+    // Role-based default tab routing (Always enforce when role changes)
+    const defaultTabs: Record<string, string> = {
+      OWNER: 'dashboard',
+      FIELD: 'base',
+      SALES: 'pipeline',
+      MANAGER: 'map',
+      CUSTOMER: 'home'
+    };
+    if (defaultTabs[role]) {
+      setActiveTab(defaultTabs[role] as AppTab);
+    }
+  }, [role]);
+
   const { captures, addManyCalculationCaptures: addCaptures, refreshCaptures } = useCalculationCaptures();
   
   const { 
@@ -202,18 +241,45 @@ export function App() {
       <ERPToast />
       <DebugPanel />
       <AferixIntro />
+
+      {!hasSelectedRole && (
+        <RoleSelectionScreen onComplete={() => window.dispatchEvent(new Event('aferix_role_changed'))} />
+      )}
       
-      <AppShell activeTab={activeTab} onNavigate={goTo}>
-        <Suspense fallback={<LazyWorkspaceFallback />}>
-          {activeTab === 'pulse' && (
+      {hasSelectedRole && (
+        <ActiveShell activeTab={activeTab} onNavigate={goTo}>
+          <Suspense fallback={<LazyWorkspaceFallback />}>
+          {/* New Multi-Profile Workspaces */}
+          {activeTab === 'dashboard' && (
             <HomeScreen
               account={account}
               onNavigate={goTo}
-              onSelectBudget={(budget) => {
-                openBudgetForEdit(budget.id);
-              }}
             />
           )}
+          {activeTab === 'agenda' && <FieldWorkspace />}
+          {activeTab === 'assets' && <AssetsWorkspace />}
+          {activeTab === 'checklists' && <ChecklistsWorkspace />}
+          {activeTab === 'diagnostics' && <DiagnosticsWorkspace />}
+          {activeTab === 'pipeline' && <SalesWorkspace />}
+          {activeTab === 'map' && <ManagerWorkspace />}
+          {activeTab === 'team' && <TeamWorkspace />}
+          {activeTab === 'dispatch' && <DispatchBoardPage />}
+          {activeTab === 'contracts' && <ContractControlCenter />}
+          {activeTab === 'anomalies' && <RevenueInboxPage />}
+          {activeTab === 'home' && <ClientPortalPage />}
+          
+          {/* Fallbacks for undefined role tabs to avoid blank screens */}
+          {['profile'].includes(activeTab) && (
+             <div className="flex flex-col items-center justify-center h-[100dvh] text-center px-6">
+                <div className="w-16 h-16 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mb-4 text-white/30">
+                  <span className="text-2xl">🚧</span>
+                </div>
+                <h2 className="text-white font-bold tracking-widest uppercase mb-2">Em Construção</h2>
+                <p className="text-white/40 text-sm">Este módulo ({activeTab}) será ativado nas próximas atualizações de perfil.</p>
+             </div>
+          )}
+
+          {/* Legacy Fallbacks */}
 
           {activeTab === 'base' && (
             <OperationsScreen 
@@ -266,6 +332,7 @@ export function App() {
                   onBack={() => {
                     setSelectedBudgetId(null);
                   }}
+                  onNavigate={goTo}
                 />
               </RuntimeErrorBoundary>
             ) : (
@@ -290,7 +357,8 @@ export function App() {
 
           {activeTab === 'store' && <StoreScreen account={account} onAccountChange={() => {}} onBack={() => goTo('settings')} />}
         </Suspense>
-      </AppShell>
+        </ActiveShell>
+      )}
     </>
   );
 }

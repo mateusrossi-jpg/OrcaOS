@@ -25,7 +25,7 @@ export const ScreenContainer = memo(function ScreenContainer({
   return (
     <div
       className={cn(
-        "relative flex flex-col flex-1 w-full page-fade-in",
+        "relative flex flex-col min-h-[100dvh] w-full page-fade-in",
         className
       )}
       {...props}
@@ -65,7 +65,7 @@ export const AppHeader = memo(function AppHeader({
   const headingClass = "text-[var(--fs-xl)] font-black leading-tight tracking-tight text-white";
 
   return (
-    <header className={cn(`w-full ${safeTop} px-6 pb-2 flex flex-col gap-1 border-b border-white/[0.05] bg-[#050505]/45 backdrop-blur-md`, className)}>
+    <header className={cn(`w-full ${safeTop} px-6 pb-2 flex flex-col gap-1 border-b border-white/[0.05] bg-[#050505]/45 backdrop-blur-md sticky top-0 z-40`, className)}>
       {onBack && (
         <button
           onClick={onBack}
@@ -117,8 +117,8 @@ export const Header = memo(function Header({ children, className = '', ...props 
 
 export const Content = memo(function Content({ children, className = '', ...props }: LayoutProps) {
   return (
-    <div className={cn("flex-1 overflow-y-auto px-6 py-8 pb-40 custom-scrollbar", className)} {...props}>
-      <div className="max-w-[440px] mx-auto">
+    <div className={cn("flex flex-col px-6 py-8 pb-40", className)} {...props}>
+      <div className="max-w-[440px] mx-auto w-full">
         {children}
       </div>
     </div>

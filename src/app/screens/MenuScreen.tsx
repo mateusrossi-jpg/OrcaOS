@@ -68,9 +68,11 @@ export const MenuScreen = memo(function MenuScreen({ account, onNavigate }: Menu
     {
       title: 'Gestão Operacional',
       items: [
-        { title: 'Base de Clientes', desc: 'Carteira estratégica e CRM', onClick: () => onNavigate('base'), icon: Users },
+        { title: 'Base de Clientes', desc: 'Carteira estratégica e CRM', onClick: () => onNavigate('clients'), icon: Users },
         { title: 'Catálogo Profissional', desc: 'Sua biblioteca de serviços', onClick: () => onNavigate('catalog'), icon: Package },
         { title: 'Relatórios e BI', desc: 'Inteligência e performance', onClick: () => onNavigate('reports'), icon: FileBarChart },
+        { title: 'Licença e Assinatura', desc: 'Plano e recursos', onClick: () => onNavigate('store'), icon: Star },
+        { title: 'Alternar Perfil (Teste)', desc: 'Trocar a experiência do usuário', onClick: () => window.dispatchEvent(new Event('aferix_open_debug')), icon: Users },
       ]
     },
     {
@@ -160,7 +162,12 @@ export const MenuScreen = memo(function MenuScreen({ account, onNavigate }: Menu
             ))}
 
             <Section className="mt-4 gap-10 pb-20">
-               <DangerButton className="h-16 w-full !rounded-2xl !text-[11px] font-black uppercase tracking-widest">
+               <DangerButton 
+                 onClick={() => {
+                   import('../../services/AuthService').then(({ AuthService }) => AuthService.logout());
+                 }}
+                 className="h-16 w-full !rounded-2xl !text-[11px] font-black uppercase tracking-widest"
+               >
                   <LogOut size={16} className="mr-3" /> DESCONECTAR_ESTA_SESSÃO
                </DangerButton>
                <div className="text-center opacity-20">

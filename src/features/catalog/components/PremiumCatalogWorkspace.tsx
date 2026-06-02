@@ -302,7 +302,7 @@ export function PremiumCatalogWorkspace({ onSendToBudget, onBack }: PremiumCatal
       </Modal>
 
       <Modal isOpen={Boolean(itemPendingSelection)} title="Adicionar" confirmLabel="Confirmar" onClose={() => setItemPendingSelection(null)} onConfirm={() => { if (itemPendingSelection && onSendToBudget) { onSendToBudget([{ ...itemPendingSelection, defaultQuantity: pendingQuantity }]); setItemPendingSelection(null); } }}>
-        <div className="flex flex-col gap-6 py-4">
+        <div className="flex flex-col gap-6 py-4 pb-32">
           <Input label="Quantidade" type="number" value={pendingQuantity} onChange={(e) => setPendingQuantity(Number(e.target.value))} autoFocus />
         </div>
       </Modal>

@@ -1,74 +1,74 @@
-import { GlobalCommandCenter } from "../../../components/GlobalCommandCenter";
 import React from 'react';
 import { Play, Calendar, MapPin, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { ScreenContainer, AppHeader, Section, SectionLabel, SurfaceCard, OpsChip } from "../../../ui/system";
 
 export const FieldWorkspace: React.FC = () => {
   return (
-    <div className="flex flex-col min-h-screen bg-background pb-24 overflow-x-hidden">
-      {/* HEADER DA TRINCHEIRA */}
-      <GlobalCommandCenter />
-      <div className="bg-surface-900 border-b border-surface-800 p-6 pt-12">
-        <h1 className="text-xl font-black text-white uppercase tracking-widest mb-1">Rota de Hoje</h1>
-        <span className="text-xs text-text-tertiary font-bold tracking-widest uppercase">3 Serviços Agendados</span>
-      </div>
+    <ScreenContainer className="pb-32 bg-[var(--bg-primary)]">
+      <AppHeader title="Rota de Hoje" subtitle="3 Serviços Agendados" />
 
-      <div className="flex-1 p-4 space-y-6">
+      <div className="px-6 py-8 flex flex-col gap-10">
+        
         {/* BOTÃO GIGANTE - THUMB ZONE */}
-        <button className="w-full bg-[var(--accent-blue)] text-[#050505] rounded-2xl p-6 shadow-[0_0_30px_rgba(42,139,242,0.2)] flex flex-col items-center justify-center gap-3 active:scale-95 transition-transform">
-          <Play size={40} className="fill-[#050505]" />
-          <div className="flex flex-col items-center">
-            <span className="text-xl font-black tracking-widest uppercase">INICIAR SERVIÇO</span>
-            <span className="text-xs font-bold opacity-80 uppercase tracking-widest">Hospital Santa Casa • 09:00</span>
-          </div>
-        </button>
+        <Section className="gap-4">
+          <button className="w-full bg-gradient-to-b from-[var(--accent-blue)] to-[#1A6EC1] text-[#050505] rounded-[28px] p-8 shadow-[0_0_30px_rgba(42,139,242,0.3),inset_0_2px_10px_rgba(255,255,255,0.4)] flex flex-col items-center justify-center gap-3 active:scale-95 transition-transform hover:brightness-110">
+            <Play size={40} className="fill-[#050505]" />
+            <div className="flex flex-col items-center mt-2">
+              <span className="text-xl font-black tracking-[0.1em] uppercase">INICIAR SERVIÇO</span>
+              <span className="text-[10px] font-bold opacity-80 uppercase tracking-widest mt-1">Hospital Santa Casa • 09:00</span>
+            </div>
+          </button>
+        </Section>
 
         {/* AGENDA SCROLL-FIRST */}
-        <div className="space-y-4">
-          <h2 className="text-xs font-bold text-text-tertiary uppercase tracking-widest flex items-center gap-2">
-            <Calendar size={16} /> Próximos Atendimentos
-          </h2>
+        <Section className="gap-4">
+          <SectionLabel>Próximos Atendimentos</SectionLabel>
           
-          <GlobalCommandCenter />
-      <div className="bg-surface-900 border border-surface-800 rounded-xl p-4 flex flex-col gap-2 relative overflow-hidden">
-            <div className="absolute left-0 top-0 bottom-0 w-1 bg-[var(--accent-yellow)]"></div>
-            <div className="flex justify-between items-start">
-              <span className="text-sm font-black text-white uppercase tracking-widest">Edifício JK</span>
-              <span className="text-xs font-bold text-[var(--accent-yellow)] uppercase tracking-widest">14:00</span>
-            </div>
-            <div className="flex items-center gap-1 text-xs text-text-secondary">
-              <MapPin size={12} /> Vila Olímpia, São Paulo
-            </div>
-            <span className="text-[10px] bg-surface-800 text-text-tertiary px-2 py-1 rounded w-fit mt-1 uppercase font-bold tracking-widest">PMOC Mensal</span>
+          <div className="flex flex-col gap-4">
+            <SurfaceCard padding="lg" className="flex flex-col gap-2 relative overflow-hidden">
+              <div className="absolute left-0 top-0 bottom-0 w-1 bg-[var(--accent-yellow)]"></div>
+              <div className="flex justify-between items-start">
+                <span className="text-sm font-black text-white uppercase tracking-widest">Edifício JK</span>
+                <span className="text-xs font-bold text-[var(--accent-yellow)] uppercase tracking-widest">14:00</span>
+              </div>
+              <div className="flex items-center gap-1 text-xs text-text-secondary mt-1">
+                <MapPin size={12} /> Vila Olímpia, São Paulo
+              </div>
+              <div className="mt-2">
+                <OpsChip label="PMOC Mensal" tone="muted" />
+              </div>
+            </SurfaceCard>
+            
+            <SurfaceCard padding="lg" className="flex flex-col gap-2 relative overflow-hidden opacity-60">
+              <div className="absolute left-0 top-0 bottom-0 w-1 bg-[var(--accent-red)]"></div>
+              <div className="flex justify-between items-start">
+                <span className="text-sm font-black text-white uppercase tracking-widest">Clínica Cuidar</span>
+                <span className="text-xs font-bold text-text-tertiary uppercase tracking-widest">16:30</span>
+              </div>
+              <div className="flex items-center gap-1 text-xs text-text-secondary mt-1">
+                <MapPin size={12} /> Pinheiros, São Paulo
+              </div>
+              <div className="mt-2">
+                <OpsChip label="Corretiva" tone="orange" />
+              </div>
+            </SurfaceCard>
           </div>
-          
-          <GlobalCommandCenter />
-      <div className="bg-surface-900 border border-surface-800 rounded-xl p-4 flex flex-col gap-2 relative overflow-hidden opacity-50">
-            <div className="absolute left-0 top-0 bottom-0 w-1 bg-surface-700"></div>
-            <div className="flex justify-between items-start">
-              <span className="text-sm font-black text-white uppercase tracking-widest">Clínica Cuidar</span>
-              <span className="text-xs font-bold text-text-tertiary uppercase tracking-widest">16:30</span>
-            </div>
-            <div className="flex items-center gap-1 text-xs text-text-secondary">
-              <MapPin size={12} /> Pinheiros, São Paulo
-            </div>
-            <span className="text-[10px] bg-status-error/20 text-status-error px-2 py-1 rounded w-fit mt-1 uppercase font-bold tracking-widest">Corretiva</span>
-          </div>
-        </div>
+        </Section>
 
         {/* SERVIÇOS FINALIZADOS */}
-        <div className="space-y-4 pt-4 border-t border-surface-800">
-          <h2 className="text-xs font-bold text-[var(--accent-green)] uppercase tracking-widest flex items-center gap-2">
-            <CheckCircle2 size={16} /> Serviços Finalizados (Hoje)
-          </h2>
-          <div className="bg-[var(--accent-green)]/10 border border-[var(--accent-green)]/30 rounded-xl p-4 flex items-center justify-between">
+        <Section className="gap-4">
+          <SectionLabel>Serviços Finalizados (Hoje)</SectionLabel>
+          <div className="bg-[var(--accent-green)]/5 border border-[var(--accent-green)]/20 rounded-[24px] p-5 flex items-center justify-between">
             <div className="flex flex-col">
-              <span className="text-sm font-bold text-[var(--accent-green)] uppercase tracking-widest">Padaria Pão de Ouro</span>
-              <span className="text-[10px] text-text-tertiary uppercase tracking-widest">Concluído às 08:15</span>
+              <span className="text-sm font-black text-[var(--accent-green)] uppercase tracking-widest">Padaria Pão de Ouro</span>
+              <span className="text-[10px] text-[var(--accent-green)]/60 font-bold uppercase tracking-widest mt-1">Concluído às 08:15</span>
             </div>
-            <CheckCircle2 size={20} className="text-[var(--accent-green)]" />
+            <div className="w-10 h-10 rounded-full bg-[var(--accent-green)]/10 flex items-center justify-center">
+              <CheckCircle2 size={20} className="text-[var(--accent-green)]" />
+            </div>
           </div>
-        </div>
+        </Section>
       </div>
-    </div>
+    </ScreenContainer>
   );
 };

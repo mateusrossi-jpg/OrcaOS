@@ -1,11 +1,12 @@
-import React, { memo } from 'react';
+import React, { memo, useState } from 'react';
 import { Budget } from '../../../domain/budget';
 import { calculateBudget } from '../../../domain/aferixFinanceEngine';
 import { formatCurrencyBRL, formatPercent } from '../../../utils/formatters';
 import { operationalFacade } from '../../workflow/operationalFacade';
 import { 
   MoneyValue, 
-  ContextBanner
+  ContextBanner,
+  Modal
 } from '../../../app/components/ui';
 
 import { 
@@ -32,11 +33,16 @@ export const BudgetSummaryView: React.FC<BudgetSummaryViewProps> = memo(({ budge
   const result = calculateBudget(budget);
   const isProfitable = result.lucroBruto > 0;
   
-  const handleArchive = async () => {
-    if (window.confirm('Arquivar este projeto? Ele entrará no histórico permanente de BI.')) {
-      await operationalFacade.archiveBudget(budget.id);
-      onArchived?.();
-    }
+  const [isArchiveModalOpen, setIsArchiveModalOpen] = useState(false);
+
+  const handleArchiveClick = () => {
+    setIsArchiveModalOpen(true);
+  };
+
+  const handleConfirmArchive = async () => {
+    setIsArchiveModalOpen(false);
+    await operationalFacade.archiveBudget(budget.id);
+    onArchived?.();
   };
 
   return (
@@ -142,12 +148,24 @@ export const BudgetSummaryView: React.FC<BudgetSummaryViewProps> = memo(({ budge
           icon={<Package className="h-5 w-5" />}
         />
         <button 
-          onClick={handleArchive}
+          onClick={handleArchiveClick}
           className="w-full flex items-center justify-center gap-3 h-16 rounded-2xl bg-[var(--accent-gold)] text-black text-[14px] font-bold shadow-[0_8px_32px_rgba(212,169,78,0.15)] active:scale-[0.98] transition-all uppercase tracking-widest"
         >
           CONSOLIDAR OPERAÇÃO <ArrowRight className="h-5 w-5" strokeWidth={3} />
         </button>
       </div>
+
+      <Modal 
+        isOpen={isArchiveModalOpen} 
+        onClose={() => setIsArchiveModalOpen(false)} 
+        title="Arquivar Projeto" 
+        confirmLabel="Consolidar e Arquivar" 
+        onConfirm={handleConfirmArchive}
+      >
+        <div className="py-4 text-center text-[13px] text-white/80 leading-relaxed font-medium px-4">
+          Arquivar este projeto? Ele entrará no histórico permanente de BI.
+        </div>
+      </Modal>
     </div>
   );
 });

@@ -1,4 +1,4 @@
-import { generateId } from '../app/components/ui';
+const generateId = () => typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2);
 
 export class CustomerNotificationService {
   static async notifyProposalGenerated(clientId: string, proposalId: string) {

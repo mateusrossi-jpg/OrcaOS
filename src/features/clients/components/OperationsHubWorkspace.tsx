@@ -16,7 +16,10 @@ import {
   Check,
   XCircle,
   Play,
-  Phone
+  Phone,
+  Camera,
+  CheckSquare,
+  FileBadge
 } from "lucide-react";
 import type { Client, Service as WorkOrder } from '../../../core/types/business';
 import { clientService } from '../../../services/clientService';
@@ -56,6 +59,7 @@ import { Site } from '../../../domain/site';
 import { Asset } from '../../../domain/asset';
 import { AssetCaptureModal } from '../../execution/components/AssetCaptureModal';
 import { HeroCard } from '../../../components/HeroCard';
+import { ExecutionCockpit } from '../../execution/components/ExecutionCockpit';
 
 interface OperationsHubWorkspaceProps {
   onContextChange: (clients: Client[], workOrders: WorkOrder[], activeWorkOrderId: string | null) => void;
@@ -96,7 +100,11 @@ export function OperationsHubWorkspace({
   const [clientAssets, setClientAssets] = useState<Asset[]>([]);
   const [checkoutDraft, setCheckoutDraft] = useState<CheckoutDraft | null>(null);
   const [assetCaptureContext, setAssetCaptureContext] = useState<{ clientId: string, siteId: string } | null>(null);
+  const [isCapturingRevenue, setIsCapturingRevenue] = useState(false);
+  const [activeChecklistId, setActiveChecklistId] = useState<string | null>(null);
+  const [activeChecklistClientName, setActiveChecklistClientName] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
+  const [confirmDialog, setConfirmDialog] = useState<{ isOpen: boolean, title: string, message: string, confirmLabel: string, onConfirm: () => void } | null>(null);
 
   // FASE 4D: Tactical Action Handling
   useEffect(() => {
@@ -208,38 +216,53 @@ export function OperationsHubWorkspace({
   }
 
   async function handleStartService(os: WorkOrder) {
-    if (confirm(`Iniciar a execução do serviço "${os.title}"?`)) {
-      try {
-        const updated = { ...os, status: 'in-progress' as const, updatedAt: new Date().toISOString() };
-        await operationalFacade.updateWorkOrder(updated);
-        await loadData();
-        trustLayer.emit({
-          type: 'success',
-          title: 'Serviço Iniciado',
-          description: `Ordem de Serviço "${os.title}" está em execução.`,
-          status: 'synced'
-        });
-      } catch (err) {
-        console.error(err);
-        alert('Erro ao iniciar serviço: ' + (err as Error).message);
+    setConfirmDialog({
+      isOpen: true,
+      title: "Iniciar Execução",
+      message: `Iniciar a execução do serviço "${os.title}"? O tempo de atendimento começará a contar.`,
+      confirmLabel: "Iniciar Serviço",
+      onConfirm: async () => {
+        setConfirmDialog(null);
+        try {
+          const updated = { ...os, status: 'in-progress' as const, updatedAt: new Date().toISOString() };
+          await operationalFacade.updateWorkOrder(updated);
+          await loadData();
+          trustLayer.emit({
+            type: 'success',
+            title: 'Serviço Iniciado',
+            description: `Ordem de Serviço "${os.title}" está em execução.`,
+            status: 'synced'
+          });
+        } catch (err) {
+          console.error(err);
+          // Substituindo alert nativo
+          trustLayer.emit({ type: 'error', title: 'Erro', description: 'Não foi possível iniciar: ' + (err as Error).message, status: 'error' });
+        }
       }
-    }
+    });
   }
 
   async function handleFastCheckout(os: WorkOrder) {
-    if (confirm(`Encerrar a OS "${os.title}" e faturar integralmente o valor orçado (R$ ${(os.executedValue || 0).toLocaleString('pt-BR')})?`)) {
-      try {
-        await operationalFacade.completeWorkOrder(os.id, os.executedValue || 0, os.executedValue || 0, 'Fast Checkout (Pagamento Integral na Hora)');
-        await loadData();
-        setAssetCaptureContext({ clientId: os.clientId, siteId: os.siteId });
-        trustLayer.emit({
-          type: 'success',
-          title: 'Fast Checkout Concluído',
-          description: `R$ ${(os.executedValue || 0).toLocaleString('pt-BR')} faturado e OS encerrada.`,
-          status: 'synced'
-        });
-      } catch (e) { console.error(e); }
-    }
+    setConfirmDialog({
+      isOpen: true,
+      title: "Fast Checkout",
+      message: `Encerrar a OS "${os.title}" e faturar integralmente o valor orçado (R$ ${(os.executedValue || 0).toLocaleString('pt-BR')})?`,
+      confirmLabel: "Faturar Integral",
+      onConfirm: async () => {
+        setConfirmDialog(null);
+        try {
+          await operationalFacade.completeWorkOrder(os.id, os.executedValue || 0, os.executedValue || 0, 'Fast Checkout (Pagamento Integral na Hora)');
+          await loadData();
+          setAssetCaptureContext({ clientId: os.clientId, siteId: os.siteId });
+          trustLayer.emit({
+            type: 'success',
+            title: 'Fast Checkout Concluído',
+            description: `R$ ${(os.executedValue || 0).toLocaleString('pt-BR')} faturado e OS encerrada.`,
+            status: 'synced'
+          });
+        } catch (e) { console.error(e); }
+      }
+    });
   }
 
   const handleSaveAsset = async (assetData: any) => {
@@ -259,7 +282,7 @@ export function OperationsHubWorkspace({
       });
     } catch(e) {
       console.error(e);
-      alert('Erro ao salvar equipamento: ' + (e as Error).message);
+      trustLayer.emit({ type: 'error', title: 'Erro', description: 'Erro ao salvar equipamento: ' + (e as Error).message, status: 'error' });
     }
   };
 
@@ -279,16 +302,25 @@ export function OperationsHubWorkspace({
     return (
       <div key={os.id} className="relative group">
         <InteractiveRow 
-          onClick={() => !isDone && setCheckoutDraft({
-            workOrderId: os.id,
-            title: os.title,
-            clientId: os.clientId,
-            siteId: os.siteId,
-            originalBudget: os.executedValue || 0,
-            executedValue: String(os.executedValue || 0),
-            receivedValue: '0',
-            notes: ''
-          })}
+          onClick={() => {
+            if (isDone) return;
+            if (isExecuting) {
+              setActiveChecklistId(os.id);
+              setActiveChecklistClientName(clientName);
+            } else {
+              // Permitir checkout direto se não estiver executando (embora o normal seja iniciar antes)
+              setCheckoutDraft({
+                workOrderId: os.id,
+                title: os.title,
+                clientId: os.clientId,
+                siteId: os.siteId,
+                originalBudget: os.executedValue || 0,
+                executedValue: String(os.executedValue || 0),
+                receivedValue: '0',
+                notes: ''
+              });
+            }
+          }}
           className={cn(isDone && "opacity-50")}
           leftSlot={
             <div className="w-9 h-9 rounded-xl bg-white/[0.03] border border-white/[0.07] grid place-items-center shrink-0">
@@ -371,27 +403,26 @@ export function OperationsHubWorkspace({
           >
             <MessageCircle size={16} />
           </button>
+          <button
+            onClick={(e) => { e.stopPropagation(); onNavigate('base'); }}
+            className="h-10 w-10 flex items-center justify-center rounded-xl bg-white/[0.03] border border-white/[0.05] text-[var(--accent-gold)] active:bg-white/10"
+            title="Dossiê do Cliente"
+          >
+            <FileBadge size={16} />
+          </button>
         </div>
       </div>
     );
   };
-  const chips = (
-    <>
-      <OpsChip icon={<Zap size={11} />} label={`${activeOS.length} ao vivo`} accent={activeOS.length > 0 ? "orange" : false} />
-      <OpsChip icon={<CalendarDays size={11} />} label={`${scheduledOS.length} agendados`} accent={false} />
-    </>
-  );
-
   if (isLoading) return <ScreenContainer className="items-center justify-center"><ERPLoader message="Sincronizando campo..." /></ScreenContainer>;
 
   return (
     <ScreenContainer className="pb-32">
-      <div className="flex-1 overflow-y-auto overflow-x-hidden pb-[124px] scrollbar-none">
+      <div className="flex flex-col">
         
         {/* ━━━ AUTHORITATIVE HEADER ━━━ */}
         <AppHeader 
           title="Execução."
-          chips={chips}
         />
 
         <div className="px-4 py-3 flex flex-col gap-3.5">
@@ -537,7 +568,7 @@ export function OperationsHubWorkspace({
         onConfirm={checkoutDraft?.hasPaid ? undefined : handleConfirmCheckout}
       >
         {checkoutDraft && (
-          <div className="flex flex-col gap-8 py-2">
+          <div className="flex flex-col gap-8 py-2" style={{ paddingBottom: 'calc(env(keyboard-inset-height, 0px) + 120px)' }}>
             <ContextBanner 
               title="Validação de Receita" 
               meta={`Orçado: R$ ${checkoutDraft.originalBudget.toLocaleString()}. Verifique os valores finais para o faturamento.`} 
@@ -566,15 +597,15 @@ export function OperationsHubWorkspace({
                     <div className="grid grid-cols-3 gap-2">
                       <button 
                         onClick={() => handleConfirmCheckoutWithPayment('PIX')}
-                        className="py-4 rounded-[16px] bg-[var(--accent-gold)] text-black text-[11px] font-black tracking-wider transition-all active:scale-95 flex flex-col items-center gap-1 shadow-[0_0_15px_rgba(255,200,0,0.2)]"
+                        className="py-4 rounded-[16px] bg-[var(--accent-gold)] text-black text-[11px] font-black tracking-wider transition-all active:scale-95 flex flex-col items-center gap-1 shadow-[var(--glow-gold)]"
                       >PIX</button>
                       <button 
                         onClick={() => handleConfirmCheckoutWithPayment('DINHEIRO')}
-                        className="py-4 rounded-[16px] bg-[var(--accent-gold)] text-black text-[11px] font-black tracking-wider transition-all active:scale-95 flex flex-col items-center gap-1 shadow-[0_0_15px_rgba(255,200,0,0.2)]"
+                        className="py-4 rounded-[16px] bg-[var(--accent-gold)] text-black text-[11px] font-black tracking-wider transition-all active:scale-95 flex flex-col items-center gap-1 shadow-[var(--glow-gold)]"
                       >DINHEIRO</button>
                       <button 
                         onClick={() => handleConfirmCheckoutWithPayment('CARTÃO')}
-                        className="py-4 rounded-[16px] bg-[var(--accent-gold)] text-black text-[11px] font-black tracking-wider transition-all active:scale-95 flex flex-col items-center gap-1 shadow-[0_0_15px_rgba(255,200,0,0.2)]"
+                        className="py-4 rounded-[16px] bg-[var(--accent-gold)] text-black text-[11px] font-black tracking-wider transition-all active:scale-95 flex flex-col items-center gap-1 shadow-[var(--glow-gold)]"
                       >CARTÃO</button>
                     </div>
                  </div>
@@ -588,11 +619,32 @@ export function OperationsHubWorkspace({
                  </div>
                )}
 
+               <div className="flex flex-col gap-3">
+                  <SectionLabel className="ml-1">Evidências de Campo</SectionLabel>
+                  <div className="flex gap-2">
+                     <button className="flex-1 py-3 rounded-[16px] border bg-white/5 border-white/10 text-white flex items-center justify-center gap-2 font-bold text-[11px]"><CheckSquare size={14} /> LAUDO GERADO</button>
+                  </div>
+               </div>
+
                <TextArea label="Relatório de Campo (Opcional)" value={checkoutDraft.notes} onChange={(v) => setCheckoutDraft({ ...checkoutDraft, notes: v })} placeholder="Relate algo específico da execução..." rows={2} />
             </div>
           </div>
         )}
       </Modal>
+
+      {confirmDialog && (
+        <Modal 
+          isOpen={confirmDialog.isOpen} 
+          onClose={() => setConfirmDialog(null)} 
+          title={confirmDialog.title} 
+          confirmLabel={confirmDialog.confirmLabel} 
+          onConfirm={confirmDialog.onConfirm}
+        >
+          <div className="py-4 text-center text-[13px] text-white/80 leading-relaxed font-medium px-4">
+            {confirmDialog.message}
+          </div>
+        </Modal>
+      )}
 
       {assetCaptureContext && (
         <AssetCaptureModal 
@@ -600,6 +652,31 @@ export function OperationsHubWorkspace({
           siteId={assetCaptureContext.siteId}
           onClose={() => setAssetCaptureContext(null)}
           onSave={handleSaveAsset}
+        />
+      )}
+      
+      {activeChecklistId && (
+        <ExecutionCockpit 
+          workOrderId={activeChecklistId}
+          clientName={activeChecklistClientName}
+          onExit={() => setActiveChecklistId(null)}
+          onNavigate={onNavigate}
+          onCheckout={() => {
+             const os = workOrders.find(o => o.id === activeChecklistId);
+             if (os) {
+                setCheckoutDraft({
+                  workOrderId: os.id,
+                  title: os.title,
+                  clientId: os.clientId,
+                  siteId: os.siteId,
+                  originalBudget: os.executedValue || 0,
+                  executedValue: String(os.executedValue || 0),
+                  receivedValue: '0',
+                  notes: ''
+                });
+             }
+             setActiveChecklistId(null);
+          }}
         />
       )}
 

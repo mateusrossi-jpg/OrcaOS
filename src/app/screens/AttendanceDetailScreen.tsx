@@ -147,7 +147,7 @@ export const AttendanceDetailScreen = memo(function AttendanceDetailScreen({
   }
 
   return (
-    <ScreenContainer>
+    <ScreenContainer className="pb-32">
       <AppHeader 
         title="Atendimento Operacional" 
         subtitle="Workspace consolidado do ciclo de vida em campo." 

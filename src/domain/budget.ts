@@ -59,6 +59,7 @@ export interface Budget extends MultiTenantEntity {
   otherCosts: number;
   
   items: BudgetItem[];
+  evidences?: string[]; // Array of base64 or URLs (photos, audio URIs)
   
   // Presentation & Terms
   templateId?: string;

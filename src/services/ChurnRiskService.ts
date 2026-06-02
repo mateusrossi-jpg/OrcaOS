@@ -1,7 +1,7 @@
 import { db } from '../storage/dexieDatabase';
 import { ChurnRiskLevel } from '../domain/contracts';
 import { ContractHealthService } from './ContractHealthService';
-import { generateId } from '../app/components/ui'; // we'll use a local bypass in tests
+const generateId = () => typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2);
 
 export class ChurnRiskService {
   static async evaluateRisk(companyId: string, contractId: string): Promise<ChurnRiskLevel> {

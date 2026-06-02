@@ -104,7 +104,7 @@ export function SimpleFinanceWorkspace() {
 
   return (
     <ScreenContainer className="pb-32">
-      <div className="flex-1 overflow-y-auto overflow-x-hidden pb-[124px] scrollbar-none">
+      <div className="flex flex-col">
         
         {/* ━━━ AUTHORITATIVE HEADER ━━━ */}
         <AppHeader 
@@ -211,7 +211,7 @@ export function SimpleFinanceWorkspace() {
 
       <Modal isOpen={!!editingDraft} title="Registrar Pagamento" confirmLabel="Confirmar" onClose={() => setEditingDraft(null)} onConfirm={saveAdjustment}>
         {editingDraft && (
-          <div className="flex flex-col gap-6 py-4">
+          <div className="flex flex-col gap-6 py-4 pb-32">
             <MonetaryInput label="Valor Recebido" value={Number(editingDraft.receivedAmount) || 0} onChange={(v) => setEditingDraft(d => d ? {...d, receivedAmount: String(v)} : null)} />
             <ContextBanner title="Integridade" meta="Esta ação atualizará o saldo devedor no CRM." icon={<ShieldCheck size={14} />} />
           </div>

@@ -41,7 +41,7 @@ export const ChecklistExecutionPage: React.FC = () => {
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 pb-40">
+      <div className="flex flex-col p-4">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xs font-bold text-text-tertiary uppercase tracking-widest">Tarefas de Checklist</h2>
           <button 

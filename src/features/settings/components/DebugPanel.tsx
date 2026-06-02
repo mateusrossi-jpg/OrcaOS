@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { internalDiagnostics, OperationalHealthReport } from '../../../services/InternalDiagnosticsService';
+import { useRole } from '../../../hooks/useRole';
+import { AferixRole } from '../../workspace/types/RoleFeatureMatrix';
 
 export const DebugPanel: React.FC = () => {
   const [report, setReport] = useState<OperationalHealthReport | null>(null);
   const [loading, setLoading] = useState(false);
   const [visible, setVisible] = useState(false);
+  const { role, setRole } = useRole();
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -18,6 +21,15 @@ export const DebugPanel: React.FC = () => {
         setVisible(true);
         runScan();
       }
+
+      const handleOpenDebug = () => {
+        setVisible(true);
+      };
+      window.addEventListener('aferix_open_debug', handleOpenDebug);
+
+      return () => {
+        window.removeEventListener('aferix_open_debug', handleOpenDebug);
+      };
     }
   }, []);
 
@@ -29,6 +41,8 @@ export const DebugPanel: React.FC = () => {
   };
 
   if (!visible) return null;
+
+  const roles: AferixRole[] = ['OWNER', 'FIELD', 'SALES', 'MANAGER', 'CUSTOMER'];
 
   return (
     <div style={{
@@ -45,6 +59,22 @@ export const DebugPanel: React.FC = () => {
       <button onClick={() => setVisible(false)} style={{ background: '#f00', color: '#fff', padding: '10px' }}>CLOSE</button>
       <button onClick={runScan} style={{ background: '#00f', color: '#fff', padding: '10px', marginLeft: '10px' }}>RE-SCAN</button>
       
+      <div style={{ marginTop: '20px', padding: '10px', border: '1px solid #0f0' }}>
+        <h3>Simular Papel (Role Test)</h3>
+        <p>Papel Atual: <strong>{role}</strong></p>
+        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+          {roles.map(r => (
+            <button 
+              key={r}
+              onClick={() => { setRole(r); setVisible(false); }}
+              style={{ background: role === r ? '#0f0' : '#333', color: role === r ? '#000' : '#fff', padding: '8px 12px' }}
+            >
+              {r}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {loading && <p>Running diagnostic scan...</p>}
       
       {report && (

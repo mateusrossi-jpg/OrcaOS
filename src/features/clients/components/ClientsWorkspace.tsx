@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, memo } from 'react';
+import { trustLayer } from '../../../core/trust/TrustLayer';
 import { 
   Users, 
   MapPin, 
@@ -142,7 +143,7 @@ export function ClientsWorkspace({ onNavigate }: { onNavigate: (tab: any) => voi
       await loadData();
     } catch (e) { 
       console.error('Client Creation Failed:', e);
-      alert('Erro ao cadastrar cliente.');
+      trustLayer.emit({ type: 'error', title: 'Erro ao cadastrar cliente', status: 'local' });
     }
   };
 
@@ -230,7 +231,7 @@ export function ClientsWorkspace({ onNavigate }: { onNavigate: (tab: any) => voi
 
   return (
     <ScreenContainer className="pb-32">
-      <div className="flex-1 overflow-y-auto overflow-x-hidden pb-[124px] scrollbar-none">
+      <div className="flex flex-col">
         
         {/* ━━━ AUTHORITATIVE HEADER ━━━ */}
         <AppHeader 
@@ -431,7 +432,27 @@ export function ClientsWorkspace({ onNavigate }: { onNavigate: (tab: any) => voi
               <Stack className="gap-6">
                  <div className="flex justify-between items-center px-1">
                     <SectionLabel className="!text-[10px] !text-[var(--accent-gold)]">Ativos e Patrimônio</SectionLabel>
-                    <button onClick={() => {}} className="text-[9px] text-white font-black font-mono tracking-[0.2em] bg-white/[0.05] px-3 py-1.5 rounded-lg border border-white/[0.1]">+ CADASTRAR</button>
+                    <button onClick={async () => {
+                       const name = window.prompt("Nome do novo ativo:");
+                       if (name && selectedClientId) {
+                          // Try to find the first site for this client to attach the asset
+                          const sites = await db.sites.where('clientId').equals(selectedClientId).toArray();
+                          const siteId = sites.length > 0 ? sites[0].id : 'default-site';
+                          await db.assets.add({
+                             id: crypto.randomUUID(),
+                             companyId: 'default-company',
+                             clientId: selectedClientId,
+                             siteId,
+                             name,
+                             tag: Math.floor(Math.random() * 10000).toString(),
+                             category: 'EQUIPMENT',
+                             status: 'active',
+                             createdAt: new Date().toISOString()
+                          });
+                          loadClientData(selectedClientId);
+                          window.dispatchEvent(new CustomEvent('aferix_toast', { detail: { type: 'success', message: 'Ativo cadastrado.' } }));
+                       }
+                    }} className="text-[9px] text-white font-black font-mono tracking-[0.2em] bg-white/[0.05] px-3 py-1.5 rounded-lg border border-white/[0.1]">+ CADASTRAR</button>
                  </div>
                  <SurfaceCard padding="none" className="overflow-hidden border-white/[0.08]">
                     <Stack className="gap-0">
@@ -459,7 +480,7 @@ export function ClientsWorkspace({ onNavigate }: { onNavigate: (tab: any) => voi
             )}
 
             {activeDossierTab === 'cadastro' && fullClientData && (
-              <div className="flex flex-col gap-10 py-2">
+              <div className="flex flex-col gap-10 py-2 pb-32">
                  <div className="flex flex-col gap-6">
                     <Input label="Razão Social / Nome Completo" value={fullClientData.name} onChange={e => setFullClientData({...fullClientData, name: e.target.value})} />
                     <div className="flex gap-4">
@@ -512,7 +533,7 @@ export function ClientsWorkspace({ onNavigate }: { onNavigate: (tab: any) => voi
         confirmLabel="Cadastrar" 
         onConfirm={handleCreateClient}
       >
-        <div className="flex flex-col gap-6 py-2">
+        <div className="flex flex-col gap-6 py-2 pb-32">
            <Input label="Nome Completo" value={clientDraft.name} onChange={e => setClientDraft({ ...clientDraft, name: e.target.value })} placeholder="Razão Social ou Nome..." autoFocus />
            <Input label="WhatsApp / Telefone" value={clientDraft.phone} onChange={e => setClientDraft({ ...clientDraft, phone: e.target.value })} placeholder="(00) 00000-0000" />
            <Input label="E-mail (Opcional)" value={clientDraft.email} onChange={e => setClientDraft({ ...clientDraft, email: e.target.value })} placeholder="email@exemplo.com" />

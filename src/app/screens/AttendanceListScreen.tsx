@@ -93,7 +93,7 @@ export const AttendanceListScreen = memo(function AttendanceListScreen({
   };
 
   return (
-    <ScreenContainer>
+    <ScreenContainer className="pb-32">
       <AppHeader 
         title="Atendimentos" 
         subtitle="Controle e rastreabilidade de atendimentos em campo." 

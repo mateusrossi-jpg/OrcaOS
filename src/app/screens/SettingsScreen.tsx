@@ -83,7 +83,7 @@ export function SettingsScreen({ account, onAccountChange: _onAccountChange }: S
         title="Ajustes." 
       />
 
-      <div className="flex-1 overflow-y-auto overflow-x-hidden pb-[124px] scrollbar-none px-6 py-8 flex flex-col gap-12">
+      <div className="flex flex-col gap-12 px-6 py-8">
         <AferixTabs
           activeId={activeTab}
           onChange={(id) => setActiveTab(id as SettingsTab)}

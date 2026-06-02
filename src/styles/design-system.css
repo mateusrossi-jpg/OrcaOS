@@ -80,6 +80,12 @@
   --shadow-danger: 0 4px 16px rgba(192, 57, 43, 0.1), 0 1px 0 rgba(255, 255, 255, 0.1) inset;
   --shadow-cinematic: 0 12px 48px rgba(0, 0, 0, 0.6);
 
+  /* Standardized Glow Tokens (P3 Polish) */
+  --glow-gold:  0 0 20px rgba(212, 169, 78, 0.25);
+  --glow-blue:  0 0 20px rgba(42, 139, 242, 0.25);
+  --glow-green: 0 0 20px rgba(34, 197, 94, 0.25);
+  --glow-red:   0 0 20px rgba(239, 68, 68, 0.25);
+
   /* -------------------------------------------------------------------
      6. TRANSITIONS & ANIMATIONS
      ------------------------------------------------------------------- */

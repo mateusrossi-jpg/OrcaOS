@@ -41,6 +41,17 @@ import { KnowledgeCase, KnowledgeSolution, KnowledgeRating, KnowledgeRecommendat
 import { CustomerHealth, CustomerRisk, CustomerAction, CustomerEngagement } from '../domain/customerSuccess';
 import { InventoryItem, StockMovement, PurchaseRequest, PurchaseOrder, Supplier, InventoryReservation } from '../domain/inventory';
 
+export interface TeamMember {
+  id: string;
+  companyId: string;
+  workspaceId: string;
+  name: string;
+  email: string;
+  role: 'OWNER' | 'MANAGER' | 'SALES' | 'FIELD' | 'CUSTOMER';
+  status: 'active' | 'inactive';
+  createdAt: string;
+}
+
 export class AferixDatabase extends Dexie {
   budgets!: Table<Budget>;
   clients!: Table<Client>;
@@ -97,6 +108,9 @@ export class AferixDatabase extends Dexie {
   purchaseOrders!: Table<PurchaseOrder>;
   suppliers!: Table<Supplier>;
   inventoryReservations!: Table<InventoryReservation>;
+
+  // Team & RBAC
+  teamMembers!: Table<TeamMember>;
 
   constructor() {
     super('AferixDatabase');
@@ -270,6 +284,10 @@ export class AferixDatabase extends Dexie {
       purchaseOrders: 'id, companyId, workspaceId, supplierId, status',
       suppliers: 'id, companyId, workspaceId',
       inventoryReservations: 'id, companyId, workspaceId, itemId, proposalId, workOrderId, status'
+    });
+
+    this.version(27).stores({
+      teamMembers: 'id, companyId, workspaceId, email, role, status'
     });
   }
 }

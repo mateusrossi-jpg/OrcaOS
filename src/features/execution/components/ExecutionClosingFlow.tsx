@@ -12,6 +12,7 @@ interface ExecutionClosingFlowProps {
   executions: Record<string, AssetExecution>;
   totalAssets: number;
   onExit: () => void;
+  onCheckout: () => void;
 }
 
 export const ExecutionClosingFlow: React.FC<ExecutionClosingFlowProps> = ({
@@ -19,7 +20,8 @@ export const ExecutionClosingFlow: React.FC<ExecutionClosingFlowProps> = ({
   clientName,
   executions,
   totalAssets,
-  onExit
+  onExit,
+  onCheckout
 }) => {
   const [step, setStep] = useState<'summary' | 'signature' | 'generating' | 'done' | 'paywall'>('summary');
   const [signature, setSignature] = useState<string | null>(null);
@@ -45,8 +47,7 @@ export const ExecutionClosingFlow: React.FC<ExecutionClosingFlowProps> = ({
   };
 
   const handleNextOS = () => {
-    // Na próxima OS, bloqueamos pelo Paywall
-    setStep('paywall');
+    onCheckout();
   };
 
   if (step === 'paywall') {
@@ -76,7 +77,7 @@ export const ExecutionClosingFlow: React.FC<ExecutionClosingFlowProps> = ({
   if (step === 'done') {
     return (
       <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#050505] p-6 animate-fade-in">
-        <div className="w-24 h-24 rounded-full bg-[var(--accent-green)]/20 flex items-center justify-center mb-6 shadow-[0_0_50px_rgba(34,197,94,0.3)]">
+        <div className="w-24 h-24 rounded-full bg-[var(--accent-green)]/20 flex items-center justify-center mb-6 shadow-[var(--glow-green)]">
           <Check size={48} className="text-[var(--accent-green)]" strokeWidth={3} />
         </div>
         
@@ -96,18 +97,18 @@ export const ExecutionClosingFlow: React.FC<ExecutionClosingFlowProps> = ({
         </SurfaceCard>
 
         <div className="w-full max-w-sm flex flex-col gap-3">
-          <PrimaryButton onClick={handleShareWhatsApp} className="py-4 bg-[var(--accent-green)] text-black rounded-xl shadow-[0_0_24px_rgba(34,197,94,0.3)]">
+          <PrimaryButton onClick={handleShareWhatsApp} className="py-4 bg-[var(--accent-green)] text-black rounded-xl shadow-[var(--glow-green)]">
             <Send size={18} className="mr-2" />
             <span className="tracking-widest text-[13px]">ENVIAR POR WHATSAPP</span>
           </PrimaryButton>
           
-          <SecondaryButton onClick={() => {}} className="py-4 rounded-xl border-white/[0.08]">
+          <SecondaryButton onClick={() => window.dispatchEvent(new CustomEvent('aferix_toast', { detail: { type: 'info', message: 'Visualização de PDF em desenvolvimento.' } }))} className="py-4 rounded-xl border-white/[0.08]">
             <FileText size={18} className="mr-2" />
             <span className="tracking-widest text-[13px]">VISUALIZAR PDF</span>
           </SecondaryButton>
 
-          <button onClick={handleNextOS} className="mt-6 text-xs text-text-muted hover:text-white font-bold tracking-widest uppercase transition-colors">
-            VOLTAR AO INÍCIO
+          <button onClick={handleNextOS} className="mt-6 py-4 w-full rounded-xl bg-[var(--accent-gold)] text-black font-black tracking-widest text-[13px] shadow-[var(--glow-gold)] transition-colors active:scale-95">
+            AVANÇAR PARA FATURAMENTO
           </button>
         </div>
       </div>
@@ -119,7 +120,7 @@ export const ExecutionClosingFlow: React.FC<ExecutionClosingFlowProps> = ({
     <div className="fixed inset-0 z-50 flex flex-col bg-[#050505] animate-slide-up">
       <AppHeader title="Resumo da Execução" subtitle={clientName} onBack={() => onExit()} />
       
-      <div className="flex-1 overflow-y-auto p-4 flex flex-col items-center pt-8">
+      <div className="flex flex-col p-4 items-center pt-8">
         <h2 className="text-[18px] font-black text-white tracking-widest uppercase mb-6">Pronto para assinatura</h2>
         
         <SurfaceCard padding="lg" className="w-full max-w-sm border border-white/[0.08] mb-8">
@@ -150,7 +151,7 @@ export const ExecutionClosingFlow: React.FC<ExecutionClosingFlowProps> = ({
       <div className="p-4 bg-surface-900/90 backdrop-blur-md border-t border-surface-800 pb-8">
         <PrimaryButton 
           onClick={() => setStep('signature')}
-          className="w-full py-4 text-[13px] rounded-xl shadow-[0_0_24px_rgba(212,169,78,0.25)] tracking-widest font-black"
+          className="w-full py-4 text-[13px] rounded-xl shadow-[var(--glow-gold)] tracking-widest font-black"
         >
           ASSINAR LAUDO
         </PrimaryButton>

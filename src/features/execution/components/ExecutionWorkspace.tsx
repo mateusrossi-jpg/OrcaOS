@@ -29,7 +29,7 @@ export const ExecutionWorkspace: React.FC<ExecutionWorkspaceProps> = ({ workOrde
       </div>
 
       {/* SCROLL-FIRST CONTENT */}
-      <div className="flex-1 overflow-y-auto p-4 pb-32">
+      <div className="flex flex-col p-4">
         
         {/* Local */}
         <div className="bg-surface-900 border border-surface-800 rounded-xl p-4 mb-4 flex items-center gap-3">

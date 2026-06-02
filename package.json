@@ -9,7 +9,7 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "vite build",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
@@ -29,6 +29,7 @@
     "classnames": "^2.5.1",
     "clsx": "^2.1.1",
     "dexie": "^4.4.2",
+    "dexie-react-hooks": "^4.4.0",
     "lucide-react": "^1.16.0",
     "react": "latest",
     "react-dom": "latest",

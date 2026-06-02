@@ -5,7 +5,7 @@ import { AssetExecution, ChecklistItemResult } from '../../../domain/assetExecut
 import { Check, ChevronLeft, ChevronRight } from 'lucide-react';
 import { AnomalyBottomSheet } from '../../revenue/components/AnomalyBottomSheet';
 import { db } from '../../../storage/dexieDatabase';
-import { generateId } from '../../../app/components/ui';
+const generateId = () => typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2);
 
 interface ChecklistTemplateItem {
   key: string;
@@ -116,7 +116,7 @@ export const ChecklistExecutionPanel: React.FC<ChecklistExecutionPanelProps> = (
       recommendedAction: anomalyData.recommendedAction,
       severity: anomalyData.severity,
       status: 'OPEN' as const,
-      photoUuids: [],
+      photoUuids: anomalyData.photoUuids || [],
       createdBy: 'current-tech',
       createdAt: new Date().toISOString()
     };
@@ -137,12 +137,12 @@ export const ChecklistExecutionPanel: React.FC<ChecklistExecutionPanelProps> = (
     <div className="fixed inset-0 z-50 flex flex-col bg-[#050505] animate-slide-up">
       <AppHeader title={assetName} subtitle="Execução" onBack={onClose} />
       
-      <div className="flex-1 overflow-y-auto p-4 pb-40 space-y-4">
+      <div className="flex flex-col p-4 space-y-4">
         
         {/* BOTÃO GIGANTE DE FLUXO DE UM CLIQUE */}
         <button
           onClick={handleTudoConforme}
-          className="w-full relative overflow-hidden bg-[var(--accent-green)]/10 border border-[var(--accent-green)]/30 p-6 rounded-[24px] active:scale-[0.97] transition-all flex flex-col items-center justify-center gap-2 shadow-[0_0_30px_rgba(34,197,94,0.1)]"
+          className="w-full relative overflow-hidden bg-[var(--accent-green)]/10 border border-[var(--accent-green)]/30 p-6 rounded-[24px] active:scale-[0.97] transition-all flex flex-col items-center justify-center gap-2 shadow-[var(--glow-green)]"
         >
           <div className="absolute top-0 right-0 w-32 h-32 bg-[var(--accent-green)]/20 blur-[50px] rounded-full pointer-events-none" />
           <div className="w-14 h-14 rounded-full bg-[var(--accent-green)] text-[#050505] flex items-center justify-center">
@@ -225,19 +225,18 @@ export const ChecklistExecutionPanel: React.FC<ChecklistExecutionPanelProps> = (
         {isLast ? (
           <PrimaryButton 
             onClick={onClose}
-            className="flex-1 justify-center py-4 rounded-xl shadow-[0_0_24px_rgba(212,169,78,0.25)] font-black"
+            className="flex-1 justify-center py-4 rounded-xl shadow-[var(--glow-gold)] font-black"
           >
             <span className="text-[12px] tracking-widest">CONCLUIR</span>
           </PrimaryButton>
         ) : (
           <PrimaryButton 
             onClick={onNext}
-            className="flex-1 justify-center py-4 rounded-xl shadow-[0_0_24px_rgba(212,169,78,0.25)] font-black"
+            className="flex-1 justify-center py-4 rounded-xl shadow-[var(--glow-gold)] font-black"
           >
             <span className="text-[12px] tracking-widest">PRÓXIMO</span>
             <ChevronRight size={20} className="ml-1" />
           </PrimaryButton>
-        )}
         )}
       </div>
 

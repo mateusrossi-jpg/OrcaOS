@@ -12,9 +12,11 @@ interface ExecutionCockpitProps {
   readonly workOrderId: string;
   readonly clientName: string;
   readonly onExit: () => void;
+  readonly onCheckout: () => void;
+  readonly onNavigate?: (tab: string) => void;
 }
 
-export const ExecutionCockpit: React.FC<ExecutionCockpitProps> = ({ workOrderId, clientName, onExit }) => {
+export const ExecutionCockpit: React.FC<ExecutionCockpitProps> = ({ workOrderId, clientName, onExit, onCheckout, onNavigate }) => {
   const [assets, setAssets] = useState<Asset[]>([]);
   const [executions, setExecutions] = useState<Record<string, AssetExecution>>({});
   const [activeAssetId, setActiveAssetId] = useState<string | null>(null);
@@ -118,6 +120,7 @@ export const ExecutionCockpit: React.FC<ExecutionCockpitProps> = ({ workOrderId,
         executions={executions}
         totalAssets={totalCount}
         onExit={onExit}
+        onCheckout={onCheckout}
       />
     );
   }
@@ -153,8 +156,23 @@ export const ExecutionCockpit: React.FC<ExecutionCockpitProps> = ({ workOrderId,
         onBack={onExit} 
       />
 
-      <div className="flex-1 overflow-y-auto p-4 pb-32">
+      <div className="flex flex-col p-4">
         {/* Cockpit Header */}
+        <div className="flex gap-2 mb-4 w-full justify-between">
+          <button 
+            onClick={() => onNavigate?.('clients')}
+            className="flex-1 py-2 bg-surface-800 border border-surface-700 rounded-lg text-[11px] font-bold text-white uppercase tracking-widest active:scale-95 transition-all text-center"
+          >
+            Ficha do Cliente
+          </button>
+          <button 
+            onClick={() => onNavigate?.('assets')}
+            className="flex-1 py-2 bg-surface-800 border border-surface-700 rounded-lg text-[11px] font-bold text-white uppercase tracking-widest active:scale-95 transition-all text-center"
+          >
+            Ver Prontuário
+          </button>
+        </div>
+
         <div className="bg-surface-800 rounded-[20px] p-5 mb-6 border border-surface-700 shadow-[0_8px_30px_rgba(0,0,0,0.5)] flex flex-col items-center justify-center relative overflow-hidden">
           <div className="absolute top-0 right-0 w-32 h-32 bg-brand-500/10 rounded-full blur-[40px] pointer-events-none" />
           <h2 className="text-[12px] font-bold text-text-muted uppercase tracking-widest mb-1">Status da OS</h2>
@@ -211,7 +229,7 @@ export const ExecutionCockpit: React.FC<ExecutionCockpitProps> = ({ workOrderId,
         <PrimaryButton 
           onClick={handleFinish}
           disabled={completedCount < totalCount || totalCount === 0 || isFinishing}
-          className="w-full py-4 text-[13px] rounded-xl shadow-[0_0_20px_rgba(212,169,78,0.2)]"
+          className="w-full py-4 text-[13px] rounded-xl shadow-[var(--glow-gold)]"
         >
           {isFinishing ? 'GERANDO...' : 'ENCERRAR E GERAR LAUDO'}
         </PrimaryButton>

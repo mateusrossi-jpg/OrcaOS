@@ -20,6 +20,7 @@ export function QuickServiceForm({ onBack }: { onBack: () => void }) {
     clientName: '',
     siteId: '',
     siteName: '',
+    address: '',
     serviceDescription: '',
     chargedValue: '',
     isReceived: false,
@@ -51,6 +52,17 @@ export function QuickServiceForm({ onBack }: { onBack: () => void }) {
       }
 
       let finalSiteId = formData.siteId;
+      if (finalClientId && !finalSiteId && formData.address) {
+        // Create new site for the address
+        const newSite = await siteService.add({
+          clientId: finalClientId,
+          name: 'Endereço do Serviço',
+          fullAddress: formData.address,
+          isMain: clientSites.length === 0,
+        });
+        finalSiteId = newSite.id;
+      }
+
       if (finalClientId && !finalSiteId) {
         // Fallback: see if there's a site for the client, else let backend handle (or set 'default-site')
         const sites = await siteService.getByClientId(finalClientId);
@@ -128,18 +140,21 @@ export function QuickServiceForm({ onBack }: { onBack: () => void }) {
         clientId: budget.clientId,
         siteId: budget.siteId,
         title: budget.title,
-        status: 'completed' as const,
+        status: 'in-progress' as const,
         scheduledDate: new Date().toISOString().split('T')[0],
         originalValue: budget.chargedValue,
         executedValue: budget.chargedValue,
         attendanceId: attendanceId,
       };
-      await workOrderService.add(newWorkOrder as any);
+      await operationalFacade.createWorkOrder(newWorkOrder as any);
 
-      // 4. Finance Record
-      if (formData.isReceived && numericValue > 0) {
-        await operationalFacade.registerPayment(newOsId, numericValue);
-      }
+      // 4. Finance Record & OS Completion
+      await operationalFacade.completeWorkOrder(
+        newOsId,
+        numericValue,
+        formData.isReceived ? numericValue : 0,
+        "Finalizado via Atendimento Rápido"
+      );
 
       trustLayer.emit({
         type: 'success',
@@ -150,8 +165,7 @@ export function QuickServiceForm({ onBack }: { onBack: () => void }) {
 
       onBack();
     } catch (error) {
-      console.error(error);
-      alert("Erro ao salvar Atendimento Rápido: " + (error as Error).message);
+      trustLayer.emit({ type: 'error', title: 'Erro ao salvar', description: (error as Error).message, status: 'local' });
     } finally {
       setIsSaving(false);
     }
@@ -160,10 +174,10 @@ export function QuickServiceForm({ onBack }: { onBack: () => void }) {
   const isFormValid = (formData.clientId || formData.clientName) && formData.serviceDescription && Number(formData.chargedValue) >= 0;
 
   return (
-    <ScreenContainer className={isSaving ? "opacity-50 pointer-events-none" : ""}>
+    <ScreenContainer className={`pb-32 bg-[var(--bg-primary)] ${isSaving ? "opacity-50 pointer-events-none" : ""}`}>
       <AppHeader title="Atendimento Rápido." subtitle="Finalização em um único passo." onBack={onBack} />
       
-      <div className="px-4 flex flex-col gap-6 pb-32 mt-4">
+      <div className="flex flex-col gap-6 px-4 mt-4 max-w-md mx-auto w-full">
         <SurfaceCard padding="lg">
           <SectionLabel className="mb-6">Dados do Cliente</SectionLabel>
           <div className="flex flex-col gap-6">
@@ -202,13 +216,22 @@ export function QuickServiceForm({ onBack }: { onBack: () => void }) {
 
             {formData.clientId && clientSites.length > 0 && (
               <Select
-                label="Local (Site) - Obrigatório"
+                label="Local (Site) - Opcional"
                 value={formData.siteId}
                 onChange={(val) => updateField('siteId', val)}
               >
-                <option value="">Selecione um local</option>
+                <option value="">+ Cadastrar Novo Endereço</option>
                 {clientSites.map(s => <option key={s.id} value={s.id}>{s.name} - {s.fullAddress}</option>)}
               </Select>
+            )}
+
+            {!formData.siteId && (
+              <Input
+                label="Endereço do Serviço (Rota/GPS)"
+                value={formData.address}
+                onChange={(e) => updateField('address', e.target.value)}
+                placeholder="Ex: Rua das Flores, 123"
+              />
             )}
           </div>
         </SurfaceCard>
@@ -262,11 +285,11 @@ export function QuickServiceForm({ onBack }: { onBack: () => void }) {
         <PrimaryButton 
           onClick={handleSave} 
           disabled={!isFormValid || isSaving}
-          className="h-16 mt-4 !rounded-2xl !text-[13px] font-black tracking-[0.2em]"
+          className="h-16 mt-4 !rounded-2xl !text-[13px] font-black tracking-[0.2em] mb-8"
         >
           {isSaving ? "SALVANDO..." : "FINALIZAR OPERAÇÃO"}
         </PrimaryButton>
       </div>
     </ScreenContainer>
   );
-}
+};
