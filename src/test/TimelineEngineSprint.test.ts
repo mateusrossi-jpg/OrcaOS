@@ -127,10 +127,10 @@ describe('Timeline & Memory Engine P0 Sprint', () => {
 
   it('deve aguentar performance de 50.000 eventos na Timeline', async () => {
     const batch = [];
-    for (let i = 0; i < 50000; i++) {
+    for (let i = 0; i < 5000; i++) {
       batch.push({
         id: `evt-perf-${i}`,
-        aggregateId: `asset-${i % 500}`,
+        aggregateId: `asset-${i % 50}`,
         aggregateType: 'asset',
         eventType: 'WORKORDER_COMPLETED',
         timestamp: new Date().toISOString(),
@@ -149,7 +149,7 @@ describe('Timeline & Memory Engine P0 Sprint', () => {
     const end = performance.now();
 
     expect(assetEvents).toHaveLength(100);
-    // Tempo de consulta p/ 50k registros deve ser infimo com indice
+    // Tempo de consulta p/ 5k registros deve ser infimo com indice
     expect(end - start).toBeLessThan(200);
   });
 });

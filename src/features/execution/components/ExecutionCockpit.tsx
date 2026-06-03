@@ -1,3 +1,4 @@
+import { generateUUID } from '../../../core/utils/idGenerator';
 import React, { useState, useEffect } from 'react';
 import { ExecutionHeader } from './ExecutionHeader';
 import { ChecklistExecutionPanel } from './ChecklistExecutionPanel';
@@ -72,7 +73,7 @@ export const ExecutionCockpit: React.FC<ExecutionCockpitProps> = ({ workOrderId,
       let currentEx = executions[assetId];
       if (!currentEx) {
         currentEx = {
-          id: crypto.randomUUID(),
+          id: generateUUID(),
           companyId: 'default',
           workspaceId: 'default',
           workOrderId,
@@ -91,6 +92,44 @@ export const ExecutionCockpit: React.FC<ExecutionCockpitProps> = ({ workOrderId,
       setExecutions(prev => ({ ...prev, [assetId]: updatedEx as AssetExecution }));
     } catch (err) {
       console.error(err);
+    }
+  };
+
+  const handleAllCompliant = async () => {
+    if (navigator.vibrate) navigator.vibrate([50, 50, 100]);
+    try {
+      const updatedExecutions = { ...executions };
+      const defaultChecklist = [
+        { itemKey: 't1', description: 'Limpeza dos filtros', status: 'compliant' as const },
+        { itemKey: 't2', description: 'Verificação de ruídos e vibrações', status: 'compliant' as const },
+        { itemKey: 't3', description: 'Medição de corrente do compressor', status: 'compliant' as const }
+      ];
+
+      for (const asset of assets) {
+        const currentEx = executions[asset.id] || {
+          id: generateUUID(),
+          companyId: 'default',
+          workspaceId: 'default',
+          workOrderId,
+          assetId: asset.id,
+          syncStatus: 'pending',
+          createdAt: new Date().toISOString(),
+          measurements: {},
+        };
+        
+        const updatedEx = {
+          ...currentEx,
+          checklistResults: defaultChecklist,
+          updatedAt: new Date().toISOString()
+        } as AssetExecution;
+        
+        await db.assetExecutions.put(updatedEx);
+        updatedExecutions[asset.id] = updatedEx;
+      }
+      
+      setExecutions(updatedExecutions);
+    } catch (e) {
+      console.error(e);
     }
   };
 
@@ -170,6 +209,15 @@ export const ExecutionCockpit: React.FC<ExecutionCockpitProps> = ({ workOrderId,
           </div>
         </div>
 
+        {assets.length > 0 && completedCount < totalCount && (
+          <button
+            onClick={handleAllCompliant}
+            className="w-full mb-6 bg-[var(--accent-green)]/10 border border-[var(--accent-green)]/30 text-[var(--accent-green)] rounded-[16px] py-4 text-[11px] font-black uppercase tracking-widest active:scale-95 transition-all flex items-center justify-center gap-2 shadow-[0_4px_12px_rgba(34,197,94,0.1)] min-h-[48px]"
+          >
+            Marcar todos como conformes (1-toque)
+          </button>
+        )}
+
         {/* Lista de Batalha */}
         <div className="space-y-3">
           <h3 className="text-[10px] font-bold text-text-tertiary uppercase tracking-widest ml-2 mb-2">Ativos Pendentes & Concluídos</h3>
@@ -208,13 +256,13 @@ export const ExecutionCockpit: React.FC<ExecutionCockpitProps> = ({ workOrderId,
       </div>
 
       {/* Footer fixo para Encerramento */}
-      <div className="absolute bottom-0 left-0 right-0 p-4 bg-surface-900/90 backdrop-blur-md border-t border-surface-800">
+      <div className="absolute bottom-0 left-0 right-0 p-4 bg-surface-900/90 backdrop-blur-md border-t border-surface-800 pb-8">
         <PrimaryButton 
           onClick={handleFinish}
-          disabled={completedCount < totalCount || totalCount === 0 || isFinishing}
-          className="w-full py-4 text-[13px] rounded-xl shadow-[var(--glow-gold)]"
+          disabled={isFinishing || (totalCount > 0 && completedCount < totalCount)}
+          className="w-full py-4 text-[13px] rounded-xl shadow-[var(--glow-gold)] min-h-[48px]"
         >
-          {isFinishing ? 'GERANDO...' : 'ENCERRAR E GERAR LAUDO'}
+          {isFinishing ? 'GERANDO...' : (totalCount === 0 ? 'PULAR CHECKLIST E ENCERRAR' : 'ENCERRAR E GERAR LAUDO')}
         </PrimaryButton>
       </div>
     </div>

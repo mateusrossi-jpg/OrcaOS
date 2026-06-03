@@ -1,3 +1,4 @@
+import { generateUUID } from '../../core/utils/idGenerator';
 import { SyncEnvelope } from '../../core/sync/syncTypes';
 import { backendEventStore } from '../storage/backendEventStore';
 import { distributedCheckpointService } from '../../core/backend/distributedCheckpointService';
@@ -37,7 +38,7 @@ export class CloudIngestionService {
       if (session.deviceId !== envelope.deviceId) { // Do not echo back
         try {
           session.socket.send(JSON.stringify({
-            id: crypto.randomUUID(),
+            id: generateUUID(),
             type: 'sync_request',
             payload: envelope,
             timestamp: new Date().toISOString(),

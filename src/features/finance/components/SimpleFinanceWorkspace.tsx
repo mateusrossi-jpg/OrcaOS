@@ -1,5 +1,7 @@
-import { useMemo, useState, useEffect, memo } from 'react';
+import { useMemo, useState, memo } from 'react';
 import { TrendingUp, ChevronDown, Receipt, DollarSign, Activity, FileText, BarChart, AlertTriangle, ShieldCheck, Clock, CheckCircle2 } from "lucide-react";
+import { useLiveQuery } from 'dexie-react-hooks';
+import { db } from '../../../storage/dexieDatabase';
 import { 
   MoneyValue, 
   MonetaryInput,
@@ -10,9 +12,10 @@ import {
 
 import { SimpleFinanceService } from '../../../services/SimpleFinanceService';
 import { SimpleFinanceRecord } from '../../../domain/finance';
-import { formatCurrencyBRL } from '../../../utils/formatters';
+import { formatCurrencyBRL, safeMoneyValue } from '../../../utils/formatters';
 import { cn } from '../../../utils/ui';
 import { operationalFacade } from '../../workflow/operationalFacade';
+import { BusinessHealthService } from '../../../services/BusinessHealthService';
 
 // Unified UI Architecture Layers
 import { 
@@ -45,31 +48,49 @@ interface AdjustmentDraft {
  * Aligned with AFERIX VISUAL PROTOCOL (Phase 4).
  */
 export function SimpleFinanceWorkspace() {
-  const [records, setRecords] = useState<SimpleFinanceRecord[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [recordSearch, setRecordSearch] = useState('');
   const [editingDraft, setEditingDraft] = useState<AdjustmentDraft | null>(null);
+  const [wowCelebration, setWowCelebration] = useState<any | null>(null);
 
-  const fetchRecords = async () => {
-    setIsLoading(true);
-    const service = new SimpleFinanceService();
-    const data = await service.listRecords();
-    setRecords(data);
-    setIsLoading(false);
+  const triggerCelebration = async (type: 'os_completed' | 'payment_received', value: number) => {
+    try {
+      if (navigator.vibrate) {
+        navigator.vibrate([100, 50, 100]);
+      }
+      const health = await BusinessHealthService.getBusinessHealth();
+      
+      const prevRecord = Number(localStorage.getItem('aferix_record_monthly_revenue')) || 2000;
+      const isRecordBroken = health.revenueThisMonth > prevRecord;
+      if (isRecordBroken) {
+        localStorage.setItem('aferix_record_monthly_revenue', String(health.revenueThisMonth));
+      }
+      
+      const isGoalAchieved = health.metaAtingidaPercent >= 100;
+
+      setWowCelebration({
+        type,
+        value,
+        monthlyRevenue: health.revenueThisMonth,
+        monthlyGoalProgress: health.metaAtingidaPercent,
+        dailyRevenue: health.totalReceivedToday,
+        isRecordBroken,
+        isGoalAchieved
+      });
+    } catch (e) {
+      console.error(e);
+    }
   };
 
-  useEffect(() => {
-    fetchRecords();
-  }, []);
+  const records = useLiveQuery(() => db.simpleFinanceRecords.toArray()) || [];
 
   const rows = useMemo(() => {
-    return records.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
+    return [...records].sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
   }, [records]);
 
   const stats = useMemo(() => {
-    const revenue = rows.reduce((acc, r) => acc + r.receivedValue, 0);
-    const expected = rows.reduce((acc, r) => acc + r.expectedValue, 0);
-    const pending = rows.reduce((acc, r) => acc + (r.status !== 'paid' ? r.openBalance : 0), 0);
+    const revenue = rows.reduce((acc, r) => acc + safeMoneyValue(r.receivedValue), 0);
+    const expected = rows.reduce((acc, r) => acc + safeMoneyValue(r.expectedValue), 0);
+    const pending = rows.reduce((acc, r) => acc + (r.status !== 'paid' ? safeMoneyValue(r.openBalance) : 0), 0);
     const countPending = rows.filter(r => r.status !== 'paid').length;
     const margin = expected > 0 ? (revenue / expected) * 100 : 0;
     return { revenue, expected, pending, countPending, margin };
@@ -86,13 +107,18 @@ export function SimpleFinanceWorkspace() {
 
   async function saveAdjustment() {
     if (!editingDraft) return;
+    const amount = Number(editingDraft.receivedAmount) || 0;
     try {
-      await operationalFacade.registerPayment(editingDraft.workOrderId, Number(editingDraft.receivedAmount) || 0);
-      await fetchRecords();
+      await operationalFacade.registerPayment(editingDraft.workOrderId, amount);
+      if (amount > 0) {
+        await triggerCelebration('payment_received', amount);
+      }
     } catch (e) { console.error(e); } finally { setEditingDraft(null); }
   }
 
-  if (isLoading) return <ScreenContainer className="items-center justify-center"><ERPLoader message="Sincronizando caixa..." /></ScreenContainer>;
+  if (records.length === 0 && recordSearch === '') {
+     // Optional: show empty state or loader if truly empty vs loading
+  }
 
   const chips = (
     <>
@@ -109,6 +135,7 @@ export function SimpleFinanceWorkspace() {
         {/* ━━━ AUTHORITATIVE HEADER ━━━ */}
         <AppHeader 
           title="Financeiro."
+          subtitle="Radar Financeiro"
           action={
             <button 
               className="flex items-center h-[42px] gap-2 rounded-[14px] bg-white/[0.04] border border-white/[0.08] px-4 text-[10px] text-[var(--text-secondary)] font-black tracking-widest hover:bg-white/10 active:scale-95 transition-all shadow-[var(--shadow-soft)]"
@@ -119,10 +146,10 @@ export function SimpleFinanceWorkspace() {
           chips={chips}
         />
 
-        <div className="px-6 py-8 flex flex-col gap-12">
+        <div className="px-6 py-8 flex flex-col gap-6">
           
           {/* 1. FINANCIAL HERO */}
-          <Section className="gap-4">
+          <Section>
             <div className="relative overflow-hidden rounded-[28px] bg-gradient-to-b from-[#141924]/95 to-[#080b11]/98 border border-[var(--accent-gold)]/25 shadow-[0_1px_0_rgba(255,255,255,0.06)_inset,0_0_32px_rgba(212,169,78,0.06),0_20px_50px_rgba(0,0,0,0.9)] p-6 animate-scale-pop">
               {/* Gold ambient radial glow */}
               <div className="absolute top-0 right-0 w-56 h-56 rounded-full bg-[var(--accent-gold)]/10 blur-[80px] pointer-events-none" />
@@ -154,7 +181,7 @@ export function SimpleFinanceWorkspace() {
           </ExecutiveSummaryGrid>
 
           {/* 3. CONTINUOUS LEDGER */}
-          <Section className="gap-3">
+          <Section>
             <SearchInput value={recordSearch} onChange={setRecordSearch} placeholder="Pesquisar lançamento..." />
             
             <SurfaceCard padding="none">
@@ -217,6 +244,91 @@ export function SimpleFinanceWorkspace() {
           </div>
         )}
       </Modal>
+
+      {/* WOW CELEBRATION MODAL */}
+      {wowCelebration && (
+        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#050505]/95 backdrop-blur-md p-6 animate-fade-in">
+          <div className="w-24 h-24 rounded-full bg-[var(--accent-green)]/20 flex items-center justify-center mb-8 shadow-[var(--glow-green)] animate-bounce">
+            <CheckCircle2 size={48} className="text-[var(--accent-green)]" strokeWidth={3} />
+          </div>
+          
+          <h1 className="text-[28px] font-black text-white tracking-widest text-center uppercase mb-2">
+            PAGAMENTO RECEBIDO!
+          </h1>
+          <p className="text-text-secondary font-mono text-xs uppercase tracking-widest text-center mb-8">Conquista Registrada com Sucesso</p>
+          
+          <SurfaceCard padding="lg" className="w-full max-w-sm border border-white/[0.08] mb-10 flex flex-col gap-4">
+            {wowCelebration.isGoalAchieved && (
+              <div className="w-full bg-gradient-to-r from-amber-500/20 via-yellow-500/20 to-amber-500/20 border border-[var(--accent-gold)]/40 rounded-[14px] p-3.5 text-center shadow-[0_0_15px_rgba(212,169,78,0.15)]">
+                <span className="text-[10px] font-black tracking-[0.2em] text-[var(--accent-gold)] uppercase block">
+                  🏆 META MENSAL ATINGIDA! 🏆
+                </span>
+                <span className="text-[11px] text-white/90 font-semibold mt-1 block">
+                  Você completou 100% da sua meta de faturamento!
+                </span>
+              </div>
+            )}
+
+            {wowCelebration.isRecordBroken && (
+              <div className="w-full bg-gradient-to-r from-emerald-500/20 via-teal-500/20 to-emerald-500/20 border border-[var(--accent-green)]/40 rounded-[14px] p-3.5 text-center shadow-[0_0_15px_rgba(34,197,94,0.15)]">
+                <span className="text-[10px] font-black tracking-[0.2em] text-[var(--accent-green)] uppercase block">
+                  🚀 NOVO RECORDE DE FATURAMENTO! 🚀
+                </span>
+                <span className="text-[11px] text-white/90 font-semibold mt-1 block">
+                  Este mês é o maior faturamento da história do seu negócio!
+                </span>
+              </div>
+            )}
+
+            <div className="flex justify-between items-center py-2 border-b border-white/[0.04]">
+              <span className="text-[12px] text-text-muted font-bold tracking-widest uppercase">
+                Valor Recebido
+              </span>
+              <span className="text-[18px] font-mono font-black text-[var(--accent-green)]">
+                {formatCurrencyBRL(wowCelebration.value)}
+              </span>
+            </div>
+            
+            {wowCelebration.dailyRevenue !== undefined && (
+              <div className="flex justify-between items-center py-2 border-b border-white/[0.04]">
+                <span className="text-[12px] text-text-muted font-bold tracking-widest uppercase">Recebido Hoje</span>
+                <span className="text-[15px] font-mono font-bold text-white/90">
+                  {formatCurrencyBRL(wowCelebration.dailyRevenue)}
+                </span>
+              </div>
+            )}
+            
+            <div className="flex justify-between items-center py-2 border-b border-white/[0.04]">
+              <span className="text-[12px] text-text-muted font-bold tracking-widest uppercase">Receita do Mês</span>
+              <span className="text-[15px] font-mono font-bold text-white/90">
+                {formatCurrencyBRL(wowCelebration.monthlyRevenue)}
+              </span>
+            </div>
+            
+            <div className="flex flex-col gap-2 pt-2">
+              <div className="flex justify-between items-center">
+                <span className="text-[12px] text-text-muted font-bold tracking-widest uppercase">Meta Atingida</span>
+                <span className="text-xs font-mono font-black text-[var(--accent-gold)]">
+                  {wowCelebration.monthlyGoalProgress}%
+                </span>
+              </div>
+              <div className="w-full bg-surface-700 h-2 rounded-full overflow-hidden shadow-inner">
+                <div 
+                  className="h-full bg-[var(--accent-gold)] transition-all duration-700"
+                  style={{ width: `${wowCelebration.monthlyGoalProgress}%` }}
+                />
+              </div>
+            </div>
+          </SurfaceCard>
+          
+          <button 
+            onClick={() => setWowCelebration(null)}
+            className="w-full max-w-sm py-4 rounded-xl bg-[var(--accent-gold)] text-black font-black tracking-widest text-[13px] shadow-[var(--glow-gold)] transition-colors active:scale-95 uppercase"
+          >
+            CONTINUAR
+          </button>
+        </div>
+      )}
 
     </ScreenContainer>
   );

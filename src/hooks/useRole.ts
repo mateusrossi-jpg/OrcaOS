@@ -3,34 +3,26 @@ import { AferixRole } from '../features/workspace/types/RoleFeatureMatrix';
 import { AuthService } from '../services/AuthService';
 
 export function useRole() {
-  const [role, setRoleState] = useState<AferixRole>(() => {
-    if (typeof window === 'undefined') return 'OWNER';
-    const user = AuthService.getActiveUser();
-    return (user?.role as AferixRole) || 'OWNER';
-  });
+  const [role, setRoleState] = useState<AferixRole>('SOLO');
+  const [hasSelectedRole, setHasSelectedRole] = useState(true);
 
-  const [hasSelectedRole, setHasSelectedRole] = useState(() => {
-    if (typeof window === 'undefined') return false;
-    return !!AuthService.getActiveUser();
-  });
-
-  // Keeping setRole for backward compatibility, but in a real scenario
-  // this is managed via Login/AuthService.
+  // setRole is disabled to lock into SOLO
   const setRole = (newRole: AferixRole) => {
-    // This is essentially overridden by AuthService.login now.
-    // Left here just in case any legacy component calls it directly before being refactored.
-    console.warn("setRole called directly. Use AuthService instead.");
+    console.warn("Perfil/Workspace alterado, mas bloqueado no modo SOLO por segurança.");
   };
 
   useEffect(() => {
+    // FORCE SOLO ON LOAD
+    const user = AuthService.getActiveUser();
+    if (!user || user.role !== 'SOLO') {
+      AuthService.impersonateRole('SOLO');
+    }
+    setRoleState('SOLO');
+    setHasSelectedRole(true);
+
     const handleAuthChange = () => {
-      const user = AuthService.getActiveUser();
-      if (user) {
-        setRoleState(user.role as AferixRole);
-        setHasSelectedRole(true);
-      } else {
-        setHasSelectedRole(false);
-      }
+      setRoleState('SOLO');
+      setHasSelectedRole(true);
     };
     
     window.addEventListener('aferix_auth_changed', handleAuthChange);
@@ -39,5 +31,5 @@ export function useRole() {
     };
   }, []);
 
-  return { role, setRole, hasSelectedRole, user: AuthService.getActiveUser() };
+  return { role: 'SOLO' as AferixRole, setRole, hasSelectedRole, user: AuthService.getActiveUser() };
 }

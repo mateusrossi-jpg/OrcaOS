@@ -28,6 +28,7 @@ import { siteService } from '../../../services/siteService';
 import { assetService } from "../../../services/assetService";
 import { db } from '../../../storage/dexieDatabase';
 import { Attendance } from '../../../domain/attendance';
+import { workOrderQueryService } from '../../../services/WorkOrderQueryService';
 import { trustLayer } from "../../../core/trust/TrustLayer";
 import { 
   SurfaceCard,
@@ -106,6 +107,11 @@ export function OperationsHubWorkspace({
   const [isLoading, setIsLoading] = useState(true);
   const [confirmDialog, setConfirmDialog] = useState<{ isOpen: boolean, title: string, message: string, confirmLabel: string, onConfirm: () => void } | null>(null);
 
+  const [activeOS, setActiveOS] = useState<WorkOrder[]>([]);
+  const [scheduledOS, setScheduledOS] = useState<WorkOrder[]>([]);
+  const [draftOS, setDraftOS] = useState<WorkOrder[]>([]);
+  const [doneOS, setDoneOS] = useState<WorkOrder[]>([]);
+
   // FASE 4D: Tactical Action Handling
   useEffect(() => {
     if (initialAction === 'new-os') {
@@ -116,51 +122,28 @@ export function OperationsHubWorkspace({
   async function loadData() {
     setIsLoading(true);
     try {
-      const [clientData, osData, sitesData, assetsData, attendancesData] = await Promise.all([
+      const [clientData, osData, sitesData, assetsData, attendancesData, agenda] = await Promise.all([
         clientService.getAll(),
-        workOrderService.getAll(),
+        workOrderQueryService.getAllValid(),
         siteService.getAll(),
         assetService.getAll(),
-        db.attendances.toArray()
+        db.attendances.toArray(),
+        workOrderQueryService.getAgendaItems()
       ]);
       setClients(clientData);
       setWorkOrders(osData);
       setClientSites(sitesData);
       setClientAssets(assetsData);
       setAttendances(attendancesData);
+      setActiveOS(agenda.inProgress);
+      setScheduledOS(agenda.scheduled);
+      setDraftOS(agenda.awaiting);
+      setDoneOS(agenda.done);
       onContextChange(clientData, osData, null);
     } catch (err) { console.error(err); } finally { setIsLoading(false); }
   }
 
   useEffect(() => { loadData(); }, []);
-
-  const activeOS = useMemo(() => {
-    return workOrders.filter(wo => {
-      const att = attendances.find(a => a.id === wo.attendanceId);
-      return att ? att.status === 'em_execucao' : wo.status === 'in-progress';
-    });
-  }, [workOrders, attendances]);
-
-  const scheduledOS = useMemo(() => {
-    return workOrders.filter(wo => {
-      const att = attendances.find(a => a.id === wo.attendanceId);
-      return att ? att.status === 'autorizado' : wo.status === 'scheduled';
-    });
-  }, [workOrders, attendances]);
-
-  const draftOS = useMemo(() => {
-    return workOrders.filter(wo => {
-      const att = attendances.find(a => a.id === wo.attendanceId);
-      return att ? att.status === 'iniciado' : wo.status === 'draft';
-    });
-  }, [workOrders, attendances]);
-
-  const doneOS = useMemo(() => {
-    return workOrders.filter(wo => {
-      const att = attendances.find(a => a.id === wo.attendanceId);
-      return att ? (att.status === 'finalizado' || att.status === 'concluido') : wo.status === 'done';
-    }).slice(0, 5);
-  }, [workOrders, attendances]);
 
   const parseAmount = (val: string) => Number(val) || 0;
 
@@ -236,7 +219,7 @@ export function OperationsHubWorkspace({
         } catch (err) {
           console.error(err);
           // Substituindo alert nativo
-          trustLayer.emit({ type: 'error', title: 'Erro', description: 'Não foi possível iniciar: ' + (err as Error).message, status: 'error' });
+          trustLayer.emit({ type: 'error', title: 'Erro', description: 'Não foi possível iniciar: ' + (err as Error).message, status: 'local' });
         }
       }
     });
@@ -282,7 +265,7 @@ export function OperationsHubWorkspace({
       });
     } catch(e) {
       console.error(e);
-      trustLayer.emit({ type: 'error', title: 'Erro', description: 'Erro ao salvar equipamento: ' + (e as Error).message, status: 'error' });
+      trustLayer.emit({ type: 'error', title: 'Erro', description: 'Erro ao salvar equipamento: ' + (e as Error).message, status: 'local' });
     }
   };
 

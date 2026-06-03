@@ -1,3 +1,4 @@
+import { generateUUID } from '../core/utils/idGenerator';
 import { maintenancePlanService } from './maintenancePlanService';
 import { operationalFacade } from '../features/workflow/operationalFacade';
 import { workOrderService } from './workOrderService';
@@ -46,7 +47,7 @@ export class MaintenanceSchedulerService {
 
   private async generatePreventiveOS(plan: MaintenancePlan): Promise<void> {
     const attendanceId = typeof crypto !== 'undefined' && 'randomUUID' in crypto 
-      ? crypto.randomUUID() 
+      ? generateUUID() 
       : `att-prev-${Date.now()}`;
     
     const newAttendance = {
@@ -69,7 +70,7 @@ export class MaintenanceSchedulerService {
 
     await db.attendances.add(newAttendance);
 
-    const newOsId = typeof crypto !== 'undefined' && 'randomUUID' in crypto ? crypto.randomUUID() : `os-prev-${Date.now()}`;
+    const newOsId = generateUUID();
     
     await operationalFacade.createWorkOrder({
       id: newOsId,

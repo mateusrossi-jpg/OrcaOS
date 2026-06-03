@@ -1,3 +1,4 @@
+import { generateUUID } from '../../core/utils/idGenerator';
 import { AutomationEnvelope } from '../../core/automation/automationTypes';
 import { sessionManager } from '../runtime/sessionManager';
 
@@ -13,7 +14,7 @@ export class AutomationDeliveryRuntime {
       // Broadcast to all devices so they can render insights or act
       if (session.deviceId !== envelope.deviceId) {
         session.socket.send(JSON.stringify({
-          id: crypto.randomUUID(),
+          id: generateUUID(),
           type: 'automation_dispatch',
           payload: envelope,
           timestamp: new Date().toISOString(),

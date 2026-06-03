@@ -20,13 +20,13 @@ describe('AFERIX REVENUE VISIBILITY VALIDATION', () => {
     ]);
 
     const approvedBudgets = budgets.filter(b => 
-      [BUDGET_STATUS.AUTORIZADO, BUDGET_STATUS.EM_EXECUCAO, BUDGET_STATUS.FINALIZADO].includes(b.status)
+      (['autorizado', 'em_execucao', 'finalizado'] as string[]).includes(b.status)
     );
     const budgetRevenue = approvedBudgets.reduce((acc, b) => acc + (b.chargedValue || 0), 0);
     const contractRevenue = contracts.reduce((acc, c) => acc + (c.billingAmount || 0), 0);
     const contractedTotal = budgetRevenue + contractRevenue;
 
-    const inProgressWOs = wos.filter(wo => ['open', 'scheduled', 'in-progress'].includes(wo.status));
+    const inProgressWOs = wos.filter(wo => ['awaiting_schedule', 'scheduled', 'in-progress'].includes(wo.status));
     const executionRevenue = inProgressWOs.reduce((acc, wo) => acc + (wo.executedValue || 0), 0);
 
     const invoicedRevenue = finance.reduce((acc, f) => acc + (f.expectedValue || 0), 0);

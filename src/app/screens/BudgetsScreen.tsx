@@ -306,8 +306,8 @@ export const BudgetsScreen = memo(function BudgetsScreen({ onSelectBudget, onNew
           </div>
           {(budget.status === BUDGET_STATUS.AUTORIZADO || budget.status === BUDGET_STATUS.EM_EXECUCAO) && (
             <button
-              onClick={() => openExternalGPS(budget.title)}
-              className="mt-1 bg-[var(--accent-gold)] text-black font-bold py-0.5 px-2 rounded text-[7px] shadow-[0_0_6px_rgba(255,200,0,0.2)] hover:bg-[var(--accent-gold)]/90 transition"
+              onClick={(e) => { e.stopPropagation(); openExternalGPS(budget.title); }}
+              className="mt-2 bg-[var(--accent-gold)] text-black font-black py-2.5 px-4 rounded-xl text-[10px] tracking-wider shadow-[0_4px_12px_rgba(255,200,0,0.25)] hover:bg-[var(--accent-gold)]/90 transition min-h-[48px] w-full flex items-center justify-center uppercase"
             >
               ROTA
             </button>
@@ -328,36 +328,38 @@ export const BudgetsScreen = memo(function BudgetsScreen({ onSelectBudget, onNew
   );
 
   return (
-    <ScreenContainer className="pb-32">
+    <ScreenContainer className="pb-32 bg-[var(--bg-primary)]">
       <div className="flex flex-col">
         {/* ━━━ AUTHORITATIVE HEADER ━━━ */}
         <AppHeader 
           title="Propostas."
+          subtitle="Radar Comercial"
           chips={chips}
         />
 
-        <div className="px-4 py-3 flex flex-col gap-3.5">
-          <Section className="gap-2">
-            <div className="relative overflow-hidden rounded-[14px] bg-gradient-to-b from-[#141924]/95 to-[#080b11]/98 border border-[var(--accent-gold)]/15 shadow-[0_1px_0_rgba(255,255,255,0.04)_inset,0_0_16px_rgba(212,169,78,0.02)] px-4 py-2">
+        <div className="px-6 py-8 flex flex-col gap-6">
+          
+          {/* 1. COMMERCIAL HERO */}
+          <Section className="gap-4">
+            <div className="relative overflow-hidden rounded-[28px] bg-gradient-to-b from-[#141924]/95 to-[#080b11]/98 border border-[var(--accent-gold)]/25 shadow-[0_1px_0_rgba(255,255,255,0.06)_inset,0_0_32px_rgba(212,169,78,0.06),0_20px_50px_rgba(0,0,0,0.9)] p-6 animate-scale-pop">
               {/* Gold ambient radial glow */}
-              <div className="absolute top-0 right-0 w-28 h-28 rounded-full bg-[var(--accent-gold)]/5 blur-[40px] pointer-events-none" />
+              <div className="absolute top-0 right-0 w-56 h-56 rounded-full bg-[var(--accent-gold)]/10 blur-[80px] pointer-events-none" />
               
-              <div className="flex items-center justify-between gap-3">
-                <div className="flex flex-col gap-0.5">
-                  <span className="text-[7.5px] font-bold font-mono tracking-[0.2em] text-[var(--accent-gold)] uppercase opacity-80">Pipeline Comercial</span>
-                  <h3 className="text-lg font-black text-white leading-none tracking-tight">{formatCurrencyBRL(totalValue)}</h3>
-                </div>
-                
-                <div className="flex items-center gap-3">
-                  <Stack className="gap-0.5 items-end">
-                     <SectionLabel className="!text-[6.5px] opacity-45 uppercase tracking-wider font-mono">Visualizadas</SectionLabel>
-                     <Value className="text-xs font-mono opacity-80 font-bold leading-none">{conversionData.viewed.length}</Value>
-                  </Stack>
-                  <div className="h-4 w-px bg-white/10" />
-                  <Stack className="gap-0.5 items-end">
-                     <SectionLabel className="!text-[6.5px] opacity-45 uppercase tracking-wider font-mono">Follow-ups</SectionLabel>
-                     <Value className="text-xs font-mono text-[var(--accent-red)] font-bold leading-none">{alertHub?.commercialFollowUp?.length || 0}</Value>
-                  </Stack>
+              <div className="flex flex-col gap-4">
+                <span className="text-[10px] font-bold font-mono tracking-[0.25em] text-[var(--accent-gold)] uppercase">Pipeline Comercial</span>
+                <div className="flex items-baseline justify-between mt-1">
+                  <h3 className="text-[32px] font-black text-white leading-none tracking-tight">{formatCurrencyBRL(totalValue)}</h3>
+                  <div className="flex items-baseline gap-4">
+                    <Stack className="gap-0.5 items-end">
+                       <SectionLabel className="!text-[8px] opacity-40 uppercase tracking-widest font-mono">Visualizadas</SectionLabel>
+                       <Value className="text-sm font-mono opacity-80">{conversionData.viewed.length}</Value>
+                    </Stack>
+                    <div className="h-6 w-px bg-white/10" />
+                    <Stack className="gap-0.5 items-end">
+                       <SectionLabel className="!text-[8px] opacity-40 uppercase tracking-widest font-mono">Follow-ups</SectionLabel>
+                       <Value className="text-sm font-mono text-[var(--accent-red)]">{alertHub?.commercialFollowUp?.length || 0}</Value>
+                    </Stack>
+                  </div>
                 </div>
               </div>
             </div>
@@ -366,18 +368,18 @@ export const BudgetsScreen = memo(function BudgetsScreen({ onSelectBudget, onNew
           {/* HERO ACTIONS */}
           <Section className="gap-2">
             <div className="flex gap-2.5">
-               <button 
-                 onClick={() => onNewBudget('project')} 
-                 className="flex-1 h-9.5 bg-white/[0.03] hover:bg-white/[0.05] border border-white/[0.05] text-white font-bold text-[8.5px] tracking-[0.1em] rounded-lg active:scale-95 transition-all flex items-center justify-center gap-1.5 uppercase"
-               >
-                  NOVO PROJETO <Target className="h-3 w-3 text-[var(--text-tertiary)]" />
-               </button>
-               <button 
-                 onClick={() => onNewBudget('quick')} 
-                 className="flex-1 h-9.5 bg-[var(--accent-gold)] text-black font-black text-[8.5px] tracking-[0.12em] shadow-[0_0_12px_rgba(255,200,0,0.12)] rounded-lg active:scale-[0.98] transition-all flex items-center justify-center gap-1.5 uppercase"
-               >
-                  ATENDIMENTO RÁPIDO <Zap className="h-3 w-3 fill-black" />
-               </button>
+                <button 
+                  onClick={() => onNewBudget('project')} 
+                  className="flex-1 min-h-[48px] h-12 bg-white/[0.03] hover:bg-white/[0.05] border border-white/[0.05] text-white font-black text-[10px] tracking-[0.15em] rounded-xl active:scale-95 transition-all flex items-center justify-center gap-1.5 uppercase"
+                >
+                   NOVO PROJETO <Target className="h-3.5 w-3.5 text-[var(--text-tertiary)]" />
+                </button>
+                <button 
+                  onClick={() => onNewBudget('quick')} 
+                  className="flex-1 min-h-[48px] h-12 bg-[var(--accent-gold)] text-black font-black text-[10px] tracking-[0.15em] shadow-[0_0_16px_rgba(255,200,0,0.2)] rounded-xl active:scale-[0.98] transition-all flex items-center justify-center gap-1.5 uppercase"
+                >
+                   ATENDIMENTO RÁPIDO <Zap className="h-3.5 w-3.5 fill-black" />
+                </button>
             </div>
           </Section>
 
@@ -419,6 +421,33 @@ export const BudgetsScreen = memo(function BudgetsScreen({ onSelectBudget, onNew
                            <span className="text-[9px] font-black text-[var(--accent-red)] font-mono uppercase tracking-wider">REQUER_FOLLOW_UP_3D</span>
                         </div>
                         {alertHub.commercialFollowUp.map((b: any, i: number) => renderBudgetCard(b, i))}
+                      </Stack>
+                    )}
+
+                    {conversionData.sent.length > 0 && (
+                      <Stack className="gap-0">
+                        <div className="px-5 py-2 bg-blue-500/5 border-t border-white/[0.07]">
+                           <span className="text-[9px] font-black text-blue-400 font-mono uppercase tracking-wider">PROPOSTAS_ENVIADAS</span>
+                        </div>
+                        {conversionData.sent.map((b, i) => renderBudgetCard(b, i))}
+                      </Stack>
+                    )}
+
+                    {conversionData.negotiation.length > 0 && (
+                      <Stack className="gap-0">
+                        <div className="px-5 py-2 bg-purple-500/5 border-t border-white/[0.07]">
+                           <span className="text-[9px] font-black text-purple-400 font-mono uppercase tracking-wider">EM_REVISAO_E_NEGOCIACAO</span>
+                        </div>
+                        {conversionData.negotiation.map((b, i) => renderBudgetCard(b, i))}
+                      </Stack>
+                    )}
+
+                    {conversionData.approved.length > 0 && (
+                      <Stack className="gap-0">
+                        <div className="px-5 py-2 bg-emerald-500/5 border-t border-white/[0.07]">
+                           <span className="text-[9px] font-black text-emerald-400 font-mono uppercase tracking-wider">APROVADAS_E_EM_EXECUCAO</span>
+                        </div>
+                        {conversionData.approved.map((b, i) => renderBudgetCard(b, i))}
                       </Stack>
                     )}
 

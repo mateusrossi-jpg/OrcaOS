@@ -40,14 +40,14 @@ const STATUS_LABELS: Record<string, string> = {
   arquivado: 'Arquivado'
 };
 
-const STATUS_VARIANTS: Record<string, 'primary' | 'success' | 'warning' | 'danger' | 'info' | 'neutral'> = {
+const STATUS_VARIANTS: Record<string, any> = {
   iniciado: 'info',
   autorizado: 'warning',
-  em_execucao: 'primary',
+  em_execucao: 'accent',
   finalizado: 'success',
   concluido: 'success',
   cancelado: 'danger',
-  arquivado: 'neutral'
+  arquivado: 'default'
 };
 
 interface AttendanceDetailScreenProps {
@@ -180,7 +180,7 @@ export const AttendanceDetailScreen = memo(function AttendanceDetailScreen({
               {site && (
                 <div className="flex items-start gap-2 pt-3 border-t border-white/[0.04] text-[11px] text-[var(--text-muted)] leading-relaxed">
                   <MapPin size={12} className="shrink-0 mt-0.5 text-[var(--accent-gold)]" />
-                  <span>{site.name} {site.address && `— ${site.address}`}</span>
+                  <span>{site.name} {site.fullAddress && `— ${site.fullAddress}`}</span>
                 </div>
               )}
             </div>
@@ -204,7 +204,7 @@ export const AttendanceDetailScreen = memo(function AttendanceDetailScreen({
                 </div>
                 <div className="flex flex-col items-end">
                   <span className="text-[9px] font-bold tracking-widest text-[var(--text-muted)] uppercase">ID ATENDIMENTO</span>
-                  <span className="text-[11px] font-mono text-white/55 mt-1">{attendance.id.slice(0, 8)}...</span>
+                  <span className="text-[11px] font-mono text-white/55 mt-1">{(attendance?.id || 'DESC').slice(0, 8)}...</span>
                 </div>
               </div>
 

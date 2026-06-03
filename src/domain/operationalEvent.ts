@@ -1,4 +1,4 @@
-export type EventAggregateType = 'budget' | 'proposal' | 'workorder' | 'client' | 'finance' | 'site' | 'asset' | 'maintenance_plan' | 'contract' | 'dispatch';
+export type EventAggregateType = 'budget' | 'proposal' | 'workorder' | 'client' | 'finance' | 'site' | 'asset' | 'maintenance_plan' | 'contract' | 'dispatch' | 'attendance';
 
 export type OperationalEventType =
   | 'BUDGET_CREATED'
@@ -30,6 +30,7 @@ export type OperationalEventType =
   | 'ASSET_REGISTERED'
   | 'ASSET_UPDATED'
   | 'ASSET_MAINTAINED'
+  | 'ASSET_ARCHIVED'
   | 'KNOWLEDGE_CREATED'
   | 'CASE_SOLVED'
   | 'CASE_REUSED'

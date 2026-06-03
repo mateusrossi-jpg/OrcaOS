@@ -1,3 +1,4 @@
+import { generateUUID } from '../core/utils/idGenerator';
 import { supabase, isCloudEnabled } from '../core/cloud/supabaseClient';
 import { db } from '../storage/dexieDatabase';
 import { aferixLogger } from '../core/debug/aferixLogger';
@@ -426,7 +427,7 @@ export class CloudSyncService {
 
       // Adiciona evento de reconciliação na base local
       await db.operationalEvents.add({
-        id: `rec-${Date.now()}-${crypto.randomUUID().slice(0, 8)}`,
+        id: `rec-${Date.now()}-${generateUUID().slice(0, 8)}`,
         aggregateId,
         aggregateType: aggregateType as any,
         eventType: 'RECONCILIATION_COMPLETED' as any,
@@ -466,7 +467,7 @@ export class CloudSyncService {
       if (typeof localStorage !== 'undefined' && localStorage) {
         let id = localStorage.getItem('AFERIX_INSTALLATION_ID');
         if (!id) {
-          id = 'dev-' + crypto.randomUUID().slice(0, 8);
+          id = 'dev-' + generateUUID().slice(0, 8);
           localStorage.setItem('AFERIX_INSTALLATION_ID', id);
         }
         return id;

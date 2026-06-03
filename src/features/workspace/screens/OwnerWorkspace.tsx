@@ -1,9 +1,13 @@
-import React from 'react';
-import { DollarSign, ShieldAlert, TrendingUp, AlertTriangle, Users, Wrench, FileText, CheckCircle2, BarChart3 } from 'lucide-react';
+import React, { useState } from 'react';
+import { DollarSign, ShieldAlert, TrendingUp, AlertTriangle, Users, Wrench, FileText, CheckCircle2, BarChart3, ChevronRight, Zap, Clock, ArrowUpRight, ArrowDownRight, Target } from 'lucide-react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../../../storage/dexieDatabase';
 import { BUDGET_STATUS } from '../../../domain/budget';
+import { workOrderQueryService } from '../../../services/WorkOrderQueryService';
 import { useRole } from '../../../hooks/useRole';
+import { formatCurrencyBRL, safeMoneyValue } from '../../../utils/formatters';
+import { revenueOpportunityEngine, RevenueOpportunity } from '../../../services/RevenueOpportunityEngine';
+import { operationalFacade } from '../../workflow/operationalFacade';
 import { 
   ScreenContainer, 
   AppHeader, 
@@ -17,174 +21,216 @@ import {
   ERPLoader,
   Stack,
   Body,
-  Subtitle
+  Subtitle,
+  Heading
 } from "../../../ui/system";
+import { cn } from '../../../utils/ui';
 
 interface OwnerWorkspaceProps {
   onNavigate?: (tab: string) => void;
 }
 
 /**
- * OwnerWorkspace: Strategic Business Cockpit.
- * Connected to Real Data Engine.
- * Fulfills Revenue Visibility Fix (Phase 1).
+ * OwnerWorkspace: Money First Cockpit (V6.8).
+ * Transformed from a dashboard to a revenue radar.
+ * Authority: RevenueOpportunityEngine.
  */
 export const OwnerWorkspace: React.FC<OwnerWorkspaceProps> = ({ onNavigate }) => {
   const { role } = useRole();
   const isSolo = role === 'SOLO';
+  const [isReceiving, setIsReceiving] = useState(false);
 
-  // 1. DATA ENGINE INTEGRATION
-  const revenueStats = useLiveQuery(async () => {
-    const [budgets, contracts, finance, wos, clients] = await Promise.all([
-      db.budgets.toArray(),
-      db.contracts.where('status').equals('active').toArray(),
-      db.simpleFinanceRecords.toArray(),
-      db.workOrders.toArray(),
-      db.clients.count()
-    ]);
+  const oppData = useLiveQuery(() => revenueOpportunityEngine.getOpportunityProjection(), []);
 
-    // KPI 1: RECEITA CONTRATADA (Tudo aprovado + contratos)
-    const approvedBudgets = budgets.filter(b => 
-      [BUDGET_STATUS.AUTORIZADO, BUDGET_STATUS.EM_EXECUCAO, BUDGET_STATUS.FINALIZADO].includes(b.status)
-    );
-    const budgetRevenue = approvedBudgets.reduce((acc, b) => acc + (b.chargedValue || 0), 0);
-    const contractRevenue = contracts.reduce((acc, c) => acc + (c.billingAmount || 0), 0);
-    const contractedTotal = budgetRevenue + contractRevenue;
+  if (!oppData) return <div className="flex items-center justify-center h-screen bg-[#050505]"><ERPLoader message="Sincronizando radar de faturamento..." /></div>;
 
-    // KPI 2: RECEITA EM EXECUÇÃO (OS abertas/em progresso)
-    const inProgressWOs = wos.filter(wo => ['open', 'scheduled', 'in-progress'].includes(wo.status));
-    const executionRevenue = inProgressWOs.reduce((acc, wo) => acc + (wo.executedValue || 0), 0);
-
-    // KPI 3: RECEITA FATURADA (Registros financeiros gerados)
-    const invoicedRevenue = finance.reduce((acc, f) => acc + (f.expectedValue || 0), 0);
-
-    // KPI 4: RECEITA RECEBIDA (Status = paid)
-    const receivedRevenue = finance.reduce((acc, f) => acc + (f.receivedValue || 0), 0);
-
-    // KPI 5: CONTAS A RECEBER (Status != paid)
-    const accountsReceivable = finance.reduce((acc, f) => acc + (f.openBalance || 0), 0);
-
-    return {
-      contractedTotal,
-      executionRevenue,
-      invoicedRevenue,
-      receivedRevenue,
-      accountsReceivable,
-      clientsCount: clients,
-      openOS: inProgressWOs.length,
-      activeContracts: contracts.length
-    };
-  }, [role]);
-
-  if (!revenueStats) return <div className="flex items-center justify-center h-screen bg-[#050505]"><ERPLoader message="Sincronizando radar de receita..." /></div>;
+  const handleQuickReceive = async (workOrderId: string, value: number) => {
+    setIsReceiving(true);
+    try {
+      await operationalFacade.registerPayment(workOrderId, value);
+      window.dispatchEvent(new CustomEvent('aferix_toast', { 
+        detail: { type: 'success', message: 'Pagamento recebido e registrado!' } 
+      }));
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsReceiving(false);
+    }
+  };
 
   return (
     <ScreenContainer className="pb-32 bg-[var(--bg-primary)]">
-      <AppHeader title={isSolo ? "Meu Negócio." : "Visão Executiva."} />
+      <AppHeader title={isSolo ? "Meu Negócio." : "Radar de Receita."} />
 
-      <div className="px-6 py-8 flex flex-col gap-10">
+      <div className="px-6 py-8 flex flex-col gap-6">
         
-        {/* RADAR DE RECEITA (NOVO MODELO EXECUTIVO) */}
-        <Section className="gap-4">
-          <SectionLabel>Radar de Receita</SectionLabel>
-          
-          <SurfaceCard padding="none" className="overflow-hidden border-white/5 bg-gradient-to-br from-[#141924]/80 to-transparent">
-             <div className="p-6 border-b border-white/5">
+        {/* 1. REVENUE HERO (V7 P5: SAÚDE DO NEGÓCIO) */}
+        <Section>
+          <div className="relative overflow-hidden rounded-[32px] bg-gradient-to-b from-[#1A1F2B] to-[#0A0C12] border border-white/5 shadow-[0_20px_50px_rgba(0,0,0,0.8),inset_0_1px_1px_rgba(255,255,255,0.05)] p-8 animate-scale-pop">
+             <div className={cn(
+               "absolute -top-24 -right-24 w-64 h-64 rounded-full blur-[80px] pointer-events-none transition-all duration-1000",
+               oppData.todayTrend >= 0 ? "bg-[var(--accent-green)]/10" : "bg-status-error/10"
+             )} />
+             
+             <div className="flex flex-col gap-8 relative z-10">
                 <div className="flex justify-between items-start">
-                   <Stack className="gap-1">
-                      <SectionLabel className="!text-[var(--accent-gold)]">Receita Contratada (Vendido)</SectionLabel>
-                      <FinancialValue value={revenueStats.contractedTotal} className="text-[32px] font-black text-white leading-none tracking-tight" />
+                   <Stack className="gap-2">
+                      <div className="flex items-center gap-2">
+                         <div className="w-1.5 h-1.5 rounded-full bg-[var(--accent-green)] shadow-[0_0_8px_var(--accent-green)] animate-pulse" />
+                         <span className="text-[10px] font-black font-mono tracking-[0.3em] text-white/40 uppercase">Fluxo de Caixa Hoje</span>
+                      </div>
+                      <FinancialValue value={oppData.todayRevenue} className="text-[48px] font-black text-white leading-none tracking-tighter" />
                    </Stack>
-                   <div className="p-2 bg-[var(--accent-gold)]/10 rounded-xl border border-[var(--accent-gold)]/20">
-                      <TrendingUp size={20} className="text-[var(--accent-gold)]" />
-                   </div>
+                   
+                   {oppData.todayTrend !== 0 && (
+                     <div className={cn(
+                        "flex items-center gap-1 px-3 py-1.5 rounded-full text-[11px] font-black font-mono border",
+                        oppData.todayTrend > 0 ? "bg-[var(--accent-green)]/10 border-[var(--accent-green)]/20 text-[var(--accent-green)]" : "bg-status-error/10 border-status-error/20 text-status-error"
+                     )}>
+                        {oppData.todayTrend > 0 ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
+                        {Math.abs(oppData.todayTrend)}%
+                     </div>
+                   )}
                 </div>
-             </div>
-             
-             <div className="grid grid-cols-2">
-                <div className="p-5 border-r border-white/5">
-                   <SectionLabel className="!text-[10px]">Em Execução</SectionLabel>
-                   <FinancialValue value={revenueStats.executionRevenue} className="text-lg font-black text-white mt-1" />
-                </div>
-                <div className="p-5">
-                   <SectionLabel className="!text-[10px]">Faturado</SectionLabel>
-                   <FinancialValue value={revenueStats.invoicedRevenue} className="text-lg font-black text-white mt-1" />
-                </div>
-             </div>
-             
-             <div className="grid grid-cols-2 bg-white/[0.02]">
-                <div className="p-5 border-r border-white/5">
-                   <SectionLabel className="!text-[10px] !text-[var(--accent-green)]">Recebido</SectionLabel>
-                   <FinancialValue value={revenueStats.receivedRevenue} className="text-lg font-black text-[var(--accent-green)] mt-1" />
-                </div>
-                <div className="p-5">
-                   <SectionLabel className="!text-[10px] !text-status-error">A Receber</SectionLabel>
-                   <FinancialValue value={revenueStats.accountsReceivable} className="text-lg font-black text-status-error mt-1" />
-                </div>
-             </div>
-          </SurfaceCard>
-        </Section>
 
-        {/* ESTRUTURA E SAÚDE */}
-        <Section className="gap-4">
-           <SectionLabel>{isSolo ? "Minha Produtividade" : "Saúde da Empresa"}</SectionLabel>
-           <ExecutiveSummaryGrid>
-              <ValueBlock label={isSolo ? "Meus Clientes" : "Clientes"} value={revenueStats.clientsCount.toString()} icon={<Users size={12} />} />
-              <ValueBlock label="Contratos" value={revenueStats.activeContracts.toString()} icon={<FileText size={12} />} variant="success" />
-              <ValueBlock label="OS Ativas" value={revenueStats.openOS.toString()} icon={<Wrench size={12} />} variant={revenueStats.openOS > 0 ? "warning" : "default"} />
-              <ValueBlock label={isSolo ? "Receita/OS" : "Produtividade"} value={revenueStats.openOS > 0 ? formatCurrencyBRL(revenueStats.executionRevenue / revenueStats.openOS) : "R$ 0"} icon={<BarChart3 size={12} />} />
-           </ExecutiveSummaryGrid>
-        </Section>
-
-        {/* ALERTAS DE AÇÃO */}
-        <Section className="gap-4">
-          <SectionLabel>Foco de Atenção</SectionLabel>
-          
-          <div className="flex flex-col gap-4">
-            {revenueStats.accountsReceivable > 0 && (
-              <SurfaceCard padding="lg" className="border-status-error/30 bg-status-error/5 relative overflow-hidden">
-                <div className="absolute left-0 top-0 bottom-0 w-1 bg-status-error"></div>
-                <div className="flex justify-between items-center">
-                  <Stack className="gap-1">
-                    <span className="text-sm font-black text-white uppercase tracking-tight flex items-center gap-2">
-                      <AlertTriangle size={14} className="text-status-error" /> Cobrança Pendente
-                    </span>
-                    <Subtitle className="text-[10px] uppercase font-bold tracking-widest opacity-60">Existem valores faturados em atraso</Subtitle>
-                  </Stack>
-                  <FinancialValue value={revenueStats.accountsReceivable} className="text-xl font-black text-white" />
-                </div>
-              </SurfaceCard>
-            )}
-
-            {revenueStats.openOS > 5 && !isSolo && (
-              <SurfaceCard padding="lg" className="border-[var(--accent-blue)]/30 bg-[var(--accent-blue)]/5 relative overflow-hidden">
-                <div className="absolute left-0 top-0 bottom-0 w-1 bg-[var(--accent-blue)]"></div>
-                <div className="flex justify-between items-center">
+                <div className="grid grid-cols-2 gap-8 py-6 border-y border-white/[0.05]">
                    <Stack className="gap-1">
-                      <span className="text-sm font-black text-white uppercase tracking-tight">Sobrecarga Técnica</span>
-                      <Subtitle className="text-[10px] uppercase font-bold tracking-widest opacity-60">{revenueStats.openOS} ordens de serviço em aberto</Subtitle>
+                      <span className="text-[9px] font-black text-white/20 uppercase tracking-[0.25em]">Acumulado Mês</span>
+                      <FinancialValue value={oppData.monthlyRevenue} className="text-xl font-black text-white" />
                    </Stack>
-                   <OpsChip label="Ação" tone="blue" />
+                   <Stack className="gap-2 items-end">
+                      <div className="flex items-center gap-2">
+                         <span className="text-[9px] font-black text-white/20 uppercase tracking-[0.25em]">Meta Mensal</span>
+                         <span className="text-[10px] font-bold text-[var(--accent-green)]">{oppData.monthlyGoalPercent}%</span>
+                      </div>
+                      <div className="w-24 h-1.5 bg-white/5 rounded-full overflow-hidden">
+                         <div className="h-full bg-[var(--accent-green)] shadow-[0_0_8px_var(--accent-green)]" style={{ width: `${oppData.monthlyGoalPercent}%` }} />
+                      </div>
+                   </Stack>
                 </div>
-              </SurfaceCard>
-            )}
-            
-            {revenueStats.contractedTotal === 0 && (
-              <SurfaceCard padding="xl" className="border-dashed border-white/5 opacity-30 text-center">
-                 <CheckCircle2 size={32} className="mx-auto mb-4" />
-                 <Body className="text-[11px] font-bold uppercase tracking-widest">Nenhuma venda detectada</Body>
-              </SurfaceCard>
-            )}
+
+                {/* HERO ACTION (P5) */}
+                <button 
+                  onClick={() => onNavigate?.('clients')}
+                  className="w-full h-18 bg-[var(--accent-gold)] text-black font-black text-[14px] tracking-[0.25em] shadow-[0_12px_40px_rgba(255,200,0,0.25)] rounded-[20px] active:scale-[0.96] transition-all flex items-center justify-center gap-3 uppercase group"
+                >
+                  <Zap size={20} className="fill-black group-hover:scale-110 transition-transform" /> GANHAR DINHEIRO
+                </button>
+             </div>
           </div>
+        </Section>
+
+        {/* 2. REVENUE SCORE (P6: EFICIÊNCIA DE FATURAMENTO) */}
+        <Section>
+           <SurfaceCard padding="lg" className="border-white/5 bg-white/[0.01]">
+              <div className="flex items-center justify-between mb-4">
+                 <Stack className="gap-1">
+                    <SectionLabel className="!text-[10px] !text-white/60">Revenue Velocity Score</SectionLabel>
+                    <Body className="text-[11px] text-white/30 font-medium tracking-tight">Velocidade de entrada de dinheiro no sistema</Body>
+                 </Stack>
+                 <div className="text-2xl font-black font-mono text-[var(--accent-gold)]">{oppData.revenueVelocityScore}<span className="text-sm opacity-20">/100</span></div>
+              </div>
+              <div className="w-full h-2 bg-white/5 rounded-full overflow-hidden">
+                 <div 
+                   className="h-full bg-gradient-to-r from-[var(--accent-gold)] to-[var(--accent-green)] shadow-[0_0_15px_rgba(212,169,78,0.3)] transition-all duration-1500 ease-out" 
+                   style={{ width: `${oppData.revenueVelocityScore}%` }} 
+                 />
+              </div>
+           </SurfaceCard>
+        </Section>
+
+        {/* 3. NEXT MONEY (P2) */}
+        {oppData.nextReceipt && (
+          <Section>
+             <SectionLabel>Próximo Recebimento</SectionLabel>
+             <SurfaceCard padding="none" className="overflow-hidden border-[var(--accent-green)]/20 bg-[var(--accent-green)]/[0.02]">
+                <div className="p-5 flex items-center justify-between">
+                   <div className="flex items-center gap-4">
+                      <div className="w-11 h-11 rounded-2xl bg-[var(--accent-green)]/10 border border-[var(--accent-green)]/20 grid place-items-center">
+                         <DollarSign size={20} className="text-[var(--accent-green)]" />
+                      </div>
+                      <Stack className="gap-0.5">
+                         <Body className="font-black uppercase text-white tracking-tight">{oppData.nextReceipt.clientName}</Body>
+                         <Subtitle className="text-[10px] uppercase font-bold opacity-40">{oppData.nextReceipt.method} · AGUARDANDO</Subtitle>
+                      </Stack>
+                   </div>
+                   <FinancialValue value={oppData.nextReceipt.value} className="text-xl font-black text-white" />
+                </div>
+                <button 
+                  disabled={isReceiving}
+                  onClick={() => handleQuickReceive(oppData.nextReceipt!.workOrderId, oppData.nextReceipt!.value)}
+                  className="w-full h-14 bg-white/[0.04] hover:bg-white/[0.08] active:bg-white/[0.1] border-t border-white/5 text-[var(--accent-green)] font-black text-[11px] tracking-[0.2em] uppercase transition-all flex items-center justify-center gap-2"
+                >
+                  {isReceiving ? 'REGISTRANDO...' : 'RECEBER AGORA'} <CheckCircle2 size={14} />
+                </button>
+             </SurfaceCard>
+          </Section>
+        )}
+
+        {/* 4. OPPORTUNITY RADAR (P3 & P4) */}
+        <Section>
+            <div className="flex items-center justify-between px-1">
+               <SectionLabel className="!text-[var(--accent-gold)]">Radar de Oportunidades</SectionLabel>
+               <OpsChip label="Dinheiro Parado" accent="gold" />
+            </div>
+            
+            <div className="flex gap-4 overflow-x-auto pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden -mx-6 px-6">
+              {oppData.opportunities.map((opp) => (
+                <SurfaceCard 
+                  key={opp.id} 
+                  padding="lg" 
+                  className="min-w-[280px] border-white/5 bg-gradient-to-b from-white/[0.03] to-transparent flex flex-col gap-5 relative overflow-hidden active:border-[var(--accent-gold)]/30 transition-colors"
+                >
+                  <div className="flex justify-between items-start">
+                    <Stack className="gap-1">
+                      <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">{opp.title}</span>
+                      <FinancialValue value={opp.monetaryValue} className="text-[28px] font-black text-white leading-none" />
+                    </Stack>
+                    <div className="w-10 h-10 rounded-xl bg-white/[0.03] border border-white/5 grid place-items-center">
+                       {opp.type === 'recoverable' ? <AlertTriangle size={18} className="text-status-error" /> : opp.type === 'sleeping' ? <History size={18} className="text-[var(--accent-gold)]" /> : <FileText size={18} className="text-white/40" />}
+                    </div>
+                  </div>
+                  
+                  <Body className="text-[12px] text-white/50 leading-relaxed font-medium">
+                    {opp.description} <span className="text-white/80 font-bold">{opp.count} pendências.</span>
+                  </Body>
+
+                  <button 
+                    onClick={() => {
+                      if (opp.actionType === 'COBRAR') onNavigate?.('finance');
+                      if (opp.actionType === 'REATIVAR') onNavigate?.('clients');
+                      if (opp.actionType === 'NEGOCIAR') onNavigate?.('budgets');
+                    }}
+                    className="w-full h-12 rounded-xl bg-white/5 border border-white/10 text-white font-black text-[10px] tracking-[0.2em] uppercase active:scale-95 transition-all hover:bg-white/10"
+                  >
+                    {opp.ctaLabel}
+                  </button>
+                </SurfaceCard>
+              ))}
+
+              {/* REVENUE VELOCITY SCORE CARD */}
+              <SurfaceCard padding="lg" className="min-w-[280px] border-dashed border-white/10 flex flex-col items-center justify-center gap-4 text-center opacity-40">
+                 <Target size={32} className="text-white/20" />
+                 <Stack className="gap-1">
+                    <Body className="text-[11px] font-black uppercase tracking-widest">Score de Receita</Body>
+                    <Subtitle className="text-[10px]">Aumente sua velocidade de faturamento para chegar a 100.</Subtitle>
+                 </Stack>
+              </SurfaceCard>
+            </div>
+        </Section>
+
+        {/* 5. MONEY FIRST SUMMARY */}
+        <Section>
+           <SectionLabel>Saúde Financeira</SectionLabel>
+           <ExecutiveSummaryGrid>
+              <ValueBlock label="A RECEBER" value={formatCurrencyBRL(oppData.recoverableTotal)} variant={oppData.recoverableTotal > 0 ? "danger" : "default"} icon={<DollarSign size={12} />} />
+              <ValueBlock label="EM ESPERA" value={formatCurrencyBRL(oppData.waitingTotal)} icon={<Clock size={12} />} variant="warning" />
+              <ValueBlock label="DORMENTE" value={formatCurrencyBRL(oppData.sleepingTotal)} icon={<History size={12} />} />
+              <ValueBlock label="CLIENTES" value={isSolo ? "MEUS" : "BASE"} icon={<Users size={12} />} />
+           </ExecutiveSummaryGrid>
         </Section>
 
       </div>
     </ScreenContainer>
   );
 };
-
-const formatCurrencyBRL = (val: number) => new Intl.NumberFormat('pt-BR', { 
-  style: 'currency', 
-  currency: 'BRL',
-  maximumFractionDigits: 0
-}).format(val);

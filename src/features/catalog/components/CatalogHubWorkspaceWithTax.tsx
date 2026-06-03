@@ -1,3 +1,4 @@
+import { generateUUID } from '../../../core/utils/idGenerator';
 import type { CalculationCapture } from '../../../core/types/workflow';
 import { PremiumCatalogWorkspace } from './PremiumCatalogWorkspace';
 import type { CatalogHubItem } from '../types/catalogTypes';
@@ -16,7 +17,7 @@ function convertToCapture(item: CatalogHubItem): CalculationCapture {
   const subtotalStr = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(subtotal);
 
   return {
-    id: crypto.randomUUID(),
+    id: generateUUID(),
     module: 'orcamentoTecnico',
     moduleLabel: 'Catálogo profissional',
     calculatorLabel: item.kind === 'labor' ? 'Mão de Obra / Serviço' : 'Material / Equipamento',

@@ -1,3 +1,4 @@
+import { generateUUID } from '../../core/utils/idGenerator';
 import { WebSocket, WebSocketServer } from 'ws';
 import { Server } from 'http';
 import { sessionManager } from '../runtime/sessionManager';
@@ -28,7 +29,7 @@ export class RealtimeWebSocketServer {
       // In a real app, read from Authorization header or cookie
       const url = new URL(req.url!, `http://${req.headers.host}`);
       const tenantId = url.searchParams.get('tenantId') || 'default-tenant';
-      const deviceId = url.searchParams.get('deviceId') || crypto.randomUUID();
+      const deviceId = url.searchParams.get('deviceId') || generateUUID();
 
       sessionManager.registerSession(tenantId, deviceId, ws);
 
@@ -61,7 +62,7 @@ export class RealtimeWebSocketServer {
                cursor: payloadObj.cursor as import('../../core/sync/syncTypes').SyncCursor
              });
              ws.send(JSON.stringify({
-               id: crypto.randomUUID(),
+               id: generateUUID(),
                type: 'sync_request',
                payload: replay, // Client PartialReplayEngine expects { envelopes: [] }
                timestamp: new Date().toISOString()

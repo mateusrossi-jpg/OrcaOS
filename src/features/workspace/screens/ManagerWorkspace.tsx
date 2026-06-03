@@ -2,6 +2,7 @@ import React from 'react';
 import { Users, AlertOctagon, Clock, ShieldAlert, Activity, CheckCircle2 } from 'lucide-react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../../../storage/dexieDatabase';
+import { workOrderQueryService } from '../../../services/WorkOrderQueryService';
 import { 
   ScreenContainer, 
   AppHeader, 
@@ -25,7 +26,7 @@ export const ManagerWorkspace: React.FC = () => {
   const stats = useLiveQuery(async () => {
     const [team, wos, anomalies, clients] = await Promise.all([
       db.teamMembers.where('role').equals('FIELD').toArray(),
-      db.workOrders.toArray(),
+      workOrderQueryService.getAllValid(),
       db.anomalies.toArray(),
       db.clients.toArray()
     ]);
@@ -51,10 +52,10 @@ export const ManagerWorkspace: React.FC = () => {
     <ScreenContainer className="pb-32 bg-[var(--bg-primary)]">
       <AppHeader title="Central de Operações" />
 
-      <div className="px-6 py-8 flex flex-col gap-10">
+      <div className="px-6 py-8 flex flex-col gap-6">
         
         {/* METRICAS RAPIDAS */}
-        <Section className="gap-4">
+        <Section>
           <div className="grid grid-cols-2 gap-4">
             <SurfaceCard padding="lg" className="border-[var(--accent-blue)]/30 bg-gradient-to-br from-surface-900 to-surface-800 flex justify-between items-center">
               <div className="flex flex-col">
@@ -75,7 +76,7 @@ export const ManagerWorkspace: React.FC = () => {
         </Section>
 
         {/* URGÊNCIAS E ATRASOS (FOGO NA RUA) */}
-        <Section className="gap-4">
+        <Section>
           <div className="flex justify-between items-end">
             <SectionLabel className="!mb-0 text-status-error flex items-center gap-2">
               <AlertOctagon size={16} /> Fogo na Rua
@@ -107,7 +108,7 @@ export const ManagerWorkspace: React.FC = () => {
         </Section>
 
         {/* DISPATCH BOARD MINI */}
-        <Section className="gap-4">
+        <Section>
           <SectionLabel>Operação Ativa ({stats.activeOS.length})</SectionLabel>
           
           {stats.activeOS.length > 0 ? (

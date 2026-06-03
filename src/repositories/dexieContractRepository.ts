@@ -1,3 +1,4 @@
+import { generateUUID } from '../core/utils/idGenerator';
 import { db } from '../storage/dexieDatabase';
 import { Contract } from '../domain/contract';
 
@@ -16,7 +17,7 @@ export class DexieContractRepository {
 
   async add(contract: Omit<Contract, 'id' | 'createdAt' | 'updatedAt'>): Promise<Contract> {
     const id = typeof crypto !== 'undefined' && 'randomUUID' in crypto 
-      ? crypto.randomUUID() 
+      ? generateUUID() 
       : `contract-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
       
     const now = new Date().toISOString();

@@ -3,6 +3,7 @@ import { Budget } from '../../../domain/budget';
 import { calculateBudget } from '../../../domain/aferixFinanceEngine';
 import { formatCurrencyBRL, formatPercent } from '../../../utils/formatters';
 import { operationalFacade } from '../../workflow/operationalFacade';
+import { cn } from '../../../utils/ui';
 import { 
   MoneyValue, 
   ContextBanner,

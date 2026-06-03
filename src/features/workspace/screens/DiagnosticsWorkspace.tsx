@@ -14,6 +14,8 @@ import {
   Subtitle
 } from "../../../ui/system";
 
+import { trustLayer } from '../../../core/trust/TrustLayer';
+
 /**
  * DiagnosticsWorkspace: Technical Intelligence & Evidence Hub.
  * Connected to Real Data Engine.
@@ -23,7 +25,7 @@ export const DiagnosticsWorkspace: React.FC = () => {
     const [anomalies, assets, wos] = await Promise.all([
       db.anomalies.toArray(),
       db.assets.toArray(),
-      db.workOrders.where('status').equals('completed').limit(10).reverse().sortBy('updatedAt')
+      db.workOrders.where('status').equals('done').limit(10).reverse().sortBy('updatedAt')
     ]);
 
     const openAnomalies = anomalies.filter(a => a.status === 'OPEN');
@@ -35,7 +37,16 @@ export const DiagnosticsWorkspace: React.FC = () => {
     };
   });
 
-  if (!data) return <div className="flex items-center justify-center h-screen bg-[#050505]"><ERPLoader message="Recuperando laudos reais..." /></div>;
+  const startNewDiagnostics = () => {
+    trustLayer.emit({
+      type: 'info',
+      title: 'Fluxo em Homologação',
+      description: 'O assistente de emissão de laudos está em fase final de testes internos.',
+      status: 'local'
+    });
+  };
+
+  if (!data) return <div className="flex items-center justify-center h-screen bg-[var(--bg-primary)]"><ERPLoader message="Recuperando laudos reais..." /></div>;
 
   return (
     <ScreenContainer className="pb-32 bg-[var(--bg-primary)]">
@@ -45,7 +56,10 @@ export const DiagnosticsWorkspace: React.FC = () => {
         
         {/* AÇÃO PRINCIPAL */}
         <Section className="gap-2">
-          <button className="w-full bg-gradient-to-r from-surface-800 to-surface-900 border border-[var(--accent-gold)]/30 text-white rounded-2xl p-6 flex flex-col items-center justify-center gap-3 active:scale-95 transition-transform hover:bg-surface-800">
+          <button 
+            onClick={startNewDiagnostics}
+            className="w-full bg-gradient-to-r from-surface-800 to-surface-900 border border-[var(--accent-gold)]/30 text-white rounded-2xl p-6 flex flex-col items-center justify-center gap-3 active:scale-95 transition-transform hover:bg-surface-800"
+          >
             <div className="w-12 h-12 rounded-full bg-[var(--accent-gold)]/10 flex items-center justify-center">
               <Plus size={24} className="text-[var(--accent-gold)]" />
             </div>

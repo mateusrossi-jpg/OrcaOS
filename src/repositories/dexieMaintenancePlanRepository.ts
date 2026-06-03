@@ -1,3 +1,4 @@
+import { generateUUID } from '../core/utils/idGenerator';
 import { db } from '../storage/dexieDatabase';
 import { MaintenancePlan } from '../domain/maintenancePlan';
 
@@ -20,7 +21,7 @@ export class DexieMaintenancePlanRepository {
 
   async add(plan: Omit<MaintenancePlan, 'id' | 'createdAt' | 'updatedAt'>): Promise<MaintenancePlan> {
     const id = typeof crypto !== 'undefined' && 'randomUUID' in crypto 
-      ? crypto.randomUUID() 
+      ? generateUUID() 
       : `plan-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
       
     const now = new Date().toISOString();

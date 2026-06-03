@@ -1,3 +1,4 @@
+import { generateUUID } from '../core/utils/idGenerator';
 import { SimpleFinanceRecord, SimpleFinanceRecordInput, FinanceStatus } from '../domain/finance';
 import { SimpleFinanceRepository } from '../repositories/simpleFinanceRepository';
 import { DexieSimpleFinanceRepository } from '../repositories/dexieSimpleFinanceRepository';
@@ -28,7 +29,9 @@ export class SimpleFinanceService {
     }
 
     const record: SimpleFinanceRecord = {
-      id: existingRecord?.id ?? input.id ?? (typeof crypto !== 'undefined' && 'randomUUID' in crypto ? crypto.randomUUID() : `finance-${Date.now()}`),
+      id: existingRecord?.id ?? input.id ?? (generateUUID()),
+      companyId: input.companyId ?? 'default-company',
+      workspaceId: input.workspaceId ?? 'default-workspace',
       title: input.title,
       clientId: input.clientId,
       siteId: input.siteId,

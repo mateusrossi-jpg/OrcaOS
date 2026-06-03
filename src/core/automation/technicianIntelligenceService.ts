@@ -1,3 +1,4 @@
+import { generateUUID } from '../utils/idGenerator';
 import { OperationalCardProjection } from '../../domain/operationalProjections';
 import { AutomationEnvelope } from './automationTypes';
 import { deviceIdentityManager } from '../sync/deviceIdentity';
@@ -41,10 +42,10 @@ export class TechnicianIntelligenceService {
           deviceId: deviceIdentityManager.getDeviceId(),
           dispatchState: 'PENDING',
           decision: {
-            decisionId: crypto.randomUUID(),
+            decisionId: generateUUID(),
             type: 'FLAG_RISK',
             recommendation: {
-              recommendationId: crypto.randomUUID(),
+              recommendationId: generateUUID(),
               message: `Técnico com ${count} ordens simultâneas (${delayed} atrasadas). Risco de gargalo na execução.`,
               actionLabel: 'Revisar Fila',
               severity

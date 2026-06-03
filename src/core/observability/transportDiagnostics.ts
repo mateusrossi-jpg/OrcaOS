@@ -1,3 +1,4 @@
+import { generateUUID } from '../utils/idGenerator';
 // Remove empty import or keep empty
 import { traceStore } from './traceStore';
 import { deviceIdentityManager } from '../sync/deviceIdentity';
@@ -5,7 +6,7 @@ import { deviceIdentityManager } from '../sync/deviceIdentity';
 export class TransportDiagnosticsService {
   public logConnection(state: string): void {
     traceStore.append({
-      traceId: crypto.randomUUID(),
+      traceId: generateUUID(),
       tenantId: 'local',
       deviceId: deviceIdentityManager.getDeviceId(),
       sourceLayer: 'RealtimeTransport',
@@ -20,7 +21,7 @@ export class TransportDiagnosticsService {
 
   public logDeliveryError(envelopeId: string, error: string): void {
     traceStore.append({
-      traceId: crypto.randomUUID(),
+      traceId: generateUUID(),
       tenantId: 'local',
       deviceId: deviceIdentityManager.getDeviceId(),
       sourceLayer: 'RealtimeTransport',

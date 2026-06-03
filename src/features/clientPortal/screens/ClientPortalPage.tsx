@@ -44,21 +44,21 @@ export const ClientPortalPage: React.FC = () => {
   const recentExecutions = useLiveQuery(() => 
     db.workOrders
       .where('status')
-      .equals('completed')
+      .equals('done')
       .limit(5)
       .reverse()
       .sortBy('updatedAt')
   );
 
   if (!proposals || !activeContracts || !recentExecutions) {
-    return <div className="flex items-center justify-center h-screen bg-[#050505]"><ERPLoader message="Sincronizando seu portal..." /></div>;
+    return <div className="flex items-center justify-center h-screen bg-[var(--bg-primary)]"><ERPLoader message="Sincronizando seu portal..." /></div>;
   }
 
   return (
     <ScreenContainer className="pb-32">
       
       {/* CABEÇALHO DO PORTAL DO CLIENTE */}
-      <div className="bg-[#050505] border-b border-white/[0.05] p-6 pt-12 text-center">
+      <div className="bg-[var(--bg-primary)] border-b border-white/[0.05] p-6 pt-12 text-center">
         <h1 className="text-2xl font-black text-white tracking-tighter uppercase mb-2">Seu Portal Aferix</h1>
         <p className="text-[10px] font-bold text-white/30 uppercase tracking-[0.2em]">{user?.name || 'Acessando como Convidado'}</p>
         
@@ -150,7 +150,7 @@ export const ClientPortalPage: React.FC = () => {
                         <Body className="text-[13px] font-bold uppercase">{ex.title}</Body>
                         <div className="flex items-center gap-2 mt-1">
                            <Clock size={12} className="text-white/20" />
-                           <span className="text-[10px] font-mono font-bold text-white/30 uppercase tracking-widest">Realizado em {new Date(ex.updatedAt).toLocaleDateString('pt-BR')}</span>
+                           <span className="text-[10px] font-mono font-bold text-white/30 uppercase tracking-widest">Realizado em {new Date(ex.updatedAt || ex.createdAt || new Date().toISOString()).toLocaleDateString('pt-BR')}</span>
                         </div>
                      </div>
                      <CheckCircle2 size={16} className="text-[var(--accent-green)] opacity-40" />

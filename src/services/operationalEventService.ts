@@ -1,8 +1,9 @@
+import { generateUUID } from '../core/utils/idGenerator';
 import { dexieOperationalEventRepository, OperationalEventRepository } from '../repositories/dexieOperationalEventRepository';
 import { OperationalEvent, EventAggregateType, OperationalEventType } from '../domain/operationalEvent';
 
 function createId(prefix: string): string {
-  if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) return `${prefix}-${crypto.randomUUID()}`;
+  if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) return `${prefix}-${generateUUID()}`;
   return `${prefix}-${Date.now()}-${Math.round(Math.random() * 1000)}`;
 }
 

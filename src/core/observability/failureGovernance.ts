@@ -1,3 +1,4 @@
+import { generateUUID } from '../utils/idGenerator';
 import { DeadLetterEnvelope } from './traceTypes';
 import { traceStore } from './traceStore';
 import { deviceIdentityManager } from '../sync/deviceIdentity';
@@ -7,7 +8,7 @@ export class FailureGovernanceService {
 
   public captureDeadLetter(reason: string, envelope: unknown, sourceLayer: string): void {
     const deadLetter: DeadLetterEnvelope = {
-      deadLetterId: crypto.randomUUID(),
+      deadLetterId: generateUUID(),
       originalEnvelope: envelope,
       reason,
       timestamp: new Date().toISOString(),
@@ -17,7 +18,7 @@ export class FailureGovernanceService {
     this.deadLetters.push(deadLetter);
 
     traceStore.append({
-      traceId: crypto.randomUUID(),
+      traceId: generateUUID(),
       tenantId: 'local',
       deviceId: deviceIdentityManager.getDeviceId(),
       sourceLayer,

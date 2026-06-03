@@ -10,7 +10,7 @@ import { CatalogHubItem, CatalogSupplier } from '../features/catalog/storage/cat
 import { SupplierProfile } from '../features/catalog/storage/supplierProfileStorage';
 import { ProfessionalProfile } from '../features/settings/models/professionalProfile';
 import type { AferixAccountState } from '../core/access/accountPlanStorage';
-import { StockItem } from '../features/inventory/storage/stockStorage';
+// Removed stockStorage import
 
 export interface MigrationRecord {
   key: string;
@@ -111,6 +111,9 @@ export class AferixDatabase extends Dexie {
 
   // Team & RBAC
   teamMembers!: Table<TeamMember>;
+
+  // Pilot Program Telemetry (FASE 4: Real Operator Validation)
+  pilotEvents!: Table<import('../services/pilotTelemetryService').PilotEvent>;
 
   constructor() {
     super('AferixDatabase');
@@ -294,6 +297,11 @@ export class AferixDatabase extends Dexie {
       budgets: 'id, companyId, workspaceId, attendanceId, clientId, status, syncStatus',
       workOrders: 'id, companyId, workspaceId, attendanceId, clientId, budgetId, status, syncStatus',
       simpleFinanceRecords: 'id, companyId, aggregateId, workOrderId'
+    });
+
+    // Version 29: Pilot Program Telemetry (FASE 4: Real Operator Validation)
+    this.version(29).stores({
+      pilotEvents: 'id, sessionId, type, flow, screen, [flow+type], dayOfWeek, hourOfDay, timestamp'
     });
   }
 }

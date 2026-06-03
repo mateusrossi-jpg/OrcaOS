@@ -1,7 +1,7 @@
 import { useMemo, useState, memo } from 'react';
 import type { CalculationCapture } from '../../../core/types/workflow';
 import type { Client, Service } from '../../../core/types/business';
-import { formatCurrencyBRL } from '../../../utils/formatters';
+import { formatCurrencyBRL, safeMoneyValue } from '../../../utils/formatters';
 import {
   FilterChips,
   QueueEmptyState,
@@ -57,7 +57,7 @@ export const ReportWorkspace = memo(function ReportWorkspace({ captures, onBack 
   const [activeCategory, setActiveCategory] = useState<ReportCategory>('financeiro');
 
   const financeStats = useMemo(() => {
-    const totalRevenue = captures.reduce((acc, c) => acc + (Number(c.unitValue) * Number(c.quantity) || 0), 0);
+    const totalRevenue = captures.reduce((acc, c) => acc + (safeMoneyValue(c.unitValue) * safeMoneyValue(c.quantity)), 0);
     const totalCosts = totalRevenue * 0.4;
     const totalProfit = totalRevenue - totalCosts;
     const avgMargin = totalRevenue > 0 ? (totalProfit / totalRevenue) * 100 : 0;
@@ -70,7 +70,7 @@ export const ReportWorkspace = memo(function ReportWorkspace({ captures, onBack 
     captures.forEach((c) => {
       const name = c.clientId || 'CLIENTE_AVULSO';
       if (!clients[name]) clients[name] = { name, total: 0, count: 0 };
-      clients[name].total += (Number(c.unitValue) * Number(c.quantity) || 0);
+      clients[name].total += (safeMoneyValue(c.unitValue) * safeMoneyValue(c.quantity));
       clients[name].count += 1;
     });
     return Object.values(clients).sort((a, b) => b.total - a.total).slice(0, 10);

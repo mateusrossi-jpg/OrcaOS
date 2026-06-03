@@ -1,3 +1,4 @@
+import { generateUUID } from '../utils/idGenerator';
 import { OperationalEvent } from '../../domain/operationalEvent';
 import { SyncEnvelope } from './syncTypes';
 import { deviceIdentityManager } from './deviceIdentity';
@@ -33,7 +34,7 @@ export class AppendOnlyReplicationService {
     this.sequenceCounter++;
     
     return {
-      envelopeId: crypto.randomUUID(),
+      envelopeId: generateUUID(),
       eventId: event.id,
       deviceId: deviceIdentityManager.getDeviceId(),
       correlationId: event.correlationId,

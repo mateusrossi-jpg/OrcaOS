@@ -1,3 +1,4 @@
+import { generateUUID } from '../../core/utils/idGenerator';
 import { NotificationEnvelope } from '../../core/realtime/transportTypes';
 import { sessionManager } from '../runtime/sessionManager';
 
@@ -12,7 +13,7 @@ export class NotificationDeliveryRuntime {
       const session = sessionManager.getDeviceSession(tenantId, targetDeviceId);
       if (session) {
         session.socket.send(JSON.stringify({
-          id: crypto.randomUUID(),
+          id: generateUUID(),
           type: 'notification',
           payload: envelope,
           timestamp: new Date().toISOString(),
@@ -24,7 +25,7 @@ export class NotificationDeliveryRuntime {
       const sessions = sessionManager.getTenantSessions(tenantId);
       for (const session of sessions) {
         session.socket.send(JSON.stringify({
-          id: crypto.randomUUID(),
+          id: generateUUID(),
           type: 'notification',
           payload: envelope,
           timestamp: new Date().toISOString(),

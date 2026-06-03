@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { SurfaceCard, PrimaryButton } from '../../../ui/system';
+import { SurfaceCard } from '../../../ui/system';
+import { PrimaryButton } from '../../../app/components/ui';
 import { db } from '../../../storage/dexieDatabase';
 
 export const PortalSignature: React.FC<{ onSigned: () => void; onCancel: () => void }> = ({ onSigned, onCancel }) => {

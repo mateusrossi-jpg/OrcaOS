@@ -86,9 +86,9 @@ export const SalesWorkspace: React.FC = () => {
         </div>
 
         {activeSubTab === 'pipeline' ? (
-          <div className="flex flex-col gap-10 animate-in fade-in slide-in-from-bottom-2">
+          <div className="flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-2">
             {/* METRICS HEADER */}
-            <Section className="gap-4">
+            <Section>
               <div className="grid grid-cols-2 gap-4">
                 <SurfaceCard padding="lg" className="border-[var(--accent-blue)]/30 bg-gradient-to-br from-surface-900 to-surface-800">
                   <h3 className="text-[10px] font-bold text-[var(--accent-blue)] uppercase tracking-widest mb-1 flex items-center gap-1">Receita Potencial</h3>
@@ -102,7 +102,7 @@ export const SalesWorkspace: React.FC = () => {
             </Section>
 
             {/* REVENUE INBOX (ANOMALIAS NÃO ORÇADAS) */}
-            <Section className="gap-4">
+            <Section>
               <div className="flex justify-between items-end">
                 <SectionLabel className="!mb-0 text-status-error flex items-center gap-2">
                   <AlertTriangle size={16} /> Dinheiro na Mesa
@@ -118,7 +118,7 @@ export const SalesWorkspace: React.FC = () => {
                       <div className="flex justify-between items-center">
                         <div className="flex flex-col">
                           <span className="text-sm font-black text-white uppercase tracking-widest">{a.title}</span>
-                          <span className="text-xs text-text-tertiary mt-1">ID Ativo: {a.assetId.substring(0, 8)}</span>
+                          <span className="text-xs text-text-tertiary mt-1">ID Ativo: {(a.assetId || 'DESC').substring(0, 8)}</span>
                         </div>
                         <button className="bg-status-error text-[#050505] font-black text-[10px] px-3 py-2 rounded uppercase tracking-widest active:scale-95 transition-transform flex items-center gap-1">
                           ORÇAR <ChevronRight size={14} />
@@ -136,7 +136,7 @@ export const SalesWorkspace: React.FC = () => {
             </Section>
 
             {/* PROPOSTAS PENDENTES DE APROVAÇÃO */}
-            <Section className="gap-4">
+            <Section>
               <div className="flex justify-between items-end">
                 <SectionLabel className="!mb-0 text-[var(--accent-blue)] flex items-center gap-2">
                   <FileText size={16} /> Propostas Pendentes
@@ -166,9 +166,9 @@ export const SalesWorkspace: React.FC = () => {
             </Section>
           </div>
         ) : (
-          <div className="flex flex-col gap-10 animate-in fade-in slide-in-from-bottom-2">
+          <div className="flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-2">
              {/* CONTRATOS VIEW */}
-             <Section className="gap-4">
+             <Section>
                <div className="grid grid-cols-2 gap-4">
                   <SurfaceCard className="p-4 bg-[var(--accent-green)]/10 border border-[var(--accent-green)]/30">
                     <h3 className="text-[10px] font-bold text-[var(--accent-green)] uppercase tracking-widest mb-1">Protegida</h3>
@@ -184,7 +184,7 @@ export const SalesWorkspace: React.FC = () => {
                </div>
              </Section>
 
-             <Section className="gap-4">
+             <Section>
                 <SectionLabel>Contratos Ativos ({stats.activeContracts.length})</SectionLabel>
                 {stats.activeContracts.length > 0 ? (
                   <div className="space-y-4">

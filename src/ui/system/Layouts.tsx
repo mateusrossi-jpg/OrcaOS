@@ -138,6 +138,7 @@ export const Stack = memo(function Stack({ children, className = '', ...props }:
 
 /**
  * Section: Vertical layout for independent blocks.
+ * Standardized 24px (px-6) internal spacing and robust gap (V7 P2).
  */
 export const Section = memo(function Section({ children, className = '', ...props }: LayoutProps) {
   return (

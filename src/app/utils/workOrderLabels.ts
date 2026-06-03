@@ -2,11 +2,12 @@ import type { Service as WorkOrder, ServiceStatus } from '../../core/types/busin
 
 export function statusLabel(status: ServiceStatus): string {
   const labels: Record<ServiceStatus, string> = {
-    'draft': 'Aguardando agendamento',
+    'draft': 'Rascunho',
+    'awaiting_schedule': 'Aguardando agendamento',
     'scheduled': 'Agendada',
     'in-progress': 'Em execução',
-    done: 'Concluído',
-    cancelled: 'Cancelado',
+    'done': 'Concluído',
+    'cancelled': 'Cancelado',
   };
 
   return labels[status];

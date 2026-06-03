@@ -1,3 +1,4 @@
+import { generateUUID } from '../../core/utils/idGenerator';
 import { BudgetPersistenceService } from '../../services/BudgetPersistenceService';
 import { BudgetService } from '../../services/budgetService';
 import { clientProposalService } from '../../services/clientProposalService';
@@ -11,6 +12,9 @@ import { WorkOrder } from '../../core/types/business';
 import { OperationalEventType, FinancialDiff } from '../../domain/operationalEvent';
 import { db } from '../../storage/dexieDatabase';
 import { attendanceAggregationService } from '../../services/AttendanceAggregationService';
+import { writeLock } from '../../core/database/writeLock';
+import { celebrationService } from '../../services/CelebrationService';
+import { StockService } from '../../services/StockService';
 
 const getFinancialDiff = (oldB: Budget, newB: Budget): FinancialDiff[] => {
   const fields: (keyof Budget & string)[] = [
@@ -38,7 +42,14 @@ export const operationalFacade = {
           aggregateId: budget.id,
           aggregateType: 'budget',
           eventType: 'FINANCIAL_MUTATION',
-          metadata: { diff, title: budget.title, clientId: budget.clientId, correlationId: budget.id },
+          metadata: {
+            diff,
+            title: budget.title,
+            clientId: budget.clientId,
+            attendanceId: budget.attendanceId,
+            budgetId: budget.id,
+            correlationId: budget.id
+          },
           snapshot: { ...budget }
         });
       } else {
@@ -46,7 +57,13 @@ export const operationalFacade = {
           aggregateId: budget.id,
           aggregateType: 'budget',
           eventType: 'BUDGET_UPDATED',
-          metadata: { title: budget.title, clientId: budget.clientId, correlationId: budget.id }
+          metadata: {
+            title: budget.title,
+            clientId: budget.clientId,
+            attendanceId: budget.attendanceId,
+            budgetId: budget.id,
+            correlationId: budget.id
+          }
         });
       }
     } else {
@@ -55,6 +72,8 @@ export const operationalFacade = {
           name: budget.clientName,
           phone: '',
           notes: 'Cadastrado automaticamente via Orçamento (Rápido)',
+          companyId: budget.companyId || 'default-company',
+          workspaceId: budget.workspaceId || 'default-workspace',
         });
         budget.clientId = newClient.id;
       }
@@ -62,7 +81,12 @@ export const operationalFacade = {
         aggregateId: budget.id,
         aggregateType: 'budget',
         eventType: 'BUDGET_CREATED',
-        metadata: { clientId: budget.clientId, correlationId: budget.id },
+        metadata: {
+          clientId: budget.clientId,
+          attendanceId: budget.attendanceId,
+          budgetId: budget.id,
+          correlationId: budget.id
+        },
         snapshot: { ...budget }
       });
     }
@@ -136,23 +160,35 @@ export const operationalFacade = {
 
   // Authorize a budget and automatically create a linked work order
   authorizeBudget: async (budgetId: string, budgetSnapshot?: Budget): Promise<void> => {
-    // Change status to AUTORIZADO first
-    await operationalFacade.changeBudgetStatus(budgetId, BUDGET_STATUS.AUTORIZADO, budgetSnapshot);
-    // After authorization, create a minimal work order linked to this budget
-    const budget = budgetSnapshot ?? await new BudgetPersistenceService().getBudget(budgetId);
-    const workOrder = {
-      id: crypto.randomUUID(),
-      clientId: budget?.clientId || '',
-      siteId: budget?.siteId || 'default-site',
-      title: budget?.title || `Projeto/OS ${budgetId.substring(0,6)}`,
-      status: 'draft' as const,
-      paymentStatus: 'pending' as const,
-      budgetId,
-      attendanceId: budget?.attendanceId,
-    } as any; // cast to WorkOrder (will be refined by service)
-    await workOrderService.add(workOrder);
-    // The createWorkOrder flow will trigger execution of the budget via operationalFacade.executeBudget
-    await operationalFacade.createWorkOrder(workOrder);
+    return writeLock.withDatabaseLock(`auth-${budgetId}`, async () => {
+      // Prevent duplicate work orders from rapid double-clicks
+      const existingWOs = await db.workOrders.where('budgetId').equals(budgetId).toArray();
+      if (existingWOs.length > 0) {
+        console.warn(`[operationalFacade] WorkOrder already exists for budget ${budgetId}. Ignoring duplicate authorization request.`);
+        return;
+      }
+
+      // Change status to AUTORIZADO first
+      await operationalFacade.changeBudgetStatus(budgetId, BUDGET_STATUS.AUTORIZADO, budgetSnapshot);
+      // After authorization, create a minimal work order linked to this budget
+      const budget = budgetSnapshot ?? await new BudgetPersistenceService().getBudget(budgetId);
+      const workOrder = {
+        id: generateUUID(),
+        clientId: budget?.clientId || '',
+        siteId: budget?.siteId || 'default-site',
+        title: budget?.title || `Projeto/OS ${budgetId.substring(0,6)}`,
+        status: 'awaiting_schedule' as const,
+        paymentStatus: 'pending' as const,
+        executedValue: budget?.chargedValue || 0,
+        scheduledDate: new Date().toISOString().split('T')[0],
+        budgetId,
+        attendanceId: budget?.attendanceId,
+        items: budget?.items || [],
+      } as any; // cast to WorkOrder (will be refined by service)
+      await workOrderService.add(workOrder);
+      // The createWorkOrder flow will trigger execution of the budget via operationalFacade.executeBudget
+      await operationalFacade.createWorkOrder(workOrder);
+    });
   },
 
   executeBudget: async (budgetId: string, budgetSnapshot?: Budget): Promise<void> => {
@@ -221,13 +257,24 @@ export const operationalFacade = {
     const record = await financeService.registerPayment(workOrderId, amount);
 
     if (record) {
+      const woForPayment = await workOrderService.getById(workOrderId);
       await operationalEventService.emitEvent({
         aggregateId: workOrderId,
         aggregateType: 'finance',
         eventType: 'FINANCE_RECORD_REALIZED',
-        metadata: { adjustment: true, paymentAmount: amount },
+        metadata: {
+          adjustment: true,
+          paymentAmount: amount,
+          clientId: woForPayment?.clientId,
+          attendanceId: woForPayment?.attendanceId,
+          budgetId: woForPayment?.budgetId,
+          workOrderId: workOrderId
+        },
         snapshot: { ...record }
       });
+
+      // Trigger WOW Milestone Check (V8)
+      await celebrationService.checkAndTrigger(woForPayment?.clientId);
     }
   },
 
@@ -242,10 +289,27 @@ export const operationalFacade = {
     proposal.updatedAt = new Date().toISOString();
     await clientProposalService.update(proposal);
 
+    let clientId = '';
+    let attendanceId = '';
+    if (proposal.budgetId) {
+      const b = await db.budgets.get(proposal.budgetId);
+      if (b) {
+        clientId = b.clientId || '';
+        attendanceId = b.attendanceId || '';
+      }
+    }
+
     await operationalEventService.emitEvent({
       aggregateId: proposal.id,
       aggregateType: 'proposal',
       eventType: 'PROPOSAL_APPROVED',
+      metadata: {
+        clientId,
+        attendanceId,
+        budgetId: proposal.budgetId,
+        workOrderId: proposal.workOrderId,
+        correlationId: proposal.budgetId || proposal.id
+      },
       snapshot: { status: 'approved' }
     });
     // After proposal approval, ensure the related budget is authorized
@@ -263,11 +327,27 @@ export const operationalFacade = {
     proposal.updatedAt = new Date().toISOString();
     await clientProposalService.update(proposal);
 
+    let clientId = '';
+    let attendanceId = '';
+    if (proposal.budgetId) {
+      const b = await db.budgets.get(proposal.budgetId);
+      if (b) {
+        clientId = b.clientId || '';
+        attendanceId = b.attendanceId || '';
+      }
+    }
+
     await operationalEventService.emitEvent({
       aggregateId: proposal.id,
       aggregateType: 'proposal',
       eventType: 'PROPOSAL_REJECTED',
-      metadata: { clientId: proposal.clientName, correlationId: proposal.budgetId },
+      metadata: {
+        clientId,
+        attendanceId,
+        budgetId: proposal.budgetId,
+        workOrderId: proposal.workOrderId,
+        correlationId: proposal.budgetId || proposal.id
+      },
       snapshot: { status: 'rejected' }
     });
 
@@ -281,7 +361,12 @@ export const operationalFacade = {
           aggregateId: budget.id,
           aggregateType: 'budget',
           eventType: 'BUDGET_REJECTED',
-          metadata: { clientId: budget.clientId, correlationId: budget.id },
+          metadata: {
+            clientId: budget.clientId,
+            attendanceId: budget.attendanceId,
+            budgetId: budget.id,
+            correlationId: budget.id
+          },
           snapshot: { status: BUDGET_STATUS.RECUSADO }
         });
       }
@@ -303,11 +388,28 @@ export const operationalFacade = {
     
     await clientProposalService.update(proposal);
 
+    let clientId = '';
+    let attendanceId = '';
+    if (proposal.budgetId) {
+      const b = await db.budgets.get(proposal.budgetId);
+      if (b) {
+        clientId = b.clientId || '';
+        attendanceId = b.attendanceId || '';
+      }
+    }
+
     if (status === 'sent') {
       await operationalEventService.emitEvent({
         aggregateId: proposal.id,
         aggregateType: 'proposal',
         eventType: 'PROPOSAL_SENT',
+        metadata: {
+          clientId,
+          attendanceId,
+          budgetId: proposal.budgetId,
+          workOrderId: proposal.workOrderId,
+          correlationId: proposal.budgetId || proposal.id
+        },
         snapshot: { status: 'sent' }
       });
     }
@@ -318,25 +420,33 @@ export const operationalFacade = {
   createWorkOrder: async (workOrder: WorkOrder): Promise<void> => {
     await workOrderService.add(workOrder);
     
-    await operationalEventService.emitEvent({
-      aggregateId: workOrder.id,
-      aggregateType: 'workorder',
-      eventType: 'WORKORDER_CREATED',
-      snapshot: { status: workOrder.status }
-    });
-
-    // Vincular e Sincronizar OS com o Atendimento
-    if (workOrder.budgetId && !workOrder.attendanceId) {
+    let attendanceId = workOrder.attendanceId;
+    if (workOrder.budgetId && !attendanceId) {
       try {
         const budget = await db.budgets.get(workOrder.budgetId);
         if (budget && budget.attendanceId) {
-          workOrder.attendanceId = budget.attendanceId;
-          await db.workOrders.update(workOrder.id, { attendanceId: budget.attendanceId });
+          attendanceId = budget.attendanceId;
+          workOrder.attendanceId = attendanceId;
+          await db.workOrders.update(workOrder.id, { attendanceId });
         }
       } catch (err) {
         console.error("Erro ao resolver attendanceId para a OS:", err);
       }
     }
+
+    await operationalEventService.emitEvent({
+      aggregateId: workOrder.id,
+      aggregateType: 'workorder',
+      eventType: 'WORKORDER_CREATED',
+      metadata: {
+        clientId: workOrder.clientId,
+        attendanceId: attendanceId,
+        budgetId: workOrder.budgetId,
+        workOrderId: workOrder.id,
+        correlationId: workOrder.budgetId || workOrder.id
+      },
+      snapshot: { status: workOrder.status }
+    });
 
     if (workOrder.attendanceId) {
       await attendanceAggregationService.recalculate(workOrder.attendanceId);
@@ -351,7 +461,13 @@ export const operationalFacade = {
         aggregateId: workOrder.id,
         aggregateType: 'workorder',
         eventType: 'WORKORDER_STARTED',
-        metadata: { clientId: workOrder.clientId, correlationId: workOrder.budgetId || workOrder.id },
+        metadata: {
+          clientId: workOrder.clientId,
+          attendanceId: workOrder.attendanceId,
+          budgetId: workOrder.budgetId,
+          workOrderId: workOrder.id,
+          correlationId: workOrder.budgetId || workOrder.id
+        },
         snapshot: { status: 'in-progress' }
       });
     }
@@ -361,7 +477,13 @@ export const operationalFacade = {
         aggregateId: workOrder.id,
         aggregateType: 'workorder',
         eventType: 'WORKORDER_CANCELLED',
-        metadata: { clientId: workOrder.clientId, correlationId: workOrder.budgetId || workOrder.id },
+        metadata: {
+          clientId: workOrder.clientId,
+          attendanceId: workOrder.attendanceId,
+          budgetId: workOrder.budgetId,
+          workOrderId: workOrder.id,
+          correlationId: workOrder.budgetId || workOrder.id
+        },
         snapshot: { status: 'cancelled' }
       });
     }
@@ -375,6 +497,54 @@ export const operationalFacade = {
     const wo = await workOrderService.getById(workOrderId);
     if (!wo) return;
     
+    // FASE 3.5: Inventory Reintegration - Baixa Automática e Custo Real
+    const budgetPersistence = new BudgetPersistenceService();
+    const budget = wo.budgetId ? await budgetPersistence.getBudget(wo.budgetId) : undefined;
+    let totalMaterialCost = budget?.materialCost || 0;
+
+    if (budget && budget.items) {
+      let realMaterialCost = 0;
+      let usedInventory = false;
+      const invItems = await db.inventoryItems.toArray();
+
+      for (const item of budget.items) {
+        if (item.category === 'material') {
+          // Busca no estoque por SKU (equivalente ao título/descrição para o SOLO)
+          const invItem = invItems.find(i => 
+            (item.catalogId && i.sku === item.catalogId) || 
+            i.name.toLowerCase() === item.description.toLowerCase() ||
+            i.sku.toLowerCase() === item.description.toLowerCase()
+          );
+
+          if (invItem && invItem.quantityOnHand > 0) {
+            const consumeQty = Math.min(item.quantity, invItem.quantityOnHand);
+            try {
+              await StockService.updateStock(
+                invItem.companyId,
+                invItem.workspaceId,
+                invItem.id,
+                'OUT',
+                consumeQty,
+                `Baixa automática OS ${wo.id}`,
+                wo.id
+              );
+              realMaterialCost += (consumeQty * invItem.unitCost);
+              usedInventory = true;
+            } catch (err) {
+              console.error("Erro na baixa automática de estoque:", err);
+              realMaterialCost += (item.quantity * item.unitPrice); // Fallback: usa o custo orçado
+            }
+          } else {
+            realMaterialCost += (item.quantity * item.unitPrice); // Sem estoque, usa custo do orçamento
+          }
+        }
+      }
+      
+      if (usedInventory) {
+        totalMaterialCost = realMaterialCost;
+      }
+    }
+
     wo.status = 'done';
     wo.executedValue = executedValue;
     if (notes) {
@@ -387,15 +557,25 @@ export const operationalFacade = {
       aggregateId: wo.id,
       aggregateType: 'workorder',
       eventType: 'WORKORDER_COMPLETED',
-      metadata: { clientId: wo.clientId, correlationId: wo.budgetId || wo.id },
-      snapshot: { status: 'done', executedValue, receivedValue }
+      metadata: {
+        clientId: wo.clientId,
+        attendanceId: wo.attendanceId,
+        budgetId: wo.budgetId,
+        workOrderId: wo.id,
+        correlationId: wo.budgetId || wo.id
+      },
+      snapshot: { status: 'done', executedValue, receivedValue, materialCost: totalMaterialCost }
     });
 
     const client = await clientService.getById(wo.clientId);
-    const clientName = client?.name || 'CLIENTE_ID_' + wo.clientId.slice(0, 8);
+    const clientName = client?.name || 'CLIENTE_ID_' + (wo.clientId ? wo.clientId.slice(0, 8) : 'DESC');
 
     const financeService = new SimpleFinanceService();
+    const currentRecords = await financeService.listRecords();
+    const existingRecord = currentRecords.find((r) => r.workOrderId === wo.id);
+
     await financeService.saveRecord({
+      id: existingRecord?.id,
       title: wo.title,
       clientId: wo.clientId,
       siteId: wo.siteId,
@@ -403,19 +583,50 @@ export const operationalFacade = {
       workOrderId: wo.id,
       expectedValue: executedValue,
       receivedValue: receivedValue,
-      materialCost: 0,
-      travelCost: 0,
+      materialCost: totalMaterialCost,
+      travelCost: budget?.travelCost || 0,
       cardFee: 0,
-      estimatedTax: 0,
-      otherCosts: 0
+      estimatedTax: budget?.fees || 0,
+      otherCosts: budget?.otherCosts || 0
     });
 
     if (wo.attendanceId) {
       await attendanceAggregationService.recalculate(wo.attendanceId);
     }
+
+    // Trigger WOW Milestone Check (V8)
+    await celebrationService.checkAndTrigger(wo.clientId);
+  },
+
+  // --- ATTENDANCE OPERATIONS ---
+
+  initializeAttendance: async (clientId: string, siteId: string, companyId = 'default-company', workspaceId = 'default-workspace'): Promise<string> => {
+    const attendanceId = generateUUID();
+    const newAttendance = {
+      id: attendanceId,
+      clientId,
+      siteId,
+      status: 'iniciado' as const,
+      companyId,
+      workspaceId,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    await db.attendances.add(newAttendance);
+    localStorage.setItem('aferix_active_attendance_id', attendanceId);
+    
+    if (attendanceId) {
+      await attendanceAggregationService.recalculate(attendanceId);
+    }
+    
+    return attendanceId;
   },
 
   deleteAttendance: async (attendanceId: string): Promise<void> => {
+    const att = await db.attendances.get(attendanceId);
+    const clientId = att?.clientId || '';
+
     // 1. Fetch children
     const [budgets, workOrders] = await Promise.all([
       db.budgets.where('attendanceId').equals(attendanceId).toArray(),
@@ -438,11 +649,18 @@ export const operationalFacade = {
     if (osIds.length > 0) {
       await db.workOrders.bulkDelete(osIds);
       for (const id of osIds) {
+        const wo = workOrders.find(w => w.id === id);
         await operationalEventService.emitEvent({
           aggregateId: id,
           aggregateType: 'workorder',
           eventType: 'WORKORDER_CANCELLED',
-          metadata: { correlationId: attendanceId }
+          metadata: {
+            clientId: wo?.clientId || clientId,
+            attendanceId,
+            budgetId: wo?.budgetId,
+            workOrderId: id,
+            correlationId: attendanceId
+          }
         });
       }
     }
@@ -451,11 +669,17 @@ export const operationalFacade = {
     if (budgetIds.length > 0) {
       await db.budgets.bulkDelete(budgetIds);
       for (const id of budgetIds) {
+        const b = budgets.find(x => x.id === id);
         await operationalEventService.emitEvent({
           aggregateId: id,
           aggregateType: 'budget',
           eventType: 'BUDGET_DELETED',
-          metadata: { correlationId: attendanceId }
+          metadata: {
+            clientId: b?.clientId || clientId,
+            attendanceId,
+            budgetId: id,
+            correlationId: attendanceId
+          }
         });
       }
     }
@@ -466,12 +690,18 @@ export const operationalFacade = {
       aggregateId: attendanceId,
       aggregateType: 'attendance',
       eventType: 'ATTENDANCE_DELETED' as any,
-      metadata: { correlationId: attendanceId }
+      metadata: {
+        clientId,
+        attendanceId,
+        correlationId: attendanceId
+      }
     });
   },
 
   softDeleteAttendance: async (attendanceId: string, userId = 'user'): Promise<void> => {
     const deletedAt = new Date().toISOString();
+    const att = await db.attendances.get(attendanceId);
+    const clientId = att?.clientId || '';
 
     // 1. Fetch budgets and work orders
     const [budgets, workOrders] = await Promise.all([
@@ -497,6 +727,7 @@ export const operationalFacade = {
     // 3. Cascade soft-delete WorkOrders
     if (osIds.length > 0) {
       for (const id of osIds) {
+        const wo = workOrders.find(w => w.id === id);
         await db.workOrders.update(id, {
           isDeleted: true,
           deletedAt,
@@ -507,7 +738,14 @@ export const operationalFacade = {
           aggregateId: id,
           aggregateType: 'workorder',
           eventType: 'WORKORDER_CANCELLED',
-          metadata: { isDeleted: true },
+          metadata: {
+            isDeleted: true,
+            clientId: wo?.clientId || clientId,
+            attendanceId,
+            budgetId: wo?.budgetId,
+            workOrderId: id,
+            correlationId: attendanceId
+          },
           snapshot: { isDeleted: true, deletedAt },
           correlationId: attendanceId
         });
@@ -517,6 +755,7 @@ export const operationalFacade = {
     // 4. Cascade soft-delete Budgets
     if (budgetIds.length > 0) {
       for (const id of budgetIds) {
+        const b = budgets.find(x => x.id === id);
         await db.budgets.update(id, {
           isDeleted: true,
           deletedAt,
@@ -527,7 +766,13 @@ export const operationalFacade = {
           aggregateId: id,
           aggregateType: 'budget',
           eventType: 'BUDGET_DELETED',
-          metadata: { isDeleted: true },
+          metadata: {
+            isDeleted: true,
+            clientId: b?.clientId || clientId,
+            attendanceId,
+            budgetId: id,
+            correlationId: attendanceId
+          },
           snapshot: { isDeleted: true, deletedAt },
           correlationId: attendanceId
         });
@@ -546,7 +791,12 @@ export const operationalFacade = {
       aggregateId: attendanceId,
       aggregateType: 'attendance',
       eventType: 'ATTENDANCE_DELETED' as any,
-      metadata: { isDeleted: true },
+      metadata: {
+        isDeleted: true,
+        clientId,
+        attendanceId,
+        correlationId: attendanceId
+      },
       snapshot: { isDeleted: true, deletedAt },
       correlationId: attendanceId
     });
@@ -568,7 +818,13 @@ export const operationalFacade = {
       aggregateId: budgetId,
       aggregateType: 'budget',
       eventType: 'BUDGET_DELETED',
-      metadata: { clientId: budget.clientId, isDeleted: true },
+      metadata: {
+        clientId: budget.clientId,
+        attendanceId: budget.attendanceId,
+        budgetId: budgetId,
+        isDeleted: true,
+        correlationId: budgetId
+      },
       snapshot: { isDeleted: true, deletedAt },
       correlationId: budgetId
     });
@@ -594,7 +850,14 @@ export const operationalFacade = {
       aggregateId: workOrderId,
       aggregateType: 'workorder',
       eventType: 'WORKORDER_CANCELLED',
-      metadata: { clientId: wo.clientId, isDeleted: true },
+      metadata: {
+        clientId: wo.clientId,
+        attendanceId: wo.attendanceId,
+        budgetId: wo.budgetId,
+        workOrderId: workOrderId,
+        isDeleted: true,
+        correlationId: workOrderId
+      },
       snapshot: { isDeleted: true, deletedAt },
       correlationId: workOrderId
     });

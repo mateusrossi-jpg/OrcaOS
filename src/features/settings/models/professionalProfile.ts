@@ -1,3 +1,4 @@
+import { generateUUID } from '../../../core/utils/idGenerator';
 import type { BudgetTemplateId, ReportTemplateId } from '../../../core/types/business';
 
 export interface ProfessionalProfile {
@@ -26,7 +27,7 @@ export interface ProfessionalProfile {
 }
 
 function createStableId(prefix: string): string {
-  if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) return `${prefix}-${crypto.randomUUID()}`;
+  if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) return `${prefix}-${generateUUID()}`;
   return `${prefix}-${Date.now()}-${Math.round(Math.random() * 1000)}`;
 }
 

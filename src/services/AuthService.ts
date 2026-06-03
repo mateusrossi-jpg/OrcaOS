@@ -1,3 +1,4 @@
+import { generateUUID } from '../core/utils/idGenerator';
 import { db, TeamMember } from '../storage/dexieDatabase';
 
 export class AuthService {
@@ -66,6 +67,17 @@ export class AuthService {
     }
   }
 
+  static impersonateRole(role: string) {
+    const user = this.getActiveUser();
+    if (user) {
+      const updatedUser = { ...user, role };
+      localStorage.setItem(this.ACTIVE_USER_KEY, JSON.stringify(updatedUser));
+      localStorage.setItem('aferix_active_role', role);
+      window.dispatchEvent(new Event('aferix_auth_changed'));
+      window.dispatchEvent(new Event('aferix_role_changed'));
+    }
+  }
+
   static async createTeamMember(data: Omit<TeamMember, 'id' | 'createdAt'>): Promise<TeamMember> {
     const currentUser = this.getActiveUser();
     // Allow creation if no user exists (first setup) or if current user is admin
@@ -81,7 +93,7 @@ export class AuthService {
     const newMember: TeamMember = {
       ...data,
       id: typeof crypto !== 'undefined' && 'randomUUID' in crypto 
-        ? crypto.randomUUID() 
+        ? generateUUID() 
         : Math.random().toString(36).substring(2) + Date.now().toString(36),
       createdAt: new Date().toISOString()
     };

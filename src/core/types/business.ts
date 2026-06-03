@@ -70,7 +70,7 @@ export interface OperationalSnapshot {
   fingerprint: string;
 }
 
-export type ServiceStatus = 'draft' | 'scheduled' | 'in-progress' | 'done' | 'cancelled';
+export type ServiceStatus = 'draft' | 'awaiting_schedule' | 'scheduled' | 'in-progress' | 'done' | 'cancelled';
 
 export interface MultiTenantEntity {
   /** Tenant / Company identifier */

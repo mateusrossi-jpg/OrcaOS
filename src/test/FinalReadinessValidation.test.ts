@@ -77,7 +77,7 @@ describe('Aferix Final Operational Validation', () => {
         clientId: `c-${i % 100}`,
         siteId: 'default-site',
         title: `Ordem de Serviço ${i}`,
-        status: i % 2 === 0 ? 'completed' : 'in-progress',
+        status: i % 2 === 0 ? 'done' : 'in-progress',
         executedValue: 1200 + i,
         budgetId: `b-${i % 300}`,
         createdAt: new Date().toISOString(),

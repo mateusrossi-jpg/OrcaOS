@@ -1,9 +1,8 @@
+import { generateUUID } from '../core/utils/idGenerator';
 import React, { useState } from 'react';
 import { ScreenContainer, AppHeader } from '../ui/system/Layouts';
-import { Input, Select } from '../app/components/ui/index';
+import { Input, Select, MonetaryInput, PrimaryButton } from '../app/components/ui/index';
 import { SurfaceCard } from '../ui/system/Cards';
-import { SectionLabel, Heading } from '../ui/system/Typography';
-import { PrimaryButton } from '../app/components/ui';
 import { clientService } from '../services/clientService';
 import { operationalFacade } from '../features/workflow/operationalFacade';
 import { BUDGET_STATUS, Budget } from '../domain/budget';
@@ -11,10 +10,17 @@ import { useClients } from '../hooks/useClients';
 import { siteService } from '../services/siteService';
 import { Site } from '../domain/site';
 import { trustLayer } from '../core/trust/TrustLayer';
+import { ClientZeroBottomSheet, ClientZeroResult } from '../features/clients/components/ClientZeroBottomSheet';
+import { UserPlus, ChevronRight, History, Zap } from 'lucide-react';
+import { clientMemoryEngine, ClientMemory } from '../services/ClientMemoryEngine';
+import { formatCurrencyBRL } from '../utils/formatters';
 
 export function QuickServiceForm({ onBack }: { onBack: () => void }) {
+
   const { clients } = useClients();
   const [clientSites, setClientSites] = useState<Site[]>([]);
+  const [isClientZeroOpen, setIsClientZeroOpen] = useState(false);
+  const [clientMemory, setClientMemory] = useState<ClientMemory | null>(null);
   const [formData, setFormData] = useState({
     clientId: '',
     clientName: '',
@@ -31,12 +37,17 @@ export function QuickServiceForm({ onBack }: { onBack: () => void }) {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
+  const applySuggestion = (s: any) => {
+    updateField('serviceDescription', s.title);
+    updateField('chargedValue', String(s.avgPrice));
+  };
+
   const handleSave = async () => {
     if (isSaving) return;
     setIsSaving(true);
     
     try {
-      // 1. Client Resolution
+      // 1. Client & Site Resolution
       let finalClientId = formData.clientId;
       if (!finalClientId && formData.clientName) {
         const newClient = await clientService.add({
@@ -47,53 +58,28 @@ export function QuickServiceForm({ onBack }: { onBack: () => void }) {
         finalClientId = newClient.id;
       }
 
-      if (!finalClientId) {
-        throw new Error("Cliente é obrigatório");
-      }
+      if (!finalClientId) throw new Error("Cliente é obrigatório");
 
       let finalSiteId = formData.siteId;
-      if (finalClientId && !finalSiteId && formData.address) {
-        // Create new site for the address
-        const newSite = await siteService.add({
-          clientId: finalClientId,
-          name: 'Endereço do Serviço',
-          fullAddress: formData.address,
-          isMain: clientSites.length === 0,
-        });
-        finalSiteId = newSite.id;
-      }
-
       if (finalClientId && !finalSiteId) {
-        // Fallback: see if there's a site for the client, else let backend handle (or set 'default-site')
         const sites = await siteService.getByClientId(finalClientId);
         if (sites.length > 0) {
           finalSiteId = sites[0].id;
         } else {
-          finalSiteId = 'default-site';
+          const newSite = await siteService.add({
+            clientId: finalClientId,
+            name: 'Local Principal',
+            fullAddress: formData.address || 'Endereço não informado',
+            isMain: true,
+          });
+          finalSiteId = newSite.id;
         }
       }
 
-      // 1.5. Criar Attendance mínimo no banco de dados Dexie
-      const attendanceId = typeof crypto !== 'undefined' && 'randomUUID' in crypto ? crypto.randomUUID() : `att-${Date.now()}`;
-      const newAttendance = {
-        id: attendanceId,
-        clientId: finalClientId || '',
-        siteId: finalSiteId || 'default-site',
-        status: 'iniciado' as const,
-        companyId: 'default-company',
-        workspaceId: 'default-workspace',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
+      // 1.5. Iniciar Atendimento via Facade (P0 Fix)
+      const attendanceId = await operationalFacade.initializeAttendance(finalClientId, finalSiteId || 'default-site');
 
-      const { db } = await import('../storage/dexieDatabase');
-      await db.attendances.add(newAttendance).catch(err => {
-        console.error("Erro ao iniciar atendimento no QuickServiceForm:", err);
-      });
-
-      localStorage.setItem('aferix_active_attendance_id', attendanceId);
-
-      const budgetId = typeof crypto !== 'undefined' && 'randomUUID' in crypto ? crypto.randomUUID() : `bdg-${Date.now()}`;
+      const budgetId = generateUUID();
       const numericValue = Number(formData.chargedValue.replace(/[^0-9.-]+/g, "")) || 0;
 
       // 2. Fake a full Budget object
@@ -132,7 +118,7 @@ export function QuickServiceForm({ onBack }: { onBack: () => void }) {
       // Wait, let's just do it here to ensure it creates the WorkOrder and liquidates it.
       
       const { workOrderService } = await import('../services/workOrderService');
-      const newOsId = typeof crypto !== 'undefined' && 'randomUUID' in crypto ? crypto.randomUUID() : `os-${Date.now()}`;
+      const newOsId = generateUUID();
       
       const newWorkOrder = {
         id: newOsId,
@@ -179,39 +165,33 @@ export function QuickServiceForm({ onBack }: { onBack: () => void }) {
       
       <div className="flex flex-col gap-6 px-4 mt-4 max-w-md mx-auto w-full">
         <SurfaceCard padding="lg">
-          <SectionLabel className="mb-6">Dados do Cliente</SectionLabel>
-          <div className="flex flex-col gap-6">
-            <Select 
-              label="Cliente (Base)" 
-              value={formData.clientId} 
-              onChange={async (val) => {
-                const client = clients.find(c => c.id === val);
-                updateField('clientId', val);
-                updateField('clientName', client?.name || '');
-                updateField('siteId', ''); // reset site
-                if (val) {
-                  const sites = await siteService.getByClientId(val);
-                  setClientSites(sites);
-                  if (sites.length === 1) {
-                    updateField('siteId', sites[0].id);
-                  }
-                } else {
-                  setClientSites([]);
-                }
-              }}
-            >
-              <option value="">Novo Cliente (Cadastro Rápido)</option>
-              {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-            </Select>
+          <SectionLabel className="mb-6">Cliente</SectionLabel>
+          <div className="flex flex-col gap-3">
 
-            {!formData.clientId && (
-              <Input 
-                label="Nome do Novo Cliente" 
-                value={formData.clientName} 
-                onChange={(e) => updateField('clientName', e.target.value)} 
-                placeholder="Ex: João da Silva" 
-                required 
-              />
+            {/* CLIENT ZERO TRIGGER — Fase 1 */}
+            {!formData.clientId ? (
+              <button
+                type="button"
+                onClick={() => setIsClientZeroOpen(true)}
+                className="w-full h-[56px] rounded-[16px] border border-dashed border-white/20 bg-white/[0.02] text-white/50 hover:bg-white/[0.05] hover:border-[var(--accent-gold)]/40 active:scale-95 transition-all flex items-center justify-center gap-3"
+              >
+                <UserPlus size={16} className="text-[var(--accent-gold)]" strokeWidth={2} />
+                <span className="text-[12px] font-bold tracking-widest uppercase text-white/60">
+                  Selecionar / Criar Cliente
+                </span>
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setIsClientZeroOpen(true)}
+                className="w-full h-[56px] rounded-[16px] border border-[var(--accent-gold)]/30 bg-[var(--accent-gold)]/8 flex items-center justify-between px-4 active:scale-95 transition-all"
+              >
+                <div className="flex flex-col items-start">
+                  <span className="text-[9px] font-black tracking-[0.2em] text-[var(--accent-gold)] uppercase">Cliente Selecionado</span>
+                  <span className="text-[14px] font-black text-white leading-tight">{formData.clientName}</span>
+                </div>
+                <ChevronRight size={16} className="text-white/30" />
+              </button>
             )}
 
             {formData.clientId && clientSites.length > 0 && (
@@ -227,7 +207,7 @@ export function QuickServiceForm({ onBack }: { onBack: () => void }) {
 
             {!formData.siteId && (
               <Input
-                label="Endereço do Serviço (Rota/GPS)"
+                label="Endereço do Serviço (Opcional)"
                 value={formData.address}
                 onChange={(e) => updateField('address', e.target.value)}
                 placeholder="Ex: Rua das Flores, 123"
@@ -235,6 +215,28 @@ export function QuickServiceForm({ onBack }: { onBack: () => void }) {
             )}
           </div>
         </SurfaceCard>
+
+        {/* V7 P3: ORÇAMENTO QUE SE ESCREVE SOZINHO */}
+        {clientMemory && clientMemory.frequentServices.length > 0 && (
+          <Section className="gap-4 animate-in fade-in slide-in-from-bottom-2 px-1">
+             <SectionLabel className="!text-[9px] uppercase tracking-[0.2em] opacity-40 ml-1">Sugestões baseadas no histórico</SectionLabel>
+             <div className="flex gap-3 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                {clientMemory.frequentServices.map((s, idx) => (
+                   <button 
+                     key={idx}
+                     onClick={() => applySuggestion(s)}
+                     className="flex-none h-12 px-5 rounded-xl bg-[var(--accent-gold)]/5 border border-[var(--accent-gold)]/10 flex items-center gap-3 active:scale-95 transition-all"
+                   >
+                      <History size={14} className="text-[var(--accent-gold)]" />
+                      <div className="flex flex-col items-start">
+                         <span className="text-[11px] font-black text-white/90 uppercase">{s.title}</span>
+                         <span className="text-[9px] font-mono font-bold text-[var(--accent-gold)]">{formatCurrencyBRL(s.avgPrice)}</span>
+                      </div>
+                   </button>
+                ))}
+             </div>
+          </Section>
+        )}
 
         <SurfaceCard padding="lg">
           <SectionLabel className="mb-6">Detalhes do Serviço</SectionLabel>
@@ -247,13 +249,10 @@ export function QuickServiceForm({ onBack }: { onBack: () => void }) {
               required 
             />
             
-            <Input 
-              label="Valor Cobrado (R$)" 
-              type="number" 
+            <MonetaryInput 
+              label="Valor Cobrado" 
               value={formData.chargedValue} 
-              onChange={(e) => updateField('chargedValue', e.target.value)} 
-              placeholder="Ex: 150.00" 
-              required 
+              onChange={(val) => updateField('chargedValue', val)} 
             />
           </div>
         </SurfaceCard>
@@ -290,6 +289,36 @@ export function QuickServiceForm({ onBack }: { onBack: () => void }) {
           {isSaving ? "SALVANDO..." : "FINALIZAR OPERAÇÃO"}
         </PrimaryButton>
       </div>
+
+      <ClientZeroBottomSheet
+        isOpen={isClientZeroOpen}
+        onClose={() => setIsClientZeroOpen(false)}
+        onClientSelected={async (result: ClientZeroResult) => {
+          updateField('clientId', result.clientId);
+          updateField('clientName', result.clientName);
+          
+          try {
+            const [sites, memory] = await Promise.all([
+              siteService.getByClientId(result.clientId),
+              clientMemoryEngine.getClientMemory(result.clientId)
+            ]);
+
+            setClientSites(sites);
+            setClientMemory(memory);
+            if (sites.length === 1) updateField('siteId', sites[0].id);
+
+            // V7 P3: Auto-preenchimento baseado na memória
+            if (memory.lastServiceTitle) {
+              updateField('serviceDescription', memory.lastServiceTitle);
+              updateField('chargedValue', String(memory.lastExecutedValue || ''));
+            }
+          } catch (err) {
+            console.error('Failed to load client context:', err);
+          }
+          
+          setIsClientZeroOpen(false);
+        }}
+      />
     </ScreenContainer>
   );
 };

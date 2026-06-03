@@ -1,6 +1,7 @@
+import { generateUUID } from '../../core/utils/idGenerator';
 export function createId(prefix?: string): string {
   if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
-    return crypto.randomUUID();
+    return generateUUID();
   }
   const base = `${Date.now()}-${Math.round(Math.random() * 1000000)}`;
   return prefix ? `${prefix}-${base}` : base;

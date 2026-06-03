@@ -25,6 +25,8 @@ export class SiteService {
           `${client.street || ''}, ${client.addressNumber || ''} ${client.complement || ''} - ${client.district || ''}, ${client.city || ''}/${client.state || ''}`;
         
         const mainSite = await this.add({
+          companyId: client.companyId,
+          workspaceId: client.workspaceId,
           clientId,
           name: 'Site Principal',
           fullAddress: fullAddress.trim(),

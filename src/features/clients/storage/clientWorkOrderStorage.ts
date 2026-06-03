@@ -14,12 +14,11 @@ function isClient(value: unknown): value is Client {
 function isWorkOrder(value: unknown): value is WorkOrder {
   if (!value || typeof value !== 'object') return false;
   const workOrder = value as Partial<WorkOrder>;
+  const validStatuses: ServiceStatus[] = ['draft', 'awaiting_schedule', 'scheduled', 'in-progress', 'done', 'cancelled'];
   return (
     typeof workOrder.id === 'string' &&
     typeof workOrder.title === 'string' &&
-    (workOrder.status === 'in-progress' ||
-      workOrder.status === 'done' ||
-      workOrder.status === 'cancelled')
+    validStatuses.includes(workOrder.status as ServiceStatus)
   );
 }
 
@@ -32,8 +31,8 @@ function readJsonArray<T>(key: string, guard: (value: unknown) => value is T): T
   // Migração de dados legados para os novos status se necessário
   if (Array.isArray(parsedValue)) {
     const migrated = (parsedValue as Array<Record<string, unknown>>).map((item) => {
-      if (item.status === 'open' || item.status === 'scheduled') {
-        return { ...item, status: 'in-progress' };
+      if (item.status === 'open') {
+        return { ...item, status: 'awaiting_schedule' };
       }
       return item;
     });

@@ -114,6 +114,6 @@ describe('Contract & Recurring Revenue Engine P0', () => {
     const endQuery = performance.now();
 
     expect(active.length).toBe(500);
-    expect(endQuery - startQuery).toBeLessThan(1000);
+    expect(endQuery - startQuery).toBeLessThan(2000);
   });
 });

@@ -1,0 +1,146 @@
+import { Meta, ColorPalette, ColorItem, Typeset } from '@storybook/blocks';
+
+<Meta title="Design System/Foundation" />
+
+# Aferix Design System - Foundation
+
+This is the Visual Single Source of Truth (SSOT) for the Aferix Premium Dark OS.
+
+---
+
+## Colors
+
+<ColorPalette>
+  <ColorItem
+    title="Backgrounds"
+    subtitle="Physical Environment"
+    colors={{
+      Primary: 'var(--bg-primary, #050505)',
+      Secondary: 'var(--bg-secondary, #080A0E)',
+      Surface: 'var(--bg-surface, #0B0F14)',
+      Elevated: 'var(--bg-surface-elevated, #10141B)',
+    }}
+  />
+  <ColorItem
+    title="Typography"
+    subtitle="Text Colors"
+    colors={{
+      Primary: 'var(--text-primary, #FFFFFF)',
+      Secondary: 'var(--text-secondary, #A8AEC0)',
+      Muted: 'var(--text-muted, #787E92)',
+      Tertiary: 'var(--text-tertiary, #585E70)',
+    }}
+  />
+  <ColorItem
+    title="Accents"
+    subtitle="Interactive & Status"
+    colors={{
+      Gold: 'var(--accent-gold, oklch(0.82 0.14 85))',
+      Green: 'var(--accent-green, oklch(0.78 0.16 155))',
+      Red: 'var(--accent-red, oklch(0.68 0.20 25))',
+      Blue: 'var(--accent-blue, oklch(0.70 0.12 230))',
+    }}
+  />
+</ColorPalette>
+
+---
+
+## Typography
+
+### Font Sizes
+
+<div className="flex flex-col gap-4 text-white">
+  <div>
+    <div style={{ fontSize: 'var(--fs-hero)' }}>Hero (64px)</div>
+  </div>
+  <div>
+    <div style={{ fontSize: 'var(--fs-2xl)' }}>2XL (26px)</div>
+  </div>
+  <div>
+    <div style={{ fontSize: 'var(--fs-xl)' }}>XL (20px)</div>
+  </div>
+  <div>
+    <div style={{ fontSize: 'var(--fs-lg)' }}>LG (18px)</div>
+  </div>
+  <div>
+    <div style={{ fontSize: 'var(--fs-md)' }}>MD (16px)</div>
+  </div>
+  <div>
+    <div style={{ fontSize: 'var(--fs-sm)' }}>SM (14px)</div>
+  </div>
+  <div>
+    <div style={{ fontSize: 'var(--fs-xs)' }}>XS (12px)</div>
+  </div>
+</div>
+
+### Font Weights
+
+<div className="flex flex-col gap-4 text-white mt-8">
+  <div style={{ fontWeight: 'var(--fw-black)' }}>Black (900)</div>
+  <div style={{ fontWeight: 'var(--fw-bold)' }}>Bold (700)</div>
+  <div style={{ fontWeight: 'var(--fw-semibold)' }}>SemiBold (600)</div>
+  <div style={{ fontWeight: 'var(--fw-medium)' }}>Medium (500)</div>
+  <div style={{ fontWeight: 'var(--fw-regular)' }}>Regular (400)</div>
+</div>
+
+---
+
+## Spacing
+
+<div className="flex flex-col gap-4 mt-8">
+  <div className="flex items-center gap-4">
+    <div style={{ width: 'var(--spacing-xs)', height: '24px', backgroundColor: 'var(--accent-gold)' }}></div>
+    <span className="text-white">XS (4px)</span>
+  </div>
+  <div className="flex items-center gap-4">
+    <div style={{ width: 'var(--spacing-sm)', height: '24px', backgroundColor: 'var(--accent-gold)' }}></div>
+    <span className="text-white">SM (12px) - Stacking</span>
+  </div>
+  <div className="flex items-center gap-4">
+    <div style={{ width: 'var(--spacing-md)', height: '24px', backgroundColor: 'var(--accent-gold)' }}></div>
+    <span className="text-white">MD (16px) - Mobile Margin</span>
+  </div>
+  <div className="flex items-center gap-4">
+    <div style={{ width: 'var(--spacing-lg)', height: '24px', backgroundColor: 'var(--accent-gold)' }}></div>
+    <span className="text-white">LG (24px) - Desktop Margin</span>
+  </div>
+  <div className="flex items-center gap-4">
+    <div style={{ width: 'var(--spacing-xl)', height: '24px', backgroundColor: 'var(--accent-gold)' }}></div>
+    <span className="text-white">XL (32px)</span>
+  </div>
+  <div className="flex items-center gap-4">
+    <div style={{ width: 'var(--spacing-section)', height: '24px', backgroundColor: 'var(--accent-gold)' }}></div>
+    <span className="text-white">Section (48px)</span>
+  </div>
+</div>
+
+---
+
+## Radius
+
+<div className="flex flex-wrap gap-8 mt-8 text-white">
+  <div className="flex flex-col items-center gap-2">
+    <div style={{ width: '64px', height: '64px', backgroundColor: 'var(--bg-surface-elevated)', borderRadius: 'var(--radius-xs)', border: 'var(--border-subtle)' }}></div>
+    <span>XS (8px)</span>
+  </div>
+  <div className="flex flex-col items-center gap-2">
+    <div style={{ width: '64px', height: '64px', backgroundColor: 'var(--bg-surface-elevated)', borderRadius: 'var(--radius-sm)', border: 'var(--border-subtle)' }}></div>
+    <span>SM (12px)</span>
+  </div>
+  <div className="flex flex-col items-center gap-2">
+    <div style={{ width: '64px', height: '64px', backgroundColor: 'var(--bg-surface-elevated)', borderRadius: 'var(--radius-md)', border: 'var(--border-subtle)' }}></div>
+    <span>MD (16px) - Buttons</span>
+  </div>
+  <div className="flex flex-col items-center gap-2">
+    <div style={{ width: '64px', height: '64px', backgroundColor: 'var(--bg-surface-elevated)', borderRadius: 'var(--radius-card)', border: 'var(--border-subtle)' }}></div>
+    <span>Card (24px)</span>
+  </div>
+  <div className="flex flex-col items-center gap-2">
+    <div style={{ width: '64px', height: '64px', backgroundColor: 'var(--bg-surface-elevated)', borderRadius: 'var(--radius-modal)', border: 'var(--border-subtle)' }}></div>
+    <span>Modal (32px)</span>
+  </div>
+  <div className="flex flex-col items-center gap-2">
+    <div style={{ width: '96px', height: '32px', backgroundColor: 'var(--bg-surface-elevated)', borderRadius: 'var(--radius-pill)', border: 'var(--border-subtle)' }}></div>
+    <span>Pill (9999px)</span>
+  </div>
+</div>

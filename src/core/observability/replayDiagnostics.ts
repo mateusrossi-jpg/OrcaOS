@@ -1,3 +1,4 @@
+import { generateUUID } from '../utils/idGenerator';
 import { TraceEnvelope } from './traceTypes';
 import { traceStore } from './traceStore';
 import { deviceIdentityManager } from '../sync/deviceIdentity';
@@ -5,7 +6,7 @@ import { deviceIdentityManager } from '../sync/deviceIdentity';
 export class ReplayDiagnosticsService {
   public logReplay(count: number, source: string, latencyMs: number): void {
     const trace: TraceEnvelope = {
-      traceId: crypto.randomUUID(),
+      traceId: generateUUID(),
       tenantId: 'local', // Assuming local context for now
       deviceId: deviceIdentityManager.getDeviceId(),
       sourceLayer: source,
@@ -21,7 +22,7 @@ export class ReplayDiagnosticsService {
 
   public logStaleReplay(envelopeId: string): void {
     traceStore.append({
-      traceId: crypto.randomUUID(),
+      traceId: generateUUID(),
       tenantId: 'local',
       deviceId: deviceIdentityManager.getDeviceId(),
       sourceLayer: 'ReplicationService',

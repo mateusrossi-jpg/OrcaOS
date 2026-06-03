@@ -118,7 +118,16 @@ export const StatusDot = memo(function StatusDot({ tone = 'success', className =
  * OpsChip: Technical chip for operational context.
  */
 export type ChipAccent = false | "red" | "orange" | "green" | "blue";
-export const OpsChip = memo(function OpsChip({ icon, label, accent, onClick }: { icon: ReactNode, label: string, accent: ChipAccent, onClick?: () => void }) {
+export interface OpsChipProps {
+  icon?: ReactNode;
+  label: string;
+  accent?: ChipAccent;
+  tone?: "muted" | "success" | "orange" | "green" | "blue" | "warning" | "danger" | "info" | string;
+  onClick?: () => void;
+  className?: string;
+}
+
+export const OpsChip = memo(function OpsChip({ icon, label, accent, tone, onClick, className }: OpsChipProps) {
   const styles: Record<string, { bg: string, border: string, text: string }> = {
     red:    { bg: "bg-[oklch(from_var(--accent-red)_l_c_h_/_0.08)]", border: "border-[oklch(from_var(--accent-red)_l_c_h_/_0.15)]", text: "var(--accent-red)" },
     orange: { bg: "bg-[oklch(from_var(--accent-gold)_l_c_h_/_0.08)]", border: "border-[oklch(from_var(--accent-gold)_l_c_h_/_0.15)]", text: "var(--accent-gold)" },
@@ -127,7 +136,17 @@ export const OpsChip = memo(function OpsChip({ icon, label, accent, onClick }: {
     default: { bg: "bg-white/[0.04]", border: "border-white/[0.07]", text: "var(--text-secondary)" }
   };
 
-  const style = accent ? styles[accent] : styles.default;
+  let activeAccent: string = "default";
+  if (accent) {
+    activeAccent = accent;
+  } else if (tone) {
+    if (tone === "green" || tone === "success") activeAccent = "green";
+    else if (tone === "orange" || tone === "warning") activeAccent = "orange";
+    else if (tone === "red" || tone === "danger") activeAccent = "red";
+    else if (tone === "blue" || tone === "info") activeAccent = "blue";
+  }
+
+  const style = styles[activeAccent] || styles.default;
   const isClickable = !!onClick;
 
   return (
@@ -137,10 +156,11 @@ export const OpsChip = memo(function OpsChip({ icon, label, accent, onClick }: {
         "inline-flex items-center gap-1.5 rounded-[10px] px-[11px] py-[5px] border transition-all select-none", 
         style.bg, 
         style.border,
-        isClickable && "cursor-pointer active:scale-95 hover:brightness-110"
+        isClickable && "cursor-pointer active:scale-95 hover:brightness-110",
+        className
       )}
     >
-      <span className="flex shrink-0" style={{ color: style.text }}>{icon}</span>
+      {icon && <span className="flex shrink-0" style={{ color: style.text }}>{icon}</span>}
       <span 
         className="font-mono text-[10px] font-bold tracking-[0.03em] whitespace-nowrap"
         style={{ color: style.text }}

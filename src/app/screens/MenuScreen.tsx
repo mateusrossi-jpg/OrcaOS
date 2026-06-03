@@ -65,6 +65,8 @@ const CloudSyncPanel = lazy(() => import('../../features/settings/components/Clo
 const GoogleDriveBackupPanel = lazy(() => import('../../features/settings/components/GoogleDriveBackupPanel').then((module) => ({ default: module.GoogleDriveBackupPanel })));
 const OfflineDiagnosticsPanel = lazy(() => import('../../features/settings/components/OfflineDiagnosticsPanel').then((module) => ({ default: module.OfflineDiagnosticsPanel })));
 
+import { trustLayer } from '../../core/trust/TrustLayer';
+
 /**
  * MenuScreen: Administration & Governance Hub.
  * Refactored for Business Flow Foundation (Phase 4).
@@ -83,10 +85,22 @@ export const MenuScreen = memo(function MenuScreen({ account, onNavigate }: Menu
 
   const adminItems = [];
   
+  const comingSoon = (title: string) => trustLayer.emit({
+    type: 'info',
+    title: 'Recurso em Breve',
+    description: `O módulo de ${title} está sendo preparado para o lançamento oficial.`,
+    status: 'local'
+  });
+
   // Enterprise Administration
-  if (isOwner || isManager) {
-    adminItems.push({ title: 'Gestão de Empresa', desc: 'Dados fiscais e identidade', onClick: () => {}, icon: Building });
+  if (isOwner || isManager || isSolo) {
+    adminItems.push({ title: 'Gestão de Empresa', desc: 'Dados fiscais e identidade', onClick: () => comingSoon('Gestão de Empresa'), icon: Building });
     adminItems.push({ title: 'Equipe e Acessos', desc: 'Controle de prestadores e permissões', onClick: () => onNavigate('team'), icon: Users });
+    
+    if (isSolo || isManager) {
+      adminItems.push({ title: 'Base de Clientes', desc: 'Controle de clientes, sites e ativos', onClick: () => onNavigate('clients'), icon: Users });
+      adminItems.push({ title: 'Gestão de Estoque', desc: 'Controle de materiais e custos', onClick: () => onNavigate('inventory'), icon: Package });
+    }
   }
 
   // System Security & Cloud
@@ -103,7 +117,7 @@ export const MenuScreen = memo(function MenuScreen({ account, onNavigate }: Menu
 
   // Common items
   const supportItems = [
-    { title: 'Central de Ajuda', desc: 'Tutoriais e suporte técnico', onClick: () => {}, icon: Info },
+    { title: 'Central de Ajuda', desc: 'Tutoriais e suporte técnico', onClick: () => comingSoon('Central de Ajuda'), icon: Info },
     { title: 'Alternar Perfil (Debug)', desc: 'Simular outras roles de acesso', onClick: () => window.dispatchEvent(new Event('aferix_open_debug')), icon: Cpu },
   ];
 
@@ -129,7 +143,7 @@ export const MenuScreen = memo(function MenuScreen({ account, onNavigate }: Menu
         onBack={isSubSection ? () => setActiveSection('main') : undefined}
       />
 
-      <div className="px-6 py-8 flex flex-col gap-12">
+      <div className="px-6 py-8 flex flex-col gap-6">
         
         {activeSection === 'main' ? (
           <>
@@ -184,7 +198,7 @@ export const MenuScreen = memo(function MenuScreen({ account, onNavigate }: Menu
               </Section>
             ))}
 
-            <Section className="mt-4 gap-10 pb-20">
+            <Section className="mt-4 gap-6 pb-20">
                <DangerButton 
                  onClick={() => {
                    import('../../services/AuthService').then(({ AuthService }) => AuthService.logout());

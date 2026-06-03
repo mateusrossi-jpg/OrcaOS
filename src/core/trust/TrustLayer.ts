@@ -1,3 +1,4 @@
+import { generateUUID } from '../utils/idGenerator';
 import { useState, useEffect } from 'react';
 
 export interface TrustEvent {
@@ -17,7 +18,7 @@ class TrustLayerManager {
   emit(event: Omit<TrustEvent, 'id' | 'timestamp'>) {
     const newEvent: TrustEvent = {
       ...event,
-      id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36),
+      id: generateUUID(),
       timestamp: Date.now()
     };
     this.events = [newEvent, ...this.events].slice(0, 50); // Keep last 50

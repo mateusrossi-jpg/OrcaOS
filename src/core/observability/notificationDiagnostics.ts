@@ -1,10 +1,11 @@
+import { generateUUID } from '../utils/idGenerator';
 import { traceStore } from './traceStore';
 import { deviceIdentityManager } from '../sync/deviceIdentity';
 
 export class NotificationDiagnosticsService {
   public logDelivery(notificationId: string, priority: string): void {
     traceStore.append({
-      traceId: crypto.randomUUID(),
+      traceId: generateUUID(),
       tenantId: 'local',
       deviceId: deviceIdentityManager.getDeviceId(),
       sourceLayer: 'NotificationCenter',
@@ -19,7 +20,7 @@ export class NotificationDiagnosticsService {
 
   public logDropped(notificationId: string, reason: string): void {
     traceStore.append({
-      traceId: crypto.randomUUID(),
+      traceId: generateUUID(),
       tenantId: 'local',
       deviceId: deviceIdentityManager.getDeviceId(),
       sourceLayer: 'NotificationCenter',

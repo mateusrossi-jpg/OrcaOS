@@ -1,3 +1,4 @@
+import { generateUUID } from '../core/utils/idGenerator';
 import { db } from '../storage/dexieDatabase';
 import { Client } from '../domain/client';
 import { Site } from '../domain/site';
@@ -5,7 +6,7 @@ import { Asset } from '../domain/asset';
 import { WorkOrder } from '../core/types/business';
 import { AssetExecution } from '../domain/assetExecution';
 
-const generateId = () => typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2) + Date.now().toString(36);
+const generateId = () => generateUUID();
 
 export class DemoBootstrapService {
   /**

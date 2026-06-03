@@ -1,10 +1,11 @@
+import { generateUUID } from '../utils/idGenerator';
 import { traceStore } from './traceStore';
 import { deviceIdentityManager } from '../sync/deviceIdentity';
 
 export class AutomationDiagnosticsService {
   public logDispatch(automationId: string, trigger: string): void {
     traceStore.append({
-      traceId: crypto.randomUUID(),
+      traceId: generateUUID(),
       tenantId: 'local',
       deviceId: deviceIdentityManager.getDeviceId(),
       sourceLayer: 'AutomationDispatchService',
@@ -19,7 +20,7 @@ export class AutomationDiagnosticsService {
 
   public logDuplicatePrevention(automationId: string): void {
     traceStore.append({
-      traceId: crypto.randomUUID(),
+      traceId: generateUUID(),
       tenantId: 'local',
       deviceId: deviceIdentityManager.getDeviceId(),
       sourceLayer: 'AutomationDispatchService',

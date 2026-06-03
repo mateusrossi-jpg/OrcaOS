@@ -14,7 +14,7 @@ export interface AuditRecord {
 
 export const operationAudit = {
   log: (record: AuditRecord) => {
-    if (process.env.NODE_ENV !== 'production') {
+    if (!import.meta.env.PROD) {
       aferixLogger.audit('Operation', `[${record.operation.toUpperCase()}] ${record.entity} ${record.entityId} - ${record.success ? 'SUCCESS' : 'FAILED'} (${record.durationMs}ms)`, record);
     }
     // In a future phase, we could persist these locally for extreme forensics.

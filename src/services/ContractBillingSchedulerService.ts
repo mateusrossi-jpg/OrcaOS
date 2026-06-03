@@ -1,3 +1,4 @@
+import { generateUUID } from '../core/utils/idGenerator';
 import { contractService } from './contractService';
 import { SimpleFinanceService } from './SimpleFinanceService';
 import { operationalEventService } from './operationalEventService';
@@ -37,7 +38,7 @@ export class ContractBillingSchedulerService {
 
   private async generateContractInvoice(contract: Contract): Promise<void> {
     const financeService = new SimpleFinanceService();
-    const recordId = typeof crypto !== 'undefined' && 'randomUUID' in crypto ? crypto.randomUUID() : `fin-rec-${Date.now()}`;
+    const recordId = generateUUID();
     const competenceMonth = `${new Date().getMonth() + 1}/${new Date().getFullYear()}`;
     const client = { name: 'Cliente Desconhecido' }; // Mock placeholder as per requirements
     

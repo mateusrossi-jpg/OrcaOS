@@ -1,3 +1,4 @@
+import { generateUUID } from '../../../core/utils/idGenerator';
 export interface SupplierProfile {
   id: string;
   name: string;
@@ -20,6 +21,6 @@ export interface SupplierProfile {
 }
 
 export function createSupplierProfileId(): string {
-  if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) return crypto.randomUUID();
+  if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) return generateUUID();
   return `supplier-profile-${Date.now()}-${Math.round(Math.random() * 1000)}`;
 }

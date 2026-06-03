@@ -1,3 +1,4 @@
+import { generateUUID } from '../core/utils/idGenerator';
 /**
  * OFFICIAL ARCHITECTURE: UI -> Hooks -> Services -> Repositories -> Dexie.
  * Do not access storage/repository directly from UI/hooks.
@@ -42,7 +43,7 @@ export function useBudgetHistory() {
       if (!original) throw new Error('Orçamento original não encontrado.');
       const clone: Budget = {
         ...original,
-        id: typeof crypto !== 'undefined' && 'randomUUID' in crypto ? crypto.randomUUID() : `budget-${Date.now()}`,
+        id: generateUUID(),
         title: `${original.title} (Cópia)`,
         status: BUDGET_STATUS.INICIADO,
         syncStatus: 'pending',

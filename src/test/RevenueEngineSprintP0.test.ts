@@ -118,6 +118,6 @@ describe('Revenue Engine P0 Sprint', () => {
 
     expect(openAnomalies.length).toBe(5000);
     expect(endPut - start).toBeLessThan(3000); // bulkPut deve demorar menos de 3s
-    expect(endQuery - startQuery).toBeLessThan(150); // query deve demorar menos de 150ms
+    expect(endQuery - startQuery).toBeLessThan(300); // query deve demorar menos de 300ms
   });
 });

@@ -6,13 +6,24 @@ A partir de 28 de Maio de 2026, **o projeto OrcaOS é a BASE OFICIAL E ÚNICA do
 
 **DESIGN READY STATUS (29/05/2026):** A fase de descoberta do produto está encerrada. O sistema entra agora em **UX EXECUTION MODE**. 
 
-**🚨 AFERIX EXECUTION LOCK: ACTIVE 🚨**
-Todas as discussões de descoberta e mudanças de arquitetura/domínio estão suspensas por 90 dias. O foco é 100% na implementação das leis congeladas.
+**🚨 AFERIX EXECUTION LOCK: OBSERVATION ONLY MODE ACTIVE 🚨**
+DETERMINAÇÃO EXECUTIVA: O projeto parou de construir e começou a aprender. O papel de TODA IA (Gemini, Codex, Antigravity) é de **OBSERVADOR**.
 
-**EXECUTION MANDATE:** Qualquer sessão de IA (Gemini, Codex, Antigravity) deve iniciar com o [PROMPT MESTRE](./docs/execution/PROMPTS.md). O redesenho do produto é proibido.
+**PROIBIDO (MANDATÓRIO):**
+- ❌ Novas funcionalidades, módulos ou fluxos.
+- ❌ Refatorações arquiteturais ou melhorias por intuição/opinião.
+- ❌ Stripe, Paywall ou novos planos comerciais.
+- ❌ Novos protocolos ou documentos de governança.
+
+**PERMITIDO (EXCEÇÃO CRÍTICA):**
+- ✅ Correções de perda de dados, segurança ou bloqueios operacionais (venda/faturamento).
+
+**REGRA DO SILÊNCIO:** Ao identificar um problema, NÃO corrigir. Registrar, medir recorrência e impacto. Nenhuma melhoria sem evidência comprovada.
 
 **FROZEN CONSTITUTIONS:**
-- [POSICIONAMENTO OFICIAL V1](./docs/product/AFERIX_POSICIONAMENTO_V1.md) (PRODUCT SCOPE & GOVERNANCE)
+- [AFERIX SOLO CONSTITUTION V1](./docs/product/AFERIX_SOLO_CONSTITUTION_V1.md) (SOLO SSOT RULES)
+- [AFERIX OBSERVABILITY PROTOCOL](./docs/product/AFERIX_OBSERVABILITY_PROTOCOL.md) (ACTIVE PROTOCOL)
+- [AFERIX FIRST REAL OPERATOR MISSION](./docs/product/AFERIX_REAL_OPERATOR_VALIDATION.md)
 - [AFERIX/ORÇAOS/ENDAP CONSTITUTION V1](./docs/product/AFERIX_ORCAOS_ENDAP_CONSTITUTION_V1.md) (ECOSYSTEM BOUNDARIES CONSTITUTION)
 - [AFERIX/ORÇAOS/ENDAP BOUNDARIES AUDIT](./docs/product/AFERIX_ORCAOS_ENDAP_BOUNDARIES_AUDIT.md) (PORTFOLIO BOUNDARIES AUDIT)
 - [AFERIX ECOSYSTEM STRATEGY 2030](./docs/product/AFERIX_ECOSYSTEM_STRATEGY_2030.md) (PORTFOLIO STRATEGY)
@@ -102,6 +113,11 @@ O Aferix deve parecer caro, sério e profissional.
 3.  **FASE 3: CLOUD & SAAS (CONCLUÍDA - FUNDAÇÃO)**
     *   Sincronização híbrida via Supabase Event Store replication.
     *   Replicação offline-first com reconciliação cloud.
+4.  **FASE 4: REAL OPERATOR VALIDATION (EM CURSO - MISSÃO FINAL)**
+    *   **Foco:** Validar comportamento humano, UX e percepção de valor com operadores reais (técnicos/autônomos).
+    *   **Mandato:** Substituição de ferramentas externas (Excel, WhatsApp, Caderno) pelo Aferix.
+    *   **MOMENT OF TRUTH:** O sistema só será considerado **READY TO CHARGE** se o operador confirmar dependência operacional e indispensabilidade.
+    *   **Veto:** Bloqueio total de novas features e monetização até a entrega do relatório final.
 
 ## 4. Mandatos Arquiteturais (Novos)
 *   **Fluxo de Mutação:** NENHUMA alteração financeira ou de status deve tocar o banco sem passar pelo `operationalFacade`. O Facade é o único que emite os eventos de mutação necessários para o Hardening.

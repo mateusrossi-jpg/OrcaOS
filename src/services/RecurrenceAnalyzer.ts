@@ -50,4 +50,19 @@ export class RecurrenceAnalyzer {
 
     return { isRecurrence, level };
   }
+
+  static async checkRecurrence(assetId: string, companyId: string, symptom: string): Promise<{
+    isRecurrent: boolean;
+    count: number;
+  }> {
+    const anomalies = await db.anomalies
+      .where({ companyId })
+      .filter(a => a.assetId === assetId && (a.title?.toLowerCase().includes(symptom.toLowerCase()) || a.description?.toLowerCase().includes(symptom.toLowerCase())))
+      .toArray();
+    
+    return {
+      isRecurrent: anomalies.length >= 2,
+      count: anomalies.length
+    };
+  }
 }

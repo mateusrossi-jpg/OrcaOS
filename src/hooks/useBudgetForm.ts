@@ -1,3 +1,4 @@
+import { generateUUID } from '../core/utils/idGenerator';
 /**
  * OFFICIAL ARCHITECTURE: UI -> Hooks -> Services -> Repositories -> Dexie.
  * Do not access storage/repository directly from UI/hooks.
@@ -16,7 +17,7 @@ const persistenceService = new BudgetPersistenceService();
 
 const generateId = () => {
   try {
-    return crypto.randomUUID();
+    return generateUUID();
   } catch {
     return Math.random().toString(36).substring(2) + Date.now().toString(36);
   }

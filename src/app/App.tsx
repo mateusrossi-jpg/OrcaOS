@@ -1,3 +1,4 @@
+import { generateUUID } from '../core/utils/idGenerator';
 import { Suspense, useEffect, useState } from 'react';
 import type { CalculationCapture } from '../core/types/workflow';
 import { AppShell } from './components/AppShell';
@@ -19,6 +20,7 @@ import type { AppTab } from './appTypes';
 // LEGACY: Storage access replaced with Dexie migration
 import { HomeScreen } from './screens/HomeScreen';
 import { CatalogScreen } from './screens/CatalogScreen';
+import { InventoryDashboard } from '../features/inventory/screens/InventoryDashboard';
 import { ReportsScreen } from './screens/ReportsScreen';
 import { FinancialScreen } from './screens/FinancialScreen';
 import { OperationsScreen } from './screens/OperationsScreen';
@@ -46,6 +48,7 @@ import { useAccountPlan } from '../hooks/useAccountPlan';
 import { useAppClients } from './hooks/useAppClients';
 import { realtimeBridge } from '../core/realtime/bridge';
 import { ERPToast, ERPLoader } from '../ui/system';
+import { WOWCelebrationOverlay } from './components/WOWCelebrationOverlay';
 import { DebugPanel } from '../features/settings/components/DebugPanel';
 import { multiTabProtection } from '../core/database/multiTabProtection';
 import { cloudSyncService } from '../services/CloudSyncService';
@@ -174,7 +177,7 @@ export function App() {
     // Tactical Actions Handling (Fase 4D)
     if (tab === 'new-budget') {
       const attendanceId = typeof crypto !== 'undefined' && 'randomUUID' in crypto 
-        ? crypto.randomUUID() 
+        ? generateUUID() 
         : Math.random().toString(36).substring(2) + Date.now().toString(36);
       
       const newAttendance = {
@@ -241,6 +244,7 @@ export function App() {
   return (
     <>
       <ERPToast />
+      <WOWCelebrationOverlay />
       <DebugPanel />
       <AferixIntro />
 
@@ -250,21 +254,36 @@ export function App() {
       
       {hasSelectedRole && (
         <ActiveShell activeTab={activeTab} onNavigate={goTo}>
-          <Suspense fallback={<LazyWorkspaceFallback />}>
-          {/* New Multi-Profile Workspaces */}
-          {activeTab === 'dashboard' && (
-            <OwnerWorkspace onNavigate={goTo} />
+          {/* ━━━ DEV ONLY DIAGNOSTIC ━━━ */}
+          {import.meta.env.DEV && (
+            <div className="fixed top-0 left-0 right-0 z-[10000] bg-yellow-500 text-black text-[10px] font-black uppercase py-1 px-4 flex justify-between pointer-events-none opacity-80">
+              <span>Aferix Dev Diagnostic</span>
+              <span>Role: {role}</span>
+              <span>Shell: {ActiveShell.name}</span>
+            </div>
           )}
-          {activeTab === 'agenda' && <FieldWorkspace onNavigate={goTo} />}
-          {activeTab === 'assets' && <AssetsWorkspace />}
-          {activeTab === 'checklists' && <ChecklistsWorkspace />}
-          {activeTab === 'diagnostics' && <DiagnosticsWorkspace />}
-          {activeTab === 'pipeline' && <SalesWorkspace />}
-          {activeTab === 'map' && <ManagerWorkspace />}
-          {activeTab === 'team' && <TeamWorkspace />}
-          {activeTab === 'dispatch' && <DispatchBoardPage />}
-          {activeTab === 'anomalies' && <RevenueInboxPage />}
-          {activeTab === 'home' && <ClientPortalPage />}
+
+          <Suspense fallback={<LazyWorkspaceFallback />}>
+          {/* ━━━ MULTI-PROFILE WORKSPACES ━━━ */}
+          <RuntimeErrorBoundary>
+            {activeTab === 'dashboard' && (
+              role === 'SOLO' ? (
+                <HomeScreen onNavigate={goTo} role={role} />
+              ) : (
+                <OwnerWorkspace onNavigate={goTo} />
+              )
+            )}
+            {activeTab === 'agenda' && <FieldWorkspace onNavigate={goTo} />}
+            {activeTab === 'assets' && <AssetsWorkspace />}
+            {activeTab === 'checklists' && <ChecklistsWorkspace />}
+            {activeTab === 'diagnostics' && <DiagnosticsWorkspace />}
+            {activeTab === 'pipeline' && <SalesWorkspace />}
+            {activeTab === 'map' && <ManagerWorkspace />}
+            {activeTab === 'team' && <TeamWorkspace />}
+            {activeTab === 'dispatch' && <DispatchBoardPage />}
+            {activeTab === 'anomalies' && <RevenueInboxPage onBack={() => goTo('dashboard')} />}
+            {activeTab === 'home' && <ClientPortalPage />}
+          </RuntimeErrorBoundary>
           
           {/* Fallbacks for undefined role tabs to avoid blank screens */}
           {['profile'].includes(activeTab) && (
@@ -351,9 +370,28 @@ export function App() {
 
 
           {activeTab === 'catalog' && <CatalogScreen onAddMany={addManyCalculationCaptures} context={context} onBack={() => goTo('settings')} />}
+          {activeTab === 'inventory' && <InventoryDashboard />}
           {activeTab === 'reports' && <ReportsScreen captures={captures} context={context} onBack={() => goTo('settings')} />}
 
           {activeTab === 'store' && <StoreScreen account={account} onAccountChange={() => {}} onBack={() => goTo('settings')} />}
+
+          {/* ━━━ BLACK SCREEN PROTECTOR (FASE 3 - FALLBACK) ━━━ */}
+          {(() => {
+            const VALID_TABS = [
+              'dashboard', 'agenda', 'assets', 'checklists', 'diagnostics', 'pipeline',
+              'map', 'team', 'dispatch', 'anomalies', 'home', 'profile', 'base',
+              'money', 'clients', 'attendances', 'settings', 'budgets', 'new-quick-service',
+              'new-budget', 'catalog', 'inventory', 'reports', 'store'
+            ];
+            if (!VALID_TABS.includes(activeTab)) {
+              console.warn(`[Aferix Guard] Rota de workspace "${activeTab}" não encontrada. Prevenindo black screen. Forçando redirecionamento para SOLO -> dashboard.`);
+              // Need to clear the execution stack to avoid React update conflicts
+              setTimeout(() => goTo('dashboard'), 0);
+              return null;
+            }
+            return null;
+          })()}
+
         </Suspense>
         </ActiveShell>
       )}

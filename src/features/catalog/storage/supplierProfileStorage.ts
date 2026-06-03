@@ -1,3 +1,4 @@
+import { generateUUID } from '../../../core/utils/idGenerator';
 import { safeJsonParse } from '../../../core/runtime/safeGuards';
 
 export interface SupplierProfile {
@@ -44,7 +45,7 @@ export function saveSupplierProfiles(profiles: SupplierProfile[]): void {
 }
 
 export function createSupplierProfileId(): string {
-  if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) return crypto.randomUUID();
+  if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) return generateUUID();
   return `supplier-profile-${Date.now()}-${Math.round(Math.random() * 1000)}`;
 }
 

@@ -4,7 +4,7 @@ import { Navigation, PlayCircle } from 'lucide-react';
 
 export const FieldAgendaPage: React.FC = () => {
   return (
-    <div className="min-h-screen bg-[#050505] text-white p-6 pb-24">
+    <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] p-6 pb-24">
       <h1 className="text-2xl font-black mb-6">Sua Rota</h1>
 
       <div className="space-y-6">
@@ -26,7 +26,7 @@ export const FieldAgendaPage: React.FC = () => {
 
         <div>
           <h2 className="text-[10px] font-bold text-text-tertiary uppercase tracking-widest mb-3">Próximo (14:00)</h2>
-          <SurfaceCard className="p-5 bg-surface-900 border border-surface-700">
+          <SurfaceCard padding="sm">
             <h3 className="font-bold text-white text-lg">Hospital Alpha</h3>
             <p className="text-sm text-text-secondary mt-1">Preventiva Trimestral</p>
           </SurfaceCard>

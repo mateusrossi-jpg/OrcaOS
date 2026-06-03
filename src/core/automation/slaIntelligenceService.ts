@@ -1,3 +1,4 @@
+import { generateUUID } from '../utils/idGenerator';
 import { OperationalCardProjection } from '../../domain/operationalProjections';
 import { AutomationEnvelope } from './automationTypes';
 import { deviceIdentityManager } from '../sync/deviceIdentity';
@@ -22,10 +23,10 @@ export class SLAIntelligenceService {
         deviceId: deviceIdentityManager.getDeviceId(),
         dispatchState: 'PENDING',
         decision: {
-          decisionId: crypto.randomUUID(),
+          decisionId: generateUUID(),
           type: 'ESCALATE_SLA',
           recommendation: {
-            recommendationId: crypto.randomUUID(),
+            recommendationId: generateUUID(),
             message: `SLA violado para ${card.title}. Atraso operacional de ${card.executionDelay} dias.`,
             actionLabel: 'Priorizar Execução',
             severity: 'critical'

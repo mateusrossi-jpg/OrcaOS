@@ -1,3 +1,4 @@
+import { generateUUID } from '../../../core/utils/idGenerator';
 import type { CalculationDestination, TechnicalItemType } from '../../../core/types/workflow';
 
 export type CatalogHubItemKind = 'material' | 'labor' | 'service' | 'travel' | 'fee' | 'custom';
@@ -48,7 +49,7 @@ export interface CatalogSupplier {
 }
 
 export function createCatalogId(prefix: string): string {
-  if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) return crypto.randomUUID();
+  if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) return generateUUID();
   return `${prefix}-${Date.now()}-${Math.round(Math.random() * 1000)}`;
 }
 

@@ -1,3 +1,4 @@
+import { generateUUID } from '../utils/idGenerator';
 import { OperationalCardProjection } from '../../domain/operationalProjections';
 import { AutomationEnvelope } from './automationTypes';
 import { deviceIdentityManager } from '../sync/deviceIdentity';
@@ -24,10 +25,10 @@ export class CRMAutomationService {
         deviceId: deviceIdentityManager.getDeviceId(),
         dispatchState: 'PENDING',
         decision: {
-          decisionId: crypto.randomUUID(),
+          decisionId: generateUUID(),
           type: 'SEND_FOLLOWUP',
           recommendation: {
-            recommendationId: crypto.randomUUID(),
+            recommendationId: generateUUID(),
             message: `Proposta ${card.title} enviada há ${card.aging} dias sem resposta. Sugestão: Enviar follow-up via WhatsApp.`,
             actionLabel: 'Enviar Follow-up',
             severity: 'warning'

@@ -1,3 +1,4 @@
+import { generateUUID } from '../utils/idGenerator';
 import { ClientPipelineProjection } from '../../domain/operationalProjections';
 import { AutomationEnvelope } from './automationTypes';
 import { deviceIdentityManager } from '../sync/deviceIdentity';
@@ -28,10 +29,10 @@ export class RecurringAutomationService {
           deviceId: deviceIdentityManager.getDeviceId(),
           dispatchState: 'PENDING',
           decision: {
-            decisionId: crypto.randomUUID(),
+            decisionId: generateUUID(),
             type: 'SUGGEST_MAINTENANCE',
             recommendation: {
-              recommendationId: crypto.randomUUID(),
+              recommendationId: generateUUID(),
               message: `Cliente ${client.clientName} sem atendimento há ${daysSince} dias. Sugerir manutenção preventiva?`,
               actionLabel: 'Criar Proposta de Manutenção',
               severity: 'info'

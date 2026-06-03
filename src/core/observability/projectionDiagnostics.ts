@@ -1,10 +1,11 @@
+import { generateUUID } from '../utils/idGenerator';
 import { traceStore } from './traceStore';
 import { deviceIdentityManager } from '../sync/deviceIdentity';
 
 export class ProjectionDiagnosticsService {
   public logRebuild(projectionType: string, timeMs: number, eventCount: number): void {
     traceStore.append({
-      traceId: crypto.randomUUID(),
+      traceId: generateUUID(),
       tenantId: 'local',
       deviceId: deviceIdentityManager.getDeviceId(),
       sourceLayer: 'EventStore',
@@ -19,7 +20,7 @@ export class ProjectionDiagnosticsService {
 
   public logInvalidation(projectionType: string, reason: string): void {
     traceStore.append({
-      traceId: crypto.randomUUID(),
+      traceId: generateUUID(),
       tenantId: 'local',
       deviceId: deviceIdentityManager.getDeviceId(),
       sourceLayer: 'OperationalEventService',

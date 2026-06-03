@@ -124,12 +124,14 @@ export const ValueBlock = memo(function ValueBlock({
   label, 
   value, 
   icon, 
-  variant = 'default' 
+  variant = 'default',
+  compact = false
 }: { 
   label: string, 
   value: ReactNode, 
   icon?: ReactNode, 
-  variant?: 'default' | 'danger' | 'success' | 'warning' 
+  variant?: 'default' | 'danger' | 'success' | 'warning',
+  compact?: boolean
 }) {
   const variantStyles = {
     default: "border-white/5",

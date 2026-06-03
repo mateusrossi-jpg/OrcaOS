@@ -1,3 +1,4 @@
+import { generateUUID } from '../core/utils/idGenerator';
 // src/services/AssetExecutionService.ts
 import { db } from '../storage/dexieDatabase';
 import { AssetExecution } from '../domain/assetExecution';
@@ -66,7 +67,7 @@ export class AssetExecutionService {
 
     for (let pIndex = 0; pIndex < partitions.length; pIndex++) {
       const activeAssetIds = partitions[pIndex];
-      const woId = `wo-pmoc-${Date.now()}-${pIndex}-${crypto.randomUUID().slice(0, 8)}`;
+      const woId = `wo-pmoc-${Date.now()}-${pIndex}-${generateUUID().slice(0, 8)}`;
       
       const newWO: WorkOrder = {
         id: woId,
@@ -89,7 +90,7 @@ export class AssetExecutionService {
 
       // Pré-popula os registros vazios de execução para cada ativo deste lote
       for (const assetId of activeAssetIds) {
-        const executionId = `exec-${crypto.randomUUID().slice(0, 8)}`;
+        const executionId = `exec-${generateUUID().slice(0, 8)}`;
         const newExecution: AssetExecution = {
           id: executionId,
           workOrderId: woId,

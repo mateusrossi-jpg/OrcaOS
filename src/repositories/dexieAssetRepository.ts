@@ -1,3 +1,4 @@
+import { generateUUID } from '../core/utils/idGenerator';
 import { db } from '../storage/dexieDatabase';
 import { Asset } from '../domain/asset';
 
@@ -20,7 +21,7 @@ export class DexieAssetRepository {
 
   async add(asset: Omit<Asset, 'id' | 'createdAt' | 'updatedAt'>): Promise<Asset> {
     const id = typeof crypto !== 'undefined' && 'randomUUID' in crypto 
-      ? crypto.randomUUID() 
+      ? generateUUID() 
       : `asset-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
       
     const now = new Date().toISOString();

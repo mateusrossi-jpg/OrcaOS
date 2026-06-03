@@ -5,7 +5,8 @@ import { MultiTenantEntity } from '../core/types/business';
 
 export interface Asset extends MultiTenantEntity {
   id: string;
-  // clientId and siteId are now part of MultiTenantEntity
+  clientId: string;
+  siteId: string;
   name: string;
   assetType: AssetType;
   category: string;

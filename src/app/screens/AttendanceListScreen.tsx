@@ -22,14 +22,14 @@ const STATUS_LABELS: Record<string, string> = {
   arquivado: 'Arquivado'
 };
 
-const STATUS_VARIANTS: Record<string, 'primary' | 'success' | 'warning' | 'danger' | 'info' | 'neutral'> = {
+const STATUS_VARIANTS: Record<string, any> = {
   iniciado: 'info',
   autorizado: 'warning',
-  em_execucao: 'primary',
+  em_execucao: 'accent',
   finalizado: 'success',
   concluido: 'success',
   cancelado: 'danger',
-  arquivado: 'neutral'
+  arquivado: 'default'
 };
 
 export const AttendanceListScreen = memo(function AttendanceListScreen({ 
@@ -106,7 +106,7 @@ export const AttendanceListScreen = memo(function AttendanceListScreen({
       ) : attendances.length === 0 ? (
         <QueueEmptyState 
           title="Nenhum atendimento" 
-          description="Inicie um novo atendimento a partir do painel de controle principal ou crie uma proposta."
+          meta="Inicie um novo atendimento a partir do painel de controle principal ou crie uma proposta."
         />
       ) : (
         <Stack className="gap-3 mt-4">

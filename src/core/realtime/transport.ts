@@ -1,3 +1,4 @@
+import { generateUUID } from '../utils/idGenerator';
 import { TransportConnectionState, TransportEnvelope, TransportSubscription } from './transportTypes';
 
 /**
@@ -54,7 +55,7 @@ export class RealtimeTransport {
 
   public publish<T>(payload: T, type: TransportEnvelope['type'], actor: string = 'system', correlationId?: string): void {
     const envelope: TransportEnvelope<T> = {
-      id: crypto.randomUUID(),
+      id: generateUUID(),
       type,
       payload,
       timestamp: new Date().toISOString(),

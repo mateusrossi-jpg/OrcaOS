@@ -36,7 +36,7 @@ export { KpiCard } from './KpiCard';
 export { Sparkline } from './Sparkline';
 import { SurfaceCard, type SurfaceCardProps } from './SurfaceCard';
 
-type Tone = 'default' | 'brand' | 'success' | 'danger' | 'muted';
+type Tone = 'default' | 'brand' | 'success' | 'danger' | 'muted' | 'blue' | 'green' | 'orange' | 'gold';
 
 /**
  * Button: Tactile action primitive.
@@ -89,6 +89,40 @@ export function SecondaryButton(props: Omit<ButtonHTMLAttributes<HTMLButtonEleme
 export function DangerButton(props: Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'type'> & { children: ReactNode }) {
   const { children, className = '', ...rest } = props;
   return <Button variant="danger" className={className} {...rest}>{children}</Button>;
+}
+
+/**
+ * AferixTabs: Executive Switcher.
+ */
+export function AferixTabs({ 
+  items, 
+  activeId, 
+  onChange,
+  className = ''
+}: { 
+  items: { id: string; label: string }[]; 
+  activeId: string; 
+  onChange: (id: string) => void;
+  className?: string;
+}) {
+  return (
+    <div className={cn("flex gap-2 overflow-x-auto pb-1 scrollbar-none snap-x", className)}>
+      {items.map(item => (
+        <button
+          key={item.id}
+          onClick={() => onChange(item.id)}
+          className={cn(
+            "h-12 px-6 rounded-xl text-[10px] font-black uppercase tracking-[0.1em] transition-all whitespace-nowrap snap-start border active:scale-95",
+            activeId === item.id 
+              ? "bg-[var(--accent-gold)] text-black border-[var(--accent-gold)] shadow-[var(--glow-gold)]" 
+              : "bg-white/[0.03] text-[var(--text-secondary)] border-white/[0.08] hover:bg-white/5"
+          )}
+        >
+          {item.label}
+        </button>
+      ))}
+    </div>
+  );
 }
 export { PipelineCard } from './PipelineCard';
 export { StatusPill, StatusPill as StatusBadge } from '../../../ui/system';
@@ -192,7 +226,7 @@ export function EditorialMetric({ label, value, color, compact = false }: { labe
   return (
     <div>
       <p className="font-mono text-[9px] font-bold tracking-widest text-[var(--text-muted)] mb-2 uppercase">{label}</p>
-      <p className={cn("num font-bold text-[#EFEFEF] tracking-tight", compact ? "text-h3" : "text-h2")} style={{ color }}>{value}</p>
+      <p className={cn("num font-bold text-[var(--text-primary)] tracking-tight", compact ? "text-h3" : "text-h2")} style={{ color }}>{value}</p>
     </div>
   );
 }
@@ -325,7 +359,7 @@ export function QueueEmptyState({
   return (
     <div className={cn("p-12 text-center flex flex-col items-center gap-4 rounded-[var(--radius-card)] border border-dashed border-white/[0.08] bg-white/[0.01]", className)}>
       {icon && <div className="mb-2 opacity-20">{icon}</div>}
-      <strong className="text-[15px] font-bold tracking-tight text-[#EFEFEF]">{title}</strong>
+      <strong className="text-[15px] font-bold tracking-tight text-[var(--text-primary)]">{title}</strong>
       {meta && <p className="text-[13px] text-[var(--text-secondary)] leading-relaxed max-w-[240px] font-medium opacity-60">{meta}</p>}
       {action && <div className="mt-4">{action}</div>}
     </div>
@@ -483,7 +517,7 @@ export function MonetaryInput({
           placeholder={placeholder || '0,00'}
           onChange={handleChange}
           disabled={disabled}
-          className="w-full font-mono text-[20px] font-black text-[#EFEFEF] focus:outline-none bg-transparent placeholder:text-white/5"
+          className="w-full font-mono text-[20px] font-black text-[var(--text-primary)] focus:outline-none bg-transparent placeholder:text-white/5"
         />
       </div>
     </label>

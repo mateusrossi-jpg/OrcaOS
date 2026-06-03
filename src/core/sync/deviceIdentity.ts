@@ -1,3 +1,4 @@
+import { generateUUID } from '../utils/idGenerator';
 import { DeviceIdentity } from './syncTypes';
 import { safeJsonParse } from '../runtime/safeGuards';
 
@@ -30,7 +31,7 @@ export class DeviceIdentityManager {
     }
 
     this.identity = {
-      deviceId: crypto.randomUUID(),
+      deviceId: generateUUID(),
       createdAt: new Date().toISOString(),
       lastSeenAt: new Date().toISOString(),
       metadata: {

@@ -1,10 +1,11 @@
+import { generateUUID } from '../../../core/utils/idGenerator';
 import React, { useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../../../storage/dexieDatabase';
 import { Anomaly, Proposal } from '../../../domain/revenue';
 import { ScreenContainer, AppHeader, SurfaceCard } from '../../../ui/system';
 import { PrimaryButton, Input } from '../../../app/components/ui';
-const generateId = () => typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2);
+const generateId = () => generateUUID();
 
 interface ProposalEditorProps {
   anomaly: Anomaly;

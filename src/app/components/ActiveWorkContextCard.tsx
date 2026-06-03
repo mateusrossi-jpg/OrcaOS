@@ -28,22 +28,23 @@ export function ActiveWorkContextCard({ activeClient, activeWorkOrder }: ActiveW
 
   useEffect(() => {
     if (!activeWorkOrder) return;
+    const wo = activeWorkOrder;
 
     async function loadAttendanceStatus() {
       try {
-        const att = activeWorkOrder.attendanceId 
-          ? await db.attendances.get(activeWorkOrder.attendanceId)
+        const att = wo.attendanceId 
+          ? await db.attendances.get(wo.attendanceId)
           : undefined;
 
         if (att) {
           setStatusLabel(STATUS_LABELS[att.status] || att.status);
         } else {
           // Fallback to legacy work order status
-          setStatusLabel(activeWorkOrder.status === 'in-progress' ? 'Executando' : 'Concluído');
+          setStatusLabel(wo.status === 'in-progress' ? 'Executando' : 'Concluído');
         }
       } catch (err) {
         console.error('Error fetching attendance status for HUD:', err);
-        setStatusLabel(activeWorkOrder.status === 'in-progress' ? 'Executando' : 'Concluído');
+        setStatusLabel(wo.status === 'in-progress' ? 'Executando' : 'Concluído');
       }
     }
 

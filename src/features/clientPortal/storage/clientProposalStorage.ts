@@ -1,3 +1,4 @@
+import { generateUUID } from '../../../core/utils/idGenerator';
 import { safeJsonParse } from '../../../core/runtime/safeGuards';
 import { MultiTenantEntity } from '../../../core/types/business';
 
@@ -30,6 +31,7 @@ export interface ClientProposal extends MultiTenantEntity {
   publicToken: string;
   status: ClientProposalStatus;
   professionalId?: string;
+  clientId?: string;
   workOrderId?: string;
   budgetId?: string;
   title: string;
@@ -56,7 +58,7 @@ export interface ClientProposal extends MultiTenantEntity {
 const STORAGE_KEY = 'orcaos:client-proposals:v1';
 
 function createId(prefix: string): string {
-  if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) return `${prefix}-${crypto.randomUUID()}`;
+  if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) return `${prefix}-${generateUUID()}`;
   return `${prefix}-${Date.now()}-${Math.round(Math.random() * 1000)}`;
 }
 
@@ -85,8 +87,9 @@ export function createClientProposalDraft(input: Partial<ClientProposal> = {}): 
     id: input.id ?? createId('client-proposal'),
     publicToken: input.publicToken ?? createId('public-token'),
     status: input.status ?? 'draft',
+    companyId: input.companyId ?? 'default-company',
+    workspaceId: input.workspaceId ?? 'default-workspace',
     professionalId: input.professionalId,
-    companyId: input.companyId,
     clientId: input.clientId,
     workOrderId: input.workOrderId,
     budgetId: input.budgetId,

@@ -42,7 +42,7 @@ export const DebugPanel: React.FC = () => {
 
   if (!visible) return null;
 
-  const roles: AferixRole[] = ['OWNER', 'FIELD', 'SALES', 'MANAGER', 'CUSTOMER'];
+  const roles: AferixRole[] = ['OWNER', 'MANAGER', 'SALES', 'FIELD', 'SOLO', 'CUSTOMER'];
 
   return (
     <div style={{
