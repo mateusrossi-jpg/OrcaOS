@@ -249,6 +249,56 @@ export const operationalFacade = {
     });
   },
 
+  duplicateBudget: async (budgetId: string): Promise<string> => {
+    const budgetPersistence = new BudgetPersistenceService();
+    const original = await budgetPersistence.getBudget(budgetId);
+    if (!original) throw new Error(`Budget ${budgetId} not found`);
+
+    const newBudgetId = generateUUID();
+    const newAttendanceId = generateUUID();
+
+    const newBudget: Budget = {
+      ...original,
+      id: newBudgetId,
+      title: `${original.title} (Cópia)`,
+      status: BUDGET_STATUS.INICIADO,
+      attendanceId: newAttendanceId,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      syncStatus: 'pending'
+    };
+
+    // Create the new attendance context for this duplicate
+    await db.attendances.add({
+      id: newAttendanceId,
+      clientId: original.clientId || '',
+      siteId: original.siteId || 'default-site',
+      status: 'iniciado',
+      companyId: original.companyId || 'default-company',
+      workspaceId: original.workspaceId || 'default-workspace',
+      syncStatus: 'pending',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    });
+
+    await budgetPersistence.saveBudget(newBudget);
+    
+    await operationalEventService.emitEvent({
+      aggregateId: newBudgetId,
+      aggregateType: 'budget',
+      eventType: 'BUDGET_CREATED',
+      metadata: {
+        clientId: newBudget.clientId,
+        attendanceId: newAttendanceId,
+        budgetId: newBudgetId,
+        correlationId: budgetId 
+      },
+      snapshot: { ...newBudget }
+    });
+
+    return newBudgetId;
+  },
+
   // --- FINANCE OPERATIONS ---
 
   registerPayment: async (workOrderId: string, amount: number): Promise<void> => {
@@ -562,6 +612,7 @@ export const operationalFacade = {
         attendanceId: wo.attendanceId,
         budgetId: wo.budgetId,
         workOrderId: wo.id,
+        assetIds: wo.assetIds || [],
         correlationId: wo.budgetId || wo.id
       },
       snapshot: { status: 'done', executedValue, receivedValue, materialCost: totalMaterialCost }
@@ -609,6 +660,7 @@ export const operationalFacade = {
       status: 'iniciado' as const,
       companyId,
       workspaceId,
+      syncStatus: 'pending' as const,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
@@ -865,5 +917,179 @@ export const operationalFacade = {
     if (wo.attendanceId) {
       await attendanceAggregationService.recalculate(wo.attendanceId);
     }
+  },
+
+  duplicateWorkOrder: async (workOrderId: string): Promise<string> => {
+    const original = await db.workOrders.get(workOrderId);
+    if (!original) throw new Error(`WorkOrder ${workOrderId} not found`);
+
+    const newId = generateUUID();
+    const newAttendanceId = generateUUID();
+    
+    const newWO: WorkOrder = {
+      ...original,
+      id: newId,
+      title: `${original.title} (Cópia)`,
+      status: 'awaiting_schedule',
+      paymentStatus: 'pending',
+      attendanceId: newAttendanceId,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      syncStatus: 'pending'
+    };
+
+    await db.attendances.add({
+      id: newAttendanceId,
+      clientId: original.clientId,
+      siteId: original.siteId,
+      status: 'autorizado',
+      companyId: original.companyId,
+      workspaceId: original.workspaceId,
+      syncStatus: 'pending',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    });
+
+    await db.workOrders.add(newWO);
+
+    await operationalEventService.emitEvent({
+      aggregateId: newId,
+      aggregateType: 'workorder',
+      eventType: 'WORKORDER_CREATED',
+      metadata: {
+        clientId: original.clientId,
+        attendanceId: newAttendanceId,
+        workOrderId: newId,
+        correlationId: workOrderId
+      },
+      snapshot: { ...newWO }
+    });
+
+    return newId;
+  },
+
+  generateRenewalProposal: async (planId: string): Promise<string> => {
+    const plan = await db.maintenancePlans.get(planId);
+    if (!plan) throw new Error(`Plan ${planId} not found`);
+
+    const newBudgetId = generateUUID();
+    const newAttendanceId = generateUUID();
+
+    // Create Attendance Context
+    await db.attendances.add({
+      id: newAttendanceId,
+      clientId: plan.clientId,
+      siteId: plan.siteId,
+      status: 'iniciado',
+      companyId: plan.companyId,
+      workspaceId: plan.workspaceId,
+      syncStatus: 'pending',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    });
+
+    const newBudget: Budget = {
+      id: newBudgetId,
+      companyId: plan.companyId,
+      workspaceId: plan.workspaceId,
+      attendanceId: newAttendanceId,
+      clientId: plan.clientId,
+      siteId: plan.siteId,
+      title: `Renovação PMOC: ${plan.title}`,
+      status: BUDGET_STATUS.INICIADO,
+      items: [
+        { id: generateUUID(), description: `Renovação de Contrato PMOC - ${plan.title}`, quantity: 1, unitPrice: 0, category: 'labor' }
+      ],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      syncStatus: 'pending'
+    };
+
+    await new BudgetPersistenceService().saveBudget(newBudget);
+
+    await operationalEventService.emitEvent({
+      aggregateId: newBudgetId,
+      aggregateType: 'budget',
+      eventType: 'BUDGET_CREATED',
+      metadata: {
+        clientId: plan.clientId,
+        attendanceId: newAttendanceId,
+        budgetId: newBudgetId,
+        correlationId: planId
+      },
+      snapshot: { ...newBudget }
+    });
+
+    return newBudgetId;
+  },
+
+  createWorkOrderForAsset: async (assetId: string): Promise<string> => {
+    const asset = await db.assets.get(assetId);
+    if (!asset) throw new Error(`Asset ${assetId} not found`);
+
+    const woId = generateUUID();
+    const attendanceId = generateUUID();
+
+    // 1. Iniciar Atendimento
+    await db.attendances.add({
+      id: attendanceId,
+      clientId: asset.clientId,
+      siteId: asset.siteId,
+      status: 'autorizado',
+      companyId: asset.companyId,
+      workspaceId: asset.workspaceId,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      syncStatus: 'pending'
+    });
+
+    // 2. Criar OS
+    const newWO: WorkOrder = {
+      id: woId,
+      clientId: asset.clientId,
+      siteId: asset.siteId,
+      attendanceId: attendanceId,
+      companyId: asset.companyId,
+      workspaceId: asset.workspaceId,
+      title: `Intervenção Técnica: ${asset.name} (${asset.tag})`,
+      status: 'scheduled',
+      paymentStatus: 'pending',
+      assetIds: [assetId],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      syncStatus: 'pending'
+    };
+
+    await db.workOrders.add(newWO);
+
+    // 3. Criar Execução Inicial
+    await db.assetExecutions.add({
+      id: generateUUID(),
+      workOrderId: woId,
+      assetId: assetId,
+      companyId: asset.companyId,
+      workspaceId: asset.workspaceId,
+      measurements: {},
+      checklistResults: [],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      syncStatus: 'pending'
+    });
+
+    await operationalEventService.emitEvent({
+      aggregateId: woId,
+      aggregateType: 'workorder',
+      eventType: 'WORKORDER_CREATED',
+      metadata: {
+        clientId: asset.clientId,
+        attendanceId: attendanceId,
+        workOrderId: woId,
+        assetIds: [assetId],
+        correlationId: woId
+      },
+      snapshot: { ...newWO }
+    });
+
+    return woId;
   }
 };

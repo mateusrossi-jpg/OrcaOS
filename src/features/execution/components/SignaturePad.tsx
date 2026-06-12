@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { AppHeader, SurfaceCard, SectionLabel } from '../../../ui/system';
-import { PrimaryButton } from '../../../app/components/ui';
+import { PrimaryButton, SecondaryButton } from '../../../app/components/ui';
 
 interface SignaturePadProps {
   title?: string;
@@ -101,8 +101,8 @@ export const SignaturePad: React.FC<SignaturePadProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-surface-900">
-      <AppHeader title={title} subtitle={subtitle} onBack={onClose} />
+    <div className="fixed inset-0 z-[1000] flex flex-col bg-aferix-bg animate-in slide-in-from-right-6 duration-500 overflow-hidden">
+      <AppHeader title={title} subtitle={subtitle} onBack={onClose} standalone />
       
       <div className="flex-1 flex flex-col p-4 space-y-6 overflow-hidden">
         <SurfaceCard padding="none" className="flex-1 flex flex-col overflow-hidden border-2 border-dashed border-surface-700">
@@ -120,12 +120,12 @@ export const SignaturePad: React.FC<SignaturePadProps> = ({
         </SurfaceCard>
         
         <div className="flex space-x-4 pt-2 pb-8">
-          <button 
-            className="flex-1 py-3 bg-surface-700 text-text-primary rounded-md font-bold"
+          <SecondaryButton 
+            className="flex-1"
             onClick={clear}
           >
             Limpar
-          </button>
+          </SecondaryButton>
           <PrimaryButton 
             className="flex-[2]"
             onClick={handleSave} 

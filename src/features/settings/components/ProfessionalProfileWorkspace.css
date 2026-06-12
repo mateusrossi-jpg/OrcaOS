@@ -3,4 +3,66 @@
    Unified Design System Integration
    ========================================================================== */
 
-/* Cleanup: Many local styles are now handled by design system global utilities or direct component injection. */
+.professional-profile-workspace {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.professional-profile-header-card {
+  margin-bottom: 24px;
+}
+
+.professional-profile-section {
+  margin-bottom: 24px;
+}
+
+.professional-profile-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.professional-logo-editor {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+}
+
+.professional-profile-id-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+@media (min-width: 760px) {
+  .professional-profile-id-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.professional-profile-id-card {
+  padding: 16px;
+}
+
+.professional-profile-save-row {
+  margin-top: 32px;
+  width: 100%;
+}
+
+.professional-profile-workspace .budget-field {
+  display: grid;
+  width: 100%;
+}
+
+.professional-profile-workspace .budget-field input,
+.professional-profile-workspace .budget-field textarea {
+  width: 100%;
+}
+
+@media (max-width: 760px) {
+  .professional-profile-grid {
+    grid-template-columns: 1fr;
+  }
+}

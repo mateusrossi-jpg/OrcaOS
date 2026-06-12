@@ -3,7 +3,7 @@ import { SurfaceCard } from '../../../ui/system';
 
 export const DispatchBoardPage: React.FC = () => {
   return (
-    <div className="flex h-screen bg-[#050505] text-white">
+    <div className="flex h-screen bg-aferix-bg text-white animate-in fade-in duration-500">
       <div className="w-1/4 border-r border-surface-800 p-4 bg-surface-900 flex flex-col">
         <h2 className="text-sm font-black uppercase tracking-widest text-text-tertiary mb-4">Técnicos</h2>
         <div className="space-y-3 overflow-y-auto flex-1">

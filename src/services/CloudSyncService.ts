@@ -4,6 +4,7 @@ import { db } from '../storage/dexieDatabase';
 import { aferixLogger } from '../core/debug/aferixLogger';
 import { conflictDetectionService } from './ConflictDetectionService';
 import { databaseRecoveryService } from './DatabaseRecoveryService';
+import { mergeSnapshots } from '../core/sync/ConflictMatrix';
 
 interface SyncableEvent {
   syncStatus?: 'synced' | 'pending' | 'in-flight';
@@ -170,9 +171,9 @@ export class CloudSyncService {
           );
           aferixLogger.warn('CloudSync', `Conflict LWW: Ignorando evento local ${event.id} em favor de alteração remota mais recente.`);
           
-          // FASE 2.6: Aplicar snapshot vencedor localmente
+          // FASE 2.6: Aplicar snapshot vencedor localmente (com Field-Level Merge)
           if (data.payload && data.payload.snapshot) {
-            await this.applyWinningSnapshot(event.aggregateType, event.aggregateId, data.payload.snapshot);
+            await this.applyWinningSnapshot(event.aggregateType, event.aggregateId, data.payload.snapshot, data.timestamp);
           }
 
           // Marca como sincronizado localmente pois a verdade remota ganha
@@ -352,34 +353,32 @@ export class CloudSyncService {
    */
   async compactSoftDeletedRecords(daysThreshold = 90): Promise<void> {
     try {
-      const now = Date.now();
-      const cutoffTime = now - (daysThreshold * 24 * 60 * 60 * 1000);
+      const cutoffTime = new Date(Date.now() - (daysThreshold * 24 * 60 * 60 * 1000)).toISOString();
 
-      const filterFn = (record: any) => 
-        record.isDeleted === true && 
-        record.syncStatus === 'synced' && 
-        record.deletedAt && 
-        new Date(record.deletedAt).getTime() < cutoffTime;
+      await db.transaction('rw', [db.budgets, db.workOrders, db.attendances, db.simpleFinanceRecords], async () => {
+        const staleAttendances = await db.attendances
+          .where('syncStatus').equals('synced')
+          .filter(a => a.isDeleted === true && a.deletedAt !== undefined && a.deletedAt < cutoffTime)
+          .primaryKeys();
+        if (staleAttendances.length > 0) await db.attendances.bulkDelete(staleAttendances as string[]);
 
-      const attendances = await db.attendances.filter(filterFn).toArray();
-      if (attendances.length > 0) {
-        await db.attendances.bulkDelete(attendances.map(a => a.id));
-      }
+        const staleBudgets = await db.budgets
+          .where('syncStatus').equals('synced')
+          .filter(b => b.isDeleted === true && b.deletedAt !== undefined && b.deletedAt < cutoffTime)
+          .primaryKeys();
+        if (staleBudgets.length > 0) await db.budgets.bulkDelete(staleBudgets as string[]);
 
-      const budgets = await db.budgets.filter(filterFn).toArray();
-      if (budgets.length > 0) {
-        await db.budgets.bulkDelete(budgets.map(b => b.id));
-      }
+        const staleWorkOrders = await db.workOrders
+          .where('syncStatus').equals('synced')
+          .filter(w => w.isDeleted === true && w.deletedAt !== undefined && w.deletedAt < cutoffTime)
+          .primaryKeys();
+        if (staleWorkOrders.length > 0) await db.workOrders.bulkDelete(staleWorkOrders as string[]);
 
-      const workOrders = await db.workOrders.filter(filterFn).toArray();
-      if (workOrders.length > 0) {
-        await db.workOrders.bulkDelete(workOrders.map(w => w.id));
-      }
-
-      const finances = await db.simpleFinanceRecords.filter(filterFn).toArray();
-      if (finances.length > 0) {
-        await db.simpleFinanceRecords.bulkDelete(finances.map(f => f.id));
-      }
+        const staleFinances = await db.simpleFinanceRecords
+          .filter(f => f.isDeleted === true && f.syncStatus === 'synced' && f.deletedAt !== undefined && f.deletedAt < cutoffTime)
+          .primaryKeys();
+        if (staleFinances.length > 0) await db.simpleFinanceRecords.bulkDelete(staleFinances as string[]);
+      });
 
       aferixLogger.audit('CloudSync', `Compactor soft-deleted tombstones completed.`);
     } catch (err) {
@@ -390,38 +389,27 @@ export class CloudSyncService {
   /**
    * FASE 2.6: Aplica o snapshot vencedor remoto localmente no IndexedDB.
    */
-  async applyWinningSnapshot(aggregateType: string, aggregateId: string, snapshot: any): Promise<void> {
+  async applyWinningSnapshot(aggregateType: string, aggregateId: string, snapshot: any, remoteTimestamp?: string): Promise<void> {
     if (!snapshot) return;
 
     try {
       const normalizedType = aggregateType.toLowerCase();
-      if (normalizedType === 'budget') {
-        const existing = await db.budgets.get(aggregateId);
+      let targetTable: string | null = null;
+      if (normalizedType === 'budget') targetTable = 'budgets';
+      else if (normalizedType === 'workorder') targetTable = 'workOrders';
+      else if (normalizedType === 'attendance') targetTable = 'attendances';
+      else if (normalizedType === 'client') targetTable = 'clients';
+
+      if (targetTable) {
+        const existing = await (db as any)[targetTable].get(aggregateId);
         if (existing) {
-          await db.budgets.put({ ...existing, ...snapshot, syncStatus: 'synced' });
+          const remoteTime = remoteTimestamp ? new Date(remoteTimestamp).getTime() : Date.now();
+          const localTime = existing.updatedAt ? new Date(existing.updatedAt).getTime() : 0;
+          
+          const merged = mergeSnapshots(normalizedType, existing, snapshot, localTime, remoteTime);
+          await (db as any)[targetTable].put({ ...merged, syncStatus: 'synced' });
         } else {
-          await db.budgets.put({ ...snapshot, id: aggregateId, syncStatus: 'synced' });
-        }
-      } else if (normalizedType === 'workorder') {
-        const existing = await db.workOrders.get(aggregateId);
-        if (existing) {
-          await db.workOrders.put({ ...existing, ...snapshot, syncStatus: 'synced' });
-        } else {
-          await db.workOrders.put({ ...snapshot, id: aggregateId, syncStatus: 'synced' });
-        }
-      } else if (normalizedType === 'attendance') {
-        const existing = await db.attendances.get(aggregateId);
-        if (existing) {
-          await db.attendances.put({ ...existing, ...snapshot, syncStatus: 'synced' });
-        } else {
-          await db.attendances.put({ ...snapshot, id: aggregateId, syncStatus: 'synced' });
-        }
-      } else if (normalizedType === 'client') {
-        const existing = await db.clients.get(aggregateId);
-        if (existing) {
-          await db.clients.put({ ...existing, ...snapshot, syncStatus: 'synced' });
-        } else {
-          await db.clients.put({ ...snapshot, id: aggregateId, syncStatus: 'synced' });
+          await (db as any)[targetTable].put({ ...snapshot, id: aggregateId, syncStatus: 'synced' });
         }
       }
 
@@ -496,6 +484,13 @@ export class CloudSyncService {
     if (norm === 'budget') return 'budgets';
     if (norm === 'workorder') return 'workOrders';
     if (norm === 'client') return 'clients';
+    if (norm === 'asset') return 'assets';
+    if (norm === 'assetexecution' || norm === 'execution') return 'assetExecutions';
+    if (norm === 'finance' || norm === 'simplefinance') return 'simpleFinanceRecords';
+    if (norm === 'proposal') return 'proposals';
+    if (norm === 'anomaly') return 'anomalies';
+    if (norm === 'contract') return 'contracts';
+    if (norm === 'site') return 'sites';
     return null;
   }
 
@@ -536,7 +531,7 @@ export class CloudSyncService {
         aferixLogger.warn('CloudSync', `Lookback delta ${distance} excede 10.000. Ativando Bulk Snapshot Fallback.`);
         const { data: bulkEnvelopes, error: bulkError } = await supabase
           .from('sync_envelopes')
-          .select('sequence, envelope_id, event_id, device_id, aggregate_type, aggregate_id, payload, timestamp')
+          .select('sequence, envelope_id, event_id, device_id, aggregate_type, aggregate_id, event_type, payload, timestamp')
           .gt('sequence', lastSeq)
           .order('sequence', { ascending: false })
           .limit(1000);
@@ -558,14 +553,21 @@ export class CloudSyncService {
               if (env.device_id === this.getInstallationId()) continue;
 
               const targetTable = this.mapAggregateTypeToTable(env.aggregate_type);
-              if (targetTable && env.payload?.snapshot) {
-                await (db as any)[targetTable].put({
-                  ...env.payload.snapshot,
-                  id: env.aggregate_id,
-                  syncStatus: 'synced',
-                  syncUpdatedAt: Date.now()
-                });
-                processed++;
+              if (targetTable) {
+                const isDelete = env.event_type?.endsWith('_DELETED') || env.payload?.metadata?.isDeleted || env.payload?.operationType === 'DELETE';
+                if (isDelete) {
+                  await (db as any)[targetTable].delete(env.aggregate_id);
+                  processed++;
+                } else if (env.payload?.snapshot) {
+                  // Fallback LWW for bulk
+                  await (db as any)[targetTable].put({
+                    ...env.payload.snapshot,
+                    id: env.aggregate_id,
+                    syncStatus: 'synced',
+                    syncUpdatedAt: Date.now()
+                  });
+                  processed++;
+                }
               }
             }
             await db.settings.put({ key: 'last_synced_sequence', value: maxSeq });
@@ -579,7 +581,7 @@ export class CloudSyncService {
 
       const { data: envelopes, error: pullError } = await supabase
         .from('sync_envelopes')
-        .select('sequence, envelope_id, event_id, device_id, aggregate_type, aggregate_id, payload, timestamp')
+        .select('sequence, envelope_id, event_id, device_id, aggregate_type, aggregate_id, event_type, payload, timestamp')
         .gt('sequence', lastSeq)
         .lt('timestamp', ageBufferTime)
         .order('sequence', { ascending: true })
@@ -609,25 +611,35 @@ export class CloudSyncService {
           const targetTable = this.mapAggregateTypeToTable(env.aggregate_type);
 
           if (targetTable) {
-            const localRecord = await (db as any)[targetTable].get(env.aggregate_id);
-
-            // Reconciliação LWW: Se local for pendente e mais novo, ignora pull
-            if (localRecord &&
-                localRecord.syncStatus === 'pending' &&
-                localRecord.updatedAt &&
-                new Date(localRecord.updatedAt).getTime() > remoteTime) {
-              continue;
-            }
-
-            const snapshot = env.payload?.snapshot;
-            if (snapshot) {
-              await (db as any)[targetTable].put({
-                ...snapshot,
-                id: env.aggregate_id,
-                syncStatus: 'synced',
-                syncUpdatedAt: Date.now()
-              });
+            const isDelete = env.event_type?.endsWith('_DELETED') || env.payload?.metadata?.isDeleted || env.payload?.operationType === 'DELETE';
+            
+            if (isDelete) {
+              await (db as any)[targetTable].delete(env.aggregate_id);
               processed++;
+            } else {
+              const localRecord = await (db as any)[targetTable].get(env.aggregate_id);
+              const snapshot = env.payload?.snapshot;
+
+              if (snapshot) {
+                if (localRecord && localRecord.syncStatus === 'pending') {
+                  const localTime = localRecord.updatedAt ? new Date(localRecord.updatedAt).getTime() : 0;
+                  const merged = mergeSnapshots(env.aggregate_type, localRecord, snapshot, localTime, remoteTime);
+                  await (db as any)[targetTable].put({
+                    ...merged,
+                    id: env.aggregate_id,
+                    syncStatus: 'pending', // Re-evaluate sync later
+                    syncUpdatedAt: Date.now()
+                  });
+                } else {
+                  await (db as any)[targetTable].put({
+                    ...snapshot,
+                    id: env.aggregate_id,
+                    syncStatus: 'synced',
+                    syncUpdatedAt: Date.now()
+                  });
+                }
+                processed++;
+              }
             }
           }
 

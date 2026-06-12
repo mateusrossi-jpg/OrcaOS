@@ -70,13 +70,13 @@ export interface OperationalSnapshot {
   fingerprint: string;
 }
 
-export type ServiceStatus = 'draft' | 'awaiting_schedule' | 'scheduled' | 'in-progress' | 'done' | 'cancelled';
+export type ServiceStatus = 'draft' | 'awaiting_schedule' | 'scheduled' | 'en_route' | 'in-progress' | 'done' | 'cancelled';
 
 export interface MultiTenantEntity {
   /** Tenant / Company identifier */
-  companyId: string;
+  companyId?: string;
   /** Workspace (e.g., Service, Commercial, Finance, Management) */
-  workspaceId: string;
+  workspaceId?: string;
   /** Optional profile (role / permission set) */
   profileId?: string;
   /** Owner user – useful for audit trails */
@@ -101,8 +101,8 @@ export enum AggregateType {
 export interface Service extends MultiTenantEntity {
   id: string;
   /** [DERIVADO/CACHE] O cliente real é definido pelo Site. Este campo existe apenas para cache rápido de leitura no CRM. */
-  clientId: string; // Mandatory for all Work Orders
-  siteId: string; // Mandatory (Site-First Architecture) - Source of Truth
+  clientId?: string;
+  siteId?: string;
   assetIds?: string[]; // Optional (Fase 3B)
   budgetId?: string; // Optional for OS Avulsa
   attendanceId?: string; // Reference to Attendance (1:N)

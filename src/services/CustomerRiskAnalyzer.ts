@@ -18,7 +18,7 @@ export class CustomerRiskAnalyzer {
     const incidents = await db.warrantyIncidents.toArray(); // Simplificado para este MVP
     const clientIncidents = incidents.filter(i => true); // Num cenário real filtraria por ativo do cliente
 
-    let riskFactors: string[] = [];
+    const riskFactors: string[] = [];
     let mrrAtRisk = 0;
     let riskLevel: RiskLevel = 'HEALTHY';
     let healthScore = 100;

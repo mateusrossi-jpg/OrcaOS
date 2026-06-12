@@ -3,7 +3,7 @@ import { SurfaceCard } from '../../../ui/system';
 
 export const OperationsControlCenter: React.FC = () => {
   return (
-    <div className="p-6 bg-[#050505] min-h-screen text-white">
+    <div className="p-6 bg-aferix-bg min-h-screen text-white">
       <h1 className="text-2xl font-black mb-6">OCC / Operations Control</h1>
 
       <div className="grid grid-cols-2 gap-4">

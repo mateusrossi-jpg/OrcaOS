@@ -12,6 +12,7 @@
  * Target: New client ≤ 10 seconds, ≤ 2 fields, ≤ 5 touches.
  */
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { pilotTelemetry } from '../../../services/pilotTelemetryService';
 import { UserPlus, PhoneCall, CheckCircle2, Clock, DollarSign, ArrowRight, AlertCircle } from 'lucide-react';
 import { clientService } from '../../../services/clientService';
 import { operationalReadModelService } from '../../../services/operationalReadModelService';
@@ -57,6 +58,8 @@ export function ClientZeroBottomSheet({
   const [isSearching, setIsSearching] = useState(false);
   const [savedClient, setSavedClient] = useState<ClientZeroResult | null>(null);
 
+  // PILOT TELEMETRY (FASE 4)
+  const completeFlowRef = useRef<((abandoned?: boolean) => void) | null>(null);
   const nameRef = useRef<HTMLInputElement>(null);
   const searchTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -68,7 +71,18 @@ export function ClientZeroBottomSheet({
       setDuplicateMatch(null);
       setSavedClient(null);
       setIsSaving(false);
+
+      const endTrack = pilotTelemetry.trackScreen('ClientZeroSheet');
+      completeFlowRef.current = pilotTelemetry.startFlow('client_creation');
+
       setTimeout(() => nameRef.current?.focus(), 150);
+
+      return () => {
+        endTrack();
+        if (completeFlowRef.current) {
+          completeFlowRef.current(true); // Abandoned
+        }
+      };
     }
   }, [isOpen, initialName]);
 
@@ -128,6 +142,12 @@ export function ClientZeroBottomSheet({
     };
     setSavedClient(result);
     if (navigator.vibrate) navigator.vibrate(50);
+    
+    if (completeFlowRef.current) {
+      completeFlowRef.current(false);
+      completeFlowRef.current = null;
+    }
+
     setTimeout(() => {
       onClientSelected(result);
       onClose();
@@ -153,6 +173,11 @@ export function ClientZeroBottomSheet({
       setSavedClient(result);
       if (navigator.vibrate) navigator.vibrate([50, 30, 80]);
 
+      if (completeFlowRef.current) {
+        completeFlowRef.current(false);
+        completeFlowRef.current = null;
+      }
+
       trustLayer.emit({
         type: 'success',
         title: `${name.trim()} cadastrado!`,
@@ -164,13 +189,14 @@ export function ClientZeroBottomSheet({
         onClientSelected(result);
         onClose();
       }, 900);
-    } catch (e) {
+      } catch (e) {
+      pilotTelemetry.trackError('ClientZeroSheet', 'SAVE_FAILED', e instanceof Error ? e.message : 'Unknown');
       console.error('Client Zero save failed:', e);
       trustLayer.emit({ type: 'error', title: 'Erro ao cadastrar cliente', status: 'local' });
-    } finally {
+      } finally {
       setIsSaving(false);
-    }
-  };
+      }
+      };
 
   const isValid = name.trim().length >= 2;
 
@@ -182,7 +208,7 @@ export function ClientZeroBottomSheet({
       onClick={onClose}
     >
       <div
-        className="bg-[#0c0f16] border-t border-white/10 rounded-t-[28px] p-6 flex flex-col gap-5 max-w-md mx-auto w-full animate-slide-up pb-[calc(env(safe-area-inset-bottom)+24px)]"
+        className="bg-[#313842] border-t border-white/10 rounded-t-[28px] p-6 flex flex-col gap-5 max-w-md mx-auto w-full animate-slide-up pb-[calc(env(safe-area-inset-bottom)+24px)]"
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}

@@ -18,7 +18,7 @@ const KanbanColumn: React.FC<{ title: string; anomalies: Anomaly[]; onSelect: (a
             key={anomaly.id} 
             padding="md"
             onClick={() => onSelect(anomaly)}
-            className="cursor-pointer hover:border-[var(--accent-blue)]/50 transition-colors bg-surface-800 group"
+            className="cursor-pointer hover:border-[var(--accent-gold)]/50 transition-colors bg-surface-800 group"
           >
             <div className="flex justify-between items-start mb-2">
               <span className="text-[10px] font-bold tracking-wider text-text-tertiary">
@@ -28,7 +28,7 @@ const KanbanColumn: React.FC<{ title: string; anomalies: Anomaly[]; onSelect: (a
                 <span className="text-[10px] bg-status-error/20 text-status-error px-2 py-0.5 rounded font-bold">CRÍTICO</span>
               )}
             </div>
-            <h4 className="text-white font-bold text-sm leading-tight mb-1 group-hover:text-[var(--accent-blue)] transition-colors">{anomaly.title}</h4>
+            <h4 className="text-white font-bold text-sm leading-tight mb-1 group-hover:text-[var(--accent-gold)] transition-colors">{anomaly.title}</h4>
             <p className="text-xs text-text-secondary line-clamp-2">{anomaly.description || anomaly.recommendedAction}</p>
           </SurfaceCard>
         ))}
@@ -52,7 +52,7 @@ export const RevenueInboxPage: React.FC<{ onBack: () => void }> = ({ onBack }) =
   const approvedAnomalies = anomalies.filter(a => a.status === 'APPROVED');
 
   return (
-    <ScreenContainer>
+    <ScreenContainer className="animate-in fade-in duration-500">
       <AppHeader title="Revenue Inbox" subtitle="Oportunidades Comerciais" onBack={onBack} />
       <div className="flex-1 p-6 overflow-x-auto">
         <div className="flex gap-6 h-full min-h-[600px]">

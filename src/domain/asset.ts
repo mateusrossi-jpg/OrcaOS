@@ -5,17 +5,18 @@ import { MultiTenantEntity } from '../core/types/business';
 
 export interface Asset extends MultiTenantEntity {
   id: string;
-  clientId: string;
-  siteId: string;
+  clientId?: string;
+  siteId?: string;
   name: string;
-  assetType: AssetType;
+  assetType?: AssetType;
   category: string;
   serialNumber?: string;
   tag?: string;
   manufacturer?: string;
   model?: string;
   location?: string;
-  assetStatus: AssetStatus;
+  assetStatus?: AssetStatus;
+  status?: string;
   installDate?: string;
   manufacturerWarrantyUntil?: string;
   serviceWarrantyUntil?: string;

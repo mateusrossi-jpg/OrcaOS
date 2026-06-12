@@ -3,7 +3,7 @@ import { SurfaceCard } from '../../../ui/system';
 
 export const PortalContractCenter: React.FC = () => {
   return (
-    <div className="p-6 bg-[#050505] text-white min-h-screen">
+    <div className="p-6 bg-aferix-bg text-white min-h-screen">
       <h1 className="text-2xl font-black mb-6">Seus Contratos</h1>
 
       <SurfaceCard className="p-6 bg-surface-900 border border-surface-700 mb-6">

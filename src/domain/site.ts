@@ -9,8 +9,8 @@ export interface Site extends MultiTenantEntity {
   longitude?: number;
   notes?: string;
   isMain: boolean;
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
   syncStatus?: 'synced' | 'pending' | 'deleted';
   syncUpdatedAt?: number;
 }

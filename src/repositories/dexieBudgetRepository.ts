@@ -81,18 +81,17 @@ export class DexieBudgetRepository implements BudgetRepository {
   }
 
   async listBudgets(): Promise<Budget[]> {
-    // Dexie's toArray() returns elements in primary key order (or insertion order).
-    // We sort in memory to guarantee newest first by createdAt.
-    const all = await db.budgets.filter(b => b.syncStatus !== 'deleted').toArray();
-    return all.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    const all = await db.budgets.toArray();
+    return all
+      .filter(b => b.syncStatus !== 'deleted')
+      .sort((a, b) => new Date(b.createdAt || '').getTime() - new Date(a.createdAt || '').getTime());
   }
 
   async listFinalizedByMonth(year: number, month: number): Promise<Budget[]> {
-    // Fetch all finalized budgets and filter in memory by the finalizedAt month.
-    // A more advanced index strategy could be used, but this is simple and robust for the MVP.
-    const finalized = await db.budgets.where('status').equals(BUDGET_STATUS.FINALIZADO).filter(b => b.syncStatus !== 'deleted').toArray();
+    const finalized = await db.budgets.where('status').equals(BUDGET_STATUS.FINALIZADO).toArray();
     
     return finalized.filter(budget => {
+      if (budget.syncStatus === 'deleted') return false;
       if (!budget.finalizedAt) return false;
       const date = new Date(budget.finalizedAt);
       // JS getMonth is 0-indexed, so we compare directly with 0-11 if month is 0-indexed,

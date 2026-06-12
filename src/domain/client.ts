@@ -30,8 +30,8 @@ export interface Client extends MultiTenantEntity {
   additionalContacts?: string;
   salesHistoryNotes?: string;
   notes?: string;
-  createdAt: string; // ISO String for better serialization in Dexie
-  updatedAt: string;
+  createdAt?: string; // ISO String for better serialization in Dexie
+  updatedAt?: string;
   syncStatus?: 'synced' | 'pending' | 'deleted';
   syncUpdatedAt?: number;
 }

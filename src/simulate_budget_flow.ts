@@ -26,6 +26,7 @@ async function run() {
       status: 'iniciado',
       companyId: 'default-company',
       workspaceId: 'default-workspace',
+      syncStatus: 'pending',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     });

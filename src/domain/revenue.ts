@@ -26,11 +26,11 @@ export interface Proposal {
   workspaceId: string;
   anomalyId: string;
   clientId: string;
-  siteId: string;
-  assetId: string;
-  title: string;
-  description: string;
-  amount: number;
+  siteId?: string;
+  assetId?: string;
+  title?: string;
+  description?: string;
+  amount?: number;
   status: 'DRAFT' | 'SENT' | 'APPROVED' | 'REJECTED';
-  createdAt: string;
+  createdAt?: string;
 }

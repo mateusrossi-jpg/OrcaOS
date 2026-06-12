@@ -4,19 +4,28 @@ import { MaintenancePlan } from '../domain/maintenancePlan';
 
 export class DexieMaintenancePlanRepository {
   async getAll(): Promise<MaintenancePlan[]> {
-    return await db.maintenancePlans.toArray();
+    const all = await db.maintenancePlans.toArray();
+    return all.filter(p => p.syncStatus !== 'deleted');
   }
 
   async getById(id: string): Promise<MaintenancePlan | undefined> {
-    return await db.maintenancePlans.get(id);
+    const plan = await db.maintenancePlans.get(id);
+    if (plan && plan.syncStatus === 'deleted') return undefined;
+    return plan;
   }
 
   async getByAssetId(assetId: string): Promise<MaintenancePlan[]> {
-    return await db.maintenancePlans.where('assetId').equals(assetId).toArray();
+    return await db.maintenancePlans
+      .where('assetId').equals(assetId)
+      .filter(p => p.syncStatus !== 'deleted')
+      .toArray();
   }
 
   async getActivePlans(): Promise<MaintenancePlan[]> {
-    return await db.maintenancePlans.where('isActive').equals(1).toArray();
+    return await db.maintenancePlans
+      .where('isActive').equals(1) // Assuming Boolean is stored as 1/0 or check schema
+      .filter(p => p.syncStatus !== 'deleted')
+      .toArray();
   }
 
   async add(plan: Omit<MaintenancePlan, 'id' | 'createdAt' | 'updatedAt'>): Promise<MaintenancePlan> {

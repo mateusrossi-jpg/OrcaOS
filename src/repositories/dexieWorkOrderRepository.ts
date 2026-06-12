@@ -15,7 +15,7 @@ const WORKORDER_LAST_HASH = new Map<string, string>();
 
 export class DexieWorkOrderRepository implements WorkOrderRepository {
   async getAll(): Promise<WorkOrder[]> {
-    return await db.workOrders.filter(w => w.syncStatus !== 'deleted').toArray();
+    return await db.workOrders.where('syncStatus').notEqual('deleted').toArray();
   }
 
   async getById(id: string): Promise<WorkOrder | undefined> {

@@ -55,6 +55,7 @@ const CATEGORIES = [
  */
 export const ReportWorkspace = memo(function ReportWorkspace({ captures, onBack }: ReportWorkspaceProps) {
   const [activeCategory, setActiveCategory] = useState<ReportCategory>('financeiro');
+  const profileName = 'Aferix';
 
   const financeStats = useMemo(() => {
     const totalRevenue = captures.reduce((acc, c) => acc + (safeMoneyValue(c.unitValue) * safeMoneyValue(c.quantity)), 0);
@@ -84,12 +85,21 @@ export const ReportWorkspace = memo(function ReportWorkspace({ captures, onBack 
   );
 
   return (
-    <ScreenContainer className="pb-32">
+    <ScreenContainer className="pb-32 report-document">
       {/* ━━━ AUTHORITATIVE HEADER ━━━ */}
       <AppHeader 
         title="Performance." 
         onBack={onBack} 
         chips={chips} 
+        action={
+          <div className="flex items-center gap-2">
+            {profileName === 'Aferix' ? (
+              <img src="/icons/aferix-wordmark-document.svg" alt="Aferix" className="h-4 opacity-50" />
+            ) : (
+              <span className="text-[10px] font-black text-white/20 uppercase tracking-widest">{profileName}</span>
+            )}
+          </div>
+        }
       />
 
       <div className="px-6 py-8 flex flex-col gap-12">
@@ -111,7 +121,7 @@ export const ReportWorkspace = memo(function ReportWorkspace({ captures, onBack 
             <Section className="gap-4">
                <SectionLabel className="ml-2">Fluxo de Rentabilidade</SectionLabel>
                
-               <div className="relative overflow-hidden rounded-[28px] bg-gradient-to-b from-[#141924]/95 to-[#080b11]/98 border border-[var(--accent-gold)]/25 shadow-[0_1px_0_rgba(255,255,255,0.06)_inset,0_0_32px_rgba(212,169,78,0.06),0_20px_50px_rgba(0,0,0,0.9)] p-6 animate-scale-pop">
+               <div className="relative overflow-hidden rounded-[28px] bg-gradient-to-b from-aferix-surface to-aferix-bg border border-[var(--accent-gold)]/25 shadow-[0_1px_0_rgba(255,255,255,0.06)_inset,0_0_32px_rgba(212,169,78,0.06),0_20px_50px_rgba(0,0,0,0.9)] p-6 animate-scale-pop">
                   {/* Gold ambient radial glow */}
                   <div className="absolute top-0 right-0 w-56 h-56 rounded-full bg-[var(--accent-gold)]/10 blur-[80px] pointer-events-none" />
                   

@@ -9,6 +9,7 @@ export interface TrustEvent {
   timestamp: number;
   onUndo?: () => void;
   status: 'local' | 'syncing' | 'synced';
+  silent?: boolean;
 }
 
 class TrustLayerManager {
@@ -67,7 +68,7 @@ export function useTrustLayer() {
   }, []);
 
 
-  const activeToast = events.length > 0 && (now - events[0].timestamp < 4000) ? events[0] : null;
+  const activeToast = events.find(e => !e.silent && (now - e.timestamp < 4000)) || null;
 
   return {
     events,

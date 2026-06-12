@@ -23,8 +23,8 @@ export const RetentionCenterPage: React.FC = () => {
             <h2 className="font-black tracking-widest text-xs">CRÍTICOS</h2>
             <span className="ml-auto bg-status-error text-[#050505] px-2 py-0.5 rounded-full text-[10px] font-bold">2</span>
           </div>
-          <RiskCard clientName="Hospital Santa Casa" mrr="R$ 15.000" health={32} reason="Alta reincidência de falhas" />
-          <RiskCard clientName="Rede Supermercados XYZ" mrr="R$ 8.500" health={38} reason="Contrato não renovado" />
+          <RiskCard clientName="Cliente Corporativo 01" mrr="R$ 15.000" health={32} reason="Alta reincidência de falhas" />
+          <RiskCard clientName="Rede Varejista 02" mrr="R$ 8.500" health={38} reason="Contrato não renovado" />
         </div>
 
         {/* Column: Em Risco */}
@@ -38,11 +38,11 @@ export const RetentionCenterPage: React.FC = () => {
         </div>
 
         {/* Column: Atenção */}
-        <div className="flex flex-col bg-[var(--accent-blue)]/5 border border-[var(--accent-blue)]/20 rounded-xl p-4">
-          <div className="flex items-center gap-2 mb-4 text-[var(--accent-blue)] border-b border-[var(--accent-blue)]/20 pb-2">
+        <div className="flex flex-col bg-[var(--accent-gold)]/5 border border-[var(--accent-gold)]/20 rounded-xl p-4">
+          <div className="flex items-center gap-2 mb-4 text-[var(--accent-gold)] border-b border-[var(--accent-gold)]/20 pb-2">
             <Activity size={18} />
             <h2 className="font-black tracking-widest text-xs">ATENÇÃO</h2>
-            <span className="ml-auto bg-[var(--accent-blue)] text-[#050505] px-2 py-0.5 rounded-full text-[10px] font-bold">3</span>
+            <span className="ml-auto bg-[var(--accent-gold)] text-[#050505] px-2 py-0.5 rounded-full text-[10px] font-bold">3</span>
           </div>
           {/* Vazio ou cards mockados */}
         </div>

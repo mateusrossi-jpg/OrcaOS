@@ -12,7 +12,7 @@ export class RecurrenceAnalyzer {
       .toArray();
 
     let level: RecurrenceLevel = 'LOW';
-    let isRecurrence = pastIncidents.length > 0;
+    const isRecurrence = pastIncidents.length > 0;
 
     if (pastIncidents.length >= 3) {
       level = 'CRITICAL';

@@ -40,7 +40,7 @@ export const RoleSelectionScreen: React.FC<RoleSelectionScreenProps> = ({ onComp
   };
 
   return (
-    <div className="fixed inset-0 z-[9999] bg-[#050505] flex flex-col items-center justify-center p-6 page-fade-in overflow-y-auto">
+    <div className="fixed inset-0 z-[9999] bg-aferix-bg flex flex-col items-center justify-center p-6 page-fade-in overflow-y-auto">
       
       {/* HEADER LOGO */}
       <div className="flex flex-col items-center mb-10 mt-10">

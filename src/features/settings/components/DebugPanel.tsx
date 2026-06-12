@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { internalDiagnostics, OperationalHealthReport } from '../../../services/InternalDiagnosticsService';
 import { useRole } from '../../../hooks/useRole';
 import { AferixRole } from '../../workspace/types/RoleFeatureMatrix';
+import { seedRealisticDemoData } from '../../../app/utils/AferixDemoDataset';
 
 export const DebugPanel: React.FC = () => {
   const [report, setReport] = useState<OperationalHealthReport | null>(null);
@@ -58,6 +59,7 @@ export const DebugPanel: React.FC = () => {
       <h2>Aferix Internal Diagnostics Panel</h2>
       <button onClick={() => setVisible(false)} style={{ background: '#f00', color: '#fff', padding: '10px' }}>CLOSE</button>
       <button onClick={runScan} style={{ background: '#00f', color: '#fff', padding: '10px', marginLeft: '10px' }}>RE-SCAN</button>
+      <button onClick={() => { seedRealisticDemoData(); setVisible(false); }} style={{ background: '#d4a94a', color: '#000', padding: '10px', marginLeft: '10px', fontWeight: 'bold' }}>SEED REALISTIC DATA</button>
       
       <div style={{ marginTop: '20px', padding: '10px', border: '1px solid #0f0' }}>
         <h3>Simular Papel (Role Test)</h3>

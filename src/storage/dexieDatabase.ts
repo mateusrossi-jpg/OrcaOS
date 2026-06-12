@@ -75,6 +75,7 @@ export class AferixDatabase extends Dexie {
   assetExecutions!: Table<AssetExecution>;
   anomalies!: Table<Anomaly>;
   proposals!: Table<Proposal>;
+  checklistTemplates!: Table<import('../domain/checklist').ChecklistTemplate>;
   warranties!: Table<WarrantyRecord>;
   dispatchJobs!: Table<DispatchJob>;
   technicianShifts!: Table<TechnicianShift>;
@@ -114,6 +115,11 @@ export class AferixDatabase extends Dexie {
 
   // Pilot Program Telemetry (FASE 4: Real Operator Validation)
   pilotEvents!: Table<import('../services/pilotTelemetryService').PilotEvent>;
+
+  // Reputation & Growth (RC10)
+  reviews!: Table<{ id: string; companyId: string; workspaceId: string; clientId: string; workOrderId: string; rating: number; comment?: string; photoUuids?: string[]; status: 'pending' | 'requested' | 'completed'; createdAt: string }>;
+  referrals!: Table<{ id: string; companyId: string; workspaceId: string; clientId?: string; referrerId: string; status: 'lead' | 'contacted' | 'converted' | 'lost'; convertedBudgetId?: string; createdAt: string; name: string; phone: string }>;
+  reputationMetrics!: Table<{ id: string; companyId: string; workspaceId: string; clientId: string; score: number; happiness: number; lastUpdated: string }>;
 
   constructor() {
     super('AferixDatabase');
@@ -188,19 +194,22 @@ export class AferixDatabase extends Dexie {
       accountPlan: 'id',
       operationalEvents: 'id, aggregateId, aggregateType, eventType, timestamp, correlationId, syncStatus',
     }).upgrade(async tx => {
-      let fallbackCompanyId = 'default-company';
-      let fallbackWorkspaceId = 'default-workspace';
+      let migrationCompanyId: string | null = null;
+      let migrationWorkspaceId: string | null = null;
       
       try {
         const authData = typeof window !== 'undefined' ? localStorage.getItem('sb-auth-token') : null;
         if (authData) {
           const parsed = JSON.parse(authData);
-          fallbackCompanyId = parsed?.user?.user_metadata?.company_id || 'default-company';
-          fallbackWorkspaceId = parsed?.user?.user_metadata?.workspace_id || 'default-workspace';
+          migrationCompanyId = parsed?.user?.user_metadata?.company_id;
+          migrationWorkspaceId = parsed?.user?.user_metadata?.workspace_id;
         }
       } catch (e) {
         console.error('Falha ao recuperar metadados de autenticação para migração Dexie:', e);
       }
+
+      if (!migrationCompanyId) migrationCompanyId = 'migrated-company';
+      if (!migrationWorkspaceId) migrationWorkspaceId = 'migrated-workspace';
 
       const tablesToMigrate = [
         { name: 'budgets', hasWorkspace: true },
@@ -220,11 +229,11 @@ export class AferixDatabase extends Dexie {
           const records = await tx.table(tableConfig.name).toArray();
           for (const record of records) {
             const updates: Record<string, any> = {};
-            if (!record.companyId) {
-              updates.companyId = fallbackCompanyId;
+            if (!record.companyId || record.companyId === 'default-company') {
+              updates.companyId = migrationCompanyId;
             }
-            if (tableConfig.hasWorkspace && !record.workspaceId) {
-              updates.workspaceId = fallbackWorkspaceId;
+            if (tableConfig.hasWorkspace && (!record.workspaceId || record.workspaceId === 'default-workspace')) {
+              updates.workspaceId = migrationWorkspaceId;
             }
             if (Object.keys(updates).length > 0) {
               await tx.table(tableConfig.name).update(record.id, updates);
@@ -302,6 +311,33 @@ export class AferixDatabase extends Dexie {
     // Version 29: Pilot Program Telemetry (FASE 4: Real Operator Validation)
     this.version(29).stores({
       pilotEvents: 'id, sessionId, type, flow, screen, [flow+type], dayOfWeek, hourOfDay, timestamp'
+    });
+
+    // Version 30: Intelligence & Performance (Indexing updatedAt for search/recents)
+    this.version(30).stores({
+      budgets: 'id, companyId, workspaceId, attendanceId, clientId, status, syncStatus, updatedAt',
+      clients: 'id, companyId, workspaceId, syncStatus, updatedAt',
+      workOrders: 'id, companyId, workspaceId, attendanceId, clientId, budgetId, status, syncStatus, updatedAt'
+    });
+
+    // Version 31: User-defined Checklists
+    this.version(31).stores({
+      checklistTemplates: 'id, companyId, workspaceId, category, name, syncStatus'
+    });
+
+    // Version 32: Foundation Hardening - Scalability Indexes
+    this.version(32).stores({
+      budgets: 'id, [companyId+syncStatus], [companyId+workspaceId+status], attendanceId, clientId, status, syncStatus, updatedAt',
+      workOrders: 'id, [companyId+syncStatus], [companyId+workspaceId+status], attendanceId, clientId, budgetId, status, syncStatus, updatedAt',
+      clients: 'id, [companyId+syncStatus], [companyId+workspaceId], syncStatus, updatedAt',
+      attendances: 'id, [companyId+syncStatus], companyId, workspaceId, syncStatus'
+    });
+
+    // Version 33: Reputation Operating System (RC10)
+    this.version(33).stores({
+      reviews: 'id, companyId, workspaceId, clientId, workOrderId, rating, status, createdAt',
+      referrals: 'id, companyId, workspaceId, clientId, referrerId, status, convertedBudgetId, createdAt',
+      reputationMetrics: 'id, companyId, workspaceId, clientId, score, happiness'
     });
   }
 }

@@ -14,8 +14,8 @@ export interface MaintenancePlan extends MultiTenantEntity {
   checklistTemplate?: string[]; // List of tasks
   isActive: boolean;
   notes?: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
   syncStatus?: 'synced' | 'pending' | 'deleted';
   syncUpdatedAt?: number;
 }

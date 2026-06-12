@@ -1,21 +1,21 @@
 import { useEffect, useState, useMemo } from 'react';
 import { 
+  Plus, 
   ShieldCheck, 
-  Clock, 
   Activity, 
   History, 
-  AlertCircle,
-  FileText,
-  DollarSign,
-  PenTool,
-  Settings,
-  ArrowLeft,
-  CalendarDays,
-  Plus,
+  DollarSign, 
+  Settings, 
+  Wrench, 
+  Tag, 
+  Check, 
+  Thermometer,
+  CalendarClock,
+  Briefcase,
+  Copy,
+  Clock,
   Zap,
-  CheckSquare,
-  Wrench,
-  Tag
+  Navigation
 } from "lucide-react";
 import { 
   SemanticBadge, 
@@ -32,21 +32,24 @@ import {
   Value,
   FinancialValue,
   ERPLoader,
-  Grid
+  Grid,
+  GlassInput,
+  GlassSelect,
+  GlassDatePicker,
+  TimelineCard,
+  ExecutiveHeader
 } from '../../../ui/system';
 import { 
-  Modal, 
-  ContextBanner, 
-  Select, 
   PrimaryButton, 
-  SecondaryButton,
-  Input
+  SecondaryButton
 } from '../../../app/components/ui';
 import { operationalReadModelService } from '../../../services/operationalReadModelService';
 import { maintenancePlanService } from '../../../services/maintenancePlanService';
 import { assetService } from '../../../services/assetService';
+import { db } from '../../../storage/dexieDatabase';
 import { AssetDossierProjection } from '../../../domain/operationalProjections';
 import { MaintenancePlan, MaintenanceFrequency } from '../../../domain/maintenancePlan';
+import { AssetExecution } from '../../../domain/assetExecution';
 import { formatCurrencyBRL } from '../../../utils/formatters';
 import { cn } from '../../../utils/ui';
 
@@ -58,11 +61,13 @@ interface Asset360ModalProps {
 /**
  * Asset360Modal: Deep technical memory for specific assets.
  * Aligned with AFERIX VISUAL PROTOCOL (Phase 4).
+ * Feature: Real Technical History + Maintenance Plans.
+ * Transitioned to Full-Screen Experience (Roadmap RC18).
  */
 export function Asset360Modal({ assetId, onClose }: Asset360ModalProps) {
   const [projection, setProjection] = useState<AssetDossierProjection | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  
+  const [structuredHistory, setStructuredHistory] = useState<AssetExecution[]>([]);
   
   // Maintenance Plans State
   const [plans, setPlans] = useState<MaintenancePlan[]>([]);
@@ -77,8 +82,12 @@ export function Asset360Modal({ assetId, onClose }: Asset360ModalProps) {
     if (!assetId) return;
     setIsLoading(true);
     try {
-      const data = await operationalReadModelService.getAsset360Projection(assetId);
+      const [data, executions] = await Promise.all([
+        operationalReadModelService.getAsset360Projection(assetId),
+        db.assetExecutions.where('assetId').equals(assetId).reverse().sortBy('createdAt')
+      ]);
       setProjection(data);
+      setStructuredHistory(executions || []);
     } catch (e) {
       console.error('Failed to load asset dossier:', e);
     } finally {
@@ -123,25 +132,57 @@ export function Asset360Modal({ assetId, onClose }: Asset360ModalProps) {
     }
   }
 
+  async function handleDuplicateAsset() {
+    if (!assetId) return;
+    try {
+      await assetService.duplicate(assetId);
+      window.dispatchEvent(new CustomEvent('aferix_toast', { detail: { type: 'success', message: 'Equipamento duplicado com sucesso.' } }));
+      onClose(); 
+    } catch (e) {
+      console.error('Failed to duplicate asset:', e);
+    }
+  }
+
   if (!assetId) return null;
 
   return (
-    <Modal
-      isOpen={!!assetId}
-      onClose={onClose}
-      title={projection?.asset.name.toUpperCase() || "Dossiê do Ativo"}
-      confirmLabel="Fechar"
-      onConfirm={onClose}
-    >
-      <div className="flex flex-col gap-8 pt-4">
-        
+    <div className="fixed inset-0 z-[1000] bg-aferix-bg overflow-y-auto animate-in slide-in-from-right-6 duration-700">
+      {/* Top Navigation */}
+      <div className="relative">
+        <button 
+          onClick={onClose}
+          className="absolute top-16 left-6 z-[1100] w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white active:scale-90 transition-all"
+        >
+          <Navigation size={18} className="-rotate-90" />
+        </button>
+        <ExecutiveHeader userName="Mateus" score={96} standalone />
+      </div>
+
+      <div className="px-6 flex flex-col gap-10 pb-40">
+        <Section className="gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-2.5 h-2.5 rounded-full bg-[var(--accent-gold)] shadow-[0_0_10px_var(--accent-gold)]" />
+            <SectionLabel className="ml-1 uppercase tracking-[0.4em] text-white/40 leading-none mb-0">Memória Técnica do Ativo</SectionLabel>
+          </div>
+          <div className="flex justify-between items-start gap-4">
+            <h1 className="text-[42px] font-black text-white uppercase leading-[0.95] tracking-tight">{projection?.asset.name || 'Ativo'}</h1>
+            <button 
+              onClick={handleDuplicateAsset}
+              className="flex items-center justify-center w-12 h-12 rounded-2xl bg-white/5 border border-white/10 text-white/40 active:scale-95 transition-all"
+              title="Duplicar Ativo"
+            >
+              <Copy size={20} />
+            </button>
+          </div>
+        </Section>
+
         {isLoading ? (
           <div className="py-20"><ERPLoader message="Recuperando memória técnica..." /></div>
         ) : !projection ? (
           <div className="py-12 text-center opacity-30"><Body className="font-mono text-[10px] font-black tracking-widest uppercase">ATIVO_NÃO_LOCALIZADO</Body></div>
         ) : (
-          <Section className="gap-8">
-            {/* Header Executivo Asset (Fase 4A Hardening) */}
+          <div className="flex flex-col gap-10 animate-scale-pop">
+            {/* Executive Summary */}
             <ExecutiveSummaryGrid>
                <ValueBlock 
                 label="Saúde Técnica" 
@@ -156,7 +197,7 @@ export function Asset360Modal({ assetId, onClose }: Asset360ModalProps) {
                />
                <ValueBlock 
                 label="Intervenções" 
-                value={projection.timeline.length} 
+                value={structuredHistory.length || projection.timeline.length} 
                 icon={<Wrench size={12} />} 
                />
                <ValueBlock 
@@ -166,48 +207,45 @@ export function Asset360Modal({ assetId, onClose }: Asset360ModalProps) {
                />
             </ExecutiveSummaryGrid>
 
-            {/* SEÇÃO 1: HISTÓRICO (SCROLL-FIRST) */}
-            <Section className="gap-6 mt-4">
-              <ContextBanner 
-                title={projection.asset.name} 
-                meta={`${projection.asset.manufacturer || 'Fabricante N/D'} · Mod: ${projection.asset.model || 'N/D'} · SN: ${projection.asset.serialNumber || 'N/D'}`}
-                icon={<Settings size={14} />}
-              />
+            {/* Technical Details Banner */}
+            <SurfaceCard className="bg-white/[0.03] border-white/10 p-6 flex items-center gap-4">
+               <div className="w-12 h-12 rounded-2xl bg-[var(--accent-gold)]/10 border border-[var(--accent-gold)]/20 flex items-center justify-center text-[var(--accent-gold)]">
+                  <Settings size={24} />
+               </div>
+               <div className="flex flex-col">
+                  <span className="text-[14px] font-black text-white uppercase tracking-tight">{projection.asset.name}</span>
+                  <span className="text-[10px] text-white/40 font-bold uppercase tracking-widest mt-1">
+                    {projection.asset.manufacturer || 'Fabricante N/D'} · Mod: {projection.asset.model || 'N/D'} · SN: {projection.asset.serialNumber || 'N/D'}
+                  </span>
+               </div>
+            </SurfaceCard>
 
-              <Stack className="gap-4">
-                <SectionLabel className="ml-1">Linha do Tempo Técnica</SectionLabel>
-                
-                <div className="flex flex-col gap-6 pl-2 relative">
-                  <div className="absolute left-[15px] top-2 bottom-2 w-px bg-white/[0.07]" />
-                  
-                  {projection.timeline.length === 0 ? (
-                    <div className="py-12 text-center opacity-20">
-                        <Body className="font-mono text-[11px] font-black uppercase tracking-widest">MEMÓRIA_VAZIA</Body>
-                    </div>
-                  ) : (
-                    projection.timeline.map((evt) => (
-                        <div key={evt.id} className="flex gap-4 relative">
-                          <div className={cn(
-                            "w-3.5 h-3.5 rounded-full bg-[#050505] border-2 z-10 mt-1 shrink-0",
-                            evt.severity === 'critical' ? "border-[var(--accent-red)]" : "border-[var(--accent-gold)]"
-                          )} />
-                          <div className="flex-1 min-w-0">
-                              <div className="flex justify-between items-start">
-                                <Body className="font-bold leading-tight">{evt.title}</Body>
-                                <SectionLabel className="!text-[9px] mt-0.5">{new Date(evt.timestamp).toLocaleDateString('pt-BR')}</SectionLabel>
-                              </div>
-                              <Subtitle className="mt-1 opacity-60 leading-relaxed">{evt.description}</Subtitle>
-                          </div>
-                        </div>
-                    ))
-                  )}
-                </div>
-              </Stack>
+            {/* Timeline */}
+            <Section className="gap-6">
+              <SectionLabel className="ml-1 uppercase tracking-widest text-[var(--accent-gold)]">Linha do Tempo Técnica</SectionLabel>
+              
+              <div className="flex flex-col gap-0 relative">
+                {projection.timeline.length === 0 ? (
+                  <div className="py-12 text-center opacity-20 border border-dashed border-white/10 rounded-3xl">
+                      <Body className="font-mono text-[11px] font-black uppercase tracking-widest">MEMÓRIA_TÉCNICA_VAZIA</Body>
+                  </div>
+                ) : (
+                  projection.timeline.map((evt, idx) => (
+                    <TimelineCard 
+                      key={evt.id}
+                      time={new Date(evt.timestamp).toLocaleDateString('pt-BR')}
+                      title={evt.title}
+                      status={evt.severity === 'critical' ? 'Alerta Crítico' : 'Executado'}
+                      state={evt.severity === 'critical' ? 'upcoming' : 'done'}
+                    />
+                  ))
+                )}
+              </div>
             </Section>
 
-            {/* SEÇÃO 2: GARANTIAS E PROTEÇÃO (INTEGRAÇÃO OPERACIONAL) */}
-            <Section className="gap-4 pt-8 border-t border-white/[0.06]">
-              <SectionLabel className="!text-[var(--accent-green)] ml-1 flex items-center gap-2">
+            {/* Warranty */}
+            <Section className="gap-4">
+              <SectionLabel className="!text-[var(--accent-green)] ml-1 flex items-center gap-2 uppercase tracking-widest">
                 <ShieldCheck size={14} /> Garantia & Proteção
               </SectionLabel>
               <SurfaceCard padding="lg" className="bg-[var(--accent-green)]/5 border-[var(--accent-green)]/20 relative overflow-hidden">
@@ -222,10 +260,10 @@ export function Asset360Modal({ assetId, onClose }: Asset360ModalProps) {
               </SurfaceCard>
             </Section>
 
-            {/* SEÇÃO 3: PLANOS DE MANUTENÇÃO (PMOC) */}
-            <Section className="gap-6 pt-8 border-t border-white/[0.06]">
+            {/* Maintenance Plans */}
+            <Section className="gap-6 pt-10 border-t border-white/[0.05]">
                  <div className="flex justify-between items-center px-1">
-                    <SectionLabel>Planos de Recorrência</SectionLabel>
+                    <SectionLabel className="!mb-0 uppercase tracking-widest opacity-40">Planos de Recorrência</SectionLabel>
                     {!isCreatingPlan && (
                       <button 
                         onClick={() => setIsCreatingPlan(true)}
@@ -237,82 +275,98 @@ export function Asset360Modal({ assetId, onClose }: Asset360ModalProps) {
                  </div>
 
                  {isCreatingPlan ? (
-                    <SurfaceCard className="border-[var(--accent-gold)]/20 bg-[var(--accent-gold)]/5">
-                       <Stack className="gap-6">
-                          <Input 
+                    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                       <GlassFormCard>
+                          <GlassInput 
                             label="Título da Manutenção"
                             value={planDraft.title}
                             onChange={(e) => setPlanDraft({...planDraft, title: e.target.value})}
                             placeholder="Ex: Preventiva Trimestral"
                           />
-                          <Grid className="gap-4">
-                            <Select 
+                          <div className="grid grid-cols-2 gap-4">
+                            <GlassSelect 
                               label="Frequência"
                               value={planDraft.frequency}
-                              onChange={(val) => setPlanDraft({...planDraft, frequency: val as any})}
+                              onChange={(e) => setPlanDraft({...planDraft, frequency: e.target.value as any})}
                             >
                                 <option value="monthly">Mensal</option>
                                 <option value="quarterly">Trimestral</option>
                                 <option value="semiannual">Semestral</option>
                                 <option value="annual">Anual</option>
-                            </Select>
-                            <Input 
-                              label="Início / Próxima"
-                              type="date"
+                            </GlassSelect>
+                            <GlassDatePicker 
+                              label="Próxima Execução"
                               value={planDraft.nextDate}
                               onChange={(e) => setPlanDraft({...planDraft, nextDate: e.target.value})}
                             />
-                          </Grid>
+                          </div>
                           <Stack className="gap-3 mt-4">
-                             <PrimaryButton onClick={handleCreatePlan} className="h-14 !text-[11px] font-black">ATIVAR_RECORRÊNCIA</PrimaryButton>
-                             <SecondaryButton onClick={() => setIsCreatingPlan(false)} className="h-12 !text-[11px]">CANCELAR</SecondaryButton>
+                             <PrimaryButton onClick={handleCreatePlan} className="h-16 font-black tracking-[0.2em] rounded-2xl">ATIVAR RECORRÊNCIA</PrimaryButton>
+                             <SecondaryButton onClick={() => setIsCreatingPlan(false)} className="h-14 rounded-2xl uppercase font-black text-[10px] tracking-widest">CANCELAR</SecondaryButton>
                           </Stack>
-                       </Stack>
-                    </SurfaceCard>
+                       </GlassFormCard>
+                    </div>
                  ) : (
                    <Stack className="gap-4">
                       {plans.length === 0 ? (
-                        <SurfaceCard padding="xl" className="text-center border-dashed opacity-50">
-                           <Clock size={24} className="text-[var(--text-tertiary)] mx-auto mb-3 opacity-30" />
-                           <Body className="text-[13px] opacity-60">Nenhuma recorrência programada.</Body>
+                        <SurfaceCard padding="xl" className="text-center border-dashed opacity-20 py-16 rounded-[32px]">
+                           <Clock size={32} className="mx-auto mb-4" />
+                           <Body className="text-[11px] font-black uppercase tracking-widest">Nenhuma recorrência programada</Body>
                         </SurfaceCard>
                       ) : (
-                        <SurfaceCard padding="none">
-                           <Stack className="gap-0">
-                            {plans.map((plan, i) => (
-                              <InteractiveRow key={plan.id} className={i !== 0 ? "border-t border-white/[0.05]" : ""}>
-                                  <div className="flex items-center gap-4 w-full">
-                                    <div className={cn(
-                                      "w-9 h-9 rounded-xl border grid place-items-center shrink-0",
-                                      plan.isActive ? "bg-[var(--accent-green)]/10 border-[var(--accent-green)]/20" : "bg-white/[0.03] border-white/[0.07]"
-                                    )}>
-                                        <Zap size={18} className={plan.isActive ? "text-[var(--accent-green)]" : "text-[var(--text-tertiary)]"} fill={plan.isActive ? "currentColor" : "none"} />
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                        <Body className="font-bold truncate">{plan.title}</Body>
-                                        <Subtitle className="text-[10px] font-bold font-mono uppercase tracking-wider opacity-60">
-                                          {plan.frequency} · PRÓXIMA: {new Date(plan.nextExecutionDate).toLocaleDateString('pt-BR')}
-                                        </Subtitle>
-                                    </div>
-                                    <SemanticBadge label={plan.isActive ? 'ATIVO' : 'PAUSADO'} variant={plan.isActive ? 'success' : 'default'} className="scale-75 origin-right" />
-                                  </div>
-                              </InteractiveRow>
+                        <div className="flex flex-col gap-3">
+                            {plans.map((plan) => (
+                              <SurfaceCard key={plan.id} padding="none" className="bg-white/[0.01] border-white/[0.05] overflow-hidden group">
+                                  <InteractiveRow className="p-6">
+                                      <div className="flex items-center gap-5 w-full">
+                                        <div className={cn(
+                                          "w-12 h-12 rounded-2xl border grid place-items-center shrink-0 transition-all",
+                                          plan.isActive ? "bg-[var(--accent-green)]/10 border-[var(--accent-green)]/20 text-[var(--accent-green)]" : "bg-white/[0.03] border-white/[0.07] text-white/20"
+                                        )}>
+                                            <Zap size={22} fill={plan.isActive ? "currentColor" : "none"} />
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <Body className="font-black uppercase tracking-tight text-[15px]">{plan.title}</Body>
+                                            <Subtitle className="text-[10px] font-black font-mono uppercase tracking-[0.2em] opacity-40 mt-1">
+                                              {plan.frequency} · PRÓXIMA: {new Date(plan.nextExecutionDate).toLocaleDateString('pt-BR')}
+                                            </Subtitle>
+                                        </div>
+                                        <SemanticBadge label={plan.isActive ? 'ATIVO' : 'PAUSADO'} variant={plan.isActive ? 'success' : 'default'} className="scale-90 origin-right" />
+                                      </div>
+                                  </InteractiveRow>
+                              </SurfaceCard>
                             ))}
-                           </Stack>
-                        </SurfaceCard>
+                        </div>
                       )}
                    </Stack>
                  )}
 
-                 <ContextBanner 
-                   title="Inteligência de Campo"
-                   meta="OSs rascunho são geradas automaticamente 7 dias antes da execução para preparação da equipe."
-                   icon={<History size={14} />}
-                 />
+                 <SurfaceCard className="bg-white/[0.03] border-white/10 p-5 flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-xl bg-[var(--accent-gold)]/10 flex items-center justify-center text-[var(--accent-gold)]">
+                       <History size={20} />
+                    </div>
+                    <div className="flex flex-col">
+                       <span className="text-[12px] font-black text-white uppercase tracking-tight">Inteligência de Campo</span>
+                       <span className="text-[10px] text-white/40 font-medium">OSs rascunho são geradas automaticamente 7 dias antes da execução.</span>
+                    </div>
+                 </SurfaceCard>
             </Section>
-          </Section>
+          </div>
         )}
       </div>
-    </Modal>
+
+      {/* FOOTER ACTIONS */}
+      <div className="fixed bottom-10 left-6 right-6 z-[1100] flex gap-4">
+        <SecondaryButton onClick={onClose} className="flex-1 h-16 !rounded-2xl font-black text-[11px] uppercase tracking-[0.2em]">
+          FECHAR DOSSIÊ
+        </SecondaryButton>
+        <PrimaryButton 
+          onClick={() => {}} 
+          className="flex-[1.5] h-16 bg-[var(--accent-gold)] text-black font-black text-[12px] tracking-[0.2em] rounded-2xl shadow-[0_20px_50px_rgba(212,169,74,0.3)] flex items-center justify-center gap-3 uppercase"
+        >
+          GERAR INTERVENÇÃO <Wrench size={20} />
+        </PrimaryButton>
+      </div>
+    </div>
   );
 }

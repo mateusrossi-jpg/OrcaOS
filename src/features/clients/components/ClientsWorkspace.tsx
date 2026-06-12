@@ -2,16 +2,12 @@ import { generateUUID } from '../../../core/utils/idGenerator';
 import { useEffect, useMemo, useState, memo } from 'react';
 import { trustLayer } from '../../../core/trust/TrustLayer';
 import { 
-  Users, 
-  MapPin, 
   Plus, 
   ShieldCheck, 
   TrendingUp,
   History,
   ChevronRight,
-  User,
   Activity,
-  ArrowLeft,
   AlertTriangle,
   Clock,
   DollarSign,
@@ -28,18 +24,21 @@ import {
   Star,
   Navigation,
   MessageCircle,
-  Zap
+  Zap,
+  Phone,
+  Map as MapIcon,
+  Briefcase,
+  Home,
+  BookOpen,
+  Download,
+  Award,
+  ArrowUpRight
   } from 'lucide-react';
 import { 
-  SearchInput,
   MoneyValue,
   Modal,
   QueueEmptyState,
-  ContextBanner,
   MonetaryInput,
-  Select,
-  Input,
-  TextArea,
   PrimaryButton,
   DangerButton
 } from '../../../app/components/ui';
@@ -61,7 +60,16 @@ import {
   Heading,
   Value,
   FinancialValue,
-  ERPLoader
+  ERPLoader,
+  GlassSearchInput,
+  GlassInput,
+  GlassSelect,
+  GlassTextarea,
+  HeroCard,
+  TimelineCard,
+  GlassPhoneInput,
+  GlassFormCard,
+  ExecutiveHeader
 } from '../../../ui/system';
 import { clientService } from '../../../services/clientService';
 import { siteService } from '../../../services/siteService';
@@ -81,22 +89,22 @@ import { FastSiteCreationModal } from './FastSiteCreationModal';
 import { ClientZeroBottomSheet, ClientZeroResult } from './ClientZeroBottomSheet';
 import { openWhatsApp, openExternalGPS } from '../../../utils/mobility';
 import { cn } from '../../../utils/ui';
-import { HeroCard } from '../../../components/HeroCard';
 import { BUDGET_STATUS } from '../../../domain/budget';
+import { downloadCSV, generateClientsCSV } from '../../../utils/exportUtils';
+import { fetchAddressByCEP } from '../../../services/cepService';
 
 /**
  * ClientsWorkspace: Strategic Asset Hub.
- * Aligned with AFERIX VISUAL PROTOCOL (Phase 4).
- * SCROLL-FIRST ENFORCED.
+ * RC16: Evolved to Revenue Profile.
  */
-export function ClientsWorkspace({ onNavigate }: { onNavigate: (tab: any) => void }) {
+export function ClientsWorkspace({ onNavigate, initialClientId }: { onNavigate: (tab: any) => void; initialClientId?: string | null }) {
   const [crmList, setCrmList] = useState<ClientCRMProjection[]>([]);
   const [alertHub, setAlertHub] = useState<CRMAlertHubProjection | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   
-  const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
+  const [selectedClientId, setSelectedClientId] = useState<string | null>(initialClientId || null);
   const [clientTimeline, setClientTimeline] = useState<any[]>([]);
   const [isLoadingTimeline, setIsLoadingTimeline] = useState(false);
   const [fullClientData, setFullClientData] = useState<Client | null>(null);
@@ -112,36 +120,43 @@ export function ClientsWorkspace({ onNavigate }: { onNavigate: (tab: any) => voi
   const [selectedAssetId, setSelectedAssetId] = useState<string | null>(null);
   const [isSiteModalOpen, setIsSiteModalOpen] = useState(false);
 
+  const handleExportCSV = () => {
+    const csv = generateClientsCSV(crmList);
+    const timestamp = new Date().toISOString().slice(0, 10).replace(/-/g, '_');
+    downloadCSV(`clientes_${timestamp}.csv`, csv);
+  };
+
   async function loadData() {
     setIsLoading(true);
     setError(null);
     try {
-      console.log('[ClientsWorkspace] Loading intelligence...');
       const [list, hub] = await Promise.all([
         operationalReadModelService.getCRMProjection(),
         operationalReadModelService.getCRMAlertHubProjection()
       ]);
-      console.log('[ClientsWorkspace] Intelligence loaded:', { listCount: list?.length });
       setCrmList(list || []);
       setAlertHub(hub);
     } catch (err) { 
       console.error('CRM Load Failed:', err); 
-      setError('Não foi possível carregar a inteligência de base. Verifique sua conexão local.');
+      setError('Não foi possível carregar a inteligência de base.');
     } finally { 
       setIsLoading(false); 
     }
   }
 
   useEffect(() => { 
-    let mounted = true;
     loadData();
-    return () => { mounted = false; };
   }, []);
+
+  useEffect(() => {
+    if (initialClientId) {
+      openClient360(initialClientId);
+    }
+  }, [initialClientId]);
 
   const handleCreateClientZero = async (result: ClientZeroResult) => {
     setIsClientZeroOpen(false);
     await loadData();
-    // Auto-open the 360 view to allow progressive enrichment
     setTimeout(() => openClient360(result.clientId), 400);
   };
 
@@ -168,12 +183,6 @@ export function ClientsWorkspace({ onNavigate }: { onNavigate: (tab: any) => voi
       setClientMemory(memory);
     } catch (err) { 
       console.error('Timeline/Client Load Failed:', err); 
-      setClientTimeline([]);
-      setFullClientData(null);
-      setSites([]);
-      setAssets([]);
-      setContracts([]);
-      setClientMemory(null);
     } finally { 
       setIsLoadingTimeline(false); 
       setIsLoadingPatrimony(false);
@@ -182,99 +191,51 @@ export function ClientsWorkspace({ onNavigate }: { onNavigate: (tab: any) => voi
 
   const handleRepeatService = async () => {
     if (!clientMemory || !selectedClientId) return;
-    
     try {
       let siteId = sites.length > 0 ? sites[0].id : null;
-      
       if (!siteId) {
-        const existingSites = await siteService.getByClientId(selectedClientId);
-        if (existingSites && existingSites.length > 0) {
-          siteId = existingSites[0].id;
-        } else {
-          const newSite = await siteService.add({
-            clientId: selectedClientId,
-            name: 'Local Principal',
-            fullAddress: 'Endereço não informado',
-            isMain: true
-          });
-          siteId = newSite.id;
-        }
+        const newSite = await siteService.add({ clientId: selectedClientId, name: 'Local Principal', fullAddress: 'Endereço não informado', isMain: true });
+        siteId = newSite.id;
       }
-
-      // Initialize Attendance session (P0 refactor)
       const attendanceId = await operationalFacade.initializeAttendance(selectedClientId, siteId || 'default-site');
-      
       const budgetId = generateUUID();
       const budget = {
-        id: budgetId,
-        clientId: selectedClientId,
-        siteId: siteId || 'default-site',
-        attendanceId,
+        id: budgetId, clientId: selectedClientId, siteId: siteId || 'default-site', attendanceId,
         title: clientMemory.lastServiceTitle || 'Serviço Recorrente',
         status: BUDGET_STATUS.INICIADO,
         chargedValue: clientMemory.lastExecutedValue || 0,
-        materialCost: 0,
-        travelCost: 0,
-        helperCost: 0,
-        fees: 0,
-        discounts: 0,
-        otherCosts: 0,
-        items: clientMemory.lastBudgetItems || [
-          {
-            id: generateUUID(),
-            description: clientMemory.lastServiceTitle || 'Mão de Obra',
-            quantity: 1,
-            unitPrice: clientMemory.lastExecutedValue || 0,
-            category: 'labor' as const
-          }
-        ],
+        items: clientMemory.lastBudgetItems || [{ id: generateUUID(), description: clientMemory.lastServiceTitle || 'Mão de Obra', quantity: 1, unitPrice: clientMemory.lastExecutedValue || 0, category: 'labor' as const }],
         notes: clientMemory.lastServiceDescription,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
+        createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(),
       };
-
       await operationalFacade.saveBudget(budget as any);
       await operationalFacade.finalizeBudget(budgetId);
-      
-      setSelectedClientId(null); 
-      onNavigate('budgets'); 
-      
-      window.dispatchEvent(new CustomEvent('aferix_toast', { 
-        detail: { type: 'success', message: 'Proposta recorrente criada com sucesso!' } 
-      }));
-    } catch (err) {
-      console.error('Failed to repeat service:', err);
-    }
+      setSelectedClientId(null);
+      onNavigate({ tab: 'revenue', budgetId });
+    } catch (e) { console.error(e); }
   };
 
   const handleSaveFullClient = async () => {
     if (!fullClientData) return;
     try {
       await clientService.update(fullClientData);
-      await loadData(); // refresh summary list
-    } catch(err) {
-      console.error('Failed to update client', err);
-    }
+      window.dispatchEvent(new CustomEvent('aferix_toast', { detail: { type: 'success', message: 'Dossiê atualizado com sucesso.' } }));
+      await loadData();
+    } catch (e) { console.error(e); }
   };
 
   const groupedCRM = useMemo(() => {
-    const q = search.toLowerCase().trim();
-    const filtered = crmList.filter(c => (c.clientName || '').toLowerCase().includes(q));
-    
-    // Sort alphabetically
-    const sorted = [...filtered].sort((a, b) => (a.clientName || '').localeCompare(b.clientName || ''));
-    
-    // Group by first letter
+    const sorted = [...crmList].filter(c => !search || c.clientName.toLowerCase().includes(search.toLowerCase()) || (c.phone || '').includes(search)).sort((a, b) => a.clientName.localeCompare(b.clientName));
     return sorted.reduce((acc, client) => {
-      const firstLetter = (client.clientName || '#')[0].toUpperCase();
-      if (!acc[firstLetter]) acc[firstLetter] = [];
-      acc[firstLetter].push(client);
+      const firstLetter = client.clientName.substring(0, 1).toUpperCase();
+      const key = /[A-Z]/.test(firstLetter) ? firstLetter : '#';
+      if (!acc[key]) acc[key] = [];
+      acc[key].push(client);
       return acc;
     }, {} as Record<string, ClientCRMProjection[]>);
   }, [crmList, search]);
 
   const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ#".split("");
-
   const chips = (
     <>
       <OpsChip icon={<UserCheck size={11} />} label={`${crmList.length} ativos`} accent={false} />
@@ -282,294 +243,258 @@ export function ClientsWorkspace({ onNavigate }: { onNavigate: (tab: any) => voi
     </>
   );
 
-  if (isLoading) return <ScreenContainer className="items-center justify-center min-h-[400px]"><ERPLoader message="Mapeando rede..." /></ScreenContainer>;
-  
-  if (error) {
+  if (isLoading) {
     return (
-      <ScreenContainer className="items-center justify-center p-8 text-center gap-6">
-         <AlertTriangle className="h-12 w-12 text-[var(--accent-red)] opacity-20" />
-         <Body className="text-[var(--text-secondary)]">{error}</Body>
-         <PrimaryButton onClick={loadData}>TENTAR NOVAMENTE</PrimaryButton>
-      </ScreenContainer>
+      <div className="h-screen flex items-center justify-center bg-background-primary">
+        <ERPLoader message="Mapeando rede..." />
+      </div>
     );
   }
 
   return (
-    <ScreenContainer className="pb-32">
-      <div className="flex flex-col">
-        
-        {/* ━━━ AUTHORITATIVE HEADER ━━━ */}
-        <AppHeader 
-          title="Clientes."
-          chips={chips}
-        />
-
-        <div className="px-6 py-8 flex flex-col gap-12">
+    <div className="h-screen flex flex-col bg-background-primary overflow-hidden relative">
+      <main className="flex-1 overflow-y-auto scrollbar-none overscroll-none pb-32">
+        <div className="px-5 pt-4 flex flex-col relative z-10 max-w-md mx-auto w-full gap-8">
           
-          {/* 1. CRM HUB HERO */}
-          <Section className="gap-4">
-            <div className="relative overflow-hidden rounded-[28px] bg-gradient-to-b from-[#141924]/95 to-[#080b11]/98 border border-[var(--accent-gold)]/25 shadow-[0_1px_0_rgba(255,255,255,0.06)_inset,0_0_32px_rgba(212,169,78,0.06),0_20px_50px_rgba(0,0,0,0.9)] p-6 animate-scale-pop">
-              {/* Gold ambient radial glow */}
-              <div className="absolute top-0 right-0 w-56 h-56 rounded-full bg-[var(--accent-gold)]/10 blur-[80px] pointer-events-none" />
-              
-              <div className="flex flex-col gap-4">
-                <span className="text-[10px] font-bold font-mono tracking-[0.25em] text-[var(--accent-gold)]">ESTRATÉGIA DE BASE</span>
-                <div className="flex items-baseline justify-between mt-1">
-                  <h3 className="text-[32px] font-black text-white leading-none tracking-tight">{crmList.length} CONTATOS</h3>
-                  <div className="flex items-baseline gap-4">
-                    <Stack className="gap-0.5 items-end">
-                       <SectionLabel className="!text-[8px] opacity-40 uppercase tracking-widest font-mono">LTV Acumulado</SectionLabel>
-                       <FinancialValue value={crmList.reduce((acc, c) => acc + (c.totalRevenue || 0), 0)} className="text-sm font-mono opacity-80" />
-                    </Stack>
-                    <div className="h-6 w-px bg-white/10" />
-                    <Stack className="gap-0.5 items-end">
-                       <SectionLabel className="!text-[8px] opacity-40 uppercase tracking-widest font-mono">Saldo Devedor</SectionLabel>
-                       <FinancialValue value={crmList.reduce((acc, c) => acc + (c.openBalance || 0), 0)} className="text-sm font-mono text-[var(--accent-red)]" />
-                    </Stack>
-                  </div>
-                </div>
-              </div>
+          {/* BUSCA CONTEXTUAL (Estilo Home) */}
+          <div className="bg-surface-secondary border border-white/[0.04] h-12 rounded-[14px] px-4 text-text-secondary w-full focus-within:border-accent-primary/20 transition-all flex items-center gap-3 shadow-inner">
+            <Search size={18} className="text-white/20 shrink-0" />
+            <input 
+              type="text" 
+              placeholder="Localizar contato..." 
+              value={search} 
+              onChange={(e) => setSearch(e.target.value)} 
+              className="w-full bg-transparent text-[15px] outline-none border-none p-0 m-0 focus:ring-0 shadow-none placeholder:text-white/10 text-white" 
+            />
+          </div>
+
+          {/* UNIFIED STRATEGIC PANEL */}
+          <div className="bg-surface-primary border border-border-primary rounded-[24px] overflow-hidden flex flex-col p-6 shadow-2xl relative">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-accent-primary/5 blur-[40px] pointer-events-none" />
+            <span className="text-[9px] font-black text-text-muted uppercase tracking-[0.2em] relative z-10">Estratégia de Base</span>
+            <div className="flex items-baseline justify-between mt-4 relative z-10">
+               <h3 className="text-[28px] font-black text-white leading-none tracking-tight">{crmList.length} CONTATOS</h3>
+               <div className="flex flex-col items-end gap-1">
+                  <span className="text-[8px] opacity-30 uppercase tracking-widest font-mono">LTV Acumulado</span>
+                  <FinancialValue value={crmList.reduce((acc, c) => acc + (c.totalRevenue || 0), 0)} className="text-sm font-mono text-accent-primary font-bold" />
+               </div>
             </div>
-          </Section>
+          </div>
+          
+          {/* ACTION BUTTON */}
+          <button 
+            onClick={() => setIsClientZeroOpen(true)} 
+            className="w-full h-12 bg-white hover:bg-white/95 text-black font-black text-[12px] uppercase tracking-[0.2em] rounded-xl flex items-center justify-center gap-2 active:scale-[0.975] transition-all shadow-[0_10px_25px_rgba(255,255,255,0.08)] cursor-pointer"
+          >
+             <UserPlus size={16} /> Novo Cliente
+          </button>
 
-          {/* HERO ACTION */}
-          <Section className="gap-4">
-             <button 
-                onClick={() => setIsClientZeroOpen(true)} 
-                className="w-full h-14 bg-[var(--accent-gold)] text-black font-black text-[12px] tracking-[0.22em] shadow-[0_0_24px_rgba(255,200,0,0.25)] rounded-xl active:scale-[0.98] transition-all flex items-center justify-center gap-2 uppercase"
-             >
-                NOVO CLIENTE <UserPlus className="h-3.5 w-3.5" />
-             </button>
-          </Section>
-
-          {/* 2. SEARCH & LIST */}
-          <Section className="gap-6">
-             <SearchInput value={search} onChange={setSearch} placeholder="Localizar contato estrategico..." />
+          {/* UNIFIED CLIENT LIST PANEL */}
+          <div className="flex flex-col gap-2.5">
+             <SectionLabel className="!mb-0 text-[10px] font-bold uppercase tracking-[0.2em] text-white/20 px-1">Painel de Clientes</SectionLabel>
              
-             <SurfaceCard padding="none" className="overflow-hidden border-white/[0.04]">
-                <div className="flex items-center justify-between px-6 pt-[22px] pb-[18px]">
-                   <SectionLabel>Base de Dados</SectionLabel>
-                   <div className="flex items-center gap-2">
-                      <span className="text-[9px] font-black text-white/20 uppercase tracking-widest">{Object.keys(groupedCRM).length} Grupos</span>
-                      <TrendingUp size={14} className="text-[var(--text-tertiary)] opacity-30" />
-                   </div>
-                </div>
-
+             <div className="bg-surface-primary border border-border-primary rounded-[24px] overflow-hidden flex flex-col">
                 {Object.keys(groupedCRM).length === 0 ? (
-                  <div className="py-24 px-6 text-center">
-                     <div className="w-16 h-16 rounded-2xl bg-white/[0.02] border border-white/[0.05] grid place-items-center mx-auto mb-6 opacity-20">
-                        <Users size={32} className="text-white" />
-                     </div>
-                     <Body className="font-mono text-[10px] font-black tracking-[0.2em] uppercase opacity-40 mb-8">SEM_INTELIGÊNCIA_DE_BASE</Body>
-                     <PrimaryButton 
-                        onClick={() => setIsClientZeroOpen(true)}
-                        className="mt-6 mx-auto w-auto px-8"
-                     >
-                        Cadastrar Primeiro Cliente
-                     </PrimaryButton>
+                  <div className="p-12 text-center flex flex-col items-center gap-4 opacity-30">
+                     <Users size={32} className="text-white/20" />
+                     <span className="text-[11px] font-mono font-black uppercase tracking-widest">Nenhum Contato</span>
                   </div>
                 ) : (
-                  <div className="flex">
-                    {/* LISTA AGRUPADA */}
-                    <div className="flex-1 flex flex-col">
-                      {Object.entries(groupedCRM).map(([letter, clients]) => (
-                        <div key={letter} id={`letter-${letter}`}>
-                           <div className="bg-white/[0.02] px-6 py-2 border-y border-white/[0.04]">
-                              <span className="text-[11px] font-black text-[var(--accent-gold)] font-mono">{letter}</span>
-                           </div>
-                           <Stack className="gap-0">
-                              {clients.map((crm) => (
-                                <InteractiveRow 
-                                  key={crm.clientId}
-                                  onClick={() => openClient360(crm.clientId)}
-                                  leftSlot={
-                                    <div className="w-10 h-10 rounded-xl bg-white/[0.03] border border-white/[0.06] grid place-items-center">
-                                      <span className="text-xl leading-none">
-                                        {crm.relationshipStatus.includes('VIP') ? "👑" : "👤"}
-                                      </span>
-                                    </div>
-                                  }
-                                >
-                                  <div className="flex items-center gap-4 w-full">
-                                    <div className="flex-1 min-w-0">
-                                      <div className="flex items-center gap-2 mb-1">
-                                          <Body className="truncate leading-tight uppercase font-black tracking-tight text-white text-[14px]">
-                                            {crm.clientName || 'Cliente sem nome'}
-                                          </Body>
-                                          {crm.relationshipScore > 80 && <div className="w-1.5 h-1.5 rounded-full bg-[var(--accent-green)] shrink-0 shadow-[0_0_8px_var(--accent-green)]" />}
-                                      </div>
-                                      <Subtitle className="text-[11px] truncate text-[var(--text-secondary)] font-medium">
-                                          {crm.daysInactive === 0 ? 'Ativo hoje' : `Inativo há ${crm.daysInactive} dias`} · Score: {crm.relationshipScore}%
-                                      </Subtitle>
-                                    </div>
-                                    <Stack className="items-end gap-1 shrink-0">
-                                      <FinancialValue 
-                                        value={crm.openBalance > 0 ? crm.openBalance : crm.totalRevenue} 
-                                        compact 
-                                        className={cn("text-[14px] font-mono font-bold", crm.openBalance > 0 ? "text-[var(--accent-red)]" : "text-[var(--accent-gold)]")} 
-                                      />
-                                      <SectionLabel className="!text-[8px] !text-[var(--text-tertiary)] uppercase tracking-widest font-mono">{crm.openBalance > 0 ? 'DEVEDOR' : 'LTV ACUM'}</SectionLabel>
-                                    </Stack>
+                  <div className="flex flex-col">
+                    {Object.entries(groupedCRM).map(([letter, clients]) => (
+                      <div key={letter} id={`letter-${letter}`}>
+                         <div className="bg-white/[0.01] px-6 py-2 border-b border-border-secondary flex items-center justify-between">
+                            <span className="text-[10px] font-bold text-accent-primary font-mono">{letter}</span>
+                            <span className="text-[8px] text-text-muted uppercase tracking-widest">{clients.length} itens</span>
+                         </div>
+                         {clients.map((crm, i) => (
+                           <div 
+                             key={crm.clientId} 
+                             className={cn(
+                               "p-4 px-6 flex items-center justify-between active:bg-white/[0.02] transition-colors cursor-pointer hover:bg-white/[0.01]",
+                               (i !== clients.length - 1) && "border-b border-border-secondary"
+                             )}
+                             onClick={() => openClient360(crm.clientId)}
+                           >
+                              <div className="flex items-center gap-3.5">
+                                 <div className="w-9 h-9 rounded-xl bg-surface-secondary border border-border-primary flex items-center justify-center text-[13px] font-bold text-accent-primary uppercase">
+                                    {crm.clientName.charAt(0)}
+                                 </div>
+                                 <div className="flex flex-col gap-0.5">
+                                    <span className="text-[14px] font-bold text-white tracking-tight leading-none uppercase">{crm.clientName}</span>
+                                    <span className="text-[10px] text-text-muted font-medium uppercase tracking-wider mt-1">Status: {crm.relationshipStatus} • {crm.relationshipScore}% Score</span>
                                   </div>
-                                </InteractiveRow>
-                              ))}
-                           </Stack>
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* ALPHA INDEXER (SIDEBAR RÁPIDA) */}
-                    <div className="w-8 flex flex-col items-center justify-center gap-0.5 py-4 border-l border-white/[0.03]">
-                       {alphabet.map(letter => (
-                         <button 
-                           key={letter}
-                           onClick={() => document.getElementById(`letter-${letter}`)?.scrollIntoView({ behavior: 'smooth' })}
-                           className={cn(
-                             "text-[9px] font-black w-full text-center py-0.5 transition-colors",
-                             groupedCRM[letter] ? "text-[var(--accent-gold)]" : "text-white/5 pointer-events-none"
-                           )}
-                         >
-                           {letter}
-                         </button>
-                       ))}
-                    </div>
+                               </div>
+                               <ChevronRight size={14} className="text-text-muted" />
+                            </div>
+                          ))}
+                       </div>
+                    ))}
                   </div>
                 )}
-                <div className="h-2" />
-             </SurfaceCard>
-          </Section>
-
-          <ContextBanner 
-            title="Inteligência de Base" 
-            meta="O Aferix monitora o silêncio dos seus clientes VIPs para sugerir follow-ups proativos." 
-            icon={<ShieldCheck size={18} />} 
-          />
+             </div>
+          </div>
         </div>
-      </div>
-
+      </main>
       <Asset360Modal assetId={selectedAssetId} onClose={() => setSelectedAssetId(null)} />
 
-      <Modal isOpen={!!selectedClientId} onClose={() => setSelectedClientId(null)} title={(selectedClientSummary?.clientName || "Dossiê").toUpperCase()} confirmLabel="Fechar" onConfirm={() => setSelectedClientId(null)}>
-         <Section className="gap-8 pt-6 pb-12">
-            
-            {/* V7: DOSSIÊ EXECUTIVO (0 SCROLL) */}
-            {clientMemory && (
-              <div className="flex flex-col gap-6 animate-scale-pop">
-                
-                <SurfaceCard padding="lg" className="border-white/10 bg-gradient-to-br from-white/[0.03] to-transparent shadow-[0_12px_40px_rgba(0,0,0,0.4)]">
-                   <div className="flex justify-between items-start mb-6">
-                      <Stack className="gap-1">
-                         <div className="flex items-center gap-2">
-                            <span className="text-lg">{clientMemory.tier === 'DIAMANTE' ? '💎' : clientMemory.tier === 'OURO' ? '🥇' : clientMemory.tier === 'PRATA' ? '🥈' : '🥉'}</span>
-                            <SectionLabel className="!text-[9px] font-black tracking-[0.2em] text-white/40 uppercase">CLIENTE_{clientMemory.tier}</SectionLabel>
-                         </div>
-                         <Body className="text-[22px] font-black text-white leading-tight uppercase truncate max-w-[200px]">{fullClientData?.name}</Body>
-                      </Stack>
-                      <div className="flex flex-col items-end gap-1">
-                         <FinancialValue value={clientMemory.totalRevenue} className="text-[20px] font-mono font-black text-[var(--accent-gold)]" />
-                         <span className="text-[8px] font-bold text-white/30 uppercase tracking-widest">RECEITA_TOTAL_LTV</span>
-                      </div>
-                   </div>
+      {selectedClientId && (
+        <div className="fixed inset-0 z-[1000] bg-background-primary overflow-y-auto animate-in slide-in-from-right-6 duration-500 pb-40">
+           {/* Top Navigation */}
+           <div className="animate-fade-in bg-background-primary/95 backdrop-blur-xl border-b border-border-secondary pt-[calc(env(safe-area-inset-top,0px)+6px)] pb-1.5 sticky top-0 z-[1000] shadow-2xl w-full">
+              <div className="max-w-md mx-auto w-full px-5 flex items-center justify-between">
+                 <button 
+                   onClick={() => setSelectedClientId(null)}
+                   className="aferix-header-btn"
+                   aria-label="Voltar"
+                 >
+                   <ArrowUpRight size={19} strokeWidth={1.8} className="rotate-[225deg]" />
+                 </button>
+                 
+                 <div className="flex items-center gap-1.5 select-none">
+                   <span className="text-[13px] font-black tracking-[0.18em] text-white leading-none uppercase">
+                     Dossiê Técnico
+                   </span>
+                   <div className="w-1.5 h-1.5 rounded-full bg-[#47C46A] shadow-[0_0_6px_rgba(71,196,106,0.5)] animate-pulse" />
+                 </div>
 
-                   <ExecutiveSummaryGrid className="!grid-cols-2 gap-4">
-                      <ValueBlock label="Ticket Médio" value={formatCurrencyBRL(clientMemory.averageTicket)} compact />
-                      <ValueBlock label="Frequência" value={clientMemory.serviceFrequencyDays ? `${clientMemory.serviceFrequencyDays} dias` : '--'} compact />
-                      <ValueBlock label="Última Visita" value={clientMemory.lastAttendanceDate ? `${Math.floor((Date.now() - new Date(clientMemory.lastAttendanceDate).getTime()) / (1000 * 60 * 60 * 24))} dias` : '--'} compact />
-                      <ValueBlock label="Saldo Devedor" value={formatCurrencyBRL(selectedClientSummary?.openBalance || 0)} variant={selectedClientSummary?.openBalance ? "danger" : "default"} compact />
-                   </ExecutiveSummaryGrid>
-
-                   {/* PRÓXIMA OPORTUNIDADE (P1) */}
-                   {clientMemory.nextOpportunity && (
-                     <button 
-                       className="w-full mt-6 p-4 rounded-xl bg-[var(--accent-gold)]/10 border border-[var(--accent-gold)]/20 flex items-center justify-between group active:scale-[0.98] transition-all" 
-                       onClick={handleRepeatService}
-                     >
-                        <div className="flex items-center gap-4">
-                           <div className="w-10 h-10 rounded-full bg-[var(--accent-gold)]/10 flex items-center justify-center">
-                              <TrendingUp size={18} className="text-[var(--accent-gold)]" />
-                           </div>
-                           <Stack className="gap-0.5 items-start text-left">
-                              <span className="text-[10px] font-black text-[var(--accent-gold)] uppercase tracking-widest">Ação Sugerida</span>
-                              <Body className="text-[13px] font-black text-white uppercase">{clientMemory.nextOpportunity.title}</Body>
-                           </Stack>
-                        </div>
-                        <div className="flex flex-col items-end">
-                           <FinancialValue value={clientMemory.nextOpportunity.potentialValue} className="text-[13px] font-mono font-bold text-white" />
-                           <span className="text-[9px] font-bold text-[var(--accent-gold)]">PROPOR</span>
-                        </div>
-                     </button>
-                   )}
-                </SurfaceCard>
-
-                {/* AÇÕES DE IMPACTO */}
-                <div className="flex gap-3">
-                   <button 
-                     onClick={() => openWhatsApp(fullClientData?.phone || '')}
-                     className="flex-1 h-14 flex items-center justify-center gap-3 rounded-xl bg-[var(--accent-green)]/10 text-[var(--accent-green)] font-black text-[11px] uppercase tracking-widest border border-[var(--accent-green)]/20 active:bg-[var(--accent-green)]/20 transition-all shadow-inner"
-                   >
-                     <MessageCircle size={16} /> WHATSAPP
-                   </button>
-                   <button 
-                     onClick={handleRepeatService}
-                     className="flex-1 h-14 bg-[var(--accent-gold)] text-black font-black text-[11px] tracking-[0.2em] rounded-xl active:scale-[0.98] transition-all flex items-center justify-center gap-2 uppercase shadow-[0_8px_20px_rgba(255,200,0,0.15)]"
-                   >
-                     REPETIR SERVIÇO <Zap size={14} className="fill-black" />
-                   </button>
-                </div>
+                 <div className="w-[38px] h-[38px]" /> {/* Spacer */}
               </div>
-            )}
+           </div>
 
-            {/* SEÇÕES SECUNDÁRIAS (ACORDEÃO OU MINIMIZADAS) */}
-            <div className="flex flex-col gap-6 pt-4">
-               {sites.length > 0 && (
-                 <div className="p-4 bg-white/[0.02] border border-white/[0.05] rounded-xl flex items-center justify-between">
-                    <Stack className="gap-0.5">
-                       <SectionLabel className="!text-[8px]">ENDEREÇO_PRINCIPAL</SectionLabel>
-                       <Body className="text-[12px] font-bold text-white truncate max-w-[220px] uppercase tracking-tight">{sites[0].fullAddress}</Body>
-                    </Stack>
-                    <button onClick={() => openExternalGPS(sites[0].fullAddress)} className="w-10 h-10 rounded-lg bg-white/[0.03] border border-white/5 grid place-items-center text-[var(--accent-gold)]">
-                       <Navigation size={18} />
-                    </button>
-                 </div>
-               )}
-
-               {clientTimeline.length > 0 && (
-                 <div className="flex flex-col gap-4">
-                    <SectionLabel className="!text-[10px] opacity-40 ml-1">Última Atividade</SectionLabel>
-                    <div className="flex gap-4 p-4 rounded-xl border border-dashed border-white/10 opacity-60">
-                       <div className="w-1.5 h-1.5 rounded-full bg-[var(--accent-gold)] mt-1.5 shadow-[0_0_8px_var(--accent-gold)]" />
-                       <Stack className="gap-0.5">
-                          <Body className="text-[12px] font-black text-white uppercase">{clientTimeline[0].title}</Body>
-                          <Subtitle className="text-[11px]">{new Date(clientTimeline[0].timestamp).toLocaleDateString('pt-BR')} · {clientTimeline[0].description}</Subtitle>
-                       </Stack>
+           <div className="px-5 pt-4 flex flex-col gap-8 max-w-md mx-auto w-full">
+              {clientMemory && (
+                <div className="flex flex-col gap-8">
+                  {/* UNIFIED IDENTITY PANEL */}
+                  <div className="flex flex-col gap-4">
+                    <h1 className="text-[24px] font-black text-white uppercase leading-[0.9] tracking-tight">{fullClientData?.name}</h1>
+                    <div className="flex items-center gap-2">
+                       <div className="bg-accent-primary/10 px-2 py-0.5 rounded-[4px] border border-accent-primary/20">
+                          <span className="text-[9px] font-black text-accent-primary uppercase tracking-widest">PERFIL_{clientMemory.tier}</span>
+                       </div>
+                       <span className="text-[9px] font-mono text-text-muted uppercase tracking-widest">REG_ID_{selectedClientId.slice(0, 8)}</span>
                     </div>
-                 </div>
-               )}
-            </div>
-            
-         </Section>
-      </Modal>
+                  </div>
 
-      {/* CLIENT ZERO BOTTOM SHEET — Fase 1+2+3 (Progressive Profile) */}
-      <ClientZeroBottomSheet
-        isOpen={isClientZeroOpen}
-        onClose={() => setIsClientZeroOpen(false)}
-        onClientSelected={handleCreateClientZero}
-      />
+                  {/* UNIFIED EXECUTIVE METRICS */}
+                  <div className="grid grid-cols-2 gap-2.5">
+                     <div className="bg-surface-primary border border-border-primary rounded-[20px] p-5 flex flex-col gap-1 shadow-sm">
+                        <span className="text-[9px] font-black text-text-muted uppercase tracking-[0.15em]">Aprovação</span>
+                        <span className="text-[20px] font-mono font-black text-gradient-premium leading-none my-1">{clientMemory.acceptanceRate}%</span>
+                     </div>
+                     <div className="bg-surface-primary border border-border-primary rounded-[20px] p-5 flex flex-col gap-1 shadow-sm">
+                        <span className="text-[9px] font-black text-text-muted uppercase tracking-[0.15em]">Ticket Médio</span>
+                        <span className="text-[20px] font-mono font-black text-gradient-premium leading-none my-1">{formatCurrencyBRL(clientMemory.averageTicket)}</span>
+                     </div>
+                     <div className="bg-surface-primary border border-border-primary rounded-[20px] p-5 flex flex-col gap-1 shadow-sm">
+                        <span className="text-[9px] font-black text-text-muted uppercase tracking-[0.15em]">LTV Global</span>
+                        <span className="text-[20px] font-mono font-black text-success leading-none my-1">{formatCurrencyBRL(clientMemory.totalRevenue)}</span>
+                     </div>
+                     <div className="bg-surface-primary border border-border-primary rounded-[20px] p-5 flex flex-col gap-1 shadow-sm">
+                        <span className="text-[9px] font-black text-text-muted uppercase tracking-[0.15em]">Aberto</span>
+                        <span className={cn("text-[20px] font-mono font-black leading-none my-1", clientMemory.openReceivables > 0 ? "text-danger" : "text-gradient-premium")}>{formatCurrencyBRL(clientMemory.openReceivables)}</span>
+                     </div>
+                  </div>
 
-      {isSiteModalOpen && selectedClientId && (
-        <FastSiteCreationModal 
-          clientId={selectedClientId} 
-          isOpen={isSiteModalOpen} 
-          onClose={() => setIsSiteModalOpen(false)} 
-          onSuccess={async (siteId) => {
-             setIsSiteModalOpen(false);
-             const updatedSites = await siteService.getByClientId(selectedClientId);
-             if (updatedSites) setSites(updatedSites);
-          }} 
-        />
+                  {/* UNIFIED ACTIONABLE INTELLIGENCE */}
+                  <div className="flex flex-col gap-4">
+                    <div className="flex items-center gap-2 px-1">
+                       <Zap size={14} className="text-accent-primary" />
+                       <span className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em]">Sugestões de Ação</span>
+                    </div>
+                    <div className="flex flex-col gap-2.5">
+                        {clientMemory.recommendations.map((rec, i) => (
+                          <div 
+                            key={i} 
+                            className="bg-surface-primary border border-border-primary rounded-[20px] p-4 flex items-center justify-between cursor-pointer interactive-card"
+                            onClick={() => { if (rec.type === 'REPEAT_SERVICE') handleRepeatService(); if (rec.type === 'FOLLOW_UP') onNavigate({ tab: 'revenue', id: rec.metadata?.budgetId }); }}
+                          >
+                             <div className="flex items-center gap-4.5">
+                                <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center border", rec.type === 'COLLECT' ? "bg-danger/5 border-danger/10 text-danger" : "bg-accent-primary/5 border-accent-primary/10 text-accent-primary")}>
+                                   {rec.type === 'COLLECT' ? <DollarSign size={20} /> : <Zap size={20} />}
+                                </div>
+                                <div className="flex flex-col gap-0.5">
+                                   <span className="text-[14px] font-bold text-white uppercase tracking-tight leading-tight">{rec.title}</span>
+                                   <span className="text-[10.5px] text-text-secondary font-medium">{rec.description}</span>
+                                </div>
+                             </div>
+                             <ChevronRight size={14} className="text-text-muted" />
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+
+                  {/* UNIFIED ASSET PANEL */}
+                  {assets.length > 0 && (
+                    <div className="flex flex-col gap-4">
+                       <span className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] px-1">Malha de Ativos ({assets.length})</span>
+                       <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-none snap-x snap-mandatory">
+                          {assets.map(asset => (
+                            <div 
+                              key={asset.id} 
+                              className="min-w-[180px] snap-start bg-surface-primary border border-border-primary rounded-[20px] p-5 flex flex-col gap-3 cursor-pointer shadow-md interactive-card"
+                              onClick={() => setSelectedAssetId(asset.id)}
+                            >
+                               <span className="text-[8px] font-black text-accent-primary uppercase tracking-[0.2em]">{asset.tag || 'SEM_TAG'}</span>
+                               <span className="text-[13px] font-bold text-white uppercase truncate">{asset.name}</span>
+                               <div className="flex items-center gap-2 mt-1">
+                                  <div className="w-1.5 h-1.5 rounded-full led-green" />
+                                  <span className="text-[9px] text-text-muted font-bold uppercase">Operacional</span>
+                                </div>
+                            </div>
+                          ))}
+                       </div>
+                    </div>
+                  )}
+
+                  {/* UNIFIED TIMELINE PANEL */}
+                  <div className="flex flex-col gap-4">
+                      <span className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] px-1">Histórico Técnico</span>
+                      <div className="bg-surface-primary border border-border-primary rounded-[20px] overflow-hidden flex flex-col">
+                        {clientTimeline.slice(0, 5).map((evt, idx) => (
+                          <div 
+                            key={evt.id} 
+                            className={cn(
+                              "p-4 px-6 flex items-center justify-between",
+                              idx !== clientTimeline.slice(0, 5).length - 1 && "border-b border-border-secondary"
+                            )}
+                          >
+                             <div className="flex flex-col gap-0.5">
+                                <span className="text-[13.5px] font-bold text-white tracking-tight">{evt.title}</span>
+                                <span className="text-[10px] text-text-muted font-bold uppercase tracking-widest">
+                                   {new Date(evt.timestamp).toLocaleDateString('pt-BR')} • {evt.aggregateType === 'budget' ? 'ORÇAMENTO' : 'OS'}
+                                </span>
+                             </div>
+                             {evt.metadata?.total && (
+                               <span className="text-[11.5px] font-mono text-text-muted font-bold">{formatCurrencyBRL(evt.metadata.total)}</span>
+                             )}
+                          </div>
+                        ))}
+                      </div>
+                  </div>
+                </div>
+              )}
+           </div>
+
+           {/* FOOTER ACTION BAR */}
+           <div className="fixed bottom-8 left-1/2 -translate-x-1/2 w-[calc(100%-32px)] max-w-md z-[1100] flex gap-3 px-1">
+              <button 
+                onClick={() => openWhatsApp(fullClientData?.phone || '')} 
+                className="flex-1 h-12 flex items-center justify-center gap-2 rounded-xl bg-success/10 text-success font-bold text-[11px] uppercase tracking-[0.2em] border border-success/20 active:scale-95 transition-all backdrop-blur-md"
+              >
+                <MessageCircle size={16} /> WhatsApp
+              </button>
+              <button 
+                onClick={handleRepeatService} 
+                className="flex-[1.5] h-12 bg-accent-primary text-black font-black text-[11px] tracking-[0.2em] rounded-xl active:scale-[0.975] hover:brightness-110 transition-all shadow-lg flex items-center justify-center gap-2 uppercase"
+              >
+                Repetir Serviço <Zap size={16} />
+              </button>
+           </div>
+        </div>
       )}
 
-    </ScreenContainer>
+      <ClientZeroBottomSheet isOpen={isClientZeroOpen} onClose={() => setIsClientZeroOpen(false)} onClientSelected={handleCreateClientZero} />
+    </div>
   );
 }

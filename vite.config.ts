@@ -10,6 +10,7 @@ const dirname = typeof __dirname !== 'undefined' ? __dirname : path.dirname(file
 // More info at: https://storybook.js.org/docs/next/writing-tests/integrations/vitest-addon
 export default defineConfig({
   plugins: [react()],
+  base: './',
   build: {
     rollupOptions: {
       output: {
@@ -23,7 +24,7 @@ export default defineConfig({
     chunkSizeWarningLimit: 1600
   },
   server: {
-    host: true,
+    host: '0.0.0.0',
     port: 5173,
     open: true
   },

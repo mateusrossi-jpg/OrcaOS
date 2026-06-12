@@ -44,21 +44,21 @@ export interface Budget extends MultiTenantEntity {
   id: string;
   clientId?: string;
   clientName?: string; // Fallback/livre UI
-  siteId: string; // Mandatory (Site-First Architecture)
+  siteId?: string; // Mandatory (Site-First Architecture)
   attendanceId?: string; // Reference to Attendance (1:N)
   title: string;
   status: BudgetStatus;
   
   // Financial Core Inputs
   chargedValue: number; // Preço do Serviço Final (Faturamento)
-  materialCost: number;
-  travelCost: number;
-  helperCost: number;
-  fees: number;
-  discounts: number;
-  otherCosts: number;
+  materialCost?: number;
+  travelCost?: number;
+  helperCost?: number;
+  fees?: number;
+  discounts?: number;
+  otherCosts?: number;
   
-  items: BudgetItem[];
+  items?: BudgetItem[];
   evidences?: string[]; // Array of base64 or URLs (photos, audio URIs)
   
   // Presentation & Terms
@@ -72,8 +72,8 @@ export interface Budget extends MultiTenantEntity {
   executionDeadline?: string;
   
   // Metadata
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
   syncStatus?: 'synced' | 'pending' | 'deleted';
   syncUpdatedAt?: number;
   finalizedAt?: string;

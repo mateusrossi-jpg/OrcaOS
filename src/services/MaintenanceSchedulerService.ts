@@ -57,6 +57,7 @@ export class MaintenanceSchedulerService {
       status: 'iniciado' as const,
       companyId: 'default-company',
       workspaceId: 'default-workspace',
+      syncStatus: 'pending' as const,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       progress: 0,

@@ -73,6 +73,7 @@ export type ClientCRMStatus = 'ACTIVE' | 'WARM' | 'INACTIVE' | 'AT_RISK' | 'DEBT
 export interface ClientCRMProjection {
   readonly clientId: string;
   readonly clientName: string;
+  readonly phone?: string;
   readonly totalRevenue: number;
   readonly openBalance: number;
   readonly totalWorkOrders: number;

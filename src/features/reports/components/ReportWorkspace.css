@@ -3,4 +3,41 @@
    Unified Design System Integration
    ========================================================================== */
 
-/* Cleanup: Many local styles are now handled by design system global utilities or direct component injection. */
+.report-document,
+.report-content {
+  color-scheme: light;
+  background: #fcfbf8;
+  color: #111827;
+  padding: 40px;
+  width: 100%;
+}
+
+.report-document :where(h1, h2, h3, strong) {
+  color: #000000;
+}
+
+.report-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+  opacity: 0.5;
+}
+
+@media (max-width: 640px) {
+  .report-document {
+    padding: 20px;
+  }
+}
+
+@media print {
+  .report-document {
+    padding: 0;
+    background: white;
+  }
+  .report-empty-state {
+    display: none;
+  }
+}

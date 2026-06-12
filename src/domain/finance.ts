@@ -7,7 +7,7 @@ export interface SimpleFinanceRecord extends MultiTenantEntity {
   title: string;
   clientId: string; // Source of Truth para o pagador
   siteId?: string; // Onde o serviço gerador do custo aconteceu
-  clientName: string; // [DERIVADO/CACHE] Apenas para leitura rápida na UI
+  clientName?: string; // [DERIVADO/CACHE] Apenas para leitura rápida na UI
   status: FinanceStatus;
   workOrderId: string;
   expectedValue: number;
@@ -29,8 +29,8 @@ export interface SimpleFinanceRecord extends MultiTenantEntity {
 
 export interface SimpleFinanceRecordInput {
   id?: string | null;
-  companyId?: string;
-  workspaceId?: string;
+  companyId: string;
+  workspaceId: string;
   title: string;
   clientId: string;
   siteId?: string;

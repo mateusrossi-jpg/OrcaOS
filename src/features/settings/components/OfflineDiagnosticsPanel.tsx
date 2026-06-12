@@ -19,9 +19,6 @@ import { databaseRecoveryService } from '../../../services/DatabaseRecoveryServi
 import { cloudSyncService } from '../../../services/CloudSyncService';
 import { 
   ERPLoader,
-  ContextBanner,
-  PrimaryButton,
-  SecondaryButton
 } from '../../../app/components/ui';
 
 import { 
@@ -209,25 +206,31 @@ export const OfflineDiagnosticsPanel = memo(function OfflineDiagnosticsPanel() {
            </div>
 
            <div className="flex gap-3 items-center">
-              <SecondaryButton 
+              <button 
                 onClick={handleRecovery}
                 disabled={isRecovering}
-                className="flex-1 h-14 !rounded-2xl !text-[10px] !tracking-[0.2em] font-mono flex items-center justify-center"
+                className="flex-1 h-14 rounded-2xl bg-white/[0.04] border border-white/[0.08] text-white font-black text-[10px] uppercase tracking-widest font-mono flex items-center justify-center gap-2 active:scale-[0.98] transition-all disabled:opacity-40"
               >
                  {isRecovering ? 'PROCESSANDO...' : 'REINDEXAR_DEXIE'}
-              </SecondaryButton>
-              <PrimaryButton 
+              </button>
+              <button 
                 onClick={handleSync}
                 disabled={isSyncing}
-                className="flex-1 h-14 !rounded-2xl !text-[10px] !tracking-[0.2em] font-mono flex items-center justify-center"
+                className="flex-1 h-14 rounded-2xl bg-[#D4AF37] text-black font-black text-[10px] uppercase tracking-[0.15em] font-mono flex items-center justify-center gap-2 shadow-[0_6px_20px_rgba(212,169,74,0.2)] hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-40"
               >
                  {isSyncing ? 'SINCRONIZANDO...' : 'SINCRONIZAR_CLOUD'}
-              </PrimaryButton>
+              </button>
            </div>
         </SurfaceCard>
       </div>
 
-      <ContextBanner title="Resiliência Ativa" meta="O Aferix reconstrói o estado operacional a partir da trilha de eventos imutável em caso de corrupção." icon={<RefreshCw size={14} />} />
+      <div className="flex items-start gap-3 p-4 rounded-2xl bg-white/[0.02] border border-white/[0.05]">
+        <RefreshCw size={14} className="text-white/20 mt-0.5 shrink-0" />
+        <div>
+          <span className="text-[10px] font-black text-white/30 uppercase tracking-widest block mb-1">Resiliência Ativa</span>
+          <span className="text-[11px] text-white/20 leading-relaxed">O Aferix reconstrói o estado operacional a partir da trilha de eventos imutatível em caso de corrupção.</span>
+        </div>
+      </div>
 
     </div>
   );

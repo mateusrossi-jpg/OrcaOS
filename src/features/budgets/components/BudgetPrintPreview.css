@@ -1,23 +1,43 @@
 /* ==========================================================================
-   AFERIX BUDGET PREVIEW — EXECUTIVE CONTROL SURFACE
+   AFERIX BUDGETS — EXECUTIVE PRINT PREVIEW
    Unified Design System Integration
    ========================================================================== */
 
-/* Cleanup: Many local styles are now handled by design system global utilities or direct component injection. */
-
-/* PRINT DOCUMENT CORE (Do not modify functional document styles) */
-.document-preview-container {
-  display: flex;
-  justify-content: center;
-  padding-bottom: 120px;
+.print-preview-shell {
+  width: 100%;
+  background: var(--bg-primary);
+  min-height: 100vh;
 }
 
-.budget-preview-inner-layout {
-  transform-origin: top center;
+.print-document {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  background: white;
+  color: #111827;
+  overflow: visible;
+}
+
+.print-logo {
+  max-height: 80px;
+  object-contain: contain;
+}
+
+.print-validation-alert {
+  background: #fffbeb;
+  border: 1px solid #fcd34d;
+  color: #92400e;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 24px;
 }
 
 @media print {
-  .no-print { display: none !important; }
-  body { background: white !important; }
-  .document-preview-container { padding: 0 !important; }
+  .print-preview-shell {
+    background: white;
+  }
+  .print-document {
+    max-width: none;
+    margin: 0;
+  }
 }

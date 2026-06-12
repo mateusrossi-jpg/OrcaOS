@@ -124,7 +124,7 @@ class PilotTelemetryService {
     if (!this.enabled) return () => {};
     const startTime = performance.now();
     let touchCount = 0;
-    let editCount = 0;
+    const editCount = 0;
 
     // Track touches during the flow
     const onTouch = () => { touchCount++; };

@@ -1,6 +1,17 @@
 import React, { useState } from 'react';
-import { ScreenContainer, SurfaceCard, SectionLabel, InteractiveRow, Title, Body, AppHeader } from '../../../ui/system';
-import { Input, PrimaryButton, Select } from '../../../app/components/ui';
+import { 
+  ScreenContainer, 
+  SurfaceCard, 
+  SectionLabel, 
+  InteractiveRow, 
+  Title, 
+  Body, 
+  AppHeader,
+  GlassInput,
+  GlassSelect,
+  GlassFormCard
+} from '../../../ui/system';
+import { PrimaryButton } from '../../../app/components/ui';
 
 interface AssetCaptureModalProps {
   clientId: string;
@@ -9,6 +20,10 @@ interface AssetCaptureModalProps {
   onSave: (assetData: any) => void;
 }
 
+/**
+ * AssetCaptureModal: Tactical field data entry.
+ * Aligned with Executive OS (Phase 6 Hardening).
+ */
 export const AssetCaptureModal: React.FC<AssetCaptureModalProps> = ({ clientId, siteId, onClose, onSave }) => {
   const [formData, setFormData] = useState({
     name: '',
@@ -35,23 +50,21 @@ export const AssetCaptureModal: React.FC<AssetCaptureModalProps> = ({ clientId, 
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-black">
-      <AppHeader title="Mapear Equipamento." subtitle="Registrar novo ativo no local." onBack={onClose} />
-      <div className="flex-1 overflow-y-auto p-4 pb-32 mt-4 space-y-6">
-        <SurfaceCard padding="lg">
-          <SectionLabel className="mb-4">Dados do Equipamento</SectionLabel>
-          <div className="space-y-4">
-            <Input 
-              label="Nome / Identificação" 
+    <div className="fixed inset-0 z-[2000] flex flex-col bg-aferix-bg animate-in fade-in slide-in-from-bottom-6 duration-700">
+      <AppHeader title="Mapear Ativo." subtitle="Registro técnico em tempo real." onBack={onClose} />
+      
+      <div className="flex-1 overflow-y-auto px-6 pt-10 pb-40">
+        <GlassFormCard title="ESPECIFICAÇÕES TÉCNICAS">
+            <GlassInput 
+              label="Nome do Equipamento" 
               placeholder="Ex: Ar Condicionado Sala 1" 
               value={formData.name} 
               onChange={e => updateField('name', e.target.value)} 
-              required 
             />
-            <Select 
-              label="Categoria" 
+            <GlassSelect 
+              label="Categoria de Ativo" 
               value={formData.category} 
-              onChange={val => updateField('category', val)} 
+              onChange={e => updateField('category', e.target.value)} 
             >
               <option value="">Selecione...</option>
               <option value="HVAC">Climatização (HVAC)</option>
@@ -59,33 +72,32 @@ export const AssetCaptureModal: React.FC<AssetCaptureModalProps> = ({ clientId, 
               <option value="SEGURANÇA">Segurança Eletrônica</option>
               <option value="HIDRÁULICA">Hidráulica</option>
               <option value="OUTROS">Outros</option>
-            </Select>
-            <Input 
-              label="Fabricante" 
-              placeholder="Ex: Carrier, Intelbras..." 
-              value={formData.manufacturer} 
-              onChange={e => updateField('manufacturer', e.target.value)} 
-            />
-            <Input 
-              label="Modelo / Capacidade" 
-              placeholder="Ex: 12.000 BTUs Inverter" 
-              value={formData.model} 
-              onChange={e => updateField('model', e.target.value)} 
-            />
-            <Input 
-              label="Localização Específica" 
-              placeholder="Ex: Parede leste, rack principal..." 
+            </GlassSelect>
+            <div className="grid grid-cols-2 gap-4">
+               <GlassInput 
+                label="Fabricante" 
+                placeholder="Ex: Carrier" 
+                value={formData.manufacturer} 
+                onChange={e => updateField('manufacturer', e.target.value)} 
+               />
+               <GlassInput 
+                label="Modelo" 
+                placeholder="Ex: 12k BTU" 
+                value={formData.model} 
+                onChange={e => updateField('model', e.target.value)} 
+               />
+            </div>
+            <GlassInput 
+              label="Localização Exata" 
+              placeholder="Ex: Parede leste, 3º andar" 
               value={formData.location} 
               onChange={e => updateField('location', e.target.value)} 
             />
-          </div>
-        </SurfaceCard>
-        
-        <div className="px-2">
-          <PrimaryButton onClick={handleSave} disabled={!formData.name || !formData.category}>
-            Salvar Equipamento
-          </PrimaryButton>
-        </div>
+            
+            <PrimaryButton onClick={handleSave} disabled={!formData.name || !formData.category} className="h-16 mt-4 font-black tracking-widest text-[12px] uppercase rounded-2xl shadow-[0_12px_24px_rgba(255,255,255,0.1)]">
+              VINCULAR EQUIPAMENTO
+            </PrimaryButton>
+        </GlassFormCard>
       </div>
     </div>
   );

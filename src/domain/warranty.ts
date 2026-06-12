@@ -44,9 +44,9 @@ export interface WarrantyIncident {
   companyId: string;
   workspaceId: string;
   assetId: string;
-  partName: string;
-  incidentDate: string;
-  symptom: string;
+  partName?: string;
+  incidentDate?: string;
+  symptom?: string;
   isRecurrence: boolean;
   recurrenceLevel: RecurrenceLevel;
 }

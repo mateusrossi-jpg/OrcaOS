@@ -15,6 +15,7 @@ export type OperationalEventType =
   | 'PROPOSAL_SENT'
   | 'PROPOSAL_APPROVED'
   | 'PROPOSAL_REJECTED'
+  | 'PROPOSAL_CREATED_FROM_ANOMALY'
   | 'WORKORDER_CREATED'
   | 'WORKORDER_STARTED'
   | 'WORKORDER_COMPLETED'
@@ -84,13 +85,17 @@ export interface FinancialDiff {
 
 export interface OperationalEvent {
   readonly id: string;
+  readonly companyId?: string;
+  readonly workspaceId?: string;
   readonly aggregateId: string;
   readonly aggregateType: EventAggregateType;
   readonly eventType: OperationalEventType;
   readonly timestamp: string;
   readonly sequence?: number; // For ordered Event Store reconciliation
-  readonly actor: string;
-  readonly source: string;
+  readonly actor?: string;
+  readonly source?: string;
+  readonly syncStatus?: string;
+  readonly payload?: any;
   readonly metadata?: Readonly<Record<string, unknown>> & {
     diff?: FinancialDiff[];
     clientId?: string;
@@ -99,5 +104,5 @@ export interface OperationalEvent {
   readonly snapshot?: Readonly<Record<string, unknown>>;
   readonly correlationId?: string;
   readonly causationId?: string;
-  readonly createdAt: string;
+  readonly createdAt?: string;
 }

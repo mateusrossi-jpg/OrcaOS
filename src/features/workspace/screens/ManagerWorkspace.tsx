@@ -46,10 +46,10 @@ export const ManagerWorkspace: React.FC = () => {
     };
   });
 
-  if (!stats) return <div className="flex items-center justify-center h-screen bg-[#050505]"><ERPLoader message="Sincronizando torre de controle..." /></div>;
+  if (!stats) return <div className="flex items-center justify-center h-screen bg-aferix-bg"><ERPLoader message="Sincronizando torre de controle..." /></div>;
 
   return (
-    <ScreenContainer className="pb-32 bg-[var(--bg-primary)]">
+    <ScreenContainer className="pb-32 bg-[var(--bg-primary)] animate-in fade-in duration-500">
       <AppHeader title="Central de Operações" />
 
       <div className="px-6 py-8 flex flex-col gap-6">
@@ -94,7 +94,7 @@ export const ManagerWorkspace: React.FC = () => {
                       <span className="text-sm font-black text-white uppercase tracking-widest">{a.title}</span>
                       <span className="text-xs text-text-secondary mt-1">{a.description}</span>
                     </div>
-                    <span className="bg-status-error text-[#050505] font-black text-[10px] px-2 py-1 rounded uppercase tracking-widest">{a.severity}</span>
+                    <span className="bg-status-error text-[#050505] font-black text-[10px] px-2 py-1 rounded-none uppercase tracking-widest">{a.severity}</span>
                   </div>
                 </SurfaceCard>
               ))}

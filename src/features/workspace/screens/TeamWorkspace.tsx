@@ -88,14 +88,14 @@ export const TeamWorkspace: React.FC = () => {
         
         <button 
           onClick={() => setShowAddForm(true)}
-          className="w-full bg-[var(--accent-blue)] text-[#050505] hover:bg-[var(--accent-blue)]/90 active:scale-[0.98] transition-all font-black text-sm uppercase tracking-widest rounded-xl py-4 flex items-center justify-center gap-2"
+          className="w-full bg-[var(--accent-blue)]/10 text-[var(--accent-blue)] border border-[var(--accent-blue)]/20 hover:bg-[var(--accent-blue)] hover:text-black active:scale-[0.98] transition-all font-black text-sm uppercase tracking-widest rounded-none py-4 flex items-center justify-center gap-2 cursor-pointer"
         >
           <UserPlus size={16} /> Adicionar Membro
         </button>
 
         {showAddForm && (
-          <SurfaceCard padding="lg" className="border-white/10 relative">
-            <button onClick={() => setShowAddForm(false)} className="absolute top-4 right-4 text-white/40 hover:text-white">
+          <SurfaceCard padding="lg" className="border-white/10 relative rounded-none">
+            <button onClick={() => setShowAddForm(false)} className="absolute top-4 right-4 text-white/40 hover:text-white cursor-pointer">
               <X size={20} />
             </button>
             <h2 className="text-sm font-black text-white uppercase tracking-widest mb-4">Novo Membro</h2>
@@ -107,7 +107,7 @@ export const TeamWorkspace: React.FC = () => {
                 <label className="text-[10px] text-white/40 uppercase font-bold tracking-widest ml-1">Nome Completo</label>
                 <input 
                   type="text" required value={name} onChange={e => setName(e.target.value)}
-                  className="bg-[#0F172A] border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-white/30"
+                  className="bg-white/[0.02] border border-white/10 rounded-none px-4 py-3 text-white text-sm focus:outline-none focus:border-white/30"
                   placeholder="Ex: Carlos Silva"
                 />
               </div>
@@ -118,7 +118,7 @@ export const TeamWorkspace: React.FC = () => {
                   <Mail size={14} className="absolute left-4 top-3.5 text-white/30" />
                   <input 
                     type="email" required value={email} onChange={e => setEmail(e.target.value)}
-                    className="bg-[#0F172A] border border-white/10 rounded-xl pl-10 pr-4 py-3 w-full text-white text-sm focus:outline-none focus:border-white/30"
+                    className="bg-white/[0.02] border border-white/10 rounded-none pl-10 pr-4 py-3 w-full text-white text-sm focus:outline-none focus:border-white/30"
                     placeholder="carlos@empresa.com"
                   />
                 </div>
@@ -128,7 +128,7 @@ export const TeamWorkspace: React.FC = () => {
                 <label className="text-[10px] text-white/40 uppercase font-bold tracking-widest ml-1">Perfil de Acesso (Cargo)</label>
                 <select 
                   value={role} onChange={(e) => setRole(e.target.value as any)}
-                  className="bg-[#0F172A] border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-white/30 appearance-none"
+                  className="bg-white/[0.02] border border-white/10 rounded-none px-4 py-3 text-white text-sm focus:outline-none focus:border-white/30 appearance-none"
                 >
                   <option value="FIELD">Técnico em Campo (Execução)</option>
                   <option value="SALES">Comercial (Propostas)</option>
@@ -136,7 +136,7 @@ export const TeamWorkspace: React.FC = () => {
                 </select>
               </div>
 
-              <button type="submit" className="w-full bg-white text-black font-bold uppercase tracking-widest text-xs py-3.5 rounded-xl mt-2">
+              <button type="submit" className="w-full bg-white/5 border border-white/10 hover:bg-white hover:text-black text-white font-black uppercase tracking-widest text-xs py-3.5 rounded-none mt-2 cursor-pointer transition-all">
                 Salvar Membro
               </button>
             </form>
@@ -155,13 +155,13 @@ export const TeamWorkspace: React.FC = () => {
               <div className="text-white/40 text-sm text-center py-6">Nenhum membro encontrado.</div>
             ) : (
               members.map(member => (
-                <SurfaceCard key={member.id} padding="md" className={`border-white/5 flex flex-col gap-3 ${member.status === 'inactive' ? 'opacity-50' : ''}`}>
+                <SurfaceCard key={member.id} padding="md" className={`border-white/5 flex flex-col gap-3 rounded-none ${member.status === 'inactive' ? 'opacity-50' : ''}`}>
                   <div className="flex justify-between items-start">
                     <div className="flex flex-col">
                       <span className="text-sm font-bold text-white">{member.name}</span>
                       <span className="text-[10px] text-white/40 mt-0.5">{member.email}</span>
                     </div>
-                    <div className={`px-2 py-1 border rounded text-[9px] font-black uppercase tracking-widest ${roleColors[member.role]}`}>
+                    <div className={`px-2 py-1 border rounded-none text-[9px] font-black uppercase tracking-widest ${roleColors[member.role]}`}>
                       {roleNames[member.role]}
                     </div>
                   </div>
@@ -177,7 +177,7 @@ export const TeamWorkspace: React.FC = () => {
                     {member.role !== 'OWNER' && (
                       <button 
                         onClick={() => handleToggleStatus(member.id)}
-                        className="text-[10px] uppercase font-bold tracking-widest px-3 py-1.5 rounded bg-white/5 text-white/60 hover:text-white"
+                        className="text-[10px] uppercase font-bold tracking-widest px-3 py-1.5 rounded-none bg-white/5 border border-white/10 text-white/60 hover:text-white cursor-pointer transition-all active:scale-95"
                       >
                         {member.status === 'active' ? 'Bloquear Acesso' : 'Desbloquear'}
                       </button>

@@ -10,7 +10,7 @@ export class KnowledgeSimilarityService {
     failureCode?: string;
     query?: string;
   }): Promise<Array<{ caseData: KnowledgeCase; solutions: KnowledgeSolution[] }>> {
-    let casesQuery = db.knowledgeCases.where({ companyId: params.companyId, status: 'PUBLISHED' });
+    const casesQuery = db.knowledgeCases.where({ companyId: params.companyId, status: 'PUBLISHED' });
 
     let potentialCases = await casesQuery.toArray();
 

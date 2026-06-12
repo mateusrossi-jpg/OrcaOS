@@ -55,7 +55,7 @@ export const ClientPortalPage: React.FC = () => {
   }
 
   return (
-    <ScreenContainer className="pb-32">
+    <ScreenContainer className="pb-32 animate-in fade-in duration-500">
       
       {/* CABEÇALHO DO PORTAL DO CLIENTE */}
       <div className="bg-[var(--bg-primary)] border-b border-white/[0.05] p-6 pt-12 text-center">
@@ -80,22 +80,22 @@ export const ClientPortalPage: React.FC = () => {
         {/* 1. AÇÃO NECESSÁRIA (PROPOSTAS) */}
         <Section className="gap-4">
           <div className="flex items-center justify-between px-1">
-             <SectionLabel className="!text-[var(--accent-blue)]">Aprovações Pendentes</SectionLabel>
+             <SectionLabel className="!text-[var(--accent-gold)]">Aprovações Pendentes</SectionLabel>
              <span className="text-[10px] font-mono text-white/20 uppercase tracking-widest">{proposals.length} AGUARDANDO</span>
           </div>
 
           {proposals.length > 0 ? (
             <div className="flex flex-col gap-4">
               {proposals.map(p => (
-                <SurfaceCard key={p.id} padding="lg" className="border-[var(--accent-blue)]/30 bg-gradient-to-br from-[#141924]/80 to-transparent relative overflow-hidden group active:scale-[0.98] transition-all">
-                  <div className="absolute right-0 top-0 bottom-0 w-1.5 bg-[var(--accent-blue)]" />
+                <SurfaceCard key={p.id} padding="lg" className="border-[var(--accent-gold)]/30 bg-gradient-to-br from-[#141924]/80 to-transparent relative overflow-hidden group active:scale-[0.98] transition-all">
+                  <div className="absolute right-0 top-0 bottom-0 w-1.5 bg-[var(--accent-gold)]" />
                   <div className="flex flex-col mb-4">
                     <span className="text-lg font-black text-white uppercase tracking-tight leading-tight">{p.title}</span>
                     <Subtitle className="mt-1 opacity-60 line-clamp-1">{p.summary}</Subtitle>
                   </div>
                   <div className="flex justify-between items-end">
-                    <FinancialValue value={p.total} className="text-2xl font-black text-[var(--accent-blue)]" />
-                    <button className="bg-white text-black font-black text-[10px] px-5 py-2.5 rounded-lg uppercase tracking-widest flex items-center gap-2 group-hover:bg-[var(--accent-blue)] group-hover:text-white transition-colors">
+                    <FinancialValue value={p.total} className="text-2xl font-black text-[var(--accent-gold)]" />
+                    <button className="bg-white text-black font-black text-[10px] px-5 py-2.5 rounded-lg uppercase tracking-widest flex items-center gap-2 group-hover:bg-[var(--accent-gold)] group-hover:text-white transition-colors">
                       ANALISAR <ArrowRight size={14} />
                     </button>
                   </div>

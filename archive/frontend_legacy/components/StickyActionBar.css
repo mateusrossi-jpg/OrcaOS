@@ -1,0 +1,40 @@
+/* src/components/StickyActionBar.css */
+.sticky-action-bar {
+  position: fixed;
+  inset: 0 0 auto;
+  bottom: 12px; /* Floats slightly above the bottom for Apple feel */
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 24px);
+  max-width: 410px;
+  padding: 12px;
+  gap: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(28, 28, 30, 0.75);
+  backdrop-filter: blur(32px);
+  -webkit-backdrop-filter: blur(32px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 22px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  z-index: 1000;
+  pointer-events: all;
+}
+
+.sticky-action-bar button {
+  background-color: var(--btn-primary-bg) !important;
+  color: #000 !important;
+  box-shadow: 0 4px 12px rgba(212, 169, 78, 0.2) !important;
+  min-height: 52px;
+  border-radius: 16px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.sticky-action-bar button:active {
+  transform: scale(0.97);
+  brightness: 0.95;
+}

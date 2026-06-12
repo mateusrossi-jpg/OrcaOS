@@ -167,6 +167,7 @@ export class OperationalReadModelService {
         return {
           clientId: client.id,
           clientName: client.name,
+          phone: client.phone,
           totalRevenue: stats.totalRevenue,
           openBalance: stats.openBalance,
           totalWorkOrders: stats.woCount,

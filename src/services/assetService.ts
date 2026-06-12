@@ -61,6 +61,18 @@ export class AssetService {
       });
     }
   }
+
+  async duplicate(id: string): Promise<Asset> {
+    const original = await this.getById(id);
+    if (!original) throw new Error(`Asset ${id} not found`);
+
+    const { id: _, createdAt, updatedAt, ...clonedData } = original;
+    return await this.add({
+      ...clonedData,
+      name: `${original.name} (Cópia)`,
+      tag: original.tag ? `${original.tag}-C` : undefined
+    });
+  }
 }
 
 export const assetService = new AssetService();

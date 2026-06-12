@@ -15,7 +15,7 @@ export const ProposalApprovalPage: React.FC<{ proposal: Proposal; onDone: () => 
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-[#050505] animate-slide-up flex flex-col">
+    <div className="fixed inset-0 z-50 bg-aferix-bg animate-slide-up flex flex-col">
       <div className="p-6 bg-surface-900 border-b border-surface-800">
         <h1 className="text-xl font-black text-white">Aprovação de Proposta</h1>
         <p className="text-sm text-text-secondary">Ref: {proposal.id}</p>

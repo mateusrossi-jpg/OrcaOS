@@ -5,13 +5,13 @@ import { clientMemoryEngine } from './ClientMemoryEngine';
 
 export interface RevenueOpportunity {
   id: string;
-  type: 'recoverable' | 'sleeping' | 'waiting' | 'potential';
+  type: 'recoverable' | 'sleeping' | 'waiting' | 'potential' | 'needs_approval';
   title: string;
   monetaryValue: number;
   count: number;
   description: string;
   ctaLabel: string;
-  actionType: 'COBRAR' | 'REATIVAR' | 'NEGOCIAR' | 'PROPOR';
+  actionType: 'COBRAR' | 'REATIVAR' | 'NEGOCIAR' | 'PROPOR' | 'APROVAR';
 }
 
 export interface TodayAgendaItem {
@@ -104,9 +104,13 @@ export class RevenueOpportunityEngine {
 
       // 4. Waiting Revenue (Pending Proposals)
       const waitingBudgets = budgets.filter(b => 
-        [BUDGET_STATUS.ENVIADO, BUDGET_STATUS.INICIADO, BUDGET_STATUS.EM_REVISAO].includes(b.status)
+        [BUDGET_STATUS.ENVIADO, BUDGET_STATUS.INICIADO].includes(b.status)
       );
       const waitingTotal = waitingBudgets.reduce((acc, b) => acc + safeMoneyValue(b.chargedValue), 0);
+
+      // 4.1. Needs Approval (Review Proposals)
+      const reviewBudgets = budgets.filter(b => b.status === BUDGET_STATUS.EM_REVISAO);
+      const reviewTotal = reviewBudgets.reduce((acc, b) => acc + safeMoneyValue(b.chargedValue), 0);
 
       // 5. Sleeping Revenue (Inactive Clients > 180 days)
       const now = Date.now();
@@ -164,6 +168,16 @@ export class RevenueOpportunityEngine {
       // 9. Build Opportunities List
       const opportunities: RevenueOpportunity[] = [
         {
+          id: 'apr-1',
+          type: 'needs_approval',
+          title: 'Aprovação Pendente',
+          monetaryValue: reviewTotal,
+          count: reviewBudgets.length,
+          description: 'Orçamentos aguardando revisão de margem ou desconto.',
+          ctaLabel: 'REVISAR E APROVAR',
+          actionType: 'APROVAR'
+        },
+        {
           id: 'rec-1',
           type: 'recoverable',
           title: 'Receita Recuperável',
@@ -189,7 +203,7 @@ export class RevenueOpportunityEngine {
           title: 'Receita em Espera',
           monetaryValue: waitingTotal,
           count: waitingBudgets.length,
-          description: 'Propostas enviadas aguardando você.',
+          description: 'Propostas enviadas aguardando o cliente.',
           ctaLabel: 'NEGOCIAR',
           actionType: 'NEGOCIAR'
         }

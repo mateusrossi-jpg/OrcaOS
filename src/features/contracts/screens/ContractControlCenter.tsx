@@ -1,37 +1,129 @@
 import React from 'react';
-import { SurfaceCard } from '../../../ui/system';
+import { 
+  SurfaceCard, 
+  ExecutiveHeader, 
+  HeroCard, 
+  ExecutiveSummaryGrid, 
+  ValueBlock, 
+  SectionLabel, 
+  TimelineCard,
+  Section,
+  Body,
+  Subtitle,
+  FinancialValue,
+  ScreenContainer
+} from '../../../ui/system';
+import { 
+  ShieldCheck, 
+  AlertTriangle, 
+  CalendarClock, 
+  History, 
+  TrendingUp,
+  ArrowUpRight,
+  FileText
+} from 'lucide-react';
+import { formatCurrencyBRL } from '../../../utils/formatters';
+import { cn } from '../../../utils/ui';
 
+/**
+ * ContractControlCenter: High-fidelity Subscription & Retention Hub.
+ * Aligned with AFERIX EXECUTIVE OS (Phase 6 Hardening).
+ */
 export const ContractControlCenter: React.FC = () => {
   return (
-    <div className="p-6 bg-[#050505] min-h-screen text-white">
-      <h1 className="text-2xl font-black mb-6">Contratos & Retenção</h1>
+    <ScreenContainer className="pb-40 bg-aferix-bg">
+      <ExecutiveHeader userName="Mateus" score={98} />
 
-      <div className="grid grid-cols-2 gap-4 mb-8">
-        <SurfaceCard className="p-4 bg-[var(--accent-green)]/10 border border-[var(--accent-green)]">
-          <h3 className="text-[10px] font-bold text-[var(--accent-green)] uppercase tracking-widest mb-1">Receita Protegida</h3>
-          <span className="text-3xl font-black text-white">R$ 142k</span>
-          <span className="text-xs text-[var(--accent-green)] font-bold block mt-1">112 Contratos Ativos</span>
-        </SurfaceCard>
+      <div className="px-6 flex flex-col gap-10">
+        
+        {/* HERO ESTRATÉGICO: SAÚDE DA RECEITA RECORRENTE */}
+        <HeroCard 
+          state="active"
+          title="Faturamento Recorrente"
+          client="112 Contratos em Carteira"
+          time="Mês Base: Junho"
+          eta="R$ 142.500 MRR"
+          onAction={() => {}}
+        />
 
-        <SurfaceCard className="p-4 bg-status-error/10 border border-status-error">
-          <h3 className="text-[10px] font-bold text-status-error uppercase tracking-widest mb-1">Receita Ameaçada</h3>
-          <span className="text-3xl font-black text-white">R$ 28k</span>
-          <span className="text-xs text-status-error font-bold block mt-1">4 Contratos Críticos</span>
-        </SurfaceCard>
+        {/* SUMÁRIO EXECUTIVO DE RETENÇÃO */}
+        <ExecutiveSummaryGrid>
+           <ValueBlock 
+            label="RECEITA PROTEGIDA" 
+            value="R$ 142k" 
+            icon={<ShieldCheck size={12} />} 
+            variant="success"
+           />
+           <ValueBlock 
+            label="EM RISCO" 
+            value="R$ 28k" 
+            icon={<AlertTriangle size={12} />} 
+            variant="danger"
+           />
+           <ValueBlock 
+            label="PROJETADO" 
+            value="R$ 1.7M" 
+            icon={<TrendingUp size={12} />} 
+           />
+        </ExecutiveSummaryGrid>
+
+        {/* RENOVAÇÕES E TIMELINE DE CONTRATOS */}
+        <Section className="gap-8">
+           <SectionLabel className="ml-1 text-[11px] font-black tracking-widest text-[#D4AF37]">Ciclo de Renovações (90 dias)</SectionLabel>
+           
+           <div className="flex flex-col gap-0 relative">
+              <TimelineCard 
+                time="EM 15 DIAS"
+                title="Supermercado União"
+                status="R$ 6.600 / Mês"
+                state="active"
+              />
+              <TimelineCard 
+                time="EM 45 DIAS"
+                title="Hospital Santa Helena"
+                status="R$ 14.500 / Mês"
+                state="upcoming"
+              />
+              <TimelineCard 
+                time="EM 60 DIAS"
+                title="Condomínio Vale Verde"
+                status="R$ 3.200 / Mês"
+                state="upcoming"
+              />
+           </div>
+        </Section>
+
+        {/* LISTA DE CONTRATOS ATIVOS */}
+        <Section>
+           <SectionLabel className="ml-1">Contratos em Vigor</SectionLabel>
+           <SurfaceCard padding="none" className="border-white/[0.08] overflow-hidden shadow-2xl">
+              {[
+                { name: 'Clínica São Lucas', value: 8500, freq: 'Mensal', health: 'healthy' },
+                { name: 'Shopping Rio Preto', value: 24000, freq: 'Trimestral', health: 'warning' },
+                { name: 'Auto Center RP', value: 1800, freq: 'Mensal', health: 'healthy' }
+              ].map((c, i) => (
+                <div key={i} className="border-b border-white/[0.03] last:border-b-0">
+                  <div className="p-6 flex items-center justify-between">
+                     <div className="flex flex-col gap-1">
+                        <Body className="font-black text-white leading-none uppercase">{c.name}</Body>
+                        <Subtitle className="text-[11px] uppercase tracking-wider opacity-40">{c.freq} · {formatCurrencyBRL(c.value)}</Subtitle>
+                     </div>
+                     <div className="flex items-center gap-3">
+                        <div className={cn(
+                          "w-2 h-2 rounded-full",
+                          c.health === 'healthy' ? "bg-[#47C46A]" : "bg-[#FFB340]"
+                        )} />
+                        <button className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white/20">
+                           <ArrowUpRight size={18} />
+                        </button>
+                     </div>
+                  </div>
+                </div>
+              ))}
+           </SurfaceCard>
+        </Section>
+
       </div>
-
-      <h2 className="text-sm font-bold text-text-tertiary uppercase tracking-widest mb-4">Renovações Próximas (90 dias)</h2>
-      <div className="space-y-4">
-        <SurfaceCard className="p-4 bg-surface-900 border-l-4 border-[var(--accent-yellow)] flex justify-between items-center">
-          <div>
-            <h4 className="font-bold text-white">Hospital São Lucas</h4>
-            <p className="text-xs text-text-secondary mt-1">R$ 14.500/mês • Vence em 45 dias</p>
-          </div>
-          <button className="px-4 py-2 bg-[var(--accent-yellow)] text-black font-black text-xs rounded-lg shadow-[0_0_15px_rgba(234,179,8,0.2)]">
-            VER PROPOSTA
-          </button>
-        </SurfaceCard>
-      </div>
-    </div>
+    </ScreenContainer>
   );
 };

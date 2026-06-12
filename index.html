@@ -1,28 +1,150 @@
-<!doctype html>
-<html lang="pt-BR">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-    <meta name="theme-color" content="#050505" />
-    <meta name="color-scheme" content="dark" />
-    <meta name="application-name" content="Aferix" />
-    <meta name="apple-mobile-web-app-title" content="Aferix" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta
-      name="description"
-      content="Aferix - clientes, propostas, custos, orçamentos, lucro real e relatórios para profissionais autônomos."
-    />
-    <link rel="manifest" href="/manifest.webmanifest" />
-    <link rel="icon" type="image/svg+xml" href="/icons/aferix-app-icon.svg" />
-    <link rel="apple-touch-icon" href="/icons/aferix-app-icon.svg" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&family=Inter:wght@100..900&display=swap" rel="stylesheet">
-    <title>Aferix</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
-</html>
+<!DOCTYPE html>
+<html lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>Service Dashboard - Início</title>
+<!-- Tailwind CSS v3 with plugins -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<style data-purpose="typography">
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    body {
+      font-family: 'Inter', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+  </style>
+<style data-purpose="custom-colors">
+    :root {
+      --bg-dark: #121212;
+      --card-bg: #1E1E1E;
+      --muted-text: #6B6B6B;
+      --accent-green: #4ADE80;
+      --accent-red: #EF4444;
+      --border-color: #2D2D2D;
+    }
+    .bg-dark-custom { background-color: var(--bg-dark); }
+    .bg-card-custom { background-color: var(--card-bg); }
+    .text-muted-custom { color: var(--muted-text); }
+  </style>
+</head>
+<body class="bg-dark-custom text-white min-h-screen flex flex-col overflow-x-hidden">
+<!-- BEGIN: Status Bar -->
+<!-- END: Status Bar -->
+<!-- BEGIN: Navigation Header -->
+<!-- END: Navigation Header -->
+<!-- BEGIN: Main Content -->
+<div class="px-5 pt-6 mb-2">
+<div class="relative flex items-center">
+<div class="absolute left-4 text-white/40">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</div>
+<input class="w-full bg-card-custom border border-white/5 rounded-2xl py-4 pl-12 pr-4 text-[15px] text-white placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-white/20 transition-all" placeholder="Buscar..." type="text"/>
+</div>
+</div><main class="flex-1 px-5 space-y-8 overflow-y-auto pb-24">
+<!-- BEGIN: Quick Action Card -->
+<section class="bg-card-custom rounded-[24px] p-8 flex flex-col items-center text-center border border-white/5" data-purpose="primary-action-card">
+<div class="bg-white/5 rounded-full px-4 py-1.5 flex items-center space-x-2 mb-6">
+<svg class="w-3.5 h-3.5 text-white/60" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path></svg>
+<span class="text-[10px] font-bold tracking-widest text-white/50 uppercase">Livro Limpo</span>
+</div>
+<h2 class="text-lg font-medium mb-8">Nenhuma OS pendente hoje</h2>
+<button class="w-full bg-[#121212] py-4 rounded-2xl flex items-center justify-center space-x-2 font-semibold text-[15px] border border-white/5 active:scale-95 transition-transform">
+<span class="text-xl">+</span>
+<span>Nova Ordem de Serviço</span>
+</button>
+</section>
+<!-- END: Quick Action Card -->
+<!-- BEGIN: Operational Panel -->
+<section class="space-y-4" data-purpose="operational-grid">
+<h3 class="text-[10px] font-bold tracking-widest text-muted-custom uppercase px-1">Painel Operacional</h3>
+<div class="grid grid-cols-2 gap-4">
+<!-- Card 1 -->
+<div class="bg-card-custom p-5 rounded-[20px] border border-white/5 flex flex-col justify-between min-h-[120px]">
+<div>
+<span class="text-[10px] font-bold tracking-tight text-white/90">OS ATIVAS</span>
+<div class="text-3xl font-bold mt-1">0</div>
+</div>
+<div class="flex items-center space-x-1.5 mt-2">
+<div class="w-1.5 h-1.5 rounded-full bg-white/20"></div>
+<span class="text-[9px] font-medium text-muted-custom uppercase">Sem execução em campo</span>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="bg-card-custom p-5 rounded-[20px] border border-white/5 flex flex-col justify-between min-h-[120px]">
+<div>
+<span class="text-[10px] font-bold tracking-tight text-white/90">ORÇAMENTOS</span>
+<div class="text-3xl font-bold mt-1">0</div>
+</div>
+<div class="flex items-center space-x-1.5 mt-2">
+<div class="w-1.5 h-1.5 rounded-full bg-white/20"></div>
+<span class="text-[9px] font-medium text-muted-custom uppercase">Sem propostas pendentes</span>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="bg-card-custom p-5 rounded-[20px] border border-white/5 flex flex-col justify-between min-h-[120px]">
+<div>
+<span class="text-[10px] font-bold tracking-tight text-white/90">PENDÊNCIAS</span>
+<div class="text-3xl font-bold mt-1">0</div>
+</div>
+<div class="flex items-center space-x-1.5 mt-2">
+<div class="w-1.5 h-1.5 rounded-full bg-white/20"></div>
+<span class="text-[9px] font-medium text-muted-custom uppercase">Tudo em dia</span>
+</div>
+</div>
+<!-- Card 4 -->
+<div class="bg-card-custom p-5 rounded-[20px] border border-white/5 flex flex-col justify-between min-h-[120px]">
+<div>
+<span class="text-[10px] font-bold tracking-tight text-white/90">RETORNOS</span>
+<div class="text-3xl font-bold mt-1">0</div>
+</div>
+<div class="flex items-center space-x-1.5 mt-2">
+<div class="w-1.5 h-1.5 rounded-full bg-white/20"></div>
+<span class="text-[9px] font-medium text-muted-custom uppercase leading-tight">Nenhuma visita programada</span>
+</div>
+</div>
+</div>
+</section>
+<!-- END: Operational Panel -->
+<!-- BEGIN: Recent Activity -->
+<section class="space-y-4 pb-10" data-purpose="recent-activity-list">
+<h3 class="text-[10px] font-bold tracking-widest text-muted-custom uppercase px-1">Última Atividade</h3>
+<div class="bg-card-custom rounded-[20px] overflow-hidden border border-white/5">
+<!-- Item 1 -->
+<div class="flex items-center p-4 border-b border-white/5 active:bg-white/5">
+<div class="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center mr-4 border border-white/10">
+<svg class="w-6 h-6 text-white/70" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path></svg>
+</div>
+<div class="flex-1">
+<div class="text-[15px] font-medium">Edifício Empresarial Prime</div>
+<div class="text-[10px] text-muted-custom font-bold uppercase tracking-wide">Contato Recente</div>
+</div>
+<div class="flex items-center space-x-2">
+<span class="text-[10px] text-muted-custom font-bold">HOJE</span>
+<svg class="w-4 h-4 text-muted-custom/40" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</div>
+</div>
+<!-- Item 2 -->
+<div class="flex items-center p-4 active:bg-white/5">
+<div class="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center mr-4 border border-white/10">
+<svg class="w-6 h-6 text-white/70" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path></svg>
+</div>
+<div class="flex-1">
+<div class="text-[15px] font-medium">Laboratório BioVida</div>
+<div class="text-[10px] text-muted-custom font-bold uppercase tracking-wide">Contato Recente</div>
+</div>
+<div class="flex items-center space-x-2">
+<span class="text-[10px] text-muted-custom font-bold">HOJE</span>
+<svg class="w-4 h-4 text-muted-custom/40" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</div>
+</div>
+</div>
+</section>
+<!-- END: Recent Activity -->
+</main>
+<!-- END: Main Content -->
+<!-- BEGIN: Bottom Browser-style Navigation -->
+<!-- END: Bottom Browser-style Navigation -->
+<div class="fixed bottom-0 w-full pb-2 pt-6 bg-gradient-to-t from-[#121212] to-transparent pointer-events-none"><div class="w-32 h-1 bg-white/30 mx-auto rounded-full"></div></div>
+</body></html>

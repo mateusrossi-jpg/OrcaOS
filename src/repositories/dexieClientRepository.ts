@@ -15,7 +15,7 @@ const CLIENT_LAST_HASH = new Map<string, string>();
 
 export class DexieClientRepository implements ClientRepository {
   async getAll(): Promise<Client[]> {
-    const all = await db.clients.filter(c => c.syncStatus !== 'deleted').toArray();
+    const all = await db.clients.where('syncStatus').notEqual('deleted').toArray();
     return all.sort((a, b) => a.name.localeCompare(b.name));
   }
 
