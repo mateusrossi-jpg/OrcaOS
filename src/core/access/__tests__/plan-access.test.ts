@@ -1,16 +1,34 @@
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import '../../../test/mockAccountPlanRepository';
-import { accountPlanService } from '../../../services/accountPlanService';
-import { createGuestAccount } from '../accountPlanStorage';
-import { mockAccountPlanRepository } from '../../../test/mockAccountPlanRepository';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { createMemoryStorage } from '../../../test/createMemoryStorage';
+import {
+  loadAccountState,
+  saveAccountState,
+  createGuestAccount,
+  resolveUserPlan,
+  signInLocalAccount,
+  signInEmailAccount,
+  signInGoogleAccount,
+} from '../accountPlanStorage';
 
 describe('Plan Access and Account Strategy Protection', () => {
-  beforeEach(async () => {
-    await mockAccountPlanRepository.clear();
+  beforeEach(() => {
+    vi.stubGlobal('CustomEvent', class {
+      type: string;
+      constructor(type: string) {
+        this.type = type;
+      }
+    });
+    vi.stubGlobal('window', {
+      localStorage: createMemoryStorage(),
+      dispatchEvent: vi.fn(),
+    });
   });
 
-  afterEach(async () => {
-    await mockAccountPlanRepository.clear();
+  afterEach(() => {
+    if (typeof window !== 'undefined') {
+      window.localStorage.clear();
+    }
+    vi.unstubAllGlobals();
   });
 
   it('correctly maps Guest account as free plan by default', () => {
@@ -22,37 +40,34 @@ describe('Plan Access and Account Strategy Protection', () => {
     expect(guest.userId).toBeNull();
   });
 
-  it('correctly maps Local account plan selection and persists it', async () => {
-    await accountPlanService.signInLocalAccount('Mateus', 'mateus@example.com');
-    const localAccount = await accountPlanService.getAccount();
+  it('correctly maps Local account plan selection and persists it', () => {
+    const localAccount = signInLocalAccount('Mateus', 'mateus@example.com');
     expect(localAccount.status).toBe('local');
     expect(localAccount.displayName).toBe('Mateus');
     expect(localAccount.email).toBe('mateus@example.com');
     expect(localAccount.userId).toMatch(/^local-/);
 
     // Resolve plan should return guest plan (free) or persisted plan
-    const plan = localAccount.plan;
+    const plan = resolveUserPlan();
     expect(plan).toBe('free');
   });
 
-  it('registers email account safely with valid checks', async () => {
-    await accountPlanService.signInEmailAccount('contato@aferix.com.br', 'Aferix');
-    const emailAccount = await accountPlanService.getAccount();
+  it('registers email account safely with valid checks', () => {
+    const emailAccount = signInEmailAccount('contato@aferix.com.br', 'Aferix');
     expect(emailAccount.status).toBe('email');
     expect(emailAccount.email).toBe('contato@aferix.com.br');
     expect(emailAccount.displayName).toBe('Aferix');
     expect(emailAccount.userId).toBe('email:contato@aferix.com.br');
 
-    // Expected to throw but since it's async we check if the service can handle it if we ever added validation there
+    expect(() => signInEmailAccount('invalid-email')).toThrow('e-mail válido');
   });
 
-  it('registers google account and handles email mappings', async () => {
-    await accountPlanService.signInGoogleAccount({
+  it('registers google account and handles email mappings', () => {
+    const googleAccount = signInGoogleAccount({
       sub: 'google-sub-123',
       name: 'Google User',
       email: 'user@google.com',
     });
-    const googleAccount = await accountPlanService.getAccount();
 
     expect(googleAccount.status).toBe('google');
     expect(googleAccount.userId).toBe('google:google-sub-123');
@@ -60,8 +75,8 @@ describe('Plan Access and Account Strategy Protection', () => {
     expect(googleAccount.displayName).toBe('Google User');
   });
 
-  it('gracefully handles missing account state in Dexie', async () => {
-    const account = await accountPlanService.getAccount();
+  it('gracefully handles missing account state in localStorage', () => {
+    const account = loadAccountState();
     expect(account.status).toBe('guest');
     expect(account.plan).toBe('free');
   });

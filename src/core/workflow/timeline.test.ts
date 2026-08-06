@@ -1,10 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { 
-  createTimelineEntry, 
-  appendWorkflowEvent, 
-  getWorkflowEventSummary, 
-  buildWorkflowTimeline, 
-  type OperationalTimelineEntry 
+import {
+  createTimelineEntry,
+  appendWorkflowEvent,
+  getWorkflowEventSummary,
+  buildWorkflowTimeline,
+  type OperationalTimelineEntry
 } from './timeline';
 
 describe('Workflow Timeline Domain', () => {
@@ -61,7 +61,7 @@ describe('Workflow Timeline Domain', () => {
     late.timestamp = new Date('2026-05-20T12:00:00Z').toISOString();
 
     const sorted = buildWorkflowTimeline([late, early]);
-    
+
     // buildWorkflowTimeline sorts oldest first
     expect(sorted[0].id).toBe(early.id);
     expect(sorted[1].id).toBe(late.id);

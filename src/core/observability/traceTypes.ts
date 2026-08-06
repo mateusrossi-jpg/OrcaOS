@@ -1,13 +1,13 @@
 export type TraceSeverity = 'debug' | 'info' | 'warning' | 'error' | 'critical';
 
-export type DiagnosticType = 
-  | 'REPLAY' 
-  | 'TRANSPORT' 
-  | 'AUTOMATION' 
-  | 'NOTIFICATION' 
-  | 'PROJECTION' 
-  | 'SYNC' 
-  | 'HYDRATION' 
+export type DiagnosticType =
+  | 'REPLAY'
+  | 'TRANSPORT'
+  | 'AUTOMATION'
+  | 'NOTIFICATION'
+  | 'PROJECTION'
+  | 'SYNC'
+  | 'HYDRATION'
   | 'DEAD_LETTER';
 
 export interface TraceEnvelope {

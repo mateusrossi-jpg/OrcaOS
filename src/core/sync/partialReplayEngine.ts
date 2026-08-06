@@ -7,7 +7,7 @@ import { SyncEnvelope } from './syncTypes';
  * It prevents global replays on reconnect by fetching only missed events.
  */
 export class PartialReplayEngine {
-  
+
   /**
    * Evaluates if an incoming sync envelope should be replayed or skipped
    * based on the local high-water mark.
@@ -15,7 +15,7 @@ export class PartialReplayEngine {
   public shouldReplay(envelope: SyncEnvelope, localCursorTimestamp: string): boolean {
     const envelopeTime = new Date(envelope.timestamp).getTime();
     const cursorTime = new Date(localCursorTimestamp).getTime();
-    
+
     // Idempotent: Only replay strictly newer events or events that fill a gap.
     // In a full implementation, we'd check sequence gaps or missing vectors.
     return envelopeTime > cursorTime;
@@ -27,7 +27,7 @@ export class PartialReplayEngine {
    */
   public filterReplayBatch(events: OperationalEvent[], localCursorTimestamp: string): OperationalEvent[] {
     const cursorTime = new Date(localCursorTimestamp).getTime();
-    
+
     return events.filter(event => {
       const eventTime = new Date(event.timestamp).getTime();
       return eventTime > cursorTime;

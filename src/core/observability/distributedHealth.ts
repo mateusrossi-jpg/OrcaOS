@@ -10,7 +10,7 @@ export interface HealthReport {
 export class DistributedHealthService {
   public getHealthReport(): HealthReport {
     const traces = traceStore.getRecentTraces(200);
-    
+
     let warnings = 0;
     let errors = 0;
     let criticals = 0;

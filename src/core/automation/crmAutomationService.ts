@@ -8,7 +8,7 @@ import { automationDispatchService } from './automationDispatchService';
  * CRMAutomationService
  * Evaluates CRM pipeline projections and generates recommendation envelopes
  * for aging, abandoned proposals, and inactive clients.
- * 
+ *
  * Consumer-Only: Does not mutate projections. Only derives operational insights.
  */
 export class CRMAutomationService {

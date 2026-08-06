@@ -9,7 +9,7 @@ import type { BudgetStatus } from '../types/business';
 export type WorkflowState = BudgetStatus;
 
 // 2. Permission System (Future-proof structure)
-export type WorkflowRole = 
+export type WorkflowRole =
   | 'admin'
   | 'finance'
   | 'operator'
@@ -63,9 +63,9 @@ export const STATE_AUTHORITY: Record<string, OperationalLock> = {
 };
 
 // 5. Audit Trail & Event Sourcing Concepts
-export type WorkflowActionType = 
-  | 'state_change' 
-  | 'critical_value_update' 
+export type WorkflowActionType =
+  | 'state_change'
+  | 'critical_value_update'
   | 'operational_update'
   | 'client_viewed';
 
@@ -103,19 +103,19 @@ export function validateTransition(from: string, to: string, role: WorkflowRole)
   if (!ALLOWED_TRANSITIONS[from]?.includes(to)) {
     return false;
   }
-  
+
   // Example Role Locks (Architecture proof)
   if (to === 'finalizado' && role === 'technician') {
     return false; // Only admin/operator/finance can finalize financial impacts
   }
-  
+
   return true;
 }
 
 export function getActionBlockReason(state: string, action: keyof OperationalLock): string | null {
   const authority = STATE_AUTHORITY[state];
   if (!authority) return 'Estado desconhecido.';
-  
+
   if (!authority[action]) {
     switch (action) {
       case 'canEditCriticalValues': return 'Valores bloqueados. O orçamento já avançou no fluxo operacional.';

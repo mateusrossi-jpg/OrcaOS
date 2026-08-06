@@ -4,7 +4,7 @@ import { TenantContext, TenantIsolationGuard } from './tenantFoundation';
 /**
  * DistributedAutomationOrchestrator
  * Coordinates Automation Envelopes dispatched by different devices within a tenant cluster.
- * 
+ *
  * Prevents duplicate automation executions, race conditions, and reconnect storms
  * by acting as a distributed deduplication layer. It does NOT execute domain logic itself.
  */
@@ -32,7 +32,7 @@ export class DistributedAutomationOrchestrator {
 
     // 3. Centralized Routing
     console.info(`[Server Orchestrator] Accepted and routing automation ${envelope.automationId} [${envelope.triggerType}]`);
-    
+
     // -> Fan-out to connected devices (or workers if server-side execution is needed)
   }
 }

@@ -33,7 +33,7 @@ export function calculateFinalPrice(input: { material: number; labor: number; tr
   ensureNonNegativeNumber(input.travel ?? 0, 'Deslocamento');
   ensureNonNegativeNumber(input.taxPercent ?? 0, 'Impostos');
   ensurePercent(input.discountPercent ?? 0, 'Desconto');
-  
+
   if (input.marginMode === 'margin-sale' && (!Number.isFinite(input.percent) || input.percent < 0 || input.percent >= 100)) {
     throw new Error('Margem sobre venda deve ser menor que 100%.');
   }

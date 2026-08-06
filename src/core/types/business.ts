@@ -1,7 +1,26 @@
-import type { Budget, BudgetItem, BudgetStatus } from '../../domain/budget';
-import type { Client } from '../../domain/client';
-
-export type { Client };
+export interface Client {
+  id: string;
+  name: string;
+  documentNumber?: string;
+  phone?: string;
+  email?: string;
+  address?: string;
+  street?: string;
+  addressNumber?: string;
+  complement?: string;
+  district?: string;
+  city?: string;
+  state?: string;
+  postalCode?: string;
+  stateRegistration?: string;
+  contributorType?: 'not-informed' | 'individual' | 'taxpayer' | 'exempt' | 'non-taxpayer';
+  creditLimit?: string;
+  additionalContacts?: string;
+  salesHistoryNotes?: string;
+  notes?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
 
 export type BudgetTemplateId = 'professional' | 'technical' | 'simple' | 'premiumModern' | 'premiumDetailed';
 export type ReportTemplateId = 'technicalSimple' | 'technicalDetailed' | 'managerial';
@@ -33,106 +52,70 @@ export interface CatalogItem {
   notes?: string;
 }
 
-// Re-export core budget types for convenience
-export type { Budget, BudgetItem, BudgetStatus };
-
-export interface OperationalSnapshot {
-  snapshotId: string;
-  timestamp: string;
-  workflowStatus: BudgetStatus;
-  operator: string;
-  context: string;
-  clientSnapshot?: {
-    id?: string;
-    name: string;
-    documentNumber?: string;
-    phone?: string;
-    email?: string;
-  };
-  items: BudgetItem[];
-  totals: {
-    chargedValue: number;
-    materialCost: number;
-    operationalCost: number;
-    discounts: number;
-    subtotal: number;
-    finalTotal: number;
-    taxRate: number;
-    grossProfit: number;
-  };
-  notes?: {
-    commercial?: string;
-    technical?: string;
-    general?: string;
-  };
-  paymentTerms?: string;
-  timelineEventId?: string;
-  fingerprint: string;
-}
-
-export type ServiceStatus = 'draft' | 'awaiting_schedule' | 'scheduled' | 'en_route' | 'in-progress' | 'done' | 'cancelled';
-
-export interface MultiTenantEntity {
-  /** Tenant / Company identifier */
-  companyId?: string;
-  /** Workspace (e.g., Service, Commercial, Finance, Management) */
-  workspaceId?: string;
-  /** Optional profile (role / permission set) */
-  profileId?: string;
-  /** Owner user – useful for audit trails */
-  userId?: string;
-}
-
-/**
- * Sync status casing hardening enum.
- */
-export enum AggregateType {
-  ATTENDANCE = 'attendance',
-  BUDGET = 'budget',
-  WORKORDER = 'workorder',
-  CONTRACT = 'contract',
-  ASSET = 'asset'
-}
-
-/**
- * Service (Work Order) now carries tenancy information.
- * Existing fields are kept unchanged.
- */
-export interface Service extends MultiTenantEntity {
+export interface BudgetItem {
   id: string;
-  /** [DERIVADO/CACHE] O cliente real é definido pelo Site. Este campo existe apenas para cache rápido de leitura no CRM. */
+  description: string;
+  quantity: number;
+  unitPrice: number;
+  category: 'labor' | 'material' | 'other';
+}
+
+export type CoreBudgetStatus =
+  | 'iniciado'
+  | 'em_revisao'
+  | 'enviado'
+  | 'autorizado'
+  | 'em_execucao'
+  | 'finalizado'
+  | 'recusado'
+  | 'cancelado';
+
+export type LegacyBudgetStatus = 'draft' | 'sent' | 'approved' | 'rejected' | 'expired' | 'cancelled';
+
+export type BudgetStatus = CoreBudgetStatus | LegacyBudgetStatus;
+
+export interface Budget {
+  id: string;
   clientId?: string;
-  siteId?: string;
-  assetIds?: string[]; // Optional (Fase 3B)
-  budgetId?: string; // Optional for OS Avulsa
-  attendanceId?: string; // Reference to Attendance (1:N)
+  title: string;
+  items: BudgetItem[];
+  discount?: number;
+  travelCost?: number;
+  additionalFees?: number;
+  notes?: string;
+  paymentTerms?: string;
+  validity?: string;
+  guarantee?: string;
+  executionDeadline?: string;
+  commercialNotes?: string;
+  technicalNotes?: string;
+  materialCost?: number;
+  operationalCost?: number;
+  taxRate?: number;
+  total_servicos?: number;
+  custo_materiais?: number;
+  custos_operacionais?: number;
+  aliquota_imposto?: number;
+  lucro_liquido?: number;
+  status: BudgetStatus;
+  templateId?: BudgetTemplateId;
+}
+
+export type ServiceStatus = 'in-progress' | 'done' | 'cancelled';
+
+export interface Service {
+  id: string;
+  clientId?: string;
+  budgetId?: string; // Vínculo com o orçamento aprovado/autorizado
   title: string;
   description?: string;
-  /** @deprecated O endereço está migrando integralmente para o Site (Site-First Architecture) */
   address?: string;
   priority?: 'low' | 'normal' | 'high' | 'urgent';
   status: ServiceStatus;
   scheduledDate?: string;
   paymentStatus: 'pending' | 'partial' | 'paid';
-  
-  // Execution Core
-  items?: BudgetItem[];
-  executedValue?: number;
-  
-  /** Indica visualmente e logicamente que esta OS sofreu um acionamento de garantia/retorno */
-  hasTechnicalReturn?: boolean;
-  /** Link rápido para os retornos associados a esta OS original */
-  technicalReturnIds?: string[];
-  
   createdAt?: string;
   updatedAt?: string;
-  syncStatus?: 'synced' | 'pending' | 'deleted';
-  syncUpdatedAt?: number;
-
-  // Soft Delete fields (FASE 2.6)
-  deletedAt?: string | null;
-  deletedBy?: string | null;
-  isDeleted?: boolean;
 }
 
 export type WorkOrder = Service;

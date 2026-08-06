@@ -10,6 +10,6 @@ export const isCloudEnabled = Boolean(supabaseUrl && supabaseAnonKey);
  * Used for Phase 3: CLOUD & SAAS.
  * Handles optional cloud sync and multi-device collaboration.
  */
-export const supabase = isCloudEnabled 
+export const supabase = isCloudEnabled
   ? createClient(supabaseUrl, supabaseAnonKey)
   : (null as unknown as SupabaseClient);

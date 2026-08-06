@@ -7,7 +7,7 @@ export const writeLock = {
   acquireLock: (entityId: string): boolean => {
     const now = Date.now();
     const existingLock = activeLocks.get(entityId);
-    
+
     if (existingLock) {
       if (now - existingLock > LOCK_TIMEOUT_MS) {
         aferixLogger.warn('WriteLock', `Stale lock cleared for ${entityId}`);
@@ -16,7 +16,7 @@ export const writeLock = {
         return false; // Locked!
       }
     }
-    
+
     activeLocks.set(entityId, now);
     return true;
   },
@@ -30,7 +30,7 @@ export const writeLock = {
     if (!lockAcquired) {
       throw new Error(`[WriteLock] Concurrent write prevented for entity: ${entityId}`);
     }
-    
+
     try {
       return await operation();
     } finally {

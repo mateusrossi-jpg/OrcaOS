@@ -1,5 +1,4 @@
 import type { UserPlan } from './featureAccess';
-import { safeJsonParse } from '../runtime/safeGuards';
 
 export type AferixAccountStatus = 'guest' | 'email' | 'local' | 'google';
 export type AferixPlanSource = 'free' | 'local-test' | 'subscription';
@@ -26,52 +25,176 @@ export interface AferixAccountState {
 
 export const AFERIX_ACCOUNT_CHANGED_EVENT = 'aferix:account-plan-changed';
 
+const STORAGE_KEY = 'aferix:account-plan:v1';
+const LEGACY_PLAN_KEY = 'orcaos:user-plan';
+const INSTALLATION_ID_KEY = 'orcaos:installation-id:v1';
+
+function hasStorage(): boolean {
+  return typeof window !== 'undefined' && typeof window.localStorage !== 'undefined';
+}
+
+function now(): string {
+  return new Date().toISOString();
+}
+
+function createStableId(prefix: string): string {
+  if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) return `${prefix}-${crypto.randomUUID()}`;
+  return `${prefix}-${Date.now()}-${Math.round(Math.random() * 1000000)}`;
+}
+
+function getOrCreateInstallationId(): string {
+  if (!hasStorage()) return createStableId('install');
+
+  const storedId = window.localStorage.getItem(INSTALLATION_ID_KEY);
+  if (storedId?.trim()) return storedId;
+
+  const installationId = createStableId('install');
+  window.localStorage.setItem(INSTALLATION_ID_KEY, installationId);
+  return installationId;
+}
+
+function normalizeEmail(email: string): string {
+  return email.trim().toLowerCase();
+}
+
+function emitChanged(): void {
+  if (typeof window === 'undefined') return;
+  window.dispatchEvent(new CustomEvent(AFERIX_ACCOUNT_CHANGED_EVENT));
+}
+
 export function createGuestAccount(plan: UserPlan = 'free', planSource: AferixPlanSource = plan === 'pro' ? 'local-test' : 'free'): AferixAccountState {
   return {
     status: 'guest',
     userId: null,
-    installationId: `install-${Date.now()}`,
+    installationId: getOrCreateInstallationId(),
     displayName: 'Visitante',
     email: '',
     plan,
     planSource,
     planStatus: plan === 'pro' ? 'active' : 'free',
     planExpiresAt: null,
-    updatedAt: new Date().toISOString(),
+    updatedAt: now(),
   };
 }
 
-// LEGACY Migration Helper ONLY
-export function legacyLoadAccountState(): AferixAccountState {
-  const STORAGE_KEY = 'aferix:account-plan:v1';
-  const LEGACY_PLAN_KEY = 'orcaos:user-plan';
-  
-  if (typeof window === 'undefined' || typeof window.localStorage === 'undefined') {
-    return createGuestAccount();
-  }
+function normalizePlanStatus(value: unknown, plan: UserPlan): AferixPlanStatus {
+  if (value === 'active' || value === 'trial' || value === 'expired' || value === 'inactive' || value === 'past_due') return value as AferixPlanStatus;
+  return plan === 'pro' ? 'active' : 'free';
+}
+
+function normalizeAccount(value: Partial<AferixAccountState> | null): AferixAccountState | null {
+  if (!value) return null;
+  const plan: UserPlan = value.plan === 'pro' ? 'pro' : 'free';
+  return {
+    status: value.status === 'google' ? 'google' : value.status === 'email' ? 'email' : value.status === 'local' ? 'local' : 'guest',
+    userId: value.userId ?? null,
+    installationId: value.installationId?.trim() || getOrCreateInstallationId(),
+    displayName: value.displayName?.trim() || (value.status === 'google' ? 'Conta Google' : value.status === 'email' ? 'Conta por e-mail' : value.status === 'local' ? 'Profissional local' : 'Visitante'),
+    email: value.email ? normalizeEmail(value.email) : '',
+    plan,
+    planSource: value.planSource === 'subscription' ? 'subscription' : value.planSource === 'local-test' ? 'local-test' : plan === 'pro' ? 'local-test' : 'free',
+    planStatus: normalizePlanStatus(value.planStatus, plan),
+    planExpiresAt: typeof value.planExpiresAt === 'string' ? value.planExpiresAt : null,
+    updatedAt: value.updatedAt || now(),
+  };
+}
+
+export function loadAccountState(): AferixAccountState {
+  if (!hasStorage()) return createGuestAccount();
 
   try {
     const stored = window.localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      const value = safeJsonParse<Partial<AferixAccountState>>(stored, {});
-      const plan = value.plan === 'pro' ? 'pro' : 'free';
-      return {
-        status: value.status === 'google' ? 'google' : value.status === 'email' ? 'email' : value.status === 'local' ? 'local' : 'guest',
-        userId: value.userId ?? null,
-        installationId: value.installationId?.trim() || `install-${Date.now()}`,
-        displayName: value.displayName?.trim() || 'Visitante',
-        email: value.email || '',
-        plan,
-        planSource: value.planSource === 'subscription' ? 'subscription' : value.planSource === 'local-test' ? 'local-test' : plan === 'pro' ? 'local-test' : 'free',
-        planStatus: value.planStatus as AferixPlanStatus || (plan === 'pro' ? 'active' : 'free'),
-        planExpiresAt: typeof value.planExpiresAt === 'string' ? value.planExpiresAt : null,
-        updatedAt: value.updatedAt || new Date().toISOString(),
-      };
-    }
+    const parsed = stored ? normalizeAccount(JSON.parse(stored) as Partial<AferixAccountState>) : null;
+    if (parsed) return parsed;
   } catch {
-    // Ignore error
+    window.localStorage.removeItem(STORAGE_KEY);
   }
 
   const legacyPlan = window.localStorage.getItem(LEGACY_PLAN_KEY);
   return createGuestAccount(legacyPlan === 'pro' ? 'pro' : 'free');
+}
+
+export function saveAccountState(account: AferixAccountState): void {
+  if (!hasStorage()) return;
+  const installationId = account.installationId || getOrCreateInstallationId();
+  window.localStorage.setItem(INSTALLATION_ID_KEY, installationId);
+  window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...account, installationId }));
+  window.localStorage.setItem(LEGACY_PLAN_KEY, account.plan);
+  emitChanged();
+}
+
+export function resolveUserPlan(defaultPlan: UserPlan = 'free'): UserPlan {
+  const account = loadAccountState();
+  return account.plan ?? defaultPlan;
+}
+
+export function signInLocalAccount(displayName = 'Profissional local', email = ''): AferixAccountState {
+  const current = loadAccountState();
+  const next: AferixAccountState = {
+    ...current,
+    status: 'local',
+    userId: current.userId ?? createStableId('local'),
+    installationId: current.installationId || getOrCreateInstallationId(),
+    displayName: displayName.trim() || 'Profissional local',
+    email: email.trim(),
+    updatedAt: now(),
+  };
+  saveAccountState(next);
+  return next;
+}
+
+export function signInEmailAccount(email: string, displayName = ''): AferixAccountState {
+  const normalizedEmail = normalizeEmail(email);
+  if (!normalizedEmail || !normalizedEmail.includes('@')) throw new Error('Informe um e-mail válido para cadastrar a conta.');
+
+  const current = loadAccountState();
+  const next: AferixAccountState = {
+    ...current,
+    status: 'email',
+    userId: `email:${normalizedEmail}`,
+    installationId: current.installationId || getOrCreateInstallationId(),
+    displayName: displayName.trim() || normalizedEmail,
+    email: normalizedEmail,
+    updatedAt: now(),
+  };
+  saveAccountState(next);
+  return next;
+}
+
+export function signInGoogleAccount(profile: GoogleAccountProfile): AferixAccountState {
+  const current = loadAccountState();
+  const googleEmail = profile.email ? normalizeEmail(profile.email) : '';
+  const sameRegisteredEmail = Boolean(current.email && googleEmail && current.email === googleEmail);
+  const next: AferixAccountState = {
+    ...current,
+    status: 'google',
+    userId: `google:${profile.sub}`,
+    installationId: current.installationId || getOrCreateInstallationId(),
+    displayName: profile.name?.trim() || (sameRegisteredEmail ? current.displayName : googleEmail) || 'Conta Google',
+    email: googleEmail || current.email,
+    updatedAt: now(),
+  };
+  saveAccountState(next);
+  return next;
+}
+
+export function signOutLocalAccount(): AferixAccountState {
+  const current = loadAccountState();
+  const next = { ...createGuestAccount('free', 'free'), installationId: current.installationId || getOrCreateInstallationId() };
+  saveAccountState(next);
+  return next;
+}
+
+export function setLocalUserPlan(plan: UserPlan): AferixAccountState {
+  const current = loadAccountState();
+  const next: AferixAccountState = {
+    ...current,
+    plan,
+    planSource: plan === 'pro' ? 'local-test' : 'free',
+    planStatus: plan === 'pro' ? 'active' : 'free',
+    planExpiresAt: null,
+    updatedAt: now(),
+  };
+  saveAccountState(next);
+  return next;
 }

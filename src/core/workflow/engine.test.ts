@@ -37,7 +37,7 @@ describe('Workflow Engine', () => {
 
       const reasonAuth = getActionBlockReason('autorizado', 'canEditCriticalValues');
       expect(reasonAuth).toBe('Valores bloqueados. O orçamento já avançou no fluxo operacional.');
-      
+
       const reasonExec = getActionBlockReason('em_execucao', 'canEditCriticalValues');
       expect(reasonExec).toBe('Valores bloqueados. O orçamento já avançou no fluxo operacional.');
     });
@@ -45,7 +45,7 @@ describe('Workflow Engine', () => {
     it('blocks operational edits after finalized', () => {
       const reasonFin = getActionBlockReason('finalizado', 'canEditOperational');
       expect(reasonFin).toBe('Orçamento finalizado ou arquivado. Edição bloqueada.');
-      
+
       const reasonArch = getActionBlockReason('arquivado', 'canEditOperational');
       expect(reasonArch).toBe('Orçamento finalizado ou arquivado. Edição bloqueada.');
     });

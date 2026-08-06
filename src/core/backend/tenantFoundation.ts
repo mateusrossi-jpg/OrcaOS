@@ -17,7 +17,7 @@ export interface TenantEnvelope<T> {
 }
 
 export class TenantIsolationGuard {
-  
+
   /**
    * Validates that an incoming payload matches the current active tenant context.
    * Throws an error if there is a tenant mismatch, preventing cross-tenant leakage.
@@ -26,7 +26,7 @@ export class TenantIsolationGuard {
     if (context.tenantId !== envelope.tenantId) {
       throw new Error(`[Security] Tenant mismatch detected. Expected ${context.tenantId}, got ${envelope.tenantId}`);
     }
-    
+
     if (!context.isActive) {
       throw new Error(`[Security] Tenant ${context.tenantId} is inactive.`);
     }

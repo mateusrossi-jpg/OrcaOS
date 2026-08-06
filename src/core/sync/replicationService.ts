@@ -6,7 +6,7 @@ import { realtimeTransport } from '../realtime/transport';
 
 /**
  * AppendOnlyReplicationService
- * Listens to local OperationalEvents and wraps them into SyncEnvelopes 
+ * Listens to local OperationalEvents and wraps them into SyncEnvelopes
  * to be replicated via the transport layer.
  * Strictly Append-Only: No mutable states are replicated.
  */
@@ -19,7 +19,7 @@ export class AppendOnlyReplicationService {
    */
   public replicateLocalEvent(event: OperationalEvent): void {
     const envelope = this.createEnvelope(event);
-    
+
     // Broadcast via RealtimeTransport abstraction
     // In the future, the RealtimeTransport will route this to WebSocket/Cloud Sync
     realtimeTransport.publish<SyncEnvelope>(
@@ -32,7 +32,7 @@ export class AppendOnlyReplicationService {
 
   private createEnvelope(event: OperationalEvent): SyncEnvelope<OperationalEvent> {
     this.sequenceCounter++;
-    
+
     return {
       envelopeId: generateUUID(),
       eventId: event.id,

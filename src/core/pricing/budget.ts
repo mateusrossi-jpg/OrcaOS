@@ -1,24 +1,40 @@
-import { budgetCalculator } from '../../services/BudgetCalculatorService';
-import { BudgetItem, Budget } from '../../domain/budget';
-
-/**
- * Compatibility layer for core/pricing/budget imports.
- */
+import type { Budget, BudgetItem } from '../types/business';
+import { ensurePositiveNumber, ensureNonNegativeNumber } from '../validation/numberValidation';
 
 export function calculateBudgetItemTotal(item: BudgetItem): number {
-  return budgetCalculator.calculateItemTotal(item);
+  ensurePositiveNumber(item.quantity, 'Quantidade');
+  ensureNonNegativeNumber(item.unitPrice, 'Preço unitário');
+
+  return item.quantity * item.unitPrice;
 }
 
 export function calculateBudgetSubtotal(items: BudgetItem[]): number {
-  return (items || []).reduce((sum, item) => sum + calculateBudgetItemTotal(item), 0);
+  return items.reduce((total, item) => total + calculateBudgetItemTotal(item), 0);
 }
 
-export function calculateBudgetCommercialSubtotal(budget: Partial<Budget>): number {
-  const result = budgetCalculator.calculateBudget(budget as Budget);
-  return result.totalComercial;
+export function calculateBudgetCommercialSubtotal(budget: Budget): number {
+  const subtotal = calculateBudgetSubtotal(budget.items);
+  const travelCost = budget.travelCost ?? 0;
+  const additionalFees = budget.additionalFees ?? 0;
+
+  if (travelCost < 0) {
+    throw new Error('Deslocamento não pode ser negativo.');
+  }
+
+  if (additionalFees < 0) {
+    throw new Error('Taxas adicionais não podem ser negativas.');
+  }
+
+  return subtotal + travelCost + additionalFees;
 }
 
-export function calculateBudgetTotal(budget: Partial<Budget>): number {
-  const result = budgetCalculator.calculateBudget(budget as Budget);
-  return result.totalComercial;
+export function calculateBudgetTotal(budget: Budget): number {
+  const subtotal = calculateBudgetCommercialSubtotal(budget);
+  const discount = budget.discount ?? 0;
+
+  if (discount < 0) {
+    throw new Error('Desconto não pode ser negativo.');
+  }
+
+  return Math.max(subtotal - discount, 0);
 }

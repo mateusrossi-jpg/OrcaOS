@@ -21,7 +21,7 @@ export const selectFinancialSummary = (budgets: Budget[]): FinancialSummary => {
       (b.materialCost || 0) + (b.travelCost || 0) + (b.helperCost || 0) + (b.otherCosts || 0)
     );
     const profit = financialSafety.safeCurrency(rev - cost);
-    
+
     totalRevenue += rev;
     totalCosts += cost;
     totalProfit += profit;
@@ -41,7 +41,7 @@ export const selectDashboardKPIs = (budgets: Budget[]) => {
   const active = budgets.filter(b => b.status !== 'arquivado' && b.status !== 'recusado' && b.syncStatus !== 'deleted');
   const pendingApproval = active.filter(b => b.status === 'em_revisao').length;
   const inExecution = active.filter(b => b.status === 'em_execucao').length;
-  
+
   return {
     activeCount: active.length,
     pendingApproval,

@@ -4,7 +4,7 @@ import { TenantContext, TenantIsolationGuard } from './tenantFoundation';
 /**
  * DistributedNotificationService
  * Transports derived operational/automation alerts across the cluster.
- * 
+ *
  * Does NOT store notifications persistently in a parallel DB.
  * Purely acts as a realtime fan-out router to connected devices.
  */

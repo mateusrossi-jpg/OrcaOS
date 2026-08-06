@@ -20,7 +20,7 @@ export class DeviceIdentityManager {
 
     const stored = localStorage.getItem(this.storageKey);
     const parsed = safeJsonParse<DeviceIdentity | null>(stored, null);
-    
+
     if (parsed && parsed.deviceId) {
       this.identity = {
         ...parsed,

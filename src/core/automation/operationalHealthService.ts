@@ -16,13 +16,13 @@ export class OperationalHealthService {
   public computeGlobalHealth(board: OperationalBoardProjection): OperationalHealthMetrics {
     const totalActive = board.approved.length + board.authorized.length + board.inExecution.length;
     const totalStalled = board.inExecution.filter(c => c.stalledWorkflow || c.overdue).length;
-    
+
     // Execution Pressure: ratio of inExecution to total active workflow
     const executionPressure = totalActive > 0 ? board.inExecution.length / totalActive : 0;
-    
+
     // Queue Saturation: ratio of stalled/overdue to inExecution
     const queueSaturation = board.inExecution.length > 0 ? totalStalled / board.inExecution.length : 0;
-    
+
     // Workflow Health: Inverse of saturation, slightly penalized by pressure
     const workflowHealth = Math.max(0, 1 - (queueSaturation * 0.7 + executionPressure * 0.3));
 

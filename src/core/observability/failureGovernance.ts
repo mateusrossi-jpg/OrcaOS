@@ -14,7 +14,7 @@ export class FailureGovernanceService {
       timestamp: new Date().toISOString(),
       sourceLayer
     };
-    
+
     this.deadLetters.push(deadLetter);
 
     traceStore.append({

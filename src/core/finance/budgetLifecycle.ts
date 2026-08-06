@@ -6,13 +6,18 @@ export const BUDGET_OPEN_STATUSES: BudgetStatus[] = [
   'enviado',
   'autorizado',
   'em_execucao',
-  'pausado',
+  'draft',
+  'sent',
+  'approved',
 ];
 
 export const BUDGET_CLOSED_STATUSES: BudgetStatus[] = [
   'finalizado',
   'recusado',
   'cancelado',
+  'rejected',
+  'expired',
+  'cancelled',
 ];
 
 export function isBudgetOpenStatus(status: BudgetStatus): boolean {
@@ -24,7 +29,7 @@ export function isBudgetClosedStatus(status: BudgetStatus): boolean {
 }
 
 export function isBudgetPendingAction(status: BudgetStatus): boolean {
-  return status === 'enviado';
+  return status === 'enviado' || status === 'sent';
 }
 
 export function isBudgetRevenueRecognized(status: BudgetStatus): boolean {
@@ -37,11 +42,17 @@ const ALLOWED_BUDGET_TRANSITIONS: Record<BudgetStatus, BudgetStatus[]> = {
   enviado: ['autorizado', 'recusado', 'cancelado'],
   autorizado: ['em_execucao', 'cancelado'],
   em_execucao: ['finalizado', 'cancelado'],
-  finalizado: ['arquivado'],
-  arquivado: ['iniciado'],
-  recusado: ['iniciado'],
+  finalizado: [],
+  recusado: [],
   cancelado: [],
-  pausado: ['em_execucao', 'cancelado'],
+
+  // Compatibilidade legado
+  draft: ['sent', 'cancelled'],
+  sent: ['approved', 'rejected', 'expired', 'cancelled'],
+  approved: [],
+  rejected: [],
+  expired: [],
+  cancelled: [],
 };
 
 export function canBudgetTransitionTo(from: BudgetStatus, to: BudgetStatus): boolean {

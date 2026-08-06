@@ -208,23 +208,23 @@ export function sortOperationalQueue(workflows: QueueWorkflowInput[], now: numbe
   return [...workflows].sort((a, b) => {
     const evalA = evaluateQueueRules(a, now);
     const evalB = evaluateQueueRules(b, now);
-    
+
     const weightA = priorityWeight[evalA.priority];
     const weightB = priorityWeight[evalB.priority];
-    
+
     if (weightA !== weightB) {
       return weightB - weightA;
     }
-    
+
     // Within same priority rules:
     // blocked first
     if (evalA.derivedState === 'blocked' && evalB.derivedState !== 'blocked') return -1;
     if (evalB.derivedState === 'blocked' && evalA.derivedState !== 'blocked') return 1;
-    
+
     // urgent first
     if (evalA.derivedState === 'urgent' && evalB.derivedState !== 'urgent') return -1;
     if (evalB.derivedState === 'urgent' && evalA.derivedState !== 'urgent') return 1;
-    
+
     // older idle time first (larger idle time = smaller sort index)
     const idleA = getWorkflowIdleTime(a, now);
     const idleB = getWorkflowIdleTime(b, now);
@@ -259,7 +259,7 @@ export function buildQueueSummary(workflows: QueueWorkflowInput[], now: number =
 
   for (const workflow of workflows) {
     const ev = evaluateQueueRules(workflow, now);
-    
+
     if (ev.derivedState === 'urgent') summary.urgent++;
     if (ev.derivedState === 'overdue') summary.overdue++;
     if (ev.derivedState === 'blocked') summary.blocked++;

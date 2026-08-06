@@ -9,7 +9,7 @@ export const FIELD_CONFLICT_MATRIX: Record<string, Record<string, ConflictClassi
     clientId: 'IMMUTABLE',
     attendanceId: 'IMMUTABLE',
     siteId: 'IMMUTABLE',
-    
+
     title: 'LWW_ALLOWED',
     clientName: 'LWW_ALLOWED',
     notes: 'SAFE_MERGE',
@@ -31,7 +31,7 @@ export const FIELD_CONFLICT_MATRIX: Record<string, Record<string, ConflictClassi
     otherCosts: 'CONFLICT_REQUIRED',
     items: 'CONFLICT_REQUIRED',
     financialSnapshot: 'CONFLICT_REQUIRED',
-    
+
     syncStatus: 'IMMUTABLE',
     updatedAt: 'LWW_ALLOWED',
     deletedAt: 'LWW_ALLOWED',
@@ -52,7 +52,7 @@ export const FIELD_CONFLICT_MATRIX: Record<string, Record<string, ConflictClassi
     description: 'SAFE_MERGE',
     priority: 'LWW_ALLOWED',
     scheduledDate: 'LWW_ALLOWED',
-    
+
     status: 'CONFLICT_REQUIRED',
     paymentStatus: 'CONFLICT_REQUIRED',
     executedValue: 'CONFLICT_REQUIRED',

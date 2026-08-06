@@ -15,7 +15,7 @@ export interface CalculationCapture {
   createdAt: string;
   summary: string;
   details: string[];
-  
+
   // Dados operacionais para o ERP
   itemType: TechnicalItemType;
   editableDescription: string;
@@ -25,7 +25,7 @@ export interface CalculationCapture {
   shouldGenerateBudgetItem: boolean;
   convertedToBudgetItem: boolean;
   reportReady: boolean;
-  
+
   // Suporte a fotos e fornecimento
   imageDataUrl?: string;
   materialSupplyMode?: MaterialSupplyMode;

@@ -32,7 +32,7 @@ export class CloudEventGateway {
           break;
 
         case 'notification':
-          // Clients typically don't send notifications (they are derived), 
+          // Clients typically don't send notifications (they are derived),
           // but if they do (e.g. read status sync), it routes here.
           distributedNotificationService.broadcastNotification(context, rawEnvelope.payload as NotificationEnvelope);
           break;

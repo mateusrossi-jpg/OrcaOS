@@ -8,7 +8,7 @@ Responsável pela persistência e sincronização de dados multi-dispositivo, ma
 - **Transporte:** Preparado para integrações com Supabase Realtime, Firebase ou WebRTC.
 
 ## Fluxo de Dados
-1. UI altera dado local -> Atualiza Storage Local (Dexie/IndexedDB).
+1. UI altera dado local -> Atualiza `localStorage`.
 2. Sync Layer detecta mudança -> Envelopa dado via `wrapEntityForCloudSync`.
 3. Tenta envio para nuvem -> Em caso de erro, marca para retry (Queue).
 4. Sucesso -> Atualiza metadados de sync local.

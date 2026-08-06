@@ -5,7 +5,7 @@ import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
 vi.mock('../cloud/supabaseClient', () => {
   const mockInsert = vi.fn().mockResolvedValue({ error: null });
   const mockMaybeSingle = vi.fn().mockResolvedValue({ data: null, error: null });
-  
+
   const mockFrom = vi.fn().mockImplementation(() => {
     return {
       insert: mockInsert,
@@ -176,7 +176,7 @@ describe('AFERIX SYSTEMATIC OFFLINE RESILIENCE AND CRASH RECOVERY', () => {
     // Verify that the Offline Event Store has captured the entire Day's queue!
     const pendingEventsCount = await cloudSyncService.countPendingEvents();
     expect(pendingEventsCount).toBeGreaterThanOrEqual(7);
-    
+
     aferixLogger.audit('OfflineTest', 'Verified full-day offline CRUD execution is 100% resilient.');
   });
 
@@ -210,7 +210,7 @@ describe('AFERIX SYSTEMATIC OFFLINE RESILIENCE AND CRASH RECOVERY', () => {
   it('3. RETRY LOGIC WITH EXPONENTIAL BACKOFF ON FLAKY NETWORK', async () => {
     // Turn connection state back to Online
     cloudSyncService['isOnlineState'] = true;
-    
+
     // Simulate flaky/broken network by making Supabase insert return a connection timeout error
     const mockFrom = supabase.from as any;
     mockFrom().insert.mockResolvedValueOnce({
@@ -224,7 +224,7 @@ describe('AFERIX SYSTEMATIC OFFLINE RESILIENCE AND CRASH RECOVERY', () => {
 
     // Call syncLocalToCloud
     const res = await cloudSyncService.syncLocalToCloud();
-    
+
     // Verify it registered an error
     expect(res.errors).toBeGreaterThan(0);
 
@@ -238,7 +238,7 @@ describe('AFERIX SYSTEMATIC OFFLINE RESILIENCE AND CRASH RECOVERY', () => {
     // Reset connection and configure Supabase to succeed
     cloudSyncService['isOnlineState'] = true;
     cloudSyncService['resetRetryDelay']();
-    
+
     const mockFrom = supabase.from as any;
     mockFrom().insert.mockResolvedValue({ error: null }); // Always succeed
 
@@ -288,7 +288,7 @@ describe('AFERIX SYSTEMATIC OFFLINE RESILIENCE AND CRASH RECOVERY', () => {
     const conflicts = conflictDetectionService.getConflicts();
     expect(conflicts).toHaveLength(1);
     expect(conflicts[0].conflictType).toBe('stale_entity');
-    
+
     // Verify that the local event was marked 'synced' (ignored in favor of server)
     const localEvent = await db.operationalEvents.get(eventId);
     expect((localEvent as any)?.syncStatus).toBe('synced');
@@ -296,7 +296,7 @@ describe('AFERIX SYSTEMATIC OFFLINE RESILIENCE AND CRASH RECOVERY', () => {
 
   it('6. PERSISTENCE RECOVERY: DISK TRAUMA SELF-HEALING', async () => {
     const spySoftRecovery = vi.spyOn(databaseRecoveryService, 'attemptSoftRecovery');
-    
+
     // Simulate a db open validation failure (unaccessible IndexedDB)
     const spyValidate = vi.spyOn(databaseRecoveryService, 'validateDatabaseState').mockResolvedValueOnce(false);
 

@@ -24,11 +24,11 @@ export const safeTransaction = async <T>(
     } catch (error: any) {
       const duration = Date.now() - startTime;
       aferixLogger.error('SafeTransaction', `[${operationName}] Failed after ${duration}ms`, error);
-      
+
       if (error.name === 'AbortError' || error.name === 'ConstraintError' || error.name === 'QuotaExceededError') {
         throw error; // Irrecoverable in this context
       }
-      
+
       if (retryCount < maxRetries) {
         retryCount++;
         aferixLogger.warn('SafeTransaction', `[${operationName}] Retrying (${retryCount}/${maxRetries})...`);
@@ -38,6 +38,6 @@ export const safeTransaction = async <T>(
       }
     }
   }
-  
+
   throw new Error('SafeTransaction failed unexpectedly');
 };

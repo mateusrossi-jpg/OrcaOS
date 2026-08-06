@@ -6,7 +6,7 @@ import { realtimeTransport } from '../realtime/transport';
  * AutomationDispatchService
  * Centralizes dispatch to prevent duplicate executions, ensure stale safety,
  * and provide reconnect-safe operational recommendations.
- * 
+ *
  * Strictly Append-Only: Dispatching an automation means creating an Envelope
  * that travels through the transport. The backend/engine will execute it.
  */

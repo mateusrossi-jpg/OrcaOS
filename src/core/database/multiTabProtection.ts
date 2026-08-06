@@ -12,7 +12,7 @@ export const multiTabProtection = {
   init: () => {
     if (typeof BroadcastChannel !== 'undefined') {
       bc = new BroadcastChannel(BROADCAST_CHANNEL_NAME);
-      
+
       bc.onmessage = (event) => {
         if (event.data.type === 'HEARTBEAT' && event.data.tabId !== TAB_ID) {
           // Another tab exists!
@@ -28,11 +28,11 @@ export const multiTabProtection = {
 
       // Broadcast our existence
       bc.postMessage({ type: 'HEARTBEAT', tabId: TAB_ID, isPrimary: isPrimaryTab });
-      
+
       heartbeatInterval = setInterval(() => {
         if (bc) bc.postMessage({ type: 'HEARTBEAT', tabId: TAB_ID, isPrimary: isPrimaryTab });
       }, 5000);
-      
+
       aferixLogger.info('MultiTab', `Tab protection initialized. ID: ${TAB_ID}`);
     }
   },

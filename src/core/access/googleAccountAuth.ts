@@ -1,6 +1,6 @@
 import type { GoogleAccountProfile } from './accountPlanStorage';
 
-const GOOGLE_IDENTITY_SCRIPT_ID = 'aferix-google-identity-script';
+const GOOGLE_IDENTITY_SCRIPT_ID = 'orcaos-google-identity-script';
 const GOOGLE_IDENTITY_SCRIPT_SRC = 'https://accounts.google.com/gsi/client';
 const GOOGLE_PROFILE_SCOPE = 'openid email profile';
 
@@ -52,7 +52,7 @@ function loadGoogleIdentityScript(): Promise<void> {
   if (existingScript) {
     return new Promise((resolve, reject) => {
       existingScript.addEventListener('load', () => resolve(), { once: true });
-      existingScript.addEventListener('error', () => reject(new Error('Falha ao carregar o login do Google.')), { once: true });
+      existingScript.addEventListener('error', () => reject(new Error('Não foi possível carregar o login do Google.')), { once: true });
     });
   }
 
@@ -63,7 +63,7 @@ function loadGoogleIdentityScript(): Promise<void> {
     script.async = true;
     script.defer = true;
     script.onload = () => resolve();
-    script.onerror = () => reject(new Error('Falha ao carregar o login do Google.'));
+    script.onerror = () => reject(new Error('Não foi possível carregar o login do Google.'));
     document.head.appendChild(script);
   });
 }
@@ -110,7 +110,7 @@ export async function requestGoogleAccountProfile(): Promise<GoogleAccountProfil
 
   if (!response.ok) {
     const errorText = await response.text();
-    throw new Error(errorText || 'Falha ao carregar o perfil Google.');
+    throw new Error(errorText || 'Não foi possível carregar o perfil Google.');
   }
 
   const profile = await response.json() as Partial<GoogleAccountProfile>;

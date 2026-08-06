@@ -1,4 +1,4 @@
-export type AutomationTrigger = 
+export type AutomationTrigger =
   | 'AGING_THRESHOLD'
   | 'SLA_RISK'
   | 'WORKFLOW_BLOCKED'
@@ -8,7 +8,7 @@ export type AutomationTrigger =
   | 'INACTIVE_CLIENT'
   | 'TECHNICIAN_OVERLOAD';
 
-export type AutomationDecisionType = 
+export type AutomationDecisionType =
   | 'SEND_FOLLOWUP'
   | 'ESCALATE_SLA'
   | 'REASSIGN_TECHNICIAN'

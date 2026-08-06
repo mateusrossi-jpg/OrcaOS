@@ -8,7 +8,7 @@ import { automationDispatchService } from './automationDispatchService';
  * TechnicianIntelligenceService
  * Evaluates operational execution to derive workload pressure, execution bottlenecks,
  * and technician overload risks without toxic gamification.
- * 
+ *
  * Consumer-Only: Evaluates projections to generate insight envelopes.
  */
 export class TechnicianIntelligenceService {
@@ -31,7 +31,7 @@ export class TechnicianIntelligenceService {
       if (count > 5) { // Threshold for overload
         const delayed = delayedMap.get(technician) || 0;
         const severity = delayed > 2 ? 'critical' : 'warning';
-        
+
         const envelope: AutomationEnvelope = {
           automationId: `tech-overload-${technician}-${new Date().toISOString().split('T')[0]}`,
           aggregateId: technician,

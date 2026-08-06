@@ -26,7 +26,7 @@ export class DistributedCheckpointService {
 
   public updateCheckpoint(tenantId: string, deviceId: string, cursor: SyncCursor): void {
     const key = this.getPartitionKey(tenantId, deviceId);
-    
+
     // Idempotency: only advance if the new sequence is strictly greater
     const current = this.checkpoints.get(key);
     if (current && cursor.sequence <= current.cursor.sequence) {

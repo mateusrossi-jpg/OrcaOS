@@ -1,6 +1,6 @@
 /**
  * Aferix Future Contracts
- * 
+ *
  * Este arquivo contém as definições de tipos e interfaces para a expansão futura do Aferix.
  * Regra Crítica: Estes tipos são isolados e NÃO devem ser importados por componentes visuais
  * ou lógicas operacionais da versão atual para evitar acoplamento prematuro.

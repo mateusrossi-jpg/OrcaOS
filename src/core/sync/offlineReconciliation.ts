@@ -9,7 +9,7 @@ import { deviceIdentityManager } from './deviceIdentity';
  * It filters out duplicates and stale states before delegating to the local Event Store.
  */
 export class OfflineReconciliationService {
-  
+
   /**
    * Processes an incoming SyncEnvelope from the cloud/transport.
    * Ensures idempotency and causal consistency.

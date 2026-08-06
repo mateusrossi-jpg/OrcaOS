@@ -1,6 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import '../../test/mockAccountPlanRepository';
-import { mockAccountPlanRepository } from '../../test/mockAccountPlanRepository';
+import { createMemoryStorage } from '../../test/createMemoryStorage';
 import type { AferixAccountState } from './accountPlanStorage';
 import { getGooglePlayBillingSetup, purchaseGooglePlayPro, restoreGooglePlayPurchases, syncGooglePlayPurchaseEntitlement } from './googlePlayBilling';
 
@@ -27,7 +26,7 @@ function jsonResponse(value: unknown, ok = true, status = 200): Response {
 }
 
 describe('google play billing bridge contract', () => {
-  beforeEach(async () => {
+  beforeEach(() => {
     vi.stubGlobal('CustomEvent', class {
       type: string;
 
@@ -36,26 +35,26 @@ describe('google play billing bridge contract', () => {
       }
     });
     vi.stubGlobal('window', {
+      localStorage: createMemoryStorage(),
       dispatchEvent: vi.fn(),
     });
-    await mockAccountPlanRepository.clear();
   });
 
-  afterEach(async () => {
+  afterEach(() => {
+    window.localStorage.clear();
     vi.unstubAllGlobals();
     vi.unstubAllEnvs();
-    await mockAccountPlanRepository.clear();
   });
 
   it('exposes setup expected by the native Android bridge', () => {
     vi.stubEnv('VITE_AFERIX_PLAY_PRO_PRODUCT_ID', 'orcaos_pro_monthly');
-    vi.stubEnv('VITE_AFERIX_ANDROID_PACKAGE_NAME', 'com.financial.aferix');
+    vi.stubEnv('VITE_AFERIX_ANDROID_PACKAGE_NAME', 'com.orcaos.app');
     vi.stubEnv('VITE_AFERIX_ENTITLEMENTS_ENDPOINT', 'https://api.example.com/entitlements');
 
     expect(getGooglePlayBillingSetup()).toEqual({
       bridgeName: 'AferixGooglePlayBilling',
       productId: 'orcaos_pro_monthly',
-      packageName: 'com.financial.aferix',
+      packageName: 'com.orcaos.app',
       entitlementEndpoint: 'https://api.example.com/entitlements',
       bridgeAvailable: false,
     });
@@ -63,7 +62,7 @@ describe('google play billing bridge contract', () => {
 
   it('asks the native bridge to purchase the configured Pro product', async () => {
     vi.stubEnv('VITE_AFERIX_PLAY_PRO_PRODUCT_ID', 'orcaos_pro_monthly');
-    vi.stubEnv('VITE_AFERIX_ANDROID_PACKAGE_NAME', 'com.financial.aferix');
+    vi.stubEnv('VITE_AFERIX_ANDROID_PACKAGE_NAME', 'com.orcaos.app');
     window.AferixGooglePlayBilling = {
       purchase: vi.fn().mockResolvedValue({ platform: 'google-play', productId: 'orcaos_pro_monthly', purchaseToken: 'token-123' }),
       restorePurchases: vi.fn(),
@@ -73,7 +72,7 @@ describe('google play billing bridge contract', () => {
 
     expect(window.AferixGooglePlayBilling.purchase).toHaveBeenCalledWith('orcaos_pro_monthly');
     expect(purchase.purchaseToken).toBe('token-123');
-    expect(purchase.packageName).toBe('com.financial.aferix');
+    expect(purchase.packageName).toBe('com.orcaos.app');
   });
 
   it('restores only purchases for the configured Pro product', async () => {
@@ -102,7 +101,7 @@ describe('google play billing bridge contract', () => {
       platform: 'google-play',
       productId: 'orcaos_pro_monthly',
       purchaseToken: 'purchase-token',
-      packageName: 'com.financial.aferix',
+      packageName: 'com.orcaos.app',
       orderId: 'GPA.123',
     });
 

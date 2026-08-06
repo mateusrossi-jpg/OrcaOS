@@ -29,11 +29,11 @@ export const financialSafety = {
     totals: { totalServices: number; materialCost: number; operationalCosts: number; netFinalValue: number; marginPercent: number }
   ): string[] {
     const warnings: string[] = [];
-    
+
     if (!Number.isFinite(totals.totalServices) || totals.totalServices < 0) warnings.push('Invalid totalServices (Negative or Infinity)');
     if (!Number.isFinite(totals.materialCost) || totals.materialCost < 0) warnings.push('Invalid materialCost (Negative or Infinity)');
     if (!Number.isFinite(totals.operationalCosts) || totals.operationalCosts < 0) warnings.push('Invalid operationalCosts (Negative or Infinity)');
-    
+
     if (totals.marginPercent < -500 || totals.marginPercent > 500) {
       warnings.push(`Impossible margin detected: ${totals.marginPercent}%`);
     }

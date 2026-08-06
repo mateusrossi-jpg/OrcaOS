@@ -15,7 +15,7 @@ export interface TrustEvent {
 class TrustLayerManager {
   private events: TrustEvent[] = [];
   private listeners: Set<(events: TrustEvent[]) => void> = new Set();
-  
+
   emit(event: Omit<TrustEvent, 'id' | 'timestamp'>) {
     const newEvent: TrustEvent = {
       ...event,
@@ -31,7 +31,7 @@ class TrustLayerManager {
     this.events = this.events.map(e => e.id === id ? { ...e, status } : e);
     this.notify();
   }
-  
+
   removeEvent(id: string) {
     this.events = this.events.filter(e => e.id !== id);
     this.notify();
