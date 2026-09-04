@@ -1,0 +1,69 @@
+/* src/app/components/ui/MobileActionMenu.module.css
+   Refactored for TOKEN-FIRST architecture (Executive OS V5).
+   ---------------------------------------------------------- */
+
+/* Trigger button */
+.trigger {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-pill);
+  background: var(--bg-surface-glass);
+  color: var(--text-muted);
+  border: var(--border-subtle);
+  font-size: var(--fs-lg);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.trigger:active {
+  transform: scale(0.92);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* Bottom sheet title */
+.title {
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-black);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--text-muted);
+  margin-bottom: var(--spacing-lg);
+  text-align: center;
+  opacity: 0.5;
+}
+
+/* Menu container */
+.menu {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+/* Button/item styling */
+.itemButton {
+  width: 100%;
+  min-height: 56px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: var(--bg-surface-glass) !important;
+  color: var(--text-primary) !important;
+  border: var(--border-soft) !important;
+  border-radius: var(--radius-button) !important;
+  font-size: var(--fs-base) !important;
+  font-weight: var(--fw-bold) !important;
+  transition: all var(--transition-fast) !important;
+}
+
+.itemButton:active {
+  transform: scale(0.97);
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+
+.itemButton[data-tone="danger"] {
+  color: var(--accent-red) !important;
+  background: rgba(239, 68, 68, 0.1) !important;
+  border-color: rgba(239, 68, 68, 0.2) !important;
+}

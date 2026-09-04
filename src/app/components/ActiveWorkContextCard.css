@@ -1,0 +1,11 @@
+/* src/app/components/ActiveWorkContextCard.css
+   Refactored for TOKEN-FIRST architecture (Executive OS V5).
+   ---------------------------------------------------------- */
+
+.active-work-card {
+  transition: all var(--transition-normal);
+}
+
+.active-work-card:active {
+  transform: scale(0.98);
+}

@@ -1,0 +1,81 @@
+/* src/app/components/CompactActionMenu.css
+   Refactored for TOKEN-FIRST architecture (Executive OS V5).
+   ---------------------------------------------------------- */
+
+.compact-action-menu {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.compact-action-menu-trigger {
+  min-width: 40px !important;
+  width: 40px;
+  min-height: 40px !important;
+  padding: 0 !important;
+  justify-content: center !important;
+  border-radius: var(--radius-pill) !important;
+  background: var(--bg-surface-glass) !important;
+  border: var(--border-soft) !important;
+  color: var(--text-muted) !important;
+  transition: all var(--transition-fast) !important;
+}
+
+.compact-action-menu-trigger:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--accent-gold) !important;
+}
+
+.compact-action-menu-popover {
+  position: absolute;
+  top: calc(100% + var(--spacing-sm));
+  z-index: var(--z-modal, 1000);
+  min-width: 220px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--spacing-sm);
+  border-radius: var(--radius-card);
+  border: var(--border-soft);
+  background: var(--bg-surface);
+  box-shadow: var(--shadow-card);
+  backdrop-filter: blur(32px) saturate(1.5);
+  -webkit-backdrop-filter: blur(32px) saturate(1.5);
+}
+
+.compact-action-menu-popover.align-right {
+  right: 0;
+}
+
+.compact-action-menu-popover.align-left {
+  left: 0;
+}
+
+.compact-action-menu-item {
+  min-height: 44px !important;
+  justify-content: flex-start !important;
+  text-align: left !important;
+  padding: 0 var(--spacing-md) !important;
+  border-radius: var(--radius-sm) !important;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  border: 1px solid transparent !important;
+  background: transparent !important;
+  color: var(--text-secondary) !important;
+  transition: all var(--transition-fast) !important;
+}
+
+.compact-action-menu-item:hover {
+  background: rgba(255, 255, 255, 0.04) !important;
+  color: var(--text-primary) !important;
+}
+
+.compact-action-menu-item.danger {
+  color: var(--accent-red) !important;
+}
+
+.compact-action-menu-item.danger:hover {
+  background: rgba(239, 68, 68, 0.1) !important;
+  border-color: rgba(239, 68, 68, 0.2) !important;
+}

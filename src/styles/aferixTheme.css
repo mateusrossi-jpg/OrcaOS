@@ -1,0 +1,112 @@
+/* AFERIX THEME — Unified Design System Integration
+   Central rules mapping to design-system.css
+   ----------------------------------------- */
+
+:root {
+  /* Backward compatibility aliases */
+  --aferix-spacing-md: var(--spacing-md);
+  --aferix-card-padding: var(--spacing-md);
+  --background: var(--bg-primary);
+  --foreground: var(--text-primary);
+}
+
+/* --------------------------------------------------
+   GEOMETRY UTILITIES
+   -------------------------------------------------- */
+
+.rounded-xs   { border-radius: var(--radius-xs) !important; }
+.rounded-sm   { border-radius: var(--radius-sm) !important; }
+.rounded-md   { border-radius: var(--radius-md) !important; }
+.rounded-lg   { border-radius: var(--radius-card) !important; }
+.rounded-xl   { border-radius: var(--radius-card) !important; }
+.rounded-2xl  { border-radius: var(--radius-modal) !important; }
+.rounded-pill { border-radius: var(--radius-pill) !important; }
+
+/* SPACING UTILITIES */
+.p-xs { padding: var(--spacing-xs) !important; }
+.p-sm { padding: var(--spacing-sm) !important; }
+.p-md { padding: var(--spacing-md) !important; }
+.p-lg { padding: var(--spacing-lg) !important; }
+.p-xl { padding: var(--spacing-xl) !important; }
+
+/* --------------------------------------------------
+   SURFACE SYSTEM (Unified Executive OS)
+   -------------------------------------------------- */
+
+.surface-elev {
+  border-radius: var(--radius-card);
+  background: var(--surface-gradient);
+  border: var(--border-soft);
+  box-shadow: var(--shadow-soft);
+  transition: all var(--transition-normal);
+}
+
+.aferix-surface {
+  background: var(--bg-surface);
+  border: var(--border-soft);
+  box-shadow: var(--shadow-soft);
+  border-radius: var(--radius-card);
+  transition: all var(--transition-normal);
+}
+
+.aferix-surface.elevation-2 {
+  background: var(--bg-surface-elevated);
+  box-shadow: var(--shadow-card);
+}
+
+/* --------------------------------------------------
+   BUTTONS (Legacy Overrides)
+   -------------------------------------------------- */
+
+.ui-button {
+  min-height: 48px;
+  border-radius: var(--radius-button);
+  padding: 0 var(--spacing-md);
+  font-weight: var(--fw-bold);
+  transition: all var(--transition-fast);
+}
+
+.primary-action {
+  background: var(--accent-gold) !important;
+  color: var(--bg-primary) !important;
+  box-shadow: var(--shadow-primary) !important;
+}
+
+.secondary-action {
+  background: var(--bg-surface-glass) !important;
+  border: var(--border-soft) !important;
+  color: var(--text-primary) !important;
+}
+
+/* --------------------------------------------------
+   BADGES & PILLS
+   -------------------------------------------------- */
+
+.aferix-status-pill {
+  padding: 4px 12px;
+  border-radius: var(--radius-pill);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  background: var(--bg-surface-elevated);
+  border: var(--border-subtle);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tone-brand { color: var(--accent-gold); }
+.tone-success { color: var(--accent-green); }
+.tone-danger { color: var(--accent-red); }
+
+/* --------------------------------------------------
+   SPECIAL EFFECTS
+   -------------------------------------------------- */
+.glow-gold {
+  background: var(--surface-glow), var(--surface-gradient) !important;
+  box-shadow: var(--shadow-cinematic) !important;
+}
+
+.hairline { border-color: white/[0.03] !important; }
+.num { font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }

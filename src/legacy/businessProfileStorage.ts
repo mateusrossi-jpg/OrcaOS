@@ -1,0 +1,71 @@
+import type { BusinessProfile } from '../core/types/business';
+import { safeJsonParse } from '../core/runtime/safeGuards';
+
+const BUSINESS_PROFILE_STORAGE_KEY = 'orcaos:business-profile:v1';
+
+export const defaultBusinessProfile: BusinessProfile = {
+  businessName: '',
+  documentNumber: '',
+  phone: '',
+  email: '',
+  address: '',
+  logoUrl: '',
+  logoDataUrl: '',
+  responsibleName: '',
+  defaultPaymentTerms: 'Condições de pagamento a combinar.',
+  defaultValidity: '7 dias',
+  defaultGuarantee: 'Garantia conforme serviço executado e materiais aplicados.',
+  defaultExecutionDeadline: 'Prazo de execução a combinar após aprovação.',
+  defaultNotes: 'Valores sujeitos à confirmação após vistoria, disponibilidade de materiais e validação técnica do serviço.',
+  defaultBudgetTemplateId: 'simple',
+  defaultReportTemplateId: 'technicalSimple',
+};
+
+function isBusinessProfile(value: unknown): value is BusinessProfile {
+  if (!value || typeof value !== 'object') {
+    return false;
+  }
+
+  const profile = value as Partial<BusinessProfile>;
+
+  return (
+    typeof profile.businessName === 'string' &&
+    typeof profile.documentNumber === 'string' &&
+    typeof profile.phone === 'string' &&
+    typeof profile.email === 'string' &&
+    typeof profile.address === 'string' &&
+    typeof profile.logoUrl === 'string' &&
+    (typeof profile.logoDataUrl === 'string' || typeof profile.logoDataUrl === 'undefined') &&
+    typeof profile.responsibleName === 'string' &&
+    typeof profile.defaultPaymentTerms === 'string' &&
+    typeof profile.defaultValidity === 'string' &&
+    (typeof profile.defaultGuarantee === 'string' || typeof profile.defaultGuarantee === 'undefined') &&
+    (typeof profile.defaultExecutionDeadline === 'string' || typeof profile.defaultExecutionDeadline === 'undefined') &&
+    typeof profile.defaultNotes === 'string' &&
+    (typeof profile.defaultBudgetTemplateId === 'string' || typeof profile.defaultBudgetTemplateId === 'undefined') &&
+    (typeof profile.defaultReportTemplateId === 'string' || typeof profile.defaultReportTemplateId === 'undefined')
+  );
+}
+
+export function loadBusinessProfile(): BusinessProfile {
+  if (typeof window === 'undefined') {
+    return defaultBusinessProfile;
+  }
+
+  const storedValue = window.localStorage.getItem(BUSINESS_PROFILE_STORAGE_KEY);
+  const parsedValue = safeJsonParse<unknown>(storedValue, defaultBusinessProfile);
+
+  if (!isBusinessProfile(parsedValue)) {
+    return defaultBusinessProfile;
+  }
+
+  return { ...defaultBusinessProfile, ...parsedValue };
+}
+
+export function saveBusinessProfile(profile: BusinessProfile): void {
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  window.localStorage.setItem(BUSINESS_PROFILE_STORAGE_KEY, JSON.stringify(profile));
+}
