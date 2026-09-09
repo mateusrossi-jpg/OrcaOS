@@ -49,6 +49,16 @@ interface LineItem {
 
 interface ProposalGeneratorPageProps { id?: string | null; onBack?: () => void; onNavigate?: (tab: string) => void; }
 
+// ─── UI-only display estimates ───────────────────────────────────────────────
+// These rates are used ONLY for the visual indicators shown during proposal
+// composition (estimated taxes and rentability preview).
+// They are NOT authoritative — BudgetCalculatorService owns the canonical math.
+// chargedValue persisted to Dexie is grandTotal = (subtotal - discount) + taxesTotal,
+// which uses ESTIMATED_TAX_RATE. A tenant-configurable rate is a future feature.
+const ESTIMATED_TAX_RATE    = 0.15; // ~15% impostos estimados (ISS, INSS, etc.)
+const ESTIMATED_MARGIN_RATE = 0.30; // ~30% rentabilidade prevista (display only)
+// ─────────────────────────────────────────────────────────────────────────────
+
 /**
  * ProposalGeneratorPage (V33): Authoritative Proposal Hub.
  * Elevated with Sequential Workflow & Conflict Prevention.
@@ -239,9 +249,9 @@ export const ProposalGeneratorPage: React.FC<ProposalGeneratorPageProps> = ({ id
     return p + discountFixed;
   }, [rawSubTotal, discountPercent, discountFixed]);
 
-  const taxesTotal = (rawSubTotal - discountValue) * 0.15;
-  const marginTotal = (rawSubTotal - discountValue) * 0.30;
-  const grandTotal = (rawSubTotal - discountValue) + taxesTotal;
+  const taxesTotal  = (rawSubTotal - discountValue) * ESTIMATED_TAX_RATE;
+  const marginTotal = (rawSubTotal - discountValue) * ESTIMATED_MARGIN_RATE;
+  const grandTotal  = (rawSubTotal - discountValue) + taxesTotal;
 
   const handleDuplicate = () => {
     setLocalId(null);
@@ -330,7 +340,7 @@ export const ProposalGeneratorPage: React.FC<ProposalGeneratorPageProps> = ({ id
 
       <div className="relative z-10 w-full shrink-0">
          <div className="w-full max-w-md mx-auto">
-            <AppHeader title="Nova Proposta" subtitle="Emitir Orçamento Comercial" onBack={onBack} standalone />
+            <AppHeader title="Nova Proposta" subtitle="Emitir Orçamento Comercial" onBack={onBack} />
          </div>
       </div>
 
