@@ -54,13 +54,31 @@ interface HomeCockpitData {
   urgentDebts: SimpleFinanceRecord[];
 }
 
+// Sentinel de UI — estado zerado que permite render imediato sem spinner bloqueante.
+// Os valores reais hidratam via Promise.all no background; nenhuma tela em branco é exibida.
+const EMPTY_COCKPIT: HomeCockpitData = {
+  profileName: '',
+  health: {
+    status: 'healthy', title: '...', reasons: [],
+    osDelayedCount: 0, pendingPaymentsCount: 0, unansweredBudgetsCount: 0,
+    revenueTrend: 'stable', revenueThisMonth: 0, metaAtingidaPercent: 0, totalReceivedToday: 0,
+  },
+  toReceive: 0, toReceiveCount: 0,
+  potentialRevenue: 0, potentialRevenueCount: 0,
+  openOSCount: 0, todayOSCount: 0,
+  todayScheduledWOs: [], pendingBudgets: [], recentClients: [], urgentDebts: [],
+};
+
 /**
- * HomePage (V14.0 — SPRINT 5): AUTHORITATIVE OPERATIONAL COCKPIT.
+ * HomePage (V14.1 — P1/P2/P3): AUTHORITATIVE OPERATIONAL COCKPIT.
  * Conforms strictly to PRODUCT_HOME_HEADER_CONSTITUTION.md and Dark Premium V12.
  * Core Mandate: "Tudo gira em torno do orçamento".
+ * P1: Sem spinner bloqueante — render imediato com EMPTY_COCKPIT, dados hidratam em background.
+ * P2: SearchBar movida para abaixo do Hero Card.
+ * P3: Card "Atenção" navega para 'money' se há pagamentos pendentes, 'budgets' caso contrário.
  */
 export const HomePage = memo(function HomePage({ onNavigate }: HomePageProps) {
-  const [data, setData] = useState<HomeCockpitData | null>(null);
+  const [data, setData] = useState<HomeCockpitData>(EMPTY_COCKPIT);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const { isOnline, pendingCount } = useCloudSyncState();
@@ -107,7 +125,7 @@ export const HomePage = memo(function HomePage({ onNavigate }: HomePageProps) {
       // 4. Propostas Recentes / Aguardando
       const pendingBudgets = allBudgets
         .filter(b => [BUDGET_STATUS.ENVIADO, BUDGET_STATUS.INICIADO, BUDGET_STATUS.EM_REVISAO].includes(b.status as any))
-        .sort((a, b) => new Date(b.updatedAt || b.createdAt).getTime() - new Date(a.updatedAt || a.createdAt).getTime())
+        .sort((a, b) => new Date(b.updatedAt || b.createdAt || 0).getTime() - new Date(a.updatedAt || a.createdAt || 0).getTime())
         .slice(0, 3);
 
       // 5. Clientes Recentes
@@ -145,18 +163,6 @@ export const HomePage = memo(function HomePage({ onNavigate }: HomePageProps) {
     return () => window.removeEventListener('focus', loadCockpitData);
   }, [loadCockpitData]);
 
-  if (loading || !data) {
-    return (
-      <div className="min-h-[80vh] flex flex-col items-center justify-center p-6 bg-gradient-to-b from-[#2C2C2E] to-[#262628] text-white">
-        <div className="w-12 h-12 rounded-[16px] bg-white/5 border border-white/10 flex items-center justify-center text-[#FFD60A] animate-pulse mb-3">
-          <Activity size={24} />
-        </div>
-        <span className="text-[11px] font-mono uppercase tracking-[0.2em] text-[#8E8E93]">
-          Carregando Cockpit Operacional...
-        </span>
-      </div>
-    );
-  }
 
   const nextOS = data.todayScheduledWOs[0];
 
@@ -164,33 +170,9 @@ export const HomePage = memo(function HomePage({ onNavigate }: HomePageProps) {
     <div className="pb-36 bg-gradient-to-b from-[#2C2C2E] to-[#262628] text-white min-h-screen">
       <div className="px-5 pt-4 flex flex-col gap-5 max-w-md mx-auto w-full">
         
-        {/* 1. BUSCA TÁTICA SLIM (Estilo ChatGPT iOS - Dark Premium V12) */}
-        <div className="bg-[#3A3A3C] border border-white/5 h-12 rounded-[14px] px-4 text-white w-full flex items-center gap-3 shadow-sm">
-          <Search size={17} className="text-[#8E8E93] shrink-0" />
-          <input 
-            type="text" 
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && searchQuery.trim()) {
-                onNavigate({ tab: 'relationships', query: searchQuery });
-              }
-            }}
-            placeholder="Buscar cliente, serviço, orçamento..."
-            className="w-full bg-transparent text-[14px] outline-none border-none p-0 m-0 placeholder:text-[#8E8E93] text-white"
-          />
-          {searchQuery && (
-            <button 
-              onClick={() => setSearchQuery('')}
-              className="text-[11px] text-[#8E8E93] hover:text-white p-1"
-            >
-              ✕
-            </button>
-          )}
-        </div>
-
-        {/* 2. HERO CARD — MISSÃO EM FOCO & CTA DO CORE MANDATE */}
-        <div className="bg-[#3A3A3C] border border-white/10 rounded-[24px] p-6 shadow-[0_8px_24px_rgba(0,0,0,0.16)] flex flex-col gap-4">
+        {/* 1. HERO CARD — MISSÃO EM FOCO & CTA DO CORE MANDATE */}
+        {/* P2: Hero primeiro — o operador vê a ação imediata antes de qualquer utilitário */}
+        <div className={cn("bg-[#3A3A3C] border border-white/10 rounded-[24px] p-6 shadow-[0_8px_24px_rgba(0,0,0,0.16)] flex flex-col gap-4", loading && "animate-pulse")}>
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-2">
               <div className="w-6 h-6 rounded-full bg-[#FFD60A]/15 border border-[#FFD60A]/30 flex items-center justify-center text-[#FFD60A]">
@@ -231,6 +213,32 @@ export const HomePage = memo(function HomePage({ onNavigate }: HomePageProps) {
             <Plus size={18} strokeWidth={2.5} className="shrink-0" />
             <span className="text-center tracking-tight">NOVO ATENDIMENTO / ORÇAMENTO</span>
           </button>
+        </div>
+
+        {/* 2. BUSCA TÁTICA SLIM (Estilo ChatGPT iOS - Dark Premium V12) */}
+        {/* P2: Movida para cá — utilitário abaixo da ação principal */}
+        <div className="bg-[#3A3A3C] border border-white/5 h-12 rounded-[14px] px-4 text-white w-full flex items-center gap-3 shadow-sm">
+          <Search size={17} className="text-[#8E8E93] shrink-0" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && searchQuery.trim()) {
+                onNavigate({ tab: 'relationships', query: searchQuery });
+              }
+            }}
+            placeholder="Buscar cliente, serviço, orçamento..."
+            className="w-full bg-transparent text-[14px] outline-none border-none p-0 m-0 placeholder:text-[#8E8E93] text-white"
+          />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery('')}
+              className="text-[11px] text-[#8E8E93] hover:text-white p-1"
+            >
+              ✕
+            </button>
+          )}
         </div>
 
         {/* 3. PAINEL DE LIQUIDEZ E ATENÇÃO (Grid 2x2 Dark Premium #363638) */}
@@ -291,10 +299,11 @@ export const HomePage = memo(function HomePage({ onNavigate }: HomePageProps) {
           </div>
 
           {/* Saúde & Follow-ups */}
+          {/* P3: navega para 'money' se há pagamentos pendentes, 'budgets' se há orçamentos sem resposta */}
           <div 
-            onClick={() => onNavigate('budgets')}
+            onClick={() => onNavigate(data.health.pendingPaymentsCount > 0 ? 'money' : 'budgets')}
             className="bg-[#363638] border border-white/5 rounded-[18px] p-4 flex flex-col gap-1 shadow-sm cursor-pointer hover:border-white/10 active:scale-[0.98] transition-all"
-            title="Ver Ações Prioritárias"
+            title={data.health.pendingPaymentsCount > 0 ? 'Ver Financeiro' : 'Ver Ações Prioritárias'}
           >
             <div className="flex justify-between items-center">
               <span className="text-[11px] font-bold text-[#8E8E93] uppercase tracking-wider">Atenção</span>
