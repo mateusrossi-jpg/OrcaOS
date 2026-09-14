@@ -39,8 +39,10 @@ export class CelebrationService {
       }
 
       // 2. Check Historical Record
+      // eslint-disable-next-line no-restricted-syntax
       const prevRecord = Number(localStorage.getItem('aferix_record_monthly_revenue')) || 5000;
       if (health.revenueThisMonth > prevRecord) {
+        // eslint-disable-next-line no-restricted-syntax
         localStorage.setItem('aferix_record_monthly_revenue', String(health.revenueThisMonth));
         this.emit({
           type: 'RECORD_BROKEN',

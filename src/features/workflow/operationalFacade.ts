@@ -8,7 +8,7 @@ import { SimpleFinanceService } from '../../services/SimpleFinanceService';
 import { clientService } from '../../services/clientService';
 import { BUDGET_STATUS, Budget, BudgetStatus } from '../../domain/budget';
 import { ClientProposalStatus } from '../clientPortal/storage/clientProposalStorage';
-import { WorkOrder } from '../../core/types/business';
+import { WorkOrder, ConsumedPartItem } from '../../core/types/business';
 import { OperationalEventType, FinancialDiff } from '../../domain/operationalEvent';
 import { db } from '../../storage/dexieDatabase';
 import { attendanceAggregationService } from '../../services/AttendanceAggregationService';
@@ -159,35 +159,41 @@ export const operationalFacade = {
   },
 
   // Authorize a budget and automatically create a linked work order
-  authorizeBudget: async (budgetId: string, budgetSnapshot?: Budget): Promise<void> => {
+  authorizeBudget: async (budgetId: string, budgetSnapshot?: Budget): Promise<WorkOrder | undefined> => {
     return writeLock.withDatabaseLock(`auth-${budgetId}`, async () => {
       // Prevent duplicate work orders from rapid double-clicks
       const existingWOs = await db.workOrders.where('budgetId').equals(budgetId).toArray();
       if (existingWOs.length > 0) {
         console.warn(`[operationalFacade] WorkOrder already exists for budget ${budgetId}. Ignoring duplicate authorization request.`);
-        return;
+        return existingWOs[0];
       }
 
       // Change status to AUTORIZADO first
       await operationalFacade.changeBudgetStatus(budgetId, BUDGET_STATUS.AUTORIZADO, budgetSnapshot);
       // After authorization, create a minimal work order linked to this budget
       const budget = budgetSnapshot ?? await new BudgetPersistenceService().getBudget(budgetId);
-      const workOrder = {
+      const workOrder: WorkOrder = {
         id: generateUUID(),
         clientId: budget?.clientId || '',
         siteId: budget?.siteId || 'default-site',
         title: budget?.title || `Projeto/OS ${budgetId.substring(0,6)}`,
-        status: 'awaiting_schedule' as const,
-        paymentStatus: 'pending' as const,
+        status: 'awaiting_schedule',
+        paymentStatus: 'pending',
         executedValue: budget?.chargedValue || 0,
         scheduledDate: new Date().toISOString().split('T')[0],
         budgetId,
         attendanceId: budget?.attendanceId,
         items: budget?.items || [],
-      } as any; // cast to WorkOrder (will be refined by service)
+        companyId: budget?.companyId || 'default-company',
+        workspaceId: budget?.workspaceId || 'default-workspace',
+        syncStatus: 'pending',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
       await workOrderService.add(workOrder);
       // The createWorkOrder flow will trigger execution of the budget via operationalFacade.executeBudget
       await operationalFacade.createWorkOrder(workOrder);
+      return workOrder;
     });
   },
 
@@ -300,6 +306,32 @@ export const operationalFacade = {
   },
 
   // --- FINANCE OPERATIONS ---
+
+  registerExpense: async (input: {
+    title: string;
+    category?: string;
+    amount: number;
+    notes?: string;
+    companyId?: string;
+    workspaceId?: string;
+  }): Promise<void> => {
+    const financeService = new SimpleFinanceService();
+    const record = await financeService.registerExpense(input);
+    if (record) {
+      await operationalEventService.emitEvent({
+        aggregateId: record.id,
+        aggregateType: 'finance',
+        eventType: 'FINANCE_RECORD_REALIZED',
+        metadata: {
+          expense: true,
+          amount: input.amount,
+          title: input.title,
+          category: input.category
+        },
+        snapshot: { ...record }
+      });
+    }
+  },
 
   registerPayment: async (workOrderId: string, amount: number): Promise<void> => {
     const financeService = new SimpleFinanceService();
@@ -543,23 +575,72 @@ export const operationalFacade = {
     }
   },
 
-  completeWorkOrder: async (workOrderId: string, executedValue: number, receivedValue: number, notes?: string): Promise<void> => {
+  completeWorkOrder: async (
+    workOrderId: string,
+    executedValue: number,
+    receivedValue: number,
+    notes?: string,
+    consumedParts?: ConsumedPartItem[]
+  ): Promise<void> => {
     const wo = await workOrderService.getById(workOrderId);
     if (!wo) return;
     
-    // FASE 3.5: Inventory Reintegration - Baixa Automática e Custo Real
     const budgetPersistence = new BudgetPersistenceService();
     const budget = wo.budgetId ? await budgetPersistence.getBudget(wo.budgetId) : undefined;
     let totalMaterialCost = budget?.materialCost || 0;
+    const isAlreadyCompleted = wo.status === 'done';
+    let hasExtraParts = false;
 
-    if (budget && budget.items) {
+    if (!isAlreadyCompleted && consumedParts && consumedParts.length > 0) {
+      let realMaterialCost = 0;
+      const invItems = await db.inventoryItems.toArray();
+
+      for (const part of consumedParts) {
+        realMaterialCost += (part.quantity * part.unitCost);
+        const invItem = invItems.find(i => 
+          (part.sku && (i.sku === part.sku || i.id === part.sku)) ||
+          i.name.toLowerCase() === part.name.toLowerCase()
+        );
+
+        if (invItem && invItem.quantityOnHand > 0) {
+          const consumeQty = Math.min(part.quantity, invItem.quantityOnHand);
+          try {
+            await StockService.updateStock(
+              invItem.companyId,
+              invItem.workspaceId,
+              invItem.id,
+              'OUT',
+              consumeQty,
+              `Baixa automática OS ${wo.id}`,
+              wo.id
+            );
+          } catch (err) {
+            console.error("Erro na baixa de estoque por consumedParts:", err);
+          }
+        }
+      }
+      totalMaterialCost = realMaterialCost;
+
+      // Check if there are extra parts compared to budget
+      if (budget && budget.items) {
+        for (const part of consumedParts) {
+          const budgetedItem = budget.items.find(bi => 
+            bi.category === 'material' && 
+            (bi.description.toLowerCase() === part.name.toLowerCase() || bi.catalogId === part.sku)
+          );
+          if (!budgetedItem || part.quantity > budgetedItem.quantity) {
+            hasExtraParts = true;
+          }
+        }
+      }
+    } else if (budget && budget.items) {
+      // FASE 3.5: Inventory Reintegration - Baixa Automática e Custo Real
       let realMaterialCost = 0;
       let usedInventory = false;
       const invItems = await db.inventoryItems.toArray();
 
       for (const item of budget.items) {
         if (item.category === 'material') {
-          // Busca no estoque por SKU (equivalente ao título/descrição para o SOLO)
           const invItem = invItems.find(i => 
             (item.catalogId && i.sku === item.catalogId) || 
             i.name.toLowerCase() === item.description.toLowerCase() ||
@@ -582,10 +663,10 @@ export const operationalFacade = {
               usedInventory = true;
             } catch (err) {
               console.error("Erro na baixa automática de estoque:", err);
-              realMaterialCost += (item.quantity * item.unitPrice); // Fallback: usa o custo orçado
+              realMaterialCost += (item.quantity * item.unitPrice);
             }
           } else {
-            realMaterialCost += (item.quantity * item.unitPrice); // Sem estoque, usa custo do orçamento
+            realMaterialCost += (item.quantity * item.unitPrice);
           }
         }
       }
@@ -597,6 +678,9 @@ export const operationalFacade = {
 
     wo.status = 'done';
     wo.executedValue = executedValue;
+    if (consumedParts) {
+      wo.consumedParts = consumedParts;
+    }
     if (notes) {
       wo.description = wo.description ? `${wo.description}\n\n[Checkout] ${notes}` : `[Checkout] ${notes}`;
     }
@@ -613,12 +697,20 @@ export const operationalFacade = {
         budgetId: wo.budgetId,
         workOrderId: wo.id,
         assetIds: wo.assetIds || [],
+        hasExtraParts,
+        consumedPartsCount: consumedParts ? consumedParts.length : 0,
         correlationId: wo.budgetId || wo.id
       },
-      snapshot: { status: 'done', executedValue, receivedValue, materialCost: totalMaterialCost }
+      snapshot: { 
+        status: 'done', 
+        executedValue, 
+        receivedValue, 
+        materialCost: totalMaterialCost,
+        consumedParts: consumedParts || []
+      }
     });
 
-    const client = await clientService.getById(wo.clientId);
+    const client = wo.clientId ? await clientService.getById(wo.clientId) : undefined;
     const clientName = client?.name || 'CLIENTE_ID_' + (wo.clientId ? wo.clientId.slice(0, 8) : 'DESC');
 
     const financeService = new SimpleFinanceService();
@@ -638,7 +730,9 @@ export const operationalFacade = {
       travelCost: budget?.travelCost || 0,
       cardFee: 0,
       estimatedTax: budget?.fees || 0,
-      otherCosts: budget?.otherCosts || 0
+      otherCosts: budget?.otherCosts || 0,
+      companyId: wo.companyId,
+      workspaceId: wo.workspaceId,
     });
 
     if (wo.attendanceId) {
@@ -940,11 +1034,11 @@ export const operationalFacade = {
 
     await db.attendances.add({
       id: newAttendanceId,
-      clientId: original.clientId,
-      siteId: original.siteId,
+      clientId: original.clientId || '',
+      siteId: original.siteId || '',
       status: 'autorizado',
-      companyId: original.companyId,
-      workspaceId: original.workspaceId,
+      companyId: original.companyId || '',
+      workspaceId: original.workspaceId || '',
       syncStatus: 'pending',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -997,6 +1091,7 @@ export const operationalFacade = {
       siteId: plan.siteId,
       title: `Renovação PMOC: ${plan.title}`,
       status: BUDGET_STATUS.INICIADO,
+      chargedValue: 0,
       items: [
         { id: generateUUID(), description: `Renovação de Contrato PMOC - ${plan.title}`, quantity: 1, unitPrice: 0, category: 'labor' }
       ],
@@ -1033,8 +1128,8 @@ export const operationalFacade = {
     // 1. Iniciar Atendimento
     await db.attendances.add({
       id: attendanceId,
-      clientId: asset.clientId,
-      siteId: asset.siteId,
+      clientId: asset.clientId || '',
+      siteId: asset.siteId || '',
       status: 'autorizado',
       companyId: asset.companyId,
       workspaceId: asset.workspaceId,

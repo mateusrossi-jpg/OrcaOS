@@ -127,16 +127,21 @@ export interface FinancialTransaction {
 }
 
 export interface SyncOutboxItem {
-  id?: number;          // Auto-incremento local para ordem da fila
-  uuid: string;         // ID único da mutação (idempotency key)
-  table_name: string;   // Tabela afetada (ex: 'work_orders', 'catalog_items')
-  operation: 'INSERT' | 'UPDATE' | 'DELETE';
-  payload: Record<string, any>; // Dados completos do registro
-  created_at: number;   // Timestamp em milissegundos
-  retry_count?: number; // Contagem de retentativas
-  last_error?: string;  // Mensagem do último erro
-  error_category?: 'retryable_error' | 'validation_error' | 'conflict_error' | 'auth_error'; // Classificação do erro
-  status?: 'pending' | 'dead_letter'; // Status do processamento
+  id?: string;
+  uuid?: string;
+  tenant_id?: string;
+  user_id?: string;
+  table_name: string;
+  record_id?: string;
+  operation: 'INSERT' | 'UPDATE' | 'DELETE' | 'insert' | 'update' | 'delete';
+  payload: Record<string, any>;
+  correlation_id?: string;
+  created_at?: string | number;
+  updated_at?: string;
+  retry_count?: number;
+  last_error?: string;
+  error_category?: 'retryable_error' | 'validation_error' | 'conflict_error' | 'auth_error' | 'security_error';
+  status?: 'pending' | 'dead_letter' | 'security_error' | '';
 }
 
 // 8. WORK_ORDER_EQUIPMENT (Dados do Ativo / Equipamento)

@@ -130,7 +130,7 @@ function eventToFeedItem(event: OperationalEvent): OperationalFeedItem {
     id: event.id,
     aggregateId: event.aggregateId,
     aggregateType: event.aggregateType,
-    actor: event.actor,
+    actor: event.actor || 'system',
     eventType: event.eventType,
     title: buildTitle(event.eventType),
     description: buildDescription(event),

@@ -1,30 +1,47 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
-import 'package:flutter/material.dart';
-import 'package:flutter_test/flutter_test.dart';
-
+import 'package:aferix_flutter/core/database/database_manager.dart';
+import 'package:aferix_flutter/features/app/providers/app_providers.dart';
 import 'package:aferix_flutter/main.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
+
+import 'helpers/fake_connectivity_monitor.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  Future<ProviderScope> buildApp(WidgetTester tester) async {
+    final manager = DatabaseManager();
+    final db = await manager.openInMemory();
+    addTearDown(manager.close);
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    final monitor = FakeConnectivityMonitor();
+    addTearDown(monitor.dispose);
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    return ProviderScope(
+      overrides: [
+        aferixDatabaseProvider.overrideWith((ref) async => db),
+        connectivityMonitorProvider.overrideWithValue(monitor),
+      ],
+      child: const AferixApp(),
+    );
+  }
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+  testWidgets('AferixApp inicia o router na Home', (tester) async {
+    final scope = await buildApp(tester);
+    await tester.pumpWidget(scope);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Home'), findsOneWidget);
+  });
+
+  testWidgets('rota desconhecida cai no errorBuilder', (tester) async {
+    final scope = await buildApp(tester);
+    await tester.pumpWidget(scope);
+    await tester.pumpAndSettle();
+
+    GoRouter.of(tester.element(find.byType(Scaffold).first)).go('/nao-existe');
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('Rota não encontrada'), findsOneWidget);
   });
 }

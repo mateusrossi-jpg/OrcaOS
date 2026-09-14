@@ -10,6 +10,19 @@ export class BudgetService {
     this.repository = repository ?? new DexieBudgetRepository();
   }
 
+  async getAll(): Promise<Budget[]> {
+    return await this.repository.listBudgets();
+  }
+
+  async getById(id: string): Promise<Budget | undefined> {
+    return await this.repository.getBudgetById(id);
+  }
+
+  async getByAttendanceId(attendanceId: string): Promise<Budget | undefined> {
+    const all = await this.repository.listBudgets();
+    return all.find(b => b.attendanceId === attendanceId);
+  }
+
   async changeStatus(budget: Budget, nextStatus: BudgetStatus): Promise<void> {
     if (budget.status === BUDGET_STATUS.FINALIZADO && nextStatus !== BUDGET_STATUS.ARQUIVADO) {
       console.warn("Cannot change status of a finalized budget.");
@@ -60,3 +73,5 @@ export class BudgetService {
     await this.repository.updateBudget(finalizedBudget);
   }
 }
+
+export const budgetService = new BudgetService();

@@ -8,6 +8,17 @@
   --aferix-card-padding: var(--spacing-md);
   --background: var(--bg-primary);
   --foreground: var(--text-primary);
+
+  /* Legacy token aliases → Unified Design System tokens */
+  --aferix-bg: var(--bg-primary);
+  --aferix-surface: var(--surface-primary);
+  --aferix-surface-2: var(--surface-secondary);
+  --aferix-border: var(--border-primary);
+  --aferix-text: var(--text-primary);
+  --aferix-text-secondary: var(--text-secondary);
+  --aferix-primary: var(--accent-primary);
+  --aferix-danger: var(--accent-red);
+  --aferix-success: var(--accent-green);
 }
 
 /* --------------------------------------------------
@@ -110,3 +121,72 @@
 
 .hairline { border-color: white/[0.03] !important; }
 .num { font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+
+/* --------------------------------------------------
+   TEXT TRUNCATION UTILITIES FOR TECHNICAL TOKENS
+   -------------------------------------------------- */
+
+.long-token,
+.android-package {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* --------------------------------------------------
+   CATALOG STATS GRID (2 col mobile / 6 col desktop)
+   -------------------------------------------------- */
+
+.catalog-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.catalog-stat-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  min-width: 0;
+  padding: 14px 16px;
+  background: var(--bg-surface);
+  border: var(--border-soft);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-soft);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: transform var(--transition-fast), border-color var(--transition-fast), background var(--transition-fast);
+}
+
+.catalog-stat-card span {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-secondary);
+}
+
+.catalog-stat-card strong {
+  font-size: 20px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+.catalog-stat-card.active {
+  border-color: color-mix(in srgb, var(--accent-gold) 40%, transparent);
+  background: color-mix(in srgb, var(--accent-gold) 8%, var(--bg-surface));
+}
+
+.catalog-stat-card.active strong,
+.catalog-stat-card.active span {
+  color: var(--accent-gold);
+}
+
+@media (min-width: 900px) {
+  .catalog-stats-grid {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+}

@@ -1,5 +1,5 @@
 import { accountPlanRepository } from '../repositories/dexieAccountPlanRepository';
-import { legacyLoadAccountState } from '../core/access/accountPlanStorage';
+import { loadAccountState } from '../core/access/accountPlanStorage';
 
 const MIGRATION_KEY = 'orcaos:migrations:accountPlan-to-dexie';
 
@@ -14,7 +14,7 @@ export class AccountPlanMigrationService {
         return;
       }
       
-      const legacyAccount = legacyLoadAccountState();
+      const legacyAccount = loadAccountState();
       
       await accountPlanRepository.save(legacyAccount);
       

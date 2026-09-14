@@ -2,15 +2,16 @@ import React, { useState } from 'react';
 import { SurfaceCard } from '../../../ui/system';
 import { PortalSignature } from '../components/PortalSignature';
 import { Proposal } from '../../../domain/revenue';
-import { db } from '../../../storage/dexieDatabase';
+import { proposalService } from '../../../services/proposalService';
+import { anomalyService } from '../../../services/anomalyService';
 
 export const ProposalApprovalPage: React.FC<{ proposal: Proposal; onDone: () => void; onReject: () => void }> = ({ proposal, onDone, onReject }) => {
   const [showSignature, setShowSignature] = useState(false);
 
   const handleApprove = async () => {
     // Atualizar no banco localmente (seria sync)
-    await db.proposals.update(proposal.id, { status: 'APPROVED' });
-    await db.anomalies.update(proposal.anomalyId, { status: 'APPROVED', approvedAt: new Date().toISOString() });
+    await proposalService.update(proposal.id, { status: 'APPROVED' });
+    await anomalyService.update(proposal.anomalyId, { status: 'APPROVED', approvedAt: new Date().toISOString() });
     onDone();
   };
 
@@ -25,7 +26,7 @@ export const ProposalApprovalPage: React.FC<{ proposal: Proposal; onDone: () => 
         <SurfaceCard className="p-6 bg-surface-900 border border-surface-700">
           <div className="mb-4">
             <h3 className="text-xs font-bold text-text-tertiary uppercase tracking-widest">Problema Identificado</h3>
-            <p className="text-base text-white font-bold mt-1">{proposal.title.replace('Orçamento de Correção: ', '')}</p>
+            <p className="text-base text-white font-bold mt-1">{(proposal.title || '').replace('Orçamento de Correção: ', '')}</p>
           </div>
 
           <div className="mb-6">
@@ -36,7 +37,7 @@ export const ProposalApprovalPage: React.FC<{ proposal: Proposal; onDone: () => 
           <div className="pt-4 border-t border-surface-800">
             <h3 className="text-xs font-bold text-text-tertiary uppercase tracking-widest mb-1">Investimento Total</h3>
             <span className="text-3xl font-black text-[var(--accent-green)]">
-              {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(proposal.amount)}
+              {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(proposal.amount || 0)}
             </span>
           </div>
         </SurfaceCard>

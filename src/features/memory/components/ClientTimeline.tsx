@@ -1,6 +1,6 @@
 import React from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { db } from '../../../storage/dexieDatabase';
+import { operationalEventService } from '../../../services/operationalEventService';
 import { SurfaceCard } from '../../../ui/system';
 
 interface ClientTimelineProps {
@@ -14,7 +14,7 @@ export const ClientTimeline: React.FC<ClientTimelineProps> = ({ clientId }) => {
       // Pega todos os eventos cujos metadados contém este clientId
       // Dexie não permite indexação fácil dentro de metadata.clientId
       // Então vamos pegar todos e filtrar no lado do cliente por simplicidade de leitura
-      const allEvents = await db.operationalEvents.toArray();
+      const allEvents = await operationalEventService.getAll();
       const clientEvents = allEvents.filter(e => e.metadata?.clientId === clientId);
       
       return clientEvents.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
@@ -43,10 +43,10 @@ export const ClientTimeline: React.FC<ClientTimelineProps> = ({ clientId }) => {
                 </span>
               </div>
               <h3 className="text-sm font-bold text-white mb-1">
-                {evt.metadata?.title || 'Ação Registrada'}
+                {String((evt.metadata as any)?.title || 'Ação Registrada')}
               </h3>
               <p className="text-xs text-text-secondary">
-                {evt.metadata?.description || 'Sem detalhes.'}
+                {String((evt.metadata as any)?.description || 'Sem detalhes.')}
               </p>
             </SurfaceCard>
           </div>

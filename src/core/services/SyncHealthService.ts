@@ -52,7 +52,7 @@ export class SyncHealthService {
     const quota = await StorageQuotaMonitor.estimate();
 
     const errors = allOutbox.filter(i => i.last_error != null);
-    const lastErrorItem = errors.sort((a, b) => b.created_at - a.created_at)[0];
+    const lastErrorItem = errors.sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime())[0];
     const errorCount = errors.length;
 
     // Check offline natively

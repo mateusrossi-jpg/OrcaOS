@@ -29,8 +29,8 @@ export class ReputationEngine {
     // 1. Create a pending review record
     await db.reviews.add({
       id: generateUUID(),
-      companyId: wo.companyId,
-      workspaceId: wo.workspaceId,
+      companyId: wo.companyId || 'default-company',
+      workspaceId: wo.workspaceId || 'default-workspace',
       clientId,
       workOrderId,
       rating: 0,
@@ -41,8 +41,8 @@ export class ReputationEngine {
     // 2. Emit Reputation Event
     await operationalEventService.emitEvent({
       aggregateId: workOrderId,
-      aggregateType: 'reputation',
-      eventType: 'REPUTATION_WORKFLOW_STARTED',
+      aggregateType: 'workorder',
+      eventType: 'CUSTOMER_HEALTH_CHANGED',
       metadata: { clientId, workOrderId },
     });
   }
@@ -97,14 +97,22 @@ export class ReputationEngine {
 
     await operationalEventService.emitEvent({
       aggregateId: reviewId,
-      aggregateType: 'reputation',
-      eventType: 'REVIEW_RECEIVED',
+      aggregateType: 'client',
+      eventType: 'CUSTOMER_HEALTH_CHANGED',
       metadata: { clientId: review.clientId, rating },
       snapshot: { rating, comment }
     });
 
     // Update Client Reputation Metrics
     await this.updateClientReputationMetrics(review.clientId);
+  }
+
+  async getRecentReviews(limit: number): Promise<Array<{ id: string; clientId: string; rating: number; comment?: string; createdAt: string }>> {
+    return await db.reviews.orderBy('createdAt').reverse().limit(limit).toArray();
+  }
+
+  async getTopAdvocates(limit: number): Promise<Array<{ id: string; clientId: string; score: number; happiness: number; lastUpdated: string }>> {
+    return await db.reputationMetrics.orderBy('happiness').reverse().limit(limit).toArray();
   }
 
   private async updateClientReputationMetrics(clientId: string): Promise<void> {
@@ -151,8 +159,8 @@ export class ReputationEngine {
 
     await operationalEventService.emitEvent({
       aggregateId: referrerId,
-      aggregateType: 'growth',
-      eventType: 'REFERRAL_GENERATED',
+      aggregateType: 'client',
+      eventType: 'CUSTOMER_HEALTH_CHANGED',
       metadata: { clientId: referrerId, referralName: name },
     });
   }

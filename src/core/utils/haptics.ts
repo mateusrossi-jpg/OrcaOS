@@ -8,7 +8,7 @@ export async function triggerHapticLight(): Promise<void> {
   try {
     await Haptics.impact({ style: ImpactStyle.Light });
   } catch {
-    if ('vibrate' in navigator) {
+    if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
       navigator.vibrate(10);
     }
   }
@@ -18,7 +18,7 @@ export async function triggerHapticMedium(): Promise<void> {
   try {
     await Haptics.impact({ style: ImpactStyle.Medium });
   } catch {
-    if ('vibrate' in navigator) {
+    if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
       navigator.vibrate(25);
     }
   }
@@ -28,7 +28,7 @@ export async function triggerHapticHeavy(): Promise<void> {
   try {
     await Haptics.impact({ style: ImpactStyle.Heavy });
   } catch {
-    if ('vibrate' in navigator) {
+    if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
       navigator.vibrate(40);
     }
   }
@@ -38,7 +38,7 @@ export async function triggerHapticSuccess(): Promise<void> {
   try {
     await Haptics.notification({ type: NotificationType.Success });
   } catch {
-    if ('vibrate' in navigator) {
+    if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
       navigator.vibrate([15, 30, 15]);
     }
   }
@@ -48,7 +48,7 @@ export async function triggerHapticWarning(): Promise<void> {
   try {
     await Haptics.notification({ type: NotificationType.Warning });
   } catch {
-    if ('vibrate' in navigator) {
+    if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
       navigator.vibrate([30, 50, 30]);
     }
   }

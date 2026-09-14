@@ -24,7 +24,6 @@ import {
   ERPLoader,
   TimelineCard
 } from '../../../ui/system';
-import { db } from '../../../storage/dexieDatabase';
 import { workOrderQueryService } from '../../../services/WorkOrderQueryService';
 import { cn } from '../../../utils/ui';
 

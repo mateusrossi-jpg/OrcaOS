@@ -40,17 +40,9 @@ import { WarrantyCoverage, WarrantyClaim, WarrantyAlert, WarrantyIncident } from
 import { KnowledgeCase, KnowledgeSolution, KnowledgeRating, KnowledgeRecommendation } from '../domain/knowledge';
 import { CustomerHealth, CustomerRisk, CustomerAction, CustomerEngagement } from '../domain/customerSuccess';
 import { InventoryItem, StockMovement, PurchaseRequest, PurchaseOrder, Supplier, InventoryReservation } from '../domain/inventory';
+import type { TeamMember } from '../domain/team';
 
-export interface TeamMember {
-  id: string;
-  companyId: string;
-  workspaceId: string;
-  name: string;
-  email: string;
-  role: 'OWNER' | 'MANAGER' | 'SALES' | 'FIELD' | 'CUSTOMER' | 'SOLO';
-  status: 'active' | 'inactive';
-  createdAt: string;
-}
+export type { TeamMember };
 
 export class AferixDatabase extends Dexie {
   budgets!: Table<Budget>;

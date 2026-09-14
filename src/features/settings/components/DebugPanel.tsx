@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { internalDiagnostics, OperationalHealthReport } from '../../../services/InternalDiagnosticsService';
 import { useRole } from '../../../hooks/useRole';
 import { AferixRole } from '../../workspace/types/RoleFeatureMatrix';
-import { seedRealisticDemoData } from '../../../app/utils/AferixDemoDataset';
+import { seedRealisticDemoData } from '../../../services/AferixDemoDataset';
 
 export const DebugPanel: React.FC = () => {
   const [report, setReport] = useState<OperationalHealthReport | null>(null);

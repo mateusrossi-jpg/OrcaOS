@@ -75,6 +75,8 @@ describe('AFERIX SYSTEMATIC OFFLINE RESILIENCE AND CRASH RECOVERY', () => {
 
     // STEP 1: Create Client Offline
     const client = await clientService.add({
+      companyId: 'company-a',
+      workspaceId: 'workspace-a',
       name: 'Empresa Alfa Comercial',
       phone: '11988887777',
       email: 'alfa@comercial.com',
@@ -89,6 +91,8 @@ describe('AFERIX SYSTEMATIC OFFLINE RESILIENCE AND CRASH RECOVERY', () => {
     const budgetId = 'b-resil-1';
     const budgetDraft: Budget = {
       id: budgetId,
+      companyId: 'company-a',
+      workspaceId: 'workspace-a',
       clientId: client.id,
       siteId: 'site-1',
       clientName: client.name,

@@ -63,7 +63,15 @@ export class OperationalEventService {
   }
 
   async getFullTimeline(): Promise<OperationalEvent[]> {
-    return this.repository.getAll();
+    return await this.repository.getAll();
+  }
+
+  async getByAggregateId(aggregateId: string): Promise<OperationalEvent[]> {
+    return await this.repository.getByAggregateId(aggregateId);
+  }
+
+  async getAll(): Promise<OperationalEvent[]> {
+    return await this.repository.getAll();
   }
 }
 

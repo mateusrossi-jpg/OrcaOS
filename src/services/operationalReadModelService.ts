@@ -108,7 +108,7 @@ export class OperationalReadModelService {
       allFinance.forEach((f: SimpleFinanceRecord) => {
         if (f.isDeleted) return;
         const wo = allWorkOrders.find((w: WorkOrder) => w.id === f.workOrderId);
-        if (wo && !wo.isDeleted) {
+        if (wo && !wo.isDeleted && wo.clientId) {
           const stats = clientMap.get(wo.clientId);
           if (stats) {
             stats.totalRevenue += (f.receivedValue || 0);
@@ -118,7 +118,7 @@ export class OperationalReadModelService {
       });
 
       allWorkOrders.forEach((wo: WorkOrder) => {
-        if (wo.isDeleted) return;
+        if (wo.isDeleted || !wo.clientId) return;
         const stats = clientMap.get(wo.clientId);
         if (stats) {
           stats.woCount++;
@@ -134,7 +134,7 @@ export class OperationalReadModelService {
         if (stats) {
           stats.budgetCount++;
           if (safeTimestamp(b.updatedAt || '') > safeTimestamp(stats.lastInteraction)) {
-            stats.lastInteraction = b.updatedAt;
+            stats.lastInteraction = b.updatedAt || '';
           }
         }
       });
@@ -172,7 +172,7 @@ export class OperationalReadModelService {
           openBalance: stats.openBalance,
           totalWorkOrders: stats.woCount,
           totalBudgets: stats.budgetCount,
-          lastInteractionAt: stats.lastInteraction,
+          lastInteractionAt: stats.lastInteraction || new Date().toISOString(),
           daysInactive,
           relationshipStatus: status,
           relationshipScore: Math.max(0, Math.min(100, score))
@@ -196,7 +196,7 @@ export class OperationalReadModelService {
       debtors: crm.filter(c => c.relationshipStatus.includes('DEBTOR')),
       inactive: crm.filter(c => c.relationshipStatus.includes('INACTIVE') || c.relationshipStatus.includes('AT_RISK')),
       vipInactive: crm.filter(c => c.relationshipStatus.includes('VIP') && (c.relationshipStatus.includes('INACTIVE') || c.relationshipStatus.includes('AT_RISK'))),
-      commercialFollowUp: allBudgets.filter((b: Budget) => b.status === 'enviado' && (now.getTime() - safeTimestamp(b.updatedAt)) / (1000*60*60*24) > 3),
+      commercialFollowUp: allBudgets.filter((b: Budget) => b.status === 'enviado' && (now.getTime() - safeTimestamp(b.updatedAt || '')) / (1000*60*60*24) > 3),
       stalledBudgets: allBudgets.filter((b: Budget) => b.status === 'em_revisao' || b.status === 'pausado')
     };
   }
@@ -229,7 +229,7 @@ export class OperationalReadModelService {
       id: e.id,
       aggregateId: e.aggregateId,
       aggregateType: e.aggregateType,
-      actor: e.actor,
+      actor: e.actor || 'system',
       eventType: e.eventType,
       title: e.eventType, // Simplified for now, reuse feed logic later
       description: `Evento técnico registrado para o ativo ${asset.tag || asset.name}`,
@@ -395,9 +395,9 @@ export class OperationalReadModelService {
         revenue: budget.chargedValue || 0,
         netProfit: budget.financialSnapshot?.lucroBruto || 0,
         margin: budget.financialSnapshot?.margemPercentual || 0,
-        createdAt: budget.createdAt,
-        updatedAt: new Date(budget.updatedAt).toISOString(),
-        aging: Math.floor((Date.now() - new Date(budget.createdAt).getTime()) / (1000 * 60 * 60 * 24)),
+        createdAt: budget.createdAt || new Date().toISOString(),
+        updatedAt: budget.updatedAt ? new Date(budget.updatedAt).toISOString() : new Date().toISOString(),
+        aging: Math.floor((Date.now() - new Date(budget.createdAt || Date.now()).getTime()) / (1000 * 60 * 60 * 24)),
         priority: 'normal',
         slaBreached: false,
         overdue: false,
@@ -533,7 +533,7 @@ export class OperationalReadModelService {
         id: evt.id,
         aggregateId: evt.aggregateId,
         aggregateType: evt.aggregateType,
-        actor: evt.actor,
+        actor: evt.actor || 'system',
         eventType: evt.eventType,
         title: `Ação: ${evt.eventType}`,
         description: `Evento registrado via ${evt.source}`,
@@ -559,7 +559,7 @@ export class OperationalReadModelService {
         id: evt.id,
         aggregateId: evt.aggregateId,
         aggregateType: evt.aggregateType,
-        actor: evt.actor,
+        actor: evt.actor || 'system',
         eventType: evt.eventType,
         title: `Ação: ${evt.eventType}`,
         description: `Evento registrado via ${evt.source}`,

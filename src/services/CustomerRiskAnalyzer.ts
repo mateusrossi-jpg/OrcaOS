@@ -16,15 +16,15 @@ export class CustomerRiskAnalyzer {
     const activeContracts = contracts.filter(c => c.status === 'ACTIVE');
     
     const incidents = await db.warrantyIncidents.toArray(); // Simplificado para este MVP
-    const clientIncidents = incidents.filter(i => true); // Num cenário real filtraria por ativo do cliente
+    const clientIncidents = incidents; // Num cenário real filtraria por ativo do cliente
 
     const riskFactors: string[] = [];
     let mrrAtRisk = 0;
-    let riskLevel: RiskLevel = 'HEALTHY';
+    let riskLevel: RiskLevel;
     let healthScore = 100;
 
     if (activeContracts.length > 0) {
-      mrrAtRisk = activeContracts.reduce((sum, c) => sum + (c.amount || 0), 0);
+      mrrAtRisk = activeContracts.reduce((sum, c) => sum + (c.billingAmount || 0), 0);
     } else {
       healthScore -= 20;
       riskFactors.push('Sem contrato ativo');

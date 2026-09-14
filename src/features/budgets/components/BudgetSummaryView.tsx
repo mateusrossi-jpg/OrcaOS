@@ -104,10 +104,10 @@ export const BudgetSummaryView: React.FC<BudgetSummaryViewProps> = memo(({ budge
               </div>
             </InteractiveRow>
           ))}
-          {budget.items.length > 5 && (
+          {(budget.items?.length || 0) > 5 && (
             <div className="p-5 text-center bg-white/[0.01] border-t border-white/[0.05]">
               <span className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-widest font-mono">
-                + {budget.items.length - 5} ITENS ADICIONAIS NO REGISTRO
+                + {(budget.items?.length || 0) - 5} ITENS ADICIONAIS NO REGISTRO
               </span>
             </div>
           )}

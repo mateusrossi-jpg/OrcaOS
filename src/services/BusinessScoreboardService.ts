@@ -51,13 +51,13 @@ export class BusinessScoreboardService {
     ]);
 
     // TODAY'S RESULTS
-    const todayPaid = finance.filter(f => f.status === 'paid' && f.updatedAt >= startOfToday);
-    const todayApproved = budgets.filter(b => b.status === BUDGET_STATUS.AUTORIZADO && b.updatedAt >= startOfToday);
+    const todayPaid = finance.filter(f => f.status === 'paid' && (f.updatedAt || f.createdAt || '') >= startOfToday);
+    const todayApproved = budgets.filter(b => b.status === BUDGET_STATUS.AUTORIZADO && (b.updatedAt || b.createdAt || '') >= startOfToday);
     
     // WEEKLY RESULTS
-    const weeklyApproved = budgets.filter(b => b.status === BUDGET_STATUS.AUTORIZADO && b.updatedAt >= sevenDaysAgo);
+    const weeklyApproved = budgets.filter(b => b.status === BUDGET_STATUS.AUTORIZADO && (b.updatedAt || b.createdAt || '') >= sevenDaysAgo);
     const totalWeeklyRev = weeklyApproved.reduce((acc, b) => acc + safeMoneyValue(b.chargedValue), 0);
-    const weeklySent = budgets.filter(b => b.updatedAt >= sevenDaysAgo && (b.status === BUDGET_STATUS.ENVIADO || b.status === BUDGET_STATUS.AUTORIZADO));
+    const weeklySent = budgets.filter(b => (b.updatedAt || b.createdAt || '') >= sevenDaysAgo && (b.status === BUDGET_STATUS.ENVIADO || b.status === BUDGET_STATUS.AUTORIZADO));
     
     const doneWOs = workOrders.filter(wo => wo.status === 'done');
     const totalRevenue = finance.filter(f => f.status === 'paid').reduce((acc, f) => acc + safeMoneyValue(f.receivedValue), 0);

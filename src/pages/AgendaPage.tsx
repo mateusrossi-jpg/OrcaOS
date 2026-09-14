@@ -13,7 +13,8 @@ import {
   Plus 
 } from "lucide-react";
 import { cn } from '../utils/ui';
-import { db } from '../storage/dexieDatabase';
+import { clientService } from '../services/clientService';
+import { siteService } from '../services/siteService';
 import { workOrderQueryService } from '../services/WorkOrderQueryService';
 import { operationalFacade } from '../features/workflow/operationalFacade';
 import { 
@@ -55,8 +56,8 @@ export const AgendaPage = memo(function AgendaPage({ onNavigate }: AgendaPagePro
     try {
       const [agenda, sites, clients] = await Promise.all([
         workOrderQueryService.getAgendaItems(),
-        db.sites.toArray(),
-        db.clients.toArray()
+        siteService.getAll(),
+        clientService.getAll()
       ]);
 
       setData({

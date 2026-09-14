@@ -1,13 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { Client, Service as WorkOrder } from '../../../core/types/business';
-import {
-  loadActiveWorkOrderId,
-  loadClients,
-  loadWorkOrders,
-  saveActiveWorkOrderId,
-  saveClients,
-  saveWorkOrders,
-} from '../storage/clientWorkOrderStorage';
+import { clientWorkOrderContextService } from '../../../services/clientWorkOrderContextService';
 import { 
   MetricCard, 
   Modal, 
@@ -107,9 +100,9 @@ function createId(prefix: string): string {
 }
 
 export function ClientWorkOrderWorkspace({ initialSection, initialClientId, sectionRequestKey, onContextChange, onNewClientRequest }: ClientWorkOrderWorkspaceProps) {
-  const [clients, setClients] = useState<Client[]>(() => loadClients());
-  const [workOrders, setWorkOrders] = useState<WorkOrder[]>(() => loadWorkOrders());
-  const [activeWorkOrderId, setActiveWorkOrderId] = useState<string | null>(() => loadActiveWorkOrderId());
+  const [clients, setClients] = useState<Client[]>(() => clientWorkOrderContextService.loadClients());
+  const [workOrders, setWorkOrders] = useState<WorkOrder[]>(() => clientWorkOrderContextService.loadWorkOrders());
+  const [activeWorkOrderId, setActiveWorkOrderId] = useState<string | null>(() => clientWorkOrderContextService.loadActiveWorkOrderId());
   const [activeSection, setActiveSection] = useState<ClientOsSection>(initialSection ?? 'clients');
 
   const [clientSearch, setClientSearch] = useState('');
@@ -142,9 +135,9 @@ export function ClientWorkOrderWorkspace({ initialSection, initialClientId, sect
     }
   }, [onNewClientRequest]);
 
-  useEffect(() => { saveClients(clients); onContextChange?.(clients, workOrders, activeWorkOrderId); }, [clients]);
-  useEffect(() => { saveWorkOrders(workOrders); onContextChange?.(clients, workOrders, activeWorkOrderId); }, [workOrders]);
-  useEffect(() => { saveActiveWorkOrderId(activeWorkOrderId); onContextChange?.(clients, workOrders, activeWorkOrderId); }, [activeWorkOrderId]);
+  useEffect(() => { clientWorkOrderContextService.saveClients(clients); onContextChange?.(clients, workOrders, activeWorkOrderId); }, [clients]);
+  useEffect(() => { clientWorkOrderContextService.saveWorkOrders(workOrders); onContextChange?.(clients, workOrders, activeWorkOrderId); }, [workOrders]);
+  useEffect(() => { clientWorkOrderContextService.saveActiveWorkOrderId(activeWorkOrderId); onContextChange?.(clients, workOrders, activeWorkOrderId); }, [activeWorkOrderId]);
 
   const filteredClients = useMemo(() => {
     const query = clientSearch.toLowerCase().trim();
@@ -251,7 +244,7 @@ export function ClientWorkOrderWorkspace({ initialSection, initialClientId, sect
         <>
           <div className="dashboard-finance-tiles client-summary-tiles client-summary-tiles-spaced">
             <MetricCard label="Clientes Totais" value={clients.length} />
-            <MetricCard label="Novos no mês" value={clients.filter(c => recentTimestamp(c).includes(new Date().toISOString().slice(0, 7))).length} tone="brand" />
+            <MetricCard label="Novos no mês" value={clients.filter(c => recentTimestamp(c).includes(new Date().toISOString().slice(0, 7))).length} />
           </div>
 
           <PanelCard className="client-search-card">
@@ -273,13 +266,13 @@ export function ClientWorkOrderWorkspace({ initialSection, initialClientId, sect
                 <ListItem 
                   key={client.id}
                   title={client.name}
-                  subtitle={
+                  context={
                     <div className="client-row-meta-grid">
                       <span>{client.phone} · {client.email}</span>
                       {client.address && <small className="client-address-line">{client.address}</small>}
                     </div>
                   }
-                  status={<StatusBadge tone="success">Ativo</StatusBadge>}
+                  status={<StatusBadge status="aprovado" />}
                   action={
                     <div className="client-row-status-inline">
                       <SecondaryButton onClick={() => openClientForEdit(client)}>Abrir</SecondaryButton>
@@ -311,10 +304,9 @@ export function ClientWorkOrderWorkspace({ initialSection, initialClientId, sect
         <PanelCard className="client-form-card">
           <BackButton onClick={cancelClientEdit} label="Voltar para a Lista" />
           <header className="client-form-header">
-            <SectionTitle 
-              title={editingClientId ? 'Editar Cliente' : 'Novo Cliente'} 
-              eyebrow="Ficha de cadastro"
-            />
+            <SectionTitle>
+              {editingClientId ? 'Editar Cliente' : 'Novo Cliente'}
+            </SectionTitle>
           </header>
 
           <div className="aferix-form-grid">

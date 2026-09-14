@@ -31,7 +31,6 @@ import {
   ERPLoader
 } from '../../../ui/system';
 import { reputationEngine, ReputationSummary } from '../../../services/ReputationEngine';
-import { db } from '../../../storage/dexieDatabase';
 import { cn } from '../../../utils/ui';
 import { formatCurrencyBRL } from '../../../utils/formatters';
 
@@ -53,8 +52,8 @@ export const ReputationWorkspace: React.FC<ReputationWorkspaceProps> = ({ onNavi
     async function load() {
       const [s, revs, advocates] = await Promise.all([
         reputationEngine.getGlobalReputationSummary(),
-        db.reviews.orderBy('createdAt').reverse().limit(5).toArray(),
-        db.reputationMetrics.orderBy('happiness').reverse().limit(5).toArray()
+        reputationEngine.getRecentReviews(5),
+        reputationEngine.getTopAdvocates(5)
       ]);
       
       setSummary(s);

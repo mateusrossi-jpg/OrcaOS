@@ -47,8 +47,8 @@ const PERMANENT_ERROR_CODES = new Set([400, 401, 403, 404, 409, 422]);
 
 let isSyncing = false;
 
-/** Contagem de falhas consecutivas por item (chave: id numérico do outbox). */
-const retryCountMap = new Map<number, number>();
+/** Contagem de falhas consecutivas por item (chave: id do outbox). */
+const retryCountMap = new Map<string | number, number>();
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Helpers de Backoff e Rede
@@ -105,7 +105,7 @@ async function syncSingleItem(item: SyncOutboxItem): Promise<SyncResult> {
       // Estratégia de Resolução de Conflitos: Last-Write-Wins (LWW) baseada em carimbos ISO
       const enrichedPayload = {
         ...payload,
-        updated_at: payload['updated_at'] ?? new Date(item.created_at).toISOString(),
+        updated_at: payload['updated_at'] ?? new Date(item.created_at || Date.now()).toISOString(),
       };
 
       const { error } = await supabase.from(table_name).upsert(enrichedPayload, {

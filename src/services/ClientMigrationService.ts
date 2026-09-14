@@ -19,9 +19,10 @@ export class ClientMigrationService {
       const legacyWorkOrders = loadWorkOrders();
       const legacyActiveId = loadActiveWorkOrderId();
 
-      if (legacyClients.length > 0) {
-        await dexieClientRepository.bulkAdd(legacyClients);
-        console.info(`Migrated ${legacyClients.length} clients.`);
+      const validClients = legacyClients.filter((c): c is import('../domain/client').Client => typeof c.companyId === 'string' && typeof c.workspaceId === 'string');
+      if (validClients.length > 0) {
+        await dexieClientRepository.bulkAdd(validClients);
+        console.info(`Migrated ${validClients.length} clients.`);
       }
 
       if (legacyWorkOrders.length > 0) {

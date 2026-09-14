@@ -9,7 +9,7 @@ export class ContractHealthService {
 
     // Subtrai pontos por anomalias em aberto
     const anomalies = await db.anomalies.where({ companyId, clientId: contract.clientId }).toArray();
-    const openAnomalies = anomalies.filter(a => a.status === 'PENDING' || a.status === 'QUOTED');
+    const openAnomalies = anomalies.filter(a => a.status === 'OPEN' || a.status === 'QUOTED');
     score -= openAnomalies.length * 5;
 
     // Subtrai pontos se houver OS atrasadas (simulação via DispatchAlerts)

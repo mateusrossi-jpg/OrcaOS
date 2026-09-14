@@ -1,4 +1,17 @@
-export interface Client {
+export interface MultiTenantEntity {
+  companyId: string;
+  workspaceId: string;
+}
+
+export interface ConsumedPartItem {
+  id: string;
+  sku?: string;
+  name: string;
+  quantity: number;
+  unitCost: number;
+}
+
+export interface Client extends Partial<MultiTenantEntity> {
   id: string;
   name: string;
   documentNumber?: string;
@@ -58,6 +71,8 @@ export interface BudgetItem {
   quantity: number;
   unitPrice: number;
   category: 'labor' | 'material' | 'other';
+  sourceId?: string;
+  catalogId?: string;
 }
 
 export type CoreBudgetStatus =
@@ -67,30 +82,40 @@ export type CoreBudgetStatus =
   | 'autorizado'
   | 'em_execucao'
   | 'finalizado'
+  | 'arquivado'
   | 'recusado'
-  | 'cancelado';
+  | 'cancelado'
+  | 'pausado';
 
 export type LegacyBudgetStatus = 'draft' | 'sent' | 'approved' | 'rejected' | 'expired' | 'cancelled';
 
 export type BudgetStatus = CoreBudgetStatus | LegacyBudgetStatus;
 
-export interface Budget {
+export interface Budget extends Partial<MultiTenantEntity> {
   id: string;
   clientId?: string;
+  clientName?: string;
+  siteId?: string;
+  attendanceId?: string;
   title: string;
   items: BudgetItem[];
+  chargedValue?: number;
   discount?: number;
   travelCost?: number;
+  helperCost?: number;
+  fees?: number;
+  discounts?: number;
   additionalFees?: number;
   notes?: string;
+  commercialNotes?: string;
+  technicalNotes?: string;
   paymentTerms?: string;
   validity?: string;
   guarantee?: string;
   executionDeadline?: string;
-  commercialNotes?: string;
-  technicalNotes?: string;
   materialCost?: number;
   operationalCost?: number;
+  otherCosts?: number;
   taxRate?: number;
   total_servicos?: number;
   custo_materiais?: number;
@@ -98,14 +123,35 @@ export interface Budget {
   aliquota_imposto?: number;
   lucro_liquido?: number;
   status: BudgetStatus;
-  templateId?: BudgetTemplateId;
+  templateId?: BudgetTemplateId | string;
+  evidences?: string[];
+  createdAt?: string;
+  updatedAt?: string;
+  syncStatus?: 'synced' | 'pending' | 'deleted';
+  syncUpdatedAt?: number;
+  finalizedAt?: string;
+  deletedAt?: string | null;
+  deletedBy?: string | null;
+  isDeleted?: boolean;
+  budgetGroupId?: string;
+  selectionMode?: 'exclusive' | 'combinable';
+  isPrimary?: boolean;
 }
 
-export type ServiceStatus = 'in-progress' | 'done' | 'cancelled';
+export type ServiceStatus =
+  | 'in-progress'
+  | 'done'
+  | 'cancelled'
+  | 'draft'
+  | 'scheduled'
+  | 'awaiting_schedule'
+  | 'completed';
 
-export interface Service {
+export interface Service extends Partial<MultiTenantEntity> {
   id: string;
   clientId?: string;
+  siteId?: string;
+  attendanceId?: string;
   budgetId?: string; // Vínculo com o orçamento aprovado/autorizado
   title: string;
   description?: string;
@@ -114,6 +160,15 @@ export interface Service {
   status: ServiceStatus;
   scheduledDate?: string;
   paymentStatus: 'pending' | 'partial' | 'paid';
+  executedValue?: number;
+  assetIds?: string[];
+  consumedParts?: ConsumedPartItem[];
+  items?: BudgetItem[];
+  syncStatus?: 'synced' | 'pending' | 'deleted';
+  syncUpdatedAt?: number;
+  deletedAt?: string | null;
+  deletedBy?: string | null;
+  isDeleted?: boolean;
   createdAt?: string;
   updatedAt?: string;
 }

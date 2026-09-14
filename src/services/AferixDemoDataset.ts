@@ -1,5 +1,5 @@
-import { db } from '../../storage/dexieDatabase';
-import { generateUUID } from '../../core/utils/idGenerator';
+import { db } from '../storage/dexieDatabase';
+import { generateUUID } from '../core/utils/idGenerator';
 
 /**
  * AFERIX RC1 REALISTIC DEMO DATASET
@@ -80,7 +80,8 @@ export async function seedRealisticDemoData() {
       id: `s-${cp.id}`,
       clientId: cp.id,
       name: cp.type === 'Condomínio' ? 'Área Comum' : 'Sede Principal',
-      address: cp.address,
+      fullAddress: cp.address,
+      isMain: true,
       companyId,
       workspaceId,
       createdAt: daysAgo(180),
@@ -263,6 +264,7 @@ export async function seedRealisticDemoData() {
     const client = clientProfiles[i % 15];
     await db.maintenancePlans.add({
       id: generateUUID(), companyId, workspaceId, clientId: client.id, siteId: `s-${client.id}`,
+      assetId: `asset-${i}`,
       title: `PMOC - ${client.name} (${equipmentTypes[i % equipmentTypes.length]})`,
       frequency: 'monthly', nextExecutionDate: i < 2 ? today : (i < 5 ? daysAgo(-7).slice(0,10) : daysAgo(-30).slice(0,10)),
       isActive: true, createdAt: daysAgo(180), updatedAt: daysAgo(5), syncStatus: 'synced'

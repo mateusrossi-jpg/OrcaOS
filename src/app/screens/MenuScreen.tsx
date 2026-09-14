@@ -70,6 +70,7 @@ const OfflineDiagnosticsPanel = lazy(() => import('../../features/settings/compo
 import { trustLayer } from '../../core/trust/TrustLayer';
 import { cloudSyncService } from '../../services/CloudSyncService';
 import { useCloudSyncState } from '../../hooks/useCloudSyncState';
+import { uiPreferences } from '../../core/preferences/uiPreferences';
 
 /**
  * MenuScreen: Administration & Governance Hub.
@@ -161,8 +162,8 @@ export const MenuScreen = memo(function MenuScreen({ account, onNavigate }: Menu
     systemItems.push({ title: 'Integridade Local', desc: 'Diagnósticos técnicos do app offline', icon: Activity, onClick: () => setActiveSection('diagnostics') });
   }
 
-  // Hidden Debug/Tech Info (Only visible if localStorage key exists)
-  const isDebugEnabled = typeof window !== 'undefined' && localStorage.getItem('aferix_debug') === 'true';
+  // Hidden Debug/Tech Info (Only visible if debug preference is enabled)
+  const isDebugEnabled = uiPreferences.isDebugModeEnabled();
   if (isDebugEnabled) {
     supportItems.push({ title: 'Atlas do Sistema', desc: 'Mapa completo de recursos e ROI', onClick: () => { onNavigate('atlas' as any); }, icon: Map });
     supportItems.push({ title: 'Alternar Perfil (Debug)', desc: 'Simular outras roles', onClick: () => { window.dispatchEvent(new Event('aferix_open_debug')); }, icon: Cpu });
@@ -223,32 +224,22 @@ export const MenuScreen = memo(function MenuScreen({ account, onNavigate }: Menu
         {activeSection === 'main' ? (
           <>
             {/* SYNC & CONNECTIVITY HERO */}
-            <V12HeroCard
-              title={isOnline ? "Nuvem Aferix Sincronizada" : "Modo Offline Ativo"}
-              subtitle={isOnline ? "Seus dados estão protegidos e sincronizados." : "Operação local garantida via Dexie & Event Store."}
-              badge={
+            <V12HeroCard>
+              <div className="flex items-center justify-between">
+                <div className="flex flex-col gap-1">
+                  <h2 className="text-[17px] font-bold text-white tracking-tight">
+                    {isOnline ? "Nuvem Aferix Sincronizada" : "Modo Offline Ativo"}
+                  </h2>
+                  <p className="text-[12px] text-[#8E8E93]">
+                    {isOnline ? "Seus dados estão protegidos e sincronizados." : "Operação local garantida via Dexie & Event Store."}
+                  </p>
+                </div>
                 <V12StatusBadge
                   label={syncState === 'synced' ? "Em dia" : `${pendingCount} pendentes`}
                   tone={isOnline ? "success" : "attention"}
                 />
-              }
-              action={
-                <div className="grid grid-cols-2 gap-2 mt-2 w-full">
-                  <SecondaryActionButton
-                    onClick={handleCheckSync}
-                    icon={RefreshCw}
-                  >
-                    Verificar
-                  </SecondaryActionButton>
-                  <SecondaryActionButton
-                    onClick={handleForceSync}
-                    icon={Cloud}
-                  >
-                    Sincronizar
-                  </SecondaryActionButton>
-                </div>
-              }
-            >
+              </div>
+
               <div className="grid grid-cols-2 gap-3 pt-2">
                 <div className="bg-[#2C2C2E] border border-white/5 rounded-[14px] p-3 flex flex-col gap-1">
                   <span className="text-[11px] font-bold uppercase text-[#8E8E93]">Fila de Sync</span>
@@ -261,10 +252,25 @@ export const MenuScreen = memo(function MenuScreen({ account, onNavigate }: Menu
                   </span>
                 </div>
               </div>
+
+              <div className="grid grid-cols-2 gap-2 mt-2 w-full">
+                <SecondaryActionButton
+                  onClick={handleCheckSync}
+                  icon={RefreshCw}
+                >
+                  Verificar
+                </SecondaryActionButton>
+                <SecondaryActionButton
+                  onClick={handleForceSync}
+                  icon={Cloud}
+                >
+                  Sincronizar
+                </SecondaryActionButton>
+              </div>
             </V12HeroCard>
 
             {/* IDENTITY / PROFILE TILE */}
-            <GroupedSection title="Identidade do Operador">
+            <GroupedSection headerTitle="Identidade do Operador">
               <button 
                 type="button"
                 onClick={() => setActiveSection('profile')}
@@ -287,17 +293,30 @@ export const MenuScreen = memo(function MenuScreen({ account, onNavigate }: Menu
 
             {/* MENU GROUPS */}
             {menuGroups.map((group) => (
-              <GroupedSection key={group.title} title={group.title}>
-                <div className="flex flex-col gap-2">
-                  {group.items.map((item) => (
-                    <ListCard
-                      key={item.title}
-                      title={item.title}
-                      subtitle={item.desc}
-                      icon={item.icon}
-                      onClick={item.onClick}
-                    />
-                  ))}
+              <GroupedSection key={group.title} headerTitle={group.title}>
+                <div className="flex flex-col divide-y divide-white/5">
+                  {group.items.map((item) => {
+                    const Icon = item.icon;
+                    return (
+                      <button
+                        key={item.title}
+                        type="button"
+                        onClick={item.onClick}
+                        className="w-full text-left p-4 px-5 flex items-center justify-between hover:bg-white/[0.02] active:bg-white/[0.04] transition-all cursor-pointer"
+                      >
+                        <div className="flex items-center gap-3.5 min-w-0">
+                          <div className="w-9 h-9 rounded-[10px] bg-white/5 border border-white/5 flex items-center justify-center text-[#8E8E93] shrink-0">
+                            <Icon size={17} />
+                          </div>
+                          <div className="flex flex-col min-w-0">
+                            <span className="text-[14px] font-bold text-white truncate">{item.title}</span>
+                            <span className="text-[11px] text-[#8E8E93] truncate">{item.desc}</span>
+                          </div>
+                        </div>
+                        <ChevronRight size={15} className="text-[#8E8E93]/60 shrink-0" />
+                      </button>
+                    );
+                  })}
                 </div>
               </GroupedSection>
             ))}

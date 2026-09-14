@@ -1,7 +1,6 @@
 import { generateUUID } from '../../../core/utils/idGenerator';
 import React, { useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { db } from '../../../storage/dexieDatabase';
 import { Anomaly, Proposal } from '../../../domain/revenue';
 import { GlassInput, GlassTextarea } from '../../../ui/system/GlassForms';
 import { SurfaceCard } from '../../../ui/system/Cards';
@@ -9,6 +8,10 @@ import { SectionLabel } from '../../../ui/system/Typography';
 import { Asset360Modal } from '../../clients/components/Asset360Modal';
 import { Wrench, X, ChevronRight, MessageCircle, Sparkles, Check } from 'lucide-react';
 import { sendWhatsAppMessage } from '../../../utils/whatsapp';
+import { clientService } from '../../../services/clientService';
+import { proposalService } from '../../../services/proposalService';
+import { anomalyService } from '../../../services/anomalyService';
+import { operationalEventService } from '../../../services/operationalEventService';
 const generateId = () => generateUUID();
 
 interface ProposalEditorProps {
@@ -22,7 +25,7 @@ export const ProposalEditor: React.FC<ProposalEditorProps> = ({ anomaly, onClose
   const [showAsset360, setShowAsset360] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
-  const client = useLiveQuery(() => db.clients.get(anomaly.clientId), [anomaly.clientId]);
+  const client = useLiveQuery(() => clientService.getById(anomaly.clientId), [anomaly.clientId]);
 
   const handleSave = async (shouldShare = false) => {
     if (isSaving) return;
@@ -43,23 +46,18 @@ export const ProposalEditor: React.FC<ProposalEditorProps> = ({ anomaly, onClose
         createdAt: new Date().toISOString()
       };
 
-      await db.proposals.put(proposal);
-      await db.anomalies.update(anomaly.id, {
+      await proposalService.put(proposal);
+      await anomalyService.update(anomaly.id, {
         status: 'QUOTED',
         quotedAt: new Date().toISOString()
       });
 
-      await db.operationalEvents.put({
-        id: generateId(),
-        companyId: anomaly.companyId,
-        workspaceId: anomaly.workspaceId,
+      await operationalEventService.emitEvent({
         aggregateId: anomaly.assetId,
         aggregateType: 'asset',
         eventType: 'PROPOSAL_CREATED_FROM_ANOMALY',
-        payload: { proposalId: proposal.id, anomalyId: anomaly.id },
-        timestamp: new Date().toISOString(),
-        syncStatus: 'pending'
-      } as any);
+        metadata: { proposalId: proposal.id, anomalyId: anomaly.id, companyId: anomaly.companyId, workspaceId: anomaly.workspaceId },
+      });
 
       if (shouldShare && client?.phone) {
         const msg = `Olá ${client.name}! Gostaria de enviar a proposta de correção para ${anomaly.title}.\n\nValor: R$ ${(proposal.amount || 0).toLocaleString('pt-BR')}\n\nPodemos prosseguir?`;

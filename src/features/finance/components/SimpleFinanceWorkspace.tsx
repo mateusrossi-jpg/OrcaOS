@@ -1,7 +1,7 @@
 import { useMemo, useState, memo } from 'react';
 import { TrendingUp, ChevronDown, Receipt, DollarSign, Activity, FileText, BarChart, AlertTriangle, ShieldCheck, Clock, CheckCircle2, PieChart, Info, ArrowUpRight, TrendingDown, Download } from "lucide-react";
-import { useLiveQuery } from 'dexie-react-hooks';
-import { db } from '../../../storage/dexieDatabase';
+import { useSimpleFinanceRecords } from '../../../hooks/useSimpleFinanceRecords';
+import { uiPreferences } from '../../../core/preferences/uiPreferences';
 import { 
   MoneyValue, 
   MonetaryInput,
@@ -45,6 +45,37 @@ import { HeroCard } from '../../../components/HeroCard';
 import { Phone, MessageCircle, Send } from 'lucide-react';
 import { openWhatsApp } from '../../../utils/mobility';
 
+export type PeriodFilterType = 'this_month' | 'last_month' | 'last_90_days' | 'all';
+
+export function isRecordInPeriod(dateStr: string, period: PeriodFilterType, referenceDate?: Date): boolean {
+  if (period === 'all') return true;
+  const ref = referenceDate ? new Date(referenceDate) : new Date();
+  const date = new Date(dateStr);
+  if (isNaN(date.getTime())) return false;
+
+  const recYear = date.getUTCFullYear();
+  const recMonth = date.getUTCMonth();
+  const refYear = ref.getFullYear();
+  const refMonth = ref.getMonth();
+
+  if (period === 'this_month') {
+    return recYear === refYear && recMonth === refMonth;
+  }
+
+  if (period === 'last_month') {
+    const targetMonth = refMonth === 0 ? 11 : refMonth - 1;
+    const targetYear = refMonth === 0 ? refYear - 1 : refYear;
+    return recYear === targetYear && recMonth === targetMonth;
+  }
+
+  if (period === 'last_90_days') {
+    const startWindow = new Date(ref.getTime() - 90 * 24 * 60 * 60 * 1000);
+    return date.getTime() >= startWindow.getTime() && date.getTime() <= ref.getTime();
+  }
+
+  return true;
+}
+
 interface AdjustmentDraft {
   workOrderId: string;
   receivedAmount: string;
@@ -55,7 +86,7 @@ interface AdjustmentDraft {
  * Aligned with AFERIX VISUAL PROTOCOL (Phase 4).
  * Feature: Real Profitability vs Cash Flow.
  */
-export function SimpleFinanceWorkspace() {
+export function SimpleFinanceWorkspace({ onNavigate }: { onNavigate?: (tab: string) => void } = {}) {
   const [recordSearch, setRecordSearch] = useState('');
   const [editingDraft, setEditingDraft] = useState<AdjustmentDraft | null>(null);
   const [wowCelebration, setWowCelebration] = useState<any | null>(null);
@@ -74,10 +105,10 @@ export function SimpleFinanceWorkspace() {
       }
       const health = await BusinessHealthService.getBusinessHealth();
       
-      const prevRecord = Number(localStorage.getItem('aferix_record_monthly_revenue')) || 2000;
+      const prevRecord = uiPreferences.getMonthlyRevenueRecord();
       const isRecordBroken = health.revenueThisMonth > prevRecord;
       if (isRecordBroken) {
-        localStorage.setItem('aferix_record_monthly_revenue', String(health.revenueThisMonth));
+        uiPreferences.setMonthlyRevenueRecord(health.revenueThisMonth);
       }
       
       const isGoalAchieved = health.metaAtingidaPercent >= 100;
@@ -96,7 +127,7 @@ export function SimpleFinanceWorkspace() {
     }
   };
 
-  const records = useLiveQuery(() => db.simpleFinanceRecords.toArray()) || [];
+  const records = useSimpleFinanceRecords();
 
   const rows = useMemo(() => {
     const base = [...records].sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
@@ -132,7 +163,7 @@ export function SimpleFinanceWorkspace() {
   const filteredRows = useMemo(() => {
     const q = recordSearch.toLowerCase().trim();
     if (!q) return rows;
-    return rows.filter(r => r.title.toLowerCase().includes(q) || r.clientName.toLowerCase().includes(q));
+    return rows.filter(r => r.title.toLowerCase().includes(q) || (r.clientName && r.clientName.toLowerCase().includes(q)));
   }, [rows, recordSearch]);
 
   const currentMonth = new Date().toLocaleString('pt-BR', { month: 'long' });
@@ -297,7 +328,7 @@ export function SimpleFinanceWorkspace() {
                        <Subtitle className="text-[13px] opacity-40">Seu fluxo de caixa aparecerá aqui assim que você concluir serviços.</Subtitle>
                     </div>
                     <button 
-                      onClick={() => onNavigate('base')}
+                      onClick={() => onNavigate?.('base')}
                       className="h-14 px-8 bg-white text-black font-black text-[11px] uppercase tracking-widest rounded-2xl active:scale-95 transition-all shadow-[0_12px_24px_rgba(255,255,255,0.1)]"
                     >
                        IR PARA EXECUÇÃO
@@ -343,7 +374,7 @@ export function SimpleFinanceWorkspace() {
                               <div className="flex items-center gap-3">
                                  {row.status !== 'paid' && (
                                    <button 
-                                     onClick={(e) => { e.stopPropagation(); openWhatsApp(row.phone || '', `Olá! Notamos uma pendência de ${formatCurrencyBRL(row.openBalance)} ref. ao serviço ${row.title}. Podemos ajudar?`); }}
+                                     onClick={(e) => { e.stopPropagation(); openWhatsApp((row as any).phone || '', `Olá! Notamos uma pendência de ${formatCurrencyBRL(row.openBalance)} ref. ao serviço ${row.title}. Podemos ajudar?`); }}
                                      className="w-9 h-9 rounded-xl bg-[#D4AF37]/10 border border-[#D4AF37]/20 flex items-center justify-center text-[#D4AF37] active:scale-90 transition-all opacity-0 group-hover:opacity-100"
                                    >
                                      <Send size={16} />

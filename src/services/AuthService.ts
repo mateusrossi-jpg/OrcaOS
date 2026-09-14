@@ -1,8 +1,8 @@
 import { generateUUID } from '../core/utils/idGenerator';
 import { db, TeamMember } from '../storage/dexieDatabase';
+import { appSession } from '../core/persistence/appSession';
 
 export class AuthService {
-  private static readonly ACTIVE_USER_KEY = 'aferix_active_user';
 
   static async seedDefaultAdmin() {
     const adminExists = await db.teamMembers.where('email').equals('admin@aferix.com').first();
@@ -40,8 +40,8 @@ export class AuthService {
     const user = await db.teamMembers.where('email').equals(email).first();
     
     if (user && user.status === 'active') {
-      localStorage.setItem(this.ACTIVE_USER_KEY, JSON.stringify(user));
-      localStorage.setItem('aferix_active_role', user.role);
+      appSession.saveActiveUser(JSON.stringify(user));
+      appSession.saveActiveRole(user.role);
       window.dispatchEvent(new Event('aferix_auth_changed'));
       window.dispatchEvent(new Event('aferix_role_changed'));
       return user;
@@ -51,28 +51,35 @@ export class AuthService {
   }
 
   static logout() {
-    localStorage.removeItem(this.ACTIVE_USER_KEY);
-    localStorage.removeItem('aferix_active_role');
+    appSession.clearActiveUser();
+    appSession.clearActiveRole();
     window.dispatchEvent(new Event('aferix_auth_changed'));
     window.dispatchEvent(new Event('aferix_role_changed'));
   }
 
   static getActiveUser(): TeamMember | null {
     try {
-      if (typeof localStorage === 'undefined') return null;
-      const data = localStorage.getItem(this.ACTIVE_USER_KEY);
+      const data = appSession.getActiveUserData();
       return data ? JSON.parse(data) : null;
     } catch (e) {
       return null;
     }
   }
 
+  static getTenantContext(): { companyId: string; workspaceId: string } {
+    const user = this.getActiveUser();
+    if (user?.companyId && user?.workspaceId) {
+      return { companyId: user.companyId, workspaceId: user.workspaceId };
+    }
+    return { companyId: 'default-company', workspaceId: 'default-workspace' };
+  }
+
   static impersonateRole(role: string) {
     const user = this.getActiveUser();
     if (user) {
       const updatedUser = { ...user, role };
-      localStorage.setItem(this.ACTIVE_USER_KEY, JSON.stringify(updatedUser));
-      localStorage.setItem('aferix_active_role', role);
+      appSession.saveActiveUser(JSON.stringify(updatedUser));
+      appSession.saveActiveRole(role);
       window.dispatchEvent(new Event('aferix_auth_changed'));
       window.dispatchEvent(new Event('aferix_role_changed'));
     }

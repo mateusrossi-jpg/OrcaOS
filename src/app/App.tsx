@@ -30,7 +30,6 @@ import { OperationsScreen } from './screens/OperationsScreen';
 import { StoreScreen } from './screens/StoreScreen';
 import { MenuScreen } from './screens/MenuScreen';
 import { BudgetsScreen } from './screens/BudgetsScreen';
-import { HomeScreen } from './screens/HomeScreen';
 import { AttendanceListScreen } from './screens/AttendanceListScreen';
 import { AttendanceDetailScreen } from './screens/AttendanceDetailScreen';
 import { ClientsWorkspace } from '../features/clients/components/ClientsWorkspace';
@@ -65,8 +64,10 @@ import { DebugPanel } from '../features/settings/components/DebugPanel';
 import { multiTabProtection } from '../core/database/multiTabProtection';
 import { cloudSyncService } from '../services/CloudSyncService';
 import { PageShell } from './components/PageShell';
-import { db } from '../storage/dexieDatabase';
 import { trustLayer } from '../core/trust/TrustLayer';
+import { clientService } from '../services/clientService';
+import { attendanceQueryService } from '../services/attendanceQueryService';
+import { uiPreferences } from '../core/preferences/uiPreferences';
 
 
 import { CommandPalette } from '../components/CommandPalette';
@@ -91,7 +92,7 @@ export function App() {
   const [selectedAttendanceId, setSelectedAttendanceId] = useState<string | null>(null);
   const [budgetResetKey, setBudgetResetKey] = useState(0);
   const [tacticalAction, setTacticalAction] = useState<string | null>(null);
-  const [showFirstRun, setShowFirstRun] = useState(() => !localStorage.getItem('aferix_first_run_complete'));
+  const [showFirstRun, setShowFirstRun] = useState(() => !uiPreferences.isFirstRunComplete());
   
   const ActiveShell = {
     OWNER: OwnerShell,
@@ -176,10 +177,10 @@ export function App() {
         realtimeBridge.initialize();
 
         // CHECK AND SEED REALISTIC DEMO DATA IF DB IS EMPTY
-        const clientCount = await db.clients.count();
+        const clientCount = await clientService.count();
         if (clientCount === 0) {
           console.log("No clients found in IndexedDB. Seeding Aferix high-fidelity dataset...");
-          const { seedRealisticDemoData } = await import('./utils/AferixDemoDataset');
+          const { seedRealisticDemoData } = await import('../services/AferixDemoDataset');
           await seedRealisticDemoData();
           await refreshClients();
         }
@@ -279,11 +280,11 @@ export function App() {
         updatedAt: new Date().toISOString(),
       };
 
-      db.attendances.add(newAttendance).catch(err => {
+      attendanceQueryService.add(newAttendance).catch(err => {
         console.error("Erro ao iniciar atendimento inicial:", err);
       });
 
-      localStorage.setItem('aferix_active_attendance_id', attendanceId);
+      uiPreferences.setActiveAttendanceId(attendanceId);
 
       setSelectedBudgetId('new');
       setBudgetResetKey(prev => prev + 1);
@@ -394,7 +395,7 @@ export function App() {
     <>
       {showFirstRun && (
         <FirstRunExperience onComplete={() => {
-           localStorage.setItem('aferix_first_run_complete', 'true');
+           uiPreferences.completeFirstRun();
            setShowFirstRun(false);
         }} />
       )}

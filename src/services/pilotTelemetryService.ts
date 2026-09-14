@@ -374,6 +374,10 @@ class PilotTelemetryService {
       console.debug('[Pilot] Telemetry write failed (non-critical):', e);
     }
   }
+
+  async getTotalEventsCount(): Promise<number> {
+    return await db.pilotEvents.count();
+  }
 }
 
 // Singleton export

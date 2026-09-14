@@ -32,7 +32,7 @@ export const QUICK_ACTIONS: QuickAction[] = [
     description: 'Registrar ordem de serviço diretamente na Agenda.',
     icon: ClipboardList,
     color: 'var(--accent-green)',
-    tabId: 'new-budget'
+    tabId: 'operations'
   },
   {
     id: 'payment',

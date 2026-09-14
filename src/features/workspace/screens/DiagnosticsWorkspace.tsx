@@ -1,7 +1,9 @@
 import React from 'react';
 import { Activity, Plus, FileText, Download, AlertTriangle, CheckCircle2, History, ChevronRight } from 'lucide-react';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { db } from '../../../storage/dexieDatabase';
+import { anomalyService } from '../../../services/anomalyService';
+import { assetService } from '../../../services/assetService';
+import { workOrderService } from '../../../services/workOrderService';
 import { 
   ScreenContainer, 
   AppHeader, 
@@ -25,9 +27,9 @@ import { cn } from '../../../utils/ui';
 export const DiagnosticsWorkspace: React.FC = () => {
   const data = useLiveQuery(async () => {
     const [anomalies, assets, wos] = await Promise.all([
-      db.anomalies.toArray(),
-      db.assets.toArray(),
-      db.workOrders.where('status').equals('done').limit(10).reverse().sortBy('updatedAt')
+      anomalyService.getAll(),
+      assetService.getAll(),
+      workOrderService.getRecentCompleted(10)
     ]);
 
     const openAnomalies = anomalies.filter(a => a.status === 'OPEN');
@@ -150,7 +152,7 @@ export const DiagnosticsWorkspace: React.FC = () => {
                   <div key={os.id} className="flex items-center justify-between p-5 rounded-2xl bg-white/[0.02] border border-white/[0.05] group active:bg-white/[0.04] transition-all cursor-pointer">
                     <Stack className="gap-1">
                       <span className="text-[13px] font-black text-white uppercase tracking-tight truncate max-w-[200px]">{os.title}</span>
-                      <span className="text-[10px] font-bold text-white/20 uppercase tracking-widest">{new Date(os.updatedAt).toLocaleDateString('pt-BR')}</span>
+                      <span className="text-[10px] font-bold text-white/20 uppercase tracking-widest">{new Date(os.updatedAt || os.createdAt || 0).toLocaleDateString('pt-BR')}</span>
                     </Stack>
                     <ChevronRight size={18} className="text-white/10 group-hover:text-white transition-colors" />
                   </div>

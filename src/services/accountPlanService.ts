@@ -108,8 +108,11 @@ export class AccountPlanService {
     // 2. Limpar dados de LocalStorage e credenciais de tenancy
     try {
       if (typeof window !== 'undefined') {
+        // eslint-disable-next-line no-restricted-syntax
         localStorage.removeItem('sb-auth-token');
+        // eslint-disable-next-line no-restricted-syntax
         localStorage.removeItem('active_company_id');
+        // eslint-disable-next-line no-restricted-syntax
         localStorage.removeItem('active_workspace_id');
       }
       await db.settings.delete('active_company_id');

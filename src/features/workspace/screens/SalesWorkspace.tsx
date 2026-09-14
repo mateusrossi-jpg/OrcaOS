@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { DollarSign, FileText, AlertTriangle, ChevronRight, Kanban, FileCheck, ShieldCheck, Inbox, BarChart } from 'lucide-react';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { db } from '../../../storage/dexieDatabase';
+import { anomalyService } from '../../../services/anomalyService';
+import { budgetPersistenceService } from '../../../services/BudgetPersistenceService';
+import { contractService } from '../../../services/contractService';
 import { BUDGET_STATUS } from '../../../domain/budget';
 import { 
   ScreenContainer, 
@@ -31,14 +33,14 @@ export const SalesWorkspace: React.FC = () => {
 
   const stats = useLiveQuery(async () => {
     const [anomalies, budgets, contracts] = await Promise.all([
-      db.anomalies.toArray(),
-      db.budgets.toArray(),
-      db.contracts.toArray()
+      anomalyService.getAll(),
+      budgetPersistenceService.listBudgets(),
+      contractService.getAll()
     ]);
 
     const leads = anomalies.filter(a => a.status === 'OPEN');
-    const openBudgets = budgets.filter(b => [BUDGET_STATUS.INICIADO, BUDGET_STATUS.EM_REVISAO, BUDGET_STATUS.ENVIADO].includes(b.status));
-    const wonBudgets = budgets.filter(b => [BUDGET_STATUS.AUTORIZADO, BUDGET_STATUS.EM_EXECUCAO, BUDGET_STATUS.FINALIZADO].includes(b.status));
+    const openBudgets = budgets.filter(b => ([BUDGET_STATUS.INICIADO, BUDGET_STATUS.EM_REVISAO, BUDGET_STATUS.ENVIADO] as string[]).includes(b.status));
+    const wonBudgets = budgets.filter(b => ([BUDGET_STATUS.AUTORIZADO, BUDGET_STATUS.EM_EXECUCAO, BUDGET_STATUS.FINALIZADO] as string[]).includes(b.status));
     
     const potentialRevenue = openBudgets.reduce((acc, b) => acc + (b.chargedValue || 0), 0);
     const closedRevenue = wonBudgets.reduce((acc, b) => acc + (b.chargedValue || 0), 0);
@@ -222,7 +224,7 @@ export const SalesWorkspace: React.FC = () => {
                                 </div>
                                 <div className="flex flex-col items-end gap-1">
                                    <span className="text-[14px] font-mono font-bold text-white">{formatCurrencyBRL(c.billingAmount || 0)}</span>
-                                   <StatusPill status="paid" label="VIGENTE" className="scale-75 origin-right" />
+                                   <StatusPill status="paid" className="scale-75 origin-right" />
                                 </div>
                              </div>
                           </InteractiveRow>

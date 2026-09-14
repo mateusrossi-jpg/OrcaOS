@@ -12,6 +12,8 @@ import { operationalFacade } from '../features/workflow/operationalFacade';
 import { trustLayer } from '../core/trust/TrustLayer';
 import type { CatalogHubItem } from '../features/catalog/types/catalogTypes';
 
+import { AuthService } from '../services/AuthService';
+
 const persistenceService = new BudgetPersistenceService();
 // service const removed as we use facade now
 
@@ -33,8 +35,11 @@ export interface BudgetEditPermissions {
 }
 
 export function useBudgetForm(initialBudgetId?: string | null) {
+  const tenant = AuthService.getTenantContext();
   const [budget, setBudget] = useState<Budget>({
     id: generateId(),
+    companyId: tenant.companyId,
+    workspaceId: tenant.workspaceId,
     title: '',
     clientId: '',
     siteId: '',

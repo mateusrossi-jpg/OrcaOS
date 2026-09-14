@@ -1,4 +1,4 @@
-import type { Client, Service as WorkOrder } from '../../../core/types/business';
+import type { Client, Service as WorkOrder, ServiceStatus } from '../../../core/types/business';
 import { safeJsonParse } from '../../../core/runtime/safeGuards';
 
 const CLIENTS_STORAGE_KEY = 'orcaos:clients:v1';

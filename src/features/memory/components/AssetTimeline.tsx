@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { db } from '../../../storage/dexieDatabase';
+import { operationalEventService } from '../../../services/operationalEventService';
 import { SurfaceCard } from '../../../ui/system';
 import { HealthScoreService, HealthScore } from '../../../services/HealthScoreService';
 import { WarrantyService } from '../../../services/WarrantyService';
@@ -19,9 +19,7 @@ export const AssetTimeline: React.FC<AssetTimelineProps> = ({ assetId, companyId
   // Load events
   const events = useLiveQuery(
     async () => {
-      const allEvents = await db.operationalEvents
-        .where({ aggregateId: assetId })
-        .toArray();
+      const allEvents = await operationalEventService.getByAggregateId(assetId);
       // Sort desc
       return allEvents.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
     },
@@ -91,10 +89,10 @@ export const AssetTimeline: React.FC<AssetTimelineProps> = ({ assetId, companyId
                 </span>
               </div>
               <h3 className="text-sm font-bold text-white mb-1">
-                {evt.metadata?.title || 'Evento Registrado'}
+                {String((evt.metadata as any)?.title || 'Evento Registrado')}
               </h3>
               <p className="text-xs text-text-secondary">
-                {evt.metadata?.description || 'Sem detalhes.'}
+                {String((evt.metadata as any)?.description || 'Sem detalhes.')}
               </p>
               {evt.actor && (
                 <div className="mt-3 text-[10px] font-bold text-text-tertiary flex items-center">

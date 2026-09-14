@@ -8,7 +8,7 @@ import { operationalFacade } from '../features/workflow/operationalFacade';
 import { operationalReadModelService } from '../services/operationalReadModelService';
 import { cloudSyncService } from '../services/CloudSyncService';
 import { supabase } from '../core/cloud/supabaseClient';
-import { AggregateType } from '../core/types/business';
+import { AggregateType } from '../domain/operationalEvent';
 import { deriveAttendanceStatus } from '../domain/attendance';
 
 // Mock Supabase completamente
@@ -59,8 +59,8 @@ describe('AFERIX PHASE 2.6: CONSISTENCY HARDENING & SCALE BENCHMARKS', () => {
       clientId: 'client-soft-1',
       siteId: 'site-soft-1',
       status: 'iniciado',
-      companyId: 'default-company',
-      workspaceId: 'default-workspace',
+      companyId: 'company-test-1',
+      workspaceId: 'workspace-test-1',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     });
@@ -69,6 +69,8 @@ describe('AFERIX PHASE 2.6: CONSISTENCY HARDENING & SCALE BENCHMARKS', () => {
       id: 'b-soft-1',
       clientId: 'client-soft-1',
       siteId: 'site-soft-1',
+      companyId: 'company-test-1',
+      workspaceId: 'workspace-test-1',
       title: 'Orçamento Soft',
       status: BUDGET_STATUS.INICIADO,
       chargedValue: 1500,
@@ -82,6 +84,8 @@ describe('AFERIX PHASE 2.6: CONSISTENCY HARDENING & SCALE BENCHMARKS', () => {
       id: 'wo-soft-1',
       clientId: 'client-soft-1',
       siteId: 'site-soft-1',
+      companyId: 'company-test-1',
+      workspaceId: 'workspace-test-1',
       title: 'OS Soft',
       status: 'draft',
       paymentStatus: 'pending',
@@ -96,6 +100,8 @@ describe('AFERIX PHASE 2.6: CONSISTENCY HARDENING & SCALE BENCHMARKS', () => {
       id: 'f-soft-1',
       title: 'Financeiro Soft',
       clientId: 'client-soft-1',
+      companyId: 'company-test-1',
+      workspaceId: 'workspace-test-1',
       workOrderId: 'wo-soft-1',
       expectedValue: 500,
       receivedValue: 0,
@@ -167,6 +173,8 @@ describe('AFERIX PHASE 2.6: CONSISTENCY HARDENING & SCALE BENCHMARKS', () => {
       id: budgetId,
       clientId: 'client-lww-1',
       siteId: 'site-lww-1',
+      companyId: 'company-test-1',
+      workspaceId: 'workspace-test-1',
       title: 'Orçamento Local Velho',
       status: BUDGET_STATUS.INICIADO,
       chargedValue: 1000,
@@ -206,7 +214,7 @@ describe('AFERIX PHASE 2.6: CONSISTENCY HARDENING & SCALE BENCHMARKS', () => {
 
   it('5. Mixed Status Matrix Hardening', () => {
     const budgets = [
-      { id: 'b1', title: 'A', status: BUDGET_STATUS.AUTORIZADO, chargedValue: 1000, items: [], createdAt: '', updatedAt: '' }
+      { id: 'b1', title: 'A', status: BUDGET_STATUS.AUTORIZADO, chargedValue: 1000, items: [], createdAt: '', updatedAt: '', companyId: 'comp', workspaceId: 'work' }
     ];
 
     // Case A: 3 done, 2 cancelled
@@ -238,8 +246,8 @@ describe('AFERIX PHASE 2.6: CONSISTENCY HARDENING & SCALE BENCHMARKS', () => {
       clientId: 'client-excl-1',
       siteId: 'site-excl-1',
       status: 'iniciado',
-      companyId: 'default-company',
-      workspaceId: 'default-workspace',
+      companyId: 'company-test-1',
+      workspaceId: 'workspace-test-1',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     });
@@ -248,6 +256,8 @@ describe('AFERIX PHASE 2.6: CONSISTENCY HARDENING & SCALE BENCHMARKS', () => {
       id: 'client-excl-1',
       name: 'Cliente Exclusivo 1',
       phone: '12345',
+      companyId: 'company-test-1',
+      workspaceId: 'workspace-test-1',
       syncStatus: 'synced',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
@@ -258,6 +268,8 @@ describe('AFERIX PHASE 2.6: CONSISTENCY HARDENING & SCALE BENCHMARKS', () => {
       id: 'b-excl-a',
       clientId: 'client-excl-1',
       siteId: 'site-excl-1',
+      companyId: 'company-test-1',
+      workspaceId: 'workspace-test-1',
       title: 'Opção Econômica',
       status: BUDGET_STATUS.AUTORIZADO,
       chargedValue: 1200,
@@ -274,6 +286,8 @@ describe('AFERIX PHASE 2.6: CONSISTENCY HARDENING & SCALE BENCHMARKS', () => {
       id: 'b-excl-b',
       clientId: 'client-excl-1',
       siteId: 'site-excl-1',
+      companyId: 'company-test-1',
+      workspaceId: 'workspace-test-1',
       title: 'Opção Premium',
       status: BUDGET_STATUS.AUTORIZADO,
       chargedValue: 3500,
@@ -290,6 +304,8 @@ describe('AFERIX PHASE 2.6: CONSISTENCY HARDENING & SCALE BENCHMARKS', () => {
       id: 'b-excl-c',
       clientId: 'client-excl-1',
       siteId: 'site-excl-1',
+      companyId: 'company-test-1',
+      workspaceId: 'workspace-test-1',
       title: 'Orçamento Avulso Adicional',
       status: BUDGET_STATUS.AUTORIZADO,
       chargedValue: 800,

@@ -49,10 +49,10 @@ export const FinanceFacade = {
     return finalizedBudgets.map(budget => {
       const adjustment = adjustmentMap.get(budget.id); // For legacy mapping (budget.id is sometimes linked, ideally it should be workOrder.id, but this compiles)
 
-      const receivedAmount = adjustment ? adjustment.receivedValue : Math.max(0, budget.chargedValue - budget.discounts);
-      const materialCost = adjustment ? adjustment.materialCost : Math.max(0, budget.materialCost);
-      const travelCost = adjustment ? adjustment.travelCost : Math.max(0, budget.travelCost);
-      const otherCosts = adjustment ? adjustment.otherCosts : Math.max(0, budget.helperCost + (budget.fees || 0) + (budget.otherCosts || 0));
+      const receivedAmount = adjustment ? adjustment.receivedValue : Math.max(0, budget.chargedValue - (budget.discounts || 0));
+      const materialCost = adjustment ? adjustment.materialCost : Math.max(0, budget.materialCost || 0);
+      const travelCost = adjustment ? adjustment.travelCost : Math.max(0, budget.travelCost || 0);
+      const otherCosts = adjustment ? adjustment.otherCosts : Math.max(0, (budget.helperCost || 0) + (budget.fees || 0) + (budget.otherCosts || 0));
       const cardFee = adjustment ? adjustment.cardFee : 0;
       const estimatedTax = adjustment ? adjustment.estimatedTax : 0;
 

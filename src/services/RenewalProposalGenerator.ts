@@ -6,7 +6,7 @@ export class RenewalProposalGenerator {
     if (!contract) return null;
 
     // Aqui seria gerado o reajuste inflacionário (ex: IGPM)
-    const baseValue = contract.amount || 0;
+    const baseValue = contract.billingAmount || 0;
     const reajuste = baseValue * 0.05; // Simulação de 5% de reajuste
 
     const proposalId = `prop-ren-${contractId}-${Date.now()}`;

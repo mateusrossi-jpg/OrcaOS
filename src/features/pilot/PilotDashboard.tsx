@@ -17,10 +17,9 @@ import {
   CheckCircle2, TrendingUp, Download, Trash2, RefreshCw,
   Flame, Eye, XCircle, ChevronRight
 } from 'lucide-react';
-import { pilotTelemetry } from '../../../services/pilotTelemetryService';
-import { cn } from '../../../utils/ui';
-import { formatCurrencyBRL } from '../../../utils/formatters';
-import { db } from '../../../storage/dexieDatabase';
+import { pilotTelemetry } from '../../services/pilotTelemetryService';
+import { cn } from '../../utils/ui';
+import { formatCurrencyBRL } from '../../utils/formatters';
 
 // Speed targets (V5 goals)
 const SPEED_TARGETS: Record<string, number> = {
@@ -122,7 +121,7 @@ export function PilotDashboard() {
       const [allStats, sessions, total] = await Promise.all([
         pilotTelemetry.getAllStats(),
         pilotTelemetry.getSessionCount(),
-        db.pilotEvents.count(),
+        pilotTelemetry.getTotalEventsCount(),
       ]);
       setStats(allStats);
       setSessionCount(sessions);

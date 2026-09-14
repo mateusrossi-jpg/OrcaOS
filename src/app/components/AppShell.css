@@ -245,6 +245,58 @@
 .desktop-sidebar-nav button small { display: none !important; }
 .desktop-sidebar-nav button.active { background: rgba(212, 175, 55, 0.08); }
 
+/* ─── Premium Side Drawer ─────────────────────────────────────────────────── */
+.drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 800;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  animation: fadeIn 0.2s ease-out;
+}
+
+@supports not (backdrop-filter: blur(6px)) {
+  .drawer-backdrop { background: rgba(0, 0, 0, 0.78); }
+}
+
+.side-drawer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  z-index: 850;
+  width: min(86vw, 300px);
+  display: flex;
+  flex-direction: column;
+  padding-top: calc(env(safe-area-inset-top, 0px) + 8px);
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
+  overflow-y: auto;
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+  background: linear-gradient(180deg, #2E2F31 0%, #262628 55%, #222326 100%);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+  transform: translateX(-105%);
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.side-drawer.open { transform: translateX(0); }
+
+.side-drawer::-webkit-scrollbar { width: 3px; }
+.side-drawer::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 10px;
+}
+
+.drawer-brand-card {
+  background: none !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  padding: 12px 24px 16px;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
 /* ─── Premium floating dock ───────────────────────────────────────────────── */
 .aferix-floating-dock {
   position: fixed;
@@ -292,7 +344,7 @@
 }
 
 /* Safe padding so content isn't hidden behind the dock */
-.aferix-main-content { padding-bottom: 110px; }
+.aferix-main-content { padding-bottom: calc(env(safe-area-inset-bottom, 16px) + 80px); }
 
 /* ─── Animations ──────────────────────────────────────────────────────────── */
 @keyframes slideInLeft  { from { transform: translateX(-100%); } to { transform: translateX(0); } }

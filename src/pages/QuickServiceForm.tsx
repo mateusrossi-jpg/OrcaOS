@@ -18,6 +18,7 @@ import { trustLayer } from '../core/trust/TrustLayer';
 import { ClientZeroBottomSheet, ClientZeroResult } from '../features/clients/components/ClientZeroBottomSheet';
 import { UserPlus, ChevronRight, History, Zap } from 'lucide-react';
 import { clientMemoryEngine, ClientMemory } from '../services/ClientMemoryEngine';
+import { AuthService } from '../services/AuthService';
 import { formatCurrencyBRL } from '../utils/formatters';
 import { cn } from '../utils/ui';
 
@@ -67,9 +68,12 @@ export function QuickServiceForm({ onBack }: { onBack: () => void }) {
     setIsSaving(true);
 
     try {
+      const tenant = AuthService.getTenantContext();
       let finalClientId = formData.clientId;
       if (!finalClientId && formData.clientName) {
         const newClient = await clientService.add({
+          companyId: tenant.companyId,
+          workspaceId: tenant.workspaceId,
           name: formData.clientName,
           phone: '',
           notes: 'Cadastrado automaticamente via Atendimento Rápido',
@@ -86,6 +90,8 @@ export function QuickServiceForm({ onBack }: { onBack: () => void }) {
           finalSiteId = sites[0].id;
         } else {
           const newSite = await siteService.add({
+            companyId: tenant.companyId,
+            workspaceId: tenant.workspaceId,
             clientId: finalClientId,
             name: 'Local Principal',
             fullAddress: formData.address || 'Endereço não informado',
@@ -95,13 +101,20 @@ export function QuickServiceForm({ onBack }: { onBack: () => void }) {
         }
       }
 
-      const attendanceId = await operationalFacade.initializeAttendance(finalClientId, finalSiteId || 'default-site');
+      const attendanceId = await operationalFacade.initializeAttendance(
+        finalClientId,
+        finalSiteId || 'default-site',
+        tenant.companyId,
+        tenant.workspaceId
+      );
 
       const budgetId = generateUUID();
       const numericValue = formData.chargedValue;
 
       const budget: Budget = {
         id: budgetId,
+        companyId: tenant.companyId,
+        workspaceId: tenant.workspaceId,
         title: formData.serviceDescription || 'Atendimento Rápido',
         clientId: finalClientId,
         siteId: finalSiteId || 'default-site',
@@ -184,7 +197,6 @@ export function QuickServiceForm({ onBack }: { onBack: () => void }) {
           title="Atendimento Rápido" 
           subtitle="Finalização em um único passo" 
           onBack={onBack}
-          standalone
         />
 
         {/* 1. CLIENT SECTION */}

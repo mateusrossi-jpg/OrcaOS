@@ -26,7 +26,8 @@ import {
   FinancialValue,
   SemanticBadge
 } from '../../../ui/system';
-import { db } from '../../../storage/dexieDatabase';
+import { clientService } from '../../../services/clientService';
+import { maintenancePlanService } from '../../../services/maintenancePlanService';
 import { Client } from '../../../domain/client';
 import { MaintenancePlan } from '../../../domain/maintenancePlan';
 import { cn } from '../../../utils/ui';
@@ -49,8 +50,8 @@ export const RelationshipWorkspaceV2: React.FC<RelationshipWorkspaceV2Props> = (
   useEffect(() => {
     async function load() {
       const [allClients, allPlans] = await Promise.all([
-        db.clients.toArray(),
-        db.maintenancePlans.toArray()
+        clientService.getAll(),
+        maintenancePlanService.getAll()
       ]);
       setClients(allClients as Client[]);
       setPlans(allPlans as MaintenancePlan[]);

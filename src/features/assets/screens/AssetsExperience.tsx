@@ -43,7 +43,8 @@ import {
   ValueBlock
 } from '../../../ui/system';
 import { assetService } from '../../../services/assetService';
-import { db } from '../../../storage/dexieDatabase';
+import { assetExecutionService } from '../../../services/AssetExecutionService';
+import { workOrderService } from '../../../services/workOrderService';
 import { Asset, AssetStatus } from '../../../domain/asset';
 import { AssetExecution } from '../../../domain/assetExecution';
 import { Service as WorkOrder } from '../../../core/types/business';
@@ -118,14 +119,10 @@ const AssetDetailPage = ({ asset, onBack, onNavigate }: { asset: Asset, onBack: 
   useEffect(() => {
     async function loadHistory() {
       try {
-        const executions = await db.assetExecutions
-          .where('assetId')
-          .equals(asset.id)
-          .reverse()
-          .sortBy('createdAt');
+        const executions = await assetExecutionService.getByAssetId(asset.id);
         
         const historyWithWos = await Promise.all(executions.map(async ex => {
-          const wo = await db.workOrders.get(ex.workOrderId);
+          const wo = await workOrderService.getById(ex.workOrderId);
           return { ...ex, workOrder: wo };
         }));
 

@@ -189,13 +189,13 @@ export class DemoBootstrapService {
     }
 
     // Use transaction to ensure data integrity
-    await db.transaction('rw', 
+    await db.transaction('rw', [
       db.clients, 
       db.sites, 
       db.assets, 
       db.workOrders, 
-      db.assetExecutions, 
-      async () => {
+      db.assetExecutions
+    ], async () => {
         await db.clients.add(client);
         await db.sites.add(site);
         await db.assets.bulkAdd(assets);

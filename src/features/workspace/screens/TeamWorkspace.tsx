@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Users, UserPlus, Shield, X, Mail } from 'lucide-react';
 import { ScreenContainer, AppHeader, Section, SurfaceCard } from '../../../ui/system';
 import { AuthService } from '../../../services/AuthService';
-import { TeamMember } from '../../../storage/dexieDatabase';
+import type { TeamMember } from '../../../domain/team';
 
 export const TeamWorkspace: React.FC = () => {
   const [members, setMembers] = useState<TeamMember[]>([]);
@@ -64,20 +64,22 @@ export const TeamWorkspace: React.FC = () => {
     loadMembers();
   };
 
-  const roleColors = {
+  const roleColors: Record<TeamMember['role'], string> = {
     OWNER: 'text-[var(--accent-gold)] border-[var(--accent-gold)]',
     MANAGER: 'text-[var(--accent-red)] border-[var(--accent-red)]',
     SALES: 'text-[var(--accent-yellow)] border-[var(--accent-yellow)]',
     FIELD: 'text-[var(--accent-blue)] border-[var(--accent-blue)]',
     CUSTOMER: 'text-neutral-400 border-neutral-600',
+    SOLO: 'text-emerald-400 border-emerald-500',
   };
 
-  const roleNames = {
+  const roleNames: Record<TeamMember['role'], string> = {
     OWNER: 'Proprietário',
     MANAGER: 'Gestor',
     SALES: 'Comercial',
     FIELD: 'Técnico',
-    CUSTOMER: 'Cliente'
+    CUSTOMER: 'Cliente',
+    SOLO: 'Autônomo',
   };
 
   return (

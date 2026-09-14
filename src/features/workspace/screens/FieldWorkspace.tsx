@@ -45,7 +45,8 @@ import {
   SecondaryButton
 } from "../../../app/components/ui";
 import { useLiveQuery } from 'dexie-react-hooks';
-import { db } from '../../../storage/dexieDatabase';
+import { clientService } from '../../../services/clientService';
+import { siteService } from '../../../services/siteService';
 import { WorkOrder } from '../../../core/types/business';
 import { cn } from '../../../utils/ui';
 import { operationalFacade } from '../../workflow/operationalFacade';
@@ -74,7 +75,9 @@ export const FieldWorkspace: React.FC<FieldWorkspaceProps> = ({ onNavigate }) =>
     try {
       if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
       const health = await BusinessHealthService.getBusinessHealth();
+      // eslint-disable-next-line no-restricted-syntax
       const prevRecord = Number(localStorage.getItem('aferix_record_monthly_revenue')) || 2000;
+      // eslint-disable-next-line no-restricted-syntax
       if (health.revenueThisMonth > prevRecord) localStorage.setItem('aferix_record_monthly_revenue', String(health.revenueThisMonth));
       
       setWowCelebration({
@@ -91,8 +94,8 @@ export const FieldWorkspace: React.FC<FieldWorkspaceProps> = ({ onNavigate }) =>
   const data = useLiveQuery(async () => {
     const [agenda, sites, clients] = await Promise.all([
       workOrderQueryService.getAgendaItems(),
-      db.sites.toArray(),
-      db.clients.toArray()
+      siteService.getAll(),
+      clientService.getAll()
     ]);
     return { ...agenda, sites, clients };
   });
@@ -107,7 +110,7 @@ export const FieldWorkspace: React.FC<FieldWorkspaceProps> = ({ onNavigate }) =>
 
   const handleStartRoute = async (os: WorkOrder) => {
     if (navigator.vibrate) navigator.vibrate(30);
-    await operationalFacade.updateWorkOrder({ ...os, status: 'en_route' as const, updatedAt: new Date().toISOString() });
+    await operationalFacade.updateWorkOrder({ ...os, status: 'in-progress', updatedAt: new Date().toISOString() });
   };
 
   const handleArrival = async (os: WorkOrder) => {
@@ -119,6 +122,51 @@ export const FieldWorkspace: React.FC<FieldWorkspaceProps> = ({ onNavigate }) =>
     if (navigator.vibrate) navigator.vibrate(40);
     const todayStr = new Date().toISOString().split('T')[0];
     await operationalFacade.updateWorkOrder({ ...os, status: 'in-progress' as const, scheduledDate: os.scheduledDate || todayStr, updatedAt: new Date().toISOString() });
+  };
+
+  const handleConfirmCheckout = async () => {
+    if (!checkoutDraft) return;
+    try {
+      await operationalFacade.completeWorkOrder(
+        checkoutDraft.workOrderId,
+        parseAmount(checkoutDraft.executedValue),
+        parseAmount(checkoutDraft.receivedValue),
+        checkoutDraft.notes
+      );
+      triggerCelebration('os_completed', parseAmount(checkoutDraft.executedValue));
+      setCheckoutDraft(null);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleConfirmCheckoutWithPayment = async (method: string) => {
+    if (!checkoutDraft) return;
+    if (navigator.vibrate) navigator.vibrate(60);
+    try {
+      let finalNotes = checkoutDraft.notes || '';
+      let recVal = checkoutDraft.executedValue;
+      if (method === 'PENDENTE') {
+        recVal = '0';
+      } else {
+        finalNotes = `[Pagamento via ${method}] ${finalNotes}`.trim();
+      }
+
+      await operationalFacade.completeWorkOrder(
+        checkoutDraft.workOrderId,
+        parseAmount(checkoutDraft.executedValue),
+        parseAmount(recVal),
+        finalNotes
+      );
+      if (method !== 'PENDENTE') {
+        triggerCelebration('payment_received', parseAmount(recVal));
+      } else {
+        triggerCelebration('os_completed', parseAmount(checkoutDraft.executedValue));
+      }
+      setCheckoutDraft(null);
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   const activeCount = awaiting.length + scheduled.length + inProgress.length;

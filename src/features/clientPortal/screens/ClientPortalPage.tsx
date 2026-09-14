@@ -1,8 +1,7 @@
 import React from 'react';
 import { Activity, Download, FileText, CheckCircle2, ShieldCheck, Clock, ArrowRight } from 'lucide-react';
-import { useLiveQuery } from 'dexie-react-hooks';
-import { db } from '../../../storage/dexieDatabase';
 import { useRole } from '../../../hooks/useRole';
+import { useClientPortalData } from '../../../hooks/useClientPortalData';
 import { formatCurrencyBRL } from '../../../utils/formatters';
 import { 
   ScreenContainer, 
@@ -27,28 +26,10 @@ export const ClientPortalPage: React.FC = () => {
   const { user } = useRole();
   
   // DATA QUERIES
-  const proposals = useLiveQuery(() => 
-    db.clientProposals
-      .where('status')
-      .anyOf(['sent', 'viewed'])
-      .toArray()
-  );
-
-  const activeContracts = useLiveQuery(() => 
-    db.contracts
-      .where('status')
-      .equals('active')
-      .toArray()
-  );
-
-  const recentExecutions = useLiveQuery(() => 
-    db.workOrders
-      .where('status')
-      .equals('done')
-      .limit(5)
-      .reverse()
-      .sortBy('updatedAt')
-  );
+  const portalData = useClientPortalData();
+  const proposals = portalData?.proposals;
+  const activeContracts = portalData?.activeContracts;
+  const recentExecutions = portalData?.recentExecutions;
 
   if (!proposals || !activeContracts || !recentExecutions) {
     return <div className="flex items-center justify-center h-screen bg-[var(--bg-primary)]"><ERPLoader message="Sincronizando seu portal..." /></div>;

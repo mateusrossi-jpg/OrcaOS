@@ -29,7 +29,9 @@ describe('PHASE 3B: SITE AND ASSET FOUNDATION INTEGRATION TEST', () => {
       phone: '11988887777',
       email: 'joao@silva.com',
       contributorType: 'taxpayer',
-      creditLimit: '10000'
+      creditLimit: '10000',
+      companyId: 'company-test-1',
+      workspaceId: 'workspace-test-1'
     });
 
     // 2. Fetch sites for this client (Triggering Auto-Site Migration)
@@ -50,6 +52,8 @@ describe('PHASE 3B: SITE AND ASSET FOUNDATION INTEGRATION TEST', () => {
     const asset = await assetService.add({
       clientId: client.id,
       siteId: sites[0].id,
+      companyId: 'company-test-1',
+      workspaceId: 'workspace-test-1',
       name: 'Ar Condicionado Central 01',
       assetType: 'EQUIPMENT',
       category: 'Climatização',

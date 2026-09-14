@@ -19,13 +19,17 @@ export class SimpleFinanceService {
     const existingRecord = input.id ? currentRecords.find((r) => r.id === input.id) : undefined;
     const now = new Date().toISOString();
 
-    const expected = input.expectedValue;
-    const received = input.receivedValue;
+    const expected = Number(input.expectedValue) || 0;
+    const received = Number(input.receivedValue) || 0;
     const openBalance = Math.max(0, expected - received);
     
-    let status: FinanceStatus = 'pending';
-    if (received > 0) {
-      status = received >= expected ? 'paid' : 'partial';
+    let status: FinanceStatus = input.status ?? 'pending';
+    if (received >= expected && expected > 0) {
+      status = 'paid';
+    } else if (received > 0) {
+      status = 'partial';
+    } else if (!input.status) {
+      status = 'pending';
     }
 
     const record: SimpleFinanceRecord = {
@@ -33,19 +37,19 @@ export class SimpleFinanceService {
       companyId: input.companyId ?? 'default-company',
       workspaceId: input.workspaceId ?? 'default-workspace',
       title: input.title,
-      clientId: input.clientId,
+      clientId: input.clientId ?? '',
       siteId: input.siteId,
-      clientName: input.clientName,
+      clientName: input.clientName ?? '',
       status,
-      workOrderId: input.workOrderId,
+      workOrderId: input.workOrderId ?? '',
       expectedValue: expected,
       receivedValue: received,
       openBalance,
-      materialCost: input.materialCost,
-      travelCost: input.travelCost,
-      cardFee: input.cardFee,
-      estimatedTax: input.estimatedTax,
-      otherCosts: input.otherCosts,
+      materialCost: Number(input.materialCost) || 0,
+      travelCost: Number(input.travelCost) || 0,
+      cardFee: Number(input.cardFee) || 0,
+      estimatedTax: Number(input.estimatedTax) || 0,
+      otherCosts: Number(input.otherCosts) || 0,
       createdAt: existingRecord?.createdAt ?? now,
       updatedAt: now,
     };
@@ -56,6 +60,33 @@ export class SimpleFinanceService {
       await this.repository.createRecord(record);
     }
     return record;
+  }
+
+  async registerExpense(input: {
+    title: string;
+    category?: string;
+    amount: number;
+    notes?: string;
+    companyId?: string;
+    workspaceId?: string;
+  }): Promise<SimpleFinanceRecord> {
+    const isFuel = input.category === 'fuel' || input.title.toLowerCase().includes('gasolina') || input.title.toLowerCase().includes('combust');
+    return await this.saveRecord({
+      title: input.title,
+      clientId: 'EXPENSE',
+      clientName: input.category === 'fuel' ? 'Combustível' : (input.category || 'Despesa'),
+      workOrderId: '',
+      expectedValue: 0,
+      receivedValue: 0,
+      materialCost: isFuel ? 0 : (input.category === 'material' ? input.amount : 0),
+      travelCost: isFuel ? input.amount : 0,
+      otherCosts: (!isFuel && input.category !== 'material') ? input.amount : 0,
+      cardFee: 0,
+      estimatedTax: 0,
+      status: 'paid',
+      companyId: input.companyId,
+      workspaceId: input.workspaceId,
+    });
   }
 
   async registerPayment(workOrderId: string, amount: number): Promise<SimpleFinanceRecord | null> {

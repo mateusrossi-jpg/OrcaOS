@@ -51,7 +51,8 @@ export class NextMoneyEngine {
 
     // 1. PROPOSAL FOLLOW-UP ENGINE
     budgets.filter(b => b.status === BUDGET_STATUS.ENVIADO).forEach(b => {
-      const daysSince = Math.floor((now - new Date(b.updatedAt || b.createdAt).getTime()) / (1000 * 60 * 60 * 24));
+      const budgetDate = b.updatedAt || b.createdAt;
+      const daysSince = budgetDate ? Math.floor((now - new Date(budgetDate).getTime()) / (1000 * 60 * 60 * 24)) : 0;
       
       let temperature: OpportunityTemperature = 'COLD';
       let score = 50;
@@ -100,7 +101,8 @@ export class NextMoneyEngine {
 
     // 2. OVERDUE COLLECTIONS
     finance.filter(f => f.status !== 'paid' && f.openBalance > 0).forEach(f => {
-      const daysOverdue = Math.floor((now - new Date(f.createdAt).getTime()) / (1000 * 60 * 60 * 24));
+      const financeDate = f.createdAt || f.updatedAt;
+      const daysOverdue = financeDate ? Math.floor((now - new Date(financeDate).getTime()) / (1000 * 60 * 60 * 24)) : 0;
       
       let temperature: OpportunityTemperature = 'COLD';
       if (daysOverdue > 2) temperature = 'WARM';
@@ -152,7 +154,9 @@ export class NextMoneyEngine {
       const clientBudgets = budgets.filter(b => b.clientId === client.id);
       if (clientBudgets.length === 0) continue;
       
-      const lastIntDate = new Date(clientBudgets.sort((a,b) => new Date(b.updatedAt || b.createdAt).getTime() - new Date(a.updatedAt || a.createdAt).getTime())[0].updatedAt || clientBudgets[0].createdAt);
+      const sortedBudgets = clientBudgets.sort((a,b) => new Date(b.updatedAt || b.createdAt || 0).getTime() - new Date(a.updatedAt || a.createdAt || 0).getTime());
+      const rawIntDate = sortedBudgets[0].updatedAt || sortedBudgets[0].createdAt;
+      const lastIntDate = rawIntDate ? new Date(rawIntDate) : new Date();
       const daysInact = Math.floor((now - lastIntDate.getTime()) / (1000 * 60 * 60 * 24));
 
       if (daysInact >= 90) {
@@ -210,7 +214,7 @@ export class NextMoneyEngine {
     return {
       negotiation: budgets.filter(b => b.status === BUDGET_STATUS.ENVIADO).reduce((acc, b) => acc + safeMoneyValue(b.chargedValue), 0),
       approved: budgets.filter(b => b.status === BUDGET_STATUS.AUTORIZADO).reduce((acc, b) => acc + safeMoneyValue(b.chargedValue), 0),
-      execution: workOrders.filter(wo => ['scheduled', 'in-progress', 'en_route'].includes(wo.status)).reduce((acc, wo) => acc + safeMoneyValue(wo.executedValue || wo.originalValue), 0),
+      execution: workOrders.filter(wo => ['scheduled', 'in-progress', 'en_route'].includes(wo.status)).reduce((acc, wo) => acc + safeMoneyValue(wo.executedValue || (wo as any).originalValue), 0),
       collection: finance.filter(f => f.status !== 'paid').reduce((acc, f) => acc + safeMoneyValue(f.openBalance), 0),
       guaranteed: 0 
     };

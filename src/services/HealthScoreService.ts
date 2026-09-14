@@ -33,8 +33,8 @@ export class HealthScoreService {
     if (score > 100) score = 100;
     if (score < 0) score = 0;
 
-    let label: 'Excelente' | 'Boa' | 'Atenção' | 'Crítica' = 'Excelente';
-    let color = 'text-status-success';
+    let label: 'Excelente' | 'Boa' | 'Atenção' | 'Crítica';
+    let color: string;
 
     if (score >= 90) {
       label = 'Excelente';

@@ -27,8 +27,9 @@ interface FieldWorkToolProps {
  * Refactored for absolute executive DNA parity (Phase 4G).
  */
 export const FieldWorkTool: React.FC<FieldWorkToolProps> = memo(({ budget, onUpdateNotes, isReadOnly }) => {
-  const services = budget.items.filter(it => it.category === 'labor');
-  const materials = budget.items.filter(it => it.category === 'material');
+  const items = budget.items || [];
+  const services = items.filter(it => it.category === 'labor');
+  const materials = items.filter(it => it.category === 'material');
   
   // Local state for interactive checklist (visual only for now)
   const [completedItems, setCompletedItems] = useState<Set<string>>(new Set());

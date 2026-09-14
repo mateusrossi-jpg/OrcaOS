@@ -40,6 +40,7 @@ describe('Execution to Finance Link & Real Parts Cost (Sprint Verification)', ()
         companyId: 'company-a',
         workspaceId: 'workspace-a',
         name: 'Disjuntor Bipolar 32A',
+        category: 'Eletrica',
         sku: 'DISJ-32A',
         quantityOnHand: 10,
         minimumStock: 2,
@@ -52,6 +53,7 @@ describe('Execution to Finance Link & Real Parts Cost (Sprint Verification)', ()
         companyId: 'company-a',
         workspaceId: 'workspace-a',
         name: 'Cabo Flexível 6mm',
+        category: 'Eletrica',
         sku: 'CABO-6MM',
         quantityOnHand: 50,
         minimumStock: 10,
@@ -66,6 +68,8 @@ describe('Execution to Finance Link & Real Parts Cost (Sprint Verification)', ()
     const budgetId = 'budget-test-1';
     const originalBudget: Budget = {
       id: budgetId,
+      companyId: 'company-a',
+      workspaceId: 'workspace-a',
       title: 'Instalação de Quadro Elétrico',
       clientId: 'client-audit-1',
       siteId: 'site-1',
@@ -111,8 +115,8 @@ describe('Execution to Finance Link & Real Parts Cost (Sprint Verification)', ()
     // Orçamento original NÃO deve ter sido alterado
     const savedBudget = await budgetPersistence.getBudget(budgetId);
     expect(savedBudget).toBeDefined();
-    expect(savedBudget?.items.length).toBe(2);
-    expect(savedBudget?.items[1].quantity).toBe(2);
+    expect(savedBudget?.items?.length).toBe(2);
+    expect(savedBudget?.items?.[1].quantity).toBe(2);
     expect(savedBudget?.materialCost).toBe(200);
 
     // WorkOrder deve conter consumedParts e status done
@@ -235,6 +239,8 @@ describe('Execution to Finance Link & Real Parts Cost (Sprint Verification)', ()
     const budgetId = 'budget-legacy-fallback';
     const legacyBudget: Budget = {
       id: budgetId,
+      companyId: 'company-a',
+      workspaceId: 'workspace-a',
       title: 'Serviço Legado',
       clientId: 'client-audit-1',
       status: BUDGET_STATUS.AUTORIZADO,
@@ -281,6 +287,8 @@ describe('Execution to Finance Link & Real Parts Cost (Sprint Verification)', ()
     const budgetId = 'budget-event-test';
     const budget: Budget = {
       id: budgetId,
+      companyId: 'company-a',
+      workspaceId: 'workspace-a',
       title: 'Troca de Fiação',
       clientId: 'client-audit-1',
       status: BUDGET_STATUS.AUTORIZADO,
@@ -323,9 +331,10 @@ describe('Execution to Finance Link & Real Parts Cost (Sprint Verification)', ()
     const events = await db.operationalEvents.where('aggregateId').equals(woId).toArray();
     const completionEvent = events.find(e => e.eventType === 'WORKORDER_COMPLETED');
     expect(completionEvent).toBeDefined();
-    expect(completionEvent?.metadata.hasExtraParts).toBe(true);
-    expect(completionEvent?.metadata.consumedPartsCount).toBe(1);
-    expect(completionEvent?.snapshot.materialCost).toBe(64.0); // 8 * 8.0
-    expect(completionEvent?.snapshot.consumedParts.length).toBe(1);
+    expect(completionEvent?.metadata?.hasExtraParts).toBe(true);
+    expect(completionEvent?.metadata?.consumedPartsCount).toBe(1);
+    const snapshot = completionEvent?.snapshot as { materialCost?: number; consumedParts?: unknown[] } | undefined;
+    expect(snapshot?.materialCost).toBe(64.0); // 8 * 8.0
+    expect(snapshot?.consumedParts?.length).toBe(1);
   });
 });

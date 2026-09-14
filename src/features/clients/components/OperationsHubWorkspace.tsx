@@ -30,7 +30,7 @@ import { clientService } from '../../../services/clientService';
 import { workOrderService } from '../../../services/workOrderService';
 import { siteService } from '../../../services/siteService';
 import { assetService } from "../../../services/assetService";
-import { db } from '../../../storage/dexieDatabase';
+import { attendanceQueryService } from "../../../services/attendanceQueryService";
 import { Attendance } from '../../../domain/attendance';
 import { workOrderQueryService } from '../../../services/WorkOrderQueryService';
 import { trustLayer } from "../../../core/trust/TrustLayer";
@@ -140,7 +140,7 @@ export function OperationsHubWorkspace({
         workOrderQueryService.getAllValid(),
         siteService.getAll(),
         assetService.getAll(),
-        db.attendances.toArray(),
+        attendanceQueryService.getAll(),
         workOrderQueryService.getAgendaItems()
       ]);
       setClients(clientData);
@@ -225,7 +225,7 @@ export function OperationsHubWorkspace({
     const clientName = getClientName(os.clientId || '');
     const site = clientSites.find(s => s.id === os.siteId);
     const client = clients.find(c => c.id === os.clientId);
-    const isExecuting = os.status === 'in-progress' || os.status === 'en_route';
+    const isExecuting = os.status === 'in-progress';
 
     return (
       <div key={os.id} className="relative group border-t border-white/[0.04] first:border-t-0 flex flex-col bg-white/[0.005] overflow-hidden">

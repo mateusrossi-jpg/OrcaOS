@@ -1,6 +1,6 @@
-import { db } from '../../storage/dexieDatabase';
-import { BUDGET_STATUS } from '../../domain/budget';
-import { generateUUID } from '../../core/utils/idGenerator';
+import { db } from '../storage/dexieDatabase';
+import { BUDGET_STATUS } from '../domain/budget';
+import { generateUUID } from '../core/utils/idGenerator';
 
 /**
  * AFERIX RC1 REFERENCE DATASET
@@ -48,7 +48,8 @@ export async function seedDemoData() {
       id: `s-${c.id}`,
       clientId: c.id,
       name: 'Sede Principal',
-      address: c.address,
+      fullAddress: c.address,
+      isMain: true,
       companyId,
       workspaceId,
       createdAt: new Date().toISOString(),
@@ -282,6 +283,7 @@ export async function seedDemoData() {
       workspaceId,
       clientId: clients[i % 5].id,
       siteId: `s-${clients[i % 5].id}`,
+      assetId: `asset-${i}`,
       title: `Plano PMOC - ${clients[i % 5].name}`,
       frequency: 'monthly',
       nextExecutionDate: i < 2 ? today : (i < 5 ? new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10) : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10)),

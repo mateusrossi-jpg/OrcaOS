@@ -96,7 +96,7 @@ export class RevenueOpportunityEngine {
       // 3. Next Receipt (Oldest pending)
       const nextR = pendingRecords.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())[0];
       const nextReceipt = nextR ? {
-        clientName: nextR.clientName,
+        clientName: nextR.clientName || 'Cliente',
         value: nextR.openBalance,
         method: 'PIX', 
         workOrderId: nextR.workOrderId
@@ -104,7 +104,7 @@ export class RevenueOpportunityEngine {
 
       // 4. Waiting Revenue (Pending Proposals)
       const waitingBudgets = budgets.filter(b => 
-        [BUDGET_STATUS.ENVIADO, BUDGET_STATUS.INICIADO].includes(b.status)
+        b.status === BUDGET_STATUS.ENVIADO || b.status === BUDGET_STATUS.INICIADO
       );
       const waitingTotal = waitingBudgets.reduce((acc, b) => acc + safeMoneyValue(b.chargedValue), 0);
 
@@ -141,12 +141,12 @@ export class RevenueOpportunityEngine {
 
       for (const wo of todayWOs) {
          const client = clients.find(c => c.id === wo.clientId);
-         expectedTodayRevenue += safeMoneyValue(wo.executedValue || wo.originalValue);
+         expectedTodayRevenue += safeMoneyValue(wo.executedValue || (wo as any).originalValue);
          todayAgenda.push({
            time: wo.updatedAt?.split('T')[1]?.substring(0, 5) || '--:--',
            clientName: client?.name || 'Cliente',
            title: wo.title,
-           value: safeMoneyValue(wo.executedValue || wo.originalValue)
+           value: safeMoneyValue(wo.executedValue || (wo as any).originalValue)
          });
       }
 

@@ -29,19 +29,19 @@ export interface SimpleFinanceRecord extends MultiTenantEntity {
 
 export interface SimpleFinanceRecordInput {
   id?: string | null;
-  companyId: string;
-  workspaceId: string;
+  companyId?: string;
+  workspaceId?: string;
   title: string;
-  clientId: string;
+  clientId?: string;
   siteId?: string;
-  clientName: string;
+  clientName?: string;
   status?: FinanceStatus;
-  workOrderId: string;
-  expectedValue: number;
-  receivedValue: number;
-  materialCost: number;
-  travelCost: number;
-  cardFee: number;
-  estimatedTax: number;
-  otherCosts: number;
+  workOrderId?: string;
+  expectedValue?: number;
+  receivedValue?: number;
+  materialCost?: number;
+  travelCost?: number;
+  cardFee?: number;
+  estimatedTax?: number;
+  otherCosts?: number;
 }

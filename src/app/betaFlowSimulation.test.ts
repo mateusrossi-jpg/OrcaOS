@@ -10,6 +10,8 @@ describe.skip('Beta Workflow Simulation', () => {
   it('completes a full budget lifecycle in beta', async () => {
     const mockBudget: Budget = {
       id: 'beta-1',
+      companyId: 'company-a',
+      workspaceId: 'workspace-a',
       clientId: 'client-1',
       siteId: 'site-1',
       title: 'Instalação Beta',

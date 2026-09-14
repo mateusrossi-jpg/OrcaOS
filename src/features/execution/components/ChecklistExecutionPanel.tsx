@@ -23,7 +23,7 @@ import { PrimaryButton, Select, SecondaryButton } from '../../../app/components/
 import { AssetExecution, ChecklistItemResult } from '../../../domain/assetExecution';
 import { Check, ChevronLeft, ChevronRight, CheckCircle2, AlertTriangle, HelpCircle, ClipboardCheck, Camera, RefreshCw } from 'lucide-react';
 import { AnomalyBottomSheet } from '../../revenue/components/AnomalyBottomSheet';
-import { db } from '../../../storage/dexieDatabase';
+import { anomalyService } from '../../../services/anomalyService';
 const generateId = () => generateUUID();
 import { cn } from '../../../utils/ui';
 
@@ -136,7 +136,7 @@ export const ChecklistExecutionPanel: React.FC<ChecklistExecutionPanelProps> = (
       createdAt: new Date().toISOString()
     };
     
-    await db.anomalies.put(anomaly as any);
+    await anomalyService.upsert(anomaly as any);
 
     setChecklist(prev => prev.map(item => {
       if (item.itemKey === activeAnomalyItem.itemKey) {
@@ -162,7 +162,7 @@ export const ChecklistExecutionPanel: React.FC<ChecklistExecutionPanelProps> = (
       {/* ── HEADER ── */}
       <div className="relative z-10 w-full shrink-0">
         <div className="w-full max-w-md mx-auto">
-          <AppHeader title={assetName} subtitle="Procedimento Técnico de Campo" onBack={onClose} standalone />
+          <AppHeader title={assetName} subtitle="Procedimento Técnico de Campo" onBack={onClose} />
         </div>
       </div>
       

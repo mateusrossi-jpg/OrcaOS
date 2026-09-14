@@ -9,7 +9,9 @@ import { CheckCircle2, FileText, Send, Check, DollarSign, Wallet, CreditCard, Ba
 import { TrialAndPaywallModal } from './TrialAndPaywallModal';
 import { formatCurrencyBRL } from '../../../utils/formatters';
 import { operationalFacade } from '../../workflow/operationalFacade';
-import { db } from '../../../storage/dexieDatabase';
+import { workOrderService } from '../../../services/workOrderService';
+import { assetService } from '../../../services/assetService';
+import { catalogService } from '../../../services/catalogService';
 import { cn } from '../../../utils/ui';
 import { TechnicalReportPreview } from './TechnicalReportPreview';
 import { professionalProfileService } from '../../../services/professionalProfileService';
@@ -58,10 +60,10 @@ export const ExecutionClosingFlow: React.FC<ExecutionClosingFlowProps> = ({
   useEffect(() => {
     async function loadData() {
       const [wo, prof, allAssets, allCatalog] = await Promise.all([
-        db.workOrders.get(workOrderId),
+        workOrderService.getById(workOrderId),
         professionalProfileService.getProfile(),
-        db.assets.where('id').anyOf(Object.keys(executions)).toArray(),
-        db.catalog.toArray()
+        assetService.getByIds(Object.keys(executions)),
+        catalogService.getAll()
       ]);
       
       if (wo) {
@@ -163,7 +165,7 @@ export const ExecutionClosingFlow: React.FC<ExecutionClosingFlowProps> = ({
   if (step === 'parts') {
     return (
       <div className="fixed inset-0 z-[1000] flex flex-col bg-aferix-bg animate-slide-up">
-         <AppHeader title="Consumo de Peças" subtitle="Materiais e Kits usados" onBack={() => setStep('summary')} standalone />
+         <AppHeader title="Consumo de Peças" subtitle="Materiais e Kits usados" onBack={() => setStep('summary')} />
          
          <div className="flex-1 flex flex-col p-6 gap-8 overflow-y-auto pb-32">
             <div className="flex flex-col gap-4">
@@ -230,7 +232,7 @@ export const ExecutionClosingFlow: React.FC<ExecutionClosingFlowProps> = ({
   if (step === 'payment_ask') {
     return (
       <div className="fixed inset-0 z-[1000] flex flex-col bg-aferix-bg animate-slide-up">
-         <AppHeader title="Recebimento" subtitle={clientName} onBack={() => setStep('signature')} standalone />
+         <AppHeader title="Recebimento" subtitle={clientName} onBack={() => setStep('signature')} />
          
          <div className="flex-1 overflow-y-auto flex flex-col items-center justify-center p-6 gap-8 pb-32">
             <div className="w-20 h-20 rounded-full bg-[var(--accent-gold)]/10 flex items-center justify-center border border-[var(--accent-gold)]/20 shrink-0">
@@ -267,7 +269,7 @@ export const ExecutionClosingFlow: React.FC<ExecutionClosingFlowProps> = ({
   if (step === 'payment_process') {
     return (
       <div className="fixed inset-0 z-[1000] flex flex-col bg-aferix-bg animate-slide-up">
-         <AppHeader title="Finalizar e Receber" subtitle={clientName} onBack={() => setStep('payment_ask')} standalone />
+         <AppHeader title="Finalizar e Receber" subtitle={clientName} onBack={() => setStep('payment_ask')} />
          
          <div className="flex-1 flex flex-col p-6 gap-8 overflow-y-auto pb-32">
             
@@ -600,7 +602,7 @@ export const ExecutionClosingFlow: React.FC<ExecutionClosingFlowProps> = ({
   // DEFAULT: SUMMARY
   return (
     <div className="fixed inset-0 z-[1000] flex flex-col bg-aferix-bg animate-in slide-in-from-right-6 duration-500">
-      <AppHeader title="Resumo da Execução" subtitle={clientName} onBack={() => onExit()} standalone />
+      <AppHeader title="Resumo da Execução" subtitle={clientName} onBack={() => onExit()} />
       
       <div className="flex-1 overflow-y-auto w-full flex flex-col p-4 items-center pt-8 pb-32">
         <h2 className="text-[18px] font-black text-white tracking-widest uppercase mb-6">Pronto para assinatura</h2>

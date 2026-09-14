@@ -17,6 +17,22 @@ export class AssetExecutionService {
     return AssetExecutionService.instance;
   }
 
+  async getByAssetId(assetId: string): Promise<AssetExecution[]> {
+    return await db.assetExecutions
+      .where('assetId')
+      .equals(assetId)
+      .reverse()
+      .sortBy('createdAt');
+  }
+
+  async getByWorkOrderId(workOrderId: string): Promise<AssetExecution[]> {
+    return await db.assetExecutions.where('workOrderId').equals(workOrderId).toArray();
+  }
+
+  async upsert(execution: AssetExecution): Promise<void> {
+    await db.assetExecutions.put(execution);
+  }
+
   /**
    * Salva múltiplos registros de execução técnica utilizando Dexie bulkPut de alta performance.
    * Envelopa a persistência em uma única transação rápida.

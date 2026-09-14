@@ -4,7 +4,7 @@ import { TechnicalReportDocument } from '../reports/TechnicalReportDocument';
 import { Asset } from '../../../domain/asset';
 import { AssetExecution } from '../../../domain/assetExecution';
 import { X, Download, Share2, ArrowLeft } from 'lucide-react';
-import { AferixButton } from '../../../components/AferixButton';
+import { PrimaryButton, SecondaryButton } from '../../../app/components/ui';
 
 interface TechnicalReportPreviewProps {
   clientName: string;
@@ -68,16 +68,16 @@ export const TechnicalReportPreview: React.FC<TechnicalReportPreviewProps> = ({
           className="w-full"
         >
           {({ loading }) => (
-            <AferixButton variant="p0" fullWidth className="gap-3 h-16 shadow-[var(--glow-gold)]" disabled={loading}>
+            <PrimaryButton className="w-full gap-3 h-16 shadow-[var(--glow-gold)]" disabled={loading}>
               <Download size={20} />
               <span className="text-[13px] font-black tracking-widest uppercase">{loading ? 'Gerando PDF...' : 'Baixar Laudo PDF'}</span>
-            </AferixButton>
+            </PrimaryButton>
           )}
         </PDFDownloadLink>
 
-        <AferixButton variant="p1" fullWidth className="gap-3 h-16" onClick={onClose}>
+        <SecondaryButton className="w-full gap-3 h-16" onClick={onClose}>
            CONCLUIR
-        </AferixButton>
+        </SecondaryButton>
       </div>
     </div>
   );

@@ -1,5 +1,19 @@
 export type EventAggregateType = 'budget' | 'proposal' | 'workorder' | 'client' | 'finance' | 'site' | 'asset' | 'maintenance_plan' | 'contract' | 'dispatch' | 'attendance';
 
+export const AggregateType = {
+  BUDGET: 'budget',
+  PROPOSAL: 'proposal',
+  WORKORDER: 'workorder',
+  CLIENT: 'client',
+  FINANCE: 'finance',
+  SITE: 'site',
+  ASSET: 'asset',
+  MAINTENANCE_PLAN: 'maintenance_plan',
+  CONTRACT: 'contract',
+  DISPATCH: 'dispatch',
+  ATTENDANCE: 'attendance',
+} as const;
+
 export type OperationalEventType =
   | 'BUDGET_CREATED'
   | 'BUDGET_UPDATED'

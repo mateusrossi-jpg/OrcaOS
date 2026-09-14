@@ -251,7 +251,7 @@ export const ChecklistManagerScreen: React.FC<ChecklistManagerScreenProps> = ({ 
           className="fixed bottom-0 left-0 right-0 z-50 p-6 bg-gradient-to-t from-black via-black/90 to-transparent"
           style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 24px)' }}
         >
-           <PrimaryButton fullWidth onClick={handleSave} className="h-18 !rounded-2xl gap-3 shadow-[0_20px_50px_rgba(212,169,74,0.3)] text-[13px] font-black tracking-[0.2em]">
+           <PrimaryButton onClick={handleSave} className="w-full h-18 !rounded-2xl gap-3 shadow-[0_20px_50px_rgba(212,169,74,0.3)] text-[13px] font-black tracking-[0.2em]">
               <Save size={20} /> SALVAR MODELO TÉCNICO
            </PrimaryButton>
         </div>

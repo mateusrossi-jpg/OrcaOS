@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Modal, Input, PrimaryButton, ContextBanner } from '../../../app/components/ui';
 import { MapPin, Navigation, Loader2 } from 'lucide-react';
 import { siteService } from '../../../services/siteService';
+import { AuthService } from '../../../services/AuthService';
 import { trustLayer } from '../../../core/trust/TrustLayer';
 
 interface FastSiteCreationModalProps {
@@ -75,8 +76,11 @@ export function FastSiteCreationModal({ clientId, isOpen, onClose, onSuccess }: 
     setSaving(true);
     try {
       const fullAddressStr = number.trim() ? `${address.trim()}, ${number}` : address.trim();
+      const tenant = AuthService.getTenantContext();
       
       const newSite = await siteService.add({
+        companyId: tenant.companyId,
+        workspaceId: tenant.workspaceId,
         clientId,
         name: name.trim() || 'Nova Unidade',
         fullAddress: fullAddressStr,

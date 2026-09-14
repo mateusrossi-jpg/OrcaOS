@@ -48,7 +48,6 @@ export function usePilotFlow(flow: PilotFlowType) {
         completionRef.current(true, { editCount: editCountRef.current });
       }
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [flow]);
 
   const completeFlow = useCallback((extra?: Record<string, unknown>) => {

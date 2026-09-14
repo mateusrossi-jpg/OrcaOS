@@ -1,7 +1,7 @@
 import type { Service as WorkOrder, ServiceStatus } from '../../core/types/business';
 
-export function statusLabel(status: ServiceStatus): string {
-  const labels: Record<ServiceStatus, string> = {
+export function statusLabel(status: ServiceStatus | string): string {
+  const labels: Record<string, string> = {
     'draft': 'Rascunho',
     'awaiting_schedule': 'Aguardando agendamento',
     'scheduled': 'Agendada',
@@ -11,7 +11,7 @@ export function statusLabel(status: ServiceStatus): string {
     'cancelled': 'Cancelado',
   };
 
-  return labels[status];
+  return labels[status] ?? status;
 }
 
 export function priorityLabel(priority?: WorkOrder['priority']): string {

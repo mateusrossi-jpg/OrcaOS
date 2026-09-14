@@ -4,16 +4,16 @@ import { pilotTelemetry } from '../../../services/pilotTelemetryService';
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { trustLayer } from '../../../core/trust/TrustLayer';
 import { Camera, Wrench, Package, Clock, Truck, FileText, Plus, Trash2, Tag, Send, Save, Copy, CheckCircle2, Mic, Image as ImageIcon, ChevronDown, Star, UserPlus, Zap, Navigation, ArrowRight, AlertCircle, RefreshCw } from 'lucide-react';
-import { db } from '../../../storage/dexieDatabase';
 import { cn } from '../../../utils/ui';
 import { operationalFacade } from '../../workflow/operationalFacade';
 import { clientService } from '../../../services/clientService';
 import { siteService } from '../../../services/siteService';
-import { BudgetPersistenceService } from '../../../services/BudgetPersistenceService';
+import { BudgetPersistenceService, budgetPersistenceService } from '../../../services/BudgetPersistenceService';
 import { Client } from '../../../domain/client';
 import { BUDGET_STATUS } from '../../../domain/budget';
 import { catalogService } from '../../../services/catalogService';
-import { CatalogHubItem } from '../../../features/catalog/storage/catalogHubStorage';
+import { CatalogHubItem } from '../../../features/catalog/types/catalogTypes';
+import { uiPreferences } from '../../../core/preferences/uiPreferences';
 import { ClientZeroBottomSheet, ClientZeroResult } from '../../clients/components/ClientZeroBottomSheet';
 import { ProposalCartWorkspace } from '../components/ProposalCartWorkspace';
 
@@ -147,11 +147,11 @@ export const ProposalGeneratorPage: React.FC<ProposalGeneratorPageProps> = ({ id
         const allClients = await clientService.getAll();
         setClients(allClients || []);
 
-        const favs = localStorage.getItem('aferix_favorite_catalog_items');
-        if (favs) setFavorites(JSON.parse(favs));
+        const favs = uiPreferences.getFavoriteCatalogItems();
+        if (favs.length > 0) setFavorites(favs);
 
         try {
-          const recentBudgets = await db.budgets.orderBy('updatedAt').reverse().toArray();
+          const recentBudgets = await budgetPersistenceService.getRecentBudgets(100);
           const valueCounts: Record<number, number> = {};
           recentBudgets.forEach(b => {
             if (b.chargedValue) {
@@ -275,7 +275,7 @@ export const ProposalGeneratorPage: React.FC<ProposalGeneratorPageProps> = ({ id
     setIsSaving(true);
     try {
       const budgetId = localId || generateUUID();
-      const attendanceId = localStorage.getItem('aferix_active_attendance_id') || generateUUID();
+      const attendanceId = uiPreferences.getActiveAttendanceId() || generateUUID();
 
       const budgetItems = isExpress ? [
         { id: generateUUID(), description: formData.title || 'Serviço Expresso', quantity: 1, unitPrice: expressValue, category: 'labor' as const }
@@ -311,7 +311,7 @@ export const ProposalGeneratorPage: React.FC<ProposalGeneratorPageProps> = ({ id
         completeFlowRef.current(false);
         completeFlowRef.current = null;
       }
-      localStorage.removeItem('aferix_active_attendance_id');
+      uiPreferences.clearActiveAttendanceId();
     } catch (err) {
       pilotTelemetry.trackError('ProposalGenerator', 'SAVE_FAILED', err instanceof Error ? err.message : 'Unknown');
       console.error(err);

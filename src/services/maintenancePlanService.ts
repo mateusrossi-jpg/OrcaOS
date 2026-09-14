@@ -1,6 +1,10 @@
+/**
+ * OFFICIAL ARCHITECTURE: UI -> Hooks -> Services -> Repositories -> Dexie.
+ * Do not access storage/repository directly from UI/hooks.
+ */
+
 import { dexieMaintenancePlanRepository } from '../repositories/dexieMaintenancePlanRepository';
 import { MaintenancePlan } from '../domain/maintenancePlan';
-import { operationalEventService } from './operationalEventService';
 
 export class MaintenancePlanService {
   constructor(private readonly repository = dexieMaintenancePlanRepository) {}
@@ -17,45 +21,20 @@ export class MaintenancePlanService {
     return await this.repository.getByAssetId(assetId);
   }
 
-  async add(plan: Omit<MaintenancePlan, 'id' | 'createdAt' | 'updatedAt'>): Promise<MaintenancePlan> {
-    const createdPlan = await this.repository.add(plan);
-    
-    await operationalEventService.emitEvent({
-      aggregateId: createdPlan.id,
-      aggregateType: 'maintenance_plan',
-      eventType: 'MAINTENANCE_PLAN_CREATED',
-      metadata: { clientId: createdPlan.clientId, assetId: createdPlan.assetId, correlationId: undefined },
-      snapshot: { ...createdPlan }
-    });
+  async getActivePlans(): Promise<MaintenancePlan[]> {
+    return await this.repository.getActivePlans();
+  }
 
-    return createdPlan;
+  async add(plan: Omit<MaintenancePlan, 'id' | 'createdAt' | 'updatedAt'>): Promise<MaintenancePlan> {
+    return await this.repository.add(plan);
   }
 
   async update(plan: MaintenancePlan): Promise<void> {
-    await this.repository.update(plan);
-
-    await operationalEventService.emitEvent({
-      aggregateId: plan.id,
-      aggregateType: 'maintenance_plan',
-      eventType: 'MAINTENANCE_PLAN_UPDATED',
-      metadata: { clientId: plan.clientId, assetId: plan.assetId, correlationId: undefined },
-      snapshot: { ...plan }
-    });
+    return await this.repository.update(plan);
   }
 
   async delete(id: string): Promise<void> {
-    const plan = await this.getById(id);
-    await this.repository.delete(id);
-    
-    if (plan) {
-      await operationalEventService.emitEvent({
-        aggregateId: id,
-        aggregateType: 'maintenance_plan',
-        eventType: 'MAINTENANCE_PLAN_ARCHIVED',
-        metadata: { clientId: plan.clientId, assetId: plan.assetId, correlationId: undefined },
-        snapshot: { ...plan, syncStatus: 'deleted' }
-      });
-    }
+    return await this.repository.delete(id);
   }
 }
 

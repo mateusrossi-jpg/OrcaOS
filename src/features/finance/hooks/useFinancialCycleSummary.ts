@@ -22,10 +22,10 @@ export function useFinancialCycleSummary(): FinancialCycleSummary {
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
     
     const all = budgets || [];
-    const monthlyFinalized = all.filter(b => b.status === BUDGET_STATUS.FINALIZADO && new Date(b.updatedAt) >= startOfMonth);
+    const monthlyFinalized = all.filter(b => b.status === BUDGET_STATUS.FINALIZADO && new Date(b.updatedAt || b.createdAt || 0) >= startOfMonth);
     
     const profit = monthlyFinalized.reduce((acc, b) => acc + (b.financialSnapshot?.lucroBruto || calculateBudget(b).lucroBruto), 0);
-    const revenue = monthlyFinalized.reduce((acc, b) => acc + (b.financialSnapshot ? (b.chargedValue - b.discounts) : calculateBudget(b).totalComercial), 0);
+    const revenue = monthlyFinalized.reduce((acc, b) => acc + (b.financialSnapshot ? (b.chargedValue - (b.discounts || 0)) : calculateBudget(b).totalComercial), 0);
     const costs = revenue - profit;
 
     return { revenue, costs, profit };

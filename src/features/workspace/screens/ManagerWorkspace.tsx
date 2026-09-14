@@ -1,7 +1,9 @@
 import React from 'react';
 import { Users, AlertOctagon, Clock, ShieldAlert, Activity, CheckCircle2 } from 'lucide-react';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { db } from '../../../storage/dexieDatabase';
+import { anomalyService } from '../../../services/anomalyService';
+import { clientService } from '../../../services/clientService';
+import { AuthService } from '../../../services/AuthService';
 import { workOrderQueryService } from '../../../services/WorkOrderQueryService';
 import { 
   ScreenContainer, 
@@ -24,12 +26,15 @@ export const ManagerWorkspace: React.FC = () => {
   const todayStr = new Date().toISOString().slice(0, 10);
 
   const stats = useLiveQuery(async () => {
-    const [team, wos, anomalies, clients] = await Promise.all([
-      db.teamMembers.where('role').equals('FIELD').toArray(),
+    const { companyId } = AuthService.getTenantContext();
+    const [allTeam, wos, anomalies, clients] = await Promise.all([
+      AuthService.getTeamMembers(companyId),
       workOrderQueryService.getAllValid(),
-      db.anomalies.toArray(),
-      db.clients.toArray()
+      anomalyService.getAll(),
+      clientService.getAll()
     ]);
+
+    const team = allTeam.filter(t => t.role === 'FIELD');
 
     const activeTechs = team.filter(t => t.status === 'active');
     const delayedOS = wos.filter(wo => wo.status === 'scheduled' && wo.scheduledDate && wo.scheduledDate < todayStr);

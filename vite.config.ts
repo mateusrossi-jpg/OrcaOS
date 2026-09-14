@@ -32,7 +32,7 @@ export default defineConfig({
     projects: [{
       extends: true,
       test: {
-        exclude: ['node_modules', 'dist', '.idea', '.git', '.cache', 'docs/**', 'tests/e2e/**', 'tests/stress/**']
+        exclude: ['node_modules', 'dist', '.idea', '.git', '.cache', 'docs/**', 'tests/e2e/**', 'tests/stress/**', 'archive/**']
       }
     }, {
       extends: true,

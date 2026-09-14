@@ -76,8 +76,18 @@ export class BudgetPersistenceService {
     await this.repository.delete(id);
   }
 
+  /** Retrieve the N most recent budgets ordered by updatedAt. */
+  async getRecentBudgets(limit: number): Promise<Budget[]> {
+    const all = await this.repository.listBudgets();
+    return all
+      .sort((a, b) => (b.updatedAt || b.createdAt || '').localeCompare(a.updatedAt || a.createdAt || ''))
+      .slice(0, limit);
+  }
+
   /** Official method for general save (alias for saveDraft/upsert). */
   async saveBudget(budget: Budget): Promise<void> {
     return this.saveDraft(budget);
   }
 }
+
+export const budgetPersistenceService = new BudgetPersistenceService();

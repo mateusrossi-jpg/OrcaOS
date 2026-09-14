@@ -11,6 +11,8 @@ async function run() {
     
     // 1. Create a client
     const newClient = await clientService.add({
+      companyId: 'default-company',
+      workspaceId: 'default-workspace',
       name: "Cliente Simulação",
       phone: "11999999999",
       notes: "Simulação de teste",
@@ -37,6 +39,8 @@ async function run() {
     const budgetValue = 1250.75;
     const budget: Budget = {
       id: budgetId,
+      companyId: 'default-company',
+      workspaceId: 'default-workspace',
       title: 'Projeto de Simulação',
       clientId: newClient.id,
       siteId: 'default-site',

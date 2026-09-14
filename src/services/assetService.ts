@@ -1,3 +1,8 @@
+/**
+ * OFFICIAL ARCHITECTURE: UI -> Hooks -> Services -> Repositories -> Dexie.
+ * Do not access storage/repository directly from UI/hooks.
+ */
+
 import { dexieAssetRepository } from '../repositories/dexieAssetRepository';
 import { Asset } from '../domain/asset';
 import { operationalEventService } from './operationalEventService';
@@ -21,57 +26,44 @@ export class AssetService {
     return await this.repository.getBySiteId(siteId);
   }
 
+  async getByIds(ids: string[]): Promise<Asset[]> {
+    const all = await this.repository.getAll();
+    const idSet = new Set(ids);
+    return all.filter(a => idSet.has(a.id));
+  }
+
   async add(asset: Omit<Asset, 'id' | 'createdAt' | 'updatedAt'>): Promise<Asset> {
-    const createdAsset = await this.repository.add(asset);
-    
+    const created = await this.repository.add(asset);
     await operationalEventService.emitEvent({
-      aggregateId: createdAsset.id,
+      aggregateId: created.id,
       aggregateType: 'asset',
       eventType: 'ASSET_REGISTERED',
-      metadata: { clientId: createdAsset.clientId, correlationId: undefined },
-      snapshot: { ...createdAsset }
+      metadata: { assetId: created.id },
+      snapshot: { ...created },
     });
-
-    return createdAsset;
+    return created;
   }
 
   async update(asset: Asset): Promise<void> {
     await this.repository.update(asset);
-
     await operationalEventService.emitEvent({
       aggregateId: asset.id,
       aggregateType: 'asset',
       eventType: 'ASSET_UPDATED',
-      metadata: { clientId: asset.clientId, correlationId: undefined },
-      snapshot: { ...asset }
+      metadata: { assetId: asset.id },
+      snapshot: { ...asset },
     });
   }
 
   async delete(id: string): Promise<void> {
-    const asset = await this.getById(id);
-    await this.repository.delete(id);
-    
-    if (asset) {
-      await operationalEventService.emitEvent({
-        aggregateId: id,
-        aggregateType: 'asset',
-        eventType: 'ASSET_ARCHIVED',
-        metadata: { clientId: asset.clientId, correlationId: undefined },
-        snapshot: { ...asset, syncStatus: 'deleted' }
-      });
-    }
+    return await this.repository.delete(id);
   }
 
-  async duplicate(id: string): Promise<Asset> {
-    const original = await this.getById(id);
-    if (!original) throw new Error(`Asset ${id} not found`);
-
-    const { id: _, createdAt, updatedAt, ...clonedData } = original;
-    return await this.add({
-      ...clonedData,
-      name: `${original.name} (Cópia)`,
-      tag: original.tag ? `${original.tag}-C` : undefined
-    });
+  async duplicate(id: string): Promise<Asset | undefined> {
+    const original = await this.repository.getById(id);
+    if (!original) return undefined;
+    const { id: _, createdAt: __, updatedAt: ___, ...rest } = original;
+    return await this.repository.add(rest);
   }
 }
 

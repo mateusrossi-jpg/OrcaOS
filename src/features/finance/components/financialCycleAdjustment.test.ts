@@ -25,6 +25,8 @@ describe('AFERIX FINANCIAL CYCLE ADJUSTMENT PERSISTENCE TEST', () => {
     // 1. Arrange: Create a draft budget
     const initialBudget: Budget = {
       id: budgetId,
+      companyId: 'company-a',
+      workspaceId: 'workspace-a',
       clientId: 'client-123',
       siteId: 'site-1',
       clientName: 'Roberto Carlos',

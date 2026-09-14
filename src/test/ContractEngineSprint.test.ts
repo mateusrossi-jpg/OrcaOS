@@ -23,6 +23,7 @@ describe('Contract & Recurring Revenue Engine P0', () => {
     
     await db.contracts.put({
       id: contractId, companyId, workspaceId: 'w-1', clientId: 'cli-1',
+      title: 'Contrato Mensal 1', billingAmount: 1000,
       status: 'ACTIVE', startDate: '2025-01-01', billingFrequency: 'MONTHLY', syncStatus: 'synced'
     });
 
@@ -50,13 +51,14 @@ describe('Contract & Recurring Revenue Engine P0', () => {
     const companyId = 'test-co';
     await db.contracts.put({
       id: 'c-2', companyId, workspaceId: 'w-1', clientId: 'cli-2',
+      title: 'Contrato Mensal 2', billingAmount: 2000,
       status: 'ACTIVE', startDate: '2025-01-01', billingFrequency: 'MONTHLY', syncStatus: 'synced'
     });
 
     // Simulando que o contrato tem 15 anomalias
     for(let i=0; i<15; i++) {
       await db.anomalies.put({
-        id: `a-${i}`, companyId, workspaceId: 'w-1', clientId: 'cli-2', siteId: 's', assetId: 'a', status: 'PENDING',
+        id: `a-${i}`, companyId, workspaceId: 'w-1', clientId: 'cli-2', siteId: 's', assetId: 'a', status: 'OPEN',
         title: '', description: '', severity: 'high', photoUuids: [], createdBy: 't', createdAt: '', assetExecutionId: ''
       });
     }
@@ -77,8 +79,11 @@ describe('Contract & Recurring Revenue Engine P0', () => {
     
     await db.contracts.put({
       id: 'c-3', companyId, workspaceId: 'w-1', clientId: 'cli-3',
-      status: 'ACTIVE', startDate: '2025-01-01', endDate, billingFrequency: 'MONTHLY', syncStatus: 'synced', amount: 10000
-    });
+      title: 'Contrato Mensal 3',
+      status: 'ACTIVE', startDate: '2025-01-01', endDate, billingFrequency: 'MONTHLY', syncStatus: 'synced',
+      billingAmount: 10000,
+      amount: 10000
+    } as any);
 
     await ContractRenewalService.checkRenewals(companyId);
 

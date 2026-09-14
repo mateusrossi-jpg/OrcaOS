@@ -34,9 +34,9 @@ console.log(`\x1b[1m=====================================================\x1b[0m
 // 2. Preferências do App
 logStep('Preferências do App (ProfessionalProfileWorkspace)');
 const profTSX = readFile('src/features/settings/components/ProfessionalProfileWorkspace.tsx');
-['professional-profile-workspace', 'professional-profile-header-card', 'professional-profile-section', 'professional-profile-grid', 'professional-logo-editor', 'professional-profile-id-grid', 'professional-profile-id-card', 'professional-profile-save-row'].forEach(cls => {
-  if (profTSX.includes(cls)) logSuccess(`Encontrou estrutura correta: ${cls}`);
-  else logError(`Faltando classe estrutural: ${cls}`);
+['flex flex-col gap-6 pb-32', 'flex flex-col gap-5', 'flex items-center gap-3', 'w-full h-full object-contain'].forEach(marker => {
+  if (profTSX.includes(marker)) logSuccess(`Encontrou estrutura utility-based: ${marker}`);
+  else logError(`Faltando marcador estrutural: ${marker}`);
 });
 ['aferix-panel-card', 'dashboard-finance-tiles', 'finance-tile', 'action-button-container', 'style={'].forEach(cls => {
   if (!profTSX.includes(cls)) logSuccess(`Livre de padrão legado: ${cls}`);
@@ -50,16 +50,19 @@ const profCSS = readFile('src/features/settings/components/ProfessionalProfileWo
 });
 
 // 3. Configurações / Tabs
-logStep('Configurações / Tabs (global.css)');
-const globalCSS = readFile('src/styles/global.css');
-['overflow-x: auto', 'flex-wrap: nowrap', 'scrollbar-width: none', '@media (min-width: 900px)', 'grid-template-columns: repeat(5'].forEach(rule => {
-  if (globalCSS.includes(rule)) logSuccess(`Encontrou regra global correta: ${rule}`);
-  else logError(`Faltando regra global: ${rule}`);
+logStep('Configurações / Tabs (AferixTabs)');
+const uiIndexTSX = readFile('src/app/components/ui/index.tsx');
+['overflow-x-auto', 'whitespace-nowrap', 'scrollbar-none', 'snap-x'].forEach(rule => {
+  if (uiIndexTSX.includes(rule)) logSuccess(`Tabs horizontais scrolláveis preservadas: ${rule}`);
+  else logError(`Faltando token de tabs scrolláveis: ${rule}`);
 });
-if (!globalCSS.match(/\.settings-section-tabs[^}]*flex-wrap:\s*wrap/)) logSuccess(`Livre de quebra flex-wrap indevida`);
-else logError(`Regra indevida de flex-wrap encontrada.`);
-if (!globalCSS.match(/\.settings-section-tabs[^}]*overflow:\s*hidden\s*!important/)) logSuccess(`Livre de overflow hidden indevido`);
-else logError(`Regra indevida de overflow hidden encontrada.`);
+if (uiIndexTSX.includes('AferixTabs') && uiIndexTSX.includes('overflow-x-auto') && uiIndexTSX.includes('whitespace-nowrap')) {
+  logSuccess('AferixTabs rola horizontalmente sem quebra de linha');
+} else {
+  logError('AferixTabs deve usar overflow-x-auto + whitespace-nowrap');
+}
+if (!uiIndexTSX.match(/AferixTabs[\s\S]{0,1200}flex-wrap:\s*wrap/)) logSuccess(`AferixTabs livre de quebra flex-wrap indevida`);
+else logError(`AferixTabs reintroduziu flex-wrap nas tabs.`);
 
 // 4. Relatórios
 logStep('Relatórios (ReportWorkspace.css)');
@@ -130,7 +133,7 @@ if (storeTSX.includes('>Planejado<')) {
 logStep('Financeiro / ação principal');
 const financeTSX = readFile('src/features/finance/components/SimpleFinanceWorkspace.tsx');
 const financialScreenTSX = readFile('src/app/screens/FinancialScreen.tsx');
-if (financialScreenTSX.includes('Resultados automáticos baseados em orçamentos finalizados.') && financeTSX.includes('Resultados de Orçamentos Finalizados')) {
+if (financialScreenTSX.includes('SimpleFinanceWorkspace') && financeTSX.includes('Resultados de Orçamentos Finalizados')) {
   logSuccess('Financeiro segue o fluxo automático por orçamentos finalizados');
 } else {
   logError('Financeiro não está alinhado ao fluxo automático por orçamentos finalizados');
@@ -154,36 +157,40 @@ const calcTSX = readFile('src/app/screens/CalculationsScreen.tsx');
 });
 
 // 8. ContextBanner / Atendimentos
-logStep('ContextBanner / Atendimentos (aferixTheme.css)');
+logStep('ContextBanner / Atendimentos (ui/index.tsx)');
 const themeCSS = readFile('src/styles/aferixTheme.css');
+const ctxBannerStart = uiIndexTSX.indexOf('export function ContextBanner');
+const ctxBannerBlock = ctxBannerStart >= 0
+  ? uiIndexTSX.slice(ctxBannerStart, uiIndexTSX.indexOf('export function MoneyValue'))
+  : '';
 
-['.context-banner', '.context-banner-action'].forEach(cls => {
-  if (themeCSS.includes(cls)) logSuccess(`Encontrou classe do banner de contexto: ${cls}`);
-  else logError(`Faltando classe do banner de contexto: ${cls}`);
+['flex items-start gap-5', 'rounded-[var(--radius-card)]', 'bg-white/[0.02]', 'border border-white/[0.06]'].forEach(token => {
+  if (ctxBannerBlock.includes(token)) logSuccess(`Estrutura premium do banner preservada: ${token}`);
+  else logError(`Faltando token do banner de contexto: ${token}`);
 });
 
-['grid-template-columns: auto minmax(0, 1fr) auto', '@media (max-width: 760px)', 'grid-column: 1 / -1', 'width: 100%', 'min-width: 0'].forEach(rule => {
-  if (themeCSS.includes(rule)) logSuccess(`Encontrou regra de segurança no CSS: ${rule}`);
-  else logError(`Faltando regra de segurança no CSS: ${rule}`);
+['grid h-12 w-12 shrink-0 place-items-center', 'flex-1 min-w-0'].forEach(rule => {
+  if (ctxBannerBlock.includes(rule)) logSuccess(`Regra de segurança no banner: ${rule}`);
+  else logError(`Faltando regra de segurança no banner: ${rule}`);
 });
 
 // Validar que não existe position: absolute
-if (!themeCSS.match(/\.context-banner-action[^}]*position:\s*absolute/)) {
-  logSuccess('Livre de position: absolute indevido no botão de contexto');
+if (!ctxBannerBlock.includes('position: absolute')) {
+  logSuccess('Livre de position: absolute indevido no banner de contexto');
 } else {
-  logError('Erro crítico: botão do contexto ativo usando position: absolute!');
+  logError('Erro crítico: banner de contexto usando position: absolute!');
 }
 
 // Validar que não existe transform
-if (!themeCSS.match(/\.context-banner-action[^}]*transform:/)) {
-  logSuccess('Livre de transform indevido no botão de contexto');
+if (!ctxBannerBlock.includes('transform:')) {
+  logSuccess('Livre de transform indevido no banner de contexto');
 } else {
-  logError('Erro crítico: botão do contexto ativo usando transform!');
+  logError('Erro crítico: banner de contexto usando transform!');
 }
 
 // Validar que não existe margin-top negativo
-if (!themeCSS.match(/\.context-banner-action[^}]*margin-top:\s*-\d+/)) {
-  logSuccess('Livre de margin-top negativo indevido no botão de contexto');
+if (!ctxBannerBlock.match(/margin-top:\s*-\d+/)) {
+  logSuccess('Livre de margin-top negativo indevido no banner de contexto');
 } else {
   logError('Erro crítico: botão do contexto ativo usando margin-top negativo!');
 }
@@ -453,7 +460,7 @@ if (appShellCSS.includes('.desktop-sidebar-nav button small') && appShellCSS.inc
   logError('Menu lateral/drawer não possui regras CSS para ocultar subtítulos pesados');
 }
 
-if (appShellCSS.includes('.desktop-sidebar-nav button') && appShellCSS.includes('rgba(245, 164, 0, 0.08)')) {
+if (appShellCSS.includes('.desktop-sidebar-nav button') && appShellCSS.includes('rgba(212, 175, 55, 0.08)')) {
   logSuccess('Item ativo no menu possui cores e contraste adequados sem cards pesados');
 } else {
   logError('Faltando regras de item ativo refinadas para navegação limpa no menu');
@@ -526,10 +533,10 @@ if (themeCSS.includes('.long-token') && themeCSS.includes('.android-package') &&
   logError('aferixTheme.css não possui regras utilitárias de reticências para textos técnicos longos');
 }
 
-if (themeCSS.includes('.top-nav-dropdown') && themeCSS.includes('rgba(22, 24, 30, 0.98)')) {
-  logSuccess('aferixTheme.css define estilo glassmorphic premium para dropdown superior desktop');
+if (appShellCSS.includes('.aferix-popover') && appShellCSS.includes('#363638') && appShellCSS.includes('backdrop-filter: none')) {
+  logSuccess('AppShell.css define dropdown premium sólido (.aferix-popover) com superfície Aferix');
 } else {
-  logError('aferixTheme.css não possui estilos glassmorphic premium para .top-nav-dropdown');
+  logError('AppShell.css não possui estilos premium para o dropdown superior (.aferix-popover)');
 }
 
 if (themeCSS.includes('.catalog-stats-grid') && themeCSS.includes('.catalog-stat-card')) {
@@ -545,14 +552,15 @@ if (catalogHubTSX.includes('className="catalog-stats-grid"')) {
   logError('CatalogHubWorkspaceEditable.tsx não utiliza a classe catalog-stats-grid');
 }
 
-if (themeCSS.includes('.drawer-panel::-webkit-scrollbar') && themeCSS.includes('rgba(255, 255, 255, 0.18)')) {
-  logSuccess('aferixTheme.css define estilo de rolagem estético e fino para o side drawer / menu lateral');
+if (appShellCSS.includes('.side-drawer::-webkit-scrollbar') && appShellCSS.includes('rgba(255, 255, 255, 0.18)')) {
+  logSuccess('AppShell.css define estilo de rolagem estético e fino para o side drawer / menu lateral');
 } else {
-  logWarn('aferixTheme.css não possui estilos estéticos personalizados de scrollbar para a navegação');
+  logWarn('AppShell.css não possui estilos estéticos personalizados de scrollbar para a navegação');
 }
 
 // 8.9.6. Numeric input spinner cleanup
 logStep('Numeric input spinner cleanup');
+const globalCSS = readFile('src/styles/global.css');
 if (globalCSS.includes("input[type='number']::-webkit-outer-spin-button") &&
     globalCSS.includes("input[type='number']::-webkit-inner-spin-button") &&
     globalCSS.includes("-moz-appearance: textfield") &&

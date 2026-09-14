@@ -1,8 +1,29 @@
 import { db } from '../storage/dexieDatabase';
-import { MovementType, StockStatus } from '../domain/inventory';
+import { MovementType, StockStatus, InventoryItem } from '../domain/inventory';
 import { ProcurementService } from './ProcurementService';
 
 export class StockService {
+  static async list(): Promise<InventoryItem[]> {
+    return await db.inventoryItems.toArray();
+  }
+
+  static async upsert(item: InventoryItem): Promise<void> {
+    await db.inventoryItems.put(item);
+  }
+
+  static async getById(id: string): Promise<InventoryItem | undefined> {
+    return await db.inventoryItems.get(id);
+  }
+
+  static async restock(id: string, incrementalQty: number): Promise<void> {
+    const item = await db.inventoryItems.get(id);
+    if (!item) return;
+
+    const newQty = item.quantityOnHand + incrementalQty;
+    const status: StockStatus = newQty === 0 ? 'OUT_OF_STOCK' : (newQty <= item.minimumStock ? 'LOW_STOCK' : 'IN_STOCK');
+    await db.inventoryItems.update(id, { quantityOnHand: newQty, status, lastUpdated: new Date().toISOString() });
+  }
+
   static async updateStock(
     companyId: string,
     workspaceId: string,

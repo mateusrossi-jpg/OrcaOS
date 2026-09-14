@@ -4,7 +4,7 @@ import type { SyncOutboxItem } from '../database/schema';
 export class OutboxRepository {
   async enqueue(
     tableName: string,
-    operation: 'insert' | 'update' | 'delete',
+    operation: 'INSERT' | 'UPDATE' | 'DELETE' | 'insert' | 'update' | 'delete',
     payload: Record<string, any>
   ): Promise<void> {
     const tenant_id = localStorage.getItem('tenant');

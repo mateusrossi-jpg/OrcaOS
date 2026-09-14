@@ -2,7 +2,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import { AppHeader, SurfaceCard, SectionLabel } from '../../../ui/system';
 import { PrimaryButton, SecondaryButton } from '../../../app/components/ui';
 
-interface SignaturePadProps {
+export interface SignaturePadProps {
   title?: string;
   subtitle?: string;
   onClose: () => void;
@@ -102,7 +102,7 @@ export const SignaturePad: React.FC<SignaturePadProps> = ({
 
   return (
     <div className="fixed inset-0 z-[1000] flex flex-col bg-aferix-bg animate-in slide-in-from-right-6 duration-500 overflow-hidden">
-      <AppHeader title={title} subtitle={subtitle} onBack={onClose} standalone />
+      <AppHeader title={title} subtitle={subtitle} onBack={onClose} />
       
       <div className="flex-1 flex flex-col p-4 space-y-6 overflow-hidden">
         <SurfaceCard padding="none" className="flex-1 flex flex-col overflow-hidden border-2 border-dashed border-surface-700">

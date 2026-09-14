@@ -1,6 +1,8 @@
 import { useEffect, useState, memo } from 'react';
 import { ClipboardList, Clock, User, ArrowRight } from 'lucide-react';
-import { db } from '../../storage/dexieDatabase';
+import { attendanceQueryService } from '../../services/attendanceQueryService';
+import { clientService } from '../../services/clientService';
+import { budgetService } from '../../services/budgetService';
 import { Attendance } from '../../domain/attendance';
 import { 
   ScreenContainer, 
@@ -49,17 +51,17 @@ export const AttendanceListScreen = memo(function AttendanceListScreen({
       try {
         setIsLoading(true);
         // Load all attendances and sort desc by createdAt
-        const allAttendances = await db.attendances.toArray();
+        const allAttendances = await attendanceQueryService.getAll();
         const sorted = allAttendances.sort((a, b) => 
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         );
 
         // Load all clients to resolve names
-        const allClients = await db.clients.toArray();
+        const allClients = await clientService.getAll();
         const map = new Map(allClients.map(c => [c.id, c.name]));
 
         // Load all budgets to check linked ones
-        const allBudgets = await db.budgets.toArray();
+        const allBudgets = await budgetService.getAll();
         const linkedIds = new Set(
           allBudgets.map(b => b.attendanceId).filter(Boolean) as string[]
         );

@@ -82,7 +82,7 @@ export class ClientMemoryEngine {
         db.maintenancePlans.where('clientId').equals(clientId).toArray()
       ]);
 
-      const sortedBudgets = budgets.sort((a, b) => new Date(b.updatedAt || b.createdAt).getTime() - new Date(a.updatedAt || a.createdAt).getTime());
+      const sortedBudgets = budgets.sort((a, b) => new Date(b.updatedAt || b.createdAt || 0).getTime() - new Date(a.updatedAt || a.createdAt || 0).getTime());
       const lastBudget = sortedBudgets[0];
       const approvedBudgets = budgets.filter(b => b.status === BUDGET_STATUS.AUTORIZADO || b.status === BUDGET_STATUS.FINALIZADO || b.status === BUDGET_STATUS.EM_EXECUCAO);
       const lastClosed = approvedBudgets[0];
@@ -107,7 +107,7 @@ export class ClientMemoryEngine {
         if (!b.title) return;
         if (!serviceCounts[b.title]) serviceCounts[b.title] = { count: 0, total: 0, desc: b.notes };
         serviceCounts[b.title].count += 1;
-        serviceCounts[b.title].total += b.chargedValue;
+        serviceCounts[b.title].total += Number(b.chargedValue) || 0;
       });
 
       const frequentServices = Object.entries(serviceCounts)
@@ -135,7 +135,7 @@ export class ClientMemoryEngine {
 
       // Logic for Proposal Follow-up
       if (lastBudget && lastBudget.status === BUDGET_STATUS.ENVIADO) {
-        const daysSent = Math.floor((Date.now() - new Date(lastBudget.updatedAt).getTime()) / (1000 * 60 * 60 * 24));
+        const daysSent = Math.floor((Date.now() - new Date(lastBudget.updatedAt || lastBudget.createdAt || Date.now()).getTime()) / (1000 * 60 * 60 * 24));
         if (daysSent >= 3) {
           recommendations.push({
             type: 'FOLLOW_UP',
@@ -191,8 +191,8 @@ export class ClientMemoryEngine {
         lastServiceTitle: lastBudget?.title || lastWO?.title,
         lastServiceDescription: lastBudget?.notes || lastWO?.description,
         lastExecutedValue: lastWO?.executedValue || lastBudget?.chargedValue,
-        lastProposal: lastBudget ? { id: lastBudget.id, title: lastBudget.title, status: lastBudget.status as string, value: lastBudget.chargedValue, date: lastBudget.updatedAt } : undefined,
-        lastClosedProposal: lastClosed ? { id: lastClosed.id, title: lastClosed.title, value: lastClosed.chargedValue, date: lastClosed.updatedAt } : undefined,
+        lastProposal: lastBudget ? { id: lastBudget.id, title: lastBudget.title, status: lastBudget.status as string, value: lastBudget.chargedValue, date: lastBudget.updatedAt || lastBudget.createdAt || new Date().toISOString() } : undefined,
+        lastClosedProposal: lastClosed ? { id: lastClosed.id, title: lastClosed.title, value: lastClosed.chargedValue, date: lastClosed.updatedAt || lastClosed.createdAt || new Date().toISOString() } : undefined,
         averageTicket,
         favoritePaymentMethod: 'PIX',
         serviceFrequencyDays,

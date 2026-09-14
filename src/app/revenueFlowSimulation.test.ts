@@ -40,6 +40,8 @@ describe('AFERIX COMPLETE REVENUE FLOW INTEGRATION TEST', () => {
   it('successfully executes the entire commercial to financial lifecycle', async () => {
     // STAGE 1: Create Client
     const client = await clientService.add({
+      companyId: 'company-a',
+      workspaceId: 'workspace-a',
       name: 'Cliente Residencial VIP',
       phone: '11999999999',
       email: 'vip@aferix.com',
@@ -56,6 +58,8 @@ describe('AFERIX COMPLETE REVENUE FLOW INTEGRATION TEST', () => {
     const budgetId = `b-${Date.now()}`;
     const budgetDraft: Budget = {
       id: budgetId,
+      companyId: 'company-a',
+      workspaceId: 'workspace-a',
       clientId: client.id,
       siteId: 'site-1',
       clientName: client.name,

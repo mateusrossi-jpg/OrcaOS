@@ -46,7 +46,7 @@ import {
 import { operationalReadModelService } from '../../../services/operationalReadModelService';
 import { maintenancePlanService } from '../../../services/maintenancePlanService';
 import { assetService } from '../../../services/assetService';
-import { db } from '../../../storage/dexieDatabase';
+import { assetExecutionService } from '../../../services/AssetExecutionService';
 import { AssetDossierProjection } from '../../../domain/operationalProjections';
 import { MaintenancePlan, MaintenanceFrequency } from '../../../domain/maintenancePlan';
 import { AssetExecution } from '../../../domain/assetExecution';
@@ -84,7 +84,7 @@ export function Asset360Modal({ assetId, onClose }: Asset360ModalProps) {
     try {
       const [data, executions] = await Promise.all([
         operationalReadModelService.getAsset360Projection(assetId),
-        db.assetExecutions.where('assetId').equals(assetId).reverse().sortBy('createdAt')
+        assetExecutionService.getByAssetId(assetId)
       ]);
       setProjection(data);
       setStructuredHistory(executions || []);
@@ -116,8 +116,10 @@ export function Asset360Modal({ assetId, onClose }: Asset360ModalProps) {
     if (!projection) return;
     try {
       await maintenancePlanService.add({
-        clientId: projection.asset.clientId,
-        siteId: projection.asset.siteId,
+        companyId: projection.asset.companyId,
+        workspaceId: projection.asset.workspaceId,
+        clientId: projection.asset.clientId || '',
+        siteId: projection.asset.siteId || '',
         assetId: projection.asset.id,
         title: planDraft.title,
         frequency: planDraft.frequency,
@@ -276,7 +278,7 @@ export function Asset360Modal({ assetId, onClose }: Asset360ModalProps) {
 
                  {isCreatingPlan ? (
                     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                       <GlassFormCard>
+                       <SurfaceCard padding="lg" className="border-white/10 flex flex-col gap-4">
                           <GlassInput 
                             label="Título da Manutenção"
                             value={planDraft.title}
@@ -304,7 +306,7 @@ export function Asset360Modal({ assetId, onClose }: Asset360ModalProps) {
                              <PrimaryButton onClick={handleCreatePlan} className="h-16 font-black tracking-[0.2em] rounded-2xl">ATIVAR RECORRÊNCIA</PrimaryButton>
                              <SecondaryButton onClick={() => setIsCreatingPlan(false)} className="h-14 rounded-2xl uppercase font-black text-[10px] tracking-widest">CANCELAR</SecondaryButton>
                           </Stack>
-                       </GlassFormCard>
+                       </SurfaceCard>
                     </div>
                  ) : (
                    <Stack className="gap-4">

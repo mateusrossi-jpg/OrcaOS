@@ -25,6 +25,7 @@ import {
 } from '../../../ui/system';
 import { cn } from '../../../utils/ui';
 import { useRole } from '../../../hooks/useRole';
+import { uiPreferences } from '../../../core/preferences/uiPreferences';
 
 interface AdminWorkspaceV2Props {
   account: any;
@@ -48,7 +49,7 @@ export const AdminWorkspaceV2: React.FC<AdminWorkspaceV2Props> = ({ account, onN
     { title: 'Segurança & PIN', desc: 'Proteção biométrica', icon: Shield, onClick: () => {} },
   ];
 
-  const isDebugEnabled = typeof window !== 'undefined' && localStorage.getItem('aferix_debug') === 'true';
+  const isDebugEnabled = uiPreferences.isDebugModeEnabled();
 
   return (
     <ScreenContainer className="pb-40 bg-background-primary pt-0 px-0 relative overflow-x-hidden min-h-screen animate-in fade-in duration-500">

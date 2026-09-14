@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { db } from '../../../storage/dexieDatabase';
+import { attendanceQueryService } from '../../../services/attendanceQueryService';
 
 export interface OperationsSummary {
   executingCount: number;
@@ -22,7 +22,7 @@ export function useOperationsSummary(): OperationsSummary {
   useEffect(() => {
     async function load() {
       try {
-        const attendances = await db.attendances.toArray();
+        const attendances = await attendanceQueryService.getAll();
         const executingCount = attendances.filter(a => a.status === 'em_execucao').length;
         const pendingCount = attendances.filter(a => a.status === 'iniciado').length;
         const authorizedCount = attendances.filter(a => a.status === 'autorizado').length;

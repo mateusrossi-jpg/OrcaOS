@@ -11,7 +11,7 @@ import {
   Navigation,
   ArrowUpRight
 } from 'lucide-react';
-import { db } from '../../storage/dexieDatabase';
+import { attendanceQueryService } from '../../services/attendanceQueryService';
 import { Attendance } from '../../domain/attendance';
 import { Client } from '../../domain/client';
 import { Site } from '../../domain/site';
@@ -35,6 +35,11 @@ import { PrimaryButton, ERPLoader } from '../components/ui';
 import { formatCurrencyBRL } from '../../utils/formatters';
 import { openWhatsApp, openExternalGPS } from '../../utils/mobility';
 import { cn } from '../../utils/ui';
+import { clientService } from '../../services/clientService';
+import { siteService } from '../../services/siteService';
+import { budgetService } from '../../services/budgetService';
+import { workOrderService } from '../../services/workOrderService';
+import { uiPreferences } from '../../core/preferences/uiPreferences';
 
 interface AttendanceDetailScreenProps {
   id: string;
@@ -66,16 +71,16 @@ export const AttendanceDetailScreen = memo(function AttendanceDetailScreen({
     async function loadData() {
       try {
         setIsLoading(true);
-        const att = await db.attendances.get(id);
+        const att = await attendanceQueryService.getById(id);
         if (!att) return;
 
         setAttendance(att);
 
         const [loadedClient, loadedSite, loadedBudget, loadedWorkOrder] = await Promise.all([
-          att.clientId ? db.clients.get(att.clientId) : Promise.resolve(null),
-          att.siteId ? db.sites.get(att.siteId) : Promise.resolve(null),
-          db.budgets.where('attendanceId').equals(att.id).first(),
-          db.workOrders.where('attendanceId').equals(att.id).first()
+          att.clientId ? clientService.getById(att.clientId) : Promise.resolve(null),
+          att.siteId ? siteService.getById(att.siteId) : Promise.resolve(null),
+          budgetService.getByAttendanceId(att.id),
+          workOrderService.getByAttendanceId(att.id)
         ]);
 
         setClient(loadedClient || null);
@@ -108,7 +113,7 @@ export const AttendanceDetailScreen = memo(function AttendanceDetailScreen({
 
   const handleCreateBudget = () => {
     if (!attendance) return;
-    localStorage.setItem('aferix_active_attendance_id', attendance.id);
+    uiPreferences.setActiveAttendanceId(attendance.id);
     onNavigate('new-budget');
   };
 

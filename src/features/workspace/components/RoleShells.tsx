@@ -11,8 +11,7 @@ import { cn } from '../../../utils/ui';
 import { QUICK_ACTIONS } from '../utils/quickActions';
 import { AuthService } from '../../../services/AuthService';
 import { useTrustLayer } from '../../../core/trust/TrustLayer';
-import { db } from '../../../storage/dexieDatabase';
-import { useLiveQuery } from 'dexie-react-hooks';
+
 
 interface ShellProps {
   children: ReactNode;
@@ -601,12 +600,46 @@ const ShellLayout = ({ children, tabs, activeTab, onNavigate, onQuickAction }: a
             <div className="content-inner">{children}</div>
           </main>
 
+          {/* ── Floating Dock Navigation ── */}
+          <nav
+            className={cn('aferix-floating-dock', `cols-${tabs.length}`)}
+            aria-label="Navegação principal"
+          >
+            {tabs.map((tab: any) => {
+              const Icon = tab.icon;
+              const isActive =
+                activeTab === tab.id ||
+                (tab.id === 'operations' && (activeTab === 'base' || activeTab === 'agenda')) ||
+                (tab.id === 'revenue' && (activeTab === 'budgets' || activeTab === 'revenue')) ||
+                (tab.id === 'relationships' && (activeTab === 'clients' || activeTab === 'relationships')) ||
+                (tab.id === 'admin' && (activeTab === 'settings' || activeTab === 'admin')) ||
+                (tab.id === 'pulse' && (activeTab === 'dashboard' || activeTab === 'home'));
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => onNavigate(tab.id)}
+                  aria-label={tab.label}
+                  aria-current={isActive ? 'page' : undefined}
+                  className={cn(
+                    'flex flex-col items-center justify-center gap-0.5 h-full transition-all active:scale-90',
+                    isActive ? 'text-[#FFD60A]' : 'text-white/40'
+                  )}
+                >
+                  <Icon size={20} strokeWidth={isActive ? 2.2 : 1.6} />
+                  <span className="text-[8.5px] font-black uppercase tracking-widest leading-none">
+                    {tab.label}
+                  </span>
+                </button>
+              );
+            })}
+          </nav>
+
           {onQuickAction && (
             <button
               className="aferix-solo-fab transition-all duration-200 hover:scale-105 active:scale-95"
               onClick={onQuickAction}
               aria-label="Ações Rápidas"
-              style={{ bottom: 'calc(env(safe-area-inset-bottom,16px) + 24px)' }}
+              style={{ bottom: 'calc(env(safe-area-inset-bottom, 16px) + 84px)', zIndex: 1050 }}
             >
               <Plus size={24} strokeWidth={3} />
             </button>

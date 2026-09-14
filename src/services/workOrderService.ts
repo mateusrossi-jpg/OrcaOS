@@ -23,6 +23,19 @@ export class WorkOrderService {
   async delete(id: string): Promise<void> {
     await this.repository.delete(id);
   }
+
+  async getByAttendanceId(attendanceId: string): Promise<WorkOrder | undefined> {
+    const all = await this.repository.getAll();
+    return all.find(w => w.attendanceId === attendanceId);
+  }
+
+  async getRecentCompleted(limit: number): Promise<WorkOrder[]> {
+    const all = await this.repository.getAll();
+    return all
+      .filter(w => w.status === 'done')
+      .sort((a, b) => new Date(b.updatedAt || b.createdAt || 0).getTime() - new Date(a.updatedAt || a.createdAt || 0).getTime())
+      .slice(0, limit);
+  }
 }
 
 export const workOrderService = new WorkOrderService();

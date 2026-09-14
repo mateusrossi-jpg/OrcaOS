@@ -13,6 +13,11 @@ export class ClientService {
     return await this.repository.getById(id);
   }
 
+  async count(): Promise<number> {
+    const all = await this.repository.getAll();
+    return all.length;
+  }
+
   async add(client: Omit<Client, 'id' | 'createdAt' | 'updatedAt'>): Promise<Client> {
     const createdClient = await this.repository.add(client);
     

@@ -1,9 +1,8 @@
-/* eslint-disable no-restricted-imports */
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useBudgetHistory } from '../../hooks/useBudgetHistory';
 import { BUDGET_STATUS } from '../../domain/budget';
 import { clientProposalService } from '../../services/clientProposalService';
-import { ClientProposal } from '../../features/clientPortal/storage/clientProposalStorage';
+import type { ClientProposal } from '../../domain/clientProposal';
 import { workOrderService } from '../../services/workOrderService';
 import { WorkOrder, Client } from '../../core/types/business';
 import { clientService } from '../../services/clientService';
@@ -16,7 +15,7 @@ import { useOperationsSummary } from '../../features/operations/hooks/useOperati
 import { useCloudSyncState, SyncState } from '../../hooks/useCloudSyncState';
 import { MaintenancePlan } from '../../domain/maintenancePlan';
 import { maintenancePlanService } from '../../services/maintenancePlanService';
-import { db } from '../../storage/dexieDatabase';
+import { attendanceQueryService } from '../../services/attendanceQueryService';
 import { Attendance } from '../../domain/attendance';
 
 export interface ActivityEvent {
@@ -112,7 +111,7 @@ export function useHomeAttentionStack(): HomeAttentionStack {
         financeService.listRecords(),
         maintenancePlanService.getAll(),
         siteService.getAll(),
-        db.attendances.toArray()
+        attendanceQueryService.getAll()
       ]);
       setProposals(allProposals);
       setWorkOrders(allWorkOrders);
@@ -267,7 +266,7 @@ export function useHomeAttentionStack(): HomeAttentionStack {
       if (b.status === BUDGET_STATUS.ENVIADO) {
         const alreadyAdded = list.some(item => item.metadata?.budgetId === b.id || item.id === b.id);
         if (!alreadyAdded) {
-          const sentDate = new Date(b.updatedAt);
+          const sentDate = new Date(b.updatedAt || b.createdAt || Date.now());
           const diffDays = Math.ceil((Date.now() - sentDate.getTime()) / (1000 * 60 * 60 * 24));
           
           if (diffDays >= 3) {

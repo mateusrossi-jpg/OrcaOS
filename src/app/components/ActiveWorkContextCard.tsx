@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { Client, Service as WorkOrder } from '../../core/types/business';
 import { Card } from './ui';
-import { db } from '../../storage/dexieDatabase';
+import { attendanceQueryService } from '../../services/attendanceQueryService';
 import './ActiveWorkContextCard.css';
 
 interface ActiveWorkContextCardProps {
@@ -33,7 +33,7 @@ export function ActiveWorkContextCard({ activeClient, activeWorkOrder }: ActiveW
     async function loadAttendanceStatus() {
       try {
         const att = wo.attendanceId 
-          ? await db.attendances.get(wo.attendanceId)
+          ? await attendanceQueryService.getById(wo.attendanceId)
           : undefined;
 
         if (att) {

@@ -30,8 +30,10 @@ export const ServicePlaybookPage: React.FC = () => {
       </div>
       
       <StickyActionBar
-        primaryAction={{ label: 'BUSCAR SOLUÇÃO', onClick: () => {} }}
-        secondaryAction={{ label: 'NOVO CASO', onClick: () => {} }}
+        saveLabel="BUSCAR SOLUÇÃO"
+        onSave={() => {}}
+        cancelLabel="NOVO CASO"
+        onCancel={() => {}}
       />
     </div>
   );

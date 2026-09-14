@@ -1,6 +1,10 @@
+/**
+ * OFFICIAL ARCHITECTURE: UI -> Hooks -> Services -> Repositories -> Dexie.
+ * Do not access storage/repository directly from UI/hooks.
+ */
+
 import { dexieContractRepository } from '../repositories/dexieContractRepository';
 import { Contract } from '../domain/contract';
-import { operationalEventService } from './operationalEventService';
 
 export class ContractService {
   constructor(private readonly repository = dexieContractRepository) {}
@@ -18,44 +22,15 @@ export class ContractService {
   }
 
   async add(contract: Omit<Contract, 'id' | 'createdAt' | 'updatedAt'>): Promise<Contract> {
-    const createdContract = await this.repository.add(contract);
-    
-    await operationalEventService.emitEvent({
-      aggregateId: createdContract.id,
-      aggregateType: 'contract',
-      eventType: 'CONTRACT_CREATED',
-      metadata: { clientId: createdContract.clientId, correlationId: undefined },
-      snapshot: { ...createdContract }
-    });
-
-    return createdContract;
+    return await this.repository.add(contract);
   }
 
   async update(contract: Contract): Promise<void> {
-    await this.repository.update(contract);
-
-    await operationalEventService.emitEvent({
-      aggregateId: contract.id,
-      aggregateType: 'contract',
-      eventType: 'CONTRACT_UPDATED',
-      metadata: { clientId: contract.clientId, correlationId: undefined },
-      snapshot: { ...contract }
-    });
+    return await this.repository.update(contract);
   }
 
   async delete(id: string): Promise<void> {
-    const contract = await this.getById(id);
-    await this.repository.delete(id);
-    
-    if (contract) {
-      await operationalEventService.emitEvent({
-        aggregateId: id,
-        aggregateType: 'contract',
-        eventType: 'CONTRACT_ARCHIVED',
-        metadata: { clientId: contract.clientId, correlationId: undefined },
-        snapshot: { ...contract, syncStatus: 'deleted' }
-      });
-    }
+    return await this.repository.delete(id);
   }
 }
 

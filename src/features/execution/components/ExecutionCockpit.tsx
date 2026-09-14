@@ -3,7 +3,10 @@ import { pilotTelemetry } from '../../../services/pilotTelemetryService';
 import React, { useState, useEffect, useRef } from 'react';
 import { ExecutionHeader } from './ExecutionHeader';
 import { ChecklistExecutionPanel } from './ChecklistExecutionPanel';
-import { db } from '../../../storage/dexieDatabase';
+import { workOrderService } from '../../../services/workOrderService';
+import { assetService } from '../../../services/assetService';
+import { assetExecutionService } from '../../../services/AssetExecutionService';
+import { anomalyService } from '../../../services/anomalyService';
 import { Asset } from '../../../domain/asset';
 import { AssetExecution } from '../../../domain/assetExecution';
 import { 
@@ -67,19 +70,19 @@ export const ExecutionCockpit: React.FC<ExecutionCockpitProps> = ({ workOrderId,
   const loadData = async () => {
     setIsLoading(true);
     try {
-      const wo = await db.workOrders.get(workOrderId);
+      const wo = await workOrderService.getById(workOrderId);
       setWorkOrder(wo);
       let foundAssets: Asset[] = [];
       
       if (wo?.assetIds && wo.assetIds.length > 0) {
-        foundAssets = await db.assets.where('id').anyOf(wo.assetIds).toArray();
+        foundAssets = await assetService.getByIds(wo.assetIds);
       } else if (wo?.siteId) {
-        foundAssets = await db.assets.where('siteId').equals(wo.siteId).toArray();
+        foundAssets = await assetService.getBySiteId(wo.siteId);
       } else if (wo?.clientId) {
-        foundAssets = await db.assets.where('clientId').equals(wo.clientId).toArray();
+        foundAssets = await assetService.getByClientId(wo.clientId);
       }
 
-      const foundExecutions = await db.assetExecutions.where('workOrderId').equals(workOrderId).toArray();
+      const foundExecutions = await assetExecutionService.getByWorkOrderId(workOrderId);
       const execMap: Record<string, AssetExecution> = {};
       foundExecutions.forEach(ex => {
         execMap[ex.assetId] = ex;
@@ -133,7 +136,7 @@ export const ExecutionCockpit: React.FC<ExecutionCockpitProps> = ({ workOrderId,
       }
 
       const updatedEx = { ...currentEx, ...execution, updatedAt: new Date().toISOString() };
-      await db.assetExecutions.put(updatedEx as AssetExecution);
+      await assetExecutionService.upsert(updatedEx as AssetExecution);
       
       setExecutions(prev => ({ ...prev, [assetId]: updatedEx as AssetExecution }));
     } catch (err) {
@@ -171,7 +174,7 @@ export const ExecutionCockpit: React.FC<ExecutionCockpitProps> = ({ workOrderId,
           updatedAt: new Date().toISOString()
         } as AssetExecution;
         
-        await db.assetExecutions.put(updatedEx);
+        await assetExecutionService.upsert(updatedEx);
         updatedExecutions[asset.id] = updatedEx;
       }
       
@@ -258,7 +261,7 @@ export const ExecutionCockpit: React.FC<ExecutionCockpitProps> = ({ workOrderId,
         createdAt: new Date().toISOString()
       };
 
-      await db.anomalies.put(anomaly as any);
+      await anomalyService.upsert(anomaly as any);
 
       // Ensure asset status is set to non-compliant when saved
       if (assetId && assetId !== 'general') {

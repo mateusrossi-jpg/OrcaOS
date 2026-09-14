@@ -17,7 +17,7 @@ import {
   ShoppingBag
 } from 'lucide-react';
 import { cn } from '../../../utils/ui';
-import { CatalogHubItem } from '../../../features/catalog/storage/catalogHubStorage';
+import type { CatalogHubItem } from '../../../features/catalog/types/catalogTypes';
 import { 
   SurfaceCard, 
   SectionLabel, 
@@ -28,7 +28,7 @@ import {
   Subtitle,
   Section
 } from '../../../ui/system';
-import { db } from '../../../storage/dexieDatabase';
+import { budgetPersistenceService } from '../../../services/BudgetPersistenceService';
 
 interface ProposalCartWorkspaceProps {
   catalogItems: CatalogHubItem[];
@@ -59,7 +59,7 @@ export const ProposalCartWorkspace: React.FC<ProposalCartWorkspaceProps> = ({
   useEffect(() => {
     async function loadRecents() {
       try {
-        const budgets = await db.budgets.orderBy('updatedAt').reverse().limit(5).toArray().catch(err => {
+        const budgets = await budgetPersistenceService.getRecentBudgets(5).catch(err => {
           console.error("Erro ao carregar orçamentos recentes no carrinho:", err);
           return [];
         });

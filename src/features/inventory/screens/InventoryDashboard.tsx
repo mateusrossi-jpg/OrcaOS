@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Package, AlertOctagon, TrendingDown, ShoppingCart, Plus, Save } from 'lucide-react';
-import { useLiveQuery } from 'dexie-react-hooks';
-import { db } from '../../../storage/dexieDatabase';
+import { useInventoryItems } from '../../../hooks/useInventoryItems';
+import { StockService } from '../../../services/StockService';
 import { generateUUID } from '../../../core/utils/idGenerator';
 import { formatCurrencyBRL } from '../../../utils/formatters';
 import { 
@@ -23,7 +23,7 @@ export const InventoryDashboard: React.FC = () => {
   const [isAdding, setIsAdding] = useState(false);
   const [newItem, setNewItem] = useState({ name: '', qty: 1, cost: 0, min: 1 });
 
-  const items = useLiveQuery(() => db.inventoryItems.toArray()) || [];
+  const items = useInventoryItems();
 
   const stats = {
     totalValue: items.reduce((acc, item) => acc + (item.quantityOnHand * item.unitCost), 0),
@@ -44,7 +44,7 @@ export const InventoryDashboard: React.FC = () => {
       const id = generateUUID();
       const status = newItem.qty === 0 ? 'OUT_OF_STOCK' : (newItem.qty <= newItem.min ? 'LOW_STOCK' : 'IN_STOCK');
       
-      await db.inventoryItems.put({
+      await StockService.upsert({
         id,
         companyId: 'default-company',
         workspaceId: 'default-workspace',
@@ -69,13 +69,8 @@ export const InventoryDashboard: React.FC = () => {
   const handleRestock = async (id: string) => {
     // In a real flow, this would open a modal to add more stock, we'll just add 5 for now
     try {
-      const item = await db.inventoryItems.get(id);
-      if (item) {
-        const newQty = item.quantityOnHand + 5;
-        const status = newQty === 0 ? 'OUT_OF_STOCK' : (newQty <= item.minimumStock ? 'LOW_STOCK' : 'IN_STOCK');
-        await db.inventoryItems.update(id, { quantityOnHand: newQty, status, lastUpdated: new Date().toISOString() });
-        trustLayer.emit({ type: 'success', title: 'Estoque atualizado', description: '+5 unidades adicionadas.', status: 'synced' });
-      }
+      await StockService.restock(id, 5);
+      trustLayer.emit({ type: 'success', title: 'Estoque atualizado', description: '+5 unidades adicionadas.', status: 'synced' });
     } catch (error) {
        console.error(error);
     }

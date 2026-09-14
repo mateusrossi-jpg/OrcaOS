@@ -2,6 +2,7 @@ import { generateUUID } from '../core/utils/idGenerator';
 import { supabase, isCloudEnabled } from '../core/cloud/supabaseClient';
 import { db } from '../storage/dexieDatabase';
 import { aferixLogger } from '../core/debug/aferixLogger';
+import { appSession } from '../core/persistence/appSession';
 import { conflictDetectionService } from './ConflictDetectionService';
 import { databaseRecoveryService } from './DatabaseRecoveryService';
 import { mergeSnapshots } from '../core/sync/ConflictMatrix';
@@ -78,7 +79,7 @@ export class CloudSyncService {
       if (inFlightEvents.length > 0) {
         aferixLogger.warn('CloudSync', `Crash Recovery: Restaurando ${inFlightEvents.length} eventos pendentes do estado 'in-flight'.`);
         for (const event of inFlightEvents) {
-          await db.operationalEvents.update(event.id, { syncStatus: 'pending' } as Record<string, unknown>);
+          await db.operationalEvents.update(event.id, { syncStatus: 'pending' });
         }
         this.notifyListeners();
       }
@@ -177,7 +178,7 @@ export class CloudSyncService {
           }
 
           // Marca como sincronizado localmente pois a verdade remota ganha
-          await db.operationalEvents.update(event.id, { syncStatus: 'synced' } as Record<string, unknown>);
+          await db.operationalEvents.update(event.id, { syncStatus: 'synced' });
           await this.propagateAggregateSyncStatus(event.aggregateType, event.aggregateId);
           return { proceed: false };
         } else {
@@ -244,7 +245,7 @@ export class CloudSyncService {
 
       for (const event of unsyncedEvents) {
         // Marca como em trânsito para evitar concorrências locais (Crash Recovery)
-        await db.operationalEvents.update(event.id, { syncStatus: 'in-flight' } as Record<string, unknown>);
+        await db.operationalEvents.update(event.id, { syncStatus: 'in-flight' });
 
         // 3. Resolução de conflitos
         const { proceed } = await this.resolveConflictsAndValidate(event, session.user.id);
@@ -274,13 +275,13 @@ export class CloudSyncService {
 
         if (!error) {
           // Sucesso: Marca localmente como sincronizado
-          await db.operationalEvents.update(event.id, { syncStatus: 'synced' } as Record<string, unknown>);
+          await db.operationalEvents.update(event.id, { syncStatus: 'synced' });
           await this.propagateAggregateSyncStatus(event.aggregateType, event.aggregateId);
           sentCount++;
           this.resetRetryDelay();
         } else {
           // Erro de Envio: Restaura para pendente
-          await db.operationalEvents.update(event.id, { syncStatus: 'pending' } as Record<string, unknown>);
+          await db.operationalEvents.update(event.id, { syncStatus: 'pending' });
           errorCount++;
           
           aferixLogger.error('CloudSync', `Erro ao sincronizar evento ${event.id}:`, error);
@@ -358,24 +359,24 @@ export class CloudSyncService {
       await db.transaction('rw', [db.budgets, db.workOrders, db.attendances, db.simpleFinanceRecords], async () => {
         const staleAttendances = await db.attendances
           .where('syncStatus').equals('synced')
-          .filter(a => a.isDeleted === true && a.deletedAt !== undefined && a.deletedAt < cutoffTime)
+          .filter(a => a.isDeleted === true && a.deletedAt != null && a.deletedAt < cutoffTime)
           .primaryKeys();
         if (staleAttendances.length > 0) await db.attendances.bulkDelete(staleAttendances as string[]);
 
         const staleBudgets = await db.budgets
           .where('syncStatus').equals('synced')
-          .filter(b => b.isDeleted === true && b.deletedAt !== undefined && b.deletedAt < cutoffTime)
+          .filter(b => b.isDeleted === true && b.deletedAt != null && b.deletedAt < cutoffTime)
           .primaryKeys();
         if (staleBudgets.length > 0) await db.budgets.bulkDelete(staleBudgets as string[]);
 
         const staleWorkOrders = await db.workOrders
           .where('syncStatus').equals('synced')
-          .filter(w => w.isDeleted === true && w.deletedAt !== undefined && w.deletedAt < cutoffTime)
+          .filter(w => w.isDeleted === true && w.deletedAt != null && w.deletedAt < cutoffTime)
           .primaryKeys();
         if (staleWorkOrders.length > 0) await db.workOrders.bulkDelete(staleWorkOrders as string[]);
 
         const staleFinances = await db.simpleFinanceRecords
-          .filter(f => f.isDeleted === true && f.syncStatus === 'synced' && f.deletedAt !== undefined && f.deletedAt < cutoffTime)
+          .filter(f => f.isDeleted === true && f.deletedAt != null && f.deletedAt < cutoffTime)
           .primaryKeys();
         if (staleFinances.length > 0) await db.simpleFinanceRecords.bulkDelete(staleFinances as string[]);
       });
@@ -452,14 +453,13 @@ export class CloudSyncService {
 
   getInstallationId(): string {
     try {
-      if (typeof localStorage !== 'undefined' && localStorage) {
-        let id = localStorage.getItem('AFERIX_INSTALLATION_ID');
-        if (!id) {
-          id = 'dev-' + generateUUID().slice(0, 8);
-          localStorage.setItem('AFERIX_INSTALLATION_ID', id);
-        }
-        return id;
+      const stored = appSession.getInstallationId();
+      if (stored) {
+        return stored;
       }
+      const id = 'dev-' + generateUUID().slice(0, 8);
+      appSession.setInstallationId(id);
+      return id;
     } catch (e) {
       // Fallback
     }

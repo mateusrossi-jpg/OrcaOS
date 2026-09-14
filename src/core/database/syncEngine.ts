@@ -59,9 +59,11 @@ export async function processOutbox() {
             const localVersion = item.payload.version || 0;
 
             if (item.table_name === 'work_orders' && remoteVersion > localVersion) {
-              await db.work_orders.update(item.record_id, { conflict_state: 'conflict' });
+              if (item.record_id) {
+                await db.work_orders.update(item.record_id, { conflict_state: 'conflict' });
+              }
               await outboxRepository.moveToDeadLetter(item.id, 'Conflict detected (remote > local)', 'conflict_error');
-              telemetryService.track('conflict_created', item.correlation_id, { record_id: item.record_id });
+              telemetryService.track('conflict_created', item.correlation_id || '', { record_id: item.record_id });
               continue;
             }
 
@@ -97,7 +99,7 @@ export async function processOutbox() {
 
         if (errorMsg.includes('TenantIntegrityGuard')) {
           await outboxRepository.moveToDeadLetter(item.id, errorMsg, 'security_error');
-          telemetryService.track('mutation_blocked_security', item.correlation_id, { reason: 'tenant_mismatch', table: item.table_name });
+          telemetryService.track('mutation_blocked_security', item.correlation_id || '', { reason: 'tenant_mismatch', table: item.table_name });
           continue;
         }
 
@@ -105,7 +107,7 @@ export async function processOutbox() {
 
         if (status === 401 || status === 403 || status === 'PGRST301') {
           syncHealthService.setState('authentication_required');
-          telemetryService.track('rls_denied', item.correlation_id, { table: item.table_name });
+          telemetryService.track('rls_denied', item.correlation_id || '', { table: item.table_name });
           break; // Para o sync, espera o usuário logar
         } else if (status === 400 || (typeof status === 'number' && status >= 400 && status < 500 && status !== 429)) {
           await outboxRepository.moveToDeadLetter(item.id, errorMsg, 'validation_error');
@@ -137,7 +139,9 @@ export async function pullChanges() {
   try {
     const pendingOutbox = await outboxRepository.getPending();
     const pendingMap = new Map<string, any>();
-    for (const item of pendingOutbox) pendingMap.set(item.uuid, item);
+    for (const item of pendingOutbox) {
+      if (item.uuid) pendingMap.set(item.uuid, item);
+    }
 
     const tables = ['work_orders', 'customers', 'transactions', 'stock_reservations'];
 
@@ -145,7 +149,7 @@ export async function pullChanges() {
     const tenantId = session.data.session?.user.app_metadata?.company_id || session.data.session?.user.id || 'guest';
 
     for (const table of tables) {
-      let cursor = await SyncCursorRepository.getCursor(tenantId, table);
+      const cursor = await SyncCursorRepository.getCursor(tenantId, table);
       let latestTimestamp = cursor?.last_updated_at || new Date(0).toISOString();
       let latestId = cursor?.last_processed_id || '';
       let hasMore = true;

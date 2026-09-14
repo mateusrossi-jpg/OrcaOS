@@ -26,13 +26,13 @@ export class WorkOrderAggregateResolver {
         throw new Error("Cannot resolve 'use_server' offline without a local remote_snapshot.");
     }
 
-    await db.transaction('rw',
+    await db.transaction('rw', [
       db.work_orders,
       db.work_order_items,
       db.stock_reservations,
       db.work_order_media,
-      db.sync_outbox,
-      async () => {
+      db.sync_outbox
+    ], async () => {
         if (resolution === 'keep_mine') {
           // Keep local root, generate new version
           const nextVersion = remoteWo && remoteWo.version ? remoteWo.version + 1 : (localWo.version || 0) + 1;

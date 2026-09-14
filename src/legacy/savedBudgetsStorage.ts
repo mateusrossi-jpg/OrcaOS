@@ -65,6 +65,8 @@ export function loadSavedBudgets(): SavedBudgetRecord[] {
 export function mapToNewBudget(record: SavedBudgetRecord): NewBudget {
   return {
     id: record.id,
+    companyId: (record as unknown as Record<string, unknown>).companyId as string || 'default-company',
+    workspaceId: (record as unknown as Record<string, unknown>).workspaceId as string || 'default-workspace',
     clientId: record.clientId,
     siteId: '',
     clientName: record.clientName,

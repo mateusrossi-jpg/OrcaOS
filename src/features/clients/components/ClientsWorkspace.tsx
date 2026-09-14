@@ -32,7 +32,9 @@ import {
   BookOpen,
   Download,
   Award,
-  ArrowUpRight
+  ArrowUpRight,
+  Search,
+  Users
   } from 'lucide-react';
 import { 
   MoneyValue,
@@ -75,6 +77,7 @@ import { clientService } from '../../../services/clientService';
 import { siteService } from '../../../services/siteService';
 import { assetService } from '../../../services/assetService';
 import { contractService } from '../../../services/contractService';
+import { AuthService } from '../../../services/AuthService';
 import { operationalReadModelService } from '../../../services/operationalReadModelService';
 import { clientMemoryEngine, ClientMemory } from '../../../services/ClientMemoryEngine';
 import { operationalFacade } from '../../workflow/operationalFacade';
@@ -192,15 +195,33 @@ export function ClientsWorkspace({ onNavigate, initialClientId }: { onNavigate: 
   const handleRepeatService = async () => {
     if (!clientMemory || !selectedClientId) return;
     try {
+      const tenant = AuthService.getTenantContext();
       let siteId = sites.length > 0 ? sites[0].id : null;
       if (!siteId) {
-        const newSite = await siteService.add({ clientId: selectedClientId, name: 'Local Principal', fullAddress: 'Endereço não informado', isMain: true });
+        const newSite = await siteService.add({
+          companyId: tenant.companyId,
+          workspaceId: tenant.workspaceId,
+          clientId: selectedClientId,
+          name: 'Local Principal',
+          fullAddress: 'Endereço não informado',
+          isMain: true
+        });
         siteId = newSite.id;
       }
-      const attendanceId = await operationalFacade.initializeAttendance(selectedClientId, siteId || 'default-site');
+      const attendanceId = await operationalFacade.initializeAttendance(
+        selectedClientId,
+        siteId || 'default-site',
+        tenant.companyId,
+        tenant.workspaceId
+      );
       const budgetId = generateUUID();
       const budget = {
-        id: budgetId, clientId: selectedClientId, siteId: siteId || 'default-site', attendanceId,
+        id: budgetId,
+        companyId: tenant.companyId,
+        workspaceId: tenant.workspaceId,
+        clientId: selectedClientId,
+        siteId: siteId || 'default-site',
+        attendanceId,
         title: clientMemory.lastServiceTitle || 'Serviço Recorrente',
         status: BUDGET_STATUS.INICIADO,
         chargedValue: clientMemory.lastExecutedValue || 0,

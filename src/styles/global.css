@@ -1,5 +1,19 @@
 @import "tailwindcss";
 
+@theme {
+  --color-aferix-bg: var(--bg-primary);
+  --color-aferix-surface: var(--surface-primary);
+  --color-aferix-elevated: var(--surface-secondary);
+  --color-aferix-gold: var(--accent-gold);
+  --color-aferix-green: var(--accent-green);
+  --color-aferix-red: var(--accent-red);
+  --color-aferix-blue: var(--accent-blue);
+  --color-aferix-canvas: #000000;
+  --color-text-secondary: var(--text-secondary);
+  --color-text-primary: var(--text-primary);
+  --color-text-muted: var(--text-muted);
+}
+
 /* AFERIX GLOBAL RESET & PREMIUM FLUIDITY
    --------------------------------------- */
 
@@ -170,6 +184,33 @@ body {
 ::-webkit-scrollbar-thumb {
   background: oklch(1 0 0 / 0.1);
   border-radius: 10px;
+}
+
+/* Hide scrollbars on horizontal scroll regions (tabs, chips) without breaking overflow */
+.scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+/* Numeric input spinner cleanup */
+input[type='number']::-webkit-outer-spin-button,
+input[type='number']::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type='number'] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+/* Protect inputs/selects with a right-positioned suffix (unit/metric) from text overlap */
+.general-form-field div:has(.technical-unit) input,
+.general-form-field div:has(.technical-unit) select,
+.general-form-field div:has(.technical-unit) textarea {
+  padding-right: 4.75rem;
 }
 
 /* --------------------------------------------------

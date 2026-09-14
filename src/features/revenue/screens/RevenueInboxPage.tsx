@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { db } from '../../../storage/dexieDatabase';
+import { anomalyService } from '../../../services/anomalyService';
 import { Anomaly } from '../../../domain/revenue';
 import { ScreenContainer, AppHeader, SurfaceCard } from '../../../ui/system';
 import { ProposalEditor } from '../components/ProposalEditor';
@@ -45,7 +45,7 @@ const KanbanColumn: React.FC<{ title: string; anomalies: Anomaly[]; onSelect: (a
 export const RevenueInboxPage: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   const [selectedAnomaly, setSelectedAnomaly] = useState<Anomaly | null>(null);
 
-  const anomalies = useLiveQuery(() => db.anomalies.toArray(), []) || [];
+  const anomalies = useLiveQuery(() => anomalyService.getAll(), []) || [];
 
   const openAnomalies = anomalies.filter(a => a.status === 'OPEN');
   const quotedAnomalies = anomalies.filter(a => a.status === 'QUOTED');
