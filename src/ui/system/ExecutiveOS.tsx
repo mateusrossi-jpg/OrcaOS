@@ -254,6 +254,7 @@ export const ExecutiveHeader = memo(function ExecutiveHeader({ userName, score, 
         <div className="flex gap-4">
           <button 
             onClick={() => window.dispatchEvent(new CustomEvent('aferix_command_palette'))}
+            aria-label="Busca universal"
             className="bg-[#3A424D] hover:bg-[#4A5565] border border-white/[0.05] px-6 py-5 rounded-2xl flex items-center justify-center min-w-[80px] text-white/60 hover:text-white transition-all active:scale-98 shadow-md"
           >
             <Search size={28} />
