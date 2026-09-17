@@ -71,7 +71,12 @@ export const CommandPalette = () => {
   const totalResults = results.clients.length + results.budgets.length + results.workOrders.length;
 
   return (
-    <div className="fixed inset-0 z-[9999] flex flex-col pt-[15vh] px-4 items-center bg-black/60 backdrop-blur-md animate-in fade-in duration-200">
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label="Busca Universal"
+      className="fixed inset-0 z-[9999] flex flex-col pt-[15vh] px-4 items-center bg-black/60 backdrop-blur-md animate-in fade-in duration-200"
+    >
       <div 
         className="absolute inset-0" 
         onClick={() => { setIsOpen(false); setQuery(''); }}
@@ -85,13 +90,18 @@ export const CommandPalette = () => {
           <input
             ref={inputRef}
             type="text"
+            aria-label="Buscar clientes, propostas e ordens de serviço"
             placeholder="O que você precisa encontrar? (Clientes, OS, Propostas...)"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             className="flex-1 bg-transparent border-none text-[18px] font-medium text-white placeholder:text-white/20 outline-none"
           />
           {query && (
-            <button onClick={() => setQuery('')} className="p-2 bg-white/5 hover:bg-white/10 rounded-full text-white/40 transition-colors">
+            <button
+              onClick={() => setQuery('')}
+              aria-label="Limpar busca"
+              className="p-2 bg-white/5 hover:bg-white/10 rounded-full text-white/40 transition-colors"
+            >
               <X size={16} />
             </button>
           )}

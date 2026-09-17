@@ -82,6 +82,7 @@ export const SearchInput = memo(({ className, onChange, onResultSelect, ...props
         <Search size={18} strokeWidth={2.5} className="text-white/20 group-focus-within:text-[var(--accent-blue)] transition-colors shrink-0" />
         <input
           className="flex-1 bg-transparent border-none outline-none ml-4 text-[15px] font-bold text-white placeholder:text-white/5 tracking-tight"
+          aria-label={props['aria-label'] || "Buscar no sistema"}
           value={query}
           onFocus={() => setIsFocused(true)}
           onChange={(e) => {
@@ -92,7 +93,11 @@ export const SearchInput = memo(({ className, onChange, onResultSelect, ...props
           {...props}
         />
         {query && (
-          <button onClick={() => { setQuery(''); onChange?.(''); }} className="p-2 bg-white/5 rounded-full text-white/40 hover:text-white active:scale-90 transition-all">
+          <button
+            onClick={() => { setQuery(''); onChange?.(''); }}
+            aria-label="Limpar busca"
+            className="p-2 bg-white/5 rounded-full text-white/40 hover:text-white active:scale-90 transition-all"
+          >
              <X size={12} strokeWidth={3} />
           </button>
         )}
