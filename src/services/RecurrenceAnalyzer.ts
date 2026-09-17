@@ -24,7 +24,7 @@ export class RecurrenceAnalyzer {
 
     if (isRecurrence) {
       await db.operationalEvents.put({
-        id: `evt-rec-${Date.now()}`,
+        id: `evt-rec-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
         aggregateId: assetId,
         aggregateType: 'asset',
         eventType: 'RECURRENCE_DETECTED',
