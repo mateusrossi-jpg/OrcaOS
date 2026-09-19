@@ -186,7 +186,7 @@ describe('AFERIX PHASE 2.6: CONSISTENCY HARDENING & SCALE BENCHMARKS', () => {
       title: 'Orçamento Remoto Vencedor',
       status: BUDGET_STATUS.AUTORIZADO,
       chargedValue: 2500,
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date(Date.now() + 10000).toISOString()
     };
 
     // Apply remote winning snapshot
