@@ -77,7 +77,12 @@ export const CommandPalette = () => {
         onClick={() => { setIsOpen(false); setQuery(''); }}
       />
       
-      <div className="relative w-full max-w-2xl bg-[#1C1C1E]/90 backdrop-blur-3xl border border-white/10 rounded-[32px] shadow-[0_50px_100px_rgba(0,0,0,0.8)] overflow-hidden flex flex-col animate-in zoom-in-95 duration-200">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="Busca Universal"
+        className="relative w-full max-w-2xl bg-[#1C1C1E]/90 backdrop-blur-3xl border border-white/10 rounded-[32px] shadow-[0_50px_100px_rgba(0,0,0,0.8)] overflow-hidden flex flex-col animate-in zoom-in-95 duration-200"
+      >
         
         {/* Input Area */}
         <div className="flex items-center px-6 py-5 border-b border-white/5">
@@ -85,13 +90,19 @@ export const CommandPalette = () => {
           <input
             ref={inputRef}
             type="text"
+            aria-label="Buscar no sistema"
             placeholder="O que você precisa encontrar? (Clientes, OS, Propostas...)"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             className="flex-1 bg-transparent border-none text-[18px] font-medium text-white placeholder:text-white/20 outline-none"
           />
           {query && (
-            <button onClick={() => setQuery('')} className="p-2 bg-white/5 hover:bg-white/10 rounded-full text-white/40 transition-colors">
+            <button
+              type="button"
+              aria-label="Limpar busca"
+              onClick={() => setQuery('')}
+              className="p-2 bg-white/5 hover:bg-white/10 rounded-full text-white/40 transition-colors"
+            >
               <X size={16} />
             </button>
           )}
