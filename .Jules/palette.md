@@ -1,0 +1,3 @@
+## 2025-05-18 - [Overlay and Command Bar Icon-only Button Accessibility]
+**Learning:** Icon-only trigger and close buttons in modal overlays and search inputs (e.g., Command Palette clear button, Global Command Center drawer toggle) lack accessible names by default when only using Lucide icons. Providing descriptive `aria-label` attributes in English (matching AppHeader and design system standards) ensures screen readers announce action intent clearly.
+**Action:** Always check modal drawers and command input clear buttons for missing `aria-label` tags when inspecting new or existing overlay components, and ensure language consistency with surrounding design tokens.
