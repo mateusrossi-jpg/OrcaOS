@@ -9,6 +9,7 @@ export const GlobalCommandCenter: React.FC = () => {
       {/* TRIGGER - Top Right */}
       <button 
         onClick={() => setIsOpen(true)}
+        aria-label="Open command menu"
         className="fixed top-4 right-4 z-[100] w-10 h-10 flex items-center justify-center bg-surface-800 border border-surface-700 rounded-full shadow-lg hover:bg-surface-700 transition-colors active:scale-95"
       >
         <Menu size={20} className="text-white" />
@@ -22,7 +23,11 @@ export const GlobalCommandCenter: React.FC = () => {
           <div className="fixed top-0 right-0 bottom-0 w-80 max-w-[85vw] bg-surface-900 z-[100] shadow-2xl flex flex-col animate-slide-left border-l border-surface-800">
             <div className="flex justify-between items-center p-6 border-b border-surface-800">
               <h2 className="text-xs font-black text-white tracking-widest uppercase">Command Center</h2>
-              <button onClick={() => setIsOpen(false)} className="text-text-tertiary hover:text-white transition-colors">
+              <button
+                onClick={() => setIsOpen(false)}
+                aria-label="Close command menu"
+                className="text-text-tertiary hover:text-white transition-colors"
+              >
                 <X size={24} />
               </button>
             </div>

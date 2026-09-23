@@ -91,7 +91,11 @@ export const CommandPalette = () => {
             className="flex-1 bg-transparent border-none text-[18px] font-medium text-white placeholder:text-white/20 outline-none"
           />
           {query && (
-            <button onClick={() => setQuery('')} className="p-2 bg-white/5 hover:bg-white/10 rounded-full text-white/40 transition-colors">
+            <button
+              onClick={() => setQuery('')}
+              aria-label="Clear search"
+              className="p-2 bg-white/5 hover:bg-white/10 rounded-full text-white/40 transition-colors"
+            >
               <X size={16} />
             </button>
           )}
