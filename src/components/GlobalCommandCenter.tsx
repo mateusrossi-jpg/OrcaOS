@@ -8,8 +8,11 @@ export const GlobalCommandCenter: React.FC = () => {
     <>
       {/* TRIGGER - Top Right */}
       <button 
+        type="button"
         onClick={() => setIsOpen(true)}
-        className="fixed top-4 right-4 z-[100] w-10 h-10 flex items-center justify-center bg-surface-800 border border-surface-700 rounded-full shadow-lg hover:bg-surface-700 transition-colors active:scale-95"
+        aria-label="Abrir menu de comandos"
+        title="Abrir menu de comandos"
+        className="fixed top-4 right-4 z-[100] w-10 h-10 flex items-center justify-center bg-surface-800 border border-surface-700 rounded-full shadow-lg hover:bg-surface-700 transition-colors active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-blue)]"
       >
         <Menu size={20} className="text-white" />
       </button>
@@ -17,12 +20,27 @@ export const GlobalCommandCenter: React.FC = () => {
       {/* OVERLAY & DRAWER */}
       {isOpen && (
         <>
-          <div className="fixed inset-0 bg-black/60 z-[100] animate-fade-in backdrop-blur-sm" onClick={() => setIsOpen(false)}></div>
+          <div
+            className="fixed inset-0 bg-black/60 z-[100] animate-fade-in backdrop-blur-sm"
+            onClick={() => setIsOpen(false)}
+            aria-hidden="true"
+          />
           
-          <div className="fixed top-0 right-0 bottom-0 w-80 max-w-[85vw] bg-surface-900 z-[100] shadow-2xl flex flex-col animate-slide-left border-l border-surface-800">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="Command Center"
+            className="fixed top-0 right-0 bottom-0 w-80 max-w-[85vw] bg-surface-900 z-[100] shadow-2xl flex flex-col animate-slide-left border-l border-surface-800"
+          >
             <div className="flex justify-between items-center p-6 border-b border-surface-800">
               <h2 className="text-xs font-black text-white tracking-widest uppercase">Command Center</h2>
-              <button onClick={() => setIsOpen(false)} className="text-text-tertiary hover:text-white transition-colors">
+              <button
+                type="button"
+                onClick={() => setIsOpen(false)}
+                aria-label="Fechar menu de comandos"
+                title="Fechar menu de comandos"
+                className="text-text-tertiary hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-blue)] rounded p-1"
+              >
                 <X size={24} />
               </button>
             </div>
