@@ -163,7 +163,13 @@ export const ProposalCartWorkspace: React.FC<ProposalCartWorkspaceProps> = ({
           <div key={item.id} className="bg-white/[0.02] border border-white/[0.05] rounded-2xl p-4 flex flex-col gap-4">
              <div className="flex justify-between items-start gap-4">
                 <span className="text-[14px] font-bold text-white uppercase">{item.name}</span>
-                <button onClick={() => removeCartItem(setter, item.id)} className="text-[#E85D5D]/60 hover:text-[#E85D5D] p-2 -m-2"><X size={16} /></button>
+                <button
+                  onClick={() => removeCartItem(setter, item.id)}
+                  aria-label={`Remover ${item.name} do carrinho`}
+                  className="text-[#E85D5D]/60 hover:text-[#E85D5D] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E85D5D] rounded-lg p-2 -m-2"
+                >
+                  <X size={16} />
+                </button>
              </div>
              <div className="grid grid-cols-2 gap-4">
                 <GlassCurrencyInput label="QUANTIDADE" value={item.qty} onChange={(e) => updateCartItem(setter, item.id, 'qty', parseFloat(e.target.value) || 0)} />
@@ -178,29 +184,37 @@ export const ProposalCartWorkspace: React.FC<ProposalCartWorkspaceProps> = ({
   return (
     <div className="flex flex-col gap-6">
       {/* TABS - REUSE FIRST */}
-      <div className="flex bg-white/[0.03] p-1.5 rounded-2xl border border-white/5 overflow-x-auto scrollbar-none">
+      <div role="tablist" aria-label="Navegação do carrinho e catálogo" className="flex bg-white/[0.03] p-1.5 rounded-2xl border border-white/5 overflow-x-auto scrollbar-none">
         <button 
+          role="tab"
+          aria-selected={activeTab === 'reuse'}
           onClick={() => setActiveTab('reuse')} 
-          className={cn("flex-1 min-w-[100px] h-12 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2", activeTab === 'reuse' ? "bg-white/10 text-white shadow-sm" : "text-white/40")}
+          className={cn("flex-1 min-w-[100px] h-12 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4AF37]", activeTab === 'reuse' ? "bg-white/10 text-white shadow-sm" : "text-white/40")}
         >
           <History size={14} /> Reutilizar
         </button>
         <button 
+          role="tab"
+          aria-selected={activeTab === 'catalog'}
           onClick={() => setActiveTab('catalog')} 
-          className={cn("flex-1 min-w-[100px] h-12 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2", activeTab === 'catalog' ? "bg-white/10 text-white shadow-sm" : "text-white/40")}
+          className={cn("flex-1 min-w-[100px] h-12 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4AF37]", activeTab === 'catalog' ? "bg-white/10 text-white shadow-sm" : "text-white/40")}
         >
           <LayoutGrid size={14} /> Catálogo
         </button>
         <button 
+          role="tab"
+          aria-selected={activeTab === 'cart'}
           onClick={() => setActiveTab('cart')} 
-          className={cn("flex-[1.5] min-w-[140px] h-12 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2", activeTab === 'cart' ? "bg-[#D4AF37] text-black shadow-[0_4px_16px_rgba(212,169,74,0.3)]" : "text-white/40")}
+          className={cn("flex-[1.5] min-w-[140px] h-12 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4AF37]", activeTab === 'cart' ? "bg-[#D4AF37] text-black shadow-[0_4px_16px_rgba(212,169,74,0.3)]" : "text-white/40")}
         >
           <ShoppingCart size={16} /> Carrinho ({cartTotalItems})
         </button>
         {materials.length > 0 && (
           <button 
+            role="tab"
+            aria-selected={activeTab === 'shopping'}
             onClick={() => setActiveTab('shopping')} 
-            className={cn("flex-1 min-w-[120px] h-12 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2", activeTab === 'shopping' ? "bg-white/10 text-white shadow-sm" : "text-white/40")}
+            className={cn("flex-1 min-w-[120px] h-12 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4AF37]", activeTab === 'shopping' ? "bg-white/10 text-white shadow-sm" : "text-white/40")}
           >
             <ShoppingBag size={14} /> Compra
           </button>
@@ -299,7 +313,7 @@ export const ProposalCartWorkspace: React.FC<ProposalCartWorkspaceProps> = ({
 
       {activeTab === 'catalog' && (
         <SurfaceCard padding="lg" className="border border-white/10 shadow-2xl flex flex-col gap-6 animate-in fade-in duration-500">
-           <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
+           <div role="tablist" aria-label="Categorias do catálogo" className="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
              {[
                { id: 'material', label: 'Materiais', icon: <Package size={14} /> },
                { id: 'labor', label: 'Serviços', icon: <Clock size={14} /> },
@@ -307,8 +321,10 @@ export const ProposalCartWorkspace: React.FC<ProposalCartWorkspaceProps> = ({
              ].map(cat => (
                <button 
                  key={cat.id} 
+                 role="tab"
+                 aria-selected={activeCategory === cat.id}
                  onClick={() => setActiveCategory(cat.id as any)}
-                 className={cn("px-4 h-10 rounded-full flex items-center gap-2 text-[11px] font-black uppercase tracking-widest transition-all shrink-0 border", activeCategory === cat.id ? "bg-white text-black border-transparent" : "bg-white/5 border-white/10 text-white/40")}
+                 className={cn("px-4 h-10 rounded-full flex items-center gap-2 text-[11px] font-black uppercase tracking-widest transition-all shrink-0 border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4AF37]", activeCategory === cat.id ? "bg-white text-black border-transparent" : "bg-white/5 border-white/10 text-white/40")}
                >
                  {cat.icon} {cat.label}
                </button>
