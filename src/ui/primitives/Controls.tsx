@@ -92,7 +92,11 @@ export const SearchInput = memo(({ className, onChange, onResultSelect, ...props
           {...props}
         />
         {query && (
-          <button onClick={() => { setQuery(''); onChange?.(''); }} className="p-2 bg-white/5 rounded-full text-white/40 hover:text-white active:scale-90 transition-all">
+          <button
+            onClick={() => { setQuery(''); onChange?.(''); }}
+            className="p-2 bg-white/5 rounded-full text-white/40 hover:text-white active:scale-90 transition-all"
+            aria-label="Limpar busca"
+          >
              <X size={12} strokeWidth={3} />
           </button>
         )}
