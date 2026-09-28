@@ -105,6 +105,7 @@ export const ERPToast = memo(function ERPToast() {
         <button 
           onClick={() => trustLayer.removeEvent(active.id)}
           className="p-2 -mr-2 text-[var(--text-muted)] opacity-30 hover:opacity-100 transition-opacity"
+          aria-label="Fechar notificação"
         >
           <X className="h-4 w-4" />
         </button>
