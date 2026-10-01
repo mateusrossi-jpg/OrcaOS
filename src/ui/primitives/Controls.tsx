@@ -92,7 +92,12 @@ export const SearchInput = memo(({ className, onChange, onResultSelect, ...props
           {...props}
         />
         {query && (
-          <button onClick={() => { setQuery(''); onChange?.(''); }} className="p-2 bg-white/5 rounded-full text-white/40 hover:text-white active:scale-90 transition-all">
+          <button
+            type="button"
+            aria-label="Limpar busca"
+            onClick={() => { setQuery(''); onChange?.(''); }}
+            className="p-2 bg-white/5 rounded-full text-white/40 hover:text-white active:scale-90 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-blue)]"
+          >
              <X size={12} strokeWidth={3} />
           </button>
         )}
@@ -195,8 +200,9 @@ export const SearchInput = memo(({ className, onChange, onResultSelect, ...props
  */
 export const FloatingActionButton = memo(({ onClick, label = 'Novo' }: { onClick: () => void; label?: string }) => (
   <button 
+    type="button"
     onClick={onClick}
-    className="fixed bottom-[var(--fab-bottom)] right-[var(--fab-right)] z-toast grid place-items-center w-16 h-16 rounded-full bg-[var(--accent-gold)] text-black shadow-[var(--shadow-button)] transition-all hover:scale-110 hover:brightness-110 active:scale-95 group"
+    className="fixed bottom-[var(--fab-bottom)] right-[var(--fab-right)] z-toast grid place-items-center w-16 h-16 rounded-full bg-[var(--accent-gold)] text-black shadow-[var(--shadow-button)] transition-all hover:scale-110 hover:brightness-110 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-gold)] group"
     aria-label={label}
   >
     <Plus className="h-8 w-8 transition-transform group-hover:rotate-90" strokeWidth={2.5} />

@@ -139,8 +139,8 @@ export function mergeSnapshots(aggregateType: string, localSnapshot: any, remote
         // Preserve local ID and IDs. Don't overwrite.
         break;
       case 'LWW_ALLOWED':
-        // LWW uses the most recently updated entity to decide which field wins
-        if (remoteUpdatedAt > localUpdatedAt) {
+        // LWW uses the most recently updated entity to decide which field wins (tie-break goes to remote)
+        if (remoteUpdatedAt >= localUpdatedAt) {
           merged[key] = remoteSnapshot[key];
         }
         break;
@@ -155,7 +155,7 @@ export function mergeSnapshots(aggregateType: string, localSnapshot: any, remote
            }
         } else {
            // Fallback to LWW
-           if (remoteUpdatedAt > localUpdatedAt) {
+           if (remoteUpdatedAt >= localUpdatedAt) {
               merged[key] = remoteSnapshot[key];
            }
         }
@@ -164,7 +164,7 @@ export function mergeSnapshots(aggregateType: string, localSnapshot: any, remote
         // For MVP/Hardening, we log the conflict but allow LWW so we don't drop operations completely.
         // In the future, this would generate a Conflict Task for the UI to resolve.
         console.warn(`[Sync] Conflict required for ${aggregateType}.${key}. Auto-resolving via LWW.`);
-        if (remoteUpdatedAt > localUpdatedAt) {
+        if (remoteUpdatedAt >= localUpdatedAt) {
           merged[key] = remoteSnapshot[key];
         }
         break;
@@ -172,7 +172,7 @@ export function mergeSnapshots(aggregateType: string, localSnapshot: any, remote
   }
 
   // Ensure timestamps are updated
-  merged.updatedAt = remoteUpdatedAt > localUpdatedAt ? remoteSnapshot.updatedAt : localSnapshot.updatedAt;
+  merged.updatedAt = remoteUpdatedAt >= localUpdatedAt ? remoteSnapshot.updatedAt : localSnapshot.updatedAt;
 
   return merged;
 }

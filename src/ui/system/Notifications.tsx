@@ -15,8 +15,9 @@ export const ERPNotificationCenter = memo(function ERPNotificationCenter() {
   return (
     <div className="relative">
       <button 
+        type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className={cn("notification-trigger", isOpen && "bg-[var(--bg-surface-elevated)]")}
+        className={cn("notification-trigger focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-gold)]", isOpen && "bg-[var(--bg-surface-elevated)]")}
         aria-label="Notificações"
       >
         <Bell className="h-5 w-5" />
@@ -103,8 +104,10 @@ export const ERPToast = memo(function ERPToast() {
         )}
 
         <button 
+          type="button"
+          aria-label="Fechar notificação"
           onClick={() => trustLayer.removeEvent(active.id)}
-          className="p-2 -mr-2 text-[var(--text-muted)] opacity-30 hover:opacity-100 transition-opacity"
+          className="p-2 -mr-2 text-[var(--text-muted)] opacity-30 hover:opacity-100 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20 rounded"
         >
           <X className="h-4 w-4" />
         </button>

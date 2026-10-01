@@ -233,8 +233,10 @@ export const HomePage = memo(function HomePage({ onNavigate }: HomePageProps) {
           />
           {searchQuery && (
             <button
+              type="button"
+              aria-label="Limpar busca"
               onClick={() => setSearchQuery('')}
-              className="text-[11px] text-[#8E8E93] hover:text-white p-1"
+              className="text-[11px] text-[#8E8E93] hover:text-white p-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20 rounded"
             >
               ✕
             </button>
@@ -482,7 +484,8 @@ export const HomePage = memo(function HomePage({ onNavigate }: HomePageProps) {
                         e.stopPropagation();
                         openWhatsApp(c.phone || '', `Olá ${c.name}! Aqui é ${data.profileName} da equipe técnica. Como podemos ajudar hoje?`);
                       }}
-                      className="w-8 h-8 rounded-[10px] bg-[#25D366]/15 border border-[#25D366]/30 flex items-center justify-center text-[#25D366] active:scale-90 transition-all shrink-0"
+                      className="w-8 h-8 rounded-[10px] bg-[#25D366]/15 border border-[#25D366]/30 flex items-center justify-center text-[#25D366] active:scale-90 transition-all shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#25D366]"
+                      aria-label={`Enviar mensagem via WhatsApp para ${c.name}`}
                       title="Abrir WhatsApp"
                     >
                       <Send size={13} />
