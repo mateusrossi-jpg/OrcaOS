@@ -1,4 +1,4 @@
-import React, { type ReactNode, memo } from 'react';
+import React, { type ReactNode, memo, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { PrimaryPillButton, SecondaryActionButton } from '../../../ui/system/v12Components';
 import { cn } from '../../../utils/ui';
@@ -29,6 +29,21 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = memo(({
   tone = 'brand',
   className = '',
 }) => {
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    document.body.style.overflow = 'hidden';
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = '';
+    };
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   return createPortal(
@@ -37,6 +52,9 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = memo(({
       onClick={onClose}
     >
       <div 
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="confirm-modal-title"
         className={cn(
           "bg-[#2C2C2E] border-t sm:border border-white/10 rounded-t-[28px] sm:rounded-[28px] p-6 pb-10 sm:pb-6 shadow-[0_-12px_40px_rgba(0,0,0,0.5)] max-w-md w-full flex flex-col gap-4 animate-in slide-in-from-bottom duration-300",
           className
@@ -47,10 +65,11 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = memo(({
         <div className="w-10 h-1 bg-white/20 rounded-full mx-auto -mt-2 mb-1 sm:hidden" />
 
         <div className="flex items-center justify-between border-b border-white/5 pb-3">
-          <h3 className="text-[16px] font-bold text-white tracking-tight">{title}</h3>
+          <h3 id="confirm-modal-title" className="text-[16px] font-bold text-white tracking-tight">{title}</h3>
           <button
+            type="button"
             onClick={onClose}
-            className="text-[#8E8E93] hover:text-white p-1 text-sm font-bold cursor-pointer"
+            className="text-[#8E8E93] hover:text-white p-1 text-sm font-bold cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 rounded"
             aria-label="Fechar"
           >
             ✕
@@ -66,7 +85,7 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = memo(({
             <button
               type="button"
               onClick={onConfirm}
-              className="w-full min-h-[52px] h-14 py-3.5 px-4 bg-[#FF453A] text-white font-bold text-[14px] rounded-full active:scale-[0.975] transition-all shadow-lg flex items-center justify-center cursor-pointer uppercase tracking-[0.05em]"
+              className="w-full min-h-[52px] h-14 py-3.5 px-4 bg-[#FF453A] text-white font-bold text-[14px] rounded-full active:scale-[0.975] transition-all shadow-lg flex items-center justify-center cursor-pointer uppercase tracking-[0.05em] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
             >
               {confirmLabel}
             </button>
