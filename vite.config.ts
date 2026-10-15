@@ -45,7 +45,7 @@ export default defineConfig({
       test: {
         name: 'storybook',
         browser: {
-          enabled: true,
+          enabled: process.env.VITEST_BROWSER === 'true',
           headless: true,
           provider: playwright({}),
           instances: [{
