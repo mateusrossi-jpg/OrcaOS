@@ -163,7 +163,14 @@ export const ProposalCartWorkspace: React.FC<ProposalCartWorkspaceProps> = ({
           <div key={item.id} className="bg-white/[0.02] border border-white/[0.05] rounded-2xl p-4 flex flex-col gap-4">
              <div className="flex justify-between items-start gap-4">
                 <span className="text-[14px] font-bold text-white uppercase">{item.name}</span>
-                <button onClick={() => removeCartItem(setter, item.id)} className="text-[#E85D5D]/60 hover:text-[#E85D5D] p-2 -m-2"><X size={16} /></button>
+                <button
+                  onClick={() => removeCartItem(setter, item.id)}
+                  aria-label={`Remover ${item.name}`}
+                  title={`Remover ${item.name}`}
+                  className="text-[#E85D5D]/60 hover:text-[#E85D5D] p-2 -m-2 focus-visible:ring-2 focus-visible:ring-[#E85D5D] focus-visible:outline-none rounded-lg transition-colors"
+                >
+                  <X size={16} />
+                </button>
              </div>
              <div className="grid grid-cols-2 gap-4">
                 <GlassCurrencyInput label="QUANTIDADE" value={item.qty} onChange={(e) => updateCartItem(setter, item.id, 'qty', parseFloat(e.target.value) || 0)} />
