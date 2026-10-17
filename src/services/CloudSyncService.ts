@@ -404,10 +404,12 @@ export class CloudSyncService {
       if (targetTable) {
         const existing = await (db as any)[targetTable].get(aggregateId);
         if (existing) {
-          const remoteTime = remoteTimestamp ? new Date(remoteTimestamp).getTime() : Date.now();
+          const remoteTime = remoteTimestamp
+            ? new Date(remoteTimestamp).getTime()
+            : (snapshot.updatedAt ? new Date(snapshot.updatedAt).getTime() : Date.now());
           const localTime = existing.updatedAt ? new Date(existing.updatedAt).getTime() : 0;
           
-          const merged = mergeSnapshots(normalizedType, existing, snapshot, localTime, remoteTime);
+          const merged = mergeSnapshots(normalizedType, existing, snapshot, localTime, Math.max(remoteTime, localTime + 1));
           await (db as any)[targetTable].put({ ...merged, syncStatus: 'synced' });
         } else {
           await (db as any)[targetTable].put({ ...snapshot, id: aggregateId, syncStatus: 'synced' });
