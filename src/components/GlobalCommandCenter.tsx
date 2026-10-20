@@ -9,7 +9,10 @@ export const GlobalCommandCenter: React.FC = () => {
       {/* TRIGGER - Top Right */}
       <button 
         onClick={() => setIsOpen(true)}
-        className="fixed top-4 right-4 z-[100] w-10 h-10 flex items-center justify-center bg-surface-800 border border-surface-700 rounded-full shadow-lg hover:bg-surface-700 transition-colors active:scale-95"
+        aria-label="Abrir menu de comando"
+        aria-expanded={isOpen}
+        aria-haspopup="dialog"
+        className="fixed top-4 right-4 z-[100] w-10 h-10 flex items-center justify-center bg-surface-800 border border-surface-700 rounded-full shadow-lg hover:bg-surface-700 focus-visible:ring-2 focus-visible:ring-[var(--accent-blue)] focus-visible:outline-none transition-colors active:scale-95"
       >
         <Menu size={20} className="text-white" />
       </button>
@@ -17,12 +20,21 @@ export const GlobalCommandCenter: React.FC = () => {
       {/* OVERLAY & DRAWER */}
       {isOpen && (
         <>
-          <div className="fixed inset-0 bg-black/60 z-[100] animate-fade-in backdrop-blur-sm" onClick={() => setIsOpen(false)}></div>
+          <div className="fixed inset-0 bg-black/60 z-[100] animate-fade-in backdrop-blur-sm" aria-hidden="true" onClick={() => setIsOpen(false)}></div>
           
-          <div className="fixed top-0 right-0 bottom-0 w-80 max-w-[85vw] bg-surface-900 z-[100] shadow-2xl flex flex-col animate-slide-left border-l border-surface-800">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="Central de Comando"
+            className="fixed top-0 right-0 bottom-0 w-80 max-w-[85vw] bg-surface-900 z-[100] shadow-2xl flex flex-col animate-slide-left border-l border-surface-800"
+          >
             <div className="flex justify-between items-center p-6 border-b border-surface-800">
               <h2 className="text-xs font-black text-white tracking-widest uppercase">Command Center</h2>
-              <button onClick={() => setIsOpen(false)} className="text-text-tertiary hover:text-white transition-colors">
+              <button
+                onClick={() => setIsOpen(false)}
+                aria-label="Fechar menu"
+                className="text-text-tertiary hover:text-white focus-visible:ring-2 focus-visible:ring-[var(--accent-blue)] focus-visible:outline-none rounded-md transition-colors"
+              >
                 <X size={24} />
               </button>
             </div>
@@ -43,7 +55,7 @@ export const GlobalCommandCenter: React.FC = () => {
                 <div className="flex items-center gap-2 text-xs text-text-secondary">
                   <Building size={14} /> Empresa: Orca Services
                 </div>
-                <button className="w-full bg-surface-700 py-2 rounded text-[10px] font-bold text-white uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-surface-600 transition-colors">
+                <button className="w-full bg-surface-700 py-2 rounded text-[10px] font-bold text-white uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-surface-600 focus-visible:ring-2 focus-visible:ring-[var(--accent-blue)] focus-visible:outline-none transition-colors">
                   <LayoutGrid size={14} /> Trocar Workspace
                 </button>
               </div>
@@ -71,7 +83,7 @@ export const GlobalCommandCenter: React.FC = () => {
             </div>
 
             <div className="p-4 border-t border-surface-800">
-              <button className="w-full py-3 flex items-center justify-center gap-2 text-status-error font-bold text-xs uppercase tracking-widest hover:bg-status-error/10 rounded-lg transition-colors">
+              <button className="w-full py-3 flex items-center justify-center gap-2 text-status-error font-bold text-xs uppercase tracking-widest hover:bg-status-error/10 focus-visible:ring-2 focus-visible:ring-status-error focus-visible:outline-none rounded-lg transition-colors">
                 <LogOut size={16} /> Sair do Sistema
               </button>
             </div>
@@ -83,7 +95,7 @@ export const GlobalCommandCenter: React.FC = () => {
 };
 
 const CommandLink = ({ icon, label }: { icon: React.ReactNode, label: string }) => (
-  <button className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-sm text-text-secondary hover:text-white hover:bg-surface-800 transition-colors group">
+  <button className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-sm text-text-secondary hover:text-white hover:bg-surface-800 focus-visible:ring-2 focus-visible:ring-[var(--accent-blue)] focus-visible:outline-none transition-colors group">
     <div className="text-text-tertiary group-hover:text-[var(--accent-blue)] transition-colors">{icon}</div>
     <span className="font-medium">{label}</span>
   </button>
