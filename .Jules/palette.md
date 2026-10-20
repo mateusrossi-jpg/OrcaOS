@@ -1,0 +1,3 @@
+## 2026-10-20 - ARIA Dialogs and Keyboard Focus in Global Overlay Components
+**Learning:** Global command components like `GlobalCommandCenter` and `CommandPalette` rendered at the root viewport level often omit essential ARIA modal attributes (`role="dialog"`, `aria-modal="true"`, `aria-label`) and visible keyboard focus ring styles (`focus-visible:ring-2`), hindering screen reader users and keyboard navigation.
+**Action:** When adding or updating top-level overlay components, always ensure explicit `role="dialog"`, `aria-modal="true"`, descriptive `aria-label`s on icon buttons/inputs, and `focus-visible` ring utility classes for keyboard focus visibility.
