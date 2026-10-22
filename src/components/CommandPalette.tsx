@@ -71,7 +71,12 @@ export const CommandPalette = () => {
   const totalResults = results.clients.length + results.budgets.length + results.workOrders.length;
 
   return (
-    <div className="fixed inset-0 z-[9999] flex flex-col pt-[15vh] px-4 items-center bg-black/60 backdrop-blur-md animate-in fade-in duration-200">
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label="Busca Universal"
+      className="fixed inset-0 z-[9999] flex flex-col pt-[15vh] px-4 items-center bg-black/60 backdrop-blur-md animate-in fade-in duration-200"
+    >
       <div 
         className="absolute inset-0" 
         onClick={() => { setIsOpen(false); setQuery(''); }}
@@ -85,13 +90,19 @@ export const CommandPalette = () => {
           <input
             ref={inputRef}
             type="text"
+            aria-label="O que você precisa encontrar?"
             placeholder="O que você precisa encontrar? (Clientes, OS, Propostas...)"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="flex-1 bg-transparent border-none text-[18px] font-medium text-white placeholder:text-white/20 outline-none"
+            className="flex-1 bg-transparent border-none text-[18px] font-medium text-white placeholder:text-white/20 outline-none focus-visible:outline-none"
           />
           {query && (
-            <button onClick={() => setQuery('')} className="p-2 bg-white/5 hover:bg-white/10 rounded-full text-white/40 transition-colors">
+            <button
+              type="button"
+              aria-label="Limpar busca"
+              onClick={() => setQuery('')}
+              className="p-2 bg-white/5 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-gold)] rounded-full text-white/40 transition-colors"
+            >
               <X size={16} />
             </button>
           )}
@@ -120,12 +131,13 @@ export const CommandPalette = () => {
               {results.clients.map(client => (
                 <button 
                   key={client.id}
+                  type="button"
                   onClick={() => {
                     setIsOpen(false);
                     // Emit global navigation event or handle routing here
                     window.dispatchEvent(new CustomEvent('aferix_navigate', { detail: { tab: 'clients', id: client.id } }));
                   }}
-                  className="w-full flex items-center justify-between px-6 py-3 hover:bg-white/[0.03] active:bg-white/[0.05] transition-colors group"
+                  className="w-full flex items-center justify-between px-6 py-3 hover:bg-white/[0.03] active:bg-white/[0.05] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--accent-gold)] transition-colors group"
                 >
                   <div className="flex items-center gap-4">
                     <div className="w-10 h-10 rounded-xl bg-[var(--text-secondary)]/10 text-[var(--text-secondary)] flex items-center justify-center">
@@ -148,11 +160,12 @@ export const CommandPalette = () => {
               {results.budgets.map(budget => (
                 <button 
                   key={budget.id}
+                  type="button"
                   onClick={() => {
                     setIsOpen(false);
                     window.dispatchEvent(new CustomEvent('aferix_navigate', { detail: { tab: 'budgets', id: budget.id } }));
                   }}
-                  className="w-full flex items-center justify-between px-6 py-3 hover:bg-white/[0.03] active:bg-white/[0.05] transition-colors group"
+                  className="w-full flex items-center justify-between px-6 py-3 hover:bg-white/[0.03] active:bg-white/[0.05] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--accent-gold)] transition-colors group"
                 >
                   <div className="flex items-center gap-4">
                     <div className="w-10 h-10 rounded-xl bg-[var(--accent-gold)]/10 text-[var(--accent-gold)] flex items-center justify-center">
@@ -178,11 +191,12 @@ export const CommandPalette = () => {
               {results.workOrders.map(wo => (
                 <button 
                   key={wo.id}
+                  type="button"
                   onClick={() => {
                     setIsOpen(false);
                     window.dispatchEvent(new CustomEvent('aferix_navigate', { detail: { tab: 'base', id: wo.id } }));
                   }}
-                  className="w-full flex items-center justify-between px-6 py-3 hover:bg-white/[0.03] active:bg-white/[0.05] transition-colors group"
+                  className="w-full flex items-center justify-between px-6 py-3 hover:bg-white/[0.03] active:bg-white/[0.05] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--accent-gold)] transition-colors group"
                 >
                   <div className="flex items-center gap-4">
                     <div className="w-10 h-10 rounded-xl bg-[var(--accent-green)]/10 text-[var(--accent-green)] flex items-center justify-center">
