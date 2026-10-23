@@ -24,7 +24,7 @@ export class RecurrenceAnalyzer {
 
     if (isRecurrence) {
       await db.operationalEvents.put({
-        id: `evt-rec-${Date.now()}`,
+        id: `evt-rec-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
         aggregateId: assetId,
         aggregateType: 'asset',
         eventType: 'RECURRENCE_DETECTED',
@@ -37,7 +37,7 @@ export class RecurrenceAnalyzer {
 
     // Grava o novo incidente
     await db.warrantyIncidents.put({
-      id: `wi-${Date.now()}`,
+      id: `wi-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
       companyId,
       workspaceId: 'default',
       assetId,
