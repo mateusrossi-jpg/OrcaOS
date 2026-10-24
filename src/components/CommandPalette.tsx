@@ -77,7 +77,12 @@ export const CommandPalette = () => {
         onClick={() => { setIsOpen(false); setQuery(''); }}
       />
       
-      <div className="relative w-full max-w-2xl bg-[#1C1C1E]/90 backdrop-blur-3xl border border-white/10 rounded-[32px] shadow-[0_50px_100px_rgba(0,0,0,0.8)] overflow-hidden flex flex-col animate-in zoom-in-95 duration-200">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="Busca Universal"
+        className="relative w-full max-w-2xl bg-[#1C1C1E]/90 backdrop-blur-3xl border border-white/10 rounded-[32px] shadow-[0_50px_100px_rgba(0,0,0,0.8)] overflow-hidden flex flex-col animate-in zoom-in-95 duration-200"
+      >
         
         {/* Input Area */}
         <div className="flex items-center px-6 py-5 border-b border-white/5">
@@ -85,13 +90,19 @@ export const CommandPalette = () => {
           <input
             ref={inputRef}
             type="text"
+            aria-label="Buscar clientes, propostas e ordens de serviço"
             placeholder="O que você precisa encontrar? (Clientes, OS, Propostas...)"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="flex-1 bg-transparent border-none text-[18px] font-medium text-white placeholder:text-white/20 outline-none"
+            className="flex-1 bg-transparent border-none text-[18px] font-medium text-white placeholder:text-white/20 outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-gold)] rounded-lg"
           />
           {query && (
-            <button onClick={() => setQuery('')} className="p-2 bg-white/5 hover:bg-white/10 rounded-full text-white/40 transition-colors">
+            <button
+              type="button"
+              aria-label="Limpar busca"
+              onClick={() => setQuery('')}
+              className="p-2 bg-white/5 hover:bg-white/10 rounded-full text-white/40 transition-colors focus-visible:ring-2 focus-visible:ring-[var(--accent-gold)] focus-visible:outline-none"
+            >
               <X size={16} />
             </button>
           )}
@@ -125,7 +136,7 @@ export const CommandPalette = () => {
                     // Emit global navigation event or handle routing here
                     window.dispatchEvent(new CustomEvent('aferix_navigate', { detail: { tab: 'clients', id: client.id } }));
                   }}
-                  className="w-full flex items-center justify-between px-6 py-3 hover:bg-white/[0.03] active:bg-white/[0.05] transition-colors group"
+                  className="w-full flex items-center justify-between px-6 py-3 hover:bg-white/[0.03] active:bg-white/[0.05] transition-colors group focus-visible:ring-2 focus-visible:ring-[var(--accent-gold)] focus-visible:outline-none rounded-xl"
                 >
                   <div className="flex items-center gap-4">
                     <div className="w-10 h-10 rounded-xl bg-[var(--text-secondary)]/10 text-[var(--text-secondary)] flex items-center justify-center">
