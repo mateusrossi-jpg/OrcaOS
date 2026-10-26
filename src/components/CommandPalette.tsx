@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, Users, FileText, Wrench, ChevronRight, X, CalendarDays } from 'lucide-react';
+import { Search, Users, FileText, Wrench, ChevronRight, X, Loader2 } from 'lucide-react';
 import { cn } from '../utils/ui';
 import { db } from '../storage/dexieDatabase';
 
@@ -71,13 +71,19 @@ export const CommandPalette = () => {
   const totalResults = results.clients.length + results.budgets.length + results.workOrders.length;
 
   return (
-    <div className="fixed inset-0 z-[9999] flex flex-col pt-[15vh] px-4 items-center bg-black/60 backdrop-blur-md animate-in fade-in duration-200">
+    <div
+      className="fixed inset-0 z-[9999] flex flex-col pt-[15vh] px-4 items-center bg-black/60 backdrop-blur-md animate-in fade-in duration-200"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Busca Universal"
+    >
       <div 
         className="absolute inset-0" 
         onClick={() => { setIsOpen(false); setQuery(''); }}
+        aria-label="Fechar busca"
       />
       
-      <div className="relative w-full max-w-2xl bg-[#1C1C1E]/90 backdrop-blur-3xl border border-white/10 rounded-[32px] shadow-[0_50px_100px_rgba(0,0,0,0.8)] overflow-hidden flex flex-col animate-in zoom-in-95 duration-200">
+      <div className="relative w-full max-w-2xl bg-surface-900 backdrop-blur-3xl border border-white/10 rounded-[32px] shadow-[0_50px_100px_rgba(0,0,0,0.8)] overflow-hidden flex flex-col animate-in zoom-in-95 duration-200">
         
         {/* Input Area */}
         <div className="flex items-center px-6 py-5 border-b border-white/5">
@@ -86,12 +92,21 @@ export const CommandPalette = () => {
             ref={inputRef}
             type="text"
             placeholder="O que você precisa encontrar? (Clientes, OS, Propostas...)"
+            aria-label="Buscar clientes, propostas ou ordens de serviço"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             className="flex-1 bg-transparent border-none text-[18px] font-medium text-white placeholder:text-white/20 outline-none"
           />
+          {isSearching && (
+            <Loader2 size={18} className="animate-spin text-[var(--accent-gold)] mr-2" aria-label="Buscando..." />
+          )}
           {query && (
-            <button onClick={() => setQuery('')} className="p-2 bg-white/5 hover:bg-white/10 rounded-full text-white/40 transition-colors">
+            <button
+              onClick={() => setQuery('')}
+              aria-label="Limpar busca"
+              title="Limpar busca"
+              className="p-2 bg-white/5 hover:bg-white/10 rounded-full text-white/40 transition-colors focus-visible:ring-2 focus-visible:ring-white/20 outline-none"
+            >
               <X size={16} />
             </button>
           )}
