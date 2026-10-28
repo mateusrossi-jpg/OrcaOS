@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, Users, FileText, Wrench, ChevronRight, X, CalendarDays } from 'lucide-react';
+import { Search, Users, FileText, Wrench, ChevronRight, X } from 'lucide-react';
 import { cn } from '../utils/ui';
 import { db } from '../storage/dexieDatabase';
 
@@ -11,12 +11,27 @@ export const CommandPalette = () => {
     budgets: any[];
     workOrders: any[];
   }>({ clients: [], budgets: [], workOrders: [] });
+  const [selectedIndex, setSelectedIndex] = useState(0);
   const [isSearching, setIsSearching] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const allItems = [
+    ...results.clients.map(c => ({ type: 'clients' as const, item: c })),
+    ...results.budgets.map(b => ({ type: 'budgets' as const, item: b })),
+    ...results.workOrders.map(w => ({ type: 'workOrders' as const, item: w })),
+  ];
+
+  const handleSelectItem = (type: 'clients' | 'budgets' | 'workOrders', id: string | number) => {
+    setIsOpen(false);
+    setQuery('');
+    const targetTab = type === 'workOrders' ? 'base' : type;
+    window.dispatchEvent(new CustomEvent('aferix_navigate', { detail: { tab: targetTab, id } }));
+  };
 
   useEffect(() => {
     const handleOpen = () => {
       setIsOpen(true);
+      setSelectedIndex(0);
       setTimeout(() => inputRef.current?.focus(), 100);
     };
 
@@ -38,6 +53,10 @@ export const CommandPalette = () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
   }, [isOpen]);
+
+  useEffect(() => {
+    setSelectedIndex(0);
+  }, [results]);
 
   useEffect(() => {
     if (!query || query.length < 2) {
@@ -66,12 +85,36 @@ export const CommandPalette = () => {
     return () => clearTimeout(debounce);
   }, [query]);
 
+  const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (allItems.length === 0) return;
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setSelectedIndex(prev => (prev + 1) % allItems.length);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setSelectedIndex(prev => (prev - 1 + allItems.length) % allItems.length);
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      const selected = allItems[selectedIndex];
+      if (selected) {
+        handleSelectItem(selected.type, selected.item.id);
+      }
+    }
+  };
+
   if (!isOpen) return null;
 
-  const totalResults = results.clients.length + results.budgets.length + results.workOrders.length;
+  const totalResults = allItems.length;
+  let currentIndexTracker = 0;
 
   return (
-    <div className="fixed inset-0 z-[9999] flex flex-col pt-[15vh] px-4 items-center bg-black/60 backdrop-blur-md animate-in fade-in duration-200">
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label="Busca Universal (Command Palette)"
+      className="fixed inset-0 z-[9999] flex flex-col pt-[15vh] px-4 items-center bg-black/60 backdrop-blur-md animate-in fade-in duration-200"
+    >
       <div 
         className="absolute inset-0" 
         onClick={() => { setIsOpen(false); setQuery(''); }}
@@ -85,13 +128,19 @@ export const CommandPalette = () => {
           <input
             ref={inputRef}
             type="text"
+            aria-label="Pesquisar no sistema"
             placeholder="O que você precisa encontrar? (Clientes, OS, Propostas...)"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={handleInputKeyDown}
             className="flex-1 bg-transparent border-none text-[18px] font-medium text-white placeholder:text-white/20 outline-none"
           />
           {query && (
-            <button onClick={() => setQuery('')} className="p-2 bg-white/5 hover:bg-white/10 rounded-full text-white/40 transition-colors">
+            <button
+              onClick={() => setQuery('')}
+              aria-label="Limpar busca"
+              className="p-2 bg-white/5 hover:bg-white/10 rounded-full text-white/40 hover:text-white transition-colors focus-visible:ring-2 focus-visible:ring-white/20"
+            >
               <X size={16} />
             </button>
           )}
@@ -117,85 +166,96 @@ export const CommandPalette = () => {
           {results.clients.length > 0 && (
             <div className="flex flex-col mt-4">
               <span className="px-6 py-2 text-[10px] font-black text-white/30 uppercase tracking-[0.2em]">Clientes</span>
-              {results.clients.map(client => (
-                <button 
-                  key={client.id}
-                  onClick={() => {
-                    setIsOpen(false);
-                    // Emit global navigation event or handle routing here
-                    window.dispatchEvent(new CustomEvent('aferix_navigate', { detail: { tab: 'clients', id: client.id } }));
-                  }}
-                  className="w-full flex items-center justify-between px-6 py-3 hover:bg-white/[0.03] active:bg-white/[0.05] transition-colors group"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-xl bg-[var(--text-secondary)]/10 text-[var(--text-secondary)] flex items-center justify-center">
-                      <Users size={18} />
+              {results.clients.map(client => {
+                const itemIndex = currentIndexTracker++;
+                const isSelected = itemIndex === selectedIndex;
+                return (
+                  <button
+                    key={client.id}
+                    onClick={() => handleSelectItem('clients', client.id)}
+                    className={cn(
+                      "w-full flex items-center justify-between px-6 py-3 transition-colors group text-left",
+                      isSelected ? "bg-white/10" : "hover:bg-white/[0.03] active:bg-white/[0.05]"
+                    )}
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-xl bg-[var(--text-secondary)]/10 text-[var(--text-secondary)] flex items-center justify-center">
+                        <Users size={18} />
+                      </div>
+                      <div className="flex flex-col items-start">
+                        <span className="text-[15px] font-bold text-white uppercase">{client.name}</span>
+                        <span className="text-[11px] text-white/40">{client.email || 'Sem e-mail'} · {client.phone || 'Sem telefone'}</span>
+                      </div>
                     </div>
-                    <div className="flex flex-col items-start">
-                      <span className="text-[15px] font-bold text-white uppercase">{client.name}</span>
-                      <span className="text-[11px] text-white/40">{client.email || 'Sem e-mail'} · {client.phone || 'Sem telefone'}</span>
-                    </div>
-                  </div>
-                  <ChevronRight size={16} className="text-white/10 group-hover:text-white/30" />
-                </button>
-              ))}
+                    <ChevronRight size={16} className={cn("transition-colors", isSelected ? "text-white/60" : "text-white/10 group-hover:text-white/30")} />
+                  </button>
+                );
+              })}
             </div>
           )}
 
           {results.budgets.length > 0 && (
             <div className="flex flex-col mt-4">
               <span className="px-6 py-2 text-[10px] font-black text-white/30 uppercase tracking-[0.2em]">Propostas & Orçamentos</span>
-              {results.budgets.map(budget => (
-                <button 
-                  key={budget.id}
-                  onClick={() => {
-                    setIsOpen(false);
-                    window.dispatchEvent(new CustomEvent('aferix_navigate', { detail: { tab: 'budgets', id: budget.id } }));
-                  }}
-                  className="w-full flex items-center justify-between px-6 py-3 hover:bg-white/[0.03] active:bg-white/[0.05] transition-colors group"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-xl bg-[var(--accent-gold)]/10 text-[var(--accent-gold)] flex items-center justify-center">
-                      <FileText size={18} />
+              {results.budgets.map(budget => {
+                const itemIndex = currentIndexTracker++;
+                const isSelected = itemIndex === selectedIndex;
+                return (
+                  <button
+                    key={budget.id}
+                    onClick={() => handleSelectItem('budgets', budget.id)}
+                    className={cn(
+                      "w-full flex items-center justify-between px-6 py-3 transition-colors group text-left",
+                      isSelected ? "bg-white/10" : "hover:bg-white/[0.03] active:bg-white/[0.05]"
+                    )}
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-xl bg-[var(--accent-gold)]/10 text-[var(--accent-gold)] flex items-center justify-center">
+                        <FileText size={18} />
+                      </div>
+                      <div className="flex flex-col items-start">
+                        <span className="text-[15px] font-bold text-white uppercase">{budget.title || 'Proposta Sem Título'}</span>
+                        <span className="text-[11px] text-white/40">{budget.clientName || 'Cliente Avulso'}</span>
+                      </div>
                     </div>
-                    <div className="flex flex-col items-start">
-                      <span className="text-[15px] font-bold text-white uppercase">{budget.title || 'Proposta Sem Título'}</span>
-                      <span className="text-[11px] text-white/40">{budget.clientName || 'Cliente Avulso'}</span>
+                    <div className="flex items-center gap-4">
+                      <span className="text-[12px] font-mono text-[var(--accent-gold)] font-black">R$ {(budget.chargedValue || 0).toFixed(2)}</span>
+                      <ChevronRight size={16} className={cn("transition-colors", isSelected ? "text-white/60" : "text-white/10 group-hover:text-white/30")} />
                     </div>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <span className="text-[12px] font-mono text-[var(--accent-gold)] font-black">R$ {(budget.chargedValue || 0).toFixed(2)}</span>
-                    <ChevronRight size={16} className="text-white/10 group-hover:text-white/30" />
-                  </div>
-                </button>
-              ))}
+                  </button>
+                );
+              })}
             </div>
           )}
 
           {results.workOrders.length > 0 && (
             <div className="flex flex-col mt-4">
               <span className="px-6 py-2 text-[10px] font-black text-white/30 uppercase tracking-[0.2em]">Ordens de Serviço</span>
-              {results.workOrders.map(wo => (
-                <button 
-                  key={wo.id}
-                  onClick={() => {
-                    setIsOpen(false);
-                    window.dispatchEvent(new CustomEvent('aferix_navigate', { detail: { tab: 'base', id: wo.id } }));
-                  }}
-                  className="w-full flex items-center justify-between px-6 py-3 hover:bg-white/[0.03] active:bg-white/[0.05] transition-colors group"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-xl bg-[var(--accent-green)]/10 text-[var(--accent-green)] flex items-center justify-center">
-                      <Wrench size={18} />
+              {results.workOrders.map(wo => {
+                const itemIndex = currentIndexTracker++;
+                const isSelected = itemIndex === selectedIndex;
+                return (
+                  <button
+                    key={wo.id}
+                    onClick={() => handleSelectItem('workOrders', wo.id)}
+                    className={cn(
+                      "w-full flex items-center justify-between px-6 py-3 transition-colors group text-left",
+                      isSelected ? "bg-white/10" : "hover:bg-white/[0.03] active:bg-white/[0.05]"
+                    )}
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-xl bg-[var(--accent-green)]/10 text-[var(--accent-green)] flex items-center justify-center">
+                        <Wrench size={18} />
+                      </div>
+                      <div className="flex flex-col items-start">
+                        <span className="text-[15px] font-bold text-white uppercase">{wo.title || 'OS Sem Título'}</span>
+                        <span className="text-[11px] text-white/40">Criada em: {new Date(wo.createdAt).toLocaleDateString('pt-BR')}</span>
+                      </div>
                     </div>
-                    <div className="flex flex-col items-start">
-                      <span className="text-[15px] font-bold text-white uppercase">{wo.title || 'OS Sem Título'}</span>
-                      <span className="text-[11px] text-white/40">Criada em: {new Date(wo.createdAt).toLocaleDateString('pt-BR')}</span>
-                    </div>
-                  </div>
-                  <ChevronRight size={16} className="text-white/10 group-hover:text-white/30" />
-                </button>
-              ))}
+                    <ChevronRight size={16} className={cn("transition-colors", isSelected ? "text-white/60" : "text-white/10 group-hover:text-white/30")} />
+                  </button>
+                );
+              })}
             </div>
           )}
 
@@ -206,7 +266,9 @@ export const CommandPalette = () => {
            <span className="text-[10px] font-black text-white/20 uppercase tracking-widest flex items-center gap-2">
              <Search size={10} /> {totalResults} REGISTROS ENCONTRADOS
            </span>
-           <span className="text-[9px] font-black text-white/20 uppercase tracking-[0.2em] font-mono">ESC para fechar</span>
+           <span className="text-[9px] font-black text-white/20 uppercase tracking-[0.2em] font-mono">
+             ↑↓ para navegar · ENTER para selecionar · ESC para fechar
+           </span>
         </div>
       </div>
     </div>
