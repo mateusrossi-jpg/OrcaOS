@@ -35,16 +35,34 @@ export class KnowledgeSimilarityService {
       );
     }
 
-    const results = [];
-    for (const c of potentialCases) {
-      const solutions = await db.knowledgeSolutions.where({ caseId: c.id }).toArray();
+    if (potentialCases.length === 0) {
+      return [];
+    }
+
+    const companySolutions = await db.knowledgeSolutions.where({ companyId: params.companyId }).toArray();
+    const caseIdSet = new Set(potentialCases.map(c => c.id));
+    const solutionsByCaseId = new Map<string, KnowledgeSolution[]>();
+
+    for (const s of companySolutions) {
+      if (caseIdSet.has(s.caseId)) {
+        let list = solutionsByCaseId.get(s.caseId);
+        if (!list) {
+          list = [];
+          solutionsByCaseId.set(s.caseId, list);
+        }
+        list.push(s);
+      }
+    }
+
+    const results = potentialCases.map(c => {
+      const solutions = solutionsByCaseId.get(c.id) || [];
       // Sort solutions by success rate and verification
       solutions.sort((a, b) => {
         if (a.isVerified !== b.isVerified) return a.isVerified ? -1 : 1;
         return b.successRate - a.successRate;
       });
-      results.push({ caseData: c, solutions });
-    }
+      return { caseData: c, solutions };
+    });
 
     return results;
   }
@@ -63,17 +81,18 @@ export class KnowledgeSimilarityService {
     if (similar.length > 0) {
       // Pick top 3
       const topCases = similar.slice(0, 3);
-      for (let i = 0; i < topCases.length; i++) {
-        await db.knowledgeRecommendations.put({
-          id: `rec-${Date.now()}-${i}`,
-          companyId: params.companyId,
-          workOrderId: params.workOrderId,
-          anomalyId: params.anomalyId,
-          recommendedCaseId: topCases[i].caseData.id,
-          relevanceScore: 100 - (i * 10), // Simplificação
-          createdAt: new Date().toISOString()
-        });
-      }
+      const now = Date.now();
+      const createdAt = new Date().toISOString();
+      const recommendations = topCases.map((item, i) => ({
+        id: `rec-${now}-${i}`,
+        companyId: params.companyId,
+        workOrderId: params.workOrderId,
+        anomalyId: params.anomalyId,
+        recommendedCaseId: item.caseData.id,
+        relevanceScore: 100 - (i * 10), // Simplificação
+        createdAt
+      }));
+      await db.knowledgeRecommendations.bulkPut(recommendations);
     }
   }
 }
