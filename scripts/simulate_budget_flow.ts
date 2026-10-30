@@ -1,9 +1,9 @@
-import { db } from './storage/dexieDatabase';
-import { clientService } from './services/clientService';
-import { siteService } from './services/siteService';
-import { operationalFacade } from './features/workflow/operationalFacade';
-import { BUDGET_STATUS, Budget } from './domain/budget';
-import { SimpleFinanceService } from './services/SimpleFinanceService';
+import { db } from '../src/storage/dexieDatabase';
+import { clientService } from '../src/services/clientService';
+import { siteService } from '../src/services/siteService';
+import { operationalFacade } from '../src/features/workflow/operationalFacade';
+import { BUDGET_STATUS, Budget } from '../src/domain/budget';
+import { SimpleFinanceService } from '../src/services/SimpleFinanceService';
 
 async function run() {
   try {
@@ -73,7 +73,7 @@ async function run() {
     console.log("3b. Finalized Budget (Now it should be 'em_revisao' or 'enviado')");
     
     // Wait, finalizeBudget makes it 'em_revisao'. It only generates OS if it's authorized.
-    // Let's authorize it.
+    // Let me authorize it.
     await operationalFacade.authorizeBudget(budgetId);
     console.log("3c. Authorized Budget (This creates OS)");
 
@@ -86,7 +86,7 @@ async function run() {
       console.log("   OS ID:", osId, "| OS Status:", wos[0].status, "| OS Value:", wos[0].executedValue);
     } else {
       console.log("   FAILED TO CREATE OS. Creating manually just in case...");
-      const { workOrderService } = await import('./services/workOrderService');
+      const { workOrderService } = await import('../src/services/workOrderService');
       osId = `os-sim-${Date.now()}`;
       await workOrderService.add({
         id: osId,
