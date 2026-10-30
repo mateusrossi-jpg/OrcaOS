@@ -1,6 +1,7 @@
 import { db } from '../storage/dexieDatabase';
 import { BUDGET_STATUS } from '../domain/budget';
 import { safeMoneyValue } from '../utils/formatters';
+import { Asset } from '../domain/asset';
 
 export type OpportunityType = 'FOLLOW_UP' | 'COLLECTION' | 'RENEWAL' | 'REACTIVATION' | 'UPSELL' | 'EXPANSION' | 'RISK';
 export type OpportunityTemperature = 'HOT' | 'WARM' | 'COLD';
@@ -38,13 +39,31 @@ export interface RevenueForecast {
  */
 export class NextMoneyEngine {
   async getNextMoneyOpportunities(): Promise<NextMoneyOpportunity[]> {
-    const [budgets, finance, plans, clients, workOrders] = await Promise.all([
-      db.budgets.where('isDeleted').notEqual(1).toArray(),
-      db.simpleFinanceRecords.where('isDeleted').notEqual(1).toArray(),
-      db.maintenancePlans.where('isActive').equals(1).toArray(),
+    const [rawBudgets, rawFinance, rawPlans, clients, workOrders, assets] = await Promise.all([
+      db.budgets.toArray(),
+      db.simpleFinanceRecords.toArray(),
+      db.maintenancePlans.toArray(),
       db.clients.toArray(),
-      db.workOrders.filter(w => !w.isDeleted).toArray()
+      db.workOrders.filter(w => !w.isDeleted).toArray(),
+      db.assets.toArray()
     ]);
+
+    const budgets = rawBudgets.filter(b => !b.isDeleted);
+    const finance = rawFinance.filter(f => !f.isDeleted);
+    const plans = rawPlans.filter(p => p.isActive);
+
+    // Map assets by clientId for fast in-memory lookup (solves N+1 query issue)
+    const assetsByClientId = new Map<string, Asset[]>();
+    for (const asset of assets) {
+      if (asset.clientId) {
+        let clientAssets = assetsByClientId.get(asset.clientId);
+        if (!clientAssets) {
+          clientAssets = [];
+          assetsByClientId.set(asset.clientId, clientAssets);
+        }
+        clientAssets.push(asset);
+      }
+    }
 
     const now = Date.now();
     const opportunities: NextMoneyOpportunity[] = [];
@@ -183,7 +202,7 @@ export class NextMoneyEngine {
     // 5. EXPANSION (RC16)
     for (const client of clients) {
       const clientPlans = plans.filter(p => p.clientId === client.id);
-      const clientAssets = await db.assets.where('clientId').equals(client.id).toArray();
+      const clientAssets = assetsByClientId.get(client.id) || [];
       if (clientAssets.length > 5 && clientPlans.length === 0) {
         opportunities.push({
           id: `exp-${client.id}`,
@@ -207,9 +226,12 @@ export class NextMoneyEngine {
   }
 
   async getRevenueForecast(): Promise<RevenueForecast> {
-    const budgets = await db.budgets.where('isDeleted').notEqual(1).toArray();
+    const rawBudgets = await db.budgets.toArray();
     const workOrders = await db.workOrders.filter(w => !w.isDeleted).toArray();
-    const finance = await db.simpleFinanceRecords.where('isDeleted').notEqual(1).toArray();
+    const rawFinance = await db.simpleFinanceRecords.toArray();
+
+    const budgets = rawBudgets.filter(b => !b.isDeleted);
+    const finance = rawFinance.filter(f => !f.isDeleted);
 
     return {
       negotiation: budgets.filter(b => b.status === BUDGET_STATUS.ENVIADO).reduce((acc, b) => acc + safeMoneyValue(b.chargedValue), 0),
