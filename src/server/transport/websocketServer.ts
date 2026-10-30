@@ -11,6 +11,7 @@ import { SyncEnvelope } from '../../core/sync/syncTypes';
 import { AutomationEnvelope } from '../../core/automation/automationTypes';
 import { NotificationEnvelope } from '../../core/realtime/transportTypes';
 import { distributedAutomationOrchestrator } from '../../core/backend/distributedAutomationOrchestrator';
+import { aferixLogger } from '../../core/debug/aferixLogger';
 
 /**
  * RealtimeWebSocketServer
@@ -89,10 +90,10 @@ export class RealtimeWebSocketServer {
           break;
 
         default:
-          console.warn(`[WSS] Unhandled envelope type ${raw.type}`);
+          aferixLogger.warn('WSS', `Unhandled envelope type ${raw.type}`);
       }
     } catch (err) {
-      console.error(`[WSS] Failed to parse or route message from ${deviceId}`, err);
+      aferixLogger.error('WSS', `Failed to parse or route message from ${deviceId}`, err);
     }
   }
 }

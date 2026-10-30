@@ -1,4 +1,5 @@
 import { SyncEnvelope } from '../../core/sync/syncTypes';
+import { aferixLogger } from '../../core/debug/aferixLogger';
 
 /**
  * BackendEventStore
@@ -19,7 +20,7 @@ export class BackendEventStore {
     // Deduplication check based on sequence / envelopeId
     const isDuplicate = stream.some(e => e.envelopeId === envelope.envelopeId);
     if (isDuplicate) {
-      console.warn(`[Storage] Rejected duplicate envelope ${envelope.envelopeId} for tenant ${tenantId}`);
+      aferixLogger.warn('Storage', `Rejected duplicate envelope ${envelope.envelopeId} for tenant ${tenantId}`);
       return;
     }
 
@@ -27,7 +28,7 @@ export class BackendEventStore {
     // Sort by sequence to maintain deterministic ordering
     stream.sort((a, b) => a.sequence - b.sequence);
     
-    console.info(`[Storage] Appended envelope ${envelope.envelopeId} to tenant ${tenantId}`);
+    aferixLogger.info('Storage', `Appended envelope ${envelope.envelopeId} to tenant ${tenantId}`);
   }
 
   public getEventsAfter(tenantId: string, afterSequence: number): SyncEnvelope[] {

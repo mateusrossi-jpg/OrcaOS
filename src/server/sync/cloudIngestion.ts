@@ -3,6 +3,7 @@ import { SyncEnvelope } from '../../core/sync/syncTypes';
 import { backendEventStore } from '../storage/backendEventStore';
 import { distributedCheckpointService } from '../../core/backend/distributedCheckpointService';
 import { sessionManager } from '../runtime/sessionManager';
+import { aferixLogger } from '../../core/debug/aferixLogger';
 
 /**
  * CloudIngestionService
@@ -13,7 +14,7 @@ export class CloudIngestionService {
   public ingest(tenantId: string, envelope: SyncEnvelope): void {
     // 1. Stale / Sequence validation
     if (distributedCheckpointService.isStale(tenantId, envelope.deviceId, envelope.sequence)) {
-      console.warn(`[Cloud Ingestion] Discarded stale append ${envelope.envelopeId} from device ${envelope.deviceId}`);
+      aferixLogger.warn('Cloud Ingestion', `Discarded stale append ${envelope.envelopeId} from device ${envelope.deviceId}`);
       return;
     }
 
@@ -45,7 +46,7 @@ export class CloudIngestionService {
             actor: 'system'
           }));
         } catch (err) {
-          console.error(`[Cloud Ingestion] Failed to fan-out to ${session.deviceId}`, err);
+          aferixLogger.error('Cloud Ingestion', `Failed to fan-out to ${session.deviceId}`, err);
         }
       }
     }

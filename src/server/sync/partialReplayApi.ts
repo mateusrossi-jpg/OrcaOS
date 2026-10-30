@@ -1,6 +1,7 @@
 import { SyncCursor, SyncEnvelope } from '../../core/sync/syncTypes';
 import { backendEventStore } from '../storage/backendEventStore';
 import { distributedCheckpointService } from '../../core/backend/distributedCheckpointService';
+import { aferixLogger } from '../../core/debug/aferixLogger';
 
 export interface ReplayRequest {
   readonly tenantId: string;
@@ -35,7 +36,7 @@ export class PartialReplayApi {
       });
     }
 
-    console.info(`[Replay API] Computed partial replay for ${deviceId}: ${missingEnvelopes.length} envelopes.`);
+    aferixLogger.info('Replay API', `Computed partial replay for ${deviceId}: ${missingEnvelopes.length} envelopes.`);
 
     return {
       envelopes: missingEnvelopes,
