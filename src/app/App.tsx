@@ -68,6 +68,7 @@ import { trustLayer } from '../core/trust/TrustLayer';
 import { clientService } from '../services/clientService';
 import { attendanceQueryService } from '../services/attendanceQueryService';
 import { uiPreferences } from '../core/preferences/uiPreferences';
+import { aferixLogger } from '../core/debug/aferixLogger';
 
 
 import { CommandPalette } from '../components/CommandPalette';
@@ -179,7 +180,7 @@ export function App() {
         // CHECK AND SEED REALISTIC DEMO DATA IF DB IS EMPTY
         const clientCount = await clientService.count();
         if (clientCount === 0) {
-          console.log("No clients found in IndexedDB. Seeding Aferix high-fidelity dataset...");
+          aferixLogger.info('App', "No clients found in IndexedDB. Seeding Aferix high-fidelity dataset...");
           const { seedRealisticDemoData } = await import('../services/AferixDemoDataset');
           await seedRealisticDemoData();
           await refreshClients();
