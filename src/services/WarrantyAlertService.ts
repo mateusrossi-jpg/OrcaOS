@@ -1,4 +1,6 @@
 import { db } from '../storage/dexieDatabase';
+import { WarrantyAlert } from '../domain/warranty';
+import { OperationalEvent } from '../domain/operationalEvent';
 
 export class WarrantyAlertService {
   static async evaluateExpirations(companyId: string): Promise<void> {
@@ -6,11 +8,25 @@ export class WarrantyAlertService {
       .where({ companyId, status: 'ACTIVE' })
       .toArray();
 
+    if (activeCoverages.length === 0) return;
+
+    const existingSoonAlerts = await db.warrantyAlerts
+      .where({ companyId, type: 'EXPIRING_SOON' })
+      .toArray();
+
+    const existingSoonAlertSet = new Set<string>();
+    for (const alert of existingSoonAlerts) {
+      if (alert.coverageId) {
+        existingSoonAlertSet.add(alert.coverageId);
+      }
+    }
+
     const now = new Date().getTime();
     const days90 = 90 * 24 * 60 * 60 * 1000;
-    const days60 = 60 * 24 * 60 * 60 * 1000;
-    const days30 = 30 * 24 * 60 * 60 * 1000;
-    const days7 = 7 * 24 * 60 * 60 * 1000;
+
+    const expiredUpdates: Array<{ key: string; changes: { status: 'EXPIRED' } }> = [];
+    const alertsToPut: WarrantyAlert[] = [];
+    const eventsToPut: OperationalEvent[] = [];
 
     for (const coverage of activeCoverages) {
       if (!coverage.expirationDate) continue;
@@ -20,8 +36,11 @@ export class WarrantyAlertService {
 
       if (timeLeft <= 0) {
         // Expired
-        await db.warrantyCoverage.update(coverage.id, { status: 'EXPIRED' });
-        await db.warrantyAlerts.put({
+        expiredUpdates.push({
+          key: coverage.id,
+          changes: { status: 'EXPIRED' }
+        });
+        alertsToPut.push({
           id: `wa-exp-${coverage.id}`,
           companyId,
           workspaceId: coverage.workspaceId,
@@ -33,13 +52,9 @@ export class WarrantyAlertService {
           createdAt: new Date().toISOString()
         });
       } else if (timeLeft <= days90) {
-        // We could emit specific 90, 60, 30 day alerts. We'll simplify to EXPIRING_SOON
-        const existingAlert = await db.warrantyAlerts
-          .where({ coverageId: coverage.id, type: 'EXPIRING_SOON' })
-          .first();
-
-        if (!existingAlert) {
-          await db.warrantyAlerts.put({
+        // Expiring Soon
+        if (!existingSoonAlertSet.has(coverage.id)) {
+          alertsToPut.push({
             id: `wa-soon-${coverage.id}`,
             companyId,
             workspaceId: coverage.workspaceId,
@@ -51,8 +66,8 @@ export class WarrantyAlertService {
             createdAt: new Date().toISOString()
           });
 
-          await db.operationalEvents.put({
-            id: `evt-wa-${Date.now()}`,
+          eventsToPut.push({
+            id: `evt-wa-${coverage.id}`,
             aggregateId: coverage.assetId,
             aggregateType: 'asset',
             eventType: 'WARRANTY_EXPIRING',
@@ -61,8 +76,24 @@ export class WarrantyAlertService {
             source: 'WarrantyAlertService',
             createdAt: new Date().toISOString()
           });
+
+          existingSoonAlertSet.add(coverage.id);
         }
       }
+    }
+
+    if (expiredUpdates.length > 0 || alertsToPut.length > 0 || eventsToPut.length > 0) {
+      await db.transaction('rw', [db.warrantyCoverage, db.warrantyAlerts, db.operationalEvents], async () => {
+        if (expiredUpdates.length > 0) {
+          await db.warrantyCoverage.bulkUpdate(expiredUpdates);
+        }
+        if (alertsToPut.length > 0) {
+          await db.warrantyAlerts.bulkPut(alertsToPut);
+        }
+        if (eventsToPut.length > 0) {
+          await db.operationalEvents.bulkPut(eventsToPut);
+        }
+      });
     }
   }
 }
