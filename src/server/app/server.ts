@@ -1,5 +1,6 @@
 import { createServer } from 'http';
 import { RealtimeWebSocketServer } from '../transport/websocketServer';
+import { aferixLogger } from '../../core/debug/aferixLogger';
 
 const PORT = process.env.PORT || 8080;
 
@@ -12,5 +13,5 @@ const server = createServer((req, res) => {
 new RealtimeWebSocketServer(server);
 
 server.listen(PORT, () => {
-  console.log(`[Aferix Server] Realtime Cloud Backend listening on port ${PORT}`);
+  aferixLogger.info('Aferix Server', `Realtime Cloud Backend listening on port ${PORT}`);
 });
