@@ -1,7 +1,6 @@
 import { db } from '../storage/dexieDatabase';
 import { KnowledgeCase, KnowledgeSolution } from '../domain/knowledge';
 
-
 export class KnowledgeSimilarityService {
   static async findSimilarCases(params: {
     companyId: string;
@@ -35,18 +34,43 @@ export class KnowledgeSimilarityService {
       );
     }
 
-    const results = [];
-    for (const c of potentialCases) {
-      const solutions = await db.knowledgeSolutions.where({ caseId: c.id }).toArray();
+    if (potentialCases.length === 0) {
+      return [];
+    }
+
+    const caseIds = potentialCases.map(c => c.id);
+    const caseIdSet = new Set(caseIds);
+
+    // Efficient batch fetching strategy:
+    // For small case lists (<= 20), query targeted caseIds via index.
+    // For larger case lists (> 20), fetch company solutions in a single range query to avoid N point-lookups.
+    let allSolutions: KnowledgeSolution[];
+    if (caseIds.length <= 20) {
+      allSolutions = await db.knowledgeSolutions.where('caseId').anyOf(caseIds).toArray();
+    } else {
+      const companySolutions = await db.knowledgeSolutions.where({ companyId: params.companyId }).toArray();
+      allSolutions = companySolutions.filter(s => caseIdSet.has(s.caseId));
+    }
+
+    const solutionsByCaseId = new Map<string, KnowledgeSolution[]>();
+    for (const sol of allSolutions) {
+      let caseSolutions = solutionsByCaseId.get(sol.caseId);
+      if (!caseSolutions) {
+        caseSolutions = [];
+        solutionsByCaseId.set(sol.caseId, caseSolutions);
+      }
+      caseSolutions.push(sol);
+    }
+
+    return potentialCases.map(c => {
+      const solutions = solutionsByCaseId.get(c.id) || [];
       // Sort solutions by success rate and verification
       solutions.sort((a, b) => {
         if (a.isVerified !== b.isVerified) return a.isVerified ? -1 : 1;
         return b.successRate - a.successRate;
       });
-      results.push({ caseData: c, solutions });
-    }
-
-    return results;
+      return { caseData: c, solutions };
+    });
   }
 
   static async recommendForWorkOrder(params: {
