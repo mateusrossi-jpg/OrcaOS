@@ -18,9 +18,9 @@ export class TechnicianLoadService {
       return 0; // Totalmente livre
     }
 
+    const jobs = await db.dispatchJobs.bulkGet(assignments.jobsIds);
     let totalDuration = 0;
-    for (const jobId of assignments.jobsIds) {
-      const job = await db.dispatchJobs.get(jobId);
+    for (const job of jobs) {
       if (job && job.status !== 'CANCELLED' && job.status !== 'MISSED') {
         totalDuration += job.estimatedDurationMinutes;
       }
