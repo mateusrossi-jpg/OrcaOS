@@ -1,4 +1,5 @@
 import { db } from '../storage/dexieDatabase';
+import { DispatchAlert } from '../domain/dispatch';
 
 export class SLAService {
   static async checkSLAs(companyId: string) {
@@ -8,13 +9,14 @@ export class SLAService {
       .toArray();
 
     const now = new Date().getTime();
+    const alertsToPut: DispatchAlert[] = [];
 
     for (const job of activeJobs) {
       const scheduledTime = new Date(job.scheduledDate).getTime();
       
       if (job.status === 'ASSIGNED' && now > scheduledTime) {
         // Alerta: Técnico não iniciou a OS a tempo
-        await db.dispatchAlerts.put({
+        alertsToPut.push({
           id: `alert-${job.id}-${now}`,
           companyId: job.companyId,
           workspaceId: job.workspaceId,
@@ -29,7 +31,7 @@ export class SLAService {
       if (job.priority === 'EMERGENCY' && job.status === 'PENDING') {
         const timePending = now - new Date(job.createdAt).getTime();
         if (timePending > 15 * 60 * 1000) { // Emergência pendente por mais de 15 minutos
-          await db.dispatchAlerts.put({
+          alertsToPut.push({
             id: `alert-${job.id}-${now}`,
             companyId: job.companyId,
             workspaceId: job.workspaceId,
@@ -41,6 +43,10 @@ export class SLAService {
           });
         }
       }
+    }
+
+    if (alertsToPut.length > 0) {
+      await db.dispatchAlerts.bulkPut(alertsToPut);
     }
   }
 }
